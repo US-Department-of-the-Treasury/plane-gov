@@ -1,6 +1,5 @@
+// Sentry disabled for government deployment - no external error reporting
 import type { ReactNode } from "react";
-import * as Sentry from "@sentry/react-router";
-import Script from "next/script";
 import { Links, Meta, Outlet, Scripts } from "react-router";
 import type { LinksFunction } from "react-router";
 // plane imports
@@ -13,7 +12,6 @@ import favicon32 from "@/app/assets/favicon/favicon-32x32.png?url";
 import faviconIco from "@/app/assets/favicon/favicon.ico?url";
 import icon180 from "@/app/assets/icons/icon-180x180.png?url";
 import icon512 from "@/app/assets/icons/icon-512x512.png?url";
-import ogImage from "@/app/assets/og-image.png?url";
 import { LogoSpinner } from "@/components/common/logo-spinner";
 import globalStyles from "@/styles/globals.css?url";
 import type { Route } from "./+types/root";
@@ -48,7 +46,7 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
-  const isSessionRecorderEnabled = parseInt(process.env.VITE_ENABLE_SESSION_RECORDER || "0");
+  // Microsoft Clarity session recorder removed for government deployment - no external session tracking
 
   return (
     <html lang="en">
@@ -77,15 +75,6 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </AppProvider>
         <Scripts />
-        {!!isSessionRecorderEnabled && process.env.VITE_SESSION_RECORDER_KEY && (
-          <Script id="clarity-tracking">
-            {`(function(c,l,a,r,i,t,y){
-              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-              y=l.getElementsByTagName(r)[0];if(y){y.parentNode.insertBefore(t,y);}
-          })(window, document, "clarity", "script", "${process.env.VITE_SESSION_RECORDER_KEY}");`}
-          </Script>
-        )}
       </body>
     </html>
   );
@@ -99,22 +88,11 @@ export const meta: Route.MetaFunction = () => [
     property: "og:description",
     content: "Open-source project management tool to manage work items, cycles, and product roadmaps easily",
   },
-  { property: "og:url", content: "https://app.plane.so/" },
-  { property: "og:image", content: ogImage },
-  { property: "og:image:width", content: "1200" },
-  { property: "og:image:height", content: "630" },
-  { property: "og:image:alt", content: "Plane - Modern project management" },
   {
     name: "keywords",
     content:
       "software development, plan, ship, software, accelerate, code management, release management, project management, work item tracking, agile, scrum, kanban, collaboration",
   },
-  { name: "twitter:site", content: "@planepowers" },
-  { name: "twitter:card", content: "summary_large_image" },
-  { name: "twitter:image", content: ogImage },
-  { name: "twitter:image:width", content: "1200" },
-  { name: "twitter:image:height", content: "630" },
-  { name: "twitter:image:alt", content: "Plane - Modern project management" },
 ];
 
 export default function Root() {
@@ -130,8 +108,10 @@ export function HydrateFallback() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  // Sentry.captureException removed for government deployment - no external error reporting
+  // Errors are logged to console for local debugging
   if (error) {
-    Sentry.captureException(error);
+    console.error("Application error:", error);
   }
 
   return <CustomErrorComponent error={error} />;
