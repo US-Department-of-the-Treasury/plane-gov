@@ -1,0 +1,199 @@
+# Approved external calls for government deployment
+# Any call NOT on this list should be blocked/removed
+#
+# Usage: Reference this file during security audits to determine
+# if an external call is approved or should be removed.
+
+oauth_providers:
+  - domain: secure.login.gov
+    purpose: OIDC authentication (Login.gov production)
+    data_sent: auth_code, state parameter (no PII)
+    approved_by: Security Team
+    approval_date: 2025-12-15
+    notes: Required for federal employee authentication
+
+  - domain: idp.int.identitysandbox.gov
+    purpose: OIDC authentication (Login.gov sandbox)
+    data_sent: auth_code, state parameter (no PII)
+    approved_by: Security Team
+    approval_date: 2025-12-15
+    notes: Development/testing only
+
+  - domain: login.microsoftonline.us
+    purpose: Azure AD Government authentication
+    data_sent: auth_code, state parameter (no PII)
+    approved_by: Security Team
+    approval_date: 2025-12-15
+    notes: For agencies using Azure AD Gov
+
+user_configured:
+  - pattern: "*.webhook.office.com"
+    purpose: User-configured Microsoft Teams webhooks
+    data_sent: Issue/task updates (user controls data)
+    approved_by: Architecture Review
+    approval_date: 2025-12-01
+    notes: Only when user explicitly configures webhook URL
+
+  - pattern: "api.github.com"
+    purpose: GitHub integration for issue import
+    data_sent: Repo metadata, issues (user controls)
+    approved_by: Architecture Review
+    approval_date: 2025-12-01
+    notes: Only when user enables GitHub integration
+
+  - pattern: "slack.com/api/*"
+    purpose: User-configured Slack webhooks
+    data_sent: Issue/task updates (user controls data)
+    approved_by: Architecture Review
+    approval_date: 2025-12-01
+    notes: Only when user explicitly configures Slack integration
+
+infrastructure:
+  - domain: "*.s3.us-gov-west-1.amazonaws.com"
+    purpose: File storage (AWS GovCloud West)
+    data_sent: User-uploaded files, attachments
+    approved_by: Infrastructure Team
+    approval_date: 2025-11-20
+    notes: Government-controlled infrastructure
+
+  - domain: "*.s3.us-gov-east-1.amazonaws.com"
+    purpose: File storage (AWS GovCloud East)
+    data_sent: User-uploaded files, attachments
+    approved_by: Infrastructure Team
+    approval_date: 2025-11-20
+    notes: Government-controlled infrastructure
+
+  - domain: "*.rds.amazonaws.com"
+    purpose: PostgreSQL database (internal only)
+    data_sent: Application data
+    approved_by: Infrastructure Team
+    approval_date: 2025-11-20
+    notes: Private subnet, no public access
+
+blocked_always:
+  # Vendor telemetry/analytics
+  - pattern: "*.plane.so"
+    reason: "Vendor telemetry and marketing"
+    discovered: 2025-12-20
+
+  - pattern: "telemetry.plane.so"
+    reason: "OpenTelemetry traces sent to vendor"
+    discovered: 2025-12-20
+
+  - pattern: "posthog.*"
+    reason: "Product analytics service"
+    discovered: 2025-12-20
+
+  - pattern: "sentry.io"
+    reason: "Error tracking service"
+    discovered: 2025-12-20
+
+  - pattern: "*.ingest.sentry.io"
+    reason: "Sentry ingestion endpoint"
+    discovered: 2025-12-20
+
+  - pattern: "clarity.ms"
+    reason: "Microsoft Clarity session recording"
+    discovered: 2025-12-20
+
+  - pattern: "c.clarity.ms"
+    reason: "Microsoft Clarity CDN"
+    discovered: 2025-12-20
+
+  - pattern: "*.intercom.*"
+    reason: "Customer support chat service"
+    discovered: 2025-12-20
+
+  - pattern: "api.unsplash.com"
+    reason: "External image API"
+    discovered: 2025-12-20
+
+  # Marketing/social
+  - pattern: "twitter.com"
+    reason: "Social media link (not needed)"
+    discovered: 2025-12-20
+
+  - pattern: "discord.com"
+    reason: "Community chat link (not needed)"
+    discovered: 2025-12-20
+
+  - pattern: "discord.gg"
+    reason: "Discord invite link (not needed)"
+    discovered: 2025-12-20
+
+  - pattern: "linkedin.com"
+    reason: "Social media link (not needed)"
+    discovered: 2025-12-20
+
+  # CDNs and tracking
+  - pattern: "*.sendinblue.*"
+    reason: "Email marketing CDN"
+    discovered: 2025-12-20
+
+  - pattern: "*.mailinblue.*"
+    reason: "Email marketing CDN"
+    discovered: 2025-12-20
+
+  - pattern: "media.docs.plane.so"
+    reason: "Vendor documentation CDN (potential tracking)"
+    discovered: 2025-12-20
+
+  # Public package registries in production
+  - pattern: "cdn.jsdelivr.net"
+    reason: "Public CDN (should self-host)"
+    discovered: 2025-12-20
+
+  - pattern: "unpkg.com"
+    reason: "Public CDN (should self-host)"
+    discovered: 2025-12-20
+
+  # Google services (except OAuth if approved)
+  - pattern: "fonts.google.com"
+    reason: "External font loading (IP leak)"
+    discovered: 2025-12-20
+
+  - pattern: "fonts.gstatic.com"
+    reason: "Google fonts CDN (IP leak)"
+    discovered: 2025-12-20
+
+  - pattern: "www.google-analytics.com"
+    reason: "Analytics service"
+    discovered: 2025-12-20
+
+  - pattern: "analytics.google.com"
+    reason: "Google Analytics 4"
+    discovered: 2025-12-20
+
+conditional_approval:
+  # These require case-by-case approval
+  - domain: "api.github.com"
+    condition: "Only if user explicitly enables GitHub integration"
+    requires_approval: Architecture Review Board
+
+  - domain: "*.githubusercontent.com"
+    condition: "Only for user-initiated GitHub content preview"
+    requires_approval: Architecture Review Board
+
+review_schedule:
+  frequency: Monthly
+  owner: Security Team
+  process: |
+    1. Review production logs for any new external domains
+    2. Verify all blocked patterns are still blocked
+    3. Confirm approved patterns are still necessary
+    4. Update this file with any changes
+    5. Notify development team of updates
+
+incident_response:
+  - step: 1
+    action: "Immediately block domain at firewall/security group level"
+  - step: 2
+    action: "Add to blocked_always list in this file"
+  - step: 3
+    action: "Review application logs to determine data sent"
+  - step: 4
+    action: "File security incident report per agency policy"
+  - step: 5
+    action: "Update CI/CD checks to catch this pattern"
+  - step: 6
+    action: "Emergency code deploy to remove call"
