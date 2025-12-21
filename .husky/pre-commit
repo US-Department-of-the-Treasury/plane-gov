@@ -1,1 +1,19 @@
+# Run gitleaks if installed (secret detection)
+if command -v gitleaks &> /dev/null; then
+  echo "Running gitleaks secret detection..."
+  gitleaks protect --staged --verbose --redact
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Secrets detected in staged files!"
+    echo "Please remove secrets before committing."
+    echo ""
+    echo "To install gitleaks: brew install gitleaks"
+    exit 1
+  fi
+else
+  echo "Warning: gitleaks not installed - skipping secret detection"
+  echo "Install with: brew install gitleaks"
+fi
+
+# Run lint-staged for formatting/linting
 pnpm lint-staged
