@@ -11,17 +11,16 @@ This guide explains how to use Plane for project management at Treasury, with re
 ```
 Workspace: Treasury
 │
-├── Initiative: FedRAMP Compliance Program (strategic, multi-quarter)
-│   ├── Epic: Audit Logging (large feature, 1-3 months)
-│   │   ├── Issue: Add login event logging (story, 1-2 weeks)
-│   │   ├── Issue: Add data access logging (story)
-│   │   └── Issue: Create audit dashboard (story)
-│   └── Epic: Access Controls
-│       └── ...
-│
 ├── Project: Audit Tracker (product/application)
 │   ├── Epics (feature groupings)
+│   │   └── Epic: User Management Overhaul
+│   │       ├── Issue: Add role-based access (story)
+│   │       ├── Issue: Migrate legacy users (task)
+│   │       └── Issue: Add SSO support (story)
 │   ├── Sprints (2-week time boxes)
+│   │   └── Sprint 23 (Jan 6-20)
+│   │       ├── Issue from Epic above
+│   │       └── Issue: Fix login bug (standalone)
 │   ├── Issues (individual work items)
 │   └── Inbox (incoming requests)
 │
@@ -31,14 +30,14 @@ Workspace: Treasury
 
 ### What Each Primitive Means
 
-| Concept        | Scope                          | Duration         | Example                    |
-| -------------- | ------------------------------ | ---------------- | -------------------------- |
-| **Workspace**  | Your organization              | Permanent        | "Treasury"                 |
-| **Initiative** | Strategic goal across projects | 1-4 quarters     | "FedRAMP Compliance"       |
-| **Project**    | A product or application       | Permanent        | "Audit Tracker"            |
-| **Epic**       | Large feature or milestone     | 1-3 months       | "User Management Overhaul" |
-| **Sprint**     | Time-boxed work period         | 2 weeks          | "Sprint 23 (Jan 6-20)"     |
-| **Issue**      | Individual work item           | Hours to 2 weeks | "Add PDF export"           |
+| Concept       | Scope                      | Duration         | Example                    |
+| ------------- | -------------------------- | ---------------- | -------------------------- |
+| **Workspace** | Your organization          | Permanent        | "Treasury"                 |
+| **Project**   | A product or application   | Permanent        | "Audit Tracker"            |
+| **Epic**      | Large feature or milestone | 1-3 months       | "User Management Overhaul" |
+| **Sprint**    | Time-boxed work period     | 2 weeks          | "Sprint 23 (Jan 6-20)"     |
+| **Issue**     | Individual work item       | Hours to 2 weeks | "Add PDF export"           |
+| **Label**     | Cross-cutting category     | N/A              | `fedramp`, `security`      |
 
 ---
 
@@ -78,52 +77,6 @@ Create a separate Project when:
 2. **States**: Customize workflow states (Backlog → Todo → In Progress → Done)
 3. **Labels**: Create project-specific labels
 4. **Members**: Add team members with appropriate roles
-
----
-
-## Initiatives
-
-Initiatives are **strategic, multi-quarter goals** that span multiple projects and epics. They answer: "What are we trying to achieve this year?"
-
-### When to Use Initiatives
-
-- Annual or quarterly strategic objectives
-- Cross-project programs
-- Compliance programs (FedRAMP, FISMA)
-- Major organizational changes
-
-### Examples
-
-| Initiative                | Duration   | Projects Involved               |
-| ------------------------- | ---------- | ------------------------------- |
-| FedRAMP Authorization     | Q1-Q2 2025 | All projects                    |
-| Modernize Legacy Systems  | 2025       | Audit Tracker, Benefits Portal  |
-| Zero Trust Implementation | Q2-Q4 2025 | Shared Infrastructure, all apps |
-
-### How to Create an Initiative
-
-1. Go to **Workspace** → **Initiatives**
-2. Click **+ New Initiative**
-3. Set name, description, start/end dates
-4. Link related Epics from various projects
-
-### Initiative vs Epic
-
-| Initiative               | Epic                    |
-| ------------------------ | ----------------------- |
-| Strategic goal           | Tactical feature        |
-| Spans multiple projects  | Lives in one project    |
-| 1-4 quarters             | 1-3 months              |
-| "Why are we doing this?" | "What are we building?" |
-
-**Example:**
-
-```
-Initiative: Improve Security Posture
-├── Epic (Audit Tracker): Add MFA support
-├── Epic (Benefits Portal): Implement session timeout
-└── Epic (Infrastructure): Deploy WAF
-```
 
 ---
 
@@ -417,34 +370,27 @@ New Request → Inbox → Triage → Accept/Decline/Snooze
 
 ### Scenario: Treasury needs FedRAMP compliance by Q2
 
-**Step 1: Create Initiative**
-
-```
-Initiative: FedRAMP Authorization
-- Start: January 2025
-- Target: June 2025
-- Description: Achieve FedRAMP Moderate authorization
-```
-
-**Step 2: Create Epics in each project**
+**Step 1: Create Epics in each project (labeled for tracking)**
 
 ```
 Project: Audit Tracker
 ├── Epic: Audit Logging (Jan-Feb)
+│   └── Label: fedramp
 ├── Epic: Access Controls (Feb-Mar)
+│   └── Label: fedramp
 └── Epic: Data Encryption (Mar-Apr)
+    └── Label: fedramp
 
 Project: Benefits Portal
 ├── Epic: Session Management (Jan-Feb)
+│   └── Label: fedramp
 └── Epic: Input Validation (Feb-Mar)
+    └── Label: fedramp
 ```
 
-**Step 3: Link Epics to Initiative**
+Use the `fedramp` label to track all compliance work across projects.
 
-- Edit each epic
-- Set Initiative = "FedRAMP Authorization"
-
-**Step 4: Break Epics into Issues**
+**Step 2: Break Epics into Issues**
 
 ```
 Epic: Audit Logging
@@ -456,7 +402,7 @@ Epic: Audit Logging
 └── Issue: Write audit documentation
 ```
 
-**Step 5: Sprint Planning**
+**Step 3: Sprint Planning**
 
 ```
 Sprint 23 (Jan 6-20)
@@ -466,7 +412,7 @@ Sprint 23 (Jan 6-20)
 └── Issue: Update dependencies (Task, no epic)
 ```
 
-**Step 6: Daily Work**
+**Step 4: Daily Work**
 
 - Pick issue from "Todo"
 - Move to "In Progress"
@@ -474,12 +420,12 @@ Sprint 23 (Jan 6-20)
 - Move to "Done"
 - Pick next issue
 
-**Step 7: Sprint Review**
+**Step 5: Sprint Review**
 
 - Demo completed work
 - Incomplete issues move to Sprint 24
 - Update epic progress
-- Check Initiative dashboard
+- Filter by `fedramp` label to check overall compliance progress
 
 ---
 
