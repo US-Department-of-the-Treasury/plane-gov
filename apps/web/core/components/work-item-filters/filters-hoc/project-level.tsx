@@ -14,7 +14,7 @@ import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
 import { useProjectView } from "@/hooks/store/use-project-view";

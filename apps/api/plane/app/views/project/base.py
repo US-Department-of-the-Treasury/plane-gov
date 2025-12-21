@@ -166,7 +166,7 @@ class ProjectViewSet(BaseViewSet):
             "workspace",
             "sprint_view",
             "issue_views_view",
-            "module_view",
+            "epic_view",
             "page_view",
             "inbox_view",
             "guest_view_all_features",

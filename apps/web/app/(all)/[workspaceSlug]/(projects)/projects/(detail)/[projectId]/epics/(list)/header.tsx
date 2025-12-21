@@ -5,11 +5,11 @@ import { EUserPermissions, EUserPermissionsLevel, EPIC_TRACKER_ELEMENTS } from "
 import { useTranslation } from "@plane/i18n";
 // ui
 import { Button } from "@plane/propel/button";
-import { ModuleIcon } from "@plane/propel/icons";
+import { EpicIcon } from "@plane/propel/icons";
 import { Breadcrumbs, Header } from "@plane/ui";
 // components
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
-import { ModuleViewHeader } from "@/components/modules";
+import { EpicViewHeader } from "@/components/epics";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useProject } from "@/hooks/store/use-project";
@@ -18,7 +18,7 @@ import { useAppRouter } from "@/hooks/use-app-router";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
-export const ModulesListHeader = observer(function ModulesListHeader() {
+export const EpicsListHeader = observer(function EpicsListHeader() {
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId } = useParams();
@@ -31,7 +31,7 @@ export const ModulesListHeader = observer(function ModulesListHeader() {
   const { t } = useTranslation();
 
   // auth
-  const canUserCreateModule = allowPermissions(
+  const canUserCreateEpic = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT
   );
@@ -46,8 +46,8 @@ export const ModulesListHeader = observer(function ModulesListHeader() {
               component={
                 <BreadcrumbLink
                   label="Epics"
-                  href={`/${workspaceSlug}/projects/${projectId}/modules/`}
-                  icon={<ModuleIcon className="h-4 w-4 text-tertiary" />}
+                  href={`/${workspaceSlug}/projects/${projectId}/epics/`}
+                  icon={<EpicIcon className="h-4 w-4 text-tertiary" />}
                   isLast
                 />
               }
@@ -57,8 +57,8 @@ export const ModulesListHeader = observer(function ModulesListHeader() {
         </div>
       </Header.LeftItem>
       <Header.RightItem>
-        <ModuleViewHeader />
-        {canUserCreateModule ? (
+        <EpicViewHeader />
+        {canUserCreateEpic ? (
           <Button
             variant="primary"
             data-ph-element={EPIC_TRACKER_ELEMENTS.RIGHT_HEADER_ADD_BUTTON}
@@ -68,7 +68,7 @@ export const ModulesListHeader = observer(function ModulesListHeader() {
             size="lg"
           >
             <div className="sm:hidden block">{t("add")}</div>
-            <div className="hidden sm:block">{t("project_module.add_module")}</div>
+            <div className="hidden sm:block">{t("project_epic.add_epic")}</div>
           </Button>
         ) : (
           <></>

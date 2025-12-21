@@ -208,10 +208,10 @@ export const useMenuItemFactory = (props: MenuItemFactoryProps) => {
   });
 
   const createRemoveFromEpicMenuItem = (): TContextMenuItem => ({
-    key: "remove-from-module",
-    title: "Remove from module",
+    key: "remove-from-epic",
+    title: "Remove from epic",
     icon: XCircle,
-    action: () => handleOptionalAction(handleRemoveFromView, "Remove from module"),
+    action: () => handleOptionalAction(handleRemoveFromView, "Remove from epic"),
     shouldRender: isEditingAllowed,
   });
 

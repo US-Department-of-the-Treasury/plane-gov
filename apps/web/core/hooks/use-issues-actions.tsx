@@ -48,7 +48,7 @@ export const useIssuesActions = (storeType: EIssuesStoreType): IssueActions => {
   const projectIssueActions = useProjectIssueActions();
   const projectEpicsActions = useProjectEpicsActions();
   const sprintIssueActions = useSprintIssueActions();
-  const moduleIssueActions = useEpicIssueActions();
+  const epicIssueActions = useEpicIssueActions();
   const teamViewIssueActions = useTeamViewIssueActions();
   const projectViewIssueActions = useProjectViewIssueActions();
   const globalIssueActions = useGlobalIssueActions();
@@ -71,7 +71,7 @@ export const useIssuesActions = (storeType: EIssuesStoreType): IssueActions => {
     case EIssuesStoreType.SPRINT:
       return sprintIssueActions;
     case EIssuesStoreType.EPIC:
-      return moduleIssueActions;
+      return epicIssueActions;
     case EIssuesStoreType.GLOBAL:
       return globalIssueActions;
     case EIssuesStoreType.WORKSPACE_DRAFT:
@@ -171,40 +171,47 @@ const useProjectIssueActions = () => {
 
 const useProjectEpicsActions = () => {
   // router
-  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
+  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, epicId: routerEpicId } = useParams();
   const workspaceSlug = routerWorkspaceSlug?.toString();
   const projectId = routerProjectId?.toString();
+  const epicId = routerEpicId?.toString();
   // store hooks
   const { issues, issuesFilter } = useIssues(EIssuesStoreType.EPIC);
 
   const fetchIssues = useCallback(
-    async (loadType: TLoader, options: IssuePaginationOptions) => {
-      if (!workspaceSlug || !projectId) return;
-      return issues.fetchIssues(workspaceSlug.toString(), projectId.toString(), loadType, options);
+    async (loadType: TLoader, options: IssuePaginationOptions, epicId?: string) => {
+      if (!workspaceSlug || !projectId || !epicId) return;
+      return issues.fetchIssues(workspaceSlug.toString(), projectId.toString(), loadType, options, epicId.toString());
     },
     [issues.fetchIssues, workspaceSlug, projectId]
   );
   const fetchNextIssues = useCallback(
     async (groupId?: string, subGroupId?: string) => {
-      if (!workspaceSlug || !projectId) return;
-      return issues.fetchNextIssues(workspaceSlug.toString(), projectId.toString(), groupId, subGroupId);
+      if (!workspaceSlug || !projectId || !epicId) return;
+      return issues.fetchNextIssues(
+        workspaceSlug.toString(),
+        projectId.toString(),
+        epicId.toString(),
+        groupId,
+        subGroupId
+      );
     },
-    [issues.fetchIssues, workspaceSlug, projectId]
+    [issues.fetchNextIssues, workspaceSlug, projectId, epicId]
   );
 
   const createIssue = useCallback(
     async (projectId: string | undefined | null, data: Partial<TIssue>) => {
-      if (!workspaceSlug || !projectId) return;
-      return await issues.createIssue(workspaceSlug, projectId, data);
+      if (!workspaceSlug || !projectId || !epicId) return;
+      return await issues.createIssue(workspaceSlug, projectId, data, epicId);
     },
-    [issues.createIssue, workspaceSlug]
+    [issues.createIssue, workspaceSlug, epicId]
   );
   const quickAddIssue = useCallback(
     async (projectId: string | undefined | null, data: TIssue) => {
-      if (!workspaceSlug || !projectId) return;
-      return await issues.quickAddIssue(workspaceSlug, projectId, data);
+      if (!workspaceSlug || !projectId || !epicId) return;
+      return await issues.quickAddIssue(workspaceSlug, projectId, data, epicId);
     },
-    [issues.quickAddIssue, workspaceSlug]
+    [issues.quickAddIssue, workspaceSlug, epicId]
   );
   const updateIssue = useCallback(
     async (projectId: string | undefined | null, issueId: string, data: Partial<TIssue>) => {
@@ -230,10 +237,10 @@ const useProjectEpicsActions = () => {
 
   const updateFilters = useCallback(
     async (projectId: string, filterType: TSupportedFilterTypeForUpdate, filters: TSupportedFilterForUpdate) => {
-      if (!workspaceSlug) return;
-      return await issuesFilter.updateFilters(workspaceSlug, projectId, filterType, filters);
+      if (!workspaceSlug || !epicId) return;
+      return await issuesFilter.updateFilters(workspaceSlug, projectId, filterType, filters, epicId);
     },
-    [issuesFilter.updateFilters, workspaceSlug]
+    [issuesFilter.updateFilters, workspaceSlug, epicId]
   );
 
   return useMemo(

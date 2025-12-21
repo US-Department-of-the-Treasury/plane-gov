@@ -48,7 +48,8 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   } = props;
   const issueStoreType = useIssueStoreType();
 
-  let storeType = issueStoreFromProps ?? issueStoreType;
+  const originalStoreType = issueStoreFromProps ?? issueStoreType;
+  let storeType = originalStoreType;
   // Fallback to project store if epic store is used in issue modal.
   if (storeType === EIssuesStoreType.EPIC) {
     storeType = EIssuesStoreType.PROJECT;
@@ -170,7 +171,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
       // use the project issue store to create issues
       else if (
         (payload.sprint_id !== sprintId && storeType === EIssuesStoreType.SPRINT) ||
-        (!payload.epic_ids?.includes(epicId?.toString()) && storeType === EIssuesStoreType.EPIC)
+        (!payload.epic_ids?.includes(epicId?.toString()) && originalStoreType === EIssuesStoreType.EPIC)
       ) {
         response = await projectIssues.createIssue(workspaceSlug.toString(), payload.project_id, payload);
       } // else just use the existing store type's create method
@@ -193,7 +194,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
 
       if (!response) throw new Error();
 
-      // check if we should add issue to sprint/module
+      // check if we should add issue to sprint/epic
       if (!is_draft_issue) {
         if (
           payload.sprint_id &&
@@ -205,7 +206,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
         if (
           payload.epic_ids &&
           payload.epic_ids.length > 0 &&
-          (!payload.epic_ids.includes(epicId?.toString()) || storeType !== EIssuesStoreType.EPIC)
+          (!payload.epic_ids.includes(epicId?.toString()) || originalStoreType !== EIssuesStoreType.EPIC)
         ) {
           await addIssueToEpic(response, payload.epic_ids);
         }

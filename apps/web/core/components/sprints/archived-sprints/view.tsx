@@ -6,7 +6,7 @@ import NameFilterImage from "@/app/assets/empty-state/sprint/name-filter.svg?url
 // components
 import { SprintsList } from "@/components/sprints/list";
 // ui
-import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
+import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";

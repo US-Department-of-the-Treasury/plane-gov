@@ -19,7 +19,7 @@ from plane.db.models import (
     Sprint,
     Intake,
     IssueUserProperty,
-    Module,
+    Epic,
     Project,
     DeployBoard,
     ProjectMember,
@@ -106,7 +106,7 @@ class ProjectListCreateAPIEndpoint(BaseAPIView):
                 .values("count")
             )
             .annotate(
-                total_modules=Module.objects.filter(project_id=OuterRef("id"))
+                total_epics=Epic.objects.filter(project_id=OuterRef("id"))
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")
@@ -328,7 +328,7 @@ class ProjectDetailAPIEndpoint(BaseAPIView):
                 .values("count")
             )
             .annotate(
-                total_modules=Module.objects.filter(project_id=OuterRef("id"))
+                total_epics=Epic.objects.filter(project_id=OuterRef("id"))
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")

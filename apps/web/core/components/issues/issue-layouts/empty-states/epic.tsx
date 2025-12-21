@@ -38,12 +38,12 @@ export const EpicEmptyState = observer(function EpicEmptyState() {
     EUserPermissionsLevel.PROJECT
   );
 
-  const handleAddIssuesToModule = async (data: ISearchIssueResponse[]) => {
+  const handleAddIssuesToEpic = async (data: ISearchIssueResponse[]) => {
     if (!workspaceSlug || !projectId || !epicId) return;
 
     const issueIds = data.map((i) => i.id);
     await issues
-      .addIssuesToModule(workspaceSlug.toString(), projectId?.toString(), epicId.toString(), issueIds)
+      .addIssuesToEpic(workspaceSlug.toString(), projectId?.toString(), epicId.toString(), issueIds)
       .then(() =>
         setToast({
           type: TOAST_TYPE.SUCCESS,
@@ -67,8 +67,8 @@ export const EpicEmptyState = observer(function EpicEmptyState() {
         projectId={projectId?.toString()}
         isOpen={epicIssuesListModal}
         handleClose={() => setEpicIssuesListModal(false)}
-        searchParams={{ module: epicId != undefined ? epicId.toString() : "" }}
-        handleOnSubmit={handleAddIssuesToModule}
+        searchParams={{ epic_id: epicId != undefined ? epicId.toString() : "" }}
+        handleOnSubmit={handleAddIssuesToEpic}
       />
       <div className="grid h-full w-full place-items-center">
         {epicWorkItemFilter?.hasActiveFilters ? (
@@ -94,7 +94,7 @@ export const EpicEmptyState = observer(function EpicEmptyState() {
               {
                 label: t("project_empty_state.epic_work_items.cta_primary"),
                 onClick: () => {
-                  captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.EMPTY_STATE_ADD_BUTTON.MODULE });
+                  captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.EMPTY_STATE_ADD_BUTTON.EPIC });
                   toggleCreateIssueModal(true, EIssuesStoreType.EPIC);
                 },
                 disabled: !canPerformEmptyStateActions,

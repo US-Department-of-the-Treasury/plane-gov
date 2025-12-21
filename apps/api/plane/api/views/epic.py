@@ -15,11 +15,11 @@ from drf_spectacular.utils import OpenApiResponse, OpenApiRequest
 # Package imports
 from plane.api.serializers import (
     IssueSerializer,
-    ModuleIssueSerializer,
-    ModuleSerializer,
-    ModuleIssueRequestSerializer,
-    ModuleCreateSerializer,
-    ModuleUpdateSerializer,
+    EpicIssueSerializer,
+    EpicSerializer,
+    EpicIssueRequestSerializer,
+    EpicCreateSerializer,
+    EpicUpdateSerializer,
 )
 from plane.app.permissions import ProjectEntityPermission
 from plane.bgtasks.issue_activities_task import issue_activity
@@ -27,9 +27,9 @@ from plane.db.models import (
     Issue,
     FileAsset,
     IssueLink,
-    Module,
-    ModuleIssue,
-    ModuleLink,
+    Epic,
+    EpicIssue,
+    EpicLink,
     Project,
     ProjectMember,
     UserFavorite,
@@ -39,10 +39,10 @@ from .base import BaseAPIView
 from plane.bgtasks.webhook_task import model_activity
 from plane.utils.host import base_host
 from plane.utils.openapi import (
-    module_docs,
-    module_issue_docs,
-    MODULE_ID_PARAMETER,
-    MODULE_PK_PARAMETER,
+    epic_docs,
+    epic_issue_docs,
+    EPIC_ID_PARAMETER,
+    EPIC_PK_PARAMETER,
     ISSUE_ID_PARAMETER,
     CURSOR_PARAMETER,
     PER_PAGE_PARAMETER,
@@ -51,36 +51,36 @@ from plane.utils.openapi import (
     EXPAND_PARAMETER,
     create_paginated_response,
     # Request Examples
-    MODULE_CREATE_EXAMPLE,
-    MODULE_UPDATE_EXAMPLE,
-    MODULE_ISSUE_REQUEST_EXAMPLE,
+    EPIC_CREATE_EXAMPLE,
+    EPIC_UPDATE_EXAMPLE,
+    EPIC_ISSUE_REQUEST_EXAMPLE,
     # Response Examples
-    MODULE_EXAMPLE,
-    MODULE_ISSUE_EXAMPLE,
+    EPIC_EXAMPLE,
+    EPIC_ISSUE_EXAMPLE,
     INVALID_REQUEST_RESPONSE,
     PROJECT_NOT_FOUND_RESPONSE,
     EXTERNAL_ID_EXISTS_RESPONSE,
-    MODULE_NOT_FOUND_RESPONSE,
+    EPIC_NOT_FOUND_RESPONSE,
     DELETED_RESPONSE,
     ADMIN_ONLY_RESPONSE,
     REQUIRED_FIELDS_RESPONSE,
-    MODULE_ISSUE_NOT_FOUND_RESPONSE,
+    EPIC_ISSUE_NOT_FOUND_RESPONSE,
     CANNOT_ARCHIVE_RESPONSE,
 )
 
 
-class ModuleListCreateAPIEndpoint(BaseAPIView):
-    """Module List and Create Endpoint"""
+class EpicListCreateAPIEndpoint(BaseAPIView):
+    """Epic List and Create Endpoint"""
 
-    serializer_class = ModuleSerializer
-    model = Module
-    webhook_event = "module"
+    serializer_class = EpicSerializer
+    model = Epic
+    webhook_event = "epic"
     permission_classes = [ProjectEntityPermission]
     use_read_replica = True
 
     def get_queryset(self):
         return (
-            Module.objects.filter(project_id=self.kwargs.get("project_id"))
+            Epic.objects.filter(project_id=self.kwargs.get("project_id"))
             .filter(workspace__slug=self.kwargs.get("slug"))
             .select_related("project")
             .select_related("workspace")
@@ -88,77 +88,77 @@ class ModuleListCreateAPIEndpoint(BaseAPIView):
             .prefetch_related("members")
             .prefetch_related(
                 Prefetch(
-                    "link_module",
-                    queryset=ModuleLink.objects.select_related("module", "created_by"),
+                    "link_epic",
+                    queryset=EpicLink.objects.select_related("epic", "created_by"),
                 )
             )
             .annotate(
                 total_issues=Count(
-                    "issue_module",
+                    "issue_epic",
                     filter=Q(
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 completed_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="completed",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="completed",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 cancelled_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="cancelled",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="cancelled",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 started_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="started",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="started",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 unstarted_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="unstarted",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="unstarted",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 backlog_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="backlog",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="backlog",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
@@ -166,19 +166,19 @@ class ModuleListCreateAPIEndpoint(BaseAPIView):
             .order_by(self.kwargs.get("order_by", "-created_at"))
         )
 
-    @module_docs(
-        operation_id="create_module",
-        summary="Create module",
-        description="Create a new project module with specified name, description, and timeline.",
+    @epic_docs(
+        operation_id="create_epic",
+        summary="Create epic",
+        description="Create a new project epic with specified name, description, and timeline.",
         request=OpenApiRequest(
-            request=ModuleCreateSerializer,
-            examples=[MODULE_CREATE_EXAMPLE],
+            request=EpicCreateSerializer,
+            examples=[EPIC_CREATE_EXAMPLE],
         ),
         responses={
             201: OpenApiResponse(
-                description="Module created",
-                response=ModuleSerializer,
-                examples=[MODULE_EXAMPLE],
+                description="Epic created",
+                response=EpicSerializer,
+                examples=[EPIC_EXAMPLE],
             ),
             400: INVALID_REQUEST_RESPONSE,
             404: PROJECT_NOT_FOUND_RESPONSE,
@@ -186,13 +186,13 @@ class ModuleListCreateAPIEndpoint(BaseAPIView):
         },
     )
     def post(self, request, slug, project_id):
-        """Create module
+        """Create epic
 
-        Create a new project module with specified name, description, and timeline.
-        Automatically assigns the creator as module lead and tracks activity.
+        Create a new project epic with specified name, description, and timeline.
+        Automatically assigns the creator as epic lead and tracks activity.
         """
         project = Project.objects.get(pk=project_id, workspace__slug=slug)
-        serializer = ModuleCreateSerializer(
+        serializer = EpicCreateSerializer(
             data=request.data,
             context={"project_id": project_id, "workspace_id": project.workspace_id},
         )
@@ -200,14 +200,14 @@ class ModuleListCreateAPIEndpoint(BaseAPIView):
             if (
                 request.data.get("external_id")
                 and request.data.get("external_source")
-                and Module.objects.filter(
+                and Epic.objects.filter(
                     project_id=project_id,
                     workspace__slug=slug,
                     external_source=request.data.get("external_source"),
                     external_id=request.data.get("external_id"),
                 ).exists()
             ):
-                module = Module.objects.filter(
+                epic = Epic.objects.filter(
                     project_id=project_id,
                     workspace__slug=slug,
                     external_source=request.data.get("external_source"),
@@ -215,15 +215,15 @@ class ModuleListCreateAPIEndpoint(BaseAPIView):
                 ).first()
                 return Response(
                     {
-                        "error": "Module with the same external id and external source already exists",
-                        "id": str(module.id),
+                        "error": "Epic with the same external id and external source already exists",
+                        "id": str(epic.id),
                     },
                     status=status.HTTP_409_CONFLICT,
                 )
             serializer.save()
             # Send the model activity
             model_activity.delay(
-                model_name="module",
+                model_name="epic",
                 model_id=str(serializer.instance.id),
                 requested_data=request.data,
                 current_instance=None,
@@ -231,15 +231,15 @@ class ModuleListCreateAPIEndpoint(BaseAPIView):
                 slug=slug,
                 origin=base_host(request=request, is_app=True),
             )
-            module = Module.objects.get(pk=serializer.instance.id)
-            serializer = ModuleSerializer(module)
+            epic = Epic.objects.get(pk=serializer.instance.id)
+            serializer = EpicSerializer(epic)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @module_docs(
-        operation_id="list_modules",
-        summary="List modules",
-        description="Retrieve all modules in a project.",
+    @epic_docs(
+        operation_id="list_epics",
+        summary="List epics",
+        description="Retrieve all epics in a project.",
         parameters=[
             CURSOR_PARAMETER,
             PER_PAGE_PARAMETER,
@@ -249,41 +249,41 @@ class ModuleListCreateAPIEndpoint(BaseAPIView):
         ],
         responses={
             200: create_paginated_response(
-                ModuleSerializer,
-                "PaginatedModuleResponse",
-                "Paginated list of modules",
-                "Paginated Modules",
+                EpicSerializer,
+                "PaginatedEpicResponse",
+                "Paginated list of epics",
+                "Paginated Epics",
             ),
-            404: OpenApiResponse(description="Module not found"),
+            404: OpenApiResponse(description="Epic not found"),
         },
     )
     def get(self, request, slug, project_id):
-        """List or retrieve modules
+        """List or retrieve epics
 
-        Retrieve all modules in a project or get details of a specific module.
-        Returns paginated results with module statistics and member information.
+        Retrieve all epics in a project or get details of a specific epic.
+        Returns paginated results with epic statistics and member information.
         """
         return self.paginate(
             request=request,
             queryset=(self.get_queryset().filter(archived_at__isnull=True)),
-            on_results=lambda modules: ModuleSerializer(
-                modules, many=True, fields=self.fields, expand=self.expand
+            on_results=lambda epics: EpicSerializer(
+                epics, many=True, fields=self.fields, expand=self.expand
             ).data,
         )
 
 
-class ModuleDetailAPIEndpoint(BaseAPIView):
-    """Module Detail Endpoint"""
+class EpicDetailAPIEndpoint(BaseAPIView):
+    """Epic Detail Endpoint"""
 
-    model = Module
+    model = Epic
     permission_classes = [ProjectEntityPermission]
-    serializer_class = ModuleSerializer
-    webhook_event = "module"
+    serializer_class = EpicSerializer
+    webhook_event = "epic"
     use_read_replica = True
 
     def get_queryset(self):
         return (
-            Module.objects.filter(project_id=self.kwargs.get("project_id"))
+            Epic.objects.filter(project_id=self.kwargs.get("project_id"))
             .filter(workspace__slug=self.kwargs.get("slug"))
             .select_related("project")
             .select_related("workspace")
@@ -291,77 +291,77 @@ class ModuleDetailAPIEndpoint(BaseAPIView):
             .prefetch_related("members")
             .prefetch_related(
                 Prefetch(
-                    "link_module",
-                    queryset=ModuleLink.objects.select_related("module", "created_by"),
+                    "link_epic",
+                    queryset=EpicLink.objects.select_related("epic", "created_by"),
                 )
             )
             .annotate(
                 total_issues=Count(
-                    "issue_module",
+                    "issue_epic",
                     filter=Q(
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 completed_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="completed",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="completed",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 cancelled_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="cancelled",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="cancelled",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 started_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="started",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="started",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 unstarted_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="unstarted",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="unstarted",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 backlog_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="backlog",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="backlog",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
@@ -369,63 +369,63 @@ class ModuleDetailAPIEndpoint(BaseAPIView):
             .order_by(self.kwargs.get("order_by", "-created_at"))
         )
 
-    @module_docs(
-        operation_id="update_module",
-        summary="Update module",
-        description="Modify an existing module's properties like name, description, status, or timeline.",
+    @epic_docs(
+        operation_id="update_epic",
+        summary="Update epic",
+        description="Modify an existing epic's properties like name, description, status, or timeline.",
         parameters=[
-            MODULE_PK_PARAMETER,
+            EPIC_PK_PARAMETER,
         ],
         request=OpenApiRequest(
-            request=ModuleUpdateSerializer,
-            examples=[MODULE_UPDATE_EXAMPLE],
+            request=EpicUpdateSerializer,
+            examples=[EPIC_UPDATE_EXAMPLE],
         ),
         responses={
             200: OpenApiResponse(
-                description="Module updated successfully",
-                response=ModuleSerializer,
-                examples=[MODULE_EXAMPLE],
+                description="Epic updated successfully",
+                response=EpicSerializer,
+                examples=[EPIC_EXAMPLE],
             ),
             400: OpenApiResponse(
                 description="Invalid request data",
-                response=ModuleSerializer,
-                examples=[MODULE_UPDATE_EXAMPLE],
+                response=EpicSerializer,
+                examples=[EPIC_UPDATE_EXAMPLE],
             ),
-            404: OpenApiResponse(description="Module not found"),
-            409: OpenApiResponse(description="Module with same external ID already exists"),
+            404: OpenApiResponse(description="Epic not found"),
+            409: OpenApiResponse(description="Epic with same external ID already exists"),
         },
     )
     def patch(self, request, slug, project_id, pk):
-        """Update module
+        """Update epic
 
-        Modify an existing module's properties like name, description, status, or timeline.
+        Modify an existing epic's properties like name, description, status, or timeline.
         Tracks all changes in model activity logs for audit purposes.
         """
-        module = Module.objects.get(pk=pk, project_id=project_id, workspace__slug=slug)
+        epic = Epic.objects.get(pk=pk, project_id=project_id, workspace__slug=slug)
 
-        current_instance = json.dumps(ModuleSerializer(module).data, cls=DjangoJSONEncoder)
+        current_instance = json.dumps(EpicSerializer(epic).data, cls=DjangoJSONEncoder)
 
-        if module.archived_at:
+        if epic.archived_at:
             return Response(
-                {"error": "Archived module cannot be edited"},
+                {"error": "Archived epic cannot be edited"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        serializer = ModuleSerializer(module, data=request.data, context={"project_id": project_id}, partial=True)
+        serializer = EpicSerializer(epic, data=request.data, context={"project_id": project_id}, partial=True)
         if serializer.is_valid():
             if (
                 request.data.get("external_id")
-                and (module.external_id != request.data.get("external_id"))
-                and Module.objects.filter(
+                and (epic.external_id != request.data.get("external_id"))
+                and Epic.objects.filter(
                     project_id=project_id,
                     workspace__slug=slug,
-                    external_source=request.data.get("external_source", module.external_source),
+                    external_source=request.data.get("external_source", epic.external_source),
                     external_id=request.data.get("external_id"),
                 ).exists()
             ):
                 return Response(
                     {
-                        "error": "Module with the same external id and external source already exists",
-                        "id": str(module.id),
+                        "error": "Epic with the same external id and external source already exists",
+                        "id": str(epic.id),
                     },
                     status=status.HTTP_409_CONFLICT,
                 )
@@ -433,7 +433,7 @@ class ModuleDetailAPIEndpoint(BaseAPIView):
 
             # Send the model activity
             model_activity.delay(
-                model_name="module",
+                model_name="epic",
                 model_id=str(serializer.instance.id),
                 requested_data=request.data,
                 current_instance=current_instance,
@@ -445,52 +445,52 @@ class ModuleDetailAPIEndpoint(BaseAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @module_docs(
-        operation_id="retrieve_module",
-        summary="Retrieve module",
-        description="Retrieve details of a specific module.",
+    @epic_docs(
+        operation_id="retrieve_epic",
+        summary="Retrieve epic",
+        description="Retrieve details of a specific epic.",
         parameters=[
-            MODULE_PK_PARAMETER,
+            EPIC_PK_PARAMETER,
         ],
         responses={
             200: OpenApiResponse(
-                description="Module",
-                response=ModuleSerializer,
-                examples=[MODULE_EXAMPLE],
+                description="Epic",
+                response=EpicSerializer,
+                examples=[EPIC_EXAMPLE],
             ),
-            404: OpenApiResponse(description="Module not found"),
+            404: OpenApiResponse(description="Epic not found"),
         },
     )
     def get(self, request, slug, project_id, pk):
-        """Retrieve module
+        """Retrieve epic
 
-        Retrieve details of a specific module.
+        Retrieve details of a specific epic.
         """
         queryset = self.get_queryset().filter(archived_at__isnull=True).get(pk=pk)
-        data = ModuleSerializer(queryset, fields=self.fields, expand=self.expand).data
+        data = EpicSerializer(queryset, fields=self.fields, expand=self.expand).data
         return Response(data, status=status.HTTP_200_OK)
 
-    @module_docs(
-        operation_id="delete_module",
-        summary="Delete module",
-        description="Permanently remove a module and all its associated issue relationships.",
+    @epic_docs(
+        operation_id="delete_epic",
+        summary="Delete epic",
+        description="Permanently remove a epic and all its associated issue relationships.",
         parameters=[
-            MODULE_PK_PARAMETER,
+            EPIC_PK_PARAMETER,
         ],
         responses={
             204: DELETED_RESPONSE,
             403: ADMIN_ONLY_RESPONSE,
-            404: MODULE_NOT_FOUND_RESPONSE,
+            404: EPIC_NOT_FOUND_RESPONSE,
         },
     )
     def delete(self, request, slug, project_id, pk):
-        """Delete module
+        """Delete epic
 
-        Permanently remove a module and all its associated issue relationships.
-        Only admins or the module creator can perform this action.
+        Permanently remove a epic and all its associated issue relationships.
+        Only admins or the epic creator can perform this action.
         """
-        module = Module.objects.get(workspace__slug=slug, project_id=project_id, pk=pk)
-        if module.created_by_id != request.user.id and (
+        epic = Epic.objects.get(workspace__slug=slug, project_id=project_id, pk=pk)
+        if epic.created_by_id != request.user.id and (
             not ProjectMember.objects.filter(
                 workspace__slug=slug,
                 member=request.user,
@@ -500,47 +500,47 @@ class ModuleDetailAPIEndpoint(BaseAPIView):
             ).exists()
         ):
             return Response(
-                {"error": "Only admin or creator can delete the module"},
+                {"error": "Only admin or creator can delete the epic"},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        module_issues = list(ModuleIssue.objects.filter(module_id=pk).values_list("issue", flat=True))
+        epic_issues = list(EpicIssue.objects.filter(epic_id=pk).values_list("issue", flat=True))
         issue_activity.delay(
-            type="module.activity.deleted",
+            type="epic.activity.deleted",
             requested_data=json.dumps(
                 {
-                    "module_id": str(pk),
-                    "module_name": str(module.name),
-                    "issues": [str(issue_id) for issue_id in module_issues],
+                    "epic_id": str(pk),
+                    "epic_name": str(epic.name),
+                    "issues": [str(issue_id) for issue_id in epic_issues],
                 }
             ),
             actor_id=str(request.user.id),
             issue_id=None,
             project_id=str(project_id),
-            current_instance=json.dumps({"module_name": str(module.name)}),
+            current_instance=json.dumps({"epic_name": str(epic.name)}),
             epoch=int(timezone.now().timestamp()),
             origin=base_host(request=request, is_app=True),
         )
-        module.delete()
-        # Delete the module issues
-        ModuleIssue.objects.filter(module=pk, project_id=project_id).delete()
-        # Delete the user favorite module
-        UserFavorite.objects.filter(entity_type="module", entity_identifier=pk, project_id=project_id).delete()
+        epic.delete()
+        # Delete the epic issues
+        EpicIssue.objects.filter(epic=pk, project_id=project_id).delete()
+        # Delete the user favorite epic
+        UserFavorite.objects.filter(entity_type="epic", entity_identifier=pk, project_id=project_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ModuleIssueListCreateAPIEndpoint(BaseAPIView):
-    """Module Work Item List and Create Endpoint"""
+class EpicIssueListCreateAPIEndpoint(BaseAPIView):
+    """Epic Work Item List and Create Endpoint"""
 
-    serializer_class = ModuleIssueSerializer
-    model = ModuleIssue
-    webhook_event = "module_issue"
+    serializer_class = EpicIssueSerializer
+    model = EpicIssue
+    webhook_event = "epic_issue"
     permission_classes = [ProjectEntityPermission]
     use_read_replica = True
 
     def get_queryset(self):
         return (
-            ModuleIssue.objects.annotate(
+            EpicIssue.objects.annotate(
                 sub_issues_count=Issue.issue_objects.filter(parent=OuterRef("issue"))
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
@@ -548,7 +548,7 @@ class ModuleIssueListCreateAPIEndpoint(BaseAPIView):
             )
             .filter(workspace__slug=self.kwargs.get("slug"))
             .filter(project_id=self.kwargs.get("project_id"))
-            .filter(module_id=self.kwargs.get("module_id"))
+            .filter(epic_id=self.kwargs.get("epic_id"))
             .filter(
                 project__project_projectmember__member=self.request.user,
                 project__project_projectmember__is_active=True,
@@ -556,20 +556,20 @@ class ModuleIssueListCreateAPIEndpoint(BaseAPIView):
             .filter(project__archived_at__isnull=True)
             .select_related("project")
             .select_related("workspace")
-            .select_related("module")
+            .select_related("epic")
             .select_related("issue", "issue__state", "issue__project")
             .prefetch_related("issue__assignees", "issue__labels")
-            .prefetch_related("module__members")
+            .prefetch_related("epic__members")
             .order_by(self.kwargs.get("order_by", "-created_at"))
             .distinct()
         )
 
-    @module_issue_docs(
-        operation_id="list_module_work_items",
-        summary="List module work items",
-        description="Retrieve all work items assigned to a module with detailed information.",
+    @epic_issue_docs(
+        operation_id="list_epic_work_items",
+        summary="List epic work items",
+        description="Retrieve all work items assigned to a epic with detailed information.",
         parameters=[
-            MODULE_ID_PARAMETER,
+            EPIC_ID_PARAMETER,
             CURSOR_PARAMETER,
             PER_PAGE_PARAMETER,
             ORDER_BY_PARAMETER,
@@ -580,29 +580,29 @@ class ModuleIssueListCreateAPIEndpoint(BaseAPIView):
         responses={
             200: create_paginated_response(
                 IssueSerializer,
-                "PaginatedModuleIssueResponse",
-                "Paginated list of module work items",
-                "Paginated Module Work Items",
+                "PaginatedEpicIssueResponse",
+                "Paginated list of epic work items",
+                "Paginated Epic Work Items",
             ),
-            404: OpenApiResponse(description="Module not found"),
+            404: OpenApiResponse(description="Epic not found"),
         },
     )
-    def get(self, request, slug, project_id, module_id):
-        """List module work items
+    def get(self, request, slug, project_id, epic_id):
+        """List epic work items
 
-        Retrieve all work items assigned to a module with detailed information.
+        Retrieve all work items assigned to a epic with detailed information.
         Returns paginated results including assignees, labels, and attachments.
         """
         order_by = request.GET.get("order_by", "created_at")
         issues = (
-            Issue.issue_objects.filter(issue_module__module_id=module_id, issue_module__deleted_at__isnull=True)
+            Issue.issue_objects.filter(issue_epic__epic_id=epic_id, issue_epic__deleted_at__isnull=True)
             .annotate(
                 sub_issues_count=Issue.issue_objects.filter(parent=OuterRef("id"))
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")
             )
-            .annotate(bridge_id=F("issue_module__id"))
+            .annotate(bridge_id=F("issue_epic__id"))
             .filter(project_id=project_id)
             .filter(workspace__slug=slug)
             .select_related("project")
@@ -634,89 +634,89 @@ class ModuleIssueListCreateAPIEndpoint(BaseAPIView):
             on_results=lambda issues: IssueSerializer(issues, many=True, fields=self.fields, expand=self.expand).data,
         )
 
-    @module_issue_docs(
-        operation_id="add_module_work_items",
-        summary="Add Work Items to Module",
-        description="Assign multiple work items to a module or move them from another module. Automatically handles bulk creation and updates with activity tracking.",  # noqa: E501
+    @epic_issue_docs(
+        operation_id="add_epic_work_items",
+        summary="Add Work Items to Epic",
+        description="Assign multiple work items to a epic or move them from another epic. Automatically handles bulk creation and updates with activity tracking.",  # noqa: E501
         parameters=[
-            MODULE_ID_PARAMETER,
+            EPIC_ID_PARAMETER,
         ],
         request=OpenApiRequest(
-            request=ModuleIssueRequestSerializer,
-            examples=[MODULE_ISSUE_REQUEST_EXAMPLE],
+            request=EpicIssueRequestSerializer,
+            examples=[EPIC_ISSUE_REQUEST_EXAMPLE],
         ),
         responses={
             200: OpenApiResponse(
-                description="Module issues added",
-                response=ModuleIssueSerializer,
-                examples=[MODULE_ISSUE_EXAMPLE],
+                description="Epic issues added",
+                response=EpicIssueSerializer,
+                examples=[EPIC_ISSUE_EXAMPLE],
             ),
             400: REQUIRED_FIELDS_RESPONSE,
-            404: MODULE_NOT_FOUND_RESPONSE,
+            404: EPIC_NOT_FOUND_RESPONSE,
         },
     )
-    def post(self, request, slug, project_id, module_id):
-        """Add module work items
+    def post(self, request, slug, project_id, epic_id):
+        """Add epic work items
 
-        Assign multiple work items to a module or move them from another module.
+        Assign multiple work items to a epic or move them from another epic.
         Automatically handles bulk creation and updates with activity tracking.
         """
         issues = request.data.get("issues", [])
         if not len(issues):
             return Response({"error": "Issues are required"}, status=status.HTTP_400_BAD_REQUEST)
-        module = Module.objects.get(workspace__slug=slug, project_id=project_id, pk=module_id)
+        epic = Epic.objects.get(workspace__slug=slug, project_id=project_id, pk=epic_id)
 
         issues = Issue.objects.filter(workspace__slug=slug, project_id=project_id, pk__in=issues).values_list(
             "id", flat=True
         )
 
-        module_issues = list(ModuleIssue.objects.filter(issue_id__in=issues))
+        epic_issues = list(EpicIssue.objects.filter(issue_id__in=issues))
 
-        update_module_issue_activity = []
+        update_epic_issue_activity = []
         records_to_update = []
         record_to_create = []
 
         for issue in issues:
-            module_issue = [module_issue for module_issue in module_issues if str(module_issue.issue_id) in issues]
+            epic_issue = [epic_issue for epic_issue in epic_issues if str(epic_issue.issue_id) in issues]
 
-            if len(module_issue):
-                if module_issue[0].module_id != module_id:
-                    update_module_issue_activity.append(
+            if len(epic_issue):
+                if epic_issue[0].epic_id != epic_id:
+                    update_epic_issue_activity.append(
                         {
-                            "old_module_id": str(module_issue[0].module_id),
-                            "new_module_id": str(module_id),
-                            "issue_id": str(module_issue[0].issue_id),
+                            "old_epic_id": str(epic_issue[0].epic_id),
+                            "new_epic_id": str(epic_id),
+                            "issue_id": str(epic_issue[0].issue_id),
                         }
                     )
-                    module_issue[0].module_id = module_id
-                    records_to_update.append(module_issue[0])
+                    epic_issue[0].epic_id = epic_id
+                    records_to_update.append(epic_issue[0])
             else:
                 record_to_create.append(
-                    ModuleIssue(
-                        module=module,
+                    EpicIssue(
+                        epic=epic,
                         issue_id=issue,
                         project_id=project_id,
-                        workspace=module.workspace,
+                        workspace=epic.workspace,
                         created_by=request.user,
                         updated_by=request.user,
                     )
                 )
 
-        ModuleIssue.objects.bulk_create(record_to_create, batch_size=10, ignore_conflicts=True)
+        EpicIssue.objects.bulk_create(record_to_create, batch_size=10, ignore_conflicts=True)
 
-        ModuleIssue.objects.bulk_update(records_to_update, ["module"], batch_size=10)
+        EpicIssue.objects.bulk_update(records_to_update, ["epic"], batch_size=10)
 
         # Capture Issue Activity
         issue_activity.delay(
-            type="module.activity.created",
-            requested_data=json.dumps({"modules_list": str(issues)}),
+            type="epic.activity.created",
+            requested_data=json.dumps({"epics_list": str(issues)}),
             actor_id=str(self.request.user.id),
             issue_id=None,
             project_id=str(self.kwargs.get("project_id", None)),
             current_instance=json.dumps(
                 {
-                    "updated_module_issues": update_module_issue_activity,
-                    "created_module_issues": serializers.serialize("json", record_to_create),
+                    "updated_epic_issues": update_epic_issue_activity,
+                    "created_epic_issues": serializers.serialize("json", record_to_create),
                 }
             ),
             epoch=int(timezone.now().timestamp()),
@@ -724,21 +724,21 @@ class ModuleIssueListCreateAPIEndpoint(BaseAPIView):
         )
 
         return Response(
-            ModuleIssueSerializer(self.get_queryset(), many=True).data,
+            EpicIssueSerializer(self.get_queryset(), many=True).data,
             status=status.HTTP_200_OK,
         )
 
 
-class ModuleIssueDetailAPIEndpoint(BaseAPIView):
+class EpicIssueDetailAPIEndpoint(BaseAPIView):
     """
     This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions related to module work items.
+    `update` and `destroy` actions related to epic work items.
 
     """
 
-    serializer_class = ModuleIssueSerializer
-    model = ModuleIssue
-    webhook_event = "module_issue"
+    serializer_class = EpicIssueSerializer
+    model = EpicIssue
+    webhook_event = "epic_issue"
     bulk = True
     use_read_replica = True
 
@@ -746,7 +746,7 @@ class ModuleIssueDetailAPIEndpoint(BaseAPIView):
 
     def get_queryset(self):
         return (
-            ModuleIssue.objects.annotate(
+            EpicIssue.objects.annotate(
                 sub_issues_count=Issue.issue_objects.filter(parent=OuterRef("issue"))
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
@@ -754,7 +754,7 @@ class ModuleIssueDetailAPIEndpoint(BaseAPIView):
             )
             .filter(workspace__slug=self.kwargs.get("slug"))
             .filter(project_id=self.kwargs.get("project_id"))
-            .filter(module_id=self.kwargs.get("module_id"))
+            .filter(epic_id=self.kwargs.get("epic_id"))
             .filter(
                 project__project_projectmember__member=self.request.user,
                 project__project_projectmember__is_active=True,
@@ -762,20 +762,20 @@ class ModuleIssueDetailAPIEndpoint(BaseAPIView):
             .filter(project__archived_at__isnull=True)
             .select_related("project")
             .select_related("workspace")
-            .select_related("module")
+            .select_related("epic")
             .select_related("issue", "issue__state", "issue__project")
             .prefetch_related("issue__assignees", "issue__labels")
-            .prefetch_related("module__members")
+            .prefetch_related("epic__members")
             .order_by(self.kwargs.get("order_by", "-created_at"))
             .distinct()
         )
 
-    @module_issue_docs(
-        operation_id="retrieve_module_work_item",
-        summary="Retrieve module work item",
-        description="Retrieve details of a specific module work item.",
+    @epic_issue_docs(
+        operation_id="retrieve_epic_work_item",
+        summary="Retrieve epic work item",
+        description="Retrieve details of a specific epic work item.",
         parameters=[
-            MODULE_ID_PARAMETER,
+            EPIC_ID_PARAMETER,
             ISSUE_ID_PARAMETER,
             CURSOR_PARAMETER,
             PER_PAGE_PARAMETER,
@@ -786,24 +786,24 @@ class ModuleIssueDetailAPIEndpoint(BaseAPIView):
         responses={
             200: create_paginated_response(
                 IssueSerializer,
-                "PaginatedModuleIssueDetailResponse",
-                "Paginated list of module work item details",
-                "Module Work Item Details",
+                "PaginatedEpicIssueDetailResponse",
+                "Paginated list of epic work item details",
+                "Epic Work Item Details",
             ),
-            404: OpenApiResponse(description="Module not found"),
+            404: OpenApiResponse(description="Epic not found"),
         },
     )
-    def get(self, request, slug, project_id, module_id, issue_id):
-        """List module work items
+    def get(self, request, slug, project_id, epic_id, issue_id):
+        """List epic work items
 
-        Retrieve all work items assigned to a module with detailed information.
+        Retrieve all work items assigned to a epic with detailed information.
         Returns paginated results including assignees, labels, and attachments.
         """
         order_by = request.GET.get("order_by", "created_at")
         issues = (
             Issue.issue_objects.filter(
-                issue_module__module_id=module_id,
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=epic_id,
+                issue_epic__deleted_at__isnull=True,
                 pk=issue_id,
             )
             .annotate(
@@ -812,7 +812,7 @@ class ModuleIssueDetailAPIEndpoint(BaseAPIView):
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")
             )
-            .annotate(bridge_id=F("issue_module__id"))
+            .annotate(bridge_id=F("issue_epic__id"))
             .filter(project_id=project_id)
             .filter(workspace__slug=slug)
             .select_related("project")
@@ -844,53 +844,53 @@ class ModuleIssueDetailAPIEndpoint(BaseAPIView):
             on_results=lambda issues: IssueSerializer(issues, many=True, fields=self.fields, expand=self.expand).data,
         )
 
-    @module_issue_docs(
-        operation_id="delete_module_work_item",
-        summary="Delete module work item",
-        description="Remove a work item from a module while keeping the work item in the project.",
+    @epic_issue_docs(
+        operation_id="delete_epic_work_item",
+        summary="Delete epic work item",
+        description="Remove a work item from a epic while keeping the work item in the project.",
         parameters=[
-            MODULE_ID_PARAMETER,
+            EPIC_ID_PARAMETER,
             ISSUE_ID_PARAMETER,
         ],
         responses={
             204: DELETED_RESPONSE,
-            404: MODULE_ISSUE_NOT_FOUND_RESPONSE,
+            404: EPIC_ISSUE_NOT_FOUND_RESPONSE,
         },
     )
-    def delete(self, request, slug, project_id, module_id, issue_id):
-        """Remove module work item
+    def delete(self, request, slug, project_id, epic_id, issue_id):
+        """Remove epic work item
 
-        Remove a work item from a module while keeping the work item in the project.
+        Remove a work item from a epic while keeping the work item in the project.
         Records the removal activity for tracking purposes.
         """
-        module_issue = ModuleIssue.objects.get(
+        epic_issue = EpicIssue.objects.get(
             workspace__slug=slug,
             project_id=project_id,
-            module_id=module_id,
+            epic_id=epic_id,
             issue_id=issue_id,
         )
 
-        module_name = module_issue.module.name if module_issue.module is not None else ""
-        module_issue.delete()
+        epic_name = epic_issue.epic.name if epic_issue.epic is not None else ""
+        epic_issue.delete()
         issue_activity.delay(
-            type="module.activity.deleted",
-            requested_data=json.dumps({"module_id": str(module_id), "issues": [str(module_issue.issue_id)]}),
+            type="epic.activity.deleted",
+            requested_data=json.dumps({"epic_id": str(epic_id), "issues": [str(epic_issue.issue_id)]}),
             actor_id=str(request.user.id),
             issue_id=str(issue_id),
             project_id=str(project_id),
-            current_instance=json.dumps({"module_name": module_name}),
+            current_instance=json.dumps({"epic_name": epic_name}),
             epoch=int(timezone.now().timestamp()),
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ModuleArchiveUnarchiveAPIEndpoint(BaseAPIView):
+class EpicArchiveUnarchiveAPIEndpoint(BaseAPIView):
     permission_classes = [ProjectEntityPermission]
     use_read_replica = True
 
     def get_queryset(self):
         return (
-            Module.objects.filter(project_id=self.kwargs.get("project_id"))
+            Epic.objects.filter(project_id=self.kwargs.get("project_id"))
             .filter(workspace__slug=self.kwargs.get("slug"))
             .filter(archived_at__isnull=False)
             .select_related("project")
@@ -899,77 +899,77 @@ class ModuleArchiveUnarchiveAPIEndpoint(BaseAPIView):
             .prefetch_related("members")
             .prefetch_related(
                 Prefetch(
-                    "link_module",
-                    queryset=ModuleLink.objects.select_related("module", "created_by"),
+                    "link_epic",
+                    queryset=EpicLink.objects.select_related("epic", "created_by"),
                 )
             )
             .annotate(
                 total_issues=Count(
-                    "issue_module",
+                    "issue_epic",
                     filter=Q(
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 completed_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="completed",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="completed",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 cancelled_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="cancelled",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="cancelled",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 started_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="started",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="started",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 unstarted_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="unstarted",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="unstarted",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
             )
             .annotate(
                 backlog_issues=Count(
-                    "issue_module__issue__state__group",
+                    "issue_epic__issue__state__group",
                     filter=Q(
-                        issue_module__issue__state__group="backlog",
-                        issue_module__issue__archived_at__isnull=True,
-                        issue_module__issue__is_draft=False,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__issue__state__group="backlog",
+                        issue_epic__issue__archived_at__isnull=True,
+                        issue_epic__issue__is_draft=False,
+                        issue_epic__deleted_at__isnull=True,
                     ),
                     distinct=True,
                 )
@@ -977,10 +977,10 @@ class ModuleArchiveUnarchiveAPIEndpoint(BaseAPIView):
             .order_by(self.kwargs.get("order_by", "-created_at"))
         )
 
-    @module_docs(
-        operation_id="list_archived_modules",
-        summary="List archived modules",
-        description="Retrieve all modules that have been archived in the project.",
+    @epic_docs(
+        operation_id="list_archived_epics",
+        summary="List archived epics",
+        description="Retrieve all epics that have been archived in the project.",
         parameters=[
             CURSOR_PARAMETER,
             PER_PAGE_PARAMETER,
@@ -991,83 +991,83 @@ class ModuleArchiveUnarchiveAPIEndpoint(BaseAPIView):
         request={},
         responses={
             200: create_paginated_response(
-                ModuleSerializer,
-                "PaginatedArchivedModuleResponse",
-                "Paginated list of archived modules",
-                "Paginated Archived Modules",
+                EpicSerializer,
+                "PaginatedArchivedEpicResponse",
+                "Paginated list of archived epics",
+                "Paginated Archived Epics",
             ),
             404: OpenApiResponse(description="Project not found"),
         },
     )
     def get(self, request, slug, project_id):
-        """List archived modules
+        """List archived epics
 
-        Retrieve all modules that have been archived in the project.
-        Returns paginated results with module statistics.
+        Retrieve all epics that have been archived in the project.
+        Returns paginated results with epic statistics.
         """
         return self.paginate(
             request=request,
             queryset=(self.get_queryset()),
-            on_results=lambda modules: ModuleSerializer(
-                modules, many=True, fields=self.fields, expand=self.expand
+            on_results=lambda epics: EpicSerializer(
+                epics, many=True, fields=self.fields, expand=self.expand
             ).data,
         )
 
-    @module_docs(
-        operation_id="archive_module",
-        summary="Archive module",
-        description="Move a module to archived status for historical tracking.",
+    @epic_docs(
+        operation_id="archive_epic",
+        summary="Archive epic",
+        description="Move a epic to archived status for historical tracking.",
         parameters=[
-            MODULE_PK_PARAMETER,
+            EPIC_PK_PARAMETER,
         ],
         request={},
         responses={
             204: None,
             400: CANNOT_ARCHIVE_RESPONSE,
-            404: MODULE_NOT_FOUND_RESPONSE,
+            404: EPIC_NOT_FOUND_RESPONSE,
         },
     )
     def post(self, request, slug, project_id, pk):
-        """Archive module
+        """Archive epic
 
-        Move a completed module to archived status for historical tracking.
-        Only modules with completed status can be archived.
+        Move a completed epic to archived status for historical tracking.
+        Only epics with completed status can be archived.
         """
-        module = Module.objects.get(pk=pk, project_id=project_id, workspace__slug=slug)
-        if module.status not in ["completed", "cancelled"]:
+        epic = Epic.objects.get(pk=pk, project_id=project_id, workspace__slug=slug)
+        if epic.status not in ["completed", "cancelled"]:
             return Response(
-                {"error": "Only completed or cancelled modules can be archived"},
+                {"error": "Only completed or cancelled epics can be archived"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        module.archived_at = timezone.now()
-        module.save()
+        epic.archived_at = timezone.now()
+        epic.save()
         UserFavorite.objects.filter(
-            entity_type="module",
+            entity_type="epic",
             entity_identifier=pk,
             project_id=project_id,
             workspace__slug=slug,
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @module_docs(
-        operation_id="unarchive_module",
-        summary="Unarchive module",
-        description="Restore an archived module to active status, making it available for regular use.",
+    @epic_docs(
+        operation_id="unarchive_epic",
+        summary="Unarchive epic",
+        description="Restore an archived epic to active status, making it available for regular use.",
         parameters=[
-            MODULE_PK_PARAMETER,
+            EPIC_PK_PARAMETER,
         ],
         responses={
             204: None,
-            404: MODULE_NOT_FOUND_RESPONSE,
+            404: EPIC_NOT_FOUND_RESPONSE,
         },
     )
     def delete(self, request, slug, project_id, pk):
-        """Unarchive module
+        """Unarchive epic
 
-        Restore an archived module to active status, making it available for regular use.
-        The module will reappear in active module lists and become fully functional.
+        Restore an archived epic to active status, making it available for regular use.
+        The epic will reappear in active epic lists and become fully functional.
         """
-        module = Module.objects.get(pk=pk, project_id=project_id, workspace__slug=slug)
-        module.archived_at = None
-        module.save()
+        epic = Epic.objects.get(pk=pk, project_id=project_id, workspace__slug=slug)
+        epic.archived_at = None
+        epic.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

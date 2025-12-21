@@ -5,20 +5,20 @@ from rest_framework import serializers
 from .base import BaseSerializer
 from plane.db.models import (
     User,
-    Module,
-    ModuleLink,
-    ModuleMember,
-    ModuleIssue,
+    Epic,
+    EpicLink,
+    EpicMember,
+    EpicIssue,
     ProjectMember,
     Project,
 )
 
 
-class ModuleCreateSerializer(BaseSerializer):
+class EpicCreateSerializer(BaseSerializer):
     """
-    Serializer for creating modules with member validation and date checking.
+    Serializer for creating epics with member validation and date checking.
 
-    Handles module creation including member assignment validation, date range
+    Handles epic creation including member assignment validation, date range
     verification, and duplicate name prevention for feature-based
     project organization setup.
     """
@@ -30,7 +30,7 @@ class ModuleCreateSerializer(BaseSerializer):
     )
 
     class Meta:
-        model = Module
+        model = Epic
         fields = [
             "name",
             "description",
@@ -60,8 +60,8 @@ class ModuleCreateSerializer(BaseSerializer):
         project = Project.objects.get(id=project_id)
         if not project:
             raise serializers.ValidationError("Project not found")
-        if not project.module_view:
-            raise serializers.ValidationError("Modules are not enabled for this project")
+        if not project.epic_view:
+            raise serializers.ValidationError("Epics are not enabled for this project")
         if (
             data.get("start_date", None) is not None
             and data.get("target_date", None) is not None
@@ -82,31 +82,31 @@ class ModuleCreateSerializer(BaseSerializer):
         project_id = self.context["project_id"]
         workspace_id = self.context["workspace_id"]
 
-        module_name = validated_data.get("name")
-        if module_name:
-            # Lookup for the module name in the module table for that project
-            module = Module.objects.filter(name=module_name, project_id=project_id).first()
-            if module:
+        epic_name = validated_data.get("name")
+        if epic_name:
+            # Lookup for the epic name in the epic table for that project
+            epic = Epic.objects.filter(name=epic_name, project_id=project_id).first()
+            if epic:
                 raise serializers.ValidationError(
                     {
-                        "id": str(module.id),
-                        "code": "MODULE_NAME_ALREADY_EXISTS",
-                        "error": "Module with this name already exists",
-                        "message": "Module with this name already exists",
+                        "id": str(epic.id),
+                        "code": "EPIC_NAME_ALREADY_EXISTS",
+                        "error": "Epic with this name already exists",
+                        "message": "Epic with this name already exists",
                     }
                 )
 
-        module = Module.objects.create(**validated_data, project_id=project_id)
+        epic = Epic.objects.create(**validated_data, project_id=project_id)
         if members is not None:
-            ModuleMember.objects.bulk_create(
+            EpicMember.objects.bulk_create(
                 [
-                    ModuleMember(
-                        module=module,
+                    EpicMember(
+                        epic=epic,
                         member_id=str(member),
                         project_id=project_id,
                         workspace_id=workspace_id,
-                        created_by=module.created_by,
-                        updated_by=module.updated_by,
+                        created_by=epic.created_by,
+                        updated_by=epic.updated_by,
                     )
                     for member in members
                 ],
@@ -114,39 +114,39 @@ class ModuleCreateSerializer(BaseSerializer):
                 ignore_conflicts=True,
             )
 
-        return module
+        return epic
 
 
-class ModuleUpdateSerializer(ModuleCreateSerializer):
+class EpicUpdateSerializer(EpicCreateSerializer):
     """
-    Serializer for updating modules with enhanced validation and member management.
+    Serializer for updating epics with enhanced validation and member management.
 
-    Extends module creation with update-specific validations including
+    Extends epic creation with update-specific validations including
     member reassignment, name conflict checking,
-    and relationship management for module modifications.
+    and relationship management for epic modifications.
     """
 
-    class Meta(ModuleCreateSerializer.Meta):
-        model = Module
-        fields = ModuleCreateSerializer.Meta.fields + [
+    class Meta(EpicCreateSerializer.Meta):
+        model = Epic
+        fields = EpicCreateSerializer.Meta.fields + [
             "members",
         ]
-        read_only_fields = ModuleCreateSerializer.Meta.read_only_fields
+        read_only_fields = EpicCreateSerializer.Meta.read_only_fields
 
     def update(self, instance, validated_data):
         members = validated_data.pop("members", None)
-        module_name = validated_data.get("name")
-        if module_name:
-            # Lookup for the module name in the module table for that project
-            if Module.objects.filter(name=module_name, project=instance.project).exclude(id=instance.id).exists():
-                raise serializers.ValidationError({"error": "Module with this name already exists"})
+        epic_name = validated_data.get("name")
+        if epic_name:
+            # Lookup for the epic name in the epic table for that project
+            if Epic.objects.filter(name=epic_name, project=instance.project).exclude(id=instance.id).exists():
+                raise serializers.ValidationError({"error": "Epic with this name already exists"})
 
         if members is not None:
-            ModuleMember.objects.filter(module=instance).delete()
-            ModuleMember.objects.bulk_create(
+            EpicMember.objects.filter(epic=instance).delete()
+            EpicMember.objects.bulk_create(
                 [
-                    ModuleMember(
-                        module=instance,
+                    EpicMember(
+                        epic=instance,
                         member_id=str(member),
                         project=instance.project,
                         workspace=instance.project.workspace,
@@ -162,11 +162,11 @@ class ModuleUpdateSerializer(ModuleCreateSerializer):
         return super().update(instance, validated_data)
 
 
-class ModuleSerializer(BaseSerializer):
+class EpicSerializer(BaseSerializer):
     """
-    Comprehensive module serializer with work item metrics and member management.
+    Comprehensive epic serializer with work item metrics and member management.
 
-    Provides complete module data including work item counts by status, member
+    Provides complete epic data including work item counts by status, member
     relationships, and progress tracking for feature-based project organization.
     """
 
@@ -183,7 +183,7 @@ class ModuleSerializer(BaseSerializer):
     backlog_issues = serializers.IntegerField(read_only=True)
 
     class Meta:
-        model = Module
+        model = Epic
         fields = "__all__"
         read_only_fields = [
             "id",
@@ -202,18 +202,18 @@ class ModuleSerializer(BaseSerializer):
         return data
 
 
-class ModuleIssueSerializer(BaseSerializer):
+class EpicIssueSerializer(BaseSerializer):
     """
-    Serializer for module-work item relationships with sub-item counting.
+    Serializer for epic-work item relationships with sub-item counting.
 
-    Manages the association between modules and work items, including
+    Manages the association between epics and work items, including
     hierarchical issue tracking for nested work item structures.
     """
 
     sub_issues_count = serializers.IntegerField(read_only=True)
 
     class Meta:
-        model = ModuleIssue
+        model = EpicIssue
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -222,20 +222,20 @@ class ModuleIssueSerializer(BaseSerializer):
             "updated_by",
             "created_at",
             "updated_at",
-            "module",
+            "epic",
         ]
 
 
-class ModuleLinkSerializer(BaseSerializer):
+class EpicLinkSerializer(BaseSerializer):
     """
-    Serializer for module external links with URL validation.
+    Serializer for epic external links with URL validation.
 
-    Handles external resource associations with modules including
+    Handles external resource associations with epics including
     URL validation and duplicate prevention for reference management.
     """
 
     class Meta:
-        model = ModuleLink
+        model = EpicLink
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -244,38 +244,38 @@ class ModuleLinkSerializer(BaseSerializer):
             "updated_by",
             "created_at",
             "updated_at",
-            "module",
+            "epic",
         ]
 
     # Validation if url already exists
     def create(self, validated_data):
-        if ModuleLink.objects.filter(url=validated_data.get("url"), module_id=validated_data.get("module_id")).exists():
+        if EpicLink.objects.filter(url=validated_data.get("url"), epic_id=validated_data.get("epic_id")).exists():
             raise serializers.ValidationError({"error": "URL already exists for this Issue"})
-        return ModuleLink.objects.create(**validated_data)
+        return EpicLink.objects.create(**validated_data)
 
 
-class ModuleLiteSerializer(BaseSerializer):
+class EpicLiteSerializer(BaseSerializer):
     """
-    Lightweight module serializer for minimal data transfer.
+    Lightweight epic serializer for minimal data transfer.
 
-    Provides essential module information without computed metrics,
+    Provides essential epic information without computed metrics,
     optimized for list views and reference lookups.
     """
 
     class Meta:
-        model = Module
+        model = Epic
         fields = "__all__"
 
 
-class ModuleIssueRequestSerializer(serializers.Serializer):
+class EpicIssueRequestSerializer(serializers.Serializer):
     """
-    Serializer for bulk work item assignment to modules.
+    Serializer for bulk work item assignment to epics.
 
     Validates work item ID lists for batch operations including
-    module assignment and work item organization workflows.
+    epic assignment and work item organization workflows.
     """
 
     issues = serializers.ListField(
         child=serializers.UUIDField(),
-        help_text="List of issue IDs to add to the module",
+        help_text="List of issue IDs to add to the epic",
     )

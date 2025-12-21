@@ -98,7 +98,7 @@ class SprintIssueViewSet(BaseViewSet):
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")
             )
-            .prefetch_related("assignees", "labels", "issue_module__module", "issue_sprint__sprint")
+            .prefetch_related("assignees", "labels", "issue_epic__epic", "issue_sprint__sprint")
         )
 
     @method_decorator(gzip_page)

@@ -5,7 +5,7 @@ import type { TPowerKPageType } from "@/components/power-k/core/types";
 import { PowerKMembersMenu } from "@/components/power-k/menus/members";
 // hooks
 import { useMember } from "@/hooks/store/use-member";
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 // local imports
 import { PowerKEpicStatusMenu } from "./status-menu";
 

@@ -4,7 +4,7 @@ import { LinkIcon, Star, StarOff, Users } from "lucide-react";
 // plane imports
 import { EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { ModuleStatusIcon } from "@plane/propel/icons";
+import { EpicStatusIcon } from "@plane/propel/icons";
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
 import type { IEpic, TEpicStatus } from "@plane/types";
 import { EUserPermissions } from "@plane/types";
@@ -12,7 +12,7 @@ import { copyTextToClipboard } from "@plane/utils";
 // components
 import type { TPowerKCommandConfig } from "@/components/power-k/core/types";
 // hooks
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useUser } from "@/hooks/store/user";
 
 export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
@@ -114,7 +114,7 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
     {
       id: "change_epic_status",
       i18n_title: "power_k.contextual_actions.epic.change_status",
-      iconNode: <ModuleStatusIcon status="backlog" className="shrink-0 size-3.5" />,
+      iconNode: <EpicStatusIcon status="backlog" className="shrink-0 size-3.5" />,
       group: "contextual",
       contextType: "epic",
       type: "change-page",

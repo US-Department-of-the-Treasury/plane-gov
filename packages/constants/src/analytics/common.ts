@@ -145,7 +145,7 @@ export const ANALYTICS_X_AXIS_VALUES: { value: ChartXAxisProperty; label: string
     label: "Sprint",
   },
   {
-    value: ChartXAxisProperty.MODULES,
+    value: ChartXAxisProperty.EPICS,
     label: "Epic",
   },
   {

@@ -83,7 +83,7 @@ class ProjectIssuesPublicEndpoint(BaseAPIView):
         issue_queryset = (
             Issue.issue_objects.filter(workspace__slug=slug, project_id=project_id)
             .select_related("workspace", "project", "state", "parent")
-            .prefetch_related("assignees", "labels", "issue_module__module")
+            .prefetch_related("assignees", "labels", "issue_epic__epic")
             .prefetch_related(
                 Prefetch(
                     "issue_reactions",
@@ -600,7 +600,7 @@ class IssueRetrievePublicEndpoint(BaseAPIView):
                 project_id=deploy_board.project_id,
             )
             .select_related("workspace", "project", "state", "parent")
-            .prefetch_related("assignees", "labels", "issue_module__module")
+            .prefetch_related("assignees", "labels", "issue_epic__epic")
             .annotate(
                 sprint_id=Subquery(
                     SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
@@ -627,13 +627,13 @@ class IssueRetrievePublicEndpoint(BaseAPIView):
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
                 ),
-                module_ids=Coalesce(
+                epic_ids=Coalesce(
                     ArrayAgg(
-                        "issue_module__module_id",
+                        "issue_epic__epic_id",
                         distinct=True,
-                        filter=~Q(issue_module__module_id__isnull=True)
-                        & Q(issue_module__module__archived_at__isnull=True)
-                        & Q(issue_module__deleted_at__isnull=True),
+                        filter=~Q(issue_epic__epic_id__isnull=True)
+                        & Q(issue_epic__epic__archived_at__isnull=True)
+                        & Q(issue_epic__deleted_at__isnull=True),
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
                 ),
@@ -748,7 +748,7 @@ class IssueRetrievePublicEndpoint(BaseAPIView):
                 "description_html",
                 "description_stripped",
                 "description_binary",
-                "module_ids",
+                "epic_ids",
                 "label_ids",
                 "assignee_ids",
                 "estimate_point",

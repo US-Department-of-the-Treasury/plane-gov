@@ -23,7 +23,6 @@ import {
   SprintIcon,
   EpicIcon,
   IntakeIcon,
-  ModuleIcon,
   RelatedIcon,
   WorkItemsIcon,
 } from "@plane/propel/icons";
@@ -511,7 +510,7 @@ const activityDetails: {
           </>
         );
     },
-    icon: <ModuleIcon className="h-3 w-3 !text-secondary" aria-hidden="true" />,
+    icon: <EpicIcon className="h-3 w-3 !text-secondary" aria-hidden="true" />,
   },
   name: {
     message: (activity, showIssue) => (

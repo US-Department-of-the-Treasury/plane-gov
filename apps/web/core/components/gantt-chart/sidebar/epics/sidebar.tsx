@@ -8,7 +8,7 @@ import { Loader } from "@plane/ui";
 import { useTimeLineChart } from "@/hooks/use-timeline-chart";
 import { GanttDnDHOC } from "../gantt-dnd-HOC";
 import { handleOrderChange } from "../utils";
-import { ModulesSidebarBlock } from "./block";
+import { EpicsSidebarBlock } from "./block";
 // types
 
 type Props = {
@@ -18,10 +18,10 @@ type Props = {
   enableReorder: boolean;
 };
 
-export const ModuleGanttSidebar = observer(function ModuleGanttSidebar(props: Props) {
+export const EpicGanttSidebar = observer(function EpicGanttSidebar(props: Props) {
   const { blockUpdateHandler, blockIds, enableReorder } = props;
 
-  const { getBlockById } = useTimeLineChart(GANTT_TIMELINE_TYPE.MODULE);
+  const { getBlockById } = useTimeLineChart(GANTT_TIMELINE_TYPE.EPIC);
 
   const handleOnDrop = (
     draggingBlockId: string | undefined,
@@ -42,7 +42,7 @@ export const ModuleGanttSidebar = observer(function ModuleGanttSidebar(props: Pr
             isDragEnabled={enableReorder}
             onDrop={handleOnDrop}
           >
-            {(isDragging: boolean) => <ModulesSidebarBlock blockId={blockId} isDragging={isDragging} />}
+            {(isDragging: boolean) => <EpicsSidebarBlock blockId={blockId} isDragging={isDragging} />}
           </GanttDnDHOC>
         ))
       ) : (

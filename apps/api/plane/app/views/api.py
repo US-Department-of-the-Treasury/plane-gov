@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
 
-# Module import
+# Epic import
 from .base import BaseAPIView
 from plane.db.models import APIToken, Workspace
 from plane.app.serializers import APITokenSerializer, APITokenReadSerializer

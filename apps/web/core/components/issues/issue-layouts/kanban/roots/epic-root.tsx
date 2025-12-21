@@ -20,7 +20,7 @@ export const EpicKanBanLayout = observer(function EpicKanBanLayout() {
       QuickActions={EpicIssueQuickActions}
       addIssuesToView={(issueIds: string[]) => {
         if (!workspaceSlug || !projectId || !epicId) throw new Error();
-        return issues.addIssuesToModule(workspaceSlug.toString(), projectId.toString(), epicId.toString(), issueIds);
+        return issues.addIssuesToEpic(workspaceSlug.toString(), projectId.toString(), epicId.toString(), issueIds);
       }}
       viewId={epicId?.toString()}
     />

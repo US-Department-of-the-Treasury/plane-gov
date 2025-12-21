@@ -56,15 +56,15 @@ export default {
       cta_primary: "Crear elemento de trabajo",
       cta_secondary: "Agregar elemento de trabajo existente",
     },
-    modules: {
-      title: "Asigna los objetivos de tu proyecto a Módulos y rastrea fácilmente.",
+    epics: {
+      title: "Asigna los objetivos de tu proyecto a Épicos y rastrea fácilmente.",
       description:
-        "Los módulos están compuestos de elementos de trabajo interconectados. Ayudan a monitorear el progreso a través de las fases del proyecto, cada una con fechas límite específicas y análisis para indicar qué tan cerca estás de alcanzar esas fases.",
-      cta_primary: "Establece tu primer módulo",
+        "Los épicos están compuestos de elementos de trabajo interconectados. Ayudan a monitorear el progreso a través de las fases del proyecto, cada una con fechas límite específicas y análisis para indicar qué tan cerca estás de alcanzar esas fases.",
+      cta_primary: "Establece tu primer épico",
     },
-    module_work_items: {
-      title: "No hay elementos de trabajo para mostrar en este Módulo",
-      description: "Crea elementos de trabajo para comenzar a monitorear este módulo.",
+    epic_work_items: {
+      title: "No hay elementos de trabajo para mostrar en este Épico",
+      description: "Crea elementos de trabajo para comenzar a monitorear este épico.",
       cta_primary: "Crear elemento de trabajo",
       cta_secondary: "Agregar elemento de trabajo existente",
     },
@@ -115,10 +115,10 @@ export default {
       title: "Aún no hay ciclos archivados",
       description: "Para ordenar tu proyecto, archiva los ciclos completados. Encuéntralos aquí una vez archivados.",
     },
-    archive_modules: {
-      title: "Aún no hay Módulos archivados",
+    archive_epics: {
+      title: "Aún no hay Épicos archivados",
       description:
-        "Para ordenar tu proyecto, archiva los módulos completados o cancelados. Encuéntralos aquí una vez archivados.",
+        "Para ordenar tu proyecto, archiva los épicos completados o cancelados. Encuéntralos aquí una vez archivados.",
     },
     home_widget_quick_links: {
       title: "Mantén a mano referencias importantes, recursos o documentos para tu trabajo",
@@ -162,8 +162,8 @@ export default {
       title:
         "Crea ciclos para organizar el trabajo en fases con límite de tiempo y rastrear el progreso en los sprints.",
     },
-    analytics_no_module: {
-      title: "Crea módulos para organizar tu trabajo y rastrear el progreso en diferentes etapas.",
+    analytics_no_epic: {
+      title: "Crea épicos para organizar tu trabajo y rastrear el progreso en diferentes etapas.",
     },
     analytics_no_intake: {
       title: "Configura la entrada para gestionar las solicitudes entrantes y rastrear cómo se aceptan y rechazan",

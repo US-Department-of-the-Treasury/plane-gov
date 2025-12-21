@@ -63,7 +63,7 @@ export type TIssueParams =
   | "subscriber"
   | "labels"
   | "sprint"
-  | "module"
+  | "epic"
   | "start_date"
   | "target_date"
   | "project"
@@ -128,7 +128,7 @@ export interface IIssueFilterOptions {
   labels?: string[] | null;
   priority?: string[] | null;
   sprint?: string[] | null;
-  module?: string[] | null;
+  epic?: string[] | null;
   project?: string[] | null;
   team_project?: string[] | null;
   start_date?: string[] | null;
@@ -165,7 +165,7 @@ export interface IIssueDisplayProperties {
   estimate?: boolean;
   created_on?: boolean;
   updated_on?: boolean;
-  modules?: boolean;
+  epics?: boolean;
   sprint?: boolean;
   issue_type?: boolean;
 }

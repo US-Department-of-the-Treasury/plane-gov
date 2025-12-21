@@ -90,8 +90,8 @@ def build_graph_plot(queryset, x_axis, y_axis, segment=None):
     return sort_data(grouped_data, temp_axis)
 
 
-def burndown_plot(queryset, slug, project_id, plot_type, sprint_id=None, module_id=None):
-    # Total Issues in Sprint or Module
+def burndown_plot(queryset, slug, project_id, plot_type, sprint_id=None, epic_id=None):
+    # Total Issues in Sprint or Epic
     total_issues = queryset.total_issues
     # check whether the estimate is a point or not
     estimate_type = Project.objects.filter(
@@ -112,12 +112,12 @@ def burndown_plot(queryset, slug, project_id, plot_type, sprint_id=None, module_
         issue_estimates = [float(value) for value in issue_estimates]
         total_estimate_points = sum(issue_estimates)
 
-    if estimate_type and plot_type == "points" and module_id:
+    if estimate_type and plot_type == "points" and epic_id:
         issue_estimates = Issue.issue_objects.filter(
             workspace__slug=slug,
             project_id=project_id,
-            issue_module__module_id=module_id,
-            issue_module__deleted_at__isnull=True,
+            issue_epic__epic_id=epic_id,
+            issue_epic__deleted_at__isnull=True,
             estimate_point__isnull=False,
         ).values_list("estimate_point__value", flat=True)
 
@@ -165,7 +165,7 @@ def burndown_plot(queryset, slug, project_id, plot_type, sprint_id=None, module_
                 .order_by("date")
             )
 
-    if module_id:
+    if epic_id:
         # Get all dates between the two dates
         date_range = [
             (queryset.start_date + timedelta(days=x))
@@ -179,8 +179,8 @@ def burndown_plot(queryset, slug, project_id, plot_type, sprint_id=None, module_
                 Issue.issue_objects.filter(
                     workspace__slug=slug,
                     project_id=project_id,
-                    issue_module__module_id=module_id,
-                    issue_module__deleted_at__isnull=True,
+                    issue_epic__epic_id=epic_id,
+                    issue_epic__deleted_at__isnull=True,
                     estimate_point__isnull=False,
                 )
                 .annotate(date=TruncDate("completed_at"))
@@ -193,8 +193,8 @@ def burndown_plot(queryset, slug, project_id, plot_type, sprint_id=None, module_
                 Issue.issue_objects.filter(
                     workspace__slug=slug,
                     project_id=project_id,
-                    issue_module__module_id=module_id,
-                    issue_module__deleted_at__isnull=True,
+                    issue_epic__epic_id=epic_id,
+                    issue_epic__deleted_at__isnull=True,
                 )
                 .annotate(date=TruncDate("completed_at"))
                 .values("date")

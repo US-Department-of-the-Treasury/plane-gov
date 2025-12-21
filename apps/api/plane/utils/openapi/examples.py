@@ -1,7 +1,7 @@
 """
 Common OpenAPI examples for drf-spectacular.
 
-This module provides reusable example data for API responses and requests
+This epic provides reusable example data for API responses and requests
 to make the generated documentation more helpful and realistic.
 """
 
@@ -265,42 +265,42 @@ TRANSFER_SPRINT_ISSUE_EXAMPLE = OpenApiExample(
     description="Example request for transferring sprint issues",
 )
 
-# Module Examples
-MODULE_CREATE_EXAMPLE = OpenApiExample(
-    "ModuleCreateSerializer",
+# Epic Examples
+EPIC_CREATE_EXAMPLE = OpenApiExample(
+    "EpicCreateSerializer",
     value={
-        "name": "New Module",
-        "description": "New module description",
+        "name": "New Epic",
+        "description": "New epic description",
         "start_date": "2021-01-01",
         "end_date": "2021-01-31",
         "external_id": "1234567890",
         "external_source": "github",
     },
-    description="Example request for creating a module",
+    description="Example request for creating a epic",
 )
 
-MODULE_UPDATE_EXAMPLE = OpenApiExample(
-    "ModuleUpdateSerializer",
+EPIC_UPDATE_EXAMPLE = OpenApiExample(
+    "EpicUpdateSerializer",
     value={
-        "name": "Updated Module",
-        "description": "Updated module description",
+        "name": "Updated Epic",
+        "description": "Updated epic description",
         "start_date": "2021-01-01",
         "end_date": "2021-01-31",
         "external_id": "1234567890",
         "external_source": "github",
     },
-    description="Example request for updating a module",
+    description="Example request for updating a epic",
 )
 
-MODULE_ISSUE_REQUEST_EXAMPLE = OpenApiExample(
-    "ModuleIssueRequestSerializer",
+EPIC_ISSUE_REQUEST_EXAMPLE = OpenApiExample(
+    "EpicIssueRequestSerializer",
     value={
         "issues": [
             "0ec6cfa4-e906-4aad-9390-2df0303a41cd",
             "0ec6cfa4-e906-4aad-9390-2df0303a41ce",
         ],
     },
-    description="Example request for adding module issues",
+    description="Example request for adding epic issues",
 )
 
 # Project Examples
@@ -428,12 +428,12 @@ TRANSFER_SPRINT_COMPLETED_ERROR_EXAMPLE = OpenApiExample(
     description="Error when trying to transfer to a completed sprint",
 )
 
-# Module Response Examples
-MODULE_EXAMPLE = OpenApiExample(
-    name="Module",
+# Epic Response Examples
+EPIC_EXAMPLE = OpenApiExample(
+    name="Epic",
     value={
         "id": "550e8400-e29b-41d4-a716-446655440000",
-        "name": "Authentication Module",
+        "name": "Authentication Epic",
         "description": "User authentication and authorization features",
         "start_date": "2024-01-01",
         "target_date": "2024-02-15",
@@ -573,12 +573,12 @@ INTAKE_ISSUE_EXAMPLE = OpenApiExample(
     },
 )
 
-# Module Issue Response Examples
-MODULE_ISSUE_EXAMPLE = OpenApiExample(
-    name="ModuleIssue",
+# Epic Issue Response Examples
+EPIC_ISSUE_EXAMPLE = OpenApiExample(
+    name="EpicIssue",
     value={
         "id": "550e8400-e29b-41d4-a716-446655440000",
-        "module": "550e8400-e29b-41d4-a716-446655440001",
+        "epic": "550e8400-e29b-41d4-a716-446655440001",
         "issue": "550e8400-e29b-41d4-a716-446655440002",
         "sub_issues_count": 2,
         "created_at": "2024-01-01T10:30:00Z",
@@ -715,9 +715,9 @@ SAMPLE_SPRINT = {
     "status": "current",
 }
 
-SAMPLE_MODULE = {
+SAMPLE_EPIC = {
     "id": "550e8400-e29b-41d4-a716-446655440000",
-    "name": "Authentication Module",
+    "name": "Authentication Epic",
     "description": "User authentication and authorization features",
     "start_date": "2024-01-01",
     "target_date": "2024-02-15",
@@ -803,7 +803,7 @@ SCHEMA_EXAMPLES = {
     "WorkItem": SAMPLE_ISSUE,
     "Label": SAMPLE_LABEL,
     "Sprint": SAMPLE_SPRINT,
-    "Module": SAMPLE_MODULE,
+    "Epic": SAMPLE_EPIC,
     "Project": SAMPLE_PROJECT,
     "State": SAMPLE_STATE,
     "Comment": SAMPLE_COMMENT,

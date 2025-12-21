@@ -391,7 +391,7 @@ def webhook_activity(
     to all active webhooks for the workspace.
 
     Args:
-        event (str): Type of event (project, issue, module, sprint, issue_comment)
+        event (str): Type of event (project, issue, epic, sprint, issue_comment)
         verb (str): Action performed (created, updated, deleted)
         field (Optional[str]): Name of the field that was changed
         old_value (Any): Previous value of the field

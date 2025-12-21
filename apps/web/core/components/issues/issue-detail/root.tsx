@@ -222,14 +222,14 @@ export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDe
         try {
           const removeFromEpicPromise = removeIssueFromEpic(workspaceSlug, projectId, epicId, issueId);
           setPromiseToast(removeFromEpicPromise, {
-            loading: t("issue.remove.module.loading"),
+            loading: t("issue.remove.epic.loading"),
             success: {
               title: t("common.success"),
-              message: () => t("issue.remove.module.success"),
+              message: () => t("issue.remove.epic.success"),
             },
             error: {
               title: t("common.error.label"),
-              message: () => t("issue.remove.module.failed"),
+              message: () => t("issue.remove.epic.failed"),
             },
           });
           await removeFromEpicPromise;

@@ -3,7 +3,7 @@ from django.db.models import Count, Q, OuterRef, Subquery, IntegerField
 from django.utils import timezone
 from django.db.models.functions import Coalesce
 
-# Third party modules
+# Third party epics
 from rest_framework import status
 from rest_framework.response import Response
 

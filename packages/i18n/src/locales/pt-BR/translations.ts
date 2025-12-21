@@ -11,7 +11,7 @@ export default {
     analytics: "Analytics",
     work_items: "Itens",
     sprints: "Ciclos",
-    modules: "Módulos",
+    epics: "Epics",
     intake: "Intake",
     drafts: "Rascunhos",
     favorites: "Favoritos",
@@ -378,7 +378,7 @@ export default {
   open_project: "Abrir projeto",
   issues: "Itens de trabalho",
   sprints: "Ciclos",
-  modules: "Módulos",
+  epics: "Epics",
   pages: "Páginas",
   intake: "Admissão",
   time_tracking: "Rastreamento de tempo",
@@ -387,7 +387,7 @@ export default {
   projects_and_issues_description: "Ative ou desative estes neste projeto.",
   sprints_description:
     "Defina o tempo de trabalho por projeto e ajuste o período conforme necessário. Um ciclo pode durar 2 semanas, o próximo 1 semana.",
-  modules_description: "Organize o trabalho em subprojetos com líderes e responsáveis dedicados.",
+  epics_description: "Organize o trabalho em subprojetos com líderes e responsáveis dedicados.",
   views_description: "Salve classificações, filtros e opções de exibição personalizadas ou compartilhe com sua equipe.",
   pages_description: "Crie e edite conteúdo livre – anotações, documentos, qualquer coisa.",
   intake_description:
@@ -663,8 +663,8 @@ export default {
     project: "Projeto",
     sprint: "Ciclo",
     sprints: "Ciclos",
-    module: "Módulo",
-    modules: "Módulos",
+    epic: "Epic",
+    epics: "Epics",
     labels: "Etiquetas",
     label: "Etiqueta",
     assignees: "Responsáveis",
@@ -1003,10 +1003,10 @@ export default {
         success: "Item de trabalho removido do ciclo com sucesso.",
         failed: "Não foi possível remover o item de trabalho do ciclo. Por favor, tente novamente.",
       },
-      module: {
-        loading: "Removendo item de trabalho do módulo",
-        success: "Item de trabalho removido do módulo com sucesso.",
-        failed: "Não foi possível remover o item de trabalho do módulo. Por favor, tente novamente.",
+      epic: {
+        loading: "Removendo item de trabalho do epic",
+        success: "Item de trabalho removido do epic com sucesso.",
+        failed: "Não foi possível remover o item de trabalho do epic. Por favor, tente novamente.",
       },
       parent: {
         label: "Remover item de trabalho pai",
@@ -1356,7 +1356,7 @@ export default {
     selected_projects: "Projetos selecionados",
     total_members: "Total de membros",
     total_sprints: "Total de ciclos",
-    total_modules: "Total de módulos",
+    total_epics: "Total de epics",
     pending_work_items: {
       title: "Itens de trabalho pendentes",
       empty_state: "A análise de itens de trabalho pendentes por colegas de trabalho aparece aqui.",
@@ -1443,7 +1443,7 @@ export default {
     error: {
       permission: "Você não tem permissão para realizar esta ação.",
       sprint_delete: "Falha ao excluir o ciclo",
-      module_delete: "Falha ao excluir o módulo",
+      epic_delete: "Falha ao excluir o epic",
       issue_delete: "Falha ao excluir o item de trabalho",
     },
     state: {
@@ -2152,30 +2152,30 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Adicionar Módulo",
-    update_module: "Atualizar Módulo",
-    create_module: "Criar Módulo",
-    archive_module: "Arquivar Módulo",
-    restore_module: "Restaurar Módulo",
-    delete_module: "Excluir módulo",
+  project_epic: {
+    add_epic: "Adicionar Módulo",
+    update_epic: "Atualizar Módulo",
+    create_epic: "Criar Módulo",
+    archive_epic: "Arquivar Módulo",
+    restore_epic: "Restaurar Módulo",
+    delete_epic: "Excluir epic",
     empty_state: {
       general: {
         title: "Mapeie os marcos do seu projeto para Módulos e rastreie o trabalho agregado facilmente.",
         description:
-          "Um grupo de itens de trabalho que pertencem a um pai lógico e hierárquico forma um módulo. Pense neles como uma forma de rastrear o trabalho por marcos do projeto. Eles têm seus próprios períodos e prazos, bem como análises para ajudá-lo a ver o quão perto ou longe você está de um marco.",
+          "Um grupo de itens de trabalho que pertencem a um pai lógico e hierárquico forma um epic. Pense neles como uma forma de rastrear o trabalho por marcos do projeto. Eles têm seus próprios períodos e prazos, bem como análises para ajudá-lo a ver o quão perto ou longe você está de um marco.",
         primary_button: {
-          text: "Construa seu primeiro módulo",
+          text: "Construa seu primeiro epic",
           comic: {
-            title: "Os módulos ajudam a agrupar o trabalho por hierarquia.",
+            title: "Os epics ajudam a agrupar o trabalho por hierarquia.",
             description:
-              "Um módulo de carrinho, um módulo de chassi e um módulo de armazém são todos bons exemplos desse agrupamento.",
+              "Um epic de carrinho, um epic de chassi e um epic de armazém são todos bons exemplos desse agrupamento.",
           },
         },
       },
       no_issues: {
-        title: "Nenhum item de trabalho no módulo",
-        description: "Crie ou adicione itens de trabalho que você deseja realizar como parte deste módulo",
+        title: "Nenhum item de trabalho no epic",
+        description: "Crie ou adicione itens de trabalho que você deseja realizar como parte deste epic",
         primary_button: {
           text: "Criar novos itens de trabalho",
         },
@@ -2186,25 +2186,25 @@ export default {
       archived: {
         title: "Nenhum Módulo arquivado ainda",
         description:
-          "Para organizar seu projeto, arquive os módulos concluídos ou cancelados. Encontre-os aqui quando forem arquivados.",
+          "Para organizar seu projeto, arquive os epics concluídos ou cancelados. Encontre-os aqui quando forem arquivados.",
       },
       sidebar: {
-        in_active: "Este módulo ainda não está ativo.",
+        in_active: "Este epic ainda não está ativo.",
         invalid_date: "Data inválida. Por favor, insira uma data válida.",
       },
     },
     quick_actions: {
-      archive_module: "Arquivar módulo",
-      archive_module_description: "Apenas módulos concluídos ou cancelados\npodem ser arquivados.",
-      delete_module: "Excluir módulo",
+      archive_epic: "Arquivar epic",
+      archive_epic_description: "Apenas epics concluídos ou cancelados\npodem ser arquivados.",
+      delete_epic: "Excluir epic",
     },
     toast: {
       copy: {
-        success: "Link do módulo copiado para a área de transferência",
+        success: "Link do epic copiado para a área de transferência",
       },
       delete: {
         success: "Módulo excluído com sucesso",
-        error: "Falha ao excluir o módulo",
+        error: "Falha ao excluir o epic",
       },
     },
   },
@@ -2386,10 +2386,10 @@ export default {
           text: "Gerenciar funcionalidades",
         },
       },
-      module: {
-        title: "Os módulos não estão habilitados para o projeto.",
+      epic: {
+        title: "Os epics não estão habilitados para o projeto.",
         description:
-          "Os módulos são os blocos de construção do seu projeto. Habilite os módulos nas configurações do projeto para começar a usá-los.",
+          "Os epics são os blocos de construção do seu projeto. Habilite os epics nas configurações do projeto para começar a usá-los.",
         primary_button: {
           text: "Gerenciar funcionalidades",
         },
@@ -2501,7 +2501,7 @@ export default {
     },
     member: {
       title: "Membro",
-      description: "Capacidade de ler, escrever, editar e excluir entidades dentro de projetos, ciclos e módulos",
+      description: "Capacidade de ler, escrever, editar e excluir entidades dentro de projetos, ciclos e epics",
     },
     admin: {
       title: "Administrador",
@@ -2580,7 +2580,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Backlog",
       planned: "Planejado",
@@ -2607,9 +2607,9 @@ export default {
     label: "{count, plural, one {Ciclo} other {Ciclos}}",
     no_sprint: "Nenhum ciclo",
   },
-  module: {
+  epic: {
     label: "{count, plural, one {Módulo} other {Módulos}}",
-    no_module: "Nenhum módulo",
+    no_epic: "Nenhum epic",
   },
   description_versions: {
     last_edited_by: "Última edição por",

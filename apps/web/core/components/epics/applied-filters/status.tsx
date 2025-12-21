@@ -2,7 +2,7 @@ import { observer } from "mobx-react";
 // ui
 import { EPIC_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { CloseIcon, ModuleStatusIcon } from "@plane/propel/icons";
+import { CloseIcon, EpicStatusIcon } from "@plane/propel/icons";
 // constants
 
 type Props = {
@@ -23,7 +23,7 @@ export const AppliedStatusFilters = observer(function AppliedStatusFilters(props
 
         return (
           <div key={status} className="flex items-center gap-1 rounded-sm bg-layer-1 p-1 text-11">
-            <ModuleStatusIcon status={statusDetails.value} height="12px" width="12px" />
+            <EpicStatusIcon status={statusDetails.value} height="12px" width="12px" />
             {t(statusDetails.i18n_label)}
             {editable && (
               <button

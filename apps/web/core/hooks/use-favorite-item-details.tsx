@@ -37,7 +37,7 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
   });
   const viewDetails = getViewById(favoriteItemId ?? "");
   const sprintDetail = getSprintById(favoriteItemId ?? "");
-  const moduleDetail = getEpicById(favoriteItemId ?? "");
+  const epicDetail = getEpicById(favoriteItemId ?? "");
   const currentProjectDetails = getProjectById(favorite.project_id ?? "");
 
   let itemIcon;
@@ -62,7 +62,7 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
       itemIcon = getFavoriteItemIcon("sprint");
       break;
     case "epic":
-      itemTitle = moduleDetail?.name ?? favoriteItemName;
+      itemTitle = epicDetail?.name ?? favoriteItemName;
       itemIcon = getFavoriteItemIcon("epic");
       break;
     default: {

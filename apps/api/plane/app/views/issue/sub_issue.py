@@ -34,7 +34,7 @@ class SubIssuesEndpoint(BaseAPIView):
         sub_issues = (
             Issue.issue_objects.filter(parent_id=issue_id, workspace__slug=slug)
             .select_related("workspace", "project", "state", "parent")
-            .prefetch_related("assignees", "labels", "issue_module__module")
+            .prefetch_related("assignees", "labels", "issue_epic__epic")
             .annotate(
                 sprint_id=Subquery(
                     SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
@@ -82,14 +82,14 @@ class SubIssuesEndpoint(BaseAPIView):
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
                 ),
-                module_ids=Coalesce(
+                epic_ids=Coalesce(
                     ArrayAgg(
-                        "issue_module__module_id",
+                        "issue_epic__epic_id",
                         distinct=True,
                         filter=Q(
-                            ~Q(issue_module__module_id__isnull=True)
-                            & Q(issue_module__module__archived_at__isnull=True)
-                            & Q(issue_module__deleted_at__isnull=True)
+                            ~Q(issue_epic__epic_id__isnull=True)
+                            & Q(issue_epic__epic__archived_at__isnull=True)
+                            & Q(issue_epic__deleted_at__isnull=True)
                         ),
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
@@ -125,7 +125,7 @@ class SubIssuesEndpoint(BaseAPIView):
             "project_id",
             "parent_id",
             "sprint_id",
-            "module_ids",
+            "epic_ids",
             "label_ids",
             "assignee_ids",
             "sub_issues_count",

@@ -31,9 +31,9 @@ from plane.db.models import (
     Page,
     ProjectPage,
     Sprint,
-    Module,
+    Epic,
     SprintIssue,
-    ModuleIssue,
+    EpicIssue,
     IssueView,
     User,
     BotTypeEnum,
@@ -102,7 +102,7 @@ def create_project_and_member(workspace: Workspace, bot_user: User) -> Dict[int,
             created_by_id=bot_user.id,
             # Enable all views in seed data
             sprint_view=True,
-            module_view=True,
+            epic_view=True,
             issue_views_view=True,
         )
 
@@ -142,7 +142,7 @@ def create_project_and_member(workspace: Workspace, bot_user: User) -> Dict[int,
                         "sprint": False,
                         "state": True,
                         "labels": False,
-                        "modules": False,
+                        "epics": False,
                         "assignee": True,
                         "due_date": False,
                         "estimate": True,
@@ -242,7 +242,7 @@ def create_project_issues(
     states_map: Dict[int, uuid.UUID],
     labels_map: Dict[int, uuid.UUID],
     sprints_map: Dict[int, uuid.UUID],
-    module_map: Dict[int, uuid.UUID],
+    epic_map: Dict[int, uuid.UUID],
     bot_user: User,
 ) -> None:
     """Creates issues and their associated records for each project.
@@ -274,7 +274,7 @@ def create_project_issues(
         project_id = issue_seed.pop("project_id")
         state_id = issue_seed.pop("state_id")
         sprint_id = issue_seed.pop("sprint_id")
-        module_ids = issue_seed.pop("module_ids")
+        epic_ids = issue_seed.pop("epic_ids")
 
         issue = Issue.objects.create(
             **issue_seed,
@@ -320,12 +320,12 @@ def create_project_issues(
                 created_by_id=bot_user.id,
             )
 
-        # Create module issues
-        if module_ids:
-            for module_id in module_ids:
-                ModuleIssue.objects.create(
+        # Create epic issues
+        if epic_ids:
+            for epic_id in epic_ids:
+                EpicIssue.objects.create(
                     issue=issue,
-                    module_id=module_map[module_id],
+                    epic_id=epic_map[epic_id],
                     project_id=project_map[project_id],
                     workspace_id=workspace.id,
                     created_by_id=bot_user.id,
@@ -429,38 +429,38 @@ def create_sprints(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_
     return sprint_map
 
 
-def create_modules(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_user: User) -> None:
-    """Creates modules for each project in the workspace.
+def create_epics(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_user: User) -> None:
+    """Creates epics for each project in the workspace.
 
     Args:
         workspace: The workspace containing the projects
         project_map: Mapping of seed project IDs to actual project IDs
-        bot_user: The bot user to use for creating the modules
+        bot_user: The bot user to use for creating the epics
     """
-    module_seeds = read_seed_file("modules.json")
-    if not module_seeds:
+    epic_seeds = read_seed_file("epics.json")
+    if not epic_seeds:
         return {}
 
-    module_map: Dict[int, uuid.UUID] = {}
+    epic_map: Dict[int, uuid.UUID] = {}
 
-    for index, module_seed in enumerate(module_seeds):
-        module_id = module_seed.pop("id")
-        project_id = module_seed.pop("project_id")
+    for index, epic_seed in enumerate(epic_seeds):
+        epic_id = epic_seed.pop("id")
+        project_id = epic_seed.pop("project_id")
 
         start_date = timezone.now() + timedelta(days=index * 2)
         end_date = start_date + timedelta(days=14)
 
-        module = Module.objects.create(
-            **module_seed,
+        epic = Epic.objects.create(
+            **epic_seed,
             start_date=start_date,
             target_date=end_date,
             project_id=project_map[project_id],
             workspace=workspace,
             created_by_id=bot_user.id,
         )
-        module_map[module_id] = module.id
-        logger.info(f"Task: workspace_seed_task -> Module {module_id} created")
-    return module_map
+        epic_map[epic_id] = epic.id
+        logger.info(f"Task: workspace_seed_task -> Epic {epic_id} created")
+    return epic_map
 
 
 def create_views(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_user: User) -> None:
@@ -530,11 +530,11 @@ def workspace_seed(workspace_id: uuid.UUID) -> None:
         # Create project sprints
         sprint_map = create_sprints(workspace, project_map, bot_user)
 
-        # Create project modules
-        module_map = create_modules(workspace, project_map, bot_user)
+        # Create project epics
+        epic_map = create_epics(workspace, project_map, bot_user)
 
         # create project issues
-        create_project_issues(workspace, project_map, state_map, label_map, sprint_map, module_map, bot_user)
+        create_project_issues(workspace, project_map, state_map, label_map, sprint_map, epic_map, bot_user)
 
         # create project views
         create_views(workspace, project_map, bot_user)

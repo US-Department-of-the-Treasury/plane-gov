@@ -13,7 +13,7 @@ type Props = {
   onClose: () => void;
   projectDetails?: IProject | undefined;
   sprintDetails?: ISprint | undefined;
-  epicDetails?: IModule | undefined;
+  epicDetails?: IEpic | undefined;
   isEpic?: boolean;
 };
 
@@ -50,7 +50,7 @@ export const WorkItemsModal = observer(function WorkItemsModal(props: Props) {
           setFullScreen={setFullScreen}
           title={projectDetails?.name ?? ""}
           sprint={sprintDetails}
-          module={epicDetails}
+          epic={epicDetails}
         />
         <WorkItemsModalMainContent
           fullScreen={fullScreen}

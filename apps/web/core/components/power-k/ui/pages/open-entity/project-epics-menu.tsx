@@ -6,7 +6,7 @@ import { Spinner } from "@plane/ui";
 import type { TPowerKContext } from "@/components/power-k/core/types";
 import { PowerKEpicsMenu } from "@/components/power-k/menus/epics";
 // hooks
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 
 type Props = {
   context: TPowerKContext;

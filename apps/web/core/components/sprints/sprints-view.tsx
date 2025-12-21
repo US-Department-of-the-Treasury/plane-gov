@@ -7,7 +7,7 @@ import AllFiltersImage from "@/app/assets/empty-state/sprint/all-filters.svg?url
 import NameFilterImage from "@/app/assets/empty-state/sprint/name-filter.svg?url";
 // components
 import { SprintsList } from "@/components/sprints/list";
-import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
+import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";

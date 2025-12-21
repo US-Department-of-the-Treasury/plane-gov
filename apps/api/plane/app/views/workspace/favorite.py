@@ -1,8 +1,8 @@
-# Third party modules
+# Third party epics
 from rest_framework import status
 from rest_framework.response import Response
 
-# Django modules
+# Django epics
 from django.db.models import Q
 from django.db import IntegrityError
 

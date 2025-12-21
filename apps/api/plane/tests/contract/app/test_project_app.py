@@ -206,7 +206,7 @@ class TestProjectAPIPost(TestProjectBase):
             "network": 2,
             "sprint_view": True,
             "issue_views_view": False,
-            "module_view": True,
+            "epic_view": True,
             "page_view": False,
             "inbox_view": True,
             "guest_view_all_features": True,
@@ -379,7 +379,7 @@ class TestProjectAPIPatchDelete(TestProjectBase):
             "name": "Updated Project",
             "description": "Updated description",
             "sprint_view": True,
-            "module_view": False,
+            "epic_view": False,
         }
 
         response = session_client.patch(url, update_data, format="json")
@@ -391,7 +391,7 @@ class TestProjectAPIPatchDelete(TestProjectBase):
         assert project.name == "Updated Project"
         assert project.description == "Updated description"
         assert project.sprint_view is True
-        assert project.module_view is False
+        assert project.epic_view is False
 
     @pytest.mark.django_db
     def test_partial_update_project_forbidden_non_admin(self, session_client, workspace):

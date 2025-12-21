@@ -69,7 +69,7 @@ export class EpicFilterStore implements IEpicFilterStore {
       () => this.rootStore.router.projectId,
       (projectId) => {
         if (!projectId) return;
-        this.initProjectModuleFilters(projectId);
+        this.initProjectEpicFilters(projectId);
         this.searchQuery = "";
       }
     );
@@ -101,7 +101,7 @@ export class EpicFilterStore implements IEpicFilterStore {
         }
       });
     } catch (error) {
-      console.error("Failed to load module filters from localStorage:", error);
+      console.error("Failed to load epic filters from localStorage:", error);
       // Reset to defaults on error
       runInAction(() => {
         this.displayFilters = {};
@@ -173,7 +173,7 @@ export class EpicFilterStore implements IEpicFilterStore {
    * @description initialize display filters and filters of a project
    * @param {string} projectId
    */
-  initProjectModuleFilters = (projectId: string) => {
+  initProjectEpicFilters = (projectId: string) => {
     const displayFilters = this.getDisplayFiltersByProjectId(projectId);
     runInAction(() => {
       this.displayFilters[projectId] = {

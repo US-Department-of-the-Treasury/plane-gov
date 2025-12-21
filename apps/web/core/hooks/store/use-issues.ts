@@ -3,8 +3,6 @@ import { merge } from "lodash-es";
 import type { TIssueMap } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
 import { StoreContext } from "@/lib/store-context";
-// plane web types
-import type { IProjectEpics, IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
 // types
 import type { ITeamIssues, ITeamIssuesFilter } from "@/plane-web/store/issue/team";
 import type { ITeamProjectWorkItemsFilter, ITeamProjectWorkItems } from "@/plane-web/store/issue/team-project";
@@ -68,10 +66,6 @@ export type TStoreIssues = {
   [EIssuesStoreType.DEFAULT]: defaultIssueStore & {
     issues: IProjectIssues;
     issuesFilter: IProjectIssuesFilter;
-  };
-  [EIssuesStoreType.EPIC]: defaultIssueStore & {
-    issues: IProjectEpics;
-    issuesFilter: IProjectEpicsFilter;
   };
   [EIssuesStoreType.TEAM_PROJECT_WORK_ITEMS]: defaultIssueStore & {
     issues: ITeamProjectWorkItems;
@@ -137,11 +131,6 @@ export const useIssues = <T extends EIssuesStoreType>(storeType?: T): TStoreIssu
       return merge(defaultStore, {
         issues: context.issue.archivedIssues,
         issuesFilter: context.issue.archivedIssuesFilter,
-      }) as TStoreIssues[T];
-    case EIssuesStoreType.EPIC:
-      return merge(defaultStore, {
-        issues: context.issue.projectEpics,
-        issuesFilter: context.issue.projectEpicsFilter,
       }) as TStoreIssues[T];
     case EIssuesStoreType.TEAM_PROJECT_WORK_ITEMS:
       return merge(defaultStore, {

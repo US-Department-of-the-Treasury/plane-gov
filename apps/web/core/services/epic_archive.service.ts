@@ -11,7 +11,7 @@ export class EpicArchiveService extends APIService {
   }
 
   async getArchivedEpics(workspaceSlug: string, projectId: string): Promise<IEpic[]> {
-    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/archived-modules/`)
+    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/archived-epics/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -19,7 +19,7 @@ export class EpicArchiveService extends APIService {
   }
 
   async getArchivedEpicDetails(workspaceSlug: string, projectId: string, epicId: string): Promise<IEpic> {
-    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/archived-modules/${epicId}/`)
+    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/archived-epics/${epicId}/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -33,7 +33,7 @@ export class EpicArchiveService extends APIService {
   ): Promise<{
     archived_at: string;
   }> {
-    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/archive/`)
+    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/archive/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -41,7 +41,7 @@ export class EpicArchiveService extends APIService {
   }
 
   async restoreEpic(workspaceSlug: string, projectId: string, epicId: string): Promise<void> {
-    return this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/archive/`)
+    return this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/archive/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;

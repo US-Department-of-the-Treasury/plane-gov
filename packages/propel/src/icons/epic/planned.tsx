@@ -2,7 +2,7 @@ import * as React from "react";
 
 import type { ISvgIcons } from "../type";
 
-export function ModulePlannedIcon({ width = "20", height = "20", className }: ISvgIcons) {
+export function EpicPlannedIcon({ width = "20", height = "20", className }: ISvgIcons) {
   return (
     <svg
       width={width}

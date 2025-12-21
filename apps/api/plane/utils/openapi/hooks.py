@@ -1,7 +1,7 @@
 """
 Schema processing hooks for drf-spectacular OpenAPI generation.
 
-This module provides preprocessing and postprocessing functions that modify
+This epic provides preprocessing and postprocessing functions that modify
 the generated OpenAPI schema to apply custom filtering, tagging, and other
 transformations.
 """

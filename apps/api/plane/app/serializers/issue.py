@@ -25,8 +25,8 @@ from plane.db.models import (
     Label,
     SprintIssue,
     Sprint,
-    Module,
-    ModuleIssue,
+    Epic,
+    EpicIssue,
     IssueLink,
     FileAsset,
     IssueReaction,
@@ -512,9 +512,9 @@ class IssueSprintDetailSerializer(BaseSerializer):
         ]
 
 
-class ModuleBaseSerializer(BaseSerializer):
+class EpicBaseSerializer(BaseSerializer):
     class Meta:
-        model = Module
+        model = Epic
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -526,11 +526,11 @@ class ModuleBaseSerializer(BaseSerializer):
         ]
 
 
-class IssueModuleDetailSerializer(BaseSerializer):
-    module_detail = ModuleBaseSerializer(read_only=True, source="module")
+class IssueEpicDetailSerializer(BaseSerializer):
+    epic_detail = EpicBaseSerializer(read_only=True, source="epic")
 
     class Meta:
-        model = ModuleIssue
+        model = EpicIssue
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -756,7 +756,7 @@ class IssueIntakeSerializer(DynamicBaseSerializer):
 class IssueSerializer(DynamicBaseSerializer):
     # ids
     sprint_id = serializers.PrimaryKeyRelatedField(read_only=True)
-    module_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
+    epic_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
 
     # Many to many
     label_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
@@ -783,7 +783,7 @@ class IssueSerializer(DynamicBaseSerializer):
             "project_id",
             "parent_id",
             "sprint_id",
-            "module_ids",
+            "epic_ids",
             "label_ids",
             "assignee_ids",
             "sub_issues_count",
@@ -815,8 +815,8 @@ class IssueListDetailSerializer(serializers.Serializer):
         self.fields = kwargs.pop("fields", []) or []
         super().__init__(*args, **kwargs)
 
-    def get_module_ids(self, obj):
-        return [module.module_id for module in obj.issue_module.all()]
+    def get_epic_ids(self, obj):
+        return [epic.epic_id for epic in obj.issue_epic.all()]
 
     def get_label_ids(self, obj):
         return [label.label_id for label in obj.label_issue.all()]
@@ -847,7 +847,7 @@ class IssueListDetailSerializer(serializers.Serializer):
             "archived_at": instance.archived_at,
             # Computed fields
             "sprint_id": instance.sprint_id,
-            "module_ids": self.get_module_ids(instance),
+            "epic_ids": self.get_epic_ids(instance),
             "label_ids": self.get_label_ids(instance),
             "assignee_ids": self.get_assignee_ids(instance),
             "sub_issues_count": instance.sub_issues_count,
@@ -990,7 +990,7 @@ class IssueVersionDetailSerializer(BaseSerializer):
             "external_id",
             "type",
             "sprint",
-            "modules",
+            "epics",
             "meta",
             "name",
             "last_saved_at",

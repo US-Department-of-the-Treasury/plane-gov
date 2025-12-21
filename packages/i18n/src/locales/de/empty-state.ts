@@ -57,15 +57,15 @@ export default {
       cta_primary: "Arbeitselement erstellen",
       cta_secondary: "Bestehendes Arbeitselement hinzufügen",
     },
-    modules: {
-      title: "Ordnen Sie Ihre Projektziele Modulen zu und verfolgen Sie sie einfach.",
+    epics: {
+      title: "Ordnen Sie Ihre Projektziele Epics zu und verfolgen Sie sie einfach.",
       description:
-        "Module bestehen aus miteinander verbundenen Arbeitselementen. Sie helfen bei der Überwachung des Fortschritts durch Projektphasen, jede mit spezifischen Fristen und Analysen, um anzuzeigen, wie nahe Sie dem Erreichen dieser Phasen sind.",
-      cta_primary: "Legen Sie Ihr erstes Modul fest",
+        "Epics bestehen aus miteinander verbundenen Arbeitselementen. Sie helfen bei der Überwachung des Fortschritts durch Projektphasen, jede mit spezifischen Fristen und Analysen, um anzuzeigen, wie nahe Sie dem Erreichen dieser Phasen sind.",
+      cta_primary: "Legen Sie Ihr erstes Epic fest",
     },
-    module_work_items: {
-      title: "Keine Arbeitselemente in diesem Modul anzuzeigen",
-      description: "Erstellen Sie Arbeitselemente, um dieses Modul zu überwachen.",
+    epic_work_items: {
+      title: "Keine Arbeitselemente in diesem Epic anzuzeigen",
+      description: "Erstellen Sie Arbeitselemente, um dieses Epic zu überwachen.",
       cta_primary: "Arbeitselement erstellen",
       cta_secondary: "Bestehendes Arbeitselement hinzufügen",
     },
@@ -118,10 +118,10 @@ export default {
       description:
         "Um Ihr Projekt aufzuräumen, archivieren Sie abgeschlossene Zyklen. Finden Sie sie hier, sobald sie archiviert sind.",
     },
-    archive_modules: {
-      title: "Noch keine archivierten Module",
+    archive_epics: {
+      title: "Noch keine archivierten Epics",
       description:
-        "Um Ihr Projekt aufzuräumen, archivieren Sie abgeschlossene oder stornierte Module. Finden Sie sie hier, sobald sie archiviert sind.",
+        "Um Ihr Projekt aufzuräumen, archivieren Sie abgeschlossene oder stornierte Epics. Finden Sie sie hier, sobald sie archiviert sind.",
     },
     home_widget_quick_links: {
       title: "Halten Sie wichtige Referenzen, Ressourcen oder Dokumente für Ihre Arbeit griffbereit",
@@ -165,9 +165,9 @@ export default {
       title:
         "Erstellen Sie Zyklen, um Arbeit in zeitlich begrenzte Phasen zu organisieren und Fortschritte über Sprints hinweg zu verfolgen.",
     },
-    analytics_no_module: {
+    analytics_no_epic: {
       title:
-        "Erstellen Sie Module, um Ihre Arbeit zu organisieren und Fortschritte über verschiedene Phasen hinweg zu verfolgen.",
+        "Erstellen Sie Epics, um Ihre Arbeit zu organisieren und Fortschritte über verschiedene Phasen hinweg zu verfolgen.",
     },
     analytics_no_intake: {
       title:

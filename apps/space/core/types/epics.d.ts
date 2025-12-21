@@ -1,4 +1,4 @@
-export type TPublicModule = {
+export type TPublicEpic = {
   id: string;
   name: string;
 };

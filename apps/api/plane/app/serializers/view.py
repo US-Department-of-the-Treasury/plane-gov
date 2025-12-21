@@ -14,8 +14,8 @@ class ViewIssueListSerializer(serializers.Serializer):
     def get_label_ids(self, instance):
         return [label.label_id for label in instance.label_issue.all()]
 
-    def get_module_ids(self, instance):
-        return [module.module_id for module in instance.issue_module.all()]
+    def get_epic_ids(self, instance):
+        return [epic.epic_id for epic in instance.issue_epic.all()]
 
     def to_representation(self, instance):
         data = {
@@ -44,7 +44,7 @@ class ViewIssueListSerializer(serializers.Serializer):
             "state__group": instance.state.group if instance.state else None,
             "assignee_ids": self.get_assignee_ids(instance),
             "label_ids": self.get_label_ids(instance),
-            "module_ids": self.get_module_ids(instance),
+            "epic_ids": self.get_epic_ids(instance),
         }
         return data
 

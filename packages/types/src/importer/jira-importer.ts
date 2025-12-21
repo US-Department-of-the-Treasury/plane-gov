@@ -33,7 +33,7 @@ export interface IJiraMetadata {
 
 export interface IJiraResponse {
   issues: number;
-  modules: number;
+  epics: number;
   labels: number;
   states: number;
   users: IJiraResponseUser[];

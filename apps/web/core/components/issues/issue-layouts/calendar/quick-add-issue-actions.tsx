@@ -39,7 +39,7 @@ export const CalendarQuickAddIssueActions = observer(function CalendarQuickAddIs
   // derived values
   const ExistingIssuesListModalPayload = addIssuesToView
     ? epicId
-      ? { module: epicId.toString(), target_date: "none" }
+      ? { epic: epicId.toString(), target_date: "none" }
       : { sprint: true, target_date: "none" }
     : { target_date: "none" };
 

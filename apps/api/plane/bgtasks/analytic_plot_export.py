@@ -34,14 +34,14 @@ row_mapping = {
     "priority": "Priority",
     "estimate": "Estimate",
     "issue_sprint__sprint_id": "Sprint",
-    "issue_module__module_id": "Module",
+    "issue_epic__epic_id": "Epic",
 }
 
 ASSIGNEE_ID = "assignees__id"
 LABEL_ID = "labels__id"
 STATE_ID = "state_id"
 SPRINT_ID = "issue_sprint__sprint_id"
-MODULE_ID = "issue_module__module_id"
+EPIC_ID = "issue_epic__epic_id"
 
 
 def send_export_email(email, slug, csv_buffer, rows):
@@ -144,17 +144,17 @@ def get_state_details(slug, filters):
     )
 
 
-def get_module_details(slug, filters):
+def get_epic_details(slug, filters):
     return (
         Issue.issue_objects.filter(
             workspace__slug=slug,
             **filters,
-            issue_module__module_id__isnull=False,
-            issue_module__deleted_at__isnull=True,
+            issue_epic__epic_id__isnull=False,
+            issue_epic__deleted_at__isnull=True,
         )
-        .distinct("issue_module__module_id")
-        .order_by("issue_module__module_id")
-        .values("issue_module__module_id", "issue_module__module__name")
+        .distinct("issue_epic__epic_id")
+        .order_by("issue_epic__epic_id")
+        .values("issue_epic__epic_id", "issue_epic__epic__name")
     )
 
 
@@ -190,7 +190,7 @@ def generate_segmented_rows(
     label_details,
     state_details,
     sprint_details,
-    module_details,
+    epic_details,
 ):
     segment_zero = list(set(item.get("segment") for sublist in distribution.values() for item in sublist))
 
@@ -238,14 +238,14 @@ def generate_segmented_rows(
             if sprint:
                 generated_row[0] = f"{sprint['issue_sprint__sprint__name']}"
 
-        if x_axis == MODULE_ID:
-            module = next(
-                (mod for mod in module_details if str(mod[MODULE_ID]) == str(item)),
+        if x_axis == EPIC_ID:
+            epic = next(
+                (mod for mod in epic_details if str(mod[EPIC_ID]) == str(item)),
                 None,
             )
 
-            if module:
-                generated_row[0] = f"{module['issue_module__module__name']}"
+            if epic:
+                generated_row[0] = f"{epic['issue_epic__epic__name']}"
 
         rows.append(tuple(generated_row))
 
@@ -270,11 +270,11 @@ def generate_segmented_rows(
             if state:
                 row_zero[index + 2] = state["state__name"]
 
-    if segmented == MODULE_ID:
+    if segmented == EPIC_ID:
         for index, segm in enumerate(row_zero[2:]):
-            module = next((mod for mod in label_details if str(mod[MODULE_ID]) == str(segm)), None)
-            if module:
-                row_zero[index + 2] = module["issue_module__module__name"]
+            epic = next((mod for mod in label_details if str(mod[EPIC_ID]) == str(segm)), None)
+            if epic:
+                row_zero[index + 2] = epic["issue_epic__epic__name"]
 
     if segmented == SPRINT_ID:
         for index, segm in enumerate(row_zero[2:]):
@@ -294,7 +294,7 @@ def generate_non_segmented_rows(
     label_details,
     state_details,
     sprint_details,
-    module_details,
+    epic_details,
 ):
     rows = []
     for item, data in distribution.items():
@@ -326,14 +326,14 @@ def generate_non_segmented_rows(
             if sprint:
                 row[0] = f"{sprint['issue_sprint__sprint__name']}"
 
-        if x_axis == MODULE_ID:
-            module = next(
-                (mod for mod in module_details if str(mod[MODULE_ID]) == str(item)),
+        if x_axis == EPIC_ID:
+            epic = next(
+                (mod for mod in epic_details if str(mod[EPIC_ID]) == str(item)),
                 None,
             )
 
-            if module:
-                row[0] = f"{module['issue_module__module__name']}"
+            if epic:
+                row[0] = f"{epic['issue_epic__epic__name']}"
 
         rows.append(tuple(row))
 
@@ -364,7 +364,7 @@ def analytic_export_task(email, data, slug):
 
         sprint_details = get_sprint_details(slug, filters) if x_axis == SPRINT_ID or segment == SPRINT_ID else {}
 
-        module_details = get_module_details(slug, filters) if x_axis == MODULE_ID or segment == MODULE_ID else {}
+        epic_details = get_epic_details(slug, filters) if x_axis == EPIC_ID or segment == EPIC_ID else {}
 
         if segment:
             rows = generate_segmented_rows(
@@ -377,7 +377,7 @@ def analytic_export_task(email, data, slug):
                 label_details,
                 state_details,
                 sprint_details,
-                module_details,
+                epic_details,
             )
         else:
             rows = generate_non_segmented_rows(
@@ -389,7 +389,7 @@ def analytic_export_task(email, data, slug):
                 label_details,
                 state_details,
                 sprint_details,
-                module_details,
+                epic_details,
             )
 
         csv_buffer = generate_csv_from_rows(rows)

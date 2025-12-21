@@ -32,7 +32,7 @@ export class CoreRootStore {
   issueDetail: IIssueDetailStore;
   state: IStateStore;
   label: IIssueLabelStore;
-  module: IIssueEpicStore;
+  epic: IIssueEpicStore;
   member: IIssueMemberStore;
   sprint: ISprintStore;
   issueFilter: IIssueFilterStore;
@@ -45,7 +45,7 @@ export class CoreRootStore {
     this.issueDetail = new IssueDetailStore(this);
     this.state = new StateStore(this);
     this.label = new LabelStore(this);
-    this.module = new EpicStore(this);
+    this.epic = new EpicStore(this);
     this.member = new MemberStore(this);
     this.sprint = new SprintStore(this);
     this.issueFilter = new IssueFilterStore(this);
@@ -67,7 +67,7 @@ export class CoreRootStore {
     this.issueDetail = new IssueDetailStore(this);
     this.state = new StateStore(this);
     this.label = new LabelStore(this);
-    this.module = new EpicStore(this);
+    this.epic = new EpicStore(this);
     this.member = new MemberStore(this);
     this.sprint = new SprintStore(this);
     this.issueFilter = new IssueFilterStore(this);

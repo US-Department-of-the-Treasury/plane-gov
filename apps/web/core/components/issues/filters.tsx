@@ -26,7 +26,7 @@ type Props = {
   projectId: string;
   workspaceSlug: string;
   canUserCreateIssue: boolean | undefined;
-  storeType?: EIssuesStoreType.PROJECT | EIssuesStoreType.EPIC;
+  storeType?: EIssuesStoreType.PROJECT;
 };
 const LAYOUTS = [
   EIssueLayoutTypes.LIST,
@@ -86,7 +86,7 @@ export const HeaderFilters = observer(function HeaderFilters(props: Props) {
         isOpen={analyticsModal}
         onClose={() => setAnalyticsModal(false)}
         projectDetails={currentProjectDetails ?? undefined}
-        isEpic={storeType === EIssuesStoreType.EPIC}
+        isEpic={false}
       />
       <div className="hidden @4xl:flex">
         <LayoutSelection
@@ -116,7 +116,7 @@ export const HeaderFilters = observer(function HeaderFilters(props: Props) {
           handleDisplayPropertiesUpdate={handleDisplayProperties}
           sprintViewDisabled={!currentProjectDetails?.sprint_view}
           epicViewDisabled={!currentProjectDetails?.epic_view}
-          isEpic={storeType === EIssuesStoreType.EPIC}
+          isEpic={false}
         />
       </FiltersDropdown>
       {canUserCreateIssue ? (

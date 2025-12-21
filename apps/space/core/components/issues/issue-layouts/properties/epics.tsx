@@ -1,11 +1,11 @@
 import { observer } from "mobx-react";
 // plane ui
-import { ModuleIcon } from "@plane/propel/icons";
+import { EpicIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 // plane utils
 import { cn } from "@plane/utils";
 // hooks
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 
 type Props = {
   epicIds: string[] | undefined;
@@ -13,31 +13,31 @@ type Props = {
 };
 
 export const IssueBlockEpics = observer(function IssueBlockEpics({ epicIds, shouldShowBorder = true }: Props) {
-  const { getModulesByIds } = useEpic();
+  const { getEpicsByIds } = useEpic();
 
-  const modules = getModulesByIds(epicIds ?? []);
+  const epics = getEpicsByIds(epicIds ?? []);
 
-  const modulesString = modules.map((module) => module.name).join(", ");
+  const epicsString = epics.map((epic) => epic.name).join(", ");
 
   return (
     <div className="relative flex h-full flex-wrap items-center gap-1">
-      <Tooltip tooltipHeading="Epics" tooltipContent={modulesString}>
-        {modules.length <= 1 ? (
+      <Tooltip tooltipHeading="Epics" tooltipContent={epicsString}>
+        {epics.length <= 1 ? (
           <div
-            key={modules?.[0]?.id}
+            key={epics?.[0]?.id}
             className={cn("flex h-full flex-shrink-0 cursor-default items-center rounded-md px-2.5 py-1 text-11", {
               "border-[0.5px] border-strong": shouldShowBorder,
             })}
           >
             <div className="flex items-center gap-1.5 text-secondary">
-              <ModuleIcon className="h-3 w-3 flex-shrink-0" />
-              <div className="text-11">{modules?.[0]?.name ?? "No Modules"}</div>
+              <EpicIcon className="h-3 w-3 flex-shrink-0" />
+              <div className="text-11">{epics?.[0]?.name ?? "No Epics"}</div>
             </div>
           </div>
         ) : (
           <div className="flex h-full flex-shrink-0 cursor-default items-center rounded-md border border-strong px-2.5 py-1 text-11">
             <div className="flex items-center gap-1.5 text-secondary">
-              <div className="text-11">{modules.length} Modules</div>
+              <div className="text-11">{epics.length} Epics</div>
             </div>
           </div>
         )}

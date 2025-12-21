@@ -107,7 +107,7 @@ export class CoreRootStore {
     this.memberRoot = new MemberRootStore(this as unknown as RootStore);
     this.sprint = new SprintStore(this);
     this.sprintFilter = new SprintFilterStore(this);
-    this.module = new EpicsStore(this);
+    this.epic = new EpicsStore(this);
     this.epicFilter = new EpicFilterStore(this);
     this.projectView = new ProjectViewStore(this);
     this.globalView = new GlobalViewStore(this);
@@ -141,7 +141,7 @@ export class CoreRootStore {
     this.memberRoot = new MemberRootStore(this as unknown as RootStore);
     this.sprint = new SprintStore(this);
     this.sprintFilter = new SprintFilterStore(this);
-    this.module = new EpicsStore(this);
+    this.epic = new EpicsStore(this);
     this.epicFilter = new EpicFilterStore(this);
     this.projectView = new ProjectViewStore(this);
     this.globalView = new GlobalViewStore(this);

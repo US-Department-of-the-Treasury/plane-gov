@@ -13,15 +13,15 @@ export const EpicCalendarLayout = observer(function EpicCalendarLayout() {
   const { workspaceSlug, projectId, epicId } = useParams();
 
   const {
-    issues: { addIssuesToModule },
+    issues: { addIssuesToEpic },
   } = useIssues(EIssuesStoreType.EPIC);
 
   const addIssuesToView = useCallback(
     (issueIds: string[]) => {
       if (!workspaceSlug || !projectId || !epicId) throw new Error();
-      return addIssuesToModule(workspaceSlug.toString(), projectId.toString(), epicId.toString(), issueIds);
+      return addIssuesToEpic(workspaceSlug.toString(), projectId.toString(), epicId.toString(), issueIds);
     },
-    [addIssuesToModule, workspaceSlug, projectId, epicId]
+    [addIssuesToEpic, workspaceSlug, projectId, epicId]
   );
 
   if (!epicId) return null;

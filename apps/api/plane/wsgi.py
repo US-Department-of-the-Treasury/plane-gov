@@ -1,7 +1,7 @@
 """
 WSGI config for plane project.
 
-It exposes the WSGI callable as a module-level variable named ``application``.
+It exposes the WSGI callable as a epic-level variable named ``application``.
 
 """
 

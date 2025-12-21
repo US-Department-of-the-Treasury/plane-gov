@@ -5,7 +5,7 @@ import { useTranslation } from "@plane/i18n";
 import {
   SprintIcon,
   StatePropertyIcon,
-  ModuleIcon,
+  EpicIcon,
   MembersPropertyIcon,
   PriorityPropertyIcon,
   StartDatePropertyIcon,
@@ -204,7 +204,7 @@ export const IssueDetailsSidebar = observer(function IssueDetailsSidebar(props: 
             )}
 
             {projectDetails?.epic_view && (
-              <SidebarPropertyListItem icon={ModuleIcon} label={t("common.modules")}>
+              <SidebarPropertyListItem icon={EpicIcon} label={t("common.epics")}>
                 <IssueEpicSelect
                   className="w-full grow"
                   workspaceSlug={workspaceSlug}

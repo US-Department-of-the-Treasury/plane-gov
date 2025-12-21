@@ -1,6 +1,6 @@
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
-import { ArchiveIcon, SprintIcon, ModuleIcon, WorkItemsIcon } from "@plane/propel/icons";
+import { ArchiveIcon, SprintIcon, EpicIcon, WorkItemsIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import { EIssuesStoreType } from "@plane/types";
 // ui
@@ -16,7 +16,7 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
 type TProps = {
-  activeTab: "issues" | "sprints" | "modules";
+  activeTab: "issues" | "sprints" | "epics";
 };
 
 const PROJECT_ARCHIVES_BREADCRUMB_LIST: {
@@ -36,10 +36,10 @@ const PROJECT_ARCHIVES_BREADCRUMB_LIST: {
     href: "/sprints",
     icon: SprintIcon,
   },
-  modules: {
+  epics: {
     label: "Epics",
-    href: "/modules",
-    icon: ModuleIcon,
+    href: "/epics",
+    icon: EpicIcon,
   },
 };
 

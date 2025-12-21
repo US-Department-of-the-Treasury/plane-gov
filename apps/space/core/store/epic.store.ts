@@ -1,68 +1,68 @@
 import { set } from "lodash-es";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 // plane imports
-import { SitesModuleService } from "@plane/services";
+import { SitesEpicService } from "@plane/services";
 // types
-import type { TPublicModule } from "@/types/modules";
+import type { TPublicEpic } from "@/types/epics";
 // root store
 import type { CoreRootStore } from "./root.store";
 
 export interface IIssueEpicStore {
   // observables
-  modules: TPublicModule[] | undefined;
+  epics: TPublicEpic[] | undefined;
   // computed actions
-  getEpicById: (epicId: string | undefined) => TPublicModule | undefined;
-  getModulesByIds: (epicIds: string[]) => TPublicModule[];
+  getEpicById: (epicId: string | undefined) => TPublicEpic | undefined;
+  getEpicsByIds: (epicIds: string[]) => TPublicEpic[];
   // fetch actions
-  fetchEpics: (anchor: string) => Promise<TPublicModule[]>;
+  fetchEpics: (anchor: string) => Promise<TPublicEpic[]>;
 }
 
 export class EpicStore implements IIssueEpicStore {
-  moduleMap: Record<string, TPublicModule> = {};
-  moduleService: SitesModuleService;
+  epicMap: Record<string, TPublicEpic> = {};
+  epicService: SitesEpicService;
   rootStore: CoreRootStore;
 
   constructor(_rootStore: CoreRootStore) {
     makeObservable(this, {
       // observables
-      moduleMap: observable,
+      epicMap: observable,
       // computed
-      modules: computed,
+      epics: computed,
       // fetch action
       fetchEpics: action,
     });
-    this.moduleService = new SitesModuleService();
+    this.epicService = new SitesEpicService();
     this.rootStore = _rootStore;
   }
 
-  get modules() {
-    return Object.values(this.moduleMap);
+  get epics() {
+    return Object.values(this.epicMap);
   }
 
-  getEpicById = (epicId: string | undefined) => (epicId ? this.moduleMap[epicId] : undefined);
+  getEpicById = (epicId: string | undefined) => (epicId ? this.epicMap[epicId] : undefined);
 
-  getModulesByIds = (epicIds: string[]) => {
-    const currModules = [];
+  getEpicsByIds = (epicIds: string[]) => {
+    const currEpics = [];
     for (const epicId of epicIds) {
-      const issueModule = this.getEpicById(epicId);
-      if (issueModule) {
-        currModules.push(issueModule);
+      const epic = this.getEpicById(epicId);
+      if (epic) {
+        currEpics.push(epic);
       }
     }
 
-    return currModules;
+    return currEpics;
   };
 
   fetchEpics = async (anchor: string) => {
     try {
-      const modulesResponse = await this.moduleService.list(anchor);
+      const epicsResponse = await this.epicService.list(anchor);
       runInAction(() => {
-        this.moduleMap = {};
-        for (const issueModule of modulesResponse) {
-          set(this.moduleMap, [issueModule.id], issueModule);
+        this.epicMap = {};
+        for (const epic of epicsResponse) {
+          set(this.epicMap, [epic.id], epic);
         }
       });
-      return modulesResponse;
+      return epicsResponse;
     } catch (error) {
       console.error("Failed to fetch members:", error);
       return [];

@@ -15,12 +15,12 @@ type Props = {
 };
 
 export const WorkItemsModalHeader = observer(function WorkItemsModalHeader(props: Props) {
-  const { fullScreen, handleClose, setFullScreen, title, sprint, module } = props;
+  const { fullScreen, handleClose, setFullScreen, title, sprint, epic } = props;
 
   return (
     <div className="flex items-center justify-between gap-4 bg-surface-1 px-5 py-4 text-13">
       <h3 className="break-words">
-        Analytics for {title} {sprint && `in ${sprint.name}`} {module && `in ${module.name}`}
+        Analytics for {title} {sprint && `in ${sprint.name}`} {epic && `in ${epic.name}`}
       </h3>
       <div className="flex items-center gap-2">
         <button

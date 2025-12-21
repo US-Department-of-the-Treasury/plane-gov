@@ -255,14 +255,14 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
         try {
           const removeFromEpicPromise = issues.removeIssuesFromEpic(workspaceSlug, projectId, epicId, [issueId]);
           setPromiseToast(removeFromEpicPromise, {
-            loading: t("issue.remove.module.loading"),
+            loading: t("issue.remove.epic.loading"),
             success: {
               title: t("toast.success"),
-              message: () => t("issue.remove.module.success"),
+              message: () => t("issue.remove.epic.success"),
             },
             error: {
               title: t("toast.error"),
-              message: () => t("issue.remove.module.failed"),
+              message: () => t("issue.remove.epic.failed"),
             },
           });
           await removeFromEpicPromise;

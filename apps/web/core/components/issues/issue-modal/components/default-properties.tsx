@@ -228,7 +228,7 @@ export const IssueDefaultProperties = observer(function IssueDefaultProperties(p
                   onChange(epicIds);
                   handleFormChange();
                 }}
-                placeholder={t("modules")}
+                placeholder={t("workspace_actions.epics")}
                 buttonVariant="border-with-text"
                 tabIndex={getIndex("epic_ids")}
                 multiple

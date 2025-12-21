@@ -4,7 +4,7 @@ import { Row } from "@plane/ui";
 // components
 import { cn } from "@plane/utils";
 import { BLOCK_HEIGHT } from "@/components/gantt-chart/constants";
-import { EpicGanttSidebarBlock } from "@/components/modules";
+import { EpicGanttSidebarBlock } from "@/components/epics";
 // helpers
 // hooks
 import { useTimeLineChartStore } from "@/hooks/use-timeline-chart";
@@ -14,7 +14,7 @@ type Props = {
   isDragging: boolean;
 };
 
-export const ModulesSidebarBlock = observer(function ModulesSidebarBlock(props: Props) {
+export const EpicsSidebarBlock = observer(function EpicsSidebarBlock(props: Props) {
   const { blockId, isDragging } = props;
   // store hooks
   const { getBlockById, updateActiveBlockId, isBlockActive, getNumberOfDaysFromPosition } = useTimeLineChartStore();

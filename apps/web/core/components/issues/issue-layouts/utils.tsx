@@ -6,7 +6,7 @@ import scrollIntoView from "smooth-scroll-into-view-if-needed";
 import { EIconSize, ISSUE_PRIORITIES, STATE_GROUPS } from "@plane/constants";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import type { ISvgIcons } from "@plane/propel/icons";
-import { SprintGroupIcon, SprintIcon, ModuleIcon, PriorityIcon, StateGroupIcon } from "@plane/propel/icons";
+import { SprintGroupIcon, SprintIcon, EpicIcon, PriorityIcon, StateGroupIcon } from "@plane/propel/icons";
 import type {
   GroupByColumnTypes,
   IGroupByColumn,
@@ -108,7 +108,7 @@ export const getGroupByColumns = ({
   > = {
     project: getProjectColumns,
     sprint: getSprintColumns,
-    module: getEpicColumns,
+    epic: getEpicColumns,
     state: getStateColumns,
     "state_detail.group": getStateGroupColumns,
     priority: getPriorityColumns,
@@ -179,27 +179,27 @@ const getEpicColumns = (): IGroupByColumn[] | undefined => {
   // get current project details
   const { currentProjectDetails } = store.projectRoot.project;
   if (!currentProjectDetails || !currentProjectDetails?.id) return;
-  // get project module ids and module details
-  const { getProjectEpicDetails } = store.module;
-  // get module details
+  // get project epic ids and epic details
+  const { getProjectEpicDetails } = store.epic;
+  // get epic details
   const epicDetails = currentProjectDetails?.id ? getProjectEpicDetails(currentProjectDetails?.id) : undefined;
-  // map module details to group by columns
-  const modules: IGroupByColumn[] = [];
-  epicDetails?.map((module) => {
-    modules.push({
-      id: module.id,
-      name: module.name,
-      icon: <ModuleIcon className="h-3.5 w-3.5" />,
-      payload: { epic_ids: [module.id] },
+  // map epic details to group by columns
+  const epics: IGroupByColumn[] = [];
+  epicDetails?.map((epic) => {
+    epics.push({
+      id: epic.id,
+      name: epic.name,
+      icon: <EpicIcon className="h-3.5 w-3.5" />,
+      payload: { epic_ids: [epic.id] },
     });
   });
-  modules.push({
+  epics.push({
     id: "None",
     name: "None",
-    icon: <ModuleIcon className="h-3.5 w-3.5" />,
+    icon: <EpicIcon className="h-3.5 w-3.5" />,
     payload: {},
   });
-  return modules;
+  return epics;
 };
 
 const getStateColumns = ({ projectId }: TGetColumns): IGroupByColumn[] | undefined => {

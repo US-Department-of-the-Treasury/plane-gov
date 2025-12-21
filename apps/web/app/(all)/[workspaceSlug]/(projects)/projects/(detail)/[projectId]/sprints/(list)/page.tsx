@@ -19,7 +19,7 @@ import { SprintAppliedFiltersList } from "@/components/sprints/applied-filters";
 import { SprintsView } from "@/components/sprints/sprints-view";
 import { SprintCreateUpdateModal } from "@/components/sprints/modal";
 import { DetailedEmptyState } from "@/components/empty-state/detailed-empty-state-root";
-import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
+import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";

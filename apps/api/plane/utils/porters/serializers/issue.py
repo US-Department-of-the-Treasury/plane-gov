@@ -22,7 +22,7 @@ class IssueExportSerializer(IssueSerializer):
     parent = serializers.SerializerMethodField()
     labels = serializers.SerializerMethodField()
     sprints = serializers.SerializerMethodField()
-    modules = serializers.SerializerMethodField()
+    epics = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
     estimate = serializers.SerializerMethodField()
     links = serializers.SerializerMethodField()
@@ -51,7 +51,7 @@ class IssueExportSerializer(IssueSerializer):
             "estimate",
             "labels",
             "sprints",
-            "modules",
+            "epics",
             "links",
             "relations",
             "comments",
@@ -86,8 +86,8 @@ class IssueExportSerializer(IssueSerializer):
     def get_sprints(self, obj):
         return [ic.sprint.name for ic in obj.issue_sprint.all()]
 
-    def get_modules(self, obj):
-        return [im.module.name for im in obj.issue_module.all()]
+    def get_epics(self, obj):
+        return [im.epic.name for im in obj.issue_epic.all()]
 
     def get_estimate(self, obj):
         """Return estimate point value."""

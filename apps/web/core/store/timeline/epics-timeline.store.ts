@@ -13,7 +13,7 @@ export class EpicsTimeLineStore extends BaseTimeLineStore implements IEpicsTimeL
     super(_rootStore);
 
     autorun(() => {
-      const getEpicById = this.rootStore.module.getEpicById;
+      const getEpicById = this.rootStore.epic.getEpicById;
       this.updateBlocks(getEpicById);
     });
   }

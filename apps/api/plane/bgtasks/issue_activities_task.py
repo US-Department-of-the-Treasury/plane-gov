@@ -22,7 +22,7 @@ from plane.db.models import (
     IssueReaction,
     IssueSubscriber,
     Label,
-    Module,
+    Epic,
     Project,
     State,
     User,
@@ -854,7 +854,7 @@ def delete_sprint_issue_activity(
         )
 
 
-def create_module_issue_activity(
+def create_epic_issue_activity(
     requested_data,
     current_instance,
     issue_id,
@@ -865,7 +865,7 @@ def create_module_issue_activity(
     epoch,
 ):
     requested_data = json.loads(requested_data) if requested_data is not None else None
-    module = Module.objects.filter(pk=requested_data.get("module_id")).first()
+    epic = Epic.objects.filter(pk=requested_data.get("epic_id")).first()
     issue = Issue.objects.filter(pk=issue_id).first()
     if issue:
         issue.updated_at = timezone.now()
@@ -876,18 +876,18 @@ def create_module_issue_activity(
             actor_id=actor_id,
             verb="created",
             old_value="",
-            new_value=module.name if module else "",
-            field="modules",
+            new_value=epic.name if epic else "",
+            field="epics",
             project_id=project_id,
             workspace_id=workspace_id,
-            comment=f"added module {module.name if module else ''}",
-            new_identifier=requested_data.get("module_id"),
+            comment=f"added epic {epic.name if epic else ''}",
+            new_identifier=requested_data.get("epic_id"),
             epoch=epoch,
         )
     )
 
 
-def delete_module_issue_activity(
+def delete_epic_issue_activity(
     requested_data,
     current_instance,
     issue_id,
@@ -899,7 +899,7 @@ def delete_module_issue_activity(
 ):
     requested_data = json.loads(requested_data) if requested_data is not None else None
     current_instance = json.loads(current_instance) if current_instance is not None else None
-    module_name = current_instance.get("module_name")
+    epic_name = current_instance.get("epic_name")
     current_issue = Issue.objects.filter(pk=issue_id).first()
     if current_issue:
         current_issue.updated_at = timezone.now()
@@ -909,13 +909,13 @@ def delete_module_issue_activity(
             issue_id=issue_id,
             actor_id=actor_id,
             verb="deleted",
-            old_value=module_name,
+            old_value=epic_name,
             new_value="",
-            field="modules",
+            field="epics",
             project_id=project_id,
             workspace_id=workspace_id,
-            comment=f"removed this issue from {module_name}",
-            old_identifier=(requested_data.get("module_id") if requested_data.get("module_id") is not None else None),
+            comment=f"removed this issue from {epic_name}",
+            old_identifier=(requested_data.get("epic_id") if requested_data.get("epic_id") is not None else None),
             epoch=epoch,
         )
     )
@@ -1542,8 +1542,8 @@ def issue_activity(
             "comment.activity.deleted": delete_comment_activity,
             "sprint.activity.created": create_sprint_issue_activity,
             "sprint.activity.deleted": delete_sprint_issue_activity,
-            "module.activity.created": create_module_issue_activity,
-            "module.activity.deleted": delete_module_issue_activity,
+            "epic.activity.created": create_epic_issue_activity,
+            "epic.activity.deleted": delete_epic_issue_activity,
             "link.activity.created": create_link_activity,
             "link.activity.updated": update_link_activity,
             "link.activity.deleted": delete_link_activity,

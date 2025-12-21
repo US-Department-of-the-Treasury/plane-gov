@@ -17,7 +17,7 @@ from django.db.models.functions import Cast, ExtractDay, ExtractWeek
 from django.http import HttpResponse
 from django.utils import timezone
 
-# Third party modules
+# Third party epics
 from rest_framework import status
 from rest_framework.response import Response
 

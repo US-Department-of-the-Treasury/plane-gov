@@ -88,7 +88,7 @@ class WebhookEndpoint(BaseAPIView):
                 "project",
                 "issue",
                 "sprint",
-                "module",
+                "epic",
                 "issue_comment",
             ),
         )

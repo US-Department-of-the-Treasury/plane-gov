@@ -5,7 +5,7 @@ import { Layers } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { cn } from "@plane/utils";
 // hooks
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 
 export type TReadonlyEpicProps = {
   className?: string;

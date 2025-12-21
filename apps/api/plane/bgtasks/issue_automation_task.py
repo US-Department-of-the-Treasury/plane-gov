@@ -40,8 +40,8 @@ def archive_old_issues():
                 ),
                 Q(issue_sprint__isnull=True)
                 | (Q(issue_sprint__sprint__end_date__lt=timezone.now()) & Q(issue_sprint__isnull=False)),
-                Q(issue_module__isnull=True)
-                | (Q(issue_module__module__target_date__lt=timezone.now()) & Q(issue_module__isnull=False)),
+                Q(issue_epic__isnull=True)
+                | (Q(issue_epic__epic__target_date__lt=timezone.now()) & Q(issue_epic__isnull=False)),
             ).filter(
                 Q(issue_intake__status=1)
                 | Q(issue_intake__status=-1)
@@ -101,8 +101,8 @@ def close_old_issues():
                 ),
                 Q(issue_sprint__isnull=True)
                 | (Q(issue_sprint__sprint__end_date__lt=timezone.now()) & Q(issue_sprint__isnull=False)),
-                Q(issue_module__isnull=True)
-                | (Q(issue_module__module__target_date__lt=timezone.now()) & Q(issue_module__isnull=False)),
+                Q(issue_epic__isnull=True)
+                | (Q(issue_epic__epic__target_date__lt=timezone.now()) & Q(issue_epic__isnull=False)),
             ).filter(
                 Q(issue_intake__status=1)
                 | Q(issue_intake__status=-1)

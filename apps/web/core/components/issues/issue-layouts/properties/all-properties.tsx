@@ -378,9 +378,9 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
       <>
         {!isEpic && (
           <>
-            {/* modules */}
+            {/* epics */}
             {projectDetails?.epic_view && (
-              <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="modules">
+              <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="epics">
                 <div className="h-5" onFocus={handleEventPropagation} onClick={handleEventPropagation}>
                   <EpicDropdown
                     buttonContainerClassName="truncate max-w-40"

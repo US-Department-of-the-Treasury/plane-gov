@@ -15,7 +15,7 @@ import { IssueBlockSprint } from "./sprint";
 import { IssueBlockDate } from "./due-date";
 import { IssueBlockLabels } from "./labels";
 import { IssueBlockMembers } from "./member";
-import { IssueBlockEpics } from "./modules";
+import { IssueBlockEpics } from "./epics";
 import { IssueBlockPriority } from "./priority";
 import { IssueBlockState } from "./state";
 
@@ -91,9 +91,9 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
         </div>
       </WithDisplayPropertiesHOC>
 
-      {/* modules */}
+      {/* epics */}
       {issue.epic_ids && issue.epic_ids.length > 0 && (
-        <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="modules">
+        <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="epics">
           <div className="h-5">
             <IssueBlockEpics epicIds={issue.epic_ids} />
           </div>

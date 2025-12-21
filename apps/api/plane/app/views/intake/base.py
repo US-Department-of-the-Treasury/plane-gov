@@ -100,7 +100,7 @@ class IntakeIssueViewSet(BaseViewSet):
                 workspace__slug=self.kwargs.get("slug"),
             )
             .select_related("workspace", "project", "state", "parent")
-            .prefetch_related("assignees", "labels", "issue_module__module")
+            .prefetch_related("assignees", "labels", "issue_epic__epic")
             .prefetch_related(
                 Prefetch(
                     "issue_intake",
@@ -154,14 +154,14 @@ class IntakeIssueViewSet(BaseViewSet):
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
                 ),
-                module_ids=Coalesce(
+                epic_ids=Coalesce(
                     ArrayAgg(
-                        "issue_module__module_id",
+                        "issue_epic__epic_id",
                         distinct=True,
                         filter=Q(
-                            ~Q(issue_module__module_id__isnull=True)
-                            & Q(issue_module__module__archived_at__isnull=True)
-                            & Q(issue_module__deleted_at__isnull=True)
+                            ~Q(issue_epic__epic_id__isnull=True)
+                            & Q(issue_epic__epic__archived_at__isnull=True)
+                            & Q(issue_epic__deleted_at__isnull=True)
                         ),
                     ),
                     Value([], output_field=ArrayField(UUIDField())),

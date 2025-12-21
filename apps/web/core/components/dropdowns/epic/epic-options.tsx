@@ -6,8 +6,8 @@ import { Check, Search } from "lucide-react";
 import { Combobox } from "@headlessui/react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
-import { ModuleIcon } from "@plane/propel/icons";
-import type { IModule } from "@plane/types";
+import { EpicIcon } from "@plane/propel/icons";
+import type { IEpic } from "@plane/types";
 import { cn } from "@plane/utils";
 // hooks
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -21,7 +21,7 @@ type DropdownOptions =
   | undefined;
 
 interface Props {
-  getEpicById: (epicId: string) => IModule | null;
+  getEpicById: (epicId: string) => IEpic | null;
   isOpen: boolean;
   epicIds?: string[];
   multiple: boolean;
@@ -83,7 +83,7 @@ export const EpicOptions = observer(function EpicOptions(props: Props) {
       query: `${epicDetails?.name}`,
       content: (
         <div className="flex items-center gap-2">
-          <ModuleIcon className="h-3 w-3 flex-shrink-0" />
+          <EpicIcon className="h-3 w-3 flex-shrink-0" />
           <span className="flex-grow truncate">{epicDetails?.name}</span>
         </div>
       ),
@@ -95,7 +95,7 @@ export const EpicOptions = observer(function EpicOptions(props: Props) {
       query: t("epic.no_epic"),
       content: (
         <div className="flex items-center gap-2">
-          <ModuleIcon className="h-3 w-3 flex-shrink-0" />
+          <EpicIcon className="h-3 w-3 flex-shrink-0" />
           <span className="flex-grow truncate">{t("epic.no_epic")}</span>
         </div>
       ),

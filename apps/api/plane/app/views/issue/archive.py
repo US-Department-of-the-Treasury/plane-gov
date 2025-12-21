@@ -87,7 +87,7 @@ class IssueArchiveViewSet(BaseViewSet):
                     .values("count")
                 )
             )
-            .prefetch_related("assignees", "labels", "issue_module__module")
+            .prefetch_related("assignees", "labels", "issue_epic__epic")
         )
 
     def get_queryset(self):

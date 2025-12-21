@@ -1,7 +1,7 @@
 import { observer } from "mobx-react";
 // components
 import { SprintCreateUpdateModal } from "@/components/sprints/modal";
-import { CreateUpdateEpicModal } from "@/components/modules";
+import { CreateUpdateEpicModal } from "@/components/epics";
 import { CreatePageModal } from "@/components/pages/modals/create-page-modal";
 import { CreateUpdateProjectViewModal } from "@/components/views/modal";
 // hooks

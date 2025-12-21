@@ -90,7 +90,7 @@ export abstract class BaseAnalyticsStore implements IBaseAnalyticsStore {
 
   updateSelectedEpic = (epic: string) => {
     runInAction(() => {
-      this.selectedEpic = module;
+      this.selectedEpic = epic;
     });
   };
 
