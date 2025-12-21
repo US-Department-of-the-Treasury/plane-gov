@@ -20,6 +20,10 @@ def delete_sprint_data(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    # Disable atomic mode to avoid "pending trigger events" error
+    # when removing FKs and altering table in same transaction
+    atomic = False
+
     dependencies = [
         ("db", "0113_rename_cycle_to_sprint"),
     ]
