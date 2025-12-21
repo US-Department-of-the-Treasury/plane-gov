@@ -25,8 +25,10 @@ export const queryKeys = {
   // Project queries
   projects: {
     all: (workspaceSlug: string) => ["projects", workspaceSlug] as const,
+    lite: (workspaceSlug: string) => ["projects", workspaceSlug, "lite"] as const,
     detail: (projectId: string) => ["projects", "detail", projectId] as const,
     members: (projectId: string) => ["projects", projectId, "members"] as const,
+    analytics: (workspaceSlug: string) => ["projects", workspaceSlug, "analytics"] as const,
   },
 
   // Issue queries
@@ -71,6 +73,8 @@ export const queryKeys = {
   // State queries
   states: {
     all: (workspaceSlug: string, projectId: string) => ["states", workspaceSlug, projectId] as const,
+    workspace: (workspaceSlug: string) => ["states", "workspace", workspaceSlug] as const,
+    intake: (workspaceSlug: string, projectId: string) => ["states", "intake", workspaceSlug, projectId] as const,
   },
 
   // Member queries
