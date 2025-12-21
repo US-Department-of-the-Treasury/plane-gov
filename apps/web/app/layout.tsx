@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const isSessionRecorderEnabled = parseInt(process.env.VITE_ENABLE_SESSION_RECORDER || "0");
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#fff" />
         <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />

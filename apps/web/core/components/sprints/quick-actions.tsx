@@ -4,10 +4,10 @@ import { MoreHorizontal } from "lucide-react";
 
 // ui
 import {
-  CYCLE_TRACKER_EVENTS,
+  SPRINT_TRACKER_EVENTS,
   EUserPermissions,
   EUserPermissionsLevel,
-  CYCLE_TRACKER_ELEMENTS,
+  SPRINT_TRACKER_ELEMENTS,
 } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { IconButton } from "@plane/propel/icon-button";
@@ -77,7 +77,7 @@ export const SprintQuickActions = observer(function SprintQuickActions(props: Pr
           message: t("project_sprints.action.restore.success.description"),
         });
         captureSuccess({
-          eventName: CYCLE_TRACKER_EVENTS.restore,
+          eventName: SPRINT_TRACKER_EVENTS.restore,
           payload: {
             id: sprintId,
           },
@@ -91,7 +91,7 @@ export const SprintQuickActions = observer(function SprintQuickActions(props: Pr
           message: t("project_sprints.action.restore.failed.description"),
         });
         captureError({
-          eventName: CYCLE_TRACKER_EVENTS.restore,
+          eventName: SPRINT_TRACKER_EVENTS.restore,
           payload: {
             id: sprintId,
           },
@@ -121,7 +121,7 @@ export const SprintQuickActions = observer(function SprintQuickActions(props: Pr
 
       action: () => {
         captureClick({
-          elementName: CYCLE_TRACKER_ELEMENTS.CONTEXT_MENU,
+          elementName: SPRINT_TRACKER_ELEMENTS.CONTEXT_MENU,
         });
         item.action();
       },
@@ -171,7 +171,7 @@ export const SprintQuickActions = observer(function SprintQuickActions(props: Pr
               key={item.key}
               onClick={() => {
                 captureClick({
-                  elementName: CYCLE_TRACKER_ELEMENTS.QUICK_ACTIONS,
+                  elementName: SPRINT_TRACKER_ELEMENTS.QUICK_ACTIONS,
                 });
                 item.action();
               }}

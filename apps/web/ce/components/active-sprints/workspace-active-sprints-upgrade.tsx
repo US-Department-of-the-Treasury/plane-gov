@@ -18,7 +18,7 @@ import { ProIcon } from "@/components/common/pro-icon";
 // hooks
 import { useUser } from "@/hooks/store/user";
 
-export const WORKSPACE_ACTIVE_CYCLES_DETAILS = [
+export const WORKSPACE_ACTIVE_SPRINTS_DETAILS = [
   {
     key: "10000_feet_view",
     title: "10,000-feet view of all active sprints.",
@@ -112,7 +112,7 @@ export const WorkspaceActiveSprintsUpgrade = observer(function WorkspaceActiveSp
         </div>
       </div>
       <div className="grid h-full grid-cols-1 gap-5 pb-8 lg:grid-cols-2 xl:grid-cols-3">
-        {WORKSPACE_ACTIVE_CYCLES_DETAILS.map((item) => (
+        {WORKSPACE_ACTIVE_SPRINTS_DETAILS.map((item) => (
           <div key={item.title} className="flex min-h-32 w-full flex-col gap-2 rounded-md bg-layer-1 p-4">
             <div className="flex gap-2 justify-between">
               <h3 className="font-medium">{t(item.key)}</h3>

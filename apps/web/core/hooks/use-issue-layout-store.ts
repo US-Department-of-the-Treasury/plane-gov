@@ -23,7 +23,7 @@ export const useIssueStoreType = () => {
 
   if (viewId) return EIssuesStoreType.PROJECT_VIEW;
 
-  if (sprintId) return EIssuesStoreType.CYCLE;
+  if (sprintId) return EIssuesStoreType.SPRINT;
 
   if (moduleId) return EIssuesStoreType.MODULE;
 

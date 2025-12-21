@@ -50,7 +50,7 @@ export const SprintLayoutRoot = observer(function SprintLayoutRoot() {
   const projectId = routerProjectId ? routerProjectId.toString() : undefined;
   const sprintId = routerSprintId ? routerSprintId.toString() : undefined;
   // store hooks
-  const { issuesFilter } = useIssues(EIssuesStoreType.CYCLE);
+  const { issuesFilter } = useIssues(EIssuesStoreType.SPRINT);
   const { getSprintById } = useSprint();
   // state
   const [transferIssuesModal, setTransferIssuesModal] = useState(false);
@@ -59,7 +59,7 @@ export const SprintLayoutRoot = observer(function SprintLayoutRoot() {
   const activeLayout = workItemFilters?.displayFilters?.layout;
 
   useSWR(
-    workspaceSlug && projectId && sprintId ? `CYCLE_ISSUES_${workspaceSlug}_${projectId}_${sprintId}` : null,
+    workspaceSlug && projectId && sprintId ? `SPRINT_ISSUES_${workspaceSlug}_${projectId}_${sprintId}` : null,
     async () => {
       if (workspaceSlug && projectId && sprintId) {
         await issuesFilter?.fetchFilters(workspaceSlug, projectId, sprintId);
@@ -79,10 +79,10 @@ export const SprintLayoutRoot = observer(function SprintLayoutRoot() {
 
   if (!workspaceSlug || !projectId || !sprintId || !workItemFilters) return <></>;
   return (
-    <IssuesStoreContext.Provider value={EIssuesStoreType.CYCLE}>
+    <IssuesStoreContext.Provider value={EIssuesStoreType.SPRINT}>
       <ProjectLevelWorkItemFiltersHOC
         enableSaveView
-        entityType={EIssuesStoreType.CYCLE}
+        entityType={EIssuesStoreType.SPRINT}
         entityId={sprintId}
         filtersToShowByLayout={ISSUE_DISPLAY_FILTERS_BY_PAGE.issues.filters}
         initialWorkItemFilters={workItemFilters}
@@ -109,7 +109,7 @@ export const SprintLayoutRoot = observer(function SprintLayoutRoot() {
                 <WorkItemFiltersRow
                   filter={sprintWorkItemsFilter}
                   trackerElements={{
-                    saveView: PROJECT_VIEW_TRACKER_ELEMENTS.CYCLE_HEADER_SAVE_AS_VIEW_BUTTON,
+                    saveView: PROJECT_VIEW_TRACKER_ELEMENTS.SPRINT_HEADER_SAVE_AS_VIEW_BUTTON,
                   }}
                 />
               )}

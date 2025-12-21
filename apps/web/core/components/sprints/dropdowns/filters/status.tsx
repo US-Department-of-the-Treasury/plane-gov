@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { observer } from "mobx-react";
-import { CYCLE_STATUS } from "@plane/constants";
+import { SPRINT_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import type { TSprintGroups } from "@plane/types";
 // components
@@ -21,7 +21,7 @@ export const FilterStatus = observer(function FilterStatus(props: Props) {
   //hooks
   const { t } = useTranslation();
   const appliedFiltersCount = appliedFilters?.length ?? 0;
-  const filteredOptions = CYCLE_STATUS.filter((p) => p.value.includes(searchQuery.toLowerCase()));
+  const filteredOptions = SPRINT_STATUS.filter((p) => p.value.includes(searchQuery.toLowerCase()));
 
   return (
     <>

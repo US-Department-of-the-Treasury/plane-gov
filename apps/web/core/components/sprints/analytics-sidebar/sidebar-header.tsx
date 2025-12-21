@@ -5,11 +5,11 @@ import { Controller, useForm } from "react-hook-form";
 import { ArrowRight } from "lucide-react";
 // Plane Imports
 import {
-  CYCLE_TRACKER_EVENTS,
-  CYCLE_STATUS,
+  SPRINT_TRACKER_EVENTS,
+  SPRINT_STATUS,
   EUserPermissions,
   EUserPermissionsLevel,
-  CYCLE_TRACKER_ELEMENTS,
+  SPRINT_TRACKER_ELEMENTS,
 } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { ChevronRightIcon } from "@plane/propel/icons";
@@ -60,7 +60,7 @@ export const SprintSidebarHeader = observer(function SprintSidebarHeader(props: 
   const sprintStatus = sprintDetails?.status?.toLocaleLowerCase();
   const isCompleted = sprintStatus === "completed";
 
-  const currentSprint = CYCLE_STATUS.find((status) => status.value === sprintStatus);
+  const currentSprint = SPRINT_STATUS.find((status) => status.value === sprintStatus);
 
   const submitChanges = async (data: Partial<ISprint>) => {
     if (!workspaceSlug || !projectId || !sprintDetails.id) return;
@@ -69,10 +69,10 @@ export const SprintSidebarHeader = observer(function SprintSidebarHeader(props: 
       .then(() => {
         captureElementAndEvent({
           element: {
-            elementName: CYCLE_TRACKER_ELEMENTS.RIGHT_SIDEBAR,
+            elementName: SPRINT_TRACKER_ELEMENTS.RIGHT_SIDEBAR,
           },
           event: {
-            eventName: CYCLE_TRACKER_EVENTS.update,
+            eventName: SPRINT_TRACKER_EVENTS.update,
             state: "SUCCESS",
             payload: {
               id: sprintDetails.id,
@@ -84,10 +84,10 @@ export const SprintSidebarHeader = observer(function SprintSidebarHeader(props: 
       .catch(() => {
         captureElementAndEvent({
           element: {
-            elementName: CYCLE_TRACKER_ELEMENTS.RIGHT_SIDEBAR,
+            elementName: SPRINT_TRACKER_ELEMENTS.RIGHT_SIDEBAR,
           },
           event: {
-            eventName: CYCLE_TRACKER_EVENTS.update,
+            eventName: SPRINT_TRACKER_EVENTS.update,
             state: "ERROR",
             payload: {
               id: sprintDetails.id,

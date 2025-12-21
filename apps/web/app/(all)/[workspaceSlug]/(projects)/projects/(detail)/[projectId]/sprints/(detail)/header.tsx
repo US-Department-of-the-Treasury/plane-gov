@@ -58,7 +58,7 @@ export const SprintIssuesHeader = observer(function SprintIssuesHeader() {
   const {
     issuesFilter: { issueFilters, updateFilters },
     issues: { getGroupIssueCount },
-  } = useIssues(EIssuesStoreType.CYCLE);
+  } = useIssues(EIssuesStoreType.SPRINT);
   const { currentProjectSprintIds, getSprintById } = useSprint();
   const { toggleCreateIssueModal } = useCommandPalette();
   const { currentProjectDetails, loader } = useProject();
@@ -205,7 +205,7 @@ export const SprintIssuesHeader = observer(function SprintIssuesHeader() {
                 activeLayout={activeLayout}
               />
             </div>
-            <WorkItemFiltersToggle entityType={EIssuesStoreType.CYCLE} entityId={sprintId} />
+            <WorkItemFiltersToggle entityType={EIssuesStoreType.SPRINT} entityId={sprintId} />
             <FiltersDropdown
               title={t("common.display")}
               placement="bottom-end"
@@ -238,9 +238,9 @@ export const SprintIssuesHeader = observer(function SprintIssuesHeader() {
                     variant="primary"
                     size="lg"
                     onClick={() => {
-                      toggleCreateIssueModal(true, EIssuesStoreType.CYCLE);
+                      toggleCreateIssueModal(true, EIssuesStoreType.SPRINT);
                     }}
-                    data-ph-element={WORK_ITEM_TRACKER_ELEMENTS.HEADER_ADD_BUTTON.CYCLE}
+                    data-ph-element={WORK_ITEM_TRACKER_ELEMENTS.HEADER_ADD_BUTTON.SPRINT}
                   >
                     {t("issue.add.label")}
                   </Button>

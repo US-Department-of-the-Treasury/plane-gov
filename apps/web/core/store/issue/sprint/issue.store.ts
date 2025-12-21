@@ -21,7 +21,7 @@ import { BaseIssuesStore } from "../helpers/base-issues.store";
 import type { IIssueRootStore } from "../root.store";
 import type { ISprintIssuesFilter } from "./filter.store";
 
-export const ACTIVE_CYCLE_ISSUES = "ACTIVE_CYCLE_ISSUES";
+export const ACTIVE_SPRINT_ISSUES = "ACTIVE_SPRINT_ISSUES";
 
 export interface ActiveSprintIssueDetails {
   issueIds: string[];

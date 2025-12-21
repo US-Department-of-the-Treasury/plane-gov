@@ -6,11 +6,11 @@ import { useForm } from "react-hook-form";
 import { Eye, ArrowRight, CalendarDays } from "lucide-react";
 // plane imports
 import {
-  CYCLE_TRACKER_EVENTS,
+  SPRINT_TRACKER_EVENTS,
   EUserPermissions,
   EUserPermissionsLevel,
   IS_FAVORITE_MENU_OPEN,
-  CYCLE_TRACKER_ELEMENTS,
+  SPRINT_TRACKER_ELEMENTS,
 } from "@plane/constants";
 import { useLocalStorage } from "@plane/hooks";
 import { useTranslation } from "@plane/i18n";
@@ -113,7 +113,7 @@ export const SprintListItemAction = observer(function SprintListItemAction(props
       .then(() => {
         if (!isFavoriteMenuOpen) toggleFavoriteMenu(true);
         captureSuccess({
-          eventName: CYCLE_TRACKER_EVENTS.favorite,
+          eventName: SPRINT_TRACKER_EVENTS.favorite,
           payload: {
             id: sprintId,
           },
@@ -121,7 +121,7 @@ export const SprintListItemAction = observer(function SprintListItemAction(props
       })
       .catch((error) => {
         captureError({
-          eventName: CYCLE_TRACKER_EVENTS.favorite,
+          eventName: SPRINT_TRACKER_EVENTS.favorite,
           payload: {
             id: sprintId,
           },
@@ -149,7 +149,7 @@ export const SprintListItemAction = observer(function SprintListItemAction(props
     const removeFromFavoritePromise = removeSprintFromFavorites(workspaceSlug?.toString(), projectId.toString(), sprintId)
       .then(() => {
         captureSuccess({
-          eventName: CYCLE_TRACKER_EVENTS.unfavorite,
+          eventName: SPRINT_TRACKER_EVENTS.unfavorite,
           payload: {
             id: sprintId,
           },
@@ -157,7 +157,7 @@ export const SprintListItemAction = observer(function SprintListItemAction(props
       })
       .catch((error) => {
         captureError({
-          eventName: CYCLE_TRACKER_EVENTS.unfavorite,
+          eventName: SPRINT_TRACKER_EVENTS.unfavorite,
           payload: {
             id: sprintId,
           },
@@ -319,7 +319,7 @@ export const SprintListItemAction = observer(function SprintListItemAction(props
       )}
       {isEditingAllowed && !sprintDetails.archived_at && (
         <FavoriteStar
-          data-ph-element={CYCLE_TRACKER_ELEMENTS.LIST_ITEM}
+          data-ph-element={SPRINT_TRACKER_ELEMENTS.LIST_ITEM}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();

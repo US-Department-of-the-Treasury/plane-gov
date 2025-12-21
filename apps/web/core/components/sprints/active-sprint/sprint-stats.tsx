@@ -78,7 +78,7 @@ export const ActiveSprintStats = observer(function ActiveSprintStats(props: Acti
   };
   const {
     issues: { fetchNextActiveSprintIssues },
-  } = useIssues(EIssuesStoreType.CYCLE);
+  } = useIssues(EIssuesStoreType.SPRINT);
   const {
     issue: { getIssueById },
     setPeekIssue,

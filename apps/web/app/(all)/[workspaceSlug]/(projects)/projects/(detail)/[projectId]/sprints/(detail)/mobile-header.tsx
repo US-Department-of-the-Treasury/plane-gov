@@ -35,7 +35,7 @@ export const SprintIssuesMobileHeader = observer(function SprintIssuesMobileHead
   const { getSprintById } = useSprint();
   const {
     issuesFilter: { issueFilters, updateFilters },
-  } = useIssues(EIssuesStoreType.CYCLE);
+  } = useIssues(EIssuesStoreType.SPRINT);
   // derived values
   const activeLayout = issueFilters?.displayFilters?.layout;
   const sprintDetails = sprintId ? getSprintById(sprintId.toString()) : undefined;

@@ -169,7 +169,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
       // or if the moduleIds in Payload does not match the moduleId in url
       // use the project issue store to create issues
       else if (
-        (payload.sprint_id !== sprintId && storeType === EIssuesStoreType.CYCLE) ||
+        (payload.sprint_id !== sprintId && storeType === EIssuesStoreType.SPRINT) ||
         (!payload.module_ids?.includes(moduleId?.toString()) && storeType === EIssuesStoreType.MODULE)
       ) {
         response = await projectIssues.createIssue(workspaceSlug.toString(), payload.project_id, payload);
@@ -198,7 +198,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
         if (
           payload.sprint_id &&
           payload.sprint_id !== "" &&
-          (payload.sprint_id !== sprintId || storeType !== EIssuesStoreType.CYCLE)
+          (payload.sprint_id !== sprintId || storeType !== EIssuesStoreType.SPRINT)
         ) {
           await addIssueToSprint(response, payload.sprint_id);
         }
@@ -276,7 +276,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
       if (
         payload.sprint_id &&
         payload.sprint_id !== "" &&
-        (payload.sprint_id !== sprintId || storeType !== EIssuesStoreType.CYCLE)
+        (payload.sprint_id !== sprintId || storeType !== EIssuesStoreType.SPRINT)
       ) {
         await addIssueToSprint(data as TBaseIssue, payload.sprint_id);
       }

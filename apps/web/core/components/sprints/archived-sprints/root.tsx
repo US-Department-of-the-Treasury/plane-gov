@@ -29,7 +29,7 @@ export const ArchivedSprintLayoutRoot = observer(function ArchivedSprintLayoutRo
   const totalArchivedSprints = currentProjectArchivedSprintIds?.length ?? 0;
 
   useSWR(
-    workspaceSlug && projectId ? `ARCHIVED_CYCLES_${workspaceSlug.toString()}_${projectId.toString()}` : null,
+    workspaceSlug && projectId ? `ARCHIVED_SPRINTS_${workspaceSlug.toString()}_${projectId.toString()}` : null,
     async () => {
       if (workspaceSlug && projectId) {
         await fetchArchivedSprints(workspaceSlug.toString(), projectId.toString());

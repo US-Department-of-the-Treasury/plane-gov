@@ -5,7 +5,7 @@ import useSWR from "swr";
 import type { TWorkItemFilterCondition } from "@plane/shared-state";
 import { EIssuesStoreType } from "@plane/types";
 // constants
-import { CYCLE_ISSUES_WITH_PARAMS } from "@/constants/fetch-keys";
+import { SPRINT_ISSUES_WITH_PARAMS } from "@/constants/fetch-keys";
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useIssues } from "@/hooks/store/use-issues";
@@ -26,7 +26,7 @@ const useSprintsDetails = (props: IActiveSprintDetails) => {
   const {
     issuesFilter: { updateFilterExpression },
     issues: { getActiveSprintById: getActiveSprintByIdFromIssue, fetchActiveSprintIssues },
-  } = useIssues(EIssuesStoreType.CYCLE);
+  } = useIssues(EIssuesStoreType.SPRINT);
   const { updateFilterExpressionFromConditions } = useWorkItemFilters();
 
   const { fetchActiveSprintProgress, getSprintById, fetchActiveSprintAnalytics } = useSprint();
@@ -35,13 +35,13 @@ const useSprintsDetails = (props: IActiveSprintDetails) => {
 
   // fetch sprint details
   useSWR(
-    workspaceSlug && projectId && sprint?.id ? `PROJECT_ACTIVE_CYCLE_${projectId}_PROGRESS_${sprint.id}` : null,
+    workspaceSlug && projectId && sprint?.id ? `PROJECT_ACTIVE_SPRINT_${projectId}_PROGRESS_${sprint.id}` : null,
     workspaceSlug && projectId && sprint?.id ? () => fetchActiveSprintProgress(workspaceSlug, projectId, sprint.id) : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
   useSWR(
     workspaceSlug && projectId && sprint?.id && !sprint?.distribution
-      ? `PROJECT_ACTIVE_CYCLE_${projectId}_DURATION_${sprint.id}`
+      ? `PROJECT_ACTIVE_SPRINT_${projectId}_DURATION_${sprint.id}`
       : null,
     workspaceSlug && projectId && sprint?.id && !sprint?.distribution
       ? () => fetchActiveSprintAnalytics(workspaceSlug, projectId, sprint.id, "issues")
@@ -49,14 +49,14 @@ const useSprintsDetails = (props: IActiveSprintDetails) => {
   );
   useSWR(
     workspaceSlug && projectId && sprint?.id && !sprint?.estimate_distribution
-      ? `PROJECT_ACTIVE_CYCLE_${projectId}_ESTIMATE_DURATION_${sprint.id}`
+      ? `PROJECT_ACTIVE_SPRINT_${projectId}_ESTIMATE_DURATION_${sprint.id}`
       : null,
     workspaceSlug && projectId && sprint?.id && !sprint?.estimate_distribution
       ? () => fetchActiveSprintAnalytics(workspaceSlug, projectId, sprint.id, "points")
       : null
   );
   useSWR(
-    workspaceSlug && projectId && sprint?.id ? CYCLE_ISSUES_WITH_PARAMS(sprint?.id, { priority: "urgent,high" }) : null,
+    workspaceSlug && projectId && sprint?.id ? SPRINT_ISSUES_WITH_PARAMS(sprint?.id, { priority: "urgent,high" }) : null,
     workspaceSlug && projectId && sprint?.id
       ? () => fetchActiveSprintIssues(workspaceSlug, projectId, 30, sprint?.id)
       : null,
@@ -70,7 +70,7 @@ const useSprintsDetails = (props: IActiveSprintDetails) => {
       if (!workspaceSlug || !projectId || !sprintId) return;
 
       await updateFilterExpressionFromConditions(
-        EIssuesStoreType.CYCLE,
+        EIssuesStoreType.SPRINT,
         sprintId,
         conditions,
         updateFilterExpression.bind(updateFilterExpression, workspaceSlug, projectId, sprintId)

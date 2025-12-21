@@ -15,7 +15,7 @@ export const SprintCalendarLayout = observer(function SprintCalendarLayout() {
 
   const {
     issues: { addIssueToSprint },
-  } = useIssues(EIssuesStoreType.CYCLE);
+  } = useIssues(EIssuesStoreType.SPRINT);
 
   const isCompletedSprint =
     sprintId && currentProjectCompletedSprintIds ? currentProjectCompletedSprintIds.includes(sprintId.toString()) : false;

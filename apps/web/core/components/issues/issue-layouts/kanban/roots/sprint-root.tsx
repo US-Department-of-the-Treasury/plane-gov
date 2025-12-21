@@ -16,7 +16,7 @@ export const SprintKanBanLayout = observer(function SprintKanBanLayout() {
   const { workspaceSlug, projectId, sprintId } = useParams();
 
   // store
-  const { issues } = useIssues(EIssuesStoreType.CYCLE);
+  const { issues } = useIssues(EIssuesStoreType.SPRINT);
   const { currentProjectCompletedSprintIds } = useSprint();
   const { allowPermissions } = useUserPermissions();
 

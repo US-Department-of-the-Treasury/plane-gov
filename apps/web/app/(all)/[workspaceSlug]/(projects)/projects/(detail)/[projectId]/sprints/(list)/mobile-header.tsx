@@ -10,7 +10,7 @@ import { CustomMenu } from "@plane/ui";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
 import { useProject } from "@/hooks/store/use-project";
 
-const CYCLE_VIEW_LAYOUTS: {
+const SPRINT_VIEW_LAYOUTS: {
   key: TSprintLayoutOptions;
   icon: React.FC<ISvgIcons>;
   title: string;
@@ -51,7 +51,7 @@ export const SprintsListMobileHeader = observer(function SprintsListMobileHeader
         customButtonClassName="flex flex-grow justify-center items-center text-secondary text-13"
         closeOnSelect
       >
-        {CYCLE_VIEW_LAYOUTS.map((layout) => {
+        {SPRINT_VIEW_LAYOUTS.map((layout) => {
           if (layout.key == "gantt") return;
           return (
             <CustomMenu.MenuItem
