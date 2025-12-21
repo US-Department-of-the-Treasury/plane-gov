@@ -1,4 +1,3 @@
-import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { Placement } from "@popperjs/core";
 import { observer } from "mobx-react";
@@ -36,7 +35,7 @@ type SprintOptionsProps = {
 };
 
 export const SprintOptions = observer(function SprintOptions(props: SprintOptionsProps) {
-  const { projectId, isOpen, referenceElement, placement, canRemoveSprint, currentSprintId } = props;
+  const { projectId: _projectId, isOpen, referenceElement, placement, canRemoveSprint, currentSprintId } = props;
   // i18n
   const { t } = useTranslation();
   //state hooks
@@ -45,7 +44,7 @@ export const SprintOptions = observer(function SprintOptions(props: SprintOption
   const inputRef = useRef<HTMLInputElement | null>(null);
   // store hooks
   const { workspaceSlug } = useParams();
-  const { getProjectSprintIds, fetchAllSprints, getSprintById } = useSprint();
+  const { currentWorkspaceSprintIds, fetchWorkspaceSprints, getSprintById } = useSprint();
   const { isMobile } = usePlatformOS();
 
   useEffect(() => {
@@ -70,14 +69,14 @@ export const SprintOptions = observer(function SprintOptions(props: SprintOption
     ],
   });
 
-  const sprintIds = (getProjectSprintIds(projectId) ?? [])?.filter((sprintId) => {
+  const sprintIds = (currentWorkspaceSprintIds ?? [])?.filter((sprintId) => {
     const sprintDetails = getSprintById(sprintId);
     if (currentSprintId && currentSprintId === sprintId) return false;
     return sprintDetails?.status ? (sprintDetails?.status.toLowerCase() != "completed" ? true : false) : true;
   });
 
   const onOpen = () => {
-    if (workspaceSlug && !sprintIds) fetchAllSprints(workspaceSlug.toString(), projectId);
+    if (workspaceSlug && !sprintIds) fetchWorkspaceSprints(workspaceSlug.toString());
   };
 
   const searchInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

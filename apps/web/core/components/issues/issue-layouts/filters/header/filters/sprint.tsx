@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
 import { observer } from "mobx-react";
-import { useParams } from "next/navigation";
 import { SprintGroupIcon } from "@plane/propel/icons";
 import type { TSprintGroups } from "@plane/types";
 // components
@@ -21,15 +20,14 @@ export const FilterSprint = observer(function FilterSprint(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
 
   // hooks
-  const { projectId } = useParams();
-  const { getSprintById, getProjectSprintIds } = useSprint();
+  const { getSprintById, currentWorkspaceSprintIds } = useSprint();
 
   // states
   const [itemsToRender, setItemsToRender] = useState(5);
   const [previewEnabled, setPreviewEnabled] = useState(true);
 
-  const sprintIds = projectId ? getProjectSprintIds(projectId.toString()) : undefined;
-  const sprints = sprintIds?.map((projectId) => getSprintById(projectId)!) ?? null;
+  const sprintIds = currentWorkspaceSprintIds ?? undefined;
+  const sprints = sprintIds?.map((sprintId) => getSprintById(sprintId)!) ?? null;
   const appliedFiltersCount = appliedFilters?.length ?? 0;
 
   const sortedOptions = useMemo(() => {

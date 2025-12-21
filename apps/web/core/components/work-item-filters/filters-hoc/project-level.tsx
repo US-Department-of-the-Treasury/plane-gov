@@ -44,7 +44,7 @@ export const ProjectLevelWorkItemFiltersHOC = observer(function ProjectLevelWork
   const { getViewById, updateView } = useProjectView();
   const { data: currentUser } = useUser();
   const { allowPermissions } = useUserPermissions();
-  const { getProjectSprintIds } = useSprint();
+  const { currentWorkspaceSprintIds } = useSprint();
   const { getProjectLabelIds } = useLabel();
   const {
     project: { getProjectMemberIds },
@@ -215,7 +215,7 @@ export const ProjectLevelWorkItemFiltersHOC = observer(function ProjectLevelWork
           workspaceSlug,
           projectId,
         })}
-        sprintIds={getProjectSprintIds(projectId) ?? undefined}
+        sprintIds={currentWorkspaceSprintIds ?? undefined}
         labelIds={getProjectLabelIds(projectId)}
         memberIds={getProjectMemberIds(projectId, false) ?? undefined}
         moduleIds={getProjectModuleIds(projectId) ?? undefined}
