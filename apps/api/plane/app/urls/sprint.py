@@ -2,101 +2,50 @@ from django.urls import path
 
 
 from plane.app.views import (
-    SprintViewSet,
-    SprintIssueViewSet,
-    SprintDateCheckEndpoint,
-    SprintFavoriteViewSet,
-    SprintProgressEndpoint,
-    SprintAnalyticsEndpoint,
-    TransferSprintIssueEndpoint,
-    SprintUserPropertiesEndpoint,
-    SprintArchiveUnarchiveEndpoint,
+    # Workspace-level sprint views (new)
+    WorkspaceSprintViewSet,
+    WorkspaceSprintIssuesEndpoint,
+    WorkspaceSprintUserPropertiesEndpoint,
+    WorkspaceSprintFavoriteEndpoint,
 )
 
 
 urlpatterns = [
+    # Workspace Sprint ViewSet (CRUD operations)
     path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/",
-        SprintViewSet.as_view({"get": "list", "post": "create"}),
-        name="project-sprint",
+        "workspaces/<str:slug>/sprints/",
+        WorkspaceSprintViewSet.as_view({"get": "list"}),
+        name="workspace-sprints",
     ),
     path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/<uuid:pk>/",
-        SprintViewSet.as_view(
-            {
-                "get": "retrieve",
-                "put": "update",
-                "patch": "partial_update",
-                "delete": "destroy",
-            }
-        ),
-        name="project-sprint",
+        "workspaces/<str:slug>/sprints/<uuid:pk>/",
+        WorkspaceSprintViewSet.as_view({
+            "get": "retrieve",
+            "patch": "partial_update",
+        }),
+        name="workspace-sprint-detail",
+    ),
+    # Sprint Issues
+    path(
+        "workspaces/<str:slug>/sprints/<uuid:sprint_id>/issues/",
+        WorkspaceSprintIssuesEndpoint.as_view(),
+        name="workspace-sprint-issues",
     ),
     path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/<uuid:sprint_id>/sprint-issues/",
-        SprintIssueViewSet.as_view({"get": "list", "post": "create"}),
-        name="project-issue-sprint",
+        "workspaces/<str:slug>/sprints/<uuid:sprint_id>/issues/<uuid:issue_id>/",
+        WorkspaceSprintIssuesEndpoint.as_view(),
+        name="workspace-sprint-issue-detail",
     ),
+    # User Properties for Sprint
     path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/<uuid:sprint_id>/sprint-issues/<uuid:issue_id>/",
-        SprintIssueViewSet.as_view(
-            {
-                "get": "retrieve",
-                "put": "update",
-                "patch": "partial_update",
-                "delete": "destroy",
-            }
-        ),
-        name="project-issue-sprint",
+        "workspaces/<str:slug>/sprints/<uuid:sprint_id>/user-properties/",
+        WorkspaceSprintUserPropertiesEndpoint.as_view(),
+        name="workspace-sprint-user-properties",
     ),
+    # Sprint Favorites
     path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/date-check/",
-        SprintDateCheckEndpoint.as_view(),
-        name="project-sprint-date",
-    ),
-    path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/user-favorite-sprints/",
-        SprintFavoriteViewSet.as_view({"get": "list", "post": "create"}),
-        name="user-favorite-sprint",
-    ),
-    path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/user-favorite-sprints/<uuid:sprint_id>/",
-        SprintFavoriteViewSet.as_view({"delete": "destroy"}),
-        name="user-favorite-sprint",
-    ),
-    path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/<uuid:sprint_id>/transfer-issues/",
-        TransferSprintIssueEndpoint.as_view(),
-        name="transfer-issues",
-    ),
-    path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/<uuid:sprint_id>/user-properties/",
-        SprintUserPropertiesEndpoint.as_view(),
-        name="sprint-user-filters",
-    ),
-    path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/<uuid:sprint_id>/archive/",
-        SprintArchiveUnarchiveEndpoint.as_view(),
-        name="sprint-archive-unarchive",
-    ),
-    path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/archived-sprints/",
-        SprintArchiveUnarchiveEndpoint.as_view(),
-        name="sprint-archive-unarchive",
-    ),
-    path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/archived-sprints/<uuid:pk>/",
-        SprintArchiveUnarchiveEndpoint.as_view(),
-        name="sprint-archive-unarchive",
-    ),
-    path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/<uuid:sprint_id>/progress/",
-        SprintProgressEndpoint.as_view(),
-        name="project-sprint",
-    ),
-    path(
-        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/<uuid:sprint_id>/analytics/",
-        SprintAnalyticsEndpoint.as_view(),
-        name="project-sprint",
+        "workspaces/<str:slug>/sprints/<uuid:sprint_id>/favorite/",
+        WorkspaceSprintFavoriteEndpoint.as_view(),
+        name="workspace-sprint-favorite",
     ),
 ]
