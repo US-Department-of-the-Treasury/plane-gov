@@ -1,5 +1,7 @@
 # Python imports
+import json
 import os
+import re
 import secrets
 import hashlib
 import base64
@@ -15,6 +17,25 @@ from plane.authentication.adapter.error import (
     AUTHENTICATION_ERROR_CODES,
     AuthenticationException,
 )
+
+
+def _load_oidc_credentials_from_file():
+    """
+    Load OIDC credentials from saved JSON file (set by federation flow).
+
+    Returns dict with keys: client_id, client_secret, authorization_url, token_url, userinfo_url
+    or empty dict if file doesn't exist.
+    """
+    creds_file = os.path.join(os.path.dirname(__file__), "..", "..", "oidc_credentials.json")
+    creds_file = os.path.normpath(creds_file)
+
+    try:
+        if os.path.exists(creds_file):
+            with open(creds_file, "r") as f:
+                return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        pass
+    return {}
 
 
 class OIDCOAuthProvider(OauthAdapter):
@@ -35,7 +56,10 @@ class OIDCOAuthProvider(OauthAdapter):
     provider = "oidc"
 
     def __init__(self, request, code=None, state=None, callback=None):
-        # Get OIDC configuration from instance config or environment
+        # Load credentials from file (set by federation flow) as fallback
+        file_creds = _load_oidc_credentials_from_file()
+
+        # Get OIDC configuration from instance config, environment, or saved file
         (
             OIDC_CLIENT_ID,
             OIDC_CLIENT_SECRET,
@@ -47,23 +71,23 @@ class OIDCOAuthProvider(OauthAdapter):
             [
                 {
                     "key": "OIDC_CLIENT_ID",
-                    "default": os.environ.get("OIDC_CLIENT_ID"),
+                    "default": os.environ.get("OIDC_CLIENT_ID") or file_creds.get("client_id"),
                 },
                 {
                     "key": "OIDC_CLIENT_SECRET",
-                    "default": os.environ.get("OIDC_CLIENT_SECRET"),
+                    "default": os.environ.get("OIDC_CLIENT_SECRET") or file_creds.get("client_secret"),
                 },
                 {
                     "key": "OIDC_AUTHORIZATION_URL",
-                    "default": os.environ.get("OIDC_AUTHORIZATION_URL"),
+                    "default": os.environ.get("OIDC_AUTHORIZATION_URL") or file_creds.get("authorization_url"),
                 },
                 {
                     "key": "OIDC_TOKEN_URL",
-                    "default": os.environ.get("OIDC_TOKEN_URL"),
+                    "default": os.environ.get("OIDC_TOKEN_URL") or file_creds.get("token_url"),
                 },
                 {
                     "key": "OIDC_USERINFO_URL",
-                    "default": os.environ.get("OIDC_USERINFO_URL"),
+                    "default": os.environ.get("OIDC_USERINFO_URL") or file_creds.get("userinfo_url"),
                 },
                 {
                     "key": "OIDC_SCOPE",
@@ -178,36 +202,165 @@ class OIDCOAuthProvider(OauthAdapter):
         """
         Fetch user info from OIDC userinfo endpoint and map to Plane user format.
 
-        Standard OIDC claims mapping:
-        - sub -> provider_id (unique identifier)
-        - email -> email
-        - given_name / name -> first_name
+        For fpki-validator (PIV authentication), the 'sub' claim is an X.509 Subject DN
+        like "CN=John Doe,OU=People,O=Treasury,C=US", not an email address.
+
+        Standard OIDC claims mapping with X.509 DN fallback:
+        - sub -> provider_id (unique identifier - full X.509 DN for audit)
+        - email -> email (or generated from X.509 DN if not provided)
+        - given_name / name / CN -> first_name
         - family_name -> last_name
         - picture -> avatar
         """
         user_info_response = self.get_user_response()
 
-        # Extract name - handle both split (given_name/family_name) and combined (name) formats
+        # Extract email - try multiple locations for PIV/OIDC compatibility
+        email = self._extract_email_from_response(user_info_response)
+
+        # If no email found, generate synthetic from DN
+        if not email:
+            sub_dn = user_info_response.get("sub", "")
+            email = self._generate_synthetic_email(sub_dn)
+
+        # Extract name from claims or parse from X.509 DN
         first_name = user_info_response.get("given_name", "")
         last_name = user_info_response.get("family_name", "")
 
-        # Fallback: if given_name not present, try to split "name"
-        if not first_name and user_info_response.get("name"):
-            name_parts = user_info_response.get("name", "").split(" ", 1)
-            first_name = name_parts[0] if name_parts else ""
+        if not first_name:
+            name = user_info_response.get("name", "")
+            if not name:
+                # Parse name from X.509 DN Common Name
+                name = self._extract_cn_from_dn(user_info_response.get("sub", ""))
+
+            # Split name into first/last
+            name_parts = name.split(" ", 1) if name else [""]
+            first_name = name_parts[0]
             last_name = name_parts[1] if len(name_parts) > 1 else ""
 
+        # Title case the names (PIV certs often have UPPERCASE names)
+        first_name = first_name.title() if first_name else ""
+        last_name = last_name.title() if last_name else ""
+
         user_data = {
-            "email": user_info_response.get("email"),
+            "email": email,
             "user": {
                 "avatar": user_info_response.get("picture", ""),
                 "first_name": first_name,
                 "last_name": last_name,
-                "provider_id": user_info_response.get("sub"),  # OIDC uses 'sub' as unique ID
+                "provider_id": user_info_response.get("sub"),  # Full X.509 DN for audit trail
                 "is_password_autoset": True,
             },
         }
         super().set_user_data(user_data)
+
+    def _generate_synthetic_email(self, sub_dn: str) -> str:
+        """
+        Generate unique synthetic email from X.509 Distinguished Name.
+
+        Appends a hash suffix to handle collision when multiple users have
+        the same Common Name (e.g., two "John Doe" from different agencies).
+
+        Args:
+            sub_dn: X.509 Subject DN like "CN=John Doe,OU=People,O=Treasury,C=US"
+
+        Returns:
+            Email like "john.doe.a3f2b1@piv.treasury.gov"
+        """
+        cn = self._extract_cn_from_dn(sub_dn)
+        if not cn:
+            cn = "unknown"
+
+        # Create short hash from full DN for uniqueness
+        dn_hash = hashlib.sha256(sub_dn.encode()).hexdigest()[:6]
+
+        # Sanitize CN for email format (lowercase, spaces to dots, remove special chars)
+        sanitized_cn = cn.lower().replace(" ", ".").replace(",", "")
+        sanitized_cn = re.sub(r'[^a-z0-9.]', '', sanitized_cn)
+
+        # e.g., "john.doe.a3f2b1@piv.treasury.gov"
+        return f"{sanitized_cn}.{dn_hash}@piv.treasury.gov"
+
+    @staticmethod
+    def _extract_cn_from_dn(dn: str) -> str:
+        """
+        Extract Common Name from X.509 Distinguished Name.
+
+        Args:
+            dn: X.509 DN like "CN=John Doe,OU=People,O=Treasury,C=US"
+
+        Returns:
+            Common Name value (e.g., "John Doe") or empty string
+        """
+        if not dn:
+            return ""
+        for part in dn.split(","):
+            part = part.strip()
+            if part.upper().startswith("CN="):
+                return part[3:]
+        return ""
+
+    def _extract_email_from_response(self, user_info: dict) -> str:
+        """
+        Extract email from OIDC userinfo response, checking multiple locations.
+
+        PIV certificates store email in subjectAltNames (rfc822Name), which different
+        OIDC providers may expose in different ways:
+        1. Standard 'email' claim (most OIDC providers)
+        2. subject_alt_names array with rfc822Name entries (some PIV validators)
+        3. subjectAltNames array with type/value objects (fpki-validator format)
+        4. E= or emailAddress= attribute in the X.509 Subject DN
+
+        Args:
+            user_info: OIDC userinfo response dict
+
+        Returns:
+            Email address or empty string
+        """
+        # 1. Standard OIDC email claim
+        email = user_info.get("email")
+        if email:
+            return email
+
+        # 2. subject_alt_names array (some PIV providers)
+        # Format: [{"type": "rfc822Name", "value": "user@agency.gov"}, ...]
+        san = user_info.get("subject_alt_names") or user_info.get("subjectAltNames") or []
+        if isinstance(san, list):
+            for entry in san:
+                if isinstance(entry, dict):
+                    # Format: {"type": "rfc822Name", "value": "email@example.com"}
+                    if entry.get("type") == "rfc822Name":
+                        return entry.get("value", "")
+                elif isinstance(entry, str) and "@" in entry:
+                    # Simple string format
+                    return entry
+
+        # 3. Extract from X.509 Subject DN (E= or emailAddress= attributes)
+        sub_dn = user_info.get("sub", "")
+        email = self._extract_email_from_dn(sub_dn)
+        if email:
+            return email
+
+        return ""
+
+    @staticmethod
+    def _extract_email_from_dn(dn: str) -> str:
+        """
+        Extract email from X.509 DN if present (E= or emailAddress= attributes).
+
+        Args:
+            dn: X.509 DN that may contain email attribute
+
+        Returns:
+            Email address or empty string
+        """
+        if not dn:
+            return ""
+        for part in dn.split(","):
+            part = part.strip()
+            upper_part = part.upper()
+            if upper_part.startswith("E=") or upper_part.startswith("EMAILADDRESS="):
+                return part.split("=", 1)[1]
+        return ""
 
     def set_code_verifier(self, code_verifier):
         """Set the PKCE code verifier from session storage."""

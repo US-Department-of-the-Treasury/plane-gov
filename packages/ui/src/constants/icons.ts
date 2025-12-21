@@ -151,6 +151,7 @@ import {
   Search,
   User,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon } from "@plane/propel/icons";
 
 export const MATERIAL_ICONS_LIST = [
@@ -759,7 +760,7 @@ export const MATERIAL_ICONS_LIST = [
   },
 ];
 
-export const LUCIDE_ICONS_LIST = [
+export const LUCIDE_ICONS_LIST: { name: string; element: LucideIcon }[] = [
   { name: "Activity", element: Activity },
   { name: "Airplay", element: Airplay },
   { name: "AlertCircle", element: AlertCircle },

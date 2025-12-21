@@ -29,8 +29,6 @@ from .sprint import (
     SprintLiteSerializer,
     SprintIssueRequestSerializer,
     TransferSprintIssueRequestSerializer,
-    SprintCreateSerializer,
-    SprintUpdateSerializer,
 )
 from .epic import (
     EpicSerializer,
