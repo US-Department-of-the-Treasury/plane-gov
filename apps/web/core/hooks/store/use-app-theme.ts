@@ -1,10 +1,11 @@
-import { useContext } from "react";
-// store
-import { StoreContext } from "@/lib/store-context";
-import type { IThemeStore } from "@/store/theme.store";
+// Zustand store (migrated from MobX)
+import type { ThemeStore } from "@/store/client";
+import { useThemeStore } from "@/store/client";
 
-export const useAppTheme = (): IThemeStore => {
-  const context = useContext(StoreContext);
-  if (context === undefined) throw new Error("useAppTheme must be used within StoreProvider");
-  return context.theme;
+/**
+ * Hook to access the app theme store (sidebar states).
+ * Migrated from MobX to Zustand for better performance and simpler API.
+ */
+export const useAppTheme = (): ThemeStore => {
+  return useThemeStore();
 };
