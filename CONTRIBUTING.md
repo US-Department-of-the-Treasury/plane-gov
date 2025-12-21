@@ -2,6 +2,16 @@
 
 Thank you for your interest in contributing to the Treasury fork of Plane. This guide covers how to set up your development environment and submit contributions.
 
+## Contribution Terms
+
+This project is licensed under AGPL-3.0. By contributing, you agree to the following:
+
+**Federal Employees:** Contributions made as part of official duties are not subject to U.S. copyright (17 U.S.C. § 105) but become part of this AGPL-3.0 licensed project.
+
+**Non-Federal Contributors:** By submitting a pull request, you agree to license your contribution under the AGPL-3.0 license and certify that you have the right to do so.
+
+See the [NOTICE](./NOTICE) file for more details on licensing.
+
 ## Submitting Issues
 
 Before submitting a new issue, please search existing [issues](https://github.com/US-Department-of-the-Treasury/plane-treasury/issues) to avoid duplicates.

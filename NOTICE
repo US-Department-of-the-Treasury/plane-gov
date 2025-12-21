@@ -1,0 +1,35 @@
+Plane - Treasury Fork
+Copyright (C) 2023-2024 Plane, Inc.
+Copyright (C) 2024 U.S. Department of the Treasury
+
+This software is a fork of Plane (https://github.com/makeplane/plane),
+originally developed by Plane, Inc. and licensed under the GNU Affero
+General Public License v3.0 (AGPL-3.0).
+
+GOVERNMENT CONTRIBUTIONS
+------------------------
+Portions of this software were developed by employees of the U.S. Department
+of the Treasury as part of their official duties. Under 17 U.S.C. § 105,
+works prepared by U.S. Government employees as part of their official duties
+are not subject to copyright protection in the United States.
+
+However, because this is a derivative work of AGPL-3.0 licensed software,
+the combined work remains subject to the terms of the AGPL-3.0 license.
+See LICENSE.txt for the full license text.
+
+THIRD-PARTY COMPONENTS
+----------------------
+This software includes third-party open source components, each with their
+own licenses. See the respective package directories for license information.
+
+NO WARRANTY
+-----------
+This software is provided "AS IS" without warranty of any kind, express or
+implied, including but not limited to the warranties of merchantability,
+fitness for a particular purpose, and noninfringement.
+
+The U.S. Department of the Treasury makes no representations about the
+suitability of this software for any purpose. Use at your own risk.
+
+This software does not constitute an official endorsement by the U.S.
+Department of the Treasury of any commercial product or service.
