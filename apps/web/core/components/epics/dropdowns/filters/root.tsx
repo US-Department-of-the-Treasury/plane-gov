@@ -20,7 +20,7 @@ type Props = {
   isArchived?: boolean;
 };
 
-export const ModuleFiltersSelection = observer(function ModuleFiltersSelection(props: Props) {
+export const EpicFiltersSelection = observer(function EpicFiltersSelection(props: Props) {
   const {
     displayFilters,
     filters,

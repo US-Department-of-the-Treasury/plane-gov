@@ -1,2 +1,2 @@
 export * from "./blocks";
-export * from "./modules-list-layout";
+export * from "./epics-list-layout";

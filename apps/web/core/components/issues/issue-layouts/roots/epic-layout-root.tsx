@@ -50,7 +50,7 @@ export const ModuleLayoutRoot = observer(function ModuleLayoutRoot() {
 
   useSWR(
     workspaceSlug && projectId && epicId
-      ? `MODULE_ISSUES_${workspaceSlug.toString()}_${projectId.toString()}_${epicId.toString()}`
+      ? `EPIC_ISSUES_${workspaceSlug.toString()}_${projectId.toString()}_${epicId.toString()}`
       : null,
     async () => {
       if (workspaceSlug && projectId && epicId) {
@@ -79,7 +79,7 @@ export const ModuleLayoutRoot = observer(function ModuleLayoutRoot() {
               <WorkItemFiltersRow
                 filter={moduleWorkItemsFilter}
                 trackerElements={{
-                  saveView: PROJECT_VIEW_TRACKER_ELEMENTS.MODULE_HEADER_SAVE_AS_VIEW_BUTTON,
+                  saveView: PROJECT_VIEW_TRACKER_ELEMENTS.EPIC_HEADER_SAVE_AS_VIEW_BUTTON,
                 }}
               />
             )}

@@ -2,27 +2,27 @@ import React from "react";
 import { observer } from "mobx-react";
 // plane imports
 import { ModuleStatusIcon } from "@plane/propel/icons";
-import type { IModule } from "@plane/types";
+import type { IEpic } from "@plane/types";
 // local imports
 import { PowerKMenuBuilder } from "./builder";
 
 type Props = {
-  modules: IModule[];
-  onSelect: (module: IModule) => void;
+  epics: IEpic[];
+  onSelect: (epic: IEpic) => void;
   value?: string[];
 };
 
-export const PowerKModulesMenu = observer(function PowerKModulesMenu({ modules, onSelect, value }: Props) {
+export const PowerKEpicsMenu = observer(function PowerKEpicsMenu({ epics, onSelect, value }: Props) {
   return (
     <PowerKMenuBuilder
-      items={modules}
-      getKey={(module) => module.id}
-      getIconNode={(module) => <ModuleStatusIcon status={module.status ?? "backlog"} className="shrink-0 size-3.5" />}
-      getValue={(module) => module.name}
-      getLabel={(module) => module.name}
-      isSelected={(module) => !!value?.includes(module.id)}
+      items={epics}
+      getKey={(epic) => epic.id}
+      getIconNode={(epic) => <ModuleStatusIcon status={epic.status ?? "backlog"} className="shrink-0 size-3.5" />}
+      getValue={(epic) => epic.name}
+      getLabel={(epic) => epic.name}
+      isSelected={(epic) => !!value?.includes(epic.id)}
       onSelect={onSelect}
-      emptyText="No modules found"
+      emptyText="No epics found"
     />
   );
 });

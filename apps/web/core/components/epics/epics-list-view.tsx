@@ -1,16 +1,16 @@
 import { observer } from "mobx-react";
 import { useParams, useSearchParams } from "next/navigation";
 // components
-import { EUserPermissionsLevel, MODULE_TRACKER_ELEMENTS } from "@plane/constants";
+import { EUserPermissionsLevel, EPIC_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
 import { EUserProjectRoles } from "@plane/types";
 import { ContentWrapper, Row, ERowVariant } from "@plane/ui";
 // components
 import { ListLayout } from "@/components/core/list";
-import { EpicCardItem, EpicListItem, EpicPeekOverview, ModulesListGanttChartView } from "@/components/epics";
-import { SprintEpicBoardLayoutLoader } from "@/components/ui/loader/sprint-module-board-loader";
-import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
+import { EpicCardItem, EpicListItem, EpicPeekOverview, EpicsListGanttChartView } from "@/components/epics";
+import { SprintEpicBoardLayoutLoader } from "@/components/ui/loader/sprint-epic-board-loader";
+import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 import { GanttLayoutLoader } from "@/components/ui/loader/layouts/gantt-layout-loader";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
@@ -22,7 +22,7 @@ export const EpicsListView = observer(function EpicsListView() {
   // router
   const { workspaceSlug, projectId } = useParams();
   const searchParams = useSearchParams();
-  const peekModule = searchParams.get("peekModule");
+  const peekEpic = searchParams.get("peekEpic");
   // plane hooks
   const { t } = useTranslation();
   // store hooks
@@ -32,13 +32,13 @@ export const EpicsListView = observer(function EpicsListView() {
   const { allowPermissions } = useUserPermissions();
   // derived values
   const projectEpicIds = projectId ? getProjectEpicIds(projectId.toString()) : undefined;
-  const filteredModuleIds = projectId ? getFilteredEpicIds(projectId.toString()) : undefined;
+  const filteredEpicIds = projectId ? getFilteredEpicIds(projectId.toString()) : undefined;
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
     EUserPermissionsLevel.PROJECT
   );
 
-  if (loader || !projectEpicIds || !filteredModuleIds)
+  if (loader || !projectEpicIds || !filteredEpicIds)
     return (
       <>
         {displayFilters?.layout === "list" && <SprintEpicListLayoutLoader />}
@@ -51,21 +51,21 @@ export const EpicsListView = observer(function EpicsListView() {
     return (
       <EmptyStateDetailed
         assetKey="epic"
-        title={t("project_empty_state.modules.title")}
-        description={t("project_empty_state.modules.description")}
+        title={t("project_empty_state.epics.title")}
+        description={t("project_empty_state.epics.description")}
         actions={[
           {
-            label: t("project_empty_state.modules.cta_primary"),
+            label: t("project_empty_state.epics.cta_primary"),
             onClick: () => toggleCreateEpicModal(true),
             disabled: !canPerformEmptyStateActions,
             variant: "primary",
-            "data-ph-element": MODULE_TRACKER_ELEMENTS.EMPTY_STATE_ADD_BUTTON,
+            "data-ph-element": EPIC_TRACKER_ELEMENTS.EMPTY_STATE_ADD_BUTTON,
           },
         ]}
       />
     );
 
-  if (filteredModuleIds.length === 0)
+  if (filteredEpicIds.length === 0)
     return (
       <EmptyStateDetailed
         assetKey="search"
@@ -79,7 +79,7 @@ export const EpicsListView = observer(function EpicsListView() {
       <div className="size-full flex justify-between">
         {displayFilters?.layout === "list" && (
           <ListLayout>
-            {filteredModuleIds.map((epicId) => (
+            {filteredEpicIds.map((epicId) => (
               <EpicListItem key={epicId} epicId={epicId} />
             ))}
           </ListLayout>
@@ -87,19 +87,19 @@ export const EpicsListView = observer(function EpicsListView() {
         {displayFilters?.layout === "board" && (
           <Row
             className={`size-full py-page-y grid grid-cols-1 gap-6 overflow-y-auto ${
-              peekModule
+              peekEpic
                 ? "lg:grid-cols-1 xl:grid-cols-2 3xl:grid-cols-3"
                 : "lg:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4"
             } auto-rows-max transition-all vertical-scrollbar scrollbar-lg`}
           >
-            {filteredModuleIds.map((epicId) => (
+            {filteredEpicIds.map((epicId) => (
               <EpicCardItem key={epicId} epicId={epicId} />
             ))}
           </Row>
         )}
         {displayFilters?.layout === "gantt" && (
           <div className="size-full overflow-hidden">
-            <ModulesListGanttChartView />
+            <EpicsListGanttChartView />
           </div>
         )}
         <div className="flex-shrink-0">

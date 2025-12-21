@@ -21,7 +21,7 @@ const defaultValues: EpicLink = {
   url: "",
 };
 
-export function CreateUpdateModuleLinkModal(props: Props) {
+export function CreateUpdateEpicLinkModal(props: Props) {
   const { isOpen, handleClose, createLink, updateLink, data } = props;
   // form info
   const {
@@ -50,14 +50,14 @@ export function CreateUpdateModuleLinkModal(props: Props) {
         setToast({
           type: TOAST_TYPE.SUCCESS,
           title: "Success!",
-          message: "Module link created successfully.",
+          message: "Epic link created successfully.",
         });
       } else {
         await updateLink(payload, data.id);
         setToast({
           type: TOAST_TYPE.SUCCESS,
           title: "Success!",
-          message: "Module link updated successfully.",
+          message: "Epic link updated successfully.",
         });
       }
       onClose();

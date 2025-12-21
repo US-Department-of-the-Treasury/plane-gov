@@ -107,7 +107,7 @@ export const PROJECT_ERROR_MESSAGES = {
   },
   moduleDeleteError: {
     i18n_title: "error",
-    i18n_message: "workspace_projects.error.module_delete",
+    i18n_message: "workspace_projects.error.epic_delete",
   },
   issueDeleteError: {
     i18n_title: "error",

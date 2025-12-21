@@ -87,8 +87,8 @@ export const useEpicMenuItems = (props: UseEpicMenuItemsProps): MenuResult => {
   const { epicDetails, isEditingAllowed, ...handlers } = props;
 
   const isArchived = !!epicDetails?.archived_at;
-  const moduleState = epicDetails?.status?.toLocaleLowerCase();
-  const isInArchivableGroup = !!moduleState && ["completed", "cancelled"].includes(moduleState);
+  const epicState = epicDetails?.status?.toLocaleLowerCase();
+  const isInArchivableGroup = !!epicState && ["completed", "cancelled"].includes(epicState);
 
   // Assemble final menu items - order defined here
   const items = [
@@ -98,7 +98,7 @@ export const useEpicMenuItems = (props: UseEpicMenuItemsProps): MenuResult => {
     factory.createArchiveMenuItem(handlers.handleArchive, {
       shouldRender: isEditingAllowed && !isArchived,
       disabled: !isInArchivableGroup,
-      description: isInArchivableGroup ? undefined : "Only completed or cancelled modules can be archived",
+      description: isInArchivableGroup ? undefined : "Only completed or cancelled epics can be archived",
     }),
     factory.createRestoreMenuItem(handlers.handleRestore, isEditingAllowed && isArchived),
     factory.createDeleteMenuItem(handlers.handleDelete, isEditingAllowed && !isArchived),

@@ -18,7 +18,7 @@ type Props = {
   tabIndex?: number;
 };
 
-export function ModuleStatusSelect({ control, error, tabIndex }: Props) {
+export function EpicStatusSelect({ control, error, tabIndex }: Props) {
   const { t } = useTranslation();
   return (
     <Controller

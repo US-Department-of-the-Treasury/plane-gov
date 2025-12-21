@@ -1,7 +1,7 @@
 import { Command } from "cmdk";
 import { observer } from "mobx-react";
 // plane imports
-import { MODULE_STATUS } from "@plane/constants";
+import { EPIC_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { ModuleStatusIcon } from "@plane/propel/icons";
 import type { TModuleStatus } from "@plane/types";
@@ -20,7 +20,7 @@ export const PowerKModuleStatusMenu = observer(function PowerKModuleStatusMenu(p
 
   return (
     <Command.Group>
-      {MODULE_STATUS.map((status) => (
+      {EPIC_STATUS.map((status) => (
         <PowerKModalCommandItem
           key={status.value}
           iconNode={<ModuleStatusIcon status={status.value} className="shrink-0 size-3.5" />}

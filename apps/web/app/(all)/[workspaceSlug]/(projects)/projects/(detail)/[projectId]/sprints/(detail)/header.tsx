@@ -221,7 +221,7 @@ export const SprintIssuesHeader = observer(function SprintIssuesHeader() {
                 handleDisplayPropertiesUpdate={handleDisplayProperties}
                 ignoreGroupedFilters={["sprint"]}
                 sprintViewDisabled={!currentProjectDetails?.sprint_view}
-                moduleViewDisabled={!currentProjectDetails?.module_view}
+                epicViewDisabled={!currentProjectDetails?.epic_view}
               />
             </FiltersDropdown>
 

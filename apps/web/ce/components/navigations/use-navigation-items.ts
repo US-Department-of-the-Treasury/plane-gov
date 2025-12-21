@@ -53,7 +53,7 @@ export const useNavigationItems = ({
         href: `/${workspaceSlug}/projects/${projectId}/modules`,
         icon: ModuleIcon,
         access: [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-        shouldRender: !!project?.module_view,
+        shouldRender: !!project?.epic_view,
         sortOrder: 3,
       },
       {

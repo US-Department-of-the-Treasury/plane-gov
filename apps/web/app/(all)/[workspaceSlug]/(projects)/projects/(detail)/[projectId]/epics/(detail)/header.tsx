@@ -66,7 +66,7 @@ export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
   const { allowPermissions } = useUserPermissions();
   const { currentProjectDetails, loader } = useProject();
   // local storage
-  const { setValue, storedValue } = useLocalStorage("module_sidebar_collapsed", "false");
+  const { setValue, storedValue } = useLocalStorage("epic_sidebar_collapsed", "false");
   // derived values
   const isSidebarCollapsed = storedValue ? (storedValue === "true" ? true : false) : false;
   const activeLayout = issueFilters?.displayFilters?.layout;
@@ -213,9 +213,9 @@ export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
                 handleDisplayFiltersUpdate={handleDisplayFilters}
                 displayProperties={issueFilters?.displayProperties ?? {}}
                 handleDisplayPropertiesUpdate={handleDisplayProperties}
-                ignoreGroupedFilters={["module"]}
+                ignoreGroupedFilters={["epic"]}
                 sprintViewDisabled={!currentProjectDetails?.sprint_view}
-                moduleViewDisabled={!currentProjectDetails?.module_view}
+                epicViewDisabled={!currentProjectDetails?.epic_view}
               />
             </FiltersDropdown>
           </div>

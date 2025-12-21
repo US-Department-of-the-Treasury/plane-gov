@@ -187,7 +187,7 @@ export class EpicsStore implements IEpicStore {
   getFilteredArchivedEpicIds = computedFn((projectId: string) => {
     const displayFilters = this.rootStore.epicFilter.getDisplayFiltersByProjectId(projectId);
     const filters = this.rootStore.epicFilter.getArchivedFiltersByProjectId(projectId);
-    const searchQuery = this.rootStore.epicFilter.archivedModulesSearchQuery;
+    const searchQuery = this.rootStore.epicFilter.archivedEpicsSearchQuery;
     if (!this.fetchedMap[projectId]) return null;
     let modules = Object.values(this.epicMap ?? {}).filter(
       (m) =>
@@ -471,18 +471,18 @@ export class EpicsStore implements IEpicStore {
     data: Partial<ILinkDetails>
   ) => {
     try {
-      const moduleLink = await this.epicService.createEpicLink(workspaceSlug, projectId, epicId, data);
+      const epicLink = await this.epicService.createEpicLink(workspaceSlug, projectId, epicId, data);
       runInAction(() => {
-        update(this.epicMap, [epicId, "link_epic"], (moduleLinks = []) => concat(moduleLinks, moduleLink));
+        update(this.epicMap, [epicId, "link_epic"], (epicLinks = []) => concat(epicLinks, epicLink));
       });
-      return moduleLink;
+      return epicLink;
     } catch (error) {
       throw error;
     }
   };
 
   /**
-   * @description updates module link details
+   * @description updates epic link details
    * @param workspaceSlug
    * @param projectId
    * @param epicId
@@ -497,27 +497,27 @@ export class EpicsStore implements IEpicStore {
     linkId: string,
     data: Partial<ILinkDetails>
   ) => {
-    const originalModuleDetails = this.getEpicById(epicId);
+    const originalEpicDetails = this.getEpicById(epicId);
     try {
-      const linkModules = originalModuleDetails?.link_epic?.map((link) =>
+      const epicLinks = originalEpicDetails?.link_epic?.map((link) =>
         link.id === linkId ? { ...link, ...data } : link
       );
       runInAction(() => {
-        set(this.epicMap, [epicId, "link_epic"], linkModules);
+        set(this.epicMap, [epicId, "link_epic"], epicLinks);
       });
       const response = await this.epicService.updateEpicLink(workspaceSlug, projectId, epicId, linkId, data);
       return response;
     } catch (error) {
-      console.error("Failed to update module link in epic.store", error);
+      console.error("Failed to update epic link in epic.store", error);
       runInAction(() => {
-        set(this.epicMap, [epicId, "link_epic"], originalModuleDetails?.link_epic);
+        set(this.epicMap, [epicId, "link_epic"], originalEpicDetails?.link_epic);
       });
       throw error;
     }
   };
 
   /**
-   * @description deletes a module link
+   * @description deletes an epic link
    * @param workspaceSlug
    * @param projectId
    * @param epicId
@@ -525,13 +525,13 @@ export class EpicsStore implements IEpicStore {
    */
   deleteEpicLink = async (workspaceSlug: string, projectId: string, epicId: string, linkId: string) => {
     try {
-      const moduleLink = await this.epicService.deleteEpicLink(workspaceSlug, projectId, epicId, linkId);
+      const epicLink = await this.epicService.deleteEpicLink(workspaceSlug, projectId, epicId, linkId);
       runInAction(() => {
-        update(this.epicMap, [epicId, "link_epic"], (moduleLinks = []) =>
-          moduleLinks.filter((link: ILinkDetails) => link.id !== linkId)
+        update(this.epicMap, [epicId, "link_epic"], (epicLinks = []) =>
+          epicLinks.filter((link: ILinkDetails) => link.id !== linkId)
         );
       });
-      return moduleLink;
+      return epicLink;
     } catch (error) {
       throw error;
     }

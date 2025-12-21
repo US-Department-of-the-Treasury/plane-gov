@@ -8,7 +8,7 @@ import {
 // local imports
 import { usePowerKSprintContextBasedActions } from "./sprint/commands";
 import { PowerKEpicContextBasedPages } from "./epic";
-import { usePowerKEpicContextBasedActions } from "./module/commands";
+import { usePowerKEpicContextBasedActions } from "./epic/commands";
 import { usePowerKPageContextBasedActions } from "./page/commands";
 import { PowerKWorkItemContextBasedPages } from "./work-item";
 import { usePowerKWorkItemContextBasedCommands } from "./work-item/commands";
@@ -27,7 +27,7 @@ export function PowerKContextBasedPagesList(props: ContextBasedActionsProps) {
       {activeContext === "work-item" && (
         <PowerKWorkItemContextBasedPages activePage={activePage} handleSelection={handleSelection} />
       )}
-      {activeContext === "module" && (
+      {activeContext === "epic" && (
         <PowerKEpicContextBasedPages activePage={activePage} handleSelection={handleSelection} />
       )}
       <PowerKContextBasedActionsExtended {...props} />

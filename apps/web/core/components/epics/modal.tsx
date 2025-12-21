@@ -52,7 +52,7 @@ export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(pro
     defaultValues,
   });
 
-  const handleCreateModule = async (payload: Partial<IEpic>) => {
+  const handleCreateEpic = async (payload: Partial<IEpic>) => {
     if (!workspaceSlug || !projectId) return;
 
     const selectedProjectId = payload.project_id ?? projectId.toString();
@@ -62,7 +62,7 @@ export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(pro
         setToast({
           type: TOAST_TYPE.SUCCESS,
           title: "Success!",
-          message: "Module created successfully.",
+          message: "Epic created successfully.",
         });
         captureSuccess({
           eventName: EPIC_TRACKER_EVENTS.create,
@@ -73,7 +73,7 @@ export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(pro
         setToast({
           type: TOAST_TYPE.ERROR,
           title: "Error!",
-          message: err?.detail ?? err?.error ?? "Module could not be created. Please try again.",
+          message: err?.detail ?? err?.error ?? "Epic could not be created. Please try again.",
         });
         captureError({
           eventName: EPIC_TRACKER_EVENTS.create,
@@ -83,7 +83,7 @@ export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(pro
       });
   };
 
-  const handleUpdateModule = async (payload: Partial<IEpic>) => {
+  const handleUpdateEpic = async (payload: Partial<IEpic>) => {
     if (!workspaceSlug || !projectId || !data) return;
 
     const selectedProjectId = payload.project_id ?? projectId.toString();
@@ -94,7 +94,7 @@ export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(pro
         setToast({
           type: TOAST_TYPE.SUCCESS,
           title: "Success!",
-          message: "Module updated successfully.",
+          message: "Epic updated successfully.",
         });
         captureSuccess({
           eventName: EPIC_TRACKER_EVENTS.update,
@@ -105,7 +105,7 @@ export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(pro
         setToast({
           type: TOAST_TYPE.ERROR,
           title: "Error!",
-          message: err?.detail ?? err?.error ?? "Module could not be updated. Please try again.",
+          message: err?.detail ?? err?.error ?? "Epic could not be updated. Please try again.",
         });
         captureError({
           eventName: EPIC_TRACKER_EVENTS.update,
@@ -121,8 +121,8 @@ export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(pro
     const payload: Partial<IEpic> = {
       ...formData,
     };
-    if (!data) await handleCreateModule(payload);
-    else await handleUpdateModule(payload);
+    if (!data) await handleCreateEpic(payload);
+    else await handleUpdateEpic(payload);
   };
 
   useEffect(() => {

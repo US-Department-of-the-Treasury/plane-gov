@@ -7,7 +7,7 @@ import { PowerKMembersMenu } from "@/components/power-k/menus/members";
 import { useMember } from "@/hooks/store/use-member";
 import { useEpic } from "@/hooks/store/use-module";
 // local imports
-import { PowerKModuleStatusMenu } from "./status-menu";
+import { PowerKEpicStatusMenu } from "./status-menu";
 
 type Props = {
   activePage: TPowerKPageType | null;
@@ -32,7 +32,7 @@ export const PowerKEpicContextBasedPages = observer(function PowerKEpicContextBa
   return (
     <>
       {/* members menu */}
-      {activePage === "update-module-member" && epicDetails && (
+      {activePage === "update-epic-member" && epicDetails && (
         <PowerKMembersMenu
           handleSelect={handleSelection}
           userIds={projectMemberIds ?? undefined}
@@ -40,8 +40,8 @@ export const PowerKEpicContextBasedPages = observer(function PowerKEpicContextBa
         />
       )}
       {/* status menu */}
-      {activePage === "update-module-status" && epicDetails?.status && (
-        <PowerKModuleStatusMenu handleSelect={handleSelection} value={epicDetails.status} />
+      {activePage === "update-epic-status" && epicDetails?.status && (
+        <PowerKEpicStatusMenu handleSelect={handleSelection} value={epicDetails.status} />
       )}
     </>
   );

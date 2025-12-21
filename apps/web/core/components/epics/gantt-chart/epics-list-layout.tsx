@@ -4,15 +4,15 @@ import { useParams } from "next/navigation";
 import { GANTT_TIMELINE_TYPE } from "@plane/types";
 import type { IBlockUpdateData, IBlockUpdateDependencyData, IEpic } from "@plane/types";
 // components
-import { GanttChartRoot, ModuleGanttSidebar } from "@/components/gantt-chart";
+import { GanttChartRoot, EpicGanttSidebar } from "@/components/gantt-chart";
 import { TimeLineTypeContext } from "@/components/gantt-chart/contexts";
-import { ModuleGanttBlock } from "@/components/epics";
+import { EpicGanttBlock } from "@/components/epics";
 // hooks
 import { useEpic } from "@/hooks/store/use-epic";
 import { useEpicFilter } from "@/hooks/store/use-epic-filter";
 import { useProject } from "@/hooks/store/use-project";
 
-export const ModulesListGanttChartView = observer(function ModulesListGanttChartView() {
+export const EpicsListGanttChartView = observer(function EpicsListGanttChartView() {
   // router
   const { workspaceSlug, projectId } = useParams();
   // store
@@ -21,7 +21,7 @@ export const ModulesListGanttChartView = observer(function ModulesListGanttChart
   const { currentProjectDisplayFilters: displayFilters } = useEpicFilter();
 
   // derived values
-  const filteredModuleIds = projectId ? getFilteredEpicIds(projectId.toString()) : undefined;
+  const filteredEpicIds = projectId ? getFilteredEpicIds(projectId.toString()) : undefined;
 
   const handleEpicUpdate = async (epic: IEpic, data: IBlockUpdateData) => {
     if (!workspaceSlug || !epic) return;
@@ -29,7 +29,7 @@ export const ModulesListGanttChartView = observer(function ModulesListGanttChart
     const payload: any = { ...data };
     if (data.sort_order) payload.sort_order = data.sort_order.newSortOrder;
 
-    await updateEpicDetails(workspaceSlug.toString(), module.project_id, module.id, payload);
+    await updateEpicDetails(workspaceSlug.toString(), epic.project_id, epic.id, payload);
   };
 
   const updateBlockDates = async (blockUpdates: IBlockUpdateDependencyData[]) => {
@@ -47,17 +47,17 @@ export const ModulesListGanttChartView = observer(function ModulesListGanttChart
 
   const isAllowed = currentProjectDetails?.member_role === 20 || currentProjectDetails?.member_role === 15;
 
-  if (!filteredModuleIds) return null;
+  if (!filteredEpicIds) return null;
 
   return (
-    <TimeLineTypeContext.Provider value={GANTT_TIMELINE_TYPE.MODULE}>
+    <TimeLineTypeContext.Provider value={GANTT_TIMELINE_TYPE.EPIC}>
       <GanttChartRoot
         title="Epics"
         loaderTitle="Epics"
-        blockIds={filteredModuleIds}
-        sidebarToRender={(props) => <ModuleGanttSidebar {...props} />}
+        blockIds={filteredEpicIds}
+        sidebarToRender={(props) => <EpicGanttSidebar {...props} />}
         blockUpdateHandler={(block, payload) => handleEpicUpdate(block, payload)}
-        blockToRender={(data: IEpic) => <ModuleGanttBlock epicId={data.id} />}
+        blockToRender={(data: IEpic) => <EpicGanttBlock epicId={data.id} />}
         enableBlockLeftResize={isAllowed}
         enableBlockRightResize={isAllowed}
         enableBlockMove={isAllowed}

@@ -23,9 +23,9 @@ const ARCHIVES_TAB_LIST: {
     shouldRender: (projectDetails) => projectDetails.sprint_view,
   },
   {
-    key: "modules",
+    key: "epics",
     label: "Epics",
-    shouldRender: (projectDetails) => projectDetails.module_view,
+    shouldRender: (projectDetails) => projectDetails.epic_view,
   },
 ];
 

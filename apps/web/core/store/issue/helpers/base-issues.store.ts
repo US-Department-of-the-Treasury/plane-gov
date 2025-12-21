@@ -150,8 +150,8 @@ const ISSUE_ORDERBY_KEY: Record<TIssueOrderByOptions, keyof TIssue> = {
   "-assignees__first_name": "assignee_ids",
   labels__name: "label_ids",
   "-labels__name": "label_ids",
-  issue_module__module__name: "epic_ids",
-  "-issue_module__module__name": "epic_ids",
+  issue_epic__epic__name: "epic_ids",
+  "-issue_epic__epic__name": "epic_ids",
   issue_sprint__sprint__name: "sprint_id",
   "-issue_sprint__sprint__name": "sprint_id",
   target_date: "target_date",
@@ -1861,7 +1861,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
           )
         );
 
-      case "issue_module__module__name":
+      case "issue_epic__epic__name":
         return getIssueIds(
           orderBy(array, [
             getSortOrderToFilterEmptyValues.bind(null, "epic_ids"), //preferring sorting based on empty values to always keep the empty values below
@@ -1869,7 +1869,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
               this.populateIssueDataForSorting("epic_ids", issue?.["epic_ids"], issue?.["project_id"], "asc"),
           ])
         );
-      case "-issue_module__module__name":
+      case "-issue_epic__epic__name":
         return getIssueIds(
           orderBy(
             array,

@@ -65,8 +65,8 @@ export const PowerKWorkItemContextBasedPages = observer(function PowerKWorkItemC
       {activePage === "update-work-item-sprint" && (
         <PowerKWorkItemSprintsMenu handleSelect={handleSelection} workItemDetails={entityDetails} />
       )}
-      {/* modules menu */}
-      {activePage === "update-work-item-module" && (
+      {/* epics menu */}
+      {activePage === "update-work-item-epic" && (
         <PowerKWorkItemEpicsMenu handleSelect={handleSelection} workItemDetails={entityDetails} />
       )}
       {/* labels menu */}

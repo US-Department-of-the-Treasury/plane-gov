@@ -16,7 +16,7 @@ type Props = {
   onSubmit?: () => Promise<void>;
 };
 
-export function ArchiveModuleModal(props: Props) {
+export function ArchiveEpicModal(props: Props) {
   const { workspaceSlug, projectId, epicId, isOpen, handleClose } = props;
   // router
   const router = useAppRouter();
@@ -25,14 +25,14 @@ export function ArchiveModuleModal(props: Props) {
   // store hooks
   const { getEpicNameById, archiveEpic } = useEpic();
 
-  const moduleName = getEpicNameById(epicId);
+  const epicName = getEpicNameById(epicId);
 
   const onClose = () => {
     setIsArchiving(false);
     handleClose();
   };
 
-  const handleArchiveModule = async () => {
+  const handleArchiveEpic = async () => {
     setIsArchiving(true);
     await archiveEpic(workspaceSlug, projectId, epicId)
       .then(() => {
@@ -42,13 +42,13 @@ export function ArchiveModuleModal(props: Props) {
           message: "Your archives can be found in project archives.",
         });
         onClose();
-        router.push(`/${workspaceSlug}/projects/${projectId}/modules`);
+        router.push(`/${workspaceSlug}/projects/${projectId}/epics`);
       })
       .catch(() =>
         setToast({
           type: TOAST_TYPE.ERROR,
           title: "Error!",
-          message: "Module could not be archived. Please try again.",
+          message: "Epic could not be archived. Please try again.",
         })
       )
       .finally(() => setIsArchiving(false));
@@ -82,9 +82,9 @@ export function ArchiveModuleModal(props: Props) {
             >
               <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-surface-1 text-left shadow-raised-200 transition-all sm:my-8 sm:w-full sm:max-w-lg">
                 <div className="px-5 py-4">
-                  <h3 className="text-18 font-medium 2xl:text-20">Archive module {moduleName}</h3>
+                  <h3 className="text-18 font-medium 2xl:text-20">Archive epic {epicName}</h3>
                   <p className="mt-3 text-13 text-secondary">
-                    Are you sure you want to archive the module? All your archives can be restored later.
+                    Are you sure you want to archive the epic? All your archives can be restored later.
                   </p>
                   <div className="mt-3 flex justify-end gap-2">
                     <Button variant="secondary" size="lg" onClick={onClose}>
@@ -94,7 +94,7 @@ export function ArchiveModuleModal(props: Props) {
                       variant="primary"
                       size="lg"
                       tabIndex={1}
-                      onClick={handleArchiveModule}
+                      onClick={handleArchiveEpic}
                       loading={isArchiving}
                     >
                       {isArchiving ? "Archiving" : "Archive"}

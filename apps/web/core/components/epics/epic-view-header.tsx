@@ -16,14 +16,14 @@ import { cn, calculateTotalFilters } from "@plane/utils";
 // plane utils
 // components
 import { FiltersDropdown } from "@/components/issues/issue-layouts/filters";
-import { ModuleFiltersSelection, ModuleOrderByDropdown } from "@/components/epics/dropdowns";
+import { EpicFiltersSelection, EpicOrderByDropdown } from "@/components/epics/dropdowns";
 // constants
 // helpers
 // hooks
 import { useMember } from "@/hooks/store/use-member";
 import { useEpicFilter } from "@/hooks/store/use-epic-filter";
 import { usePlatformOS } from "@/hooks/use-platform-os";
-import { EpicLayoutIcon } from "./module-layout-icon";
+import { EpicLayoutIcon } from "./epic-layout-icon";
 import { IconButton } from "@plane/propel/icon-button";
 // i18n
 
@@ -139,7 +139,7 @@ export const EpicViewHeader = observer(function EpicViewHeader() {
           )}
         </div>
       </div>
-      <ModuleOrderByDropdown
+      <EpicOrderByDropdown
         value={displayFilters?.order_by}
         onChange={(val) => {
           if (!projectId || val === displayFilters?.order_by) return;
@@ -154,7 +154,7 @@ export const EpicViewHeader = observer(function EpicViewHeader() {
         placement="bottom-end"
         isFiltersApplied={isFiltersApplied}
       >
-        <ModuleFiltersSelection
+        <EpicFiltersSelection
           displayFilters={displayFilters ?? {}}
           filters={filters ?? {}}
           handleDisplayFiltersUpdate={(val) => {

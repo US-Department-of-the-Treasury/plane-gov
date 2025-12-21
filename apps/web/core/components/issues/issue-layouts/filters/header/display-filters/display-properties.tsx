@@ -17,7 +17,7 @@ type Props = {
   displayPropertiesToRender: (keyof IIssueDisplayProperties)[];
   handleUpdate: (updatedDisplayProperties: Partial<IIssueDisplayProperties>) => void;
   sprintViewDisabled?: boolean;
-  moduleViewDisabled?: boolean;
+  epicViewDisabled?: boolean;
   isEpic?: boolean;
 };
 
@@ -27,7 +27,7 @@ export const FilterDisplayProperties = observer(function FilterDisplayProperties
     displayPropertiesToRender,
     handleUpdate,
     sprintViewDisabled = false,
-    moduleViewDisabled = false,
+    epicViewDisabled = false,
     isEpic = false,
   } = props;
   // hooks
@@ -39,7 +39,7 @@ export const FilterDisplayProperties = observer(function FilterDisplayProperties
   // derived values
   const projectId = routerProjectId ? routerProjectId?.toString() : undefined;
 
-  // Filter out "sprint" and "module" keys if sprintViewDisabled or moduleViewDisabled is true
+  // Filter out "sprint" and "module" keys if sprintViewDisabled or epicViewDisabled is true
   // Also filter out display properties that should not be rendered
   const filteredDisplayProperties = ISSUE_DISPLAY_PROPERTIES.filter((property) => {
     if (!displayPropertiesToRender.includes(property.key)) return false;
@@ -47,7 +47,7 @@ export const FilterDisplayProperties = observer(function FilterDisplayProperties
       case "sprint":
         return !sprintViewDisabled;
       case "modules":
-        return !moduleViewDisabled;
+        return !epicViewDisabled;
       default:
         return shouldRenderDisplayProperty({ workspaceSlug: workspaceSlug?.toString(), projectId, key: property.key });
     }

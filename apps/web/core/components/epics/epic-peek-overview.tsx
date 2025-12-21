@@ -23,26 +23,26 @@ export const EpicPeekOverview = observer(function EpicPeekOverview({
   const router = useAppRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const peekModule = searchParams.get("peekModule");
+  const peekEpic = searchParams.get("peekEpic");
   // refs
   const ref = React.useRef(null);
   // store hooks
   const { fetchEpicDetails, fetchArchivedEpicDetails } = useEpic();
 
   const handleClose = () => {
-    const query = generateQueryParams(searchParams, ["peekModule"]);
+    const query = generateQueryParams(searchParams, ["peekEpic"]);
     router.push(`${pathname}?${query}`);
   };
 
   useEffect(() => {
-    if (!peekModule) return;
-    if (isArchived) fetchArchivedEpicDetails(workspaceSlug, projectId, peekModule.toString());
-    else fetchEpicDetails(workspaceSlug, projectId, peekModule.toString());
-  }, [fetchArchivedEpicDetails, fetchEpicDetails, isArchived, peekModule, projectId, workspaceSlug]);
+    if (!peekEpic) return;
+    if (isArchived) fetchArchivedEpicDetails(workspaceSlug, projectId, peekEpic.toString());
+    else fetchEpicDetails(workspaceSlug, projectId, peekEpic.toString());
+  }, [fetchArchivedEpicDetails, fetchEpicDetails, isArchived, peekEpic, projectId, workspaceSlug]);
 
   return (
     <>
-      {peekModule && (
+      {peekEpic && (
         <div
           ref={ref}
           className="flex h-full w-full max-w-[24rem] flex-shrink-0 flex-col gap-3.5 overflow-y-auto border-l border-subtle bg-surface-1 px-6 duration-300 absolute md:relative right-0 z-[9]"
@@ -52,7 +52,7 @@ export const EpicPeekOverview = observer(function EpicPeekOverview({
           }}
         >
           <EpicAnalyticsSidebar
-            epicId={peekModule?.toString() ?? ""}
+            epicId={peekEpic?.toString() ?? ""}
             handleClose={handleClose}
             isArchived={isArchived}
           />

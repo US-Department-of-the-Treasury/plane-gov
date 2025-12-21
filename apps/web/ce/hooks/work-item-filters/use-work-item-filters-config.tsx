@@ -198,13 +198,13 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
   const moduleFilterConfig = useMemo(
     () =>
       getEpicFilterConfig<TWorkItemFilterProperty>("epic_id")({
-        isEnabled: isFilterEnabled("epic_id") && project?.module_view === true && modules !== undefined,
+        isEnabled: isFilterEnabled("epic_id") && project?.epic_view === true && modules !== undefined,
         filterIcon: ModuleIcon,
         getOptionIcon: () => <ModuleIcon className="h-3 w-3 flex-shrink-0" />,
         modules: modules ?? [],
         ...operatorConfigs,
       }),
-    [isFilterEnabled, project?.module_view, modules, operatorConfigs]
+    [isFilterEnabled, project?.epic_view, modules, operatorConfigs]
   );
 
   // assignee filter config

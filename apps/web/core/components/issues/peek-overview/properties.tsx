@@ -202,7 +202,7 @@ export const PeekOverviewProperties = observer(function PeekOverviewProperties(p
           </SidebarPropertyListItem>
         )}
 
-        {projectDetails?.module_view && (
+        {projectDetails?.epic_view && (
           <SidebarPropertyListItem icon={ModuleIcon} label={t("common.modules")}>
             <IssueEpicSelect
               className="w-full grow"

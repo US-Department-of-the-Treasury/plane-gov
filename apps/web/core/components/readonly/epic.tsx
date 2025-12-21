@@ -34,7 +34,7 @@ export const ReadonlyEpic = observer(function ReadonlyEpic(props: TReadonlyEpicP
   const { getEpicById, fetchEpics } = useEpic();
 
   const epicIds = Array.isArray(value) ? value : value ? [value] : [];
-  const modules = epicIds.map((id) => getEpicById(id)).filter(Boolean);
+  const epics = epicIds.map((id) => getEpicById(id)).filter(Boolean);
 
   useEffect(() => {
     if (epicIds.length > 0 && projectId) {
@@ -42,7 +42,7 @@ export const ReadonlyEpic = observer(function ReadonlyEpic(props: TReadonlyEpicP
     }
   }, [value, projectId, workspaceSlug]);
 
-  if (modules.length === 0) {
+  if (epics.length === 0) {
     return (
       <div className={cn("flex items-center gap-1 text-body-xs-regular", className)}>
         {!hideIcon && <Layers className="size-4 flex-shrink-0" />}
@@ -53,7 +53,7 @@ export const ReadonlyEpic = observer(function ReadonlyEpic(props: TReadonlyEpicP
 
   if (multiple) {
     const displayText =
-      showCount && modules.length > 1 ? `${modules[0]?.name} +${modules.length - 1}` : modules[0]?.name;
+      showCount && epics.length > 1 ? `${epics[0]?.name} +${epics.length - 1}` : epics[0]?.name;
 
     return (
       <div className={cn("flex items-center gap-1 text-body-xs-regular", className)}>
@@ -63,7 +63,7 @@ export const ReadonlyEpic = observer(function ReadonlyEpic(props: TReadonlyEpicP
     );
   }
 
-  const epicItem = modules[0];
+  const epicItem = epics[0];
   return (
     <div className={cn("flex items-center gap-2 text-body-xs-regular", className)}>
       {!hideIcon && <Layers className="size-4 flex-shrink-0" />}

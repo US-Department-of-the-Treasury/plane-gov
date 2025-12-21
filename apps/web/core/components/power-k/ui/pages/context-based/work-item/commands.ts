@@ -328,13 +328,13 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
       closeOnSelect: true,
     },
     {
-      id: "add_work_item_to_modules",
-      i18n_title: "power_k.contextual_actions.work_item.add_to_modules",
+      id: "add_work_item_to_epics",
+      i18n_title: "power_k.contextual_actions.work_item.add_to_epics",
       icon: DiceIcon,
       group: "contextual",
       contextType: "work-item",
       type: "change-page",
-      page: "update-work-item-module",
+      page: "update-work-item-epic",
       onSelect: (data) => {
         const epicId = (data as IEpic)?.id;
         if (!workspaceSlug || !entityDetails || !entityDetails.project_id) return;
@@ -355,8 +355,8 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
         }
       },
       modifierShortcut: "shift+m",
-      isEnabled: () => Boolean(projectDetails?.module_view && isEditingAllowed),
-      isVisible: () => Boolean(projectDetails?.module_view && isEditingAllowed),
+      isEnabled: () => Boolean(projectDetails?.epic_view && isEditingAllowed),
+      isVisible: () => Boolean(projectDetails?.epic_view && isEditingAllowed),
       closeOnSelect: false,
     },
     {

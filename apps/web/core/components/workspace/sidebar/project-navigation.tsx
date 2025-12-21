@@ -81,13 +81,13 @@ export const ProjectNavigation = observer(function ProjectNavigation(props: TPro
         sortOrder: 2,
       },
       {
-        i18n_key: "sidebar.modules",
-        key: "modules",
+        i18n_key: "sidebar.epics",
+        key: "epics",
         name: "Epics",
-        href: `/${workspaceSlug}/projects/${projectId}/modules`,
+        href: `/${workspaceSlug}/projects/${projectId}/epics`,
         icon: ModuleIcon,
         access: [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-        shouldRender: project?.module_view ?? false,
+        shouldRender: project?.epic_view ?? false,
         sortOrder: 3,
       },
       {

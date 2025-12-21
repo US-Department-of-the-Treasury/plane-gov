@@ -203,7 +203,7 @@ export const IssueDetailsSidebar = observer(function IssueDetailsSidebar(props: 
               </SidebarPropertyListItem>
             )}
 
-            {projectDetails?.module_view && (
+            {projectDetails?.epic_view && (
               <SidebarPropertyListItem icon={ModuleIcon} label={t("common.modules")}>
                 <IssueEpicSelect
                   className="w-full grow"

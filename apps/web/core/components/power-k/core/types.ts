@@ -6,7 +6,7 @@ import type {
   TPowerKSearchResultsKeysExtended,
 } from "@/plane-web/components/command-palette/power-k/types";
 
-export type TPowerKContextType = "work-item" | "page" | "sprint" | "module" | TPowerKContextTypeExtended;
+export type TPowerKContextType = "work-item" | "page" | "sprint" | "epic" | TPowerKContextTypeExtended;
 
 export type TPowerKContext = {
   // Route information
@@ -32,7 +32,7 @@ export type TPowerKPageType =
   | "open-project"
   | "open-workspace-setting"
   | "open-project-sprint"
-  | "open-project-module"
+  | "open-project-epic"
   | "open-project-view"
   | "open-project-setting"
   // work item context based actions
@@ -41,11 +41,11 @@ export type TPowerKPageType =
   | "update-work-item-assignee"
   | "update-work-item-estimate"
   | "update-work-item-sprint"
-  | "update-work-item-module"
+  | "update-work-item-epic"
   | "update-work-item-labels"
-  // module context based actions
-  | "update-module-member"
-  | "update-module-status"
+  // epic context based actions
+  | "update-epic-member"
+  | "update-epic-status"
   // preferences
   | "update-theme"
   | "update-timezone"
@@ -132,7 +132,7 @@ export type TPowerKSearchResultsKeys =
   | "project"
   | "issue"
   | "sprint"
-  | "module"
+  | "epic"
   | "issue_view"
   | "page"
   | TPowerKSearchResultsKeysExtended;

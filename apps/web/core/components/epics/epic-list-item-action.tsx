@@ -11,7 +11,7 @@ import {
   EUserPermissionsLevel,
   IS_FAVORITE_MENU_OPEN,
   EPIC_TRACKER_EVENTS,
-  MODULE_TRACKER_ELEMENTS,
+  EPIC_TRACKER_ELEMENTS,
 } from "@plane/constants";
 import { useLocalStorage } from "@plane/hooks";
 import { useTranslation } from "@plane/i18n";
@@ -24,7 +24,7 @@ import { FavoriteStar } from "@plane/ui";
 import { renderFormattedPayloadDate, getDate } from "@plane/utils";
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
 import { EpicQuickActions } from "@/components/epics";
-import { EpicStatusDropdown } from "@/components/epics/module-status-dropdown";
+import { EpicStatusDropdown } from "@/components/epics/epic-status-dropdown";
 // constants
 // helpers
 import { captureElementAndEvent, captureError } from "@/helpers/event-tracker.helper";
@@ -55,7 +55,7 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
   const { setValue: toggleFavoriteMenu, storedValue } = useLocalStorage<boolean>(IS_FAVORITE_MENU_OPEN, false);
   // derived values
 
-  const moduleStatus = EPIC_STATUS.find((status) => status.value === epicDetails.status);
+  const epicStatus = EPIC_STATUS.find((status) => status.value === epicDetails.status);
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT
@@ -75,7 +75,7 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
         if (!storedValue) toggleFavoriteMenu(true);
         captureElementAndEvent({
           element: {
-            elementName: MODULE_TRACKER_ELEMENTS.LIST_ITEM,
+            elementName: EPIC_TRACKER_ELEMENTS.LIST_ITEM,
           },
           event: {
             eventName: EPIC_TRACKER_EVENTS.favorite,
@@ -93,14 +93,14 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
       });
 
     setPromiseToast(addToFavoritePromise, {
-      loading: "Adding module to favorites...",
+      loading: "Adding epic to favorites...",
       success: {
         title: "Success!",
-        message: () => "Module added to favorites.",
+        message: () => "Epic added to favorites.",
       },
       error: {
         title: "Error!",
-        message: () => "Couldn't add the module to favorites. Please try again.",
+        message: () => "Couldn't add the epic to favorites. Please try again.",
       },
     });
   };
@@ -118,7 +118,7 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
       .then(() => {
         captureElementAndEvent({
           element: {
-            elementName: MODULE_TRACKER_ELEMENTS.LIST_ITEM,
+            elementName: EPIC_TRACKER_ELEMENTS.LIST_ITEM,
           },
           event: {
             eventName: EPIC_TRACKER_EVENTS.unfavorite,
@@ -136,14 +136,14 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
       });
 
     setPromiseToast(removeFromFavoritePromise, {
-      loading: "Removing module from favorites...",
+      loading: "Removing epic from favorites...",
       success: {
         title: "Success!",
-        message: () => "Module removed from favorites.",
+        message: () => "Epic removed from favorites.",
       },
       error: {
         title: "Error!",
-        message: () => "Couldn't remove the module from favorites. Please try again.",
+        message: () => "Couldn't remove the epic from favorites. Please try again.",
       },
     });
   };
@@ -156,19 +156,19 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
         setToast({
           type: TOAST_TYPE.SUCCESS,
           title: "Success!",
-          message: "Module updated successfully.",
+          message: "Epic updated successfully.",
         });
       })
       .catch((err) => {
         setToast({
           type: TOAST_TYPE.ERROR,
           title: "Error!",
-          message: err?.detail ?? "Module could not be updated. Please try again.",
+          message: err?.detail ?? "Epic could not be updated. Please try again.",
         });
       });
   };
 
-  const moduleLeadDetails = epicDetails.lead_id ? getUserDetails(epicDetails.lead_id) : undefined;
+  const epicLeadDetails = epicDetails.lead_id ? getUserDetails(epicDetails.lead_id) : undefined;
 
   return (
     <>
@@ -195,7 +195,7 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
         hideIcon={{ from: renderIcon ?? true, to: renderIcon }}
       />
 
-      {moduleStatus && (
+      {epicStatus && (
         <EpicStatusDropdown
           isDisabled={isDisabled}
           epicDetails={epicDetails}
@@ -203,9 +203,9 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
         />
       )}
 
-      {moduleLeadDetails ? (
+      {epicLeadDetails ? (
         <span className="cursor-default">
-          <ButtonAvatars showTooltip={false} userIds={moduleLeadDetails?.id} />
+          <ButtonAvatars showTooltip={false} userIds={epicLeadDetails?.id} />
         </span>
       ) : (
         <Tooltip tooltipContent="No lead">

@@ -11,7 +11,7 @@ import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { EpicDropdown } from "@/components/dropdowns/module/dropdown";
+import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
 import { PriorityDropdown } from "@/components/dropdowns/priority";
 import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 // helpers
@@ -220,7 +220,7 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
       </div>
 
       {/* modules */}
-      {projectDetails?.module_view && (
+      {projectDetails?.epic_view && (
         <div className="h-5" onClick={handleEventPropagation}>
           <EpicDropdown
             buttonContainerClassName="truncate max-w-40"

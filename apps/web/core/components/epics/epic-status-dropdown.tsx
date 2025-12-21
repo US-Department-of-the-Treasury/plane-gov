@@ -17,9 +17,9 @@ type Props = {
 export const EpicStatusDropdown = observer(function EpicStatusDropdown(props: Props) {
   const { isDisabled, epicDetails, handleEpicDetailsChange } = props;
   const { t } = useTranslation();
-  const moduleStatus = EPIC_STATUS.find((status) => status.value === epicDetails.status);
+  const epicStatus = EPIC_STATUS.find((status) => status.value === epicDetails.status);
 
-  if (!moduleStatus) return <></>;
+  if (!epicStatus) return <></>;
 
   return (
     <CustomSelect
@@ -29,14 +29,14 @@ export const EpicStatusDropdown = observer(function EpicStatusDropdown(props: Pr
             isDisabled ? "cursor-not-allowed" : "cursor-pointer"
           }`}
           style={{
-            color: moduleStatus ? moduleStatus.color : "#a3a3a2",
-            backgroundColor: moduleStatus ? `${moduleStatus.color}20` : "#a3a3a220",
+            color: epicStatus ? epicStatus.color : "#a3a3a2",
+            backgroundColor: epicStatus ? `${epicStatus.color}20` : "#a3a3a220",
           }}
         >
-          {(moduleStatus && t(moduleStatus?.i18n_label)) ?? t("project_modules.status.backlog")}
+          {(epicStatus && t(epicStatus?.i18n_label)) ?? t("project_epics.status.backlog")}
         </span>
       }
-      value={moduleStatus?.value}
+      value={epicStatus?.value}
       onChange={(val: TEpicStatus) => {
         handleEpicDetailsChange({ status: val });
       }}
