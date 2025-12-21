@@ -30,11 +30,11 @@ export const SprintEmptyState = observer(function SprintEmptyState() {
   const { t } = useTranslation();
   // store hooks
   const { getSprintById } = useSprint();
-  const { issues } = useIssues(EIssuesStoreType.CYCLE);
+  const { issues } = useIssues(EIssuesStoreType.SPRINT);
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
   // derived values
-  const sprintWorkItemFilter = useWorkItemFilterInstance(EIssuesStoreType.CYCLE, sprintId);
+  const sprintWorkItemFilter = useWorkItemFilterInstance(EIssuesStoreType.SPRINT, sprintId);
   const sprintDetails = sprintId ? getSprintById(sprintId) : undefined;
   const isCompletedSprintSnapshotAvailable = !isEmpty(sprintDetails?.progress_snapshot ?? {});
   const isCompletedAndEmpty = isCompletedSprintSnapshotAvailable || sprintDetails?.status?.toLowerCase() === "completed";
@@ -107,19 +107,19 @@ export const SprintEmptyState = observer(function SprintEmptyState() {
               {
                 label: t("project_empty_state.sprint_work_items.cta_primary"),
                 onClick: () => {
-                  captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.EMPTY_STATE_ADD_BUTTON.CYCLE });
-                  toggleCreateIssueModal(true, EIssuesStoreType.CYCLE);
+                  captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.EMPTY_STATE_ADD_BUTTON.SPRINT });
+                  toggleCreateIssueModal(true, EIssuesStoreType.SPRINT);
                 },
                 disabled: !canPerformEmptyStateActions,
                 variant: "primary",
-                "data-ph-element": WORK_ITEM_TRACKER_ELEMENTS.EMPTY_STATE_ADD_BUTTON.CYCLE,
+                "data-ph-element": WORK_ITEM_TRACKER_ELEMENTS.EMPTY_STATE_ADD_BUTTON.SPRINT,
               },
               {
                 label: t("project_empty_state.sprint_work_items.cta_secondary"),
                 onClick: () => setSprintIssuesListModal(true),
                 disabled: !canPerformEmptyStateActions,
                 variant: "secondary",
-                "data-ph-element": WORK_ITEM_TRACKER_ELEMENTS.EMPTY_STATE_ADD_BUTTON.CYCLE,
+                "data-ph-element": WORK_ITEM_TRACKER_ELEMENTS.EMPTY_STATE_ADD_BUTTON.SPRINT,
               },
             ]}
           />

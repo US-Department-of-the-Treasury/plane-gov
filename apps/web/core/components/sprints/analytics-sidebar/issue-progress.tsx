@@ -64,7 +64,7 @@ export const SprintAnalyticsProgress = observer(function SprintAnalyticsProgress
   const { getPlotTypeBySprintId, getEstimateTypeBySprintId, getSprintById } = useSprint();
   const { getFilter, updateFilterValueFromSidebar } = useWorkItemFilters();
   // derived values
-  const sprintFilter = getFilter(EIssuesStoreType.CYCLE, sprintId);
+  const sprintFilter = getFilter(EIssuesStoreType.SPRINT, sprintId);
   const selectedAssignees = sprintFilter?.findFirstConditionByPropertyAndOperator("assignee_id", "in");
   const selectedLabels = sprintFilter?.findFirstConditionByPropertyAndOperator("label_id", "in");
   const selectedStateGroups = sprintFilter?.findFirstConditionByPropertyAndOperator("state_group", "in");
@@ -137,7 +137,7 @@ export const SprintAnalyticsProgress = observer(function SprintAnalyticsProgress
                           groupedIssues={groupedIssues}
                           handleFiltersUpdate={updateFilterValueFromSidebar.bind(
                             updateFilterValueFromSidebar,
-                            EIssuesStoreType.CYCLE,
+                            EIssuesStoreType.SPRINT,
                             sprintId
                           )}
                           isEditable={Boolean(!peekSprint) && sprintFilter !== undefined}

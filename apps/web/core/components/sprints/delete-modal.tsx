@@ -2,7 +2,7 @@ import { useState } from "react";
 import { observer } from "mobx-react";
 import { useParams, useSearchParams } from "next/navigation";
 // types
-import { PROJECT_ERROR_MESSAGES, CYCLE_TRACKER_EVENTS } from "@plane/constants";
+import { PROJECT_ERROR_MESSAGES, SPRINT_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { ISprint } from "@plane/types";
@@ -49,7 +49,7 @@ export const SprintDeleteModal = observer(function SprintDeleteModal(props: ISpr
             message: "Sprint deleted successfully.",
           });
           captureSuccess({
-            eventName: CYCLE_TRACKER_EVENTS.delete,
+            eventName: SPRINT_TRACKER_EVENTS.delete,
             payload: {
               id: sprint.id,
             },
@@ -66,7 +66,7 @@ export const SprintDeleteModal = observer(function SprintDeleteModal(props: ISpr
             message: currentError.i18n_message && t(currentError.i18n_message),
           });
           captureError({
-            eventName: CYCLE_TRACKER_EVENTS.delete,
+            eventName: SPRINT_TRACKER_EVENTS.delete,
             payload: {
               id: sprint.id,
             },

@@ -154,7 +154,7 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
     const currentUserId = this.rootIssueStore.currentUserId;
     if (currentUserId) {
       const _kanbanFilters = this.handleIssuesLocalFilters.get(
-        EIssuesStoreType.CYCLE,
+        EIssuesStoreType.SPRINT,
         workspaceSlug,
         sprintId,
         currentUserId
@@ -287,7 +287,7 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
 
           const currentUserId = this.rootIssueStore.currentUserId;
           if (currentUserId)
-            this.handleIssuesLocalFilters.set(EIssuesStoreType.CYCLE, type, workspaceSlug, sprintId, currentUserId, {
+            this.handleIssuesLocalFilters.set(EIssuesStoreType.SPRINT, type, workspaceSlug, sprintId, currentUserId, {
               kanban_filters: _filters.kanbanFilters,
             });
 

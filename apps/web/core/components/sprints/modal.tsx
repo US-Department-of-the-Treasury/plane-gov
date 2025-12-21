@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { mutate } from "swr";
 // types
-import { CYCLE_TRACKER_EVENTS } from "@plane/constants";
+import { SPRINT_TRACKER_EVENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { SprintDateCheckData, ISprint, TSprintTabOptions } from "@plane/types";
 // ui
@@ -53,7 +53,7 @@ export function SprintCreateUpdateModal(props: SprintModalProps) {
           const sprintStartDate = new Date(payload.start_date);
           const sprintEndDate = new Date(payload.end_date);
           if (currentDate >= sprintStartDate && currentDate <= sprintEndDate) {
-            mutate(`PROJECT_ACTIVE_CYCLE_${selectedProjectId}`);
+            mutate(`PROJECT_ACTIVE_SPRINT_${selectedProjectId}`);
           }
         }
 
@@ -63,7 +63,7 @@ export function SprintCreateUpdateModal(props: SprintModalProps) {
           message: "Sprint created successfully.",
         });
         captureSuccess({
-          eventName: CYCLE_TRACKER_EVENTS.create,
+          eventName: SPRINT_TRACKER_EVENTS.create,
           payload: {
             id: res.id,
           },
@@ -76,7 +76,7 @@ export function SprintCreateUpdateModal(props: SprintModalProps) {
           message: err?.detail ?? "Error in creating sprint. Please try again.",
         });
         captureError({
-          eventName: CYCLE_TRACKER_EVENTS.create,
+          eventName: SPRINT_TRACKER_EVENTS.create,
           error: err,
         });
       });
@@ -89,7 +89,7 @@ export function SprintCreateUpdateModal(props: SprintModalProps) {
     await updateSprintDetails(workspaceSlug, selectedProjectId, sprintId, payload)
       .then((res) => {
         captureSuccess({
-          eventName: CYCLE_TRACKER_EVENTS.update,
+          eventName: SPRINT_TRACKER_EVENTS.update,
           payload: {
             id: res.id,
           },
@@ -107,7 +107,7 @@ export function SprintCreateUpdateModal(props: SprintModalProps) {
           message: err?.detail ?? "Error in updating sprint. Please try again.",
         });
         captureError({
-          eventName: CYCLE_TRACKER_EVENTS.update,
+          eventName: SPRINT_TRACKER_EVENTS.update,
           error: err,
         });
       });

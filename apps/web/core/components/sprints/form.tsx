@@ -54,7 +54,7 @@ export function SprintForm(props: Props) {
     },
   });
 
-  const { getIndex } = getTabIndex(ETabIndices.PROJECT_CYCLE, isMobile);
+  const { getIndex } = getTabIndex(ETabIndices.PROJECT_SPRINT, isMobile);
 
   useEffect(() => {
     reset({

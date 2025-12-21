@@ -52,7 +52,7 @@ export const SprintIssueQuickActions = observer(function SprintIssueQuickActions
   const [duplicateWorkItemModal, setDuplicateWorkItemModal] = useState(false);
   // router
   const { workspaceSlug, sprintId } = useParams();
-  const { issuesFilter } = useIssues(EIssuesStoreType.CYCLE);
+  const { issuesFilter } = useIssues(EIssuesStoreType.SPRINT);
   const { allowPermissions } = useUserPermissions();
   const { getStateById } = useProjectState();
   const { getProjectIdentifierById } = useProject();
@@ -97,7 +97,7 @@ export const SprintIssueQuickActions = observer(function SprintIssueQuickActions
     handleDelete,
     handleUpdate,
     handleArchive,
-    storeType: EIssuesStoreType.CYCLE,
+    storeType: EIssuesStoreType.SPRINT,
   };
 
   const MENU_ITEMS = useSprintIssueMenuItems(menuItemProps);
@@ -107,7 +107,7 @@ export const SprintIssueQuickActions = observer(function SprintIssueQuickActions
       ...item,
 
       onClick: () => {
-        captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.CYCLE });
+        captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.SPRINT });
         item.action();
       },
     };
@@ -138,7 +138,7 @@ export const SprintIssueQuickActions = observer(function SprintIssueQuickActions
         onSubmit={async (data) => {
           if (issueToEdit && handleUpdate) await handleUpdate(data);
         }}
-        storeType={EIssuesStoreType.CYCLE}
+        storeType={EIssuesStoreType.SPRINT}
       />
       {issue.project_id && workspaceSlug && (
         <DuplicateWorkItemModal
@@ -197,7 +197,7 @@ export const SprintIssueQuickActions = observer(function SprintIssueQuickActions
                   <CustomMenu.MenuItem
                     key={nestedItem.key}
                     onClick={() => {
-                      captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.CYCLE });
+                      captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.SPRINT });
                       nestedItem.action();
                     }}
                     className={cn(
@@ -233,7 +233,7 @@ export const SprintIssueQuickActions = observer(function SprintIssueQuickActions
             <CustomMenu.MenuItem
               key={item.key}
               onClick={() => {
-                captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.CYCLE });
+                captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.SPRINT });
                 item.action();
               }}
               className={cn(

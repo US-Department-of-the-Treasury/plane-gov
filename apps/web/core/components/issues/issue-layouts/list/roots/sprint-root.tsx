@@ -15,7 +15,7 @@ import { BaseListRoot } from "../base-list-root";
 export const SprintListLayout = observer(function SprintListLayout() {
   const { workspaceSlug, projectId, sprintId } = useParams();
   // store
-  const { issues } = useIssues(EIssuesStoreType.CYCLE);
+  const { issues } = useIssues(EIssuesStoreType.SPRINT);
   const { currentProjectCompletedSprintIds } = useSprint(); // mobx store
   const { allowPermissions } = useUserPermissions();
 

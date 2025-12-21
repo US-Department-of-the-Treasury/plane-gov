@@ -88,12 +88,12 @@ export const PROJECT_GITHUB_REPOSITORY = (projectId: string) => `PROJECT_GITHUB_
 // sprints
 export const WORKSPACE_ACTIVE_SPRINTS_LIST = (workspaceSlug: string, cursor: string, per_page: string) =>
   `WORKSPACE_ACTIVE_SPRINTS_LIST_${workspaceSlug.toUpperCase()}_${cursor.toUpperCase()}_${per_page.toUpperCase()}`;
-export const CYCLE_ISSUES_WITH_PARAMS = (sprintId: string, params?: any) => {
-  if (!params) return `CYCLE_ISSUES_WITH_PARAMS_${sprintId.toUpperCase()}`;
+export const SPRINT_ISSUES_WITH_PARAMS = (sprintId: string, params?: any) => {
+  if (!params) return `SPRINT_ISSUES_WITH_PARAMS_${sprintId.toUpperCase()}`;
 
   const paramsKey = paramsToKey(params);
 
-  return `CYCLE_ISSUES_WITH_PARAMS_${sprintId.toUpperCase()}_${paramsKey.toUpperCase()}`;
+  return `SPRINT_ISSUES_WITH_PARAMS_${sprintId.toUpperCase()}_${paramsKey.toUpperCase()}`;
 };
 
 export const USER_ACTIVITY = (params: { cursor?: string }) => `USER_ACTIVITY_${params?.cursor}`;

@@ -1,6 +1,6 @@
 import { observer } from "mobx-react";
 // plane imports
-import { CYCLE_STATUS } from "@plane/constants";
+import { SPRINT_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { CloseIcon } from "@plane/propel/icons";
 import { cn } from "@plane/utils";
@@ -18,7 +18,7 @@ export const AppliedStatusFilters = observer(function AppliedStatusFilters(props
   return (
     <>
       {values.map((status) => {
-        const statusDetails = CYCLE_STATUS.find((s) => s.value === status);
+        const statusDetails = SPRINT_STATUS.find((s) => s.value === status);
         return (
           <div
             key={status}

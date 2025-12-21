@@ -26,7 +26,7 @@ export const TransferIssuesModal = observer(function TransferIssuesModal(props: 
   const { currentProjectIncompleteSprintIds, getSprintById, fetchActiveSprintProgress } = useSprint();
   const {
     issues: { transferIssuesFromSprint },
-  } = useIssues(EIssuesStoreType.CYCLE);
+  } = useIssues(EIssuesStoreType.SPRINT);
 
   const { workspaceSlug, projectId } = useParams();
 

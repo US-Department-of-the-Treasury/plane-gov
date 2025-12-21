@@ -1,7 +1,7 @@
 import { useState, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 // ui
-import { CYCLE_TRACKER_EVENTS } from "@plane/constants";
+import { SPRINT_TRACKER_EVENTS } from "@plane/constants";
 import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 // hooks
@@ -44,7 +44,7 @@ export function ArchiveSprintModal(props: Props) {
           message: "Your archives can be found in project archives.",
         });
         captureSuccess({
-          eventName: CYCLE_TRACKER_EVENTS.archive,
+          eventName: SPRINT_TRACKER_EVENTS.archive,
           payload: {
             id: sprintId,
           },
@@ -59,7 +59,7 @@ export function ArchiveSprintModal(props: Props) {
           message: "Sprint could not be archived. Please try again.",
         });
         captureError({
-          eventName: CYCLE_TRACKER_EVENTS.archive,
+          eventName: SPRINT_TRACKER_EVENTS.archive,
           payload: {
             id: sprintId,
           },

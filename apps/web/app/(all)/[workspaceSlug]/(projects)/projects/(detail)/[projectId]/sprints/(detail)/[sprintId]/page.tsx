@@ -23,7 +23,7 @@ function SprintDetailPage({ params }: Route.ComponentProps) {
   // store hooks
   const { getSprintById, loader } = useSprint();
   const { getProjectById } = useProject();
-  // const { issuesFilter } = useIssues(EIssuesStoreType.CYCLE);
+  // const { issuesFilter } = useIssues(EIssuesStoreType.SPRINT);
   // hooks
   const { setValue, storedValue } = useLocalStorage("sprint_sidebar_collapsed", false);
 
