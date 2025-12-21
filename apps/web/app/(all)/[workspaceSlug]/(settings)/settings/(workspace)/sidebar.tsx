@@ -1,5 +1,6 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useParams, usePathname } from "next/navigation";
-import { ArrowUpToLine, Building, CreditCard, Users, Webhook } from "lucide-react";
+import { ArrowUpToLine, Building, Users, Webhook } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 // plane imports
 import {
@@ -23,7 +24,6 @@ export const WORKSPACE_SETTINGS_ICONS: Record<keyof typeof WORKSPACE_SETTINGS, L
   general: Building,
   members: Users,
   export: ArrowUpToLine,
-  "billing-and-plans": CreditCard,
   webhooks: Webhook,
 };
 
