@@ -397,4 +397,21 @@ export class WorkspaceService extends APIService {
         throw error?.response;
       });
   }
+
+  /**
+   * Generate fake workspace members for development/testing purposes.
+   * Only works when the backend is in DEBUG mode.
+   * @param workspaceSlug - The workspace slug
+   * @param count - Number of fake members to generate (1-50)
+   */
+  async generateFakeMembers(
+    workspaceSlug: string,
+    count: number
+  ): Promise<{ message: string; users: Array<{ id: string; email: string; display_name: string }> }> {
+    return this.post(`/api/workspaces/${workspaceSlug}/dev/generate-fake-members/`, { count })
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
 }
