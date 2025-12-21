@@ -1,6 +1,7 @@
 # Development-only endpoints for testing and seeding data
-# These endpoints should only work when DEBUG=True
+# These endpoints only work when DEBUG=True or PLANE_DEV_ENDPOINTS=1
 
+import os
 import random
 import uuid
 
@@ -12,6 +13,33 @@ from rest_framework.response import Response
 from plane.app.permissions import ROLE, allow_permission
 from plane.app.views.base import BaseAPIView
 from plane.db.models import User, Profile, Workspace, WorkspaceMember
+
+
+def is_dev_mode(request=None):
+    """Check if dev endpoints should be enabled.
+
+    Returns True if either:
+    - Django DEBUG is True
+    - PLANE_DEV_ENDPOINTS env var is set AND request is from localhost
+
+    The localhost check is a safety net - even if PLANE_DEV_ENDPOINTS is
+    accidentally set in production, it won't work because requests won't
+    come from localhost.
+    """
+    if settings.DEBUG:
+        return True
+
+    dev_endpoints = os.environ.get("PLANE_DEV_ENDPOINTS", "").lower()
+    if dev_endpoints not in ("1", "true"):
+        return False
+
+    # Extra safety: only allow if request is from localhost
+    if request:
+        remote_addr = request.META.get("REMOTE_ADDR", "")
+        if remote_addr not in ("127.0.0.1", "::1", "localhost"):
+            return False
+
+    return True
 
 
 # Realistic first names for fake users
@@ -51,10 +79,10 @@ class GenerateFakeMembersEndpoint(BaseAPIView):
 
     @allow_permission(allowed_roles=[ROLE.ADMIN], level="WORKSPACE")
     def post(self, request, slug):
-        # Security check: only allow in development mode
-        if not settings.DEBUG:
+        # Security check: only allow in development mode from localhost
+        if not is_dev_mode(request):
             return Response(
-                {"error": "This endpoint is only available in development mode"},
+                {"error": "This endpoint is only available in local development mode"},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
