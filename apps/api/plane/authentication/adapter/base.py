@@ -15,6 +15,7 @@ from zxcvbn import zxcvbn
 
 # Package imports
 from plane.db.models import Profile, User, WorkspaceMemberInvite, FileAsset
+from plane.license.models.instance import Instance
 from plane.license.utils.instance_value import get_configuration_value
 from .error import AuthenticationException, AUTHENTICATION_ERROR_CODES
 from plane.bgtasks.user_activation_email_task import user_activation_email
@@ -94,16 +95,64 @@ class Adapter:
             [{"key": "ENABLE_SIGNUP", "default": os.environ.get("ENABLE_SIGNUP", "1")}]
         )
 
-        # Check if sign up is disabled and invite is present or not
-        if ENABLE_SIGNUP == "0" and not WorkspaceMemberInvite.objects.filter(email=email).exists():
-            # Raise exception
-            raise AuthenticationException(
-                error_code=AUTHENTICATION_ERROR_CODES["SIGNUP_DISABLED"],
-                error_message="SIGNUP_DISABLED",
-                payload={"email": email},
-            )
+        # If signup is enabled, allow
+        if ENABLE_SIGNUP != "0":
+            return True
 
-        return True
+        # Check if user has a workspace invite
+        if WorkspaceMemberInvite.objects.filter(email=email).exists():
+            return True
+
+        # Check if email is in instance whitelist
+        if self.__is_email_whitelisted(email):
+            return True
+
+        # Raise exception - signup disabled and user not whitelisted
+        raise AuthenticationException(
+            error_code=AUTHENTICATION_ERROR_CODES["SIGNUP_DISABLED"],
+            error_message="SIGNUP_DISABLED",
+            payload={"email": email},
+        )
+
+    def __is_email_whitelisted(self, email):
+        """
+        Check if email is in the instance whitelist.
+
+        The whitelist can be set via:
+        1. Instance.whitelist_emails database field (comma or newline separated)
+        2. OIDC_WHITELISTED_EMAILS environment variable (comma separated)
+
+        Args:
+            email: Email address to check (case-insensitive)
+
+        Returns:
+            True if email is whitelisted, False otherwise
+        """
+        email_lower = email.lower().strip()
+
+        # Check Instance whitelist from database
+        try:
+            instance = Instance.objects.first()
+            if instance and instance.whitelist_emails:
+                # Parse comma or newline separated emails
+                whitelist = [
+                    e.strip().lower()
+                    for e in instance.whitelist_emails.replace('\n', ',').split(',')
+                    if e.strip()
+                ]
+                if email_lower in whitelist:
+                    return True
+        except Exception:
+            pass  # Instance may not exist yet
+
+        # Check OIDC-specific whitelist from environment
+        oidc_whitelist = os.environ.get("OIDC_WHITELISTED_EMAILS", "")
+        if oidc_whitelist:
+            whitelist = [e.strip().lower() for e in oidc_whitelist.split(',') if e.strip()]
+            if email_lower in whitelist:
+                return True
+
+        return False
 
     def get_avatar_download_headers(self):
         return {}

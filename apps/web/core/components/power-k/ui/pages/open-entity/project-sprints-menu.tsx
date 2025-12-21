@@ -16,13 +16,12 @@ type Props = {
 export const PowerKOpenProjectSprintsMenu = observer(function PowerKOpenProjectSprintsMenu(props: Props) {
   const { context, handleSelect } = props;
   // store hooks
-  const { fetchedMap, getProjectSprintIds, getSprintById } = useSprint();
+  const { fetchedMap, currentWorkspaceSprintIds, getSprintById } = useSprint();
   // derived values
-  const projectId = context.params.projectId?.toString();
-  const isFetched = projectId ? fetchedMap[projectId] : false;
-  const projectSprintIds = projectId ? getProjectSprintIds(projectId) : undefined;
-  const sprintsList = projectSprintIds
-    ? projectSprintIds.map((sprintId) => getSprintById(sprintId)).filter((sprint) => !!sprint)
+  const workspaceSlug = context.params.workspaceSlug?.toString();
+  const isFetched = workspaceSlug ? fetchedMap[workspaceSlug] : false;
+  const sprintsList = currentWorkspaceSprintIds
+    ? currentWorkspaceSprintIds.map((sprintId) => getSprintById(sprintId)).filter((sprint) => !!sprint)
     : [];
 
   if (!isFetched) return <Spinner />;

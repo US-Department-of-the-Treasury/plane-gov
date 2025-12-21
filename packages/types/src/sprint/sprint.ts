@@ -74,10 +74,6 @@ export type TProgressSnapshot = {
   estimate_distribution?: TSprintEstimateDistribution;
 };
 
-export interface IProjectDetails {
-  id: string;
-}
-
 export interface ISprint extends TProgressSnapshot {
   progress_snapshot: TProgressSnapshot | undefined;
 
@@ -88,8 +84,7 @@ export interface ISprint extends TProgressSnapshot {
   id: string;
   is_favorite?: boolean;
   name: string;
-  owned_by_id: string;
-  project_id: string;
+  number: number;
   status?: TSprintGroups;
   sort_order: number;
   start_date: string | null;
@@ -102,9 +97,11 @@ export interface ISprint extends TProgressSnapshot {
     filters: IIssueFilterOptions;
   };
   workspace_id: string;
-  project_detail: IProjectDetails;
   progress: any[];
   version: number;
+  logo_props?: Record<string, any>;
+  external_source?: string | null;
+  external_id?: string | null;
 }
 
 export interface SprintIssueResponse {
@@ -114,7 +111,6 @@ export interface SprintIssueResponse {
   updated_at: Date;
   created_by: string;
   updated_by: string;
-  project: string;
   workspace: string;
   issue: string;
   sprint: string;

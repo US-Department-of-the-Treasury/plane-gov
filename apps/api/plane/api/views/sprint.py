@@ -25,8 +25,6 @@ from plane.api.serializers import (
     SprintSerializer,
     SprintIssueRequestSerializer,
     TransferSprintIssueRequestSerializer,
-    SprintCreateSerializer,
-    SprintUpdateSerializer,
     IssueSerializer,
 )
 from plane.app.permissions import ProjectEntityPermission
@@ -281,7 +279,7 @@ class SprintListCreateAPIEndpoint(BaseAPIView):
         summary="Create sprint",
         description="Create a new development sprint with specified name, description, and date range. Supports external ID tracking for integration purposes.",  # noqa: E501
         request=OpenApiRequest(
-            request=SprintCreateSerializer,
+            request=SprintSerializer,
             examples=[SPRINT_CREATE_EXAMPLE],
         ),
         responses={
@@ -301,7 +299,7 @@ class SprintListCreateAPIEndpoint(BaseAPIView):
         if (request.data.get("start_date", None) is None and request.data.get("end_date", None) is None) or (
             request.data.get("start_date", None) is not None and request.data.get("end_date", None) is not None
         ):
-            serializer = SprintCreateSerializer(data=request.data, context={"request": request})
+            serializer = SprintSerializer(data=request.data, context={"request": request})
             if serializer.is_valid():
                 if (
                     request.data.get("external_id")
@@ -473,7 +471,7 @@ class SprintDetailAPIEndpoint(BaseAPIView):
         summary="Update sprint",
         description="Modify an existing sprint's properties like name, description, or date range. Completed sprints can only have their sort order changed.",  # noqa: E501
         request=OpenApiRequest(
-            request=SprintUpdateSerializer,
+            request=SprintSerializer,
             examples=[SPRINT_UPDATE_EXAMPLE],
         ),
         responses={
@@ -512,7 +510,7 @@ class SprintDetailAPIEndpoint(BaseAPIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        serializer = SprintUpdateSerializer(sprint, data=request.data, partial=True, context={"request": request})
+        serializer = SprintSerializer(sprint, data=request.data, partial=True, context={"request": request})
         if serializer.is_valid():
             if (
                 request.data.get("external_id")

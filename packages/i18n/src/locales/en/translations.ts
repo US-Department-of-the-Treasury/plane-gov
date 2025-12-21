@@ -2707,6 +2707,11 @@ export default {
   enter_number_of_projects: "Enter number of projects",
   pin: "Pin",
   unpin: "Unpin",
+  // Resource View
+  resource_view: "Resource View",
+  team_members: "Team Members",
+  no_members_found: "No members found",
+  no_sprints_found: "No sprints found. Configure sprint start date in workspace settings.",
   sidebar: {
     stickies: "Stickies",
     your_work: "Your work",

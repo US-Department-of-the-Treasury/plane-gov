@@ -133,6 +133,13 @@ class Workspace(BaseModel):
     organization_size = models.CharField(max_length=20, blank=True, null=True)
     timezone = models.CharField(max_length=255, default="UTC", choices=TIMEZONE_CHOICES)
     background_color = models.CharField(max_length=255, default=get_random_color)
+    # Sprint settings - when set, enables fixed 2-week sprints for this workspace
+    sprint_start_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name="Sprint Start Date",
+        help_text="The date when Sprint 1 begins. All sprints are 2 weeks from this date.",
+    )
 
     def __str__(self):
         """Return name of the Workspace"""

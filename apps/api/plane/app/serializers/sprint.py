@@ -5,38 +5,26 @@ from rest_framework import serializers
 from .base import BaseSerializer
 from .issue import IssueStateSerializer
 from plane.db.models import Sprint, SprintIssue, SprintUserProperties
-from plane.utils.timezone_converter import convert_to_utc
 
 
 class SprintWriteSerializer(BaseSerializer):
-    def validate(self, data):
-        if (
-            data.get("start_date", None) is not None
-            and data.get("end_date", None) is not None
-            and data.get("start_date", None) > data.get("end_date", None)
-        ):
-            raise serializers.ValidationError("Start date cannot exceed end date")
-        if data.get("start_date", None) is not None and data.get("end_date", None) is not None:
-            project_id = (
-                self.initial_data.get("project_id", None)
-                or (self.instance and self.instance.project_id)
-                or self.context.get("project_id", None)
-            )
-            data["start_date"] = convert_to_utc(
-                date=str(data.get("start_date").date()),
-                project_id=project_id,
-                is_start_date=True,
-            )
-            data["end_date"] = convert_to_utc(
-                date=str(data.get("end_date", None).date()),
-                project_id=project_id,
-            )
-        return data
+    """
+    Serializer for updating workspace sprints.
+
+    Only allows updating name, description, logo_props, view_props, and sort_order.
+    Dates are auto-calculated and cannot be changed.
+    """
 
     class Meta:
         model = Sprint
         fields = "__all__"
-        read_only_fields = ["workspace", "project", "owned_by", "archived_at"]
+        read_only_fields = [
+            "workspace",
+            "archived_at",
+            "number",
+            "start_date",
+            "end_date",
+        ]
 
 
 class SprintSerializer(BaseSerializer):
@@ -59,13 +47,12 @@ class SprintSerializer(BaseSerializer):
             # necessary fields
             "id",
             "workspace_id",
-            "project_id",
+            "number",
             # model fields
             "name",
             "description",
             "start_date",
             "end_date",
-            "owned_by_id",
             "view_props",
             "sort_order",
             "external_source",
@@ -92,11 +79,11 @@ class SprintIssueSerializer(BaseSerializer):
     class Meta:
         model = SprintIssue
         fields = "__all__"
-        read_only_fields = ["workspace", "project", "sprint"]
+        read_only_fields = ["workspace", "sprint"]
 
 
 class SprintUserPropertiesSerializer(BaseSerializer):
     class Meta:
         model = SprintUserProperties
         fields = "__all__"
-        read_only_fields = ["workspace", "project", "sprint", "user"]
+        read_only_fields = ["workspace", "sprint", "user"]
