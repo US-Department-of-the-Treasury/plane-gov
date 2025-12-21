@@ -51,7 +51,7 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
 
   const issueOperations = useMemo(
     () => ({
-      updateIssueModules: async (epicIds: string[]) => {
+      updateIssueEpics: async (epicIds: string[]) => {
         if (!workspaceSlug || !issue.id) return;
         await addEpicsToIssue(workspaceSlug.toString(), issue.id, epicIds);
       },
@@ -83,7 +83,7 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
   const handleEpic = useCallback(
     (epicIds: string[] | null) => {
       if (!issue || !issue.epic_ids || !epicIds) return;
-      issueOperations.updateIssueModules(epicIds);
+      issueOperations.updateIssueEpics(epicIds);
     },
     [issueOperations, issue]
   );
@@ -219,7 +219,7 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
         />
       </div>
 
-      {/* modules */}
+      {/* epics */}
       {projectDetails?.epic_view && (
         <div className="h-5" onClick={handleEventPropagation}>
           <EpicDropdown

@@ -34,7 +34,7 @@ export const IssueEpicSelect = observer(function IssueEpicSelect(props: TIssueEp
   const issue = getIssueById(issueId);
   const disableSelect = disabled || isUpdating;
 
-  const handleIssueModuleChange = async (epicIds: string[]) => {
+  const handleIssueEpicChange = async (epicIds: string[]) => {
     if (!issue || !issue.epic_ids) return;
 
     setIsUpdating(true);
@@ -60,7 +60,7 @@ export const IssueEpicSelect = observer(function IssueEpicSelect(props: TIssueEp
       <EpicDropdown
         projectId={projectId}
         value={issue?.epic_ids ?? []}
-        onChange={handleIssueModuleChange}
+        onChange={handleIssueEpicChange}
         placeholder={t("epic.no_epic")}
         disabled={disableSelect}
         className="group h-full w-full"

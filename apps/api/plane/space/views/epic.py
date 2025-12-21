@@ -5,10 +5,10 @@ from rest_framework.response import Response
 
 # Package imports
 from .base import BaseAPIView
-from plane.db.models import DeployBoard, Module
+from plane.db.models import DeployBoard, Epic
 
 
-class ProjectModulesEndpoint(BaseAPIView):
+class ProjectEpicsEndpoint(BaseAPIView):
     permission_classes = [AllowAny]
 
     def get(self, request, anchor):
@@ -16,9 +16,9 @@ class ProjectModulesEndpoint(BaseAPIView):
         if not deploy_board:
             return Response({"error": "Invalid anchor"}, status=status.HTTP_404_NOT_FOUND)
 
-        modules = Module.objects.filter(
+        epics = Epic.objects.filter(
             workspace__slug=deploy_board.workspace.slug,
             project_id=deploy_board.project_id,
         ).values("id", "name")
 
-        return Response(modules, status=status.HTTP_200_OK)
+        return Response(epics, status=status.HTTP_200_OK)

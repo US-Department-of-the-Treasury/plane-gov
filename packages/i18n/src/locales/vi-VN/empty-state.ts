@@ -55,15 +55,15 @@ export default {
       cta_primary: "Tạo mục công việc",
       cta_secondary: "Thêm mục công việc hiện có",
     },
-    modules: {
-      title: "Ánh xạ mục tiêu dự án của bạn vào Mô-đun và theo dõi dễ dàng.",
+    epics: {
+      title: "Ánh xạ mục tiêu dự án của bạn vào Epic và theo dõi dễ dàng.",
       description:
-        "Các mô-đun được tạo thành từ các mục công việc kết nối với nhau. Chúng hỗ trợ theo dõi tiến độ qua các giai đoạn dự án, mỗi giai đoạn có thời hạn và phân tích cụ thể để chỉ ra bạn gần đạt được các giai đoạn đó như thế nào.",
-      cta_primary: "Đặt mô-đun đầu tiên của bạn",
+        "Các Epic được tạo thành từ các mục công việc kết nối với nhau. Chúng hỗ trợ theo dõi tiến độ qua các giai đoạn dự án, mỗi giai đoạn có thời hạn và phân tích cụ thể để chỉ ra bạn gần đạt được các giai đoạn đó như thế nào.",
+      cta_primary: "Đặt Epic đầu tiên của bạn",
     },
-    module_work_items: {
-      title: "Không có mục công việc để hiển thị trong Mô-đun này",
-      description: "Tạo các mục công việc để bắt đầu giám sát mô-đun này.",
+    epic_work_items: {
+      title: "Không có mục công việc để hiển thị trong Epic này",
+      description: "Tạo các mục công việc để bắt đầu giám sát Epic này.",
       cta_primary: "Tạo mục công việc",
       cta_secondary: "Thêm mục công việc hiện có",
     },
@@ -114,10 +114,10 @@ export default {
       title: "Chưa có chu kỳ được lưu trữ",
       description: "Để sắp xếp dự án của bạn, hãy lưu trữ các chu kỳ đã hoàn thành. Tìm chúng ở đây sau khi lưu trữ.",
     },
-    archive_modules: {
-      title: "Chưa có Mô-đun được lưu trữ",
+    archive_epics: {
+      title: "Chưa có Epic được lưu trữ",
       description:
-        "Để sắp xếp dự án của bạn, hãy lưu trữ các mô-đun đã hoàn thành hoặc bị hủy. Tìm chúng ở đây sau khi lưu trữ.",
+        "Để sắp xếp dự án của bạn, hãy lưu trữ các Epic đã hoàn thành hoặc bị hủy. Tìm chúng ở đây sau khi lưu trữ.",
     },
     home_widget_quick_links: {
       title: "Giữ các tài liệu tham khảo, tài nguyên hoặc tài liệu quan trọng tiện lợi cho công việc của bạn",
@@ -161,8 +161,8 @@ export default {
       title:
         "Tạo chu kỳ để tổ chức công việc thành các giai đoạn có giới hạn thời gian và theo dõi tiến độ qua các sprint.",
     },
-    analytics_no_module: {
-      title: "Tạo mô-đun để tổ chức công việc của bạn và theo dõi tiến độ qua các giai đoạn khác nhau.",
+    analytics_no_epic: {
+      title: "Tạo Epic để tổ chức công việc của bạn và theo dõi tiến độ qua các giai đoạn khác nhau.",
     },
     analytics_no_intake: {
       title: "Thiết lập tiếp nhận để quản lý các yêu cầu đến và theo dõi cách chúng được chấp nhận và từ chối",

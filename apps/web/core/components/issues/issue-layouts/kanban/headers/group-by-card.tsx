@@ -60,7 +60,7 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
   const { workspaceSlug, projectId, epicId, sprintId } = useParams();
 
   const renderExistingIssueModal = epicId || sprintId;
-  const ExistingIssuesListModalPayload = epicId ? { module: epicId.toString() } : { sprint: true };
+  const ExistingIssuesListModalPayload = epicId ? { epic: epicId.toString() } : { sprint: true };
 
   const handleAddIssuesToView = async (data: ISearchIssueResponse[]) => {
     if (!workspaceSlug || !projectId) return;

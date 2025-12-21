@@ -89,7 +89,7 @@ export class EpicIssues extends BaseIssuesStore implements IEpicIssues {
     const epicId = id ?? this.epicId;
     projectId &&
       epicId &&
-      this.rootIssueStore.rootStore.module.fetchEpicDetails(workspaceSlug, projectId, epicId);
+      this.rootIssueStore.rootStore.epic.fetchEpicDetails(workspaceSlug, projectId, epicId);
   };
 
   /**
@@ -110,7 +110,7 @@ export class EpicIssues extends BaseIssuesStore implements IEpicIssues {
 
       const epicId = id ?? this.epicId;
 
-      epicId && this.rootIssueStore.rootStore.module.updateEpicDistribution(distributionUpdates, epicId);
+      epicId && this.rootIssueStore.rootStore.epic.updateEpicDistribution(distributionUpdates, epicId);
     } catch (e) {
       console.warn("could not update epic statistics");
     }

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
-import type { IModule } from "@plane/types";
+import type { IEpic } from "@plane/types";
 import { ComboDropDown } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
@@ -20,7 +20,7 @@ type TEpicDropdownBaseProps = TDropdownProps & {
   button?: ReactNode;
   dropdownArrow?: boolean;
   dropdownArrowClassName?: string;
-  getEpicById: (epicId: string) => IModule | null;
+  getEpicById: (epicId: string) => IEpic | null;
   itemClassName?: string;
   epicIds?: string[];
   onClose?: () => void;

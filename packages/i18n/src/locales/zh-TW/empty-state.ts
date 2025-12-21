@@ -51,15 +51,15 @@ export default {
       cta_primary: "建立工作項",
       cta_secondary: "新增現有工作項",
     },
-    modules: {
-      title: "將專案目標對應到模組並輕鬆追蹤。",
+    epics: {
+      title: "將專案目標對應到 Epic 並輕鬆追蹤。",
       description:
-        "模組由相互關聯的工作項組成。它們有助於監控專案階段的進度,每個階段都有特定的截止日期和分析,以指示您離實現這些階段有多近。",
-      cta_primary: "設定您的第一個模組",
+        "Epic 由相互關聯的工作項組成。它們有助於監控專案階段的進度,每個階段都有特定的截止日期和分析,以指示您離實現這些階段有多近。",
+      cta_primary: "設定您的第一個 Epic",
     },
-    module_work_items: {
-      title: "此模組中沒有要顯示的工作項",
-      description: "建立工作項以開始監控此模組。",
+    epic_work_items: {
+      title: "此 Epic 中沒有要顯示的工作項",
+      description: "建立工作項以開始監控此 Epic。",
       cta_primary: "建立工作項",
       cta_secondary: "新增現有工作項",
     },
@@ -108,9 +108,9 @@ export default {
       title: "暫無已封存週期",
       description: "為了整理專案,請封存已完成的週期。封存後在此處尋找它們。",
     },
-    archive_modules: {
-      title: "暫無已封存模組",
-      description: "為了整理專案,請封存已完成或已取消的模組。封存後在此處尋找它們。",
+    archive_epics: {
+      title: "暫無已封存 Epic",
+      description: "為了整理專案,請封存已完成或已取消的 Epic。封存後在此處尋找它們。",
     },
     home_widget_quick_links: {
       title: "為您的工作保留重要的參考、資源或文件",
@@ -150,8 +150,8 @@ export default {
     analytics_no_sprint: {
       title: "建立週期以將工作組織成有時限的階段並追蹤衝刺進度。",
     },
-    analytics_no_module: {
-      title: "建立模組以組織工作並追蹤不同階段的進度。",
+    analytics_no_epic: {
+      title: "建立 Epic 以組織工作並追蹤不同階段的進度。",
     },
     analytics_no_intake: {
       title: "設定接收以管理傳入請求並追蹤它們的接受和拒絕情況",

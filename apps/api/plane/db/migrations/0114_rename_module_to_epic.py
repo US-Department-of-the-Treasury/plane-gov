@@ -1,4 +1,4 @@
-# Generated migration to rename Module to Epic
+# Generated migration to rename Epic to Epic
 from django.db import migrations, models
 
 
@@ -12,27 +12,27 @@ class Migration(migrations.Migration):
         # PHASE 1: Rename Models
         # ======================
         migrations.RenameModel(
-            old_name="Module",
+            old_name="Epic",
             new_name="Epic",
         ),
         migrations.RenameModel(
-            old_name="ModuleMember",
+            old_name="EpicMember",
             new_name="EpicMember",
         ),
         migrations.RenameModel(
-            old_name="ModuleIssue",
+            old_name="EpicIssue",
             new_name="EpicIssue",
         ),
         migrations.RenameModel(
-            old_name="ModuleLink",
+            old_name="EpicLink",
             new_name="EpicLink",
         ),
         migrations.RenameModel(
-            old_name="ModuleUserProperties",
+            old_name="EpicUserProperties",
             new_name="EpicUserProperties",
         ),
         migrations.RenameModel(
-            old_name="DraftIssueModule",
+            old_name="DraftIssueEpic",
             new_name="DraftIssueEpic",
         ),
 
@@ -67,46 +67,46 @@ class Migration(migrations.Migration):
         # ========================
         # PHASE 3: Rename Fields
         # ========================
-        # Rename module field to epic on EpicMember
+        # Rename epic field to epic on EpicMember
         migrations.RenameField(
             model_name="epicmember",
-            old_name="module",
+            old_name="epic",
             new_name="epic",
         ),
-        # Rename module field to epic on EpicIssue
+        # Rename epic field to epic on EpicIssue
         migrations.RenameField(
             model_name="epicissue",
-            old_name="module",
+            old_name="epic",
             new_name="epic",
         ),
-        # Rename module field to epic on EpicLink
+        # Rename epic field to epic on EpicLink
         migrations.RenameField(
             model_name="epiclink",
-            old_name="module",
+            old_name="epic",
             new_name="epic",
         ),
-        # Rename module field to epic on EpicUserProperties
+        # Rename epic field to epic on EpicUserProperties
         migrations.RenameField(
             model_name="epicuserproperties",
-            old_name="module",
+            old_name="epic",
             new_name="epic",
         ),
-        # Rename module field to epic on DraftIssueEpic
+        # Rename epic field to epic on DraftIssueEpic
         migrations.RenameField(
             model_name="draftissueepic",
-            old_name="module",
+            old_name="epic",
             new_name="epic",
         ),
-        # Rename module_view to epic_view on Project
+        # Rename epic_view to epic_view on Project
         migrations.RenameField(
             model_name="project",
-            old_name="module_view",
+            old_name="epic_view",
             new_name="epic_view",
         ),
-        # Rename module to epic on Webhook
+        # Rename epic to epic on Webhook
         migrations.RenameField(
             model_name="webhook",
-            old_name="module",
+            old_name="epic",
             new_name="epic",
         ),
 

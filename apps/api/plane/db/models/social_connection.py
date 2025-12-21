@@ -3,7 +3,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-# Module import
+# Epic import
 from .base import BaseModel
 
 

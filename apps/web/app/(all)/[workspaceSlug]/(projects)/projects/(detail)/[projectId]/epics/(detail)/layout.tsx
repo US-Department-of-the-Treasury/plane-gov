@@ -2,13 +2,13 @@ import { Outlet } from "react-router";
 // components
 import { AppHeader } from "@/components/core/app-header";
 import { ContentWrapper } from "@/components/core/content-wrapper";
-import { ModuleIssuesHeader } from "./header";
-import { ModuleIssuesMobileHeader } from "./mobile-header";
+import { EpicIssuesHeader } from "./header";
+import { EpicIssuesMobileHeader } from "./mobile-header";
 
-export default function ProjectModuleIssuesLayout() {
+export default function ProjectEpicIssuesLayout() {
   return (
     <>
-      <AppHeader header={<ModuleIssuesHeader />} mobileHeader={<ModuleIssuesMobileHeader />} />
+      <AppHeader header={<EpicIssuesHeader />} mobileHeader={<EpicIssuesMobileHeader />} />
       <ContentWrapper>
         <Outlet />
       </ContentWrapper>

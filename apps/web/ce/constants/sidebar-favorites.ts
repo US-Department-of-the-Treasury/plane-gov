@@ -1,14 +1,14 @@
 import type { LucideIcon } from "lucide-react";
 // plane imports
 import type { ISvgIcons } from "@plane/propel/icons";
-import { SprintIcon, FavoriteFolderIcon, ModuleIcon, PageIcon, ProjectIcon, ViewsIcon } from "@plane/propel/icons";
+import { SprintIcon, FavoriteFolderIcon, EpicIcon, PageIcon, ProjectIcon, ViewsIcon } from "@plane/propel/icons";
 import type { IFavorite } from "@plane/types";
 
 export const FAVORITE_ITEM_ICONS: Record<string, React.FC<ISvgIcons> | LucideIcon> = {
   page: PageIcon,
   project: ProjectIcon,
   view: ViewsIcon,
-  module: ModuleIcon,
+  epic: EpicIcon,
   sprint: SprintIcon,
   folder: FavoriteFolderIcon,
 };
@@ -27,9 +27,9 @@ export const FAVORITE_ITEM_LINKS: {
     itemLevel: "project",
     getLink: (favorite) => `sprints/${favorite.entity_identifier}`,
   },
-  module: {
+  epic: {
     itemLevel: "project",
-    getLink: (favorite) => `modules/${favorite.entity_identifier}`,
+    getLink: (favorite) => `epics/${favorite.entity_identifier}`,
   },
   view: {
     itemLevel: "project",

@@ -39,20 +39,20 @@ from plane.app.permissions import (
 )
 
 from plane.app.serializers import (
-    ModuleDetailSerializer,
-    ModuleLinkSerializer,
-    ModuleSerializer,
-    ModuleUserPropertiesSerializer,
-    ModuleWriteSerializer,
+    EpicDetailSerializer,
+    EpicLinkSerializer,
+    EpicSerializer,
+    EpicUserPropertiesSerializer,
+    EpicWriteSerializer,
 )
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.db.models import (
     Issue,
-    Module,
+    Epic,
     UserFavorite,
-    ModuleIssue,
-    ModuleLink,
-    ModuleUserProperties,
+    EpicIssue,
+    EpicLink,
+    EpicUserProperties,
     Project,
     UserRecentVisit,
 )
@@ -64,17 +64,17 @@ from plane.bgtasks.recent_visited_task import recent_visited_task
 from plane.utils.host import base_host
 
 
-class ModuleViewSet(BaseViewSet):
-    model = Module
-    webhook_event = "module"
+class EpicViewSet(BaseViewSet):
+    model = Epic
+    webhook_event = "epic"
 
     def get_serializer_class(self):
-        return ModuleWriteSerializer if self.action in ["create", "update", "partial_update"] else ModuleSerializer
+        return EpicWriteSerializer if self.action in ["create", "update", "partial_update"] else EpicSerializer
 
     def get_queryset(self):
         favorite_subquery = UserFavorite.objects.filter(
             user=self.request.user,
-            entity_type="module",
+            entity_type="epic",
             entity_identifier=OuterRef("pk"),
             project_id=self.kwargs.get("project_id"),
             workspace__slug=self.kwargs.get("slug"),
@@ -82,59 +82,59 @@ class ModuleViewSet(BaseViewSet):
         cancelled_issues = (
             Issue.issue_objects.filter(
                 state__group="cancelled",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
         completed_issues = (
             Issue.issue_objects.filter(
                 state__group="completed",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
         started_issues = (
             Issue.issue_objects.filter(
                 state__group="started",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
         unstarted_issues = (
             Issue.issue_objects.filter(
                 state__group="unstarted",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
         backlog_issues = (
             Issue.issue_objects.filter(
                 state__group="backlog",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
         total_issues = (
             Issue.issue_objects.filter(
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
@@ -142,10 +142,10 @@ class ModuleViewSet(BaseViewSet):
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
                 state__group="completed",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(completed_estimate_points=Sum(Cast("estimate_point__value", FloatField())))
             .values("completed_estimate_points")[:1]
         )
@@ -153,10 +153,10 @@ class ModuleViewSet(BaseViewSet):
         total_estimate_point = (
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(total_estimate_points=Sum(Cast("estimate_point__value", FloatField())))
             .values("total_estimate_points")[:1]
         )
@@ -164,10 +164,10 @@ class ModuleViewSet(BaseViewSet):
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
                 state__group="backlog",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(backlog_estimate_point=Sum(Cast("estimate_point__value", FloatField())))
             .values("backlog_estimate_point")[:1]
         )
@@ -175,10 +175,10 @@ class ModuleViewSet(BaseViewSet):
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
                 state__group="unstarted",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(unstarted_estimate_point=Sum(Cast("estimate_point__value", FloatField())))
             .values("unstarted_estimate_point")[:1]
         )
@@ -186,10 +186,10 @@ class ModuleViewSet(BaseViewSet):
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
                 state__group="started",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(started_estimate_point=Sum(Cast("estimate_point__value", FloatField())))
             .values("started_estimate_point")[:1]
         )
@@ -197,10 +197,10 @@ class ModuleViewSet(BaseViewSet):
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
                 state__group="cancelled",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cancelled_estimate_point=Sum(Cast("estimate_point__value", FloatField())))
             .values("cancelled_estimate_point")[:1]
         )
@@ -213,8 +213,8 @@ class ModuleViewSet(BaseViewSet):
             .prefetch_related("members")
             .prefetch_related(
                 Prefetch(
-                    "link_module",
-                    queryset=ModuleLink.objects.select_related("module", "created_by"),
+                    "link_epic",
+                    queryset=EpicLink.objects.select_related("epic", "created_by"),
                 )
             )
             .annotate(
@@ -278,7 +278,7 @@ class ModuleViewSet(BaseViewSet):
                         distinct=True,
                         filter=Q(
                             members__id__isnull=False,
-                            modulemember__deleted_at__isnull=True,
+                            epicmember__deleted_at__isnull=True,
                         ),
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
@@ -290,12 +290,12 @@ class ModuleViewSet(BaseViewSet):
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
     def create(self, request, slug, project_id):
         project = Project.objects.get(workspace__slug=slug, pk=project_id)
-        serializer = ModuleWriteSerializer(data=request.data, context={"project": project})
+        serializer = EpicWriteSerializer(data=request.data, context={"project": project})
 
         if serializer.is_valid():
             serializer.save()
 
-            module = (
+            epic = (
                 self.get_queryset()
                 .filter(pk=serializer.data["id"])
                 .values(  # Required fields
@@ -333,8 +333,8 @@ class ModuleViewSet(BaseViewSet):
             ).first()
             # Send the model activity
             model_activity.delay(
-                model_name="module",
-                model_id=str(module["id"]),
+                model_name="epic",
+                model_id=str(epic["id"]),
                 requested_data=request.data,
                 current_instance=None,
                 actor_id=request.user.id,
@@ -342,17 +342,17 @@ class ModuleViewSet(BaseViewSet):
                 origin=base_host(request=request, is_app=True),
             )
             datetime_fields = ["created_at", "updated_at"]
-            module = user_timezone_converter(module, datetime_fields, request.user.user_timezone)
-            return Response(module, status=status.HTTP_201_CREATED)
+            epic = user_timezone_converter(epic, datetime_fields, request.user.user_timezone)
+            return Response(epic, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST])
     def list(self, request, slug, project_id):
         queryset = self.get_queryset().filter(archived_at__isnull=True)
         if self.fields:
-            modules = ModuleSerializer(queryset, many=True, fields=self.fields).data
+            epics = EpicSerializer(queryset, many=True, fields=self.fields).data
         else:
-            modules = queryset.values(  # Required fields
+            epics = queryset.values(  # Required fields
                 "id",
                 "workspace_id",
                 "project_id",
@@ -385,8 +385,8 @@ class ModuleViewSet(BaseViewSet):
                 "updated_at",
             )
             datetime_fields = ["created_at", "updated_at"]
-            modules = user_timezone_converter(modules, datetime_fields, request.user.user_timezone)
-        return Response(modules, status=status.HTTP_200_OK)
+            epics = user_timezone_converter(epics, datetime_fields, request.user.user_timezone)
+        return Response(epics, status=status.HTTP_200_OK)
 
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
     def retrieve(self, request, slug, project_id, pk):
@@ -398,8 +398,8 @@ class ModuleViewSet(BaseViewSet):
                 sub_issues=Issue.issue_objects.filter(
                     project_id=self.kwargs.get("project_id"),
                     parent__isnull=False,
-                    issue_module__module_id=pk,
-                    issue_module__deleted_at__isnull=True,
+                    issue_epic__epic_id=pk,
+                    issue_epic__deleted_at__isnull=True,
                 )
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
@@ -408,7 +408,7 @@ class ModuleViewSet(BaseViewSet):
         )
 
         if not queryset.exists():
-            return Response({"error": "Module not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Epic not found"}, status=status.HTTP_404_NOT_FOUND)
 
         estimate_type = Project.objects.filter(
             workspace__slug=slug,
@@ -417,16 +417,16 @@ class ModuleViewSet(BaseViewSet):
             estimate__type="points",
         ).exists()
 
-        data = ModuleDetailSerializer(queryset.first()).data
-        modules = queryset.first()
+        data = EpicDetailSerializer(queryset.first()).data
+        epics = queryset.first()
 
         data["estimate_distribution"] = {}
 
         if estimate_type:
             assignee_distribution = (
                 Issue.issue_objects.filter(
-                    issue_module__module_id=pk,
-                    issue_module__deleted_at__isnull=True,
+                    issue_epic__epic_id=pk,
+                    issue_epic__deleted_at__isnull=True,
                     workspace__slug=slug,
                     project_id=project_id,
                 )
@@ -487,8 +487,8 @@ class ModuleViewSet(BaseViewSet):
 
             label_distribution = (
                 Issue.issue_objects.filter(
-                    issue_module__module_id=pk,
-                    issue_module__deleted_at__isnull=True,
+                    issue_epic__epic_id=pk,
+                    issue_epic__deleted_at__isnull=True,
                     workspace__slug=slug,
                     project_id=project_id,
                 )
@@ -522,19 +522,19 @@ class ModuleViewSet(BaseViewSet):
             data["estimate_distribution"]["assignees"] = assignee_distribution
             data["estimate_distribution"]["labels"] = label_distribution
 
-            if modules and modules.start_date and modules.target_date:
+            if epics and epics.start_date and epics.target_date:
                 data["estimate_distribution"]["completion_chart"] = burndown_plot(
-                    queryset=modules,
+                    queryset=epics,
                     slug=slug,
                     project_id=project_id,
                     plot_type="points",
-                    module_id=pk,
+                    epic_id=pk,
                 )
 
         assignee_distribution = (
             Issue.issue_objects.filter(
-                issue_module__module_id=pk,
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=pk,
+                issue_epic__deleted_at__isnull=True,
                 workspace__slug=slug,
                 project_id=project_id,
             )
@@ -586,8 +586,8 @@ class ModuleViewSet(BaseViewSet):
 
         label_distribution = (
             Issue.issue_objects.filter(
-                issue_module__module_id=pk,
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=pk,
+                issue_epic__deleted_at__isnull=True,
                 workspace__slug=slug,
                 project_id=project_id,
             )
@@ -625,18 +625,18 @@ class ModuleViewSet(BaseViewSet):
             "completion_chart": {},
         }
 
-        if modules and modules.start_date and modules.target_date and modules.total_issues > 0:
+        if epics and epics.start_date and epics.target_date and epics.total_issues > 0:
             data["distribution"]["completion_chart"] = burndown_plot(
-                queryset=modules,
+                queryset=epics,
                 slug=slug,
                 project_id=project_id,
                 plot_type="issues",
-                module_id=pk,
+                epic_id=pk,
             )
 
         recent_visited_task.delay(
             slug=slug,
-            entity_name="module",
+            entity_name="epic",
             entity_identifier=pk,
             user_id=request.user.id,
             project_id=project_id,
@@ -646,27 +646,27 @@ class ModuleViewSet(BaseViewSet):
 
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
     def partial_update(self, request, slug, project_id, pk):
-        module_queryset = self.get_queryset().filter(pk=pk)
+        epic_queryset = self.get_queryset().filter(pk=pk)
 
-        current_module = module_queryset.first()
+        current_epic = epic_queryset.first()
 
-        if not current_module:
+        if not current_epic:
             return Response(
-                {"error": "Module not found"},
+                {"error": "Epic not found"},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if current_module.archived_at:
+        if current_epic.archived_at:
             return Response(
-                {"error": "Archived module cannot be updated"},
+                {"error": "Archived epic cannot be updated"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        current_instance = json.dumps(ModuleSerializer(current_module).data, cls=DjangoJSONEncoder)
-        serializer = ModuleWriteSerializer(current_module, data=request.data, partial=True)
+        current_instance = json.dumps(EpicSerializer(current_epic).data, cls=DjangoJSONEncoder)
+        serializer = EpicWriteSerializer(current_epic, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
-            module = module_queryset.values(
+            epic = epic_queryset.values(
                 # Required fields
                 "id",
                 "workspace_id",
@@ -702,8 +702,8 @@ class ModuleViewSet(BaseViewSet):
 
             # Send the model activity
             model_activity.delay(
-                model_name="module",
-                model_id=str(module["id"]),
+                model_name="epic",
+                model_id=str(epic["id"]),
                 requested_data=request.data,
                 current_instance=current_instance,
                 actor_id=request.user.id,
@@ -712,59 +712,59 @@ class ModuleViewSet(BaseViewSet):
             )
 
             datetime_fields = ["created_at", "updated_at"]
-            module = user_timezone_converter(module, datetime_fields, request.user.user_timezone)
-            return Response(module, status=status.HTTP_200_OK)
+            epic = user_timezone_converter(epic, datetime_fields, request.user.user_timezone)
+            return Response(epic, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @allow_permission([ROLE.ADMIN], creator=True, model=Module)
+    @allow_permission([ROLE.ADMIN], creator=True, model=Epic)
     def destroy(self, request, slug, project_id, pk):
-        module = Module.objects.get(workspace__slug=slug, project_id=project_id, pk=pk)
+        epic = Epic.objects.get(workspace__slug=slug, project_id=project_id, pk=pk)
 
-        module_issues = list(ModuleIssue.objects.filter(module_id=pk).values_list("issue", flat=True))
+        epic_issues = list(EpicIssue.objects.filter(epic_id=pk).values_list("issue", flat=True))
         _ = [
             issue_activity.delay(
-                type="module.activity.deleted",
-                requested_data=json.dumps({"module_id": str(pk)}),
+                type="epic.activity.deleted",
+                requested_data=json.dumps({"epic_id": str(pk)}),
                 actor_id=str(request.user.id),
                 issue_id=str(issue),
                 project_id=project_id,
-                current_instance=json.dumps({"module_name": str(module.name)}),
+                current_instance=json.dumps({"epic_name": str(epic.name)}),
                 epoch=int(timezone.now().timestamp()),
                 notification=True,
                 origin=base_host(request=request, is_app=True),
             )
-            for issue in module_issues
+            for issue in epic_issues
         ]
-        module.delete()
-        # Delete the module issues
-        ModuleIssue.objects.filter(module=pk, project_id=project_id).delete()
-        # Delete the user favorite module
+        epic.delete()
+        # Delete the epic issues
+        EpicIssue.objects.filter(epic=pk, project_id=project_id).delete()
+        # Delete the user favorite epic
         UserFavorite.objects.filter(
             user=request.user,
-            entity_type="module",
+            entity_type="epic",
             entity_identifier=pk,
             project_id=project_id,
         ).delete()
-        # delete the module from recent visits
+        # delete the epic from recent visits
         UserRecentVisit.objects.filter(
             project_id=project_id,
             workspace__slug=slug,
             entity_identifier=pk,
-            entity_name="module",
+            entity_name="epic",
         ).delete(soft=False)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ModuleLinkViewSet(BaseViewSet):
+class EpicLinkViewSet(BaseViewSet):
     permission_classes = [ProjectEntityPermission]
 
-    model = ModuleLink
-    serializer_class = ModuleLinkSerializer
+    model = EpicLink
+    serializer_class = EpicLinkSerializer
 
     def perform_create(self, serializer):
         serializer.save(
             project_id=self.kwargs.get("project_id"),
-            module_id=self.kwargs.get("module_id"),
+            epic_id=self.kwargs.get("epic_id"),
         )
 
     def get_queryset(self):
@@ -773,7 +773,7 @@ class ModuleLinkViewSet(BaseViewSet):
             .get_queryset()
             .filter(workspace__slug=self.kwargs.get("slug"))
             .filter(project_id=self.kwargs.get("project_id"))
-            .filter(module_id=self.kwargs.get("module_id"))
+            .filter(epic_id=self.kwargs.get("epic_id"))
             .filter(
                 project__project_projectmember__member=self.request.user,
                 project__project_projectmember__is_active=True,
@@ -784,7 +784,7 @@ class ModuleLinkViewSet(BaseViewSet):
         )
 
 
-class ModuleFavoriteViewSet(BaseViewSet):
+class EpicFavoriteViewSet(BaseViewSet):
     model = UserFavorite
     permission_classes = [ProjectLitePermission]
 
@@ -794,58 +794,58 @@ class ModuleFavoriteViewSet(BaseViewSet):
             .get_queryset()
             .filter(workspace__slug=self.kwargs.get("slug"))
             .filter(user=self.request.user)
-            .select_related("module")
+            .select_related("epic")
         )
 
     def create(self, request, slug, project_id):
         _ = UserFavorite.objects.create(
             project_id=project_id,
             user=request.user,
-            entity_type="module",
-            entity_identifier=request.data.get("module"),
+            entity_type="epic",
+            entity_identifier=request.data.get("epic"),
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def destroy(self, request, slug, project_id, module_id):
-        module_favorite = UserFavorite.objects.get(
+    def destroy(self, request, slug, project_id, epic_id):
+        epic_favorite = UserFavorite.objects.get(
             project_id=project_id,
             user=request.user,
             workspace__slug=slug,
-            entity_type="module",
-            entity_identifier=module_id,
+            entity_type="epic",
+            entity_identifier=epic_id,
         )
-        module_favorite.delete(soft=False)
+        epic_favorite.delete(soft=False)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ModuleUserPropertiesEndpoint(BaseAPIView):
+class EpicUserPropertiesEndpoint(BaseAPIView):
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST])
-    def patch(self, request, slug, project_id, module_id):
-        module_properties = ModuleUserProperties.objects.get(
+    def patch(self, request, slug, project_id, epic_id):
+        epic_properties = EpicUserProperties.objects.get(
             user=request.user,
-            module_id=module_id,
+            epic_id=epic_id,
             project_id=project_id,
             workspace__slug=slug,
         )
 
-        module_properties.filters = request.data.get("filters", module_properties.filters)
-        module_properties.rich_filters = request.data.get("rich_filters", module_properties.rich_filters)
-        module_properties.display_filters = request.data.get("display_filters", module_properties.display_filters)
-        module_properties.display_properties = request.data.get(
-            "display_properties", module_properties.display_properties
+        epic_properties.filters = request.data.get("filters", epic_properties.filters)
+        epic_properties.rich_filters = request.data.get("rich_filters", epic_properties.rich_filters)
+        epic_properties.display_filters = request.data.get("display_filters", epic_properties.display_filters)
+        epic_properties.display_properties = request.data.get(
+            "display_properties", epic_properties.display_properties
         )
-        module_properties.save()
+        epic_properties.save()
 
-        serializer = ModuleUserPropertiesSerializer(module_properties)
+        serializer = EpicUserPropertiesSerializer(epic_properties)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST])
-    def get(self, request, slug, project_id, module_id):
-        module_properties, _ = ModuleUserProperties.objects.get_or_create(
+    def get(self, request, slug, project_id, epic_id):
+        epic_properties, _ = EpicUserProperties.objects.get_or_create(
             user=request.user,
             project_id=project_id,
-            module_id=module_id,
+            epic_id=epic_id,
             workspace__slug=slug,
         )
-        serializer = ModuleUserPropertiesSerializer(module_properties)
+        serializer = EpicUserPropertiesSerializer(epic_properties)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -29,7 +29,7 @@ from plane.utils.content_validator import (
 
 from .base import BaseSerializer
 from .sprint import SprintLiteSerializer, SprintSerializer
-from .module import ModuleLiteSerializer, ModuleSerializer
+from .epic import EpicLiteSerializer, EpicSerializer
 from .state import StateLiteSerializer
 from .user import UserLiteSerializer
 
@@ -592,18 +592,18 @@ class SprintIssueSerializer(BaseSerializer):
         fields = ["sprint"]
 
 
-class ModuleIssueSerializer(BaseSerializer):
+class EpicIssueSerializer(BaseSerializer):
     """
-    Serializer for work items within modules.
+    Serializer for work items within epics.
 
-    Provides module context for work items including module metadata
+    Provides epic context for work items including epic metadata
     and organizational information for feature-based work grouping.
     """
 
-    module = ModuleSerializer(read_only=True)
+    epic = EpicSerializer(read_only=True)
 
     class Meta:
-        fields = ["module"]
+        fields = ["epic"]
 
 
 class LabelLiteSerializer(BaseSerializer):
@@ -623,12 +623,12 @@ class IssueExpandSerializer(BaseSerializer):
     """
     Extended work item serializer with full relationship expansion.
 
-    Provides work items with expanded related data including sprints, modules,
+    Provides work items with expanded related data including sprints, epics,
     labels, assignees, and states for comprehensive data representation.
     """
 
     sprint = SprintLiteSerializer(source="issue_sprint.sprint", read_only=True)
-    module = ModuleLiteSerializer(source="issue_module.module", read_only=True)
+    epic = EpicLiteSerializer(source="issue_epic.epic", read_only=True)
 
     labels = serializers.SerializerMethodField()
     assignees = serializers.SerializerMethodField()

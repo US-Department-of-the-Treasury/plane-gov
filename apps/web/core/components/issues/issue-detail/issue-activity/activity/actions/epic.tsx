@@ -1,6 +1,6 @@
 import { observer } from "mobx-react";
 // hooks
-import { ModuleIcon } from "@plane/propel/icons";
+import { EpicIcon } from "@plane/propel/icons";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 // components
 import { IssueActivityBlockComponent } from "./";
@@ -20,16 +20,16 @@ export const IssueEpicActivity = observer(function IssueEpicActivity(props: TIss
   if (!activity) return <></>;
   return (
     <IssueActivityBlockComponent
-      icon={<ModuleIcon className="h-4 w-4 flex-shrink-0 text-secondary" />}
+      icon={<EpicIcon className="h-4 w-4 flex-shrink-0 text-secondary" />}
       activityId={activityId}
       ends={ends}
     >
       <>
         {activity.verb === "created" ? (
           <>
-            <span>added this work item to the module </span>
+            <span>added this work item to the epic </span>
             <a
-              href={`/${activity.workspace_detail?.slug}/projects/${activity.project}/modules/${activity.new_identifier}`}
+              href={`/${activity.workspace_detail?.slug}/projects/${activity.project}/epics/${activity.new_identifier}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 truncate font-medium text-primary hover:underline"
@@ -39,9 +39,9 @@ export const IssueEpicActivity = observer(function IssueEpicActivity(props: TIss
           </>
         ) : activity.verb === "updated" ? (
           <>
-            <span>set the module to </span>
+            <span>set the epic to </span>
             <a
-              href={`/${activity.workspace_detail?.slug}/projects/${activity.project}/modules/${activity.new_identifier}`}
+              href={`/${activity.workspace_detail?.slug}/projects/${activity.project}/epics/${activity.new_identifier}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 truncate font-medium text-primary hover:underline"
@@ -51,9 +51,9 @@ export const IssueEpicActivity = observer(function IssueEpicActivity(props: TIss
           </>
         ) : (
           <>
-            <span>removed the work item from the module </span>
+            <span>removed the work item from the epic </span>
             <a
-              href={`/${activity.workspace_detail?.slug}/projects/${activity.project}/modules/${activity.old_identifier}`}
+              href={`/${activity.workspace_detail?.slug}/projects/${activity.project}/epics/${activity.old_identifier}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 truncate font-medium text-primary hover:underline"

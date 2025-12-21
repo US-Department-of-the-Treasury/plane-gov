@@ -5,7 +5,7 @@ import type { FieldError, Control } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { EPIC_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { StatePropertyIcon, ModuleStatusIcon } from "@plane/propel/icons";
+import { StatePropertyIcon, EpicStatusIcon } from "@plane/propel/icons";
 import type { IEpic } from "@plane/types";
 // ui
 import { CustomSelect } from "@plane/ui";
@@ -33,7 +33,7 @@ export function EpicStatusSelect({ control, error, tabIndex }: Props) {
             label={
               <div className={`flex items-center justify-center gap-2 text-11 py-0.5 ${error ? "text-red-500" : ""}`}>
                 {value ? (
-                  <ModuleStatusIcon status={value} />
+                  <EpicStatusIcon status={value} />
                 ) : (
                   <StatePropertyIcon className={`h-3 w-3 ${error ? "text-red-500" : "text-secondary"}`} />
                 )}
@@ -49,7 +49,7 @@ export function EpicStatusSelect({ control, error, tabIndex }: Props) {
             {EPIC_STATUS.map((status) => (
               <CustomSelect.Option key={status.value} value={status.value}>
                 <div className="flex items-center gap-2">
-                  <ModuleStatusIcon status={status.value} />
+                  <EpicStatusIcon status={status.value} />
                   {t(status.i18n_label)}
                 </div>
               </CustomSelect.Option>

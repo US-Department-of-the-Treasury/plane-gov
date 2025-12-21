@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from plane.db.models import UserRecentVisit
 from plane.app.serializers import WorkspaceRecentVisitSerializer
 
-# Modules imports
+# Epics imports
 from ..base import BaseViewSet
 from plane.app.permissions import allow_permission, ROLE
 

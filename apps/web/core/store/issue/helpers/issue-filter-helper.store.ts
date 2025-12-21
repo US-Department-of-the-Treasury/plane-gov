@@ -133,7 +133,7 @@ export class IssueFilterHelperStore implements IIssueFilterHelperStore {
     created_by: filters?.created_by || null,
     labels: filters?.labels || null,
     sprint: filters?.sprint || null,
-    epic: filters?.module || null,
+    epic: filters?.epic || null,
     start_date: filters?.start_date || null,
     target_date: filters?.target_date || null,
     project: filters?.project || null,

@@ -51,7 +51,7 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
     issue: {
       addSprintToIssue: addSprintToEpic,
       removeIssueFromSprint: removeEpicFromSprint,
-      changeEpicsInIssue: changeModulesInEpic,
+      changeEpicsInIssue: changeEpicsInEpic,
     },
     subscription: { createSubscription: createEpicSubscription, removeSubscription: removeEpicSubscription },
     updateIssue: updateEpic,
@@ -339,7 +339,7 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
         const epicId = (data as IEpic)?.id;
         if (!workspaceSlug || !entityDetails || !entityDetails.project_id) return;
         // handlers
-        const changeEpicsInEntity = entityDetails.is_epic ? changeModulesInEpic : changeEpicsInIssue;
+        const changeEpicsInEntity = entityDetails.is_epic ? changeEpicsInEpic : changeEpicsInIssue;
         try {
           if (entityDetails.epic_ids?.includes(epicId)) {
             changeEpicsInEntity(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [], [epicId]);

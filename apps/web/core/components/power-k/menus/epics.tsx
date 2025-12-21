@@ -1,7 +1,7 @@
 import React from "react";
 import { observer } from "mobx-react";
 // plane imports
-import { ModuleStatusIcon } from "@plane/propel/icons";
+import { EpicStatusIcon } from "@plane/propel/icons";
 import type { IEpic } from "@plane/types";
 // local imports
 import { PowerKMenuBuilder } from "./builder";
@@ -17,7 +17,7 @@ export const PowerKEpicsMenu = observer(function PowerKEpicsMenu({ epics, onSele
     <PowerKMenuBuilder
       items={epics}
       getKey={(epic) => epic.id}
-      getIconNode={(epic) => <ModuleStatusIcon status={epic.status ?? "backlog"} className="shrink-0 size-3.5" />}
+      getIconNode={(epic) => <EpicStatusIcon status={epic.status ?? "backlog"} className="shrink-0 size-3.5" />}
       getValue={(epic) => epic.name}
       getLabel={(epic) => epic.name}
       isSelected={(epic) => !!value?.includes(epic.id)}

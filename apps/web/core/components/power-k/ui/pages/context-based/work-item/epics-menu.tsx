@@ -5,7 +5,7 @@ import { Spinner } from "@plane/ui";
 // components
 import { PowerKEpicsMenu } from "@/components/power-k/menus/epics";
 // hooks
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 
 type Props = {
   handleSelect: (epic: IEpic) => void;

@@ -9,16 +9,16 @@ export class EpicService extends APIService {
     super(API_BASE_URL);
   }
 
-  async getWorkspaceModules(workspaceSlug: string): Promise<IEpic[]> {
-    return this.get(`/api/workspaces/${workspaceSlug}/modules/`)
+  async getWorkspaceEpics(workspaceSlug: string): Promise<IEpic[]> {
+    return this.get(`/api/workspaces/${workspaceSlug}/epics/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
       });
   }
 
-  async getModules(workspaceSlug: string, projectId: string): Promise<IEpic[]> {
-    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/`)
+  async getEpics(workspaceSlug: string, projectId: string): Promise<IEpic[]> {
+    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -26,7 +26,7 @@ export class EpicService extends APIService {
   }
 
   async createEpic(workspaceSlug: string, projectId: string, data: any): Promise<IEpic> {
-    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/`, data)
+    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -34,7 +34,7 @@ export class EpicService extends APIService {
   }
 
   async updateEpic(workspaceSlug: string, projectId: string, epicId: string, data: any): Promise<any> {
-    return this.put(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/`, data)
+    return this.put(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -42,20 +42,20 @@ export class EpicService extends APIService {
   }
 
   async getEpicDetails(workspaceSlug: string, projectId: string, epicId: string): Promise<IEpic> {
-    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/`)
+    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
       });
   }
 
-  async patchModule(
+  async patchEpic(
     workspaceSlug: string,
     projectId: string,
     epicId: string,
     data: Partial<IEpic>
   ): Promise<IEpic> {
-    return this.patch(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/`, data)
+    return this.patch(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -63,7 +63,7 @@ export class EpicService extends APIService {
   }
 
   async deleteEpic(workspaceSlug: string, projectId: string, epicId: string): Promise<any> {
-    return this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/`)
+    return this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -78,7 +78,7 @@ export class EpicService extends APIService {
     config = {}
   ): Promise<TIssuesResponse> {
     return this.get(
-      `/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/issues/`,
+      `/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/issues/`,
       {
         params: queries,
       },
@@ -90,13 +90,13 @@ export class EpicService extends APIService {
       });
   }
 
-  async addIssuesToModule(
+  async addIssuesToEpic(
     workspaceSlug: string,
     projectId: string,
     epicId: string,
     data: { issues: string[] }
   ): Promise<void> {
-    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/issues/`, data)
+    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/issues/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -107,9 +107,9 @@ export class EpicService extends APIService {
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    data: { modules: string[]; removed_modules?: string[] }
+    data: { epics: string[]; removed_epics?: string[] }
   ): Promise<void> {
-    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/issues/${issueId}/modules/`, data)
+    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/issues/${issueId}/epics/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -125,7 +125,7 @@ export class EpicService extends APIService {
     const promiseDataUrls: any = [];
     issueIds.forEach((issueId) => {
       promiseDataUrls.push(
-        this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/issues/${issueId}/`)
+        this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/issues/${issueId}/`)
       );
     });
     await Promise.all(promiseDataUrls)
@@ -144,7 +144,7 @@ export class EpicService extends APIService {
     const promiseDataUrls: any = [];
     epicIds.forEach((epicId) => {
       promiseDataUrls.push(
-        this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/issues/${issueId}/`)
+        this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/issues/${issueId}/`)
       );
     });
     await Promise.all(promiseDataUrls)
@@ -160,7 +160,7 @@ export class EpicService extends APIService {
     epicId: string,
     data: Partial<EpicLink>
   ): Promise<ILinkDetails> {
-    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/module-links/`, data)
+    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/epic-links/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response;
@@ -175,7 +175,7 @@ export class EpicService extends APIService {
     data: Partial<EpicLink>
   ): Promise<ILinkDetails> {
     return this.patch(
-      `/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/module-links/${linkId}/`,
+      `/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/epic-links/${linkId}/`,
       data
     )
       .then((response) => response?.data)
@@ -186,7 +186,7 @@ export class EpicService extends APIService {
 
   async deleteEpicLink(workspaceSlug: string, projectId: string, epicId: string, linkId: string): Promise<any> {
     return this.delete(
-      `/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/module-links/${linkId}/`
+      `/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/epic-links/${linkId}/`
     )
       .then((response) => response?.data)
       .catch((error) => {
@@ -198,10 +198,10 @@ export class EpicService extends APIService {
     workspaceSlug: string,
     projectId: string,
     data: {
-      module: string;
+      epic: string;
     }
   ): Promise<any> {
-    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/user-favorite-modules/`, data)
+    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/user-favorite-epics/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -209,7 +209,7 @@ export class EpicService extends APIService {
   }
 
   async removeEpicFromFavorites(workspaceSlug: string, projectId: string, epicId: string): Promise<any> {
-    return this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/user-favorite-modules/${epicId}/`)
+    return this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/user-favorite-epics/${epicId}/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;

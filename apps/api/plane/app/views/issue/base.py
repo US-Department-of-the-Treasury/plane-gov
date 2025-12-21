@@ -52,7 +52,7 @@ from plane.db.models import (
     IssueRelation,
     IssueSubscriber,
     IssueUserProperty,
-    ModuleIssue,
+    EpicIssue,
     Project,
     ProjectMember,
     UserRecentVisit,
@@ -99,7 +99,7 @@ class IssueListEndpoint(BaseAPIView):
         # Add select_related, prefetch_related if fields or expand is not None
         if self.fields or self.expand:
             issue_queryset = issue_queryset.select_related("workspace", "project", "state", "parent").prefetch_related(
-                "assignees", "labels", "issue_module__module"
+                "assignees", "labels", "issue_epic__epic"
             )
 
         # Add annotations
@@ -169,7 +169,7 @@ class IssueListEndpoint(BaseAPIView):
                 "project_id",
                 "parent_id",
                 "sprint_id",
-                "module_ids",
+                "epic_ids",
                 "label_ids",
                 "assignee_ids",
                 "sub_issues_count",
@@ -434,7 +434,7 @@ class IssueViewSet(BaseViewSet):
                     "project_id",
                     "parent_id",
                     "sprint_id",
-                    "module_ids",
+                    "epic_ids",
                     "label_ids",
                     "assignee_ids",
                     "sub_issues_count",
@@ -533,14 +533,14 @@ class IssueViewSet(BaseViewSet):
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
                 ),
-                module_ids=Coalesce(
+                epic_ids=Coalesce(
                     Subquery(
-                        ModuleIssue.objects.filter(
+                        EpicIssue.objects.filter(
                             issue_id=OuterRef("pk"),
-                            module__archived_at__isnull=True,
+                            epic__archived_at__isnull=True,
                         )
                         .values("issue_id")
-                        .annotate(arr=ArrayAgg("module_id", distinct=True))
+                        .annotate(arr=ArrayAgg("epic_id", distinct=True))
                         .values("arr")
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
@@ -637,14 +637,14 @@ class IssueViewSet(BaseViewSet):
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
                 ),
-                module_ids=Coalesce(
+                epic_ids=Coalesce(
                     ArrayAgg(
-                        "issue_module__module_id",
+                        "issue_epic__epic_id",
                         distinct=True,
                         filter=Q(
-                            ~Q(issue_module__module_id__isnull=True)
-                            & Q(issue_module__module__archived_at__isnull=True)
-                            & Q(issue_module__deleted_at__isnull=True)
+                            ~Q(issue_epic__epic_id__isnull=True)
+                            & Q(issue_epic__epic__archived_at__isnull=True)
+                            & Q(issue_epic__deleted_at__isnull=True)
                         ),
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
@@ -758,8 +758,8 @@ class BulkDeleteIssuesEndpoint(BaseAPIView):
         # First, delete all related sprint issues
         SprintIssue.objects.filter(issue_id__in=issue_ids).delete()
 
-        # Then, delete all related module issues
-        ModuleIssue.objects.filter(issue_id__in=issue_ids).delete()
+        # Then, delete all related epic issues
+        EpicIssue.objects.filter(issue_id__in=issue_ids).delete()
 
         # Finally, delete the issues themselves
         issues.delete()
@@ -862,7 +862,7 @@ class IssuePaginatedViewSet(BaseViewSet):
             "updated_by",
             "is_draft",
             "archived_at",
-            "module_ids",
+            "epic_ids",
             "label_ids",
             "assignee_ids",
             "link_count",
@@ -919,14 +919,14 @@ class IssuePaginatedViewSet(BaseViewSet):
                 ),
                 Value([], output_field=ArrayField(UUIDField())),
             ),
-            module_ids=Coalesce(
+            epic_ids=Coalesce(
                 Subquery(
-                    ModuleIssue.objects.filter(
+                    EpicIssue.objects.filter(
                         issue_id=OuterRef("pk"),
-                        module__archived_at__isnull=True,
+                        epic__archived_at__isnull=True,
                     )
                     .values("issue_id")
-                    .annotate(arr=ArrayAgg("module_id", distinct=True))
+                    .annotate(arr=ArrayAgg("epic_id", distinct=True))
                     .values("arr")
                 ),
                 Value([], output_field=ArrayField(UUIDField())),
@@ -991,8 +991,8 @@ class IssueDetailEndpoint(BaseAPIView):
             )
             .prefetch_related(
                 Prefetch(
-                    "issue_module",
-                    queryset=ModuleIssue.objects.all(),
+                    "issue_epic",
+                    queryset=EpicIssue.objects.all(),
                 )
             )
         )
@@ -1207,7 +1207,7 @@ class IssueDetailIdentifierEndpoint(BaseAPIView):
             Issue.objects.filter(project_id=project.id)
             .filter(workspace__slug=slug)
             .select_related("workspace", "project", "state", "parent")
-            .prefetch_related("assignees", "labels", "issue_module__module")
+            .prefetch_related("assignees", "labels", "issue_epic__epic")
             .annotate(sprint_id=Subquery(SprintIssue.objects.filter(issue=OuterRef("id")).values("sprint_id")[:1]))
             .annotate(
                 link_count=IssueLink.objects.filter(issue=OuterRef("id"))
@@ -1252,14 +1252,14 @@ class IssueDetailIdentifierEndpoint(BaseAPIView):
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
                 ),
-                module_ids=Coalesce(
+                epic_ids=Coalesce(
                     ArrayAgg(
-                        "issue_module__module_id",
+                        "issue_epic__epic_id",
                         distinct=True,
                         filter=Q(
-                            ~Q(issue_module__module_id__isnull=True)
-                            & Q(issue_module__module__archived_at__isnull=True)
-                            & Q(issue_module__deleted_at__isnull=True)
+                            ~Q(issue_epic__epic_id__isnull=True)
+                            & Q(issue_epic__epic__archived_at__isnull=True)
+                            & Q(issue_epic__deleted_at__isnull=True)
                         ),
                     ),
                     Value([], output_field=ArrayField(UUIDField())),

@@ -16,7 +16,7 @@ type Props = {
   fullScreen: boolean;
   projectDetails: IProject | undefined;
   sprintDetails: ISprint | undefined;
-  epicDetails: IModule | undefined;
+  epicDetails: IEpic | undefined;
   isEpic?: boolean;
 };
 
@@ -38,7 +38,7 @@ export const WorkItemsModalMainContent = observer(function WorkItemsModalMainCon
       updateSelectedSprint(sprintDetails.id);
     }
 
-    // Handle module selection
+    // Handle epic selection
     if (epicDetails?.id) {
       updateSelectedEpic(epicDetails.id);
     }

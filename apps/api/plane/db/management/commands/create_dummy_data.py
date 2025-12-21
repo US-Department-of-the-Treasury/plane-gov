@@ -46,7 +46,7 @@ class Command(BaseCommand):
                 print(f"Please provide the following details for project {i + 1}:")
                 issue_count = int(input("Number of issues to be created: "))
                 sprint_count = int(input("Number of sprints to be created: "))
-                module_count = int(input("Number of modules to be created: "))
+                epic_count = int(input("Number of epics to be created: "))
                 pages_count = int(input("Number of pages to be created: "))
                 intake_issue_count = int(input("Number of intake issues to be created: "))
 
@@ -58,7 +58,7 @@ class Command(BaseCommand):
                     members=members,
                     issue_count=issue_count,
                     sprint_count=sprint_count,
-                    module_count=module_count,
+                    epic_count=epic_count,
                     pages_count=pages_count,
                     intake_issue_count=intake_issue_count,
                 )

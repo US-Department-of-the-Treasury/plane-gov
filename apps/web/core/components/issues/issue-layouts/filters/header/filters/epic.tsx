@@ -3,7 +3,7 @@ import { sortBy } from "lodash-es";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // components
-import { ModuleIcon } from "@plane/propel/icons";
+import { EpicIcon } from "@plane/propel/icons";
 import { Loader } from "@plane/ui";
 import { FilterHeader, FilterOption } from "@/components/issues/issue-layouts/filters";
 import { useEpic } from "@/hooks/store/use-epic";
@@ -15,7 +15,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterModule = observer(function FilterModule(props: Props) {
+export const FilterEpic = observer(function FilterEpic(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
   // hooks
   const { projectId } = useParams();
@@ -25,17 +25,17 @@ export const FilterModule = observer(function FilterModule(props: Props) {
   const [previewEnabled, setPreviewEnabled] = useState(true);
 
   const epicIds = projectId ? getProjectEpicIds(projectId.toString()) : undefined;
-  const modules = epicIds?.map((epicId) => getEpicById(epicId)!) ?? null;
+  const epics = epicIds?.map((epicId) => getEpicById(epicId)!) ?? null;
   const appliedFiltersCount = appliedFilters?.length ?? 0;
 
   const sortedOptions = useMemo(() => {
-    const filteredOptions = (modules || []).filter((module) =>
-      module.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredOptions = (epics || []).filter((epic) =>
+      epic.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return sortBy(filteredOptions, [
-      (module) => !appliedFilters?.includes(module.id),
-      (module) => module.name.toLowerCase(),
+      (epic) => !appliedFilters?.includes(epic.id),
+      (epic) => epic.name.toLowerCase(),
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
@@ -50,7 +50,7 @@ export const FilterModule = observer(function FilterModule(props: Props) {
   return (
     <>
       <FilterHeader
-        title={`Module ${appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : ""}`}
+        title={`Epic ${appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : ""}`}
         isPreviewEnabled={previewEnabled}
         handleIsPreviewEnabled={() => setPreviewEnabled(!previewEnabled)}
       />
@@ -59,13 +59,13 @@ export const FilterModule = observer(function FilterModule(props: Props) {
           {sortedOptions ? (
             sortedOptions.length > 0 ? (
               <>
-                {sortedOptions.slice(0, itemsToRender).map((sprint) => (
+                {sortedOptions.slice(0, itemsToRender).map((epic) => (
                   <FilterOption
-                    key={sprint.id}
-                    isChecked={appliedFilters?.includes(sprint.id) ? true : false}
-                    onClick={() => handleUpdate(sprint.id)}
-                    icon={<ModuleIcon className="h-3 w-3 flex-shrink-0" />}
-                    title={sprint.name}
+                    key={epic.id}
+                    isChecked={appliedFilters?.includes(epic.id) ? true : false}
+                    onClick={() => handleUpdate(epic.id)}
+                    icon={<EpicIcon className="h-3 w-3 flex-shrink-0" />}
+                    title={epic.name}
                   />
                 ))}
                 {sortedOptions.length > 5 && (

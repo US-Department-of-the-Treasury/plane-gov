@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 // plane imports
-import { SprintIcon, IntakeIcon, ModuleIcon, PageIcon, ViewsIcon } from "@plane/propel/icons";
+import { SprintIcon, IntakeIcon, EpicIcon, PageIcon, ViewsIcon } from "@plane/propel/icons";
 import type { IProject } from "@plane/types";
 
 export type TProperties = {
@@ -15,7 +15,7 @@ export type TProperties = {
   href?: string;
 };
 
-type TProjectBaseFeatureKeys = "sprints" | "modules" | "views" | "pages" | "inbox";
+type TProjectBaseFeatureKeys = "sprints" | "epics" | "views" | "pages" | "inbox";
 
 type TBaseFeatureList = {
   [key in TProjectBaseFeatureKeys]: TProperties;
@@ -31,12 +31,12 @@ export const PROJECT_BASE_FEATURES_LIST: TBaseFeatureList = {
     isPro: false,
     isEnabled: true,
   },
-  modules: {
-    key: "modules",
+  epics: {
+    key: "epics",
     property: "epic_view",
     title: "Epics",
     description: "Group work into sub-project-like set-ups with their own leads and assignees.",
-    icon: <ModuleIcon width={20} height={20} className="flex-shrink-0 text-tertiary" />,
+    icon: <EpicIcon width={20} height={20} className="flex-shrink-0 text-tertiary" />,
     isPro: false,
     isEnabled: true,
   },

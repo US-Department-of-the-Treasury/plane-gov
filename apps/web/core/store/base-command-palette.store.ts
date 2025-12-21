@@ -203,7 +203,7 @@ export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStor
   };
 
   /**
-   * Toggles the create module modal
+   * Toggles the create epic modal
    * @param value
    * @returns
    */

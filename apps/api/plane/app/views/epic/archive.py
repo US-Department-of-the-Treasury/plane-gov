@@ -25,8 +25,8 @@ from django.db import models
 from rest_framework import status
 from rest_framework.response import Response
 from plane.app.permissions import ProjectEntityPermission
-from plane.app.serializers import ModuleDetailSerializer
-from plane.db.models import Issue, Module, ModuleLink, UserFavorite, Project
+from plane.app.serializers import EpicDetailSerializer
+from plane.db.models import Issue, Epic, EpicLink, UserFavorite, Project
 from plane.utils.analytics_plot import burndown_plot
 from plane.utils.timezone_converter import user_timezone_converter
 
@@ -35,13 +35,13 @@ from plane.utils.timezone_converter import user_timezone_converter
 from .. import BaseAPIView
 
 
-class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
+class EpicArchiveUnarchiveEndpoint(BaseAPIView):
     permission_classes = [ProjectEntityPermission]
 
     def get_queryset(self):
         favorite_subquery = UserFavorite.objects.filter(
             user=self.request.user,
-            entity_type="module",
+            entity_type="epic",
             entity_identifier=OuterRef("pk"),
             project_id=self.kwargs.get("project_id"),
             workspace__slug=self.kwargs.get("slug"),
@@ -49,59 +49,59 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
         cancelled_issues = (
             Issue.issue_objects.filter(
                 state__group="cancelled",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
         completed_issues = (
             Issue.issue_objects.filter(
                 state__group="completed",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
         started_issues = (
             Issue.issue_objects.filter(
                 state__group="started",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
         unstarted_issues = (
             Issue.issue_objects.filter(
                 state__group="unstarted",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
         backlog_issues = (
             Issue.issue_objects.filter(
                 state__group="backlog",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
         total_issues = (
             Issue.issue_objects.filter(
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cnt=Count("pk"))
             .values("cnt")
         )
@@ -109,10 +109,10 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
                 state__group="completed",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(completed_estimate_points=Sum(Cast("estimate_point__value", FloatField())))
             .values("completed_estimate_points")[:1]
         )
@@ -120,10 +120,10 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
         total_estimate_point = (
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(total_estimate_points=Sum(Cast("estimate_point__value", FloatField())))
             .values("total_estimate_points")[:1]
         )
@@ -131,10 +131,10 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
                 state__group="backlog",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(backlog_estimate_point=Sum(Cast("estimate_point__value", FloatField())))
             .values("backlog_estimate_point")[:1]
         )
@@ -142,10 +142,10 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
                 state__group="unstarted",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(unstarted_estimate_point=Sum(Cast("estimate_point__value", FloatField())))
             .values("unstarted_estimate_point")[:1]
         )
@@ -153,10 +153,10 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
                 state__group="started",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(started_estimate_point=Sum(Cast("estimate_point__value", FloatField())))
             .values("started_estimate_point")[:1]
         )
@@ -164,15 +164,15 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
                 state__group="cancelled",
-                issue_module__module_id=OuterRef("pk"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=OuterRef("pk"),
+                issue_epic__deleted_at__isnull=True,
             )
-            .values("issue_module__module_id")
+            .values("issue_epic__epic_id")
             .annotate(cancelled_estimate_point=Sum(Cast("estimate_point__value", FloatField())))
             .values("cancelled_estimate_point")[:1]
         )
         return (
-            Module.objects.filter(workspace__slug=self.kwargs.get("slug"))
+            Epic.objects.filter(workspace__slug=self.kwargs.get("slug"))
             .filter(project_id=self.kwargs.get("project_id"))
             .filter(archived_at__isnull=False)
             .annotate(is_favorite=Exists(favorite_subquery))
@@ -180,8 +180,8 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
             .prefetch_related("members")
             .prefetch_related(
                 Prefetch(
-                    "link_module",
-                    queryset=ModuleLink.objects.select_related("module", "created_by"),
+                    "link_epic",
+                    queryset=EpicLink.objects.select_related("epic", "created_by"),
                 )
             )
             .annotate(
@@ -254,7 +254,7 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
     def get(self, request, slug, project_id, pk=None):
         if pk is None:
             queryset = self.get_queryset()
-            modules = queryset.values(  # Required fields
+            epics = queryset.values(  # Required fields
                 "id",
                 "workspace_id",
                 "project_id",
@@ -285,8 +285,8 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
                 "archived_at",
             )
             datetime_fields = ["created_at", "updated_at"]
-            modules = user_timezone_converter(modules, datetime_fields, request.user.user_timezone)
-            return Response(modules, status=status.HTTP_200_OK)
+            epics = user_timezone_converter(epics, datetime_fields, request.user.user_timezone)
+            return Response(epics, status=status.HTTP_200_OK)
         else:
             queryset = (
                 self.get_queryset()
@@ -295,8 +295,8 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
                     sub_issues=Issue.issue_objects.filter(
                         project_id=self.kwargs.get("project_id"),
                         parent__isnull=False,
-                        issue_module__module_id=pk,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__epic_id=pk,
+                        issue_epic__deleted_at__isnull=True,
                     )
                     .order_by()
                     .annotate(count=Func(F("id"), function="Count"))
@@ -311,16 +311,16 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
                 estimate__type="points",
             ).exists()
 
-            data = ModuleDetailSerializer(queryset.first()).data
-            modules = queryset.first()
+            data = EpicDetailSerializer(queryset.first()).data
+            epics = queryset.first()
 
             data["estimate_distribution"] = {}
 
             if estimate_type:
                 assignee_distribution = (
                     Issue.issue_objects.filter(
-                        issue_module__module_id=pk,
-                        issue_module__deleted_at__isnull=True,
+                        issue_epic__epic_id=pk,
+                        issue_epic__deleted_at__isnull=True,
                         workspace__slug=slug,
                         project_id=project_id,
                     )
@@ -381,7 +381,7 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
 
                 label_distribution = (
                     Issue.issue_objects.filter(
-                        issue_module__module_id=pk,
+                        issue_epic__epic_id=pk,
                         workspace__slug=slug,
                         project_id=project_id,
                     )
@@ -415,19 +415,19 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
                 data["estimate_distribution"]["assignees"] = assignee_distribution
                 data["estimate_distribution"]["labels"] = label_distribution
 
-                if modules and modules.start_date and modules.target_date:
+                if epics and epics.start_date and epics.target_date:
                     data["estimate_distribution"]["completion_chart"] = burndown_plot(
-                        queryset=modules,
+                        queryset=epics,
                         slug=slug,
                         project_id=project_id,
                         plot_type="points",
-                        module_id=pk,
+                        epic_id=pk,
                     )
 
             assignee_distribution = (
                 Issue.issue_objects.filter(
-                    issue_module__module_id=pk,
-                    issue_module__deleted_at__isnull=True,
+                    issue_epic__epic_id=pk,
+                    issue_epic__deleted_at__isnull=True,
                     workspace__slug=slug,
                     project_id=project_id,
                 )
@@ -488,8 +488,8 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
 
             label_distribution = (
                 Issue.issue_objects.filter(
-                    issue_module__module_id=pk,
-                    issue_module__deleted_at__isnull=True,
+                    issue_epic__epic_id=pk,
+                    issue_epic__deleted_at__isnull=True,
                     workspace__slug=slug,
                     project_id=project_id,
                 )
@@ -526,36 +526,36 @@ class ModuleArchiveUnarchiveEndpoint(BaseAPIView):
                 "labels": label_distribution,
                 "completion_chart": {},
             }
-            if modules and modules.start_date and modules.target_date:
+            if epics and epics.start_date and epics.target_date:
                 data["distribution"]["completion_chart"] = burndown_plot(
-                    queryset=modules,
+                    queryset=epics,
                     slug=slug,
                     project_id=project_id,
                     plot_type="issues",
-                    module_id=pk,
+                    epic_id=pk,
                 )
 
             return Response(data, status=status.HTTP_200_OK)
 
-    def post(self, request, slug, project_id, module_id):
-        module = Module.objects.get(pk=module_id, project_id=project_id, workspace__slug=slug)
-        if module.status not in ["completed", "cancelled"]:
+    def post(self, request, slug, project_id, epic_id):
+        epic = Epic.objects.get(pk=epic_id, project_id=project_id, workspace__slug=slug)
+        if epic.status not in ["completed", "cancelled"]:
             return Response(
-                {"error": "Only completed or cancelled modules can be archived"},
+                {"error": "Only completed or cancelled epics can be archived"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        module.archived_at = timezone.now()
-        module.save()
+        epic.archived_at = timezone.now()
+        epic.save()
         UserFavorite.objects.filter(
-            entity_type="module",
-            entity_identifier=module_id,
+            entity_type="epic",
+            entity_identifier=epic_id,
             project_id=project_id,
             workspace__slug=slug,
         ).delete()
-        return Response({"archived_at": str(module.archived_at)}, status=status.HTTP_200_OK)
+        return Response({"archived_at": str(epic.archived_at)}, status=status.HTTP_200_OK)
 
-    def delete(self, request, slug, project_id, module_id):
-        module = Module.objects.get(pk=module_id, project_id=project_id, workspace__slug=slug)
-        module.archived_at = None
-        module.save()
+    def delete(self, request, slug, project_id, epic_id):
+        epic = Epic.objects.get(pk=epic_id, project_id=project_id, workspace__slug=slug)
+        epic.archived_at = None
+        epic.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

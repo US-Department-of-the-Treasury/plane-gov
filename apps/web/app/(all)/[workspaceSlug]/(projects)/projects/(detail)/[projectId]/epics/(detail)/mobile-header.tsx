@@ -14,7 +14,7 @@ import { DisplayFiltersSelection, FiltersDropdown } from "@/components/issues/is
 import { IssueLayoutIcon } from "@/components/issues/issue-layouts/layout-icon";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 
 const SUPPORTED_LAYOUTS = [
@@ -23,7 +23,7 @@ const SUPPORTED_LAYOUTS = [
   { key: "calendar", i18n_title: "issue.layouts.calendar", icon: CalendarLayoutIcon },
 ];
 
-export const ModuleIssuesMobileHeader = observer(function ModuleIssuesMobileHeader() {
+export const EpicIssuesMobileHeader = observer(function EpicIssuesMobileHeader() {
   // router
   const { workspaceSlug, projectId, epicId } = useParams();
   // states

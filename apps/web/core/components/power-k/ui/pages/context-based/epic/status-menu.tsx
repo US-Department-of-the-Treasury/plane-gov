@@ -3,7 +3,7 @@ import { observer } from "mobx-react";
 // plane imports
 import { EPIC_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { ModuleStatusIcon } from "@plane/propel/icons";
+import { EpicStatusIcon } from "@plane/propel/icons";
 import type { TEpicStatus } from "@plane/types";
 // local imports
 import { PowerKModalCommandItem } from "../../../modal/command-item";
@@ -23,7 +23,7 @@ export const PowerKEpicStatusMenu = observer(function PowerKEpicStatusMenu(props
       {EPIC_STATUS.map((status) => (
         <PowerKModalCommandItem
           key={status.value}
-          iconNode={<ModuleStatusIcon status={status.value} className="shrink-0 size-3.5" />}
+          iconNode={<EpicStatusIcon status={status.value} className="shrink-0 size-3.5" />}
           label={t(status.i18n_label)}
           isSelected={status.value === value}
           onSelect={() => handleSelect(status.value)}

@@ -8,7 +8,7 @@ import { EmptyStateDetailed } from "@plane/propel/empty-state";
 import type { TSprintFilters } from "@plane/types";
 import { calculateTotalFilters } from "@plane/utils";
 // components
-import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
+import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";

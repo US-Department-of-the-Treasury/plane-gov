@@ -39,14 +39,14 @@ export const FilterDisplayProperties = observer(function FilterDisplayProperties
   // derived values
   const projectId = routerProjectId ? routerProjectId?.toString() : undefined;
 
-  // Filter out "sprint" and "module" keys if sprintViewDisabled or epicViewDisabled is true
+  // Filter out "sprint" and "epics" keys if sprintViewDisabled or epicViewDisabled is true
   // Also filter out display properties that should not be rendered
   const filteredDisplayProperties = ISSUE_DISPLAY_PROPERTIES.filter((property) => {
     if (!displayPropertiesToRender.includes(property.key)) return false;
     switch (property.key) {
       case "sprint":
         return !sprintViewDisabled;
-      case "modules":
+      case "epics":
         return !epicViewDisabled;
       default:
         return shouldRenderDisplayProperty({ workspaceSlug: workspaceSlug?.toString(), projectId, key: property.key });

@@ -9,7 +9,7 @@ import requests
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module import
+# Epic import
 from plane.app.permissions import ROLE, allow_permission
 from plane.app.serializers import ProjectLiteSerializer, WorkspaceLiteSerializer
 from plane.db.models import Project, Workspace

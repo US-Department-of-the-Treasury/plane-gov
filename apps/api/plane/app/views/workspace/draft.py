@@ -28,7 +28,7 @@ from plane.db.models import (
     Issue,
     DraftIssue,
     SprintIssue,
-    ModuleIssue,
+    EpicIssue,
     DraftIssueSprint,
     Workspace,
     FileAsset,
@@ -46,7 +46,7 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
         return (
             DraftIssue.objects.filter(workspace__slug=self.kwargs.get("slug"))
             .select_related("workspace", "project", "state", "parent")
-            .prefetch_related("assignees", "labels", "draft_issue_module__module")
+            .prefetch_related("assignees", "labels", "draft_issue_epic__epic")
             .annotate(
                 sprint_id=Subquery(
                     DraftIssueSprint.objects.filter(draft_issue=OuterRef("id"), deleted_at__isnull=True).values(
@@ -75,14 +75,14 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
                 ),
-                module_ids=Coalesce(
+                epic_ids=Coalesce(
                     ArrayAgg(
-                        "draft_issue_module__module_id",
+                        "draft_issue_epic__epic_id",
                         distinct=True,
                         filter=Q(
-                            ~Q(draft_issue_module__module_id__isnull=True)
-                            & Q(draft_issue_module__module__archived_at__isnull=True)
-                            & Q(draft_issue_module__deleted_at__isnull=True)
+                            ~Q(draft_issue_epic__epic_id__isnull=True)
+                            & Q(draft_issue_epic__epic__archived_at__isnull=True)
+                            & Q(draft_issue_epic__deleted_at__isnull=True)
                         ),
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
@@ -133,7 +133,7 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
                     "project_id",
                     "parent_id",
                     "sprint_id",
-                    "module_ids",
+                    "epic_ids",
                     "label_ids",
                     "assignee_ids",
                     "created_at",
@@ -259,27 +259,27 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
                     origin=base_host(request=request, is_app=True),
                 )
 
-            if request.data.get("module_ids", []):
-                # bulk create the module
-                ModuleIssue.objects.bulk_create(
+            if request.data.get("epic_ids", []):
+                # bulk create the epic
+                EpicIssue.objects.bulk_create(
                     [
-                        ModuleIssue(
-                            module_id=module,
+                        EpicIssue(
+                            epic_id=epic,
                             issue_id=serializer.data.get("id", None),
                             workspace_id=draft_issue.workspace_id,
                             project_id=draft_issue.project_id,
                             created_by_id=draft_issue.created_by_id,
                             updated_by_id=draft_issue.updated_by_id,
                         )
-                        for module in request.data.get("module_ids", [])
+                        for epic in request.data.get("epic_ids", [])
                     ],
                     batch_size=10,
                 )
                 # Update the activity
                 _ = [
                     issue_activity.delay(
-                        type="module.activity.created",
-                        requested_data=json.dumps({"module_id": str(module)}),
+                        type="epic.activity.created",
+                        requested_data=json.dumps({"epic_id": str(epic)}),
                         actor_id=str(request.user.id),
                         issue_id=serializer.data.get("id", None),
                         project_id=draft_issue.project_id,
@@ -288,7 +288,7 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
                         notification=True,
                         origin=base_host(request=request, is_app=True),
                     )
-                    for module in request.data.get("module_ids", [])
+                    for epic in request.data.get("epic_ids", [])
                 ]
 
             # Update file assets

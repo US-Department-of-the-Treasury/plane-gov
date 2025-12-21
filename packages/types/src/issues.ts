@@ -181,7 +181,7 @@ export interface ViewFlags {
 export type GroupByColumnTypes =
   | "project"
   | "sprint"
-  | "module"
+  | "epic"
   | "state"
   | "state_detail.group"
   | "priority"

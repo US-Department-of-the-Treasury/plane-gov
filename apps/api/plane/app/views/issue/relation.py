@@ -98,7 +98,7 @@ class IssueRelationViewSet(BaseViewSet):
         queryset = (
             Issue.issue_objects.filter(workspace__slug=slug)
             .select_related("workspace", "project", "state", "parent")
-            .prefetch_related("assignees", "labels", "issue_module__module")
+            .prefetch_related("assignees", "labels", "issue_epic__epic")
             .annotate(
                 sprint_id=Subquery(
                     SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]

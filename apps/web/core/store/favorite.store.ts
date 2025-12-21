@@ -79,7 +79,7 @@ export class FavoriteStore implements IFavoriteStore {
     this.rootStore = _rootStore;
     this.viewStore = _rootStore.projectView;
     this.projectStore = _rootStore.projectRoot.project;
-    this.epicStore = _rootStore.module;
+    this.epicStore = _rootStore.epic;
     this.sprintStore = _rootStore.sprint;
     this.pageStore = _rootStore.projectPages;
   }

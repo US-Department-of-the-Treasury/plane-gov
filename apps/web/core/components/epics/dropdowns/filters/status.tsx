@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { observer } from "mobx-react";
 import { EPIC_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { ModuleStatusIcon } from "@plane/propel/icons";
+import { EpicStatusIcon } from "@plane/propel/icons";
 import type { TEpicStatus } from "@plane/types";
 // components
 import { FilterHeader, FilterOption } from "@/components/issues/issue-layouts/filters";
@@ -37,7 +37,7 @@ export const FilterStatus = observer(function FilterStatus(props: Props) {
                 key={status.value}
                 isChecked={appliedFilters?.includes(status.value) ? true : false}
                 onClick={() => handleUpdate(status.value)}
-                icon={<ModuleStatusIcon status={status.value} />}
+                icon={<EpicStatusIcon status={status.value} />}
                 title={t(status.i18n_label)}
               />
             ))

@@ -1,7 +1,7 @@
 """
 AWS SSM Parameter Store utilities for secrets management.
 
-This module provides functions to fetch secrets from AWS SSM Parameter Store.
+This epic provides functions to fetch secrets from AWS SSM Parameter Store.
 Used in production environments; local development uses .env.local files.
 
 Usage:

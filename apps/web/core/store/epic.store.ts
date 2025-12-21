@@ -167,15 +167,15 @@ export class EpicsStore implements IEpicStore {
     const filters = this.rootStore.epicFilter.getFiltersByProjectId(projectId);
     const searchQuery = this.rootStore.epicFilter.searchQuery;
     if (!this.fetchedMap[projectId]) return null;
-    let modules = Object.values(this.epicMap ?? {}).filter(
+    let epics = Object.values(this.epicMap ?? {}).filter(
       (m) =>
         m.project_id === projectId &&
         !m.archived_at &&
         m.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         shouldFilterEpic(m, displayFilters ?? {}, filters ?? {})
     );
-    modules = orderEpics(epics, displayFilters?.order_by);
-    const epicIds = modules.map((m) => m.id);
+    epics = orderEpics(epics, displayFilters?.order_by);
+    const epicIds = epics.map((m) => m.id);
     return epicIds;
   });
 
@@ -189,15 +189,15 @@ export class EpicsStore implements IEpicStore {
     const filters = this.rootStore.epicFilter.getArchivedFiltersByProjectId(projectId);
     const searchQuery = this.rootStore.epicFilter.archivedEpicsSearchQuery;
     if (!this.fetchedMap[projectId]) return null;
-    let modules = Object.values(this.epicMap ?? {}).filter(
+    let epics = Object.values(this.epicMap ?? {}).filter(
       (m) =>
         m.project_id === projectId &&
         !!m.archived_at &&
         m.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         shouldFilterEpic(m, displayFilters ?? {}, filters ?? {})
     );
-    modules = orderEpics(epics, displayFilters?.order_by);
-    const epicIds = modules.map((m) => m.id);
+    epics = orderEpics(epics, displayFilters?.order_by);
+    const epicIds = epics.map((m) => m.id);
     return epicIds;
   });
 
@@ -221,9 +221,9 @@ export class EpicsStore implements IEpicStore {
    */
   getProjectEpicDetails = computedFn((projectId: string) => {
     if (!this.fetchedMap[projectId]) return null;
-    let projectModules = Object.values(this.epicMap).filter((m) => m.project_id === projectId && !m.archived_at);
-    projectModules = sortBy(projectModules, [(m) => m.sort_order]);
-    return projectModules;
+    let projectEpics = Object.values(this.epicMap).filter((m) => m.project_id === projectId && !m.archived_at);
+    projectEpics = sortBy(projectEpics, [(m) => m.sort_order]);
+    return projectEpics;
   });
 
   /**
@@ -231,9 +231,9 @@ export class EpicsStore implements IEpicStore {
    * @param projectId
    */
   getProjectEpicIds = computedFn((projectId: string) => {
-    const projectModules = this.getProjectEpicDetails(projectId);
-    if (!projectModules) return null;
-    const projectEpicIds = projectModules.map((m) => m.id);
+    const projectEpics = this.getProjectEpicDetails(projectId);
+    if (!projectEpics) return null;
+    const projectEpicIds = projectEpics.map((m) => m.id);
     return projectEpicIds;
   });
 
@@ -263,7 +263,7 @@ export class EpicsStore implements IEpicStore {
    * @returns IEpic[]
    */
   fetchWorkspaceEpics = async (workspaceSlug: string) =>
-    await this.epicService.getWorkspaceModules(workspaceSlug).then((response) => {
+    await this.epicService.getWorkspaceEpics(workspaceSlug).then((response) => {
       runInAction(() => {
         response.forEach((epic) => {
           set(this.epicMap, [epic.id], { ...this.epicMap[epic.id], ...epic });
@@ -286,7 +286,7 @@ export class EpicsStore implements IEpicStore {
   fetchEpics = async (workspaceSlug: string, projectId: string) => {
     try {
       this.loader = true;
-      await this.epicService.getModules(workspaceSlug, projectId).then((response) => {
+      await this.epicService.getEpics(workspaceSlug, projectId).then((response) => {
         runInAction(() => {
           response.forEach((epic) => {
             set(this.epicMap, [epic.id], { ...this.epicMap[epic.id], ...epic });
@@ -311,7 +311,7 @@ export class EpicsStore implements IEpicStore {
   fetchEpicsSlim = async (workspaceSlug: string, projectId: string) => {
     try {
       this.loader = true;
-      await this.epicService.getWorkspaceModules(workspaceSlug).then((response) => {
+      await this.epicService.getWorkspaceEpics(workspaceSlug).then((response) => {
         const projectEpics = response.filter((epic) => epic.project_id === projectId);
         runInAction(() => {
           projectEpics.forEach((epic) => {
@@ -423,17 +423,17 @@ export class EpicsStore implements IEpicStore {
    * @returns IEpic
    */
   updateEpicDetails = async (workspaceSlug: string, projectId: string, epicId: string, data: Partial<IEpic>) => {
-    const originalModuleDetails = this.getEpicById(epicId);
+    const originalEpicDetails = this.getEpicById(epicId);
     try {
       runInAction(() => {
-        set(this.epicMap, [epicId], { ...originalModuleDetails, ...data });
+        set(this.epicMap, [epicId], { ...originalEpicDetails, ...data });
       });
-      const response = await this.epicService.patchModule(workspaceSlug, projectId, epicId, data);
+      const response = await this.epicService.patchEpic(workspaceSlug, projectId, epicId, data);
       return response;
     } catch (error) {
       console.error("Failed to update epic in epic.store", error);
       runInAction(() => {
-        set(this.epicMap, [epicId], { ...originalModuleDetails });
+        set(this.epicMap, [epicId], { ...originalEpicDetails });
       });
       throw error;
     }

@@ -73,7 +73,7 @@ export const IssueActivityItem = observer(function IssueActivityItem(props: TIss
       return <IssueTargetDateActivity {...componentDefaultProps} showIssue={false} />;
     case "sprints":
       return <IssueSprintActivity {...componentDefaultProps} />;
-    case "modules":
+    case "epics":
       return <IssueEpicActivity {...componentDefaultProps} />;
     case "labels":
       return <IssueLabelActivity {...componentDefaultProps} showIssue={false} />;

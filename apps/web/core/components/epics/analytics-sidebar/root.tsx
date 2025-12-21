@@ -16,7 +16,7 @@ import {
 import { useTranslation } from "@plane/i18n";
 import {
   MembersPropertyIcon,
-  ModuleStatusIcon,
+  EpicStatusIcon,
   WorkItemsIcon,
   StartDatePropertyIcon,
   ChevronDownIcon,
@@ -283,7 +283,7 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
                   {EPIC_STATUS.map((status) => (
                     <CustomSelect.Option key={status.value} value={status.value}>
                       <div className="flex items-center gap-2">
-                        <ModuleStatusIcon status={status.value} />
+                        <EpicStatusIcon status={status.value} />
                         {t(status.i18n_label)}
                       </div>
                     </CustomSelect.Option>

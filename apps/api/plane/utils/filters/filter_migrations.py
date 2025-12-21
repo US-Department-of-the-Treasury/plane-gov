@@ -1,7 +1,7 @@
 """
 Utilities for migrating legacy filters to rich filters format.
 
-This module contains helper functions for data migrations that convert
+This epic contains helper functions for data migrations that convert
 filters fields to rich_filters fields using the LegacyToRichFiltersConverter.
 """
 

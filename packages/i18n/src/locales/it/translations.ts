@@ -11,7 +11,7 @@ export default {
     analytics: "Analisi",
     work_items: "Elementi di lavoro",
     sprints: "Cicli",
-    modules: "Moduli",
+    epics: "Moduli",
     intake: "Intake",
     drafts: "Bozze",
     favorites: "Preferiti",
@@ -375,7 +375,7 @@ export default {
   open_project: "Apri progetto",
   issues: "Elementi di lavoro",
   sprints: "Cicli",
-  modules: "Moduli",
+  epics: "Moduli",
   pages: "Pagine",
   intake: "Accoglienza",
   time_tracking: "Tracciamento del tempo",
@@ -384,7 +384,7 @@ export default {
   projects_and_issues_description: "Attiva o disattiva queste opzioni per questo progetto.",
   sprints_description:
     "Definisci il tempo di lavoro per progetto e adatta il periodo secondo necessità. Un ciclo può durare 2 settimane, il successivo 1 settimana.",
-  modules_description: "Organizza il lavoro in sotto-progetti con responsabili e assegnatari dedicati.",
+  epics_description: "Organizza il lavoro in sotto-progetti con responsabili e assegnatari dedicati.",
   views_description:
     "Salva ordinamenti, filtri e opzioni di visualizzazione personalizzati o condividili con il tuo team.",
   pages_description: "Crea e modifica contenuti liberi: appunti, documenti, qualsiasi cosa.",
@@ -657,8 +657,8 @@ export default {
     project: "Progetto",
     sprint: "Ciclo",
     sprints: "Cicli",
-    module: "Modulo",
-    modules: "Moduli",
+    epic: "Epic",
+    epics: "Moduli",
     labels: "Etichette",
     assignees: "Assegnatari",
     assignee: "Assegnatario",
@@ -995,10 +995,10 @@ export default {
         success: "Elemento di lavoro rimosso dal ciclo con successo.",
         failed: "Impossibile rimuovere l'elemento di lavoro dal ciclo. Per favore, riprova.",
       },
-      module: {
-        loading: "Rimuovendo l'elemento di lavoro dal modulo",
-        success: "Elemento di lavoro rimosso dal modulo con successo.",
-        failed: "Impossibile rimuovere l'elemento di lavoro dal modulo. Per favore, riprova.",
+      epic: {
+        loading: "Rimuovendo l'elemento di lavoro dal epic",
+        success: "Elemento di lavoro rimosso dal epic con successo.",
+        failed: "Impossibile rimuovere l'elemento di lavoro dal epic. Per favore, riprova.",
       },
       parent: {
         label: "Rimuovi elemento di lavoro principale",
@@ -1348,7 +1348,7 @@ export default {
     selected_projects: "Progetti selezionati",
     total_members: "Totale membri",
     total_sprints: "Totale cicli",
-    total_modules: "Totale moduli",
+    total_epics: "Totale moduli",
     pending_work_items: {
       title: "Elementi di lavoro in sospeso",
       empty_state: "L'analisi degli elementi di lavoro in sospeso dei colleghi apparirà qui.",
@@ -1435,7 +1435,7 @@ export default {
     error: {
       permission: "Non hai il permesso di eseguire questa azione.",
       sprint_delete: "Impossibile eliminare il ciclo",
-      module_delete: "Impossibile eliminare il modulo",
+      epic_delete: "Impossibile eliminare il epic",
       issue_delete: "Impossibile eliminare l'elemento di lavoro",
     },
     state: {
@@ -2149,30 +2149,30 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Aggiungi Modulo",
-    update_module: "Aggiorna Modulo",
-    create_module: "Crea Modulo",
-    archive_module: "Archivia Modulo",
-    restore_module: "Ripristina Modulo",
-    delete_module: "Elimina modulo",
+  project_epic: {
+    add_epic: "Aggiungi Modulo",
+    update_epic: "Aggiorna Modulo",
+    create_epic: "Crea Modulo",
+    archive_epic: "Archivia Modulo",
+    restore_epic: "Ripristina Modulo",
+    delete_epic: "Elimina epic",
     empty_state: {
       general: {
         title: "Associa i traguardi del tuo progetto ai Moduli e traccia facilmente il lavoro aggregato.",
         description:
-          "Un gruppo di elementi di lavoro che appartengono a un genitore logico e gerarchico forma un modulo. Considerali come un modo per tracciare il lavoro in base ai traguardi del progetto. Hanno i propri intervalli temporali e scadenze, oltre ad analisi che ti aiutano a vedere quanto sei vicino o lontano da un traguardo.",
+          "Un gruppo di elementi di lavoro che appartengono a un genitore logico e gerarchico forma un epic. Considerali come un modo per tracciare il lavoro in base ai traguardi del progetto. Hanno i propri intervalli temporali e scadenze, oltre ad analisi che ti aiutano a vedere quanto sei vicino o lontano da un traguardo.",
         primary_button: {
-          text: "Crea il tuo primo modulo",
+          text: "Crea il tuo primo epic",
           comic: {
             title: "I moduli aiutano a raggruppare il lavoro per gerarchia.",
             description:
-              "Un modulo per il carrello, un modulo per il telaio e un modulo per il magazzino sono tutti buoni esempi di questo raggruppamento.",
+              "Un epic per il carrello, un epic per il telaio e un epic per il magazzino sono tutti buoni esempi di questo raggruppamento.",
           },
         },
       },
       no_issues: {
-        title: "Nessun elemento di lavoro nel modulo",
-        description: "Crea o aggiungi elementi di lavoro che desideri completare come parte di questo modulo",
+        title: "Nessun elemento di lavoro nel epic",
+        description: "Crea o aggiungi elementi di lavoro che desideri completare come parte di questo epic",
         primary_button: {
           text: "Crea nuovi elementi di lavoro",
         },
@@ -2181,27 +2181,27 @@ export default {
         },
       },
       archived: {
-        title: "Nessun modulo archiviato ancora",
+        title: "Nessun epic archiviato ancora",
         description:
           "Per organizzare il tuo progetto, archivia i moduli completati o annullati. Li troverai qui una volta archiviati.",
       },
       sidebar: {
-        in_active: "Questo modulo non è ancora attivo.",
+        in_active: "Questo epic non è ancora attivo.",
         invalid_date: "Data non valida. Inserisci una data valida.",
       },
     },
     quick_actions: {
-      archive_module: "Archivia modulo",
-      archive_module_description: "Solo i moduli completati o annullati possono essere archiviati.",
-      delete_module: "Elimina modulo",
+      archive_epic: "Archivia epic",
+      archive_epic_description: "Solo i moduli completati o annullati possono essere archiviati.",
+      delete_epic: "Elimina epic",
     },
     toast: {
       copy: {
-        success: "Link del modulo copiato negli appunti",
+        success: "Link del epic copiato negli appunti",
       },
       delete: {
         success: "Modulo eliminato con successo",
-        error: "Impossibile eliminare il modulo",
+        error: "Impossibile eliminare il epic",
       },
     },
   },
@@ -2381,7 +2381,7 @@ export default {
           text: "Gestisci funzionalità",
         },
       },
-      module: {
+      epic: {
         title: "I moduli non sono abilitati per il progetto.",
         description:
           "I moduli sono i blocchi costitutivi del tuo progetto. Abilita i moduli dalle impostazioni del progetto per iniziare a usarli.",
@@ -2576,7 +2576,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Backlog",
       planned: "Pianificato",
@@ -2603,9 +2603,9 @@ export default {
     label: "{count, plural, one {Ciclo} other {Cicli}}",
     no_sprint: "Nessun ciclo",
   },
-  module: {
+  epic: {
     label: "{count, plural, one {Modulo} other {Moduli}}",
-    no_module: "Nessun modulo",
+    no_epic: "Nessun epic",
   },
   description_versions: {
     last_edited_by: "Ultima modifica di",

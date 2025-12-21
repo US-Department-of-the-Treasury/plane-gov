@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 // ui
 import { EPIC_STATUS } from "@plane/constants";
-import { ModuleStatusIcon } from "@plane/propel/icons";
+import { EpicStatusIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 // components
 import { SIDEBAR_WIDTH } from "@/components/gantt-chart/constants";
@@ -81,7 +81,7 @@ export const EpicGanttSidebarBlock = observer(function EpicGanttSidebarBlock(pro
       href={`/${workspaceSlug?.toString()}/projects/${epicDetails?.project_id}/epics/${epicDetails?.id}`}
       draggable={false}
     >
-      <ModuleStatusIcon status={epicDetails?.status ?? "backlog"} height="16px" width="16px" />
+      <EpicStatusIcon status={epicDetails?.status ?? "backlog"} height="16px" width="16px" />
       <h6 className="flex-grow truncate text-13 font-medium">{epicDetails?.name}</h6>
     </Link>
   );

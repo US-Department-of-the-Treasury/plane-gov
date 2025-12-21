@@ -14,13 +14,13 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from plane.app.permissions import allow_permission, ROLE
-from plane.app.serializers import ModuleIssueSerializer
+from plane.app.serializers import EpicIssueSerializer
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.db.models import (
     Issue,
     FileAsset,
     IssueLink,
-    ModuleIssue,
+    EpicIssue,
     Project,
     SprintIssue,
 )
@@ -38,10 +38,10 @@ from .. import BaseViewSet
 from plane.utils.host import base_host
 
 
-class ModuleIssueViewSet(BaseViewSet):
-    serializer_class = ModuleIssueSerializer
-    model = ModuleIssue
-    webhook_event = "module_issue"
+class EpicIssueViewSet(BaseViewSet):
+    serializer_class = EpicIssueSerializer
+    model = EpicIssue
+    webhook_event = "epic_issue"
     bulk = True
     filter_backends = (ComplexFilterBackend,)
     filterset_class = IssueFilterSet
@@ -74,7 +74,7 @@ class ModuleIssueViewSet(BaseViewSet):
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")
             )
-            .prefetch_related("assignees", "labels", "issue_module__module")
+            .prefetch_related("assignees", "labels", "issue_epic__epic")
         )
 
     def get_queryset(self):
@@ -82,14 +82,14 @@ class ModuleIssueViewSet(BaseViewSet):
             Issue.issue_objects.filter(
                 project_id=self.kwargs.get("project_id"),
                 workspace__slug=self.kwargs.get("slug"),
-                issue_module__module_id=self.kwargs.get("module_id"),
-                issue_module__deleted_at__isnull=True,
+                issue_epic__epic_id=self.kwargs.get("epic_id"),
+                issue_epic__deleted_at__isnull=True,
             )
         ).distinct()
 
     @method_decorator(gzip_page)
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
-    def list(self, request, slug, project_id, module_id):
+    def list(self, request, slug, project_id, epic_id):
         filters = issue_filters(request.query_params, "GET")
         issue_queryset = self.get_queryset()
 
@@ -203,17 +203,17 @@ class ModuleIssueViewSet(BaseViewSet):
             )
 
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
-    # create multiple issues inside a module
-    def create_module_issues(self, request, slug, project_id, module_id):
+    # create multiple issues inside a epic
+    def create_epic_issues(self, request, slug, project_id, epic_id):
         issues = request.data.get("issues", [])
         if not issues:
             return Response({"error": "Issues are required"}, status=status.HTTP_400_BAD_REQUEST)
         project = Project.objects.get(pk=project_id)
-        _ = ModuleIssue.objects.bulk_create(
+        _ = EpicIssue.objects.bulk_create(
             [
-                ModuleIssue(
+                EpicIssue(
                     issue_id=str(issue),
-                    module_id=module_id,
+                    epic_id=epic_id,
                     project_id=project_id,
                     workspace_id=project.workspace_id,
                     created_by=request.user,
@@ -227,8 +227,8 @@ class ModuleIssueViewSet(BaseViewSet):
         # Bulk Update the activity
         _ = [
             issue_activity.delay(
-                type="module.activity.created",
-                requested_data=json.dumps({"module_id": str(module_id)}),
+                type="epic.activity.created",
+                requested_data=json.dumps({"epic_id": str(epic_id)}),
                 actor_id=str(request.user.id),
                 issue_id=str(issue),
                 project_id=project_id,
@@ -242,24 +242,24 @@ class ModuleIssueViewSet(BaseViewSet):
         return Response({"message": "success"}, status=status.HTTP_201_CREATED)
 
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
-    # add multiple module inside an issue and remove multiple modules from an issue
-    def create_issue_modules(self, request, slug, project_id, issue_id):
-        modules = request.data.get("modules", [])
-        removed_modules = request.data.get("removed_modules", [])
+    # add multiple epic inside an issue and remove multiple epics from an issue
+    def create_issue_epics(self, request, slug, project_id, issue_id):
+        epics = request.data.get("epics", [])
+        removed_epics = request.data.get("removed_epics", [])
         project = Project.objects.get(pk=project_id)
 
-        if modules:
-            _ = ModuleIssue.objects.bulk_create(
+        if epics:
+            _ = EpicIssue.objects.bulk_create(
                 [
-                    ModuleIssue(
+                    EpicIssue(
                         issue_id=issue_id,
-                        module_id=module,
+                        epic_id=epic,
                         project_id=project_id,
                         workspace_id=project.workspace_id,
                         created_by=request.user,
                         updated_by=request.user,
                     )
-                    for module in modules
+                    for epic in epics
                 ],
                 batch_size=10,
                 ignore_conflicts=True,
@@ -267,8 +267,8 @@ class ModuleIssueViewSet(BaseViewSet):
             # Bulk Update the activity
             _ = [
                 issue_activity.delay(
-                    type="module.activity.created",
-                    requested_data=json.dumps({"module_id": module}),
+                    type="epic.activity.created",
+                    requested_data=json.dumps({"epic_id": epic}),
                     actor_id=str(request.user.id),
                     issue_id=issue_id,
                     project_id=project_id,
@@ -277,27 +277,27 @@ class ModuleIssueViewSet(BaseViewSet):
                     notification=True,
                     origin=base_host(request=request, is_app=True),
                 )
-                for module in modules
+                for epic in epics
             ]
 
-        for module_id in removed_modules:
-            module_issue = ModuleIssue.objects.filter(
+        for epic_id in removed_epics:
+            epic_issue = EpicIssue.objects.filter(
                 workspace__slug=slug,
                 project_id=project_id,
-                module_id=module_id,
+                epic_id=epic_id,
                 issue_id=issue_id,
             )
             issue_activity.delay(
-                type="module.activity.deleted",
-                requested_data=json.dumps({"module_id": str(module_id)}),
+                type="epic.activity.deleted",
+                requested_data=json.dumps({"epic_id": str(epic_id)}),
                 actor_id=str(request.user.id),
                 issue_id=str(issue_id),
                 project_id=str(project_id),
                 current_instance=json.dumps(
                     {
-                        "module_name": (
-                            module_issue.first().module.name
-                            if (module_issue.first() and module_issue.first().module)
+                        "epic_name": (
+                            epic_issue.first().epic.name
+                            if (epic_issue.first() and epic_issue.first().epic)
                             else None
                         )
                     }
@@ -306,28 +306,28 @@ class ModuleIssueViewSet(BaseViewSet):
                 notification=True,
                 origin=base_host(request=request, is_app=True),
             )
-            module_issue.delete()
+            epic_issue.delete()
 
         return Response({"message": "success"}, status=status.HTTP_201_CREATED)
 
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
-    def destroy(self, request, slug, project_id, module_id, issue_id):
-        module_issue = ModuleIssue.objects.filter(
+    def destroy(self, request, slug, project_id, epic_id, issue_id):
+        epic_issue = EpicIssue.objects.filter(
             workspace__slug=slug,
             project_id=project_id,
-            module_id=module_id,
+            epic_id=epic_id,
             issue_id=issue_id,
         )
         issue_activity.delay(
-            type="module.activity.deleted",
-            requested_data=json.dumps({"module_id": str(module_id)}),
+            type="epic.activity.deleted",
+            requested_data=json.dumps({"epic_id": str(epic_id)}),
             actor_id=str(request.user.id),
             issue_id=str(issue_id),
             project_id=str(project_id),
-            current_instance=json.dumps({"module_name": module_issue.first().module.name}),
+            current_instance=json.dumps({"epic_name": epic_issue.first().epic.name}),
             epoch=int(timezone.now().timestamp()),
             notification=True,
             origin=base_host(request=request, is_app=True),
         )
-        module_issue.delete()
+        epic_issue.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

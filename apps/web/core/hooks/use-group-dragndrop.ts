@@ -38,7 +38,7 @@ export const useGroupIssuesDragNDrop = (
   } = useIssues(storeType);
 
   /**
-   * update Issue on Drop, checks if modules or sprints are changed and then calls appropriate functions
+   * update Issue on Drop, checks if epics or sprints are changed and then calls appropriate functions
    * @param projectId
    * @param issueId
    * @param data

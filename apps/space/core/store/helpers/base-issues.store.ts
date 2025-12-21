@@ -53,7 +53,7 @@ export interface IBaseIssuesStore {
 export const ISSUE_FILTER_DEFAULT_DATA: Record<TIssueDisplayFilterOptions, keyof IIssue> = {
   project: "project_id",
   sprint: "sprint_id",
-  module: "epic_ids",
+  epic: "epic_ids",
   state: "state_id",
   "state_detail.group": "state_group" as keyof IIssue, // state_detail.group is only being used for state_group display,
   priority: "priority",

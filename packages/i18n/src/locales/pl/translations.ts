@@ -11,7 +11,7 @@ export default {
     analytics: "Analizy",
     work_items: "Elementy pracy",
     sprints: "Cykle",
-    modules: "Moduły",
+    epics: "Moduły",
     intake: "Zgłoszenia",
     drafts: "Szkice",
     favorites: "Ulubione",
@@ -370,7 +370,7 @@ export default {
   open_project: "Otwórz projekt",
   issues: "Elementy pracy",
   sprints: "Cykle",
-  modules: "Moduły",
+  epics: "Moduły",
   pages: "Strony",
   intake: "Zgłoszenia",
   time_tracking: "Śledzenie czasu",
@@ -379,7 +379,7 @@ export default {
   projects_and_issues_description: "Włączaj lub wyłączaj te funkcje w projekcie.",
   sprints_description:
     "Określ ramy czasowe pracy dla każdego projektu i dostosuj okres w razie potrzeby. Jeden cykl może trwać 2 tygodnie, a następny 1 tydzień.",
-  modules_description: "Organizuj pracę w podprojekty z dedykowanymi liderami i przypisanymi osobami.",
+  epics_description: "Organizuj pracę w podprojekty z dedykowanymi liderami i przypisanymi osobami.",
   views_description: "Zapisz niestandardowe sortowania, filtry i opcje wyświetlania lub udostępnij je zespołowi.",
   pages_description: "Twórz i edytuj treści o swobodnej formie – notatki, dokumenty, cokolwiek.",
   intake_description: "Pozwól osobom spoza zespołu zgłaszać błędy, opinie i sugestie bez zakłócania przepływu pracy.",
@@ -652,8 +652,8 @@ export default {
     project: "Projekt",
     sprint: "Cykl",
     sprints: "Cykle",
-    module: "Moduł",
-    modules: "Moduły",
+    epic: "Epic",
+    epics: "Moduły",
     labels: "Etykiety",
     label: "Etykieta",
     assignees: "Przypisani",
@@ -992,10 +992,10 @@ export default {
         success: "Element pracy usunięto z cyklu.",
         failed: "Nie udało się usunąć elementu pracy z cyklu. Spróbuj ponownie.",
       },
-      module: {
-        loading: "Usuwanie elementu pracy z modułu",
-        success: "Element pracy usunięto z modułu.",
-        failed: "Nie udało się usunąć elementu pracy z modułu. Spróbuj ponownie.",
+      epic: {
+        loading: "Usuwanie elementu pracy z epicu",
+        success: "Element pracy usunięto z epicu.",
+        failed: "Nie udało się usunąć elementu pracy z epicu. Spróbuj ponownie.",
       },
       parent: {
         label: "Usuń element nadrzędny",
@@ -1342,7 +1342,7 @@ export default {
     selected_projects: "Wybrane projekty",
     total_members: "Łączna liczba członków",
     total_sprints: "Łączna liczba cykli",
-    total_modules: "Łączna liczba modułów",
+    total_epics: "Łączna liczba epiców",
     pending_work_items: {
       title: "Oczekujące elementy pracy",
       empty_state: "Tutaj zobaczysz analizę oczekujących elementów pracy według współpracowników.",
@@ -1428,7 +1428,7 @@ export default {
     error: {
       permission: "Nie masz uprawnień do wykonania tej akcji.",
       sprint_delete: "Nie udało się usunąć cyklu",
-      module_delete: "Nie udało się usunąć modułu",
+      epic_delete: "Nie udało się usunąć epicu",
       issue_delete: "Nie udało się usunąć elementu pracy",
     },
     state: {
@@ -1455,7 +1455,7 @@ export default {
       general: {
         title: "Brak aktywnych projektów",
         description:
-          "Projekt to główny cel. Zawiera zadania, cykle i moduły. Utwórz nowy lub poszukaj zarchiwizowanych.",
+          "Projekt to główny cel. Zawiera zadania, cykle i epicy. Utwórz nowy lub poszukaj zarchiwizowanych.",
         primary_button: {
           text: "Rozpocznij pierwszy projekt",
           comic: {
@@ -2123,28 +2123,28 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Dodaj moduł",
-    update_module: "Zaktualizuj moduł",
-    create_module: "Utwórz moduł",
-    archive_module: "Archiwizuj moduł",
-    restore_module: "Przywróć moduł",
-    delete_module: "Usuń moduł",
+  project_epic: {
+    add_epic: "Dodaj epic",
+    update_epic: "Zaktualizuj epic",
+    create_epic: "Utwórz epic",
+    archive_epic: "Archiwizuj epic",
+    restore_epic: "Przywróć epic",
+    delete_epic: "Usuń epic",
     empty_state: {
       general: {
-        title: "Grupuj etapy w moduły.",
+        title: "Grupuj etapy w epicy.",
         description: "Moduły grupują elementy pod wspólnym nadrzędnym celem. Śledź terminy i postępy.",
         primary_button: {
-          text: "Utwórz pierwszy moduł",
+          text: "Utwórz pierwszy epic",
           comic: {
             title: "Moduły grupują elementy hierarchicznie.",
-            description: "Przykłady: moduł koszyka, podwozia, magazynu.",
+            description: "Przykłady: epic koszyka, podwozia, magazynu.",
           },
         },
       },
       no_issues: {
-        title: "Brak elementów w module",
-        description: "Dodaj elementy do modułu.",
+        title: "Brak elementów w epic",
+        description: "Dodaj elementy do epicu.",
         primary_button: {
           text: "Utwórz elementy",
         },
@@ -2153,8 +2153,8 @@ export default {
         },
       },
       archived: {
-        title: "Brak zarchiwizowanych modułów",
-        description: "Archiwizuj moduły ukończone lub anulowane.",
+        title: "Brak zarchiwizowanych epiców",
+        description: "Archiwizuj epicy ukończone lub anulowane.",
       },
       sidebar: {
         in_active: "Moduł nie jest aktywny.",
@@ -2162,17 +2162,17 @@ export default {
       },
     },
     quick_actions: {
-      archive_module: "Archiwizuj moduł",
-      archive_module_description: "Można archiwizować tylko ukończone/anulowane moduły.",
-      delete_module: "Usuń moduł",
+      archive_epic: "Archiwizuj epic",
+      archive_epic_description: "Można archiwizować tylko ukończone/anulowane epicy.",
+      delete_epic: "Usuń epic",
     },
     toast: {
       copy: {
-        success: "Link do modułu skopiowano",
+        success: "Link do epicu skopiowano",
       },
       delete: {
         success: "Moduł usunięto",
-        error: "Nie udało się usunąć modułu",
+        error: "Nie udało się usunąć epicu",
       },
     },
   },
@@ -2345,9 +2345,9 @@ export default {
           text: "Zarządzaj funkcjami",
         },
       },
-      module: {
+      epic: {
         title: "Moduły nie są włączone",
-        description: "Włącz moduły w ustawieniach projektu.",
+        description: "Włącz epicy w ustawieniach projektu.",
         primary_button: {
           text: "Zarządzaj funkcjami",
         },
@@ -2534,7 +2534,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Backlog",
       planned: "Planowane",
@@ -2561,9 +2561,9 @@ export default {
     label: "{count, plural, one {Cykl} few {Cykle} other {Cyklów}}",
     no_sprint: "Brak cyklu",
   },
-  module: {
+  epic: {
     label: "{count, plural, one {Moduł} few {Moduły} other {Modułów}}",
-    no_module: "Brak modułu",
+    no_epic: "Brak epicu",
   },
   description_versions: {
     last_edited_by: "Ostatnio edytowane przez",

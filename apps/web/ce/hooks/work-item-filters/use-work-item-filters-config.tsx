@@ -5,7 +5,7 @@ import { Logo } from "@plane/propel/emoji-icon-picker";
 import {
   SprintGroupIcon,
   SprintIcon,
-  ModuleIcon,
+  EpicIcon,
   StatePropertyIcon,
   PriorityIcon,
   StateGroupIcon,
@@ -51,7 +51,7 @@ import {
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
 // plane web imports
@@ -119,9 +119,9 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
     () => (sprintIds ? (sprintIds.map((sprintId) => getSprintById(sprintId)).filter((sprint) => sprint) as ISprint[]) : []),
     [sprintIds, getSprintById]
   );
-  const modules = useMemo(
+  const epics = useMemo(
     () =>
-      epicIds ? (epicIds.map((epicId) => getEpicById(epicId)).filter((module) => module) as IModule[]) : [],
+      epicIds ? (epicIds.map((epicId) => getEpicById(epicId)).filter((epic) => epic) as IEpic[]) : [],
     [epicIds, getEpicById]
   );
   const projects = useMemo(
@@ -194,17 +194,17 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
     [isFilterEnabled, project?.sprint_view, sprints, operatorConfigs]
   );
 
-  // module filter config
-  const moduleFilterConfig = useMemo(
+  // epic filter config
+  const epicFilterConfig = useMemo(
     () =>
       getEpicFilterConfig<TWorkItemFilterProperty>("epic_id")({
-        isEnabled: isFilterEnabled("epic_id") && project?.epic_view === true && modules !== undefined,
-        filterIcon: ModuleIcon,
-        getOptionIcon: () => <ModuleIcon className="h-3 w-3 flex-shrink-0" />,
-        modules: modules ?? [],
+        isEnabled: isFilterEnabled("epic_id") && project?.epic_view === true && epics !== undefined,
+        filterIcon: EpicIcon,
+        getOptionIcon: () => <EpicIcon className="h-3 w-3 flex-shrink-0" />,
+        epics: epics ?? [],
         ...operatorConfigs,
       }),
-    [isFilterEnabled, project?.epic_view, modules, operatorConfigs]
+    [isFilterEnabled, project?.epic_view, epics, operatorConfigs]
   );
 
   // assignee filter config
@@ -367,7 +367,7 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
       mentionFilterConfig,
       labelFilterConfig,
       sprintFilterConfig,
-      moduleFilterConfig,
+      epicFilterConfig,
       startDateFilterConfig,
       targetDateFilterConfig,
       createdAtFilterConfig,
@@ -381,7 +381,7 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
       state_id: stateFilterConfig,
       label_id: labelFilterConfig,
       sprint_id: sprintFilterConfig,
-      epic_id: moduleFilterConfig,
+      epic_id: epicFilterConfig,
       assignee_id: assigneeFilterConfig,
       mention_id: mentionFilterConfig,
       created_by_id: createdByFilterConfig,

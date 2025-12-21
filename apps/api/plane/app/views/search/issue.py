@@ -78,11 +78,11 @@ class IssueSearchEndpoint(BaseAPIView):
         issues = issues.exclude(Q(issue_sprint__isnull=False) & Q(issue_sprint__deleted_at__isnull=True))
         return issues
 
-    def exclude_issues_in_module(self, issues: QuerySet, module: str) -> QuerySet:
+    def exclude_issues_in_epic(self, issues: QuerySet, epic: str) -> QuerySet:
         """
-        Exclude issues in a module
+        Exclude issues in a epic
         """
-        issues = issues.exclude(Q(issue_module__module=module) & Q(issue_module__deleted_at__isnull=True))
+        issues = issues.exclude(Q(issue_epic__epic=epic) & Q(issue_epic__deleted_at__isnull=True))
         return issues
 
     def filter_issues_without_target_date(self, issues: QuerySet) -> QuerySet:
@@ -98,7 +98,7 @@ class IssueSearchEndpoint(BaseAPIView):
         parent = request.query_params.get("parent", "false")
         issue_relation = request.query_params.get("issue_relation", "false")
         sprint = request.query_params.get("sprint", "false")
-        module = request.query_params.get("module", False)
+        epic = request.query_params.get("epic", False)
         sub_issue = request.query_params.get("sub_issue", "false")
         target_date = request.query_params.get("target_date", True)
         issue_id = request.query_params.get("issue_id", False)
@@ -128,8 +128,8 @@ class IssueSearchEndpoint(BaseAPIView):
         if sprint == "true":
             issues = self.exclude_issues_in_sprints(issues)
 
-        if module:
-            issues = self.exclude_issues_in_module(issues, module)
+        if epic:
+            issues = self.exclude_issues_in_epic(issues, epic)
 
         if target_date == "none":
             issues = self.filter_issues_without_target_date(issues)

@@ -2,7 +2,7 @@ import { useProjectEstimates } from "./store/estimates";
 import { useSprint } from "./store/use-sprint";
 import { useLabel } from "./store/use-label";
 import { useMember } from "./store/use-member";
-import { useEpic } from "./store/use-module";
+import { useEpic } from "./store/use-epic";
 import { useProjectState } from "./store/use-project-state";
 
 export const useProjectIssueProperties = () => {
@@ -52,7 +52,7 @@ export const useProjectIssueProperties = () => {
       await fetchProjectAllSprints(workspaceSlug.toString(), projectId.toString());
     }
   };
-  // fetching project modules
+  // fetching project epics
   const fetchEpics = async (
     workspaceSlug: string | string[] | undefined,
     projectId: string | string[] | undefined

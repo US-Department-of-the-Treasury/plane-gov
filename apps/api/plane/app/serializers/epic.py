@@ -11,15 +11,15 @@ from django.core.exceptions import ValidationError
 
 from plane.db.models import (
     User,
-    Module,
-    ModuleMember,
-    ModuleIssue,
-    ModuleLink,
-    ModuleUserProperties,
+    Epic,
+    EpicMember,
+    EpicIssue,
+    EpicLink,
+    EpicUserProperties,
 )
 
 
-class ModuleWriteSerializer(BaseSerializer):
+class EpicWriteSerializer(BaseSerializer):
     lead_id = serializers.PrimaryKeyRelatedField(
         source="lead", queryset=User.objects.all(), required=False, allow_null=True
     )
@@ -30,7 +30,7 @@ class ModuleWriteSerializer(BaseSerializer):
     )
 
     class Meta:
-        model = Module
+        model = Epic
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -61,23 +61,23 @@ class ModuleWriteSerializer(BaseSerializer):
         members = validated_data.pop("member_ids", None)
         project = self.context["project"]
 
-        module_name = validated_data.get("name")
-        if module_name:
-            # Lookup for the module name in the module table for that project
-            if Module.objects.filter(name=module_name, project=project).exists():
-                raise serializers.ValidationError({"error": "Module with this name already exists"})
+        epic_name = validated_data.get("name")
+        if epic_name:
+            # Lookup for the epic name in the epic table for that project
+            if Epic.objects.filter(name=epic_name, project=project).exists():
+                raise serializers.ValidationError({"error": "Epic with this name already exists"})
 
-        module = Module.objects.create(**validated_data, project=project)
+        epic = Epic.objects.create(**validated_data, project=project)
         if members is not None:
-            ModuleMember.objects.bulk_create(
+            EpicMember.objects.bulk_create(
                 [
-                    ModuleMember(
-                        module=module,
+                    EpicMember(
+                        epic=epic,
                         member=member,
                         project=project,
                         workspace=project.workspace,
-                        created_by=module.created_by,
-                        updated_by=module.updated_by,
+                        created_by=epic.created_by,
+                        updated_by=epic.updated_by,
                     )
                     for member in members
                 ],
@@ -85,22 +85,22 @@ class ModuleWriteSerializer(BaseSerializer):
                 ignore_conflicts=True,
             )
 
-        return module
+        return epic
 
     def update(self, instance, validated_data):
         members = validated_data.pop("member_ids", None)
-        module_name = validated_data.get("name")
-        if module_name:
-            # Lookup for the module name in the module table for that project
-            if Module.objects.filter(name=module_name, project=instance.project).exclude(id=instance.id).exists():
-                raise serializers.ValidationError({"error": "Module with this name already exists"})
+        epic_name = validated_data.get("name")
+        if epic_name:
+            # Lookup for the epic name in the epic table for that project
+            if Epic.objects.filter(name=epic_name, project=instance.project).exclude(id=instance.id).exists():
+                raise serializers.ValidationError({"error": "Epic with this name already exists"})
 
         if members is not None:
-            ModuleMember.objects.filter(module=instance).delete()
-            ModuleMember.objects.bulk_create(
+            EpicMember.objects.filter(epic=instance).delete()
+            EpicMember.objects.bulk_create(
                 [
-                    ModuleMember(
-                        module=instance,
+                    EpicMember(
+                        epic=instance,
                         member=member,
                         project=instance.project,
                         workspace=instance.project.workspace,
@@ -116,9 +116,9 @@ class ModuleWriteSerializer(BaseSerializer):
         return super().update(instance, validated_data)
 
 
-class ModuleFlatSerializer(BaseSerializer):
+class EpicFlatSerializer(BaseSerializer):
     class Meta:
-        model = Module
+        model = Epic
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -130,13 +130,13 @@ class ModuleFlatSerializer(BaseSerializer):
         ]
 
 
-class ModuleIssueSerializer(BaseSerializer):
-    module_detail = ModuleFlatSerializer(read_only=True, source="module")
+class EpicIssueSerializer(BaseSerializer):
+    epic_detail = EpicFlatSerializer(read_only=True, source="epic")
     issue_detail = ProjectLiteSerializer(read_only=True, source="issue")
     sub_issues_count = serializers.IntegerField(read_only=True)
 
     class Meta:
-        model = ModuleIssue
+        model = EpicIssue
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -145,13 +145,13 @@ class ModuleIssueSerializer(BaseSerializer):
             "updated_by",
             "created_at",
             "updated_at",
-            "module",
+            "epic",
         ]
 
 
-class ModuleLinkSerializer(BaseSerializer):
+class EpicLinkSerializer(BaseSerializer):
     class Meta:
-        model = ModuleLink
+        model = EpicLink
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -160,7 +160,7 @@ class ModuleLinkSerializer(BaseSerializer):
             "updated_by",
             "created_at",
             "updated_at",
-            "module",
+            "epic",
         ]
 
     def to_internal_value(self, data):
@@ -183,14 +183,14 @@ class ModuleLinkSerializer(BaseSerializer):
 
     def create(self, validated_data):
         validated_data["url"] = self.validate_url(validated_data.get("url"))
-        if ModuleLink.objects.filter(url=validated_data.get("url"), module_id=validated_data.get("module_id")).exists():
+        if EpicLink.objects.filter(url=validated_data.get("url"), epic_id=validated_data.get("epic_id")).exists():
             raise serializers.ValidationError({"error": "URL already exists."})
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
         validated_data["url"] = self.validate_url(validated_data.get("url"))
         if (
-            ModuleLink.objects.filter(url=validated_data.get("url"), module_id=instance.module_id)
+            EpicLink.objects.filter(url=validated_data.get("url"), epic_id=instance.epic_id)
             .exclude(pk=instance.id)
             .exists()
         ):
@@ -199,7 +199,7 @@ class ModuleLinkSerializer(BaseSerializer):
         return super().update(instance, validated_data)
 
 
-class ModuleSerializer(DynamicBaseSerializer):
+class EpicSerializer(DynamicBaseSerializer):
     member_ids = serializers.ListField(child=serializers.UUIDField(), required=False, allow_null=True)
     is_favorite = serializers.BooleanField(read_only=True)
     total_issues = serializers.IntegerField(read_only=True)
@@ -212,7 +212,7 @@ class ModuleSerializer(DynamicBaseSerializer):
     completed_estimate_points = serializers.FloatField(read_only=True)
 
     class Meta:
-        model = Module
+        model = Epic
         fields = [
             # Required fields
             "id",
@@ -250,17 +250,17 @@ class ModuleSerializer(DynamicBaseSerializer):
         read_only_fields = fields
 
 
-class ModuleDetailSerializer(ModuleSerializer):
-    link_module = ModuleLinkSerializer(read_only=True, many=True)
+class EpicDetailSerializer(EpicSerializer):
+    link_epic = EpicLinkSerializer(read_only=True, many=True)
     sub_issues = serializers.IntegerField(read_only=True)
     backlog_estimate_points = serializers.FloatField(read_only=True)
     unstarted_estimate_points = serializers.FloatField(read_only=True)
     started_estimate_points = serializers.FloatField(read_only=True)
     cancelled_estimate_points = serializers.FloatField(read_only=True)
 
-    class Meta(ModuleSerializer.Meta):
-        fields = ModuleSerializer.Meta.fields + [
-            "link_module",
+    class Meta(EpicSerializer.Meta):
+        fields = EpicSerializer.Meta.fields + [
+            "link_epic",
             "sub_issues",
             "backlog_estimate_points",
             "unstarted_estimate_points",
@@ -269,8 +269,8 @@ class ModuleDetailSerializer(ModuleSerializer):
         ]
 
 
-class ModuleUserPropertiesSerializer(BaseSerializer):
+class EpicUserPropertiesSerializer(BaseSerializer):
     class Meta:
-        model = ModuleUserProperties
+        model = EpicUserProperties
         fields = "__all__"
-        read_only_fields = ["workspace", "project", "module", "user"]
+        read_only_fields = ["workspace", "project", "epic", "user"]

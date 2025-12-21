@@ -53,15 +53,15 @@ export default {
       cta_primary: "작업 항목 생성",
       cta_secondary: "기존 작업 항목 추가",
     },
-    modules: {
-      title: "프로젝트 목표를 모듈에 매핑하고 쉽게 추적하세요.",
+    epics: {
+      title: "프로젝트 목표를 에픽에 매핑하고 쉽게 추적하세요.",
       description:
-        "모듈은 상호 연결된 작업 항목으로 구성됩니다. 특정 기한과 분석을 통해 프로젝트 단계를 통한 진행 상황을 모니터링하여 해당 단계 달성에 얼마나 가까운지 나타냅니다.",
-      cta_primary: "첫 번째 모듈 설정",
+        "에픽은 상호 연결된 작업 항목으로 구성됩니다. 특정 기한과 분석을 통해 프로젝트 단계를 통한 진행 상황을 모니터링하여 해당 단계 달성에 얼마나 가까운지 나타냅니다.",
+      cta_primary: "첫 번째 에픽 설정",
     },
-    module_work_items: {
-      title: "이 모듈에 표시할 작업 항목이 없습니다",
-      description: "작업 항목을 생성하여 이 모듈을 모니터링하기 시작하세요.",
+    epic_work_items: {
+      title: "이 에픽에 표시할 작업 항목이 없습니다",
+      description: "작업 항목을 생성하여 이 에픽을 모니터링하기 시작하세요.",
       cta_primary: "작업 항목 생성",
       cta_secondary: "기존 작업 항목 추가",
     },
@@ -111,9 +111,9 @@ export default {
       title: "아직 보관된 사이클이 없습니다",
       description: "프로젝트를 정리하려면 완료된 사이클을 보관하세요. 보관되면 여기에서 찾을 수 있습니다.",
     },
-    archive_modules: {
-      title: "아직 보관된 모듈이 없습니다",
-      description: "프로젝트를 정리하려면 완료되거나 취소된 모듈을 보관하세요. 보관되면 여기에서 찾을 수 있습니다.",
+    archive_epics: {
+      title: "아직 보관된 에픽이 없습니다",
+      description: "프로젝트를 정리하려면 완료되거나 취소된 에픽을 보관하세요. 보관되면 여기에서 찾을 수 있습니다.",
     },
     home_widget_quick_links: {
       title: "작업에 편리한 중요한 참조 자료, 리소스 또는 문서 보관",
@@ -154,8 +154,8 @@ export default {
     analytics_no_sprint: {
       title: "사이클을 생성하여 작업을 시간 제한 단계로 구성하고 스프린트 전반에 걸쳐 진행 상황을 추적하세요.",
     },
-    analytics_no_module: {
-      title: "모듈을 생성하여 작업을 구성하고 다양한 단계에서 진행 상황을 추적하세요.",
+    analytics_no_epic: {
+      title: "에픽을 생성하여 작업을 구성하고 다양한 단계에서 진행 상황을 추적하세요.",
     },
     analytics_no_intake: {
       title: "접수를 설정하여 들어오는 요청을 관리하고 승인 및 거부 방법을 추적하세요",

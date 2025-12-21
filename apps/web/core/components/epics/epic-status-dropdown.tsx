@@ -4,7 +4,7 @@ import { observer } from "mobx-react";
 import { EPIC_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import type { TEpicStatus } from "@plane/propel/icons";
-import { ModuleStatusIcon } from "@plane/propel/icons";
+import { EpicStatusIcon } from "@plane/propel/icons";
 import type { IEpic } from "@plane/types";
 import { CustomSelect } from "@plane/ui";
 
@@ -45,7 +45,7 @@ export const EpicStatusDropdown = observer(function EpicStatusDropdown(props: Pr
       {EPIC_STATUS.map((status) => (
         <CustomSelect.Option key={status.value} value={status.value}>
           <div className="flex items-center gap-2">
-            <ModuleStatusIcon status={status.value} />
+            <EpicStatusIcon status={status.value} />
             {t(status.i18n_label)}
           </div>
         </CustomSelect.Option>

@@ -20,7 +20,7 @@ x_axis_mapper = {
     "ASSIGNEES": "ASSIGNEES",
     "ESTIMATE_POINTS": "ESTIMATE_POINTS",
     "SPRINTS": "SPRINTS",
-    "MODULES": "MODULES",
+    "EPICS": "EPICS",
     "PRIORITY": "PRIORITY",
     "START_DATE": "START_DATE",
     "TARGET_DATE": "TARGET_DATE",
@@ -57,10 +57,10 @@ def get_x_axis_field() -> Dict[str, Tuple[str, str, Optional[Dict[str, Any]]]]:
             "issue_sprint__sprint__name",
             {"issue_sprint__deleted_at__isnull": True},
         ),
-        "MODULES": (
-            "issue_module__module_id",
-            "issue_module__module__name",
-            {"issue_module__deleted_at__isnull": True},
+        "EPICS": (
+            "issue_epic__epic_id",
+            "issue_epic__epic__name",
+            {"issue_epic__deleted_at__isnull": True},
         ),
         "PRIORITY": ("priority", "priority", None),
         "START_DATE": ("start_date", "start_date", None),

@@ -21,7 +21,7 @@ from django.db.models.fields import DateField
 from django.db.models.functions import Cast, ExtractWeek
 from django.utils import timezone
 
-# Third party modules
+# Third party epics
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -125,7 +125,7 @@ class WorkspaceUserProfileIssuesEndpoint(BaseAPIView):
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")
             )
-            .prefetch_related("assignees", "labels", "issue_module__module")
+            .prefetch_related("assignees", "labels", "issue_epic__epic")
         )
 
     def get(self, request, slug, user_id):

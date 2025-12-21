@@ -159,7 +159,7 @@ def issue_export_task(
             .prefetch_related(
                 "labels",
                 "issue_sprint__sprint",
-                "issue_module__module",
+                "issue_epic__epic",
                 "assignees",
                 "issue_link",
                 Prefetch(

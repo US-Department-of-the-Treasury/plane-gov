@@ -201,8 +201,8 @@ def notifications(
         if type not in [
             "sprint.activity.created",
             "sprint.activity.deleted",
-            "module.activity.created",
-            "module.activity.deleted",
+            "epic.activity.created",
+            "epic.activity.deleted",
             "issue_reaction.activity.created",
             "issue_reaction.activity.deleted",
             "comment_reaction.activity.created",

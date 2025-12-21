@@ -11,7 +11,7 @@ export default {
     analytics: "分析",
     work_items: "工作项",
     sprints: "周期",
-    modules: "模块",
+    epics: "史诗",
     intake: "收集",
     drafts: "草稿",
     favorites: "收藏",
@@ -363,7 +363,7 @@ export default {
   open_project: "打开项目",
   issues: "工作项",
   sprints: "周期",
-  modules: "模块",
+  epics: "史诗",
   pages: "页面",
   intake: "收集",
   time_tracking: "时间跟踪",
@@ -371,7 +371,7 @@ export default {
   projects_and_issues: "项目和工作项",
   projects_and_issues_description: "在此项目中开启或关闭这些功能。",
   sprints_description: "为每个项目设置时间框，并根据需要调整周期。一个周期可以是两周，下一个周期是一周。",
-  modules_description: "将工作组织为子项目，并指定专门的负责人和受理人。",
+  epics_description: "将工作组织为子项目，并指定专门的负责人和受理人。",
   views_description: "保存自定义排序、筛选和显示选项，或与团队共享。",
   pages_description: "创建和编辑自由格式的内容：笔记、文档，任何内容。",
   intake_description: "允许非成员提交 Bug、反馈和建议，且不会干扰您的工作流程。",
@@ -641,8 +641,8 @@ export default {
     project: "项目",
     sprint: "周期",
     sprints: "周期",
-    module: "模块",
-    modules: "模块",
+    epic: "史诗",
+    epics: "史诗",
     labels: "标签",
     label: "标签",
     assignees: "负责人",
@@ -979,10 +979,10 @@ export default {
         success: "已成功从周期中移除工作项。",
         failed: "无法从周期中移除工作项。请重试。",
       },
-      module: {
-        loading: "正在从模块中移除工作项",
-        success: "已成功从模块中移除工作项。",
-        failed: "无法从模块中移除工作项。请重试。",
+      epic: {
+        loading: "正在从史诗中移除工作项",
+        success: "已成功从史诗中移除工作项。",
+        failed: "无法从史诗中移除工作项。请重试。",
       },
       parent: {
         label: "移除父工作项",
@@ -1327,7 +1327,7 @@ export default {
     selected_projects: "已选择的项目",
     total_members: "总成员数",
     total_sprints: "总周期数",
-    total_modules: "总模块数",
+    total_epics: "总史诗数",
     pending_work_items: {
       title: "待处理工作项",
       empty_state: "同事的待处理工作项分析将显示在这里。",
@@ -1367,9 +1367,9 @@ export default {
         primary_button: {
           text: "开始您的第一个项目",
           comic: {
-            title: "分析功能在周期 + 模块中效果最佳",
+            title: "分析功能在周期 + 史诗中效果最佳",
             description:
-              "首先，将您的问题在周期中进行时间限制，如果可能的话，将跨越多个周期的问题分组到模块中。在左侧导航中查看这两个功能。",
+              "首先，将您的问题在周期中进行时间限制，如果可能的话，将跨越多个周期的问题分组到史诗中。在左侧导航中查看这两个功能。",
           },
         },
       },
@@ -1411,7 +1411,7 @@ export default {
     error: {
       permission: "您没有执行此操作的权限。",
       sprint_delete: "删除周期失败",
-      module_delete: "删除模块失败",
+      epic_delete: "删除史诗失败",
       issue_delete: "删除工作项失败",
     },
     state: {
@@ -1438,7 +1438,7 @@ export default {
       general: {
         title: "没有活动项目",
         description:
-          "将每个项目视为目标导向工作的父级。项目是工作项、周期和模块所在的地方，与您的同事一起帮助您实现目标。创建新项目或筛选已归档的项目。",
+          "将每个项目视为目标导向工作的父级。项目是工作项、周期和史诗所在的地方，与您的同事一起帮助您实现目标。创建新项目或筛选已归档的项目。",
         primary_button: {
           text: "开始您的第一个项目",
           comic: {
@@ -2084,29 +2084,29 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "添加模块",
-    update_module: "更新模块",
-    create_module: "创建模块",
-    archive_module: "归档模块",
-    restore_module: "恢复模块",
-    delete_module: "删除模块",
+  project_epic: {
+    add_epic: "添加史诗",
+    update_epic: "更新史诗",
+    create_epic: "创建史诗",
+    archive_epic: "归档史诗",
+    restore_epic: "恢复史诗",
+    delete_epic: "删除史诗",
     empty_state: {
       general: {
-        title: "将项目里程碑映射到模块，轻松跟踪汇总工作。",
+        title: "将项目里程碑映射到史诗，轻松跟踪汇总工作。",
         description:
-          "属于逻辑层次结构父级的一组工作项形成一个模块。将其视为按项目里程碑跟踪工作的方式。它们有自己的周期和截止日期以及分析功能，帮助您了解距离里程碑的远近。",
+          "属于逻辑层次结构父级的一组工作项形成一个史诗。将其视为按项目里程碑跟踪工作的方式。它们有自己的周期和截止日期以及分析功能，帮助您了解距离里程碑的远近。",
         primary_button: {
-          text: "构建您的第一个模块",
+          text: "构建您的第一个史诗",
           comic: {
-            title: "模块帮助按层次结构对工作进行分组。",
-            description: "购物车模块、底盘模块和仓库模块都是这种分组的好例子。",
+            title: "史诗帮助按层次结构对工作进行分组。",
+            description: "购物车史诗、底盘史诗和仓库史诗都是这种分组的好例子。",
           },
         },
       },
       no_issues: {
-        title: "模块中没有工作项",
-        description: "创建或添加您想作为此模块一部分完成的工作项",
+        title: "史诗中没有工作项",
+        description: "创建或添加您想作为此史诗一部分完成的工作项",
         primary_button: {
           text: "创建新工作项",
         },
@@ -2115,26 +2115,26 @@ export default {
         },
       },
       archived: {
-        title: "尚无已归档的模块",
-        description: "为了整理您的项目，归档已完成或已取消的模块。归档后可以在这里找到它们。",
+        title: "尚无已归档的史诗",
+        description: "为了整理您的项目，归档已完成或已取消的史诗。归档后可以在这里找到它们。",
       },
       sidebar: {
-        in_active: "此模块尚未激活。",
+        in_active: "此史诗尚未激活。",
         invalid_date: "日期无效。请输入有效日期。",
       },
     },
     quick_actions: {
-      archive_module: "归档模块",
-      archive_module_description: "只有已完成或已取消的\n模块可以归档。",
-      delete_module: "删除模块",
+      archive_epic: "归档史诗",
+      archive_epic_description: "只有已完成或已取消的\n史诗可以归档。",
+      delete_epic: "删除史诗",
     },
     toast: {
       copy: {
-        success: "模块链接已复制到剪贴板",
+        success: "史诗链接已复制到剪贴板",
       },
       delete: {
-        success: "模块删除成功",
-        error: "删除模块失败",
+        success: "史诗删除成功",
+        error: "删除史诗失败",
       },
     },
   },
@@ -2310,9 +2310,9 @@ export default {
           text: "管理功能",
         },
       },
-      module: {
-        title: "项目未启用模块功能。",
-        description: "模块是项目的基本构建块。从项目设置启用模块以开始使用它们。",
+      epic: {
+        title: "项目未启用史诗功能。",
+        description: "史诗是项目的基本构建块。从项目设置启用史诗以开始使用它们。",
         primary_button: {
           text: "管理功能",
         },
@@ -2420,7 +2420,7 @@ export default {
     },
     member: {
       title: "成员",
-      description: "可以在项目、周期和模块内读取、写入、编辑和删除实体",
+      description: "可以在项目、周期和史诗内读取、写入、编辑和删除实体",
     },
     admin: {
       title: "管理员",
@@ -2499,7 +2499,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "待办",
       planned: "已计划",
@@ -2526,9 +2526,9 @@ export default {
     label: "{count, plural, one {周期} other {周期}}",
     no_sprint: "无周期",
   },
-  module: {
-    label: "{count, plural, one {模块} other {模块}}",
-    no_module: "无模块",
+  epic: {
+    label: "{count, plural, one {史诗} other {史诗}}",
+    no_epic: "无史诗",
   },
   description_versions: {
     last_edited_by: "最后编辑者",

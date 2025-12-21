@@ -12,7 +12,7 @@ import {
   WORK_ITEM_TRACKER_ELEMENTS,
 } from "@plane/constants";
 import { Button } from "@plane/propel/button";
-import { ModuleIcon } from "@plane/propel/icons";
+import { EpicIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import type { ICustomSearchSelectOption, IIssueDisplayFilterOptions, IIssueDisplayProperties } from "@plane/types";
 import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
@@ -112,7 +112,7 @@ export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
       return {
         value: _epic.id,
         query: _epic.name,
-        content: <SwitcherLabel name={_epic.name} LabelIcon={ModuleIcon} />,
+        content: <SwitcherLabel name={_epic.name} LabelIcon={EpicIcon} />,
       };
     })
     .filter((option) => option !== undefined) as ICustomSearchSelectOption[];
@@ -135,7 +135,7 @@ export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
                   <BreadcrumbLink
                     label="Epics"
                     href={`/${workspaceSlug}/projects/${projectId}/epics/`}
-                    icon={<ModuleIcon className="h-4 w-4 text-tertiary" />}
+                    icon={<EpicIcon className="h-4 w-4 text-tertiary" />}
                     isLast
                   />
                 }
@@ -150,7 +150,7 @@ export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
                       router.push(`/${workspaceSlug}/projects/${projectId}/epics/${value}`);
                     }}
                     title={epicDetails?.name}
-                    icon={<ModuleIcon className="size-3.5 flex-shrink-0 text-tertiary" />}
+                    icon={<EpicIcon className="size-3.5 flex-shrink-0 text-tertiary" />}
                     isLast
                   />
                 }
@@ -235,7 +235,7 @@ export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
                 onClick={() => {
                   toggleCreateIssueModal(true, EIssuesStoreType.EPIC);
                 }}
-                data-ph-element={WORK_ITEM_TRACKER_ELEMENTS.HEADER_ADD_BUTTON.MODULE}
+                data-ph-element={WORK_ITEM_TRACKER_ELEMENTS.HEADER_ADD_BUTTON.EPIC}
               >
                 Add work item
               </Button>

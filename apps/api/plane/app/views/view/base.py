@@ -34,7 +34,7 @@ from plane.db.models import (
     UserRecentVisit,
     IssueAssignee,
     IssueLabel,
-    ModuleIssue,
+    EpicIssue,
 )
 from plane.utils.issue_filters import issue_filters
 from plane.utils.order_queryset import order_issue_queryset
@@ -199,8 +199,8 @@ class WorkspaceViewIssuesViewSet(BaseViewSet):
             )
             .prefetch_related(
                 Prefetch(
-                    "issue_module",
-                    queryset=ModuleIssue.objects.all(),
+                    "issue_epic",
+                    queryset=EpicIssue.objects.all(),
                 )
             )
         )

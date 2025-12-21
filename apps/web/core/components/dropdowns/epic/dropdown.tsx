@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // hooks
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 // types
 import type { TDropdownProps } from "../types";
 // local imports

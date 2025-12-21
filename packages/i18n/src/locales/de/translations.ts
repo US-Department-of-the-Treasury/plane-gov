@@ -11,7 +11,7 @@ export default {
     analytics: "Analysen",
     work_items: "Arbeitselemente",
     sprints: "Zyklen",
-    modules: "Module",
+    epics: "Epics",
     intake: "Eingang",
     drafts: "Entwürfe",
     favorites: "Favoriten",
@@ -381,7 +381,7 @@ export default {
   open_project: "Projekt öffnen",
   issues: "Arbeitselemente",
   sprints: "Zyklen",
-  modules: "Module",
+  epics: "Epics",
   pages: "Seiten",
   intake: "Eingang",
   time_tracking: "Zeiterfassung",
@@ -390,7 +390,7 @@ export default {
   projects_and_issues_description: "Aktivieren oder deaktivieren Sie diese Funktionen im Projekt.",
   sprints_description:
     "Zeitlich begrenzen Sie die Arbeit pro Projekt und passen Sie den Zeitraum bei Bedarf an. Ein Zyklus kann 2 Wochen dauern, der nächste nur 1 Woche.",
-  modules_description: "Organisieren Sie die Arbeit in Unterprojekte mit eigenen Leitern und Zuständigen.",
+  epics_description: "Organisieren Sie die Arbeit in Unterprojekte mit eigenen Leitern und Zuständigen.",
   views_description:
     "Speichern Sie benutzerdefinierte Sortierungen, Filter und Anzeigeoptionen oder teilen Sie sie mit Ihrem Team.",
   pages_description: "Erstellen und bearbeiten Sie frei formulierte Inhalte – Notizen, Dokumente, alles Mögliche.",
@@ -665,8 +665,8 @@ export default {
     project: "Projekt",
     sprint: "Zyklus",
     sprints: "Zyklen",
-    module: "Modul",
-    modules: "Module",
+    epic: "Epic",
+    epics: "Epics",
     labels: "Labels",
     label: "Label",
     assignees: "Zugewiesene",
@@ -1005,10 +1005,10 @@ export default {
         success: "Arbeitselement aus dem Zyklus entfernt.",
         failed: "Das Entfernen des Arbeitselements aus dem Zyklus ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
       },
-      module: {
-        loading: "Arbeitselement wird aus dem Modul entfernt",
-        success: "Arbeitselement aus dem Modul entfernt.",
-        failed: "Das Entfernen des Arbeitselements aus dem Modul ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      epic: {
+        loading: "Arbeitselement wird aus dem Epic entfernt",
+        success: "Arbeitselement aus dem Epic entfernt.",
+        failed: "Das Entfernen des Arbeitselements aus dem Epic ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
       },
       parent: {
         label: "Übergeordnetes Arbeitselement entfernen",
@@ -1356,7 +1356,7 @@ export default {
     selected_projects: "Ausgewählte Projekte",
     total_members: "Gesamtmitglieder",
     total_sprints: "Zyklen insgesamt",
-    total_modules: "Module insgesamt",
+    total_epics: "Epics insgesamt",
     pending_work_items: {
       title: "Ausstehende Arbeitselemente",
       empty_state: "Hier wird eine Analyse der ausstehenden Elemente nach Mitarbeitern angezeigt.",
@@ -1398,9 +1398,9 @@ export default {
         primary_button: {
           text: "Erstes Projekt starten",
           comic: {
-            title: "Analytics funktioniert am besten mit Zyklen + Modulen",
+            title: "Analytics funktioniert am besten mit Zyklen + Epics",
             description:
-              "Begrenzen Sie zunächst Ihre Arbeitselemente zeitlich in Zyklen und gruppieren Sie, wenn möglich, Arbeitselemente, die mehr als einen Zyklus umfassen, in Module. Schauen Sie sich beide in der linken Navigation an.",
+              "Begrenzen Sie zunächst Ihre Arbeitselemente zeitlich in Zyklen und gruppieren Sie, wenn möglich, Arbeitselemente, die mehr als einen Zyklus umfassen, in Epics. Schauen Sie sich beide in der linken Navigation an.",
           },
         },
       },
@@ -1443,7 +1443,7 @@ export default {
     error: {
       permission: "Sie haben keine Berechtigung für diese Aktion.",
       sprint_delete: "Löschen des Zyklus fehlgeschlagen",
-      module_delete: "Löschen des Moduls fehlgeschlagen",
+      epic_delete: "Löschen des Epics fehlgeschlagen",
       issue_delete: "Löschen des Arbeitselements fehlgeschlagen",
     },
     state: {
@@ -1470,7 +1470,7 @@ export default {
       general: {
         title: "Keine aktiven Projekte",
         description:
-          "Ein Projekt ist einem übergeordneten Ziel zugeordnet. Projekte enthalten Aufgaben, Zyklen und Module. Erstellen Sie ein neues oder filtern Sie archivierte.",
+          "Ein Projekt ist einem übergeordneten Ziel zugeordnet. Projekte enthalten Aufgaben, Zyklen und Epics. Erstellen Sie ein neues oder filtern Sie archivierte.",
         primary_button: {
           text: "Erstes Projekt erstellen",
           comic: {
@@ -2146,29 +2146,29 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Modul hinzufügen",
-    update_module: "Modul aktualisieren",
-    create_module: "Modul erstellen",
-    archive_module: "Modul archivieren",
-    restore_module: "Modul wiederherstellen",
-    delete_module: "Modul löschen",
+  project_epic: {
+    add_epic: "Modul hinzufügen",
+    update_epic: "Modul aktualisieren",
+    create_epic: "Modul erstellen",
+    archive_epic: "Epic archivieren",
+    restore_epic: "Modul wiederherstellen",
+    delete_epic: "Epic löschen",
     empty_state: {
       general: {
-        title: "Gruppieren Sie Meilensteine in Modulen.",
+        title: "Gruppieren Sie Meilensteine in Epics.",
         description:
-          "Module fassen Elemente unter einer logischen Einheit zusammen. Verfolgen Sie Fristen und Fortschritt.",
+          "Epics fassen Elemente unter einer logischen Einheit zusammen. Verfolgen Sie Fristen und Fortschritt.",
         primary_button: {
           text: "Erstes Modul erstellen",
           comic: {
-            title: "Module gruppieren hierarchisch.",
+            title: "Epics gruppieren hierarchisch.",
             description: "Beispiele: Warenkorbmodul, Chassis, Lager.",
           },
         },
       },
       no_issues: {
         title: "Keine Elemente im Modul",
-        description: "Fügen Sie dem Modul Elemente hinzu.",
+        description: "Fügen Sie dem Epic Elemente hinzu.",
         primary_button: {
           text: "Elemente erstellen",
         },
@@ -2177,8 +2177,8 @@ export default {
         },
       },
       archived: {
-        title: "Keine archivierten Module",
-        description: "Archivieren Sie abgeschlossene oder abgebrochene Module.",
+        title: "Keine archivierten Epics",
+        description: "Archivieren Sie abgeschlossene oder abgebrochene Epics.",
       },
       sidebar: {
         in_active: "Modul ist nicht aktiv.",
@@ -2186,9 +2186,9 @@ export default {
       },
     },
     quick_actions: {
-      archive_module: "Modul archivieren",
-      archive_module_description: "Nur abgeschlossene/abgebrochene Module können archiviert werden.",
-      delete_module: "Modul löschen",
+      archive_epic: "Epic archivieren",
+      archive_epic_description: "Nur abgeschlossene/abgebrochene Epics können archiviert werden.",
+      delete_epic: "Epic löschen",
     },
     toast: {
       copy: {
@@ -2371,9 +2371,9 @@ export default {
           text: "Funktionen verwalten",
         },
       },
-      module: {
-        title: "Module sind nicht aktiviert",
-        description: "Aktivieren Sie Module in den Projekteinstellungen.",
+      epic: {
+        title: "Epics sind nicht aktiviert",
+        description: "Aktivieren Sie Epics in den Projekteinstellungen.",
         primary_button: {
           text: "Funktionen verwalten",
         },
@@ -2560,7 +2560,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Backlog",
       planned: "Geplant",
@@ -2587,9 +2587,9 @@ export default {
     label: "{count, plural, one {Zyklus} few {Zyklen} other {Zyklen}}",
     no_sprint: "Kein Zyklus",
   },
-  module: {
-    label: "{count, plural, one {Modul} few {Module} other {Module}}",
-    no_module: "Kein Modul",
+  epic: {
+    label: "{count, plural, one {Epic} few {Epics} other {Epics}}",
+    no_epic: "Kein Modul",
   },
   description_versions: {
     last_edited_by: "Zuletzt bearbeitet von",
