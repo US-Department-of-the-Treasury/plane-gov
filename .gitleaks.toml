@@ -1,0 +1,65 @@
+# Gitleaks configuration for Treasury Plane
+# https://github.com/gitleaks/gitleaks
+
+title = "Treasury Plane Secret Detection"
+
+[extend]
+# Use the default gitleaks rules as a base
+useDefault = true
+
+# Allow specific patterns that are false positives or intentional examples
+[allowlist]
+description = "Allowed patterns"
+
+paths = [
+    '''\.example$''',
+    '''\.tfvars\.example$''',
+    '''node_modules''',
+    '''\.git''',
+    '''pnpm-lock\.yaml''',
+    '''package-lock\.json''',
+]
+
+regexTarget = "line"
+
+regexes = [
+    # AWS example keys (intentionally fake)
+    '''AKIAIOSFODNN7EXAMPLE''',
+    '''wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY''',
+
+    # Generic placeholder patterns
+    '''your-.*-here''',
+    '''<.*>''',
+    '''CHANGE_ME''',
+    '''REPLACE_THIS''',
+    '''xxx+''',
+
+    # Treasury functional mailbox patterns (public contacts, not secrets)
+    '''(admin|security-team|opensource)@treasury\.gov''',
+]
+
+# Custom rules for government-specific patterns
+[[rules]]
+id = "aws-account-id"
+description = "AWS Account ID"
+regex = '''(?i)(aws[_-]?)?account[_-]?id\s*[:=]\s*["']?[0-9]{12}["']?'''
+keywords = ["account"]
+
+[[rules]]
+id = "route53-zone-id"
+description = "Route53 Zone ID in non-example file"
+regex = '''route53_zone_id\s*=\s*"Z[A-Z0-9]{10,}"'''
+keywords = ["route53", "zone"]
+
+[[rules]]
+id = "gov-internal-url"
+description = "Government internal URLs"
+regex = '''https?://[a-z0-9.-]+\.(treas|treasury)\.gov'''
+keywords = ["treas", "treasury"]
+allowlist = { paths = ['''\.md$''', '''\.example'''] }
+
+[[rules]]
+id = "terraform-state"
+description = "Terraform state file content"
+regex = '''"arn:aws:[a-z0-9-]+:[a-z0-9-]*:[0-9]{12}:'''
+keywords = ["arn:aws"]

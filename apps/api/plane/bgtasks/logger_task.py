@@ -1,10 +1,13 @@
 # Python imports
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, TYPE_CHECKING
 
 # Third party imports
-from pymongo.collection import Collection
 from celery import shared_task
+
+# Type hints only - pymongo is optional
+if TYPE_CHECKING:
+    from pymongo.collection import Collection
 
 # Django imports
 from plane.settings.mongo import MongoConnection
@@ -15,7 +18,7 @@ from plane.db.models import APIActivityLog
 logger = logging.getLogger("plane.worker")
 
 
-def get_mongo_collection() -> Optional[Collection]:
+def get_mongo_collection() -> Optional["Collection"]:
     """
     Returns the MongoDB collection for external API activity logs.
     """
