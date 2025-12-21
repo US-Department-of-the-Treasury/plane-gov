@@ -36,7 +36,7 @@ from plane.app.serializers import (
 )
 from plane.app.views.base import BaseAPIView
 from plane.db.models import (
-    CycleIssue,
+    SprintIssue,
     Issue,
     IssueActivity,
     FileAsset,
@@ -100,8 +100,8 @@ class WorkspaceUserProfileIssuesEndpoint(BaseAPIView):
     def apply_annotations(self, issues):
         return (
             issues.annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(
@@ -488,18 +488,18 @@ class WorkspaceUserProfileStatsEndpoint(BaseAPIView):
             .count()
         )
 
-        upcoming_cycles = CycleIssue.objects.filter(
+        upcoming_sprints = SprintIssue.objects.filter(
             workspace__slug=slug,
-            cycle__start_date__gt=timezone.now(),
+            sprint__start_date__gt=timezone.now(),
             issue__assignees__in=[user_id],
-        ).values("cycle__name", "cycle__id", "cycle__project_id")
+        ).values("sprint__name", "sprint__id", "sprint__project_id")
 
-        present_cycle = CycleIssue.objects.filter(
+        present_sprint = SprintIssue.objects.filter(
             workspace__slug=slug,
-            cycle__start_date__lt=timezone.now(),
-            cycle__end_date__gt=timezone.now(),
+            sprint__start_date__lt=timezone.now(),
+            sprint__end_date__gt=timezone.now(),
             issue__assignees__in=[user_id],
-        ).values("cycle__name", "cycle__id", "cycle__project_id")
+        ).values("sprint__name", "sprint__id", "sprint__project_id")
 
         return Response(
             {
@@ -510,8 +510,8 @@ class WorkspaceUserProfileStatsEndpoint(BaseAPIView):
                 "completed_issues": completed_issues_count,
                 "pending_issues": pending_issues_count,
                 "subscribed_issues": subscribed_issues_count,
-                "present_cycles": present_cycle,
-                "upcoming_cycles": upcoming_cycles,
+                "present_sprints": present_sprint,
+                "upcoming_sprints": upcoming_sprints,
             }
         )
 

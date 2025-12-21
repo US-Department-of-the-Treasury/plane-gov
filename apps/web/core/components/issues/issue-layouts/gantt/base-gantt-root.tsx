@@ -27,19 +27,19 @@ import { IssueGanttBlock } from "./blocks";
 
 interface IBaseGanttRoot {
   viewId?: string | undefined;
-  isCompletedCycle?: boolean;
+  isCompletedSprint?: boolean;
   isEpic?: boolean;
 }
 
 export type GanttStoreType =
   | EIssuesStoreType.PROJECT
   | EIssuesStoreType.MODULE
-  | EIssuesStoreType.CYCLE
+  | EIssuesStoreType.SPRINT
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.EPIC;
 
 export const BaseGanttRoot = observer(function BaseGanttRoot(props: IBaseGanttRoot) {
-  const { viewId, isCompletedCycle = false, isEpic = false } = props;
+  const { viewId, isCompletedSprint = false, isEpic = false } = props;
   const { t } = useTranslation();
   // router
   const { workspaceSlug, projectId } = useParams();
@@ -104,7 +104,7 @@ export const BaseGanttRoot = observer(function BaseGanttRoot(props: IBaseGanttRo
   );
 
   const quickAdd =
-    enableIssueCreation && isAllowed && !isCompletedCycle ? (
+    enableIssueCreation && isAllowed && !isCompletedSprint ? (
       <QuickAddIssueRoot
         layout={EIssueLayoutTypes.GANTT}
         QuickAddButton={GanttQuickAddIssueButton}

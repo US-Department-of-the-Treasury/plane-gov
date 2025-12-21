@@ -9,7 +9,7 @@ import {
   WorkspaceIconsMap,
 } from "./constants";
 import { Icon } from "./icon";
-import { CycleIcon } from "./project/cycle-icon";
+import { SprintIcon } from "./project/sprint-icon";
 import { HomeIcon } from "./workspace/home-icon";
 import { ProjectIcon } from "./workspace/project-icon";
 
@@ -134,8 +134,8 @@ export const RegistryUsage: Story = {
             <p className="text-11 text-tertiary text-center">workspace.home</p>
           </div>
           <div className="flex flex-col items-center justify-center gap-3 p-4 col-span-2">
-            <Icon name="project.cycle" className="text-secondary" />
-            <p className="text-11 text-tertiary text-center">project.cycle</p>
+            <Icon name="project.sprint" className="text-secondary" />
+            <p className="text-11 text-tertiary text-center">project.sprint</p>
           </div>
           <div className="flex flex-col items-center justify-center gap-3 p-4 col-span-2">
             <Icon name="layout.board" className="text-secondary" />
@@ -159,8 +159,8 @@ export const RegistryUsage: Story = {
             <p className="text-11 text-tertiary text-center">HomeIcon</p>
           </div>
           <div className="flex flex-col items-center justify-center gap-3 p-4 col-span-2">
-            <CycleIcon className="text-secondary" />
-            <p className="text-11 text-tertiary text-center">CycleIcon</p>
+            <SprintIcon className="text-secondary" />
+            <p className="text-11 text-tertiary text-center">SprintIcon</p>
           </div>
           <div className="flex flex-col items-center justify-center gap-3 p-4 col-span-2">
             <ProjectIcon className="text-secondary" />

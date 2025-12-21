@@ -19,7 +19,7 @@ x_axis_mapper = {
     "LABELS": "LABELS",
     "ASSIGNEES": "ASSIGNEES",
     "ESTIMATE_POINTS": "ESTIMATE_POINTS",
-    "CYCLES": "CYCLES",
+    "SPRINTS": "SPRINTS",
     "MODULES": "MODULES",
     "PRIORITY": "PRIORITY",
     "START_DATE": "START_DATE",
@@ -52,10 +52,10 @@ def get_x_axis_field() -> Dict[str, Tuple[str, str, Optional[Dict[str, Any]]]]:
             {"issue_assignee__deleted_at__isnull": True},
         ),
         "ESTIMATE_POINTS": ("estimate_point__value", "estimate_point__key", None),
-        "CYCLES": (
-            "issue_cycle__cycle_id",
-            "issue_cycle__cycle__name",
-            {"issue_cycle__deleted_at__isnull": True},
+        "SPRINTS": (
+            "issue_sprint__sprint_id",
+            "issue_sprint__sprint__name",
+            {"issue_sprint__deleted_at__isnull": True},
         ),
         "MODULES": (
             "issue_module__module_id",

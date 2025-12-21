@@ -4,7 +4,7 @@ import { ArchiveIcon } from "@plane/propel/icons";
 import type { TContextMenuItem } from "@plane/ui";
 
 /**
- * Unified factory for creating menu items across all entities (cycles, modules, views, epics)
+ * Unified factory for creating menu items across all entities (sprints, modules, views, epics)
  */
 export const useQuickActionsFactory = () => {
   const { t } = useTranslation();

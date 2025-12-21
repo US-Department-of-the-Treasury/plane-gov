@@ -44,13 +44,13 @@ export default {
         "Os itens de trabalho são os blocos de construção do seu projeto — atribua proprietários, defina prioridades e acompanhe o progresso facilmente.",
       cta_primary: "Criar seu primeiro item de trabalho",
     },
-    cycles: {
+    sprints: {
       title: "Agrupe e defina prazos para seu trabalho em Ciclos.",
       description:
         "Divida o trabalho em blocos com prazo definido, trabalhe de trás para frente a partir do prazo do projeto para definir datas e faça progresso tangível como equipe.",
       cta_primary: "Definir seu primeiro ciclo",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "Nenhum item de trabalho para mostrar neste ciclo",
       description:
         "Crie itens de trabalho para começar a monitorar o progresso da sua equipe neste ciclo e atingir seus objetivos no prazo.",
@@ -113,7 +113,7 @@ export default {
         "Manualmente ou por meio de automação, você pode arquivar itens de trabalho concluídos ou cancelados. Encontre-os aqui uma vez arquivados.",
       cta_primary: "Configurar automação",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "Ainda não há ciclos arquivados",
       description: "Para organizar seu projeto, arquive ciclos concluídos. Encontre-os aqui uma vez arquivados.",
     },
@@ -160,7 +160,7 @@ export default {
       title:
         "Crie projetos com itens de trabalho e responsáveis para começar a rastrear desempenho, progresso e impacto da equipe aqui.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title: "Crie ciclos para organizar o trabalho em fases com prazo definido e acompanhar o progresso em sprints.",
     },
     analytics_no_module: {

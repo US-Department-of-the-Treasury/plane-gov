@@ -114,7 +114,7 @@ export const ModuleIssuesMobileHeader = observer(function ModuleIssuesMobileHead
               displayProperties={issueFilters?.displayProperties ?? {}}
               handleDisplayPropertiesUpdate={handleDisplayProperties}
               ignoreGroupedFilters={["module"]}
-              cycleViewDisabled={!currentProjectDetails?.cycle_view}
+              sprintViewDisabled={!currentProjectDetails?.sprint_view}
               moduleViewDisabled={!currentProjectDetails?.module_view}
             />
           </FiltersDropdown>

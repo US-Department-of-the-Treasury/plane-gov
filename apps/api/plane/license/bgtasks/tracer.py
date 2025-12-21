@@ -11,7 +11,7 @@ def instance_traces():
     Original implementation sent:
     - instance_id, instance_name, domain, version
     - user_count, workspace_count, project_count
-    - issue_count, module_count, cycle_count, page_count
+    - issue_count, module_count, sprint_count, page_count
     - Per-workspace breakdowns including workspace slugs
     """
     pass

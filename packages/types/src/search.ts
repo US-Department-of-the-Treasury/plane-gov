@@ -1,4 +1,4 @@
-import type { ICycle } from "./cycle";
+import type { ISprint } from "./sprint";
 import type { TIssue } from "./issues/issue";
 import type { IModule } from "./module";
 import type { TPage } from "./page";
@@ -6,7 +6,7 @@ import type { IProject } from "./project";
 import type { IUser } from "./users";
 import type { IWorkspace } from "./workspace";
 
-export type TSearchEntities = "user_mention" | "issue" | "project" | "cycle" | "module" | "page";
+export type TSearchEntities = "user_mention" | "issue" | "project" | "sprint" | "module" | "page";
 
 export type TUserSearchResponse = {
   member__avatar_url: IUser["avatar_url"];
@@ -33,12 +33,12 @@ export type TIssueSearchResponse = {
   type_id: TIssue["type_id"];
 };
 
-export type TCycleSearchResponse = {
-  name: ICycle["name"];
-  id: ICycle["id"];
-  project_id: ICycle["project_id"];
+export type TSprintSearchResponse = {
+  name: ISprint["name"];
+  id: ISprint["id"];
+  project_id: ISprint["project_id"];
   project__identifier: IProject["identifier"];
-  status: ICycle["status"];
+  status: ISprint["status"];
   workspace__slug: IWorkspace["slug"];
 };
 
@@ -60,7 +60,7 @@ export type TPageSearchResponse = {
 };
 
 export type TSearchResponse = {
-  cycle?: TCycleSearchResponse[];
+  sprint?: TSprintSearchResponse[];
   issue?: TIssueSearchResponse[];
   module?: TModuleSearchResponse[];
   page?: TPageSearchResponse[];

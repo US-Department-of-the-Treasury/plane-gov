@@ -11,7 +11,7 @@ import { removeNillKeys } from "@/components/issues/issue-layouts/utils";
 import { CreateUpdateProjectViewModal } from "@/components/views/modal";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useCycle } from "@/hooks/store/use-cycle";
+import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
 import { useModule } from "@/hooks/store/use-module";
@@ -44,7 +44,7 @@ export const ProjectLevelWorkItemFiltersHOC = observer(function ProjectLevelWork
   const { getViewById, updateView } = useProjectView();
   const { data: currentUser } = useUser();
   const { allowPermissions } = useUserPermissions();
-  const { getProjectCycleIds } = useCycle();
+  const { getProjectSprintIds } = useSprint();
   const { getProjectLabelIds } = useLabel();
   const {
     project: { getProjectMemberIds },
@@ -215,7 +215,7 @@ export const ProjectLevelWorkItemFiltersHOC = observer(function ProjectLevelWork
           workspaceSlug,
           projectId,
         })}
-        cycleIds={getProjectCycleIds(projectId) ?? undefined}
+        sprintIds={getProjectSprintIds(projectId) ?? undefined}
         labelIds={getProjectLabelIds(projectId)}
         memberIds={getProjectMemberIds(projectId, false) ?? undefined}
         moduleIds={getProjectModuleIds(projectId) ?? undefined}

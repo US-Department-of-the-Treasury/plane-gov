@@ -41,7 +41,7 @@ from plane.bgtasks.issue_description_version_task import issue_description_versi
 from plane.bgtasks.recent_visited_task import recent_visited_task
 from plane.bgtasks.webhook_task import model_activity
 from plane.db.models import (
-    CycleIssue,
+    SprintIssue,
     FileAsset,
     IntakeIssue,
     Issue,
@@ -105,8 +105,8 @@ class IssueListEndpoint(BaseAPIView):
         # Add annotations
         issue_queryset = (
             issue_queryset.annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(
@@ -168,7 +168,7 @@ class IssueListEndpoint(BaseAPIView):
                 "sequence_id",
                 "project_id",
                 "parent_id",
-                "cycle_id",
+                "sprint_id",
                 "module_ids",
                 "label_ids",
                 "assignee_ids",
@@ -209,8 +209,8 @@ class IssueViewSet(BaseViewSet):
     def apply_annotations(self, issues):
         issues = (
             issues.annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(
@@ -433,7 +433,7 @@ class IssueViewSet(BaseViewSet):
                     "sequence_id",
                     "project_id",
                     "parent_id",
-                    "cycle_id",
+                    "sprint_id",
                     "module_ids",
                     "label_ids",
                     "assignee_ids",
@@ -483,7 +483,7 @@ class IssueViewSet(BaseViewSet):
                 pk=pk,
             )
             .select_related("state")
-            .annotate(cycle_id=Subquery(CycleIssue.objects.filter(issue=OuterRef("id")).values("cycle_id")[:1]))
+            .annotate(sprint_id=Subquery(SprintIssue.objects.filter(issue=OuterRef("id")).values("sprint_id")[:1]))
             .annotate(
                 link_count=Subquery(
                     IssueLink.objects.filter(issue=OuterRef("id"))
@@ -755,8 +755,8 @@ class BulkDeleteIssuesEndpoint(BaseAPIView):
 
         total_issues = len(issues)
 
-        # First, delete all related cycle issues
-        CycleIssue.objects.filter(issue_id__in=issue_ids).delete()
+        # First, delete all related sprint issues
+        SprintIssue.objects.filter(issue_id__in=issue_ids).delete()
 
         # Then, delete all related module issues
         ModuleIssue.objects.filter(issue_id__in=issue_ids).delete()
@@ -795,7 +795,7 @@ class IssuePaginatedViewSet(BaseViewSet):
 
         return (
             issue_queryset.select_related("state")
-            .annotate(cycle_id=Subquery(CycleIssue.objects.filter(issue=OuterRef("id")).values("cycle_id")[:1]))
+            .annotate(sprint_id=Subquery(SprintIssue.objects.filter(issue=OuterRef("id")).values("sprint_id")[:1]))
             .annotate(
                 link_count=Subquery(
                     IssueLink.objects.filter(issue=OuterRef("id"))
@@ -855,7 +855,7 @@ class IssuePaginatedViewSet(BaseViewSet):
             "sequence_id",
             "project_id",
             "parent_id",
-            "cycle_id",
+            "sprint_id",
             "created_at",
             "updated_at",
             "created_by",
@@ -952,8 +952,8 @@ class IssueDetailEndpoint(BaseAPIView):
     def apply_annotations(self, issues):
         return (
             issues.annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(
@@ -1208,7 +1208,7 @@ class IssueDetailIdentifierEndpoint(BaseAPIView):
             .filter(workspace__slug=slug)
             .select_related("workspace", "project", "state", "parent")
             .prefetch_related("assignees", "labels", "issue_module__module")
-            .annotate(cycle_id=Subquery(CycleIssue.objects.filter(issue=OuterRef("id")).values("cycle_id")[:1]))
+            .annotate(sprint_id=Subquery(SprintIssue.objects.filter(issue=OuterRef("id")).values("sprint_id")[:1]))
             .annotate(
                 link_count=IssueLink.objects.filter(issue=OuterRef("id"))
                 .order_by()

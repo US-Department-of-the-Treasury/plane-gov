@@ -329,7 +329,7 @@ export const WORKSPACE_DEFAULT_SEARCH_RESULT: IWorkspaceSearchResults = {
     workspace: [],
     project: [],
     issue: [],
-    cycle: [],
+    sprint: [],
     module: [],
     issue_view: [],
     page: [],

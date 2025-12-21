@@ -31,11 +31,11 @@ export interface IssuesModalProps {
 
 export const CreateUpdateIssueModal = observer(function CreateUpdateIssueModal(props: IssuesModalProps) {
   // router params
-  const { cycleId, moduleId } = useParams();
+  const { sprintId, moduleId } = useParams();
   // derived values
   const dataForPreload = {
     ...props.data,
-    cycle_id: props.data?.cycle_id ? props.data?.cycle_id : cycleId ? cycleId.toString() : null,
+    sprint_id: props.data?.sprint_id ? props.data?.sprint_id : sprintId ? sprintId.toString() : null,
     module_ids: props.data?.module_ids ? props.data?.module_ids : moduleId ? [moduleId.toString()] : null,
   };
 

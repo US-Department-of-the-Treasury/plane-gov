@@ -192,8 +192,8 @@ export class InboxIssueStore implements IInboxIssueStore {
         set(this.issue, issueKey, issue[issueKey]);
       });
       await this.issueService.patchIssue(this.workspaceSlug, this.projectId, this.issue.id, issue);
-      if (issue.cycle_id) {
-        await this.store.issue.issueDetail.addIssueToCycle(this.workspaceSlug, this.projectId, issue.cycle_id, [
+      if (issue.sprint_id) {
+        await this.store.issue.issueDetail.addIssueToSprint(this.workspaceSlug, this.projectId, issue.sprint_id, [
           this.issue.id,
         ]);
       }

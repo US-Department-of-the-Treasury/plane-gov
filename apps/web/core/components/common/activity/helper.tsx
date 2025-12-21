@@ -21,7 +21,7 @@ import {
 // components
 import {
   ArchiveIcon,
-  CycleIcon,
+  SprintIcon,
   DueDatePropertyIcon,
   EstimatePropertyIcon,
   GridLayoutIcon,
@@ -54,7 +54,7 @@ export const iconsMap: ActivityIconMap = {
   name: Type,
   state: StatePropertyIcon,
   estimate: EstimatePropertyIcon,
-  cycle: CycleIcon,
+  sprint: SprintIcon,
   module: ModuleIcon,
   page: FileText,
   network: Globe,
@@ -67,7 +67,7 @@ export const iconsMap: ActivityIconMap = {
   is_issue_type_enabled: ListTodo,
   default: Network,
   module_view: ModuleIcon,
-  cycle_view: CycleIcon,
+  sprint_view: SprintIcon,
   issue_views_view: Layers,
   page_view: FileText,
   intake_view: IntakeIcon,
@@ -170,16 +170,16 @@ export const messages = (activity: TProjectActivity): { message: string | ReactN
           </>
         ),
       };
-    case "cycles":
+    case "sprints":
       return {
         message: (
           <>
             <span>
-              {verb} this project {verb === "removed" ? "from" : "to"} the cycle{" "}
+              {verb} this project {verb === "removed" ? "from" : "to"} the sprint{" "}
             </span>
             {verb !== "removed" ? (
               <a
-                href={`/${workspaceDetail?.slug}/projects/${activity.project}/cycles/${activity.new_identifier}`}
+                href={`/${workspaceDetail?.slug}/projects/${activity.project}/sprints/${activity.new_identifier}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex font-medium text-primary"
@@ -187,7 +187,7 @@ export const messages = (activity: TProjectActivity): { message: string | ReactN
                 {activity.new_value}
               </a>
             ) : (
-              <span className="font-medium text-primary">{activity.old_value || "Unknown cycle"}</span>
+              <span className="font-medium text-primary">{activity.old_value || "Unknown sprint"}</span>
             )}
           </>
         ),
@@ -248,7 +248,7 @@ export const messages = (activity: TProjectActivity): { message: string | ReactN
         ),
       };
     case "module_view":
-    case "cycle_view":
+    case "sprint_view":
     case "issue_views_view":
     case "page_view":
     case "intake_view":

@@ -11,7 +11,7 @@ import { WithDisplayPropertiesHOC } from "@/components/issues/issue-layouts/with
 import { getDate } from "@/helpers/date-time.helper";
 //// hooks
 import type { IIssue } from "@/types/issue";
-import { IssueBlockCycle } from "./cycle";
+import { IssueBlockSprint } from "./sprint";
 import { IssueBlockDate } from "./due-date";
 import { IssueBlockLabels } from "./labels";
 import { IssueBlockMembers } from "./member";
@@ -100,11 +100,11 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
         </WithDisplayPropertiesHOC>
       )}
 
-      {/* cycles */}
-      {issue.cycle_id && (
-        <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="cycle">
+      {/* sprints */}
+      {issue.sprint_id && (
+        <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="sprint">
           <div className="h-5">
-            <IssueBlockCycle cycleId={issue.cycle_id} />
+            <IssueBlockSprint sprintId={issue.sprint_id} />
           </div>
         </WithDisplayPropertiesHOC>
       )}

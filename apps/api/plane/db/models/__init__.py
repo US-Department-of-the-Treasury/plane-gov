@@ -2,14 +2,14 @@ from .analytic import AnalyticView
 from .api import APIActivityLog, APIToken
 from .asset import FileAsset
 from .base import BaseModel
-from .cycle import Cycle, CycleIssue, CycleUserProperties
+from .sprint import Sprint, SprintIssue, SprintUserProperties
 from .deploy_board import DeployBoard
 from .draft import (
     DraftIssue,
     DraftIssueAssignee,
     DraftIssueLabel,
     DraftIssueModule,
-    DraftIssueCycle,
+    DraftIssueSprint,
 )
 from .estimate import Estimate, EstimatePoint
 from .exporter import ExporterHistory

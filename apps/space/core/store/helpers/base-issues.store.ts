@@ -52,7 +52,7 @@ export interface IBaseIssuesStore {
 
 export const ISSUE_FILTER_DEFAULT_DATA: Record<TIssueDisplayFilterOptions, keyof IIssue> = {
   project: "project_id",
-  cycle: "cycle_id",
+  sprint: "sprint_id",
   module: "module_ids",
   state: "state_id",
   "state_detail.group": "state_group" as keyof IIssue, // state_detail.group is only being used for state_group display,
@@ -216,7 +216,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    * @param options Pagination options
    * @param workspaceSlug
    * @param projectId
-   * @param id Id can be anything from cycleId, moduleId, viewId or userId based on the store
+   * @param id Id can be anything from sprintId, moduleId, viewId or userId based on the store
    */
   onfetchIssues(issuesResponse: TIssuesResponse, options: IssuePaginationOptions) {
     // Process the Issue Response to get the following data from it

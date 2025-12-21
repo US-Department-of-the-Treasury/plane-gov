@@ -50,7 +50,7 @@ otel_endpoint = os.environ.get("OTLP_ENDPOINT", "https://telemetry.plane.so")
 - Instance ID, name, domain, version
 - `is_telemetry_enabled`, `is_verified`, `edition`
 - User count, workspace count, project count
-- Issue count, module count, cycle count, page count
+- Issue count, module count, sprint count, page count
 - **Per-workspace breakdown** including workspace slugs
 
 **Action:** Remove scheduled task from celery.py and delete/stub tracer.py.

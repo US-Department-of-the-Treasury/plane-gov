@@ -111,7 +111,7 @@ def hard_delete():
     from plane.db.models import (
         Workspace,
         Project,
-        Cycle,
+        Sprint,
         Module,
         Issue,
         Page,
@@ -124,7 +124,7 @@ def hard_delete():
         IssueReaction,
         UserFavorite,
         ModuleIssue,
-        CycleIssue,
+        SprintIssue,
         Estimate,
         EstimatePoint,
     )
@@ -136,8 +136,8 @@ def hard_delete():
     # check delete project
     _ = Project.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 
-    # check delete cycle
-    _ = Cycle.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
+    # check delete sprint
+    _ = Sprint.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 
     # check delete module
     _ = Module.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
@@ -169,7 +169,7 @@ def hard_delete():
 
     _ = ModuleIssue.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 
-    _ = CycleIssue.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
+    _ = SprintIssue.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 
     _ = Estimate.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 

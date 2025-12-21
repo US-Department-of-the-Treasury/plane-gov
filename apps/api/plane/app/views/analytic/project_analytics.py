@@ -11,9 +11,9 @@ from plane.app.permissions import ROLE, allow_permission
 from plane.db.models import (
     Project,
     Issue,
-    Cycle,
+    Sprint,
     Module,
-    CycleIssue,
+    SprintIssue,
     ModuleIssue,
 )
 from django.db import models
@@ -51,16 +51,16 @@ class ProjectAdvanceAnalyticsEndpoint(ProjectAdvanceAnalyticsBaseView):
             "count": get_filtered_count(),
         }
 
-    def get_work_items_stats(self, project_id, cycle_id=None, module_id=None) -> Dict[str, Dict[str, int]]:
+    def get_work_items_stats(self, project_id, sprint_id=None, module_id=None) -> Dict[str, Dict[str, int]]:
         """
-        Returns work item stats for the workspace, or filtered by cycle_id or module_id if provided.
+        Returns work item stats for the workspace, or filtered by sprint_id or module_id if provided.
         """
         base_queryset = None
-        if cycle_id is not None:
-            cycle_issues = CycleIssue.objects.filter(**self.filters["base_filters"], cycle_id=cycle_id).values_list(
+        if sprint_id is not None:
+            sprint_issues = SprintIssue.objects.filter(**self.filters["base_filters"], sprint_id=sprint_id).values_list(
                 "issue_id", flat=True
             )
-            base_queryset = Issue.issue_objects.filter(id__in=cycle_issues)
+            base_queryset = Issue.issue_objects.filter(id__in=sprint_issues)
         elif module_id is not None:
             module_issues = ModuleIssue.objects.filter(**self.filters["base_filters"], module_id=module_id).values_list(
                 "issue_id", flat=True
@@ -81,11 +81,11 @@ class ProjectAdvanceAnalyticsEndpoint(ProjectAdvanceAnalyticsBaseView):
     def get(self, request: HttpRequest, slug: str, project_id: str) -> Response:
         self.initialize_workspace(slug, type="analytics")
 
-        # Optionally accept cycle_id or module_id as query params
-        cycle_id = request.GET.get("cycle_id", None)
+        # Optionally accept sprint_id or module_id as query params
+        sprint_id = request.GET.get("sprint_id", None)
         module_id = request.GET.get("module_id", None)
         return Response(
-            self.get_work_items_stats(cycle_id=cycle_id, module_id=module_id, project_id=project_id),
+            self.get_work_items_stats(sprint_id=sprint_id, module_id=module_id, project_id=project_id),
             status=status.HTTP_200_OK,
         )
 
@@ -112,13 +112,13 @@ class ProjectAdvanceAnalyticsStatsEndpoint(ProjectAdvanceAnalyticsBaseView):
             .order_by("project_id")
         )
 
-    def get_work_items_stats(self, project_id, cycle_id=None, module_id=None) -> Dict[str, Dict[str, int]]:
+    def get_work_items_stats(self, project_id, sprint_id=None, module_id=None) -> Dict[str, Dict[str, int]]:
         base_queryset = None
-        if cycle_id is not None:
-            cycle_issues = CycleIssue.objects.filter(**self.filters["base_filters"], cycle_id=cycle_id).values_list(
+        if sprint_id is not None:
+            sprint_issues = SprintIssue.objects.filter(**self.filters["base_filters"], sprint_id=sprint_id).values_list(
                 "issue_id", flat=True
             )
-            base_queryset = Issue.issue_objects.filter(id__in=cycle_issues)
+            base_queryset = Issue.issue_objects.filter(id__in=sprint_issues)
         elif module_id is not None:
             module_issues = ModuleIssue.objects.filter(**self.filters["base_filters"], module_id=module_id).values_list(
                 "issue_id", flat=True
@@ -164,11 +164,11 @@ class ProjectAdvanceAnalyticsStatsEndpoint(ProjectAdvanceAnalyticsBaseView):
         type = request.GET.get("type", "work-items")
 
         if type == "work-items":
-            # Optionally accept cycle_id or module_id as query params
-            cycle_id = request.GET.get("cycle_id", None)
+            # Optionally accept sprint_id or module_id as query params
+            sprint_id = request.GET.get("sprint_id", None)
             module_id = request.GET.get("module_id", None)
             return Response(
-                self.get_work_items_stats(project_id=project_id, cycle_id=cycle_id, module_id=module_id),
+                self.get_work_items_stats(project_id=project_id, sprint_id=sprint_id, module_id=module_id),
                 status=status.HTTP_200_OK,
             )
 
@@ -176,26 +176,26 @@ class ProjectAdvanceAnalyticsStatsEndpoint(ProjectAdvanceAnalyticsBaseView):
 
 
 class ProjectAdvanceAnalyticsChartEndpoint(ProjectAdvanceAnalyticsBaseView):
-    def work_item_completion_chart(self, project_id, cycle_id=None, module_id=None) -> Dict[str, Any]:
+    def work_item_completion_chart(self, project_id, sprint_id=None, module_id=None) -> Dict[str, Any]:
         # Get the base queryset
         queryset = (
             Issue.issue_objects.filter(**self.filters["base_filters"])
             .filter(project_id=project_id)
             .select_related("workspace", "state", "parent")
-            .prefetch_related("assignees", "labels", "issue_module__module", "issue_cycle__cycle")
+            .prefetch_related("assignees", "labels", "issue_module__module", "issue_sprint__sprint")
         )
 
-        if cycle_id is not None:
-            cycle_issues = CycleIssue.objects.filter(**self.filters["base_filters"], cycle_id=cycle_id).values_list(
+        if sprint_id is not None:
+            sprint_issues = SprintIssue.objects.filter(**self.filters["base_filters"], sprint_id=sprint_id).values_list(
                 "issue_id", flat=True
             )
-            cycle = Cycle.objects.filter(id=cycle_id).first()
-            if cycle and cycle.start_date:
-                start_date = cycle.start_date.date()
-                end_date = cycle.end_date.date()
+            sprint = Sprint.objects.filter(id=sprint_id).first()
+            if sprint and sprint.start_date:
+                start_date = sprint.start_date.date()
+                end_date = sprint.end_date.date()
             else:
                 return {"data": [], "schema": {}}
-            queryset = cycle_issues
+            queryset = sprint_issues
 
         elif module_id is not None:
             module_issues = ModuleIssue.objects.filter(**self.filters["base_filters"], module_id=module_id).values_list(
@@ -216,7 +216,7 @@ class ProjectAdvanceAnalyticsChartEndpoint(ProjectAdvanceAnalyticsBaseView):
             else:
                 return {"data": [], "schema": {}}
 
-        if cycle_id or module_id:
+        if sprint_id or module_id:
             # Get daily stats with optimized query
             daily_stats = (
                 queryset.values("created_at__date")
@@ -316,7 +316,7 @@ class ProjectAdvanceAnalyticsChartEndpoint(ProjectAdvanceAnalyticsBaseView):
         type = request.GET.get("type", "projects")
         group_by = request.GET.get("group_by", None)
         x_axis = request.GET.get("x_axis", "PRIORITY")
-        cycle_id = request.GET.get("cycle_id", None)
+        sprint_id = request.GET.get("sprint_id", None)
         module_id = request.GET.get("module_id", None)
 
         if type == "custom-work-items":
@@ -324,15 +324,15 @@ class ProjectAdvanceAnalyticsChartEndpoint(ProjectAdvanceAnalyticsBaseView):
                 Issue.issue_objects.filter(**self.filters["base_filters"])
                 .filter(project_id=project_id)
                 .select_related("workspace", "state", "parent")
-                .prefetch_related("assignees", "labels", "issue_module__module", "issue_cycle__cycle")
+                .prefetch_related("assignees", "labels", "issue_module__module", "issue_sprint__sprint")
             )
 
-            # Apply cycle/module filters if present
-            if cycle_id is not None:
-                cycle_issues = CycleIssue.objects.filter(**self.filters["base_filters"], cycle_id=cycle_id).values_list(
+            # Apply sprint/module filters if present
+            if sprint_id is not None:
+                sprint_issues = SprintIssue.objects.filter(**self.filters["base_filters"], sprint_id=sprint_id).values_list(
                     "issue_id", flat=True
                 )
-                queryset = queryset.filter(id__in=cycle_issues)
+                queryset = queryset.filter(id__in=sprint_issues)
 
             elif module_id is not None:
                 module_issues = ModuleIssue.objects.filter(
@@ -351,12 +351,12 @@ class ProjectAdvanceAnalyticsChartEndpoint(ProjectAdvanceAnalyticsBaseView):
             )
 
         elif type == "work-items":
-            # Optionally accept cycle_id or module_id as query params
-            cycle_id = request.GET.get("cycle_id", None)
+            # Optionally accept sprint_id or module_id as query params
+            sprint_id = request.GET.get("sprint_id", None)
             module_id = request.GET.get("module_id", None)
 
             return Response(
-                self.work_item_completion_chart(project_id=project_id, cycle_id=cycle_id, module_id=module_id),
+                self.work_item_completion_chart(project_id=project_id, sprint_id=sprint_id, module_id=module_id),
                 status=status.HTTP_200_OK,
             )
 

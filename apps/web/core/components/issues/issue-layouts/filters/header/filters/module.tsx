@@ -59,13 +59,13 @@ export const FilterModule = observer(function FilterModule(props: Props) {
           {sortedOptions ? (
             sortedOptions.length > 0 ? (
               <>
-                {sortedOptions.slice(0, itemsToRender).map((cycle) => (
+                {sortedOptions.slice(0, itemsToRender).map((sprint) => (
                   <FilterOption
-                    key={cycle.id}
-                    isChecked={appliedFilters?.includes(cycle.id) ? true : false}
-                    onClick={() => handleUpdate(cycle.id)}
+                    key={sprint.id}
+                    isChecked={appliedFilters?.includes(sprint.id) ? true : false}
+                    onClick={() => handleUpdate(sprint.id)}
                     icon={<ModuleIcon className="h-3 w-3 flex-shrink-0" />}
-                    title={cycle.name}
+                    title={sprint.name}
                   />
                 ))}
                 {sortedOptions.length > 5 && (

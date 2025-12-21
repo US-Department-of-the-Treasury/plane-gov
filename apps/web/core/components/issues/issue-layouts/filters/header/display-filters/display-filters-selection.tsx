@@ -23,7 +23,7 @@ type Props = {
   handleDisplayPropertiesUpdate: (updatedDisplayProperties: Partial<IIssueDisplayProperties>) => void;
   layoutDisplayFiltersOptions: ILayoutDisplayFiltersOptions | undefined;
   ignoreGroupedFilters?: Partial<TIssueGroupByOptions>[];
-  cycleViewDisabled?: boolean;
+  sprintViewDisabled?: boolean;
   moduleViewDisabled?: boolean;
   isEpic?: boolean;
 };
@@ -36,7 +36,7 @@ export const DisplayFiltersSelection = observer(function DisplayFiltersSelection
     handleDisplayPropertiesUpdate,
     layoutDisplayFiltersOptions,
     ignoreGroupedFilters = [],
-    cycleViewDisabled = false,
+    sprintViewDisabled = false,
     moduleViewDisabled = false,
     isEpic = false,
   } = props;
@@ -45,8 +45,8 @@ export const DisplayFiltersSelection = observer(function DisplayFiltersSelection
     Object.keys(layoutDisplayFiltersOptions?.display_filters ?? {}).includes(displayFilter);
 
   const computedIgnoreGroupedFilters: Partial<TIssueGroupByOptions>[] = [];
-  if (cycleViewDisabled) {
-    ignoreGroupedFilters.push("cycle");
+  if (sprintViewDisabled) {
+    ignoreGroupedFilters.push("sprint");
   }
   if (moduleViewDisabled) {
     ignoreGroupedFilters.push("module");
@@ -61,7 +61,7 @@ export const DisplayFiltersSelection = observer(function DisplayFiltersSelection
             displayProperties={displayProperties}
             displayPropertiesToRender={layoutDisplayFiltersOptions.display_properties}
             handleUpdate={handleDisplayPropertiesUpdate}
-            cycleViewDisabled={cycleViewDisabled}
+            sprintViewDisabled={sprintViewDisabled}
             moduleViewDisabled={moduleViewDisabled}
             isEpic={isEpic}
           />

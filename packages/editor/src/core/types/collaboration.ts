@@ -5,7 +5,7 @@ export type CollaborationError =
   | { type: "max-retries"; message: string };
 
 /**
- * Single-stage state machine for collaboration lifecycle.
+ * Single-stage state machine for collaboration lifesprint.
  * Stages represent the sequential progression: initial → connecting → awaiting-sync → synced
  *
  * Invariants:

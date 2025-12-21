@@ -1,16 +1,16 @@
 // types
-import type { ICycle, IModule, IProjectView, IWorkspaceView } from "@plane/types";
+import type { ISprint, IModule, IProjectView, IWorkspaceView } from "@plane/types";
 import type { TContextMenuItem } from "@plane/ui";
 // hooks
 import { useQuickActionsFactory } from "@/plane-web/components/common/quick-actions-factory";
 
 // Types
-interface UseCycleMenuItemsProps {
-  cycleDetails: ICycle | undefined;
+interface UseSprintMenuItemsProps {
+  sprintDetails: ISprint | undefined;
   isEditingAllowed: boolean;
   workspaceSlug: string;
   projectId: string;
-  cycleId: string;
+  sprintId: string;
   handleEdit: () => void;
   handleArchive: () => void;
   handleRestore: () => void;
@@ -58,12 +58,12 @@ type MenuResult = {
   modals: JSX.Element | null;
 };
 
-export const useCycleMenuItems = (props: UseCycleMenuItemsProps): MenuResult => {
+export const useSprintMenuItems = (props: UseSprintMenuItemsProps): MenuResult => {
   const factory = useQuickActionsFactory();
-  const { cycleDetails, isEditingAllowed, ...handlers } = props;
+  const { sprintDetails, isEditingAllowed, ...handlers } = props;
 
-  const isArchived = !!cycleDetails?.archived_at;
-  const isCompleted = cycleDetails?.status?.toLowerCase() === "completed";
+  const isArchived = !!sprintDetails?.archived_at;
+  const isCompleted = sprintDetails?.status?.toLowerCase() === "completed";
 
   // Assemble final menu items - order defined here
   const items = [
@@ -73,7 +73,7 @@ export const useCycleMenuItems = (props: UseCycleMenuItemsProps): MenuResult => 
     factory.createArchiveMenuItem(handlers.handleArchive, {
       shouldRender: isEditingAllowed && !isArchived,
       disabled: !isCompleted,
-      description: isCompleted ? undefined : "Only completed cycles can be archived",
+      description: isCompleted ? undefined : "Only completed sprints can be archived",
     }),
     factory.createRestoreMenuItem(handlers.handleRestore, isEditingAllowed && isArchived),
     factory.createDeleteMenuItem(handlers.handleDelete, isEditingAllowed && !isCompleted && !isArchived),

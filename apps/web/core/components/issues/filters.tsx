@@ -114,7 +114,7 @@ export const HeaderFilters = observer(function HeaderFilters(props: Props) {
           handleDisplayFiltersUpdate={handleDisplayFilters}
           displayProperties={issueFilters?.displayProperties ?? {}}
           handleDisplayPropertiesUpdate={handleDisplayProperties}
-          cycleViewDisabled={!currentProjectDetails?.cycle_view}
+          sprintViewDisabled={!currentProjectDetails?.sprint_view}
           moduleViewDisabled={!currentProjectDetails?.module_view}
           isEpic={storeType === EIssuesStoreType.EPIC}
         />

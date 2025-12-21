@@ -86,7 +86,7 @@ from plane.utils.openapi.responses import UNAUTHORIZED_RESPONSE
 - `plane/api/views/intake.py` - Import updated
 - `plane/api/views/member.py` - Import updated
 - `plane/api/views/module.py` - Import updated
-- `plane/api/views/cycle.py` - Import updated
+- `plane/api/views/sprint.py` - Import updated
 - `plane/api/views/issue.py` - Import updated
 - `plane/settings/common.py` - Hook paths updated
 - `plane/api/apps.py` - Auth extension import updated

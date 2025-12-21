@@ -10,7 +10,7 @@ export default {
     views: "보기",
     analytics: "분석",
     work_items: "작업 항목",
-    cycles: "주기",
+    sprints: "주기",
     modules: "모듈",
     intake: "접수",
     drafts: "초안",
@@ -269,23 +269,23 @@ export default {
   general_settings: "일반 설정",
   sign_out: "로그아웃",
   signing_out: "로그아웃 중",
-  active_cycles: "활성 주기",
-  active_cycles_description:
+  active_sprints: "활성 주기",
+  active_sprints_description:
     "프로젝트 전반의 주기를 모니터링하고, 고우선 작업 항목을 추적하며, 주의가 필요한 주기를 확대합니다.",
-  on_demand_snapshots_of_all_your_cycles: "모든 주기의 주문형 스냅샷",
+  on_demand_snapshots_of_all_your_sprints: "모든 주기의 주문형 스냅샷",
   upgrade: "업그레이드",
   "10000_feet_view": "10,000피트 뷰",
   "10000_feet_view_description": "모든 프로젝트의 주기를 한 번에 확인할 수 있습니다.",
-  get_snapshot_of_each_active_cycle: "각 활성 주기의 스냅샷을 얻으세요.",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "각 활성 주기의 스냅샷을 얻으세요.",
+  get_snapshot_of_each_active_sprint_description:
     "모든 활성 주기의 고수준 메트릭을 추적하고, 진행 상태를 확인하며, 마감일에 대한 범위를 파악합니다.",
   compare_burndowns: "버다운 비교",
   compare_burndowns_description: "각 팀의 성과를 모니터링하고 각 주기의 버다운 보고서를 확인합니다.",
   quickly_see_make_or_break_issues: "빠르게 중요한 작업 항목을 확인하세요.",
   quickly_see_make_or_break_issues_description:
     "각 주기의 고우선 작업 항목을 미리 보고 마감일에 대한 모든 작업 항목을 한 번에 확인합니다.",
-  zoom_into_cycles_that_need_attention: "주의가 필요한 주기를 확대하세요.",
-  zoom_into_cycles_that_need_attention_description: "기대에 부합하지 않는 주기의 상태를 한 번에 조사합니다.",
+  zoom_into_sprints_that_need_attention: "주의가 필요한 주기를 확대하세요.",
+  zoom_into_sprints_that_need_attention_description: "기대에 부합하지 않는 주기의 상태를 한 번에 조사합니다.",
   stay_ahead_of_blockers: "차단 요소를 미리 파악하세요.",
   stay_ahead_of_blockers_description:
     "프로젝트 간의 문제를 파악하고 다른 뷰에서 명확하지 않은 주기 간의 종속성을 확인합니다.",
@@ -366,7 +366,7 @@ export default {
   congrats: "축하합니다!",
   open_project: "프로젝트 열기",
   issues: "작업 항목",
-  cycles: "주기",
+  sprints: "주기",
   modules: "모듈",
   pages: "페이지",
   intake: "접수",
@@ -374,7 +374,7 @@ export default {
   work_management: "작업 관리",
   projects_and_issues: "프로젝트 및 작업 항목",
   projects_and_issues_description: "이 프로젝트에서 이들을 켜거나 끕니다.",
-  cycles_description:
+  sprints_description:
     "프로젝트별로 작업 시간을 설정하고 필요에 따라 기간을 조정하세요. 한 주기는 2주일일 수 있고, 다음은 1주일일 수 있습니다.",
   modules_description: "작업을 전담 리더와 담당자가 있는 하위 프로젝트로 구성하세요.",
   views_description: "사용자 정의 정렬, 필터 및 표시 옵션을 저장하거나 팀과 공유하세요.",
@@ -644,8 +644,8 @@ export default {
     priority: "우선순위",
     team_project: "팀 프로젝트",
     project: "프로젝트",
-    cycle: "주기",
-    cycles: "주기",
+    sprint: "주기",
+    sprints: "주기",
     module: "모듈",
     modules: "모듈",
     labels: "레이블",
@@ -964,7 +964,7 @@ export default {
     add: {
       press_enter: "다른 작업 항목을 추가하려면 'Enter'를 누르세요",
       label: "작업 항목 추가",
-      cycle: {
+      sprint: {
         failed: "작업 항목을 주기에 추가할 수 없습니다. 다시 시도해주세요.",
         success: "{count, plural, one {작업 항목} other {작업 항목}}이 주기에 성공적으로 추가되었습니다.",
         loading: "{count, plural, one {작업 항목} other {작업 항목}}을 주기에 추가 중",
@@ -980,7 +980,7 @@ export default {
     },
     remove: {
       label: "작업 항목 제거",
-      cycle: {
+      sprint: {
         loading: "작업 항목을 주기에서 제거 중",
         success: "작업 항목이 주기에서 성공적으로 제거되었습니다.",
         failed: "작업 항목을 주기에서 제거할 수 없습니다. 다시 시도해주세요.",
@@ -1332,7 +1332,7 @@ export default {
     work_items_closed_in: "닫힌 작업 항목",
     selected_projects: "선택된 프로젝트",
     total_members: "총 멤버",
-    total_cycles: "총 주기",
+    total_sprints: "총 주기",
     total_modules: "총 모듈",
     pending_work_items: {
       title: "보류 중인 작업 항목",
@@ -1418,7 +1418,7 @@ export default {
     },
     error: {
       permission: "이 작업을 수행할 권한이 없습니다.",
-      cycle_delete: "주기 삭제 실패",
+      sprint_delete: "주기 삭제 실패",
       module_delete: "모듈 삭제 실패",
       issue_delete: "작업 항목 삭제 실패",
     },
@@ -1965,23 +1965,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "주기 추가",
+  project_sprints: {
+    add_sprint: "주기 추가",
     more_details: "자세히 보기",
-    cycle: "주기",
-    update_cycle: "주기 업데이트",
-    create_cycle: "주기 생성",
-    no_matching_cycles: "일치하는 주기 없음",
-    remove_filters_to_see_all_cycles: "모든 주기를 보려면 필터를 제거하세요",
-    remove_search_criteria_to_see_all_cycles: "모든 주기를 보려면 검색 기준을 제거하세요",
-    only_completed_cycles_can_be_archived: "완료된 주기만 아카이브할 수 있습니다",
+    sprint: "주기",
+    update_sprint: "주기 업데이트",
+    create_sprint: "주기 생성",
+    no_matching_sprints: "일치하는 주기 없음",
+    remove_filters_to_see_all_sprints: "모든 주기를 보려면 필터를 제거하세요",
+    remove_search_criteria_to_see_all_sprints: "모든 주기를 보려면 검색 기준을 제거하세요",
+    only_completed_sprints_can_be_archived: "완료된 주기만 아카이브할 수 있습니다",
     start_date: "시작일",
     end_date: "종료일",
     in_your_timezone: "내 시간대",
     transfer_work_items: "{count}개의 작업 항목 이전",
     date_range: "날짜 범위",
     add_date: "날짜 추가",
-    active_cycle: {
+    active_sprint: {
       label: "활성 주기",
       progress: "진행",
       chart: "버다운 차트",
@@ -1992,10 +1992,10 @@ export default {
       current: "현재",
       labels: "레이블",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "다가오는 주기",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "완료된 주기",
     },
     status: {
@@ -2316,7 +2316,7 @@ export default {
       custom: "사용자 정의",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "주기에 작업 항목을 추가하여 진행 상황을 확인하세요",
@@ -2345,7 +2345,7 @@ export default {
           text: "기능 관리",
         },
       },
-      cycle: {
+      sprint: {
         title: "이 프로젝트에 주기가 활성화되지 않았습니다.",
         description:
           "작업을 시간 상자로 나누고, 프로젝트 마감일에서 역으로 날짜를 설정하며, 팀으로서 실질적인 진전을 이루세요. 프로젝트에 주기 기능을 활성화하여 사용하세요.",
@@ -2566,9 +2566,9 @@ export default {
       manual: "수동",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {주기} other {주기}}",
-    no_cycle: "주기 없음",
+    no_sprint: "주기 없음",
   },
   module: {
     label: "{count, plural, one {모듈} other {모듈}}",

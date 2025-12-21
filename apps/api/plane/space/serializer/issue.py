@@ -9,7 +9,7 @@ from .base import BaseSerializer
 from .user import UserLiteSerializer
 from .state import StateSerializer, StateLiteSerializer
 from .project import ProjectLiteSerializer
-from .cycle import CycleBaseSerializer
+from .sprint import SprintBaseSerializer
 from .module import ModuleBaseSerializer
 from .workspace import WorkspaceLiteSerializer
 from plane.db.models import (
@@ -19,7 +19,7 @@ from plane.db.models import (
     IssueAssignee,
     IssueLabel,
     Label,
-    CycleIssue,
+    SprintIssue,
     ModuleIssue,
     IssueLink,
     FileAsset,
@@ -80,11 +80,11 @@ class RelatedIssueSerializer(BaseSerializer):
         read_only_fields = ["workspace", "project"]
 
 
-class IssueCycleDetailSerializer(BaseSerializer):
-    cycle_detail = CycleBaseSerializer(read_only=True, source="cycle")
+class IssueSprintDetailSerializer(BaseSerializer):
+    sprint_detail = SprintBaseSerializer(read_only=True, source="sprint")
 
     class Meta:
-        model = CycleIssue
+        model = SprintIssue
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -165,7 +165,7 @@ class IssueSerializer(BaseSerializer):
     assignee_details = UserLiteSerializer(read_only=True, source="assignees", many=True)
     related_issues = IssueRelationSerializer(read_only=True, source="issue_relation", many=True)
     issue_relations = RelatedIssueSerializer(read_only=True, source="issue_related", many=True)
-    issue_cycle = IssueCycleDetailSerializer(read_only=True)
+    issue_sprint = IssueSprintDetailSerializer(read_only=True)
     issue_module = IssueModuleDetailSerializer(read_only=True)
     issue_link = IssueLinkSerializer(read_only=True, many=True)
     issue_attachment = IssueAttachmentSerializer(read_only=True, many=True)

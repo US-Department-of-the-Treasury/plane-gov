@@ -10,7 +10,7 @@ export default {
     views: "Perspective",
     analytics: "Statistici",
     work_items: "Activități",
-    cycles: "Cicluri",
+    sprints: "Cicluri",
     modules: "Module",
     intake: "Cereri",
     drafts: "Schițe",
@@ -273,16 +273,16 @@ export default {
   general_settings: "Setări generale",
   sign_out: "Deconectează-te",
   signing_out: "Se deconectează",
-  active_cycles: "Cicluri active",
-  active_cycles_description:
+  active_sprints: "Cicluri active",
+  active_sprints_description:
     "Monitorizează ciclurile din proiecte, urmărește activitățile prioritare și focalizează-te pe ciclurile care necesită atenție.",
-  on_demand_snapshots_of_all_your_cycles: "Instantanee la cerere ale tuturor ciclurilor tale",
+  on_demand_snapshots_of_all_your_sprints: "Instantanee la cerere ale tuturor ciclurilor tale",
   upgrade: "Treci la o versiune superioră",
   "10000_feet_view": "Vedere de ansamblu asupra tuturor ciclurilor active.",
   "10000_feet_view_description":
     "Vezi în ansamblu și simultan toate ciclurile active din proiectele tale, fără a naviga individual la fiecare ciclu.",
-  get_snapshot_of_each_active_cycle: "Obține un instantaneu al fiecărui ciclu activ.",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "Obține un instantaneu al fiecărui ciclu activ.",
+  get_snapshot_of_each_active_sprint_description:
     "Urmărește statisticile generale pentru toate ciclurile active, vezi progresul și estimează volumul de muncă în raport cu termenele limită.",
   compare_burndowns: "Compară graficele de finalizare a activităților ",
   compare_burndowns_description:
@@ -290,8 +290,8 @@ export default {
   quickly_see_make_or_break_issues: "Vezi rapid activitățile critice.",
   quickly_see_make_or_break_issues_description:
     "Previzualizează activitățile prioritare pentru fiecare ciclu în funcție de termene. Vizualizează-le pe toate dintr-un singur click.",
-  zoom_into_cycles_that_need_attention: "Concentrează-te pe ciclurile care necesită atenție.",
-  zoom_into_cycles_that_need_attention_description:
+  zoom_into_sprints_that_need_attention: "Concentrează-te pe ciclurile care necesită atenție.",
+  zoom_into_sprints_that_need_attention_description:
     "Analizează starea oricărui ciclu care nu corespunde așteptărilor, dintr-un singur click.",
   stay_ahead_of_blockers: "Anticipează blocajele.",
   stay_ahead_of_blockers_description:
@@ -373,7 +373,7 @@ export default {
   congrats: "Felicitări!",
   open_project: "Deschide proiectul",
   issues: "Activități",
-  cycles: "Cicluri",
+  sprints: "Cicluri",
   modules: "Module",
   pages: "Documentație",
   intake: "Cereri",
@@ -381,7 +381,7 @@ export default {
   work_management: "Gestionare muncă",
   projects_and_issues: "Proiecte și activități",
   projects_and_issues_description: "Activează sau dezactivează aceste opțiuni pentru proiect.",
-  cycles_description:
+  sprints_description:
     "Stabilește perioade de timp pentru fiecare proiect și ajustează-le după cum este necesar. Un ciclu poate dura 2 săptămâni, următorul 1 săptămână.",
   modules_description: "Organizează munca în sub-proiecte cu lideri și responsabili dedicați.",
   views_description:
@@ -656,8 +656,8 @@ export default {
     priority: "Prioritate",
     team_project: "Proiect de echipă",
     project: "Proiect",
-    cycle: "Ciclu",
-    cycles: "Cicluri",
+    sprint: "Ciclu",
+    sprints: "Cicluri",
     module: "Modul",
     modules: "Module",
     labels: "Etichete",
@@ -976,7 +976,7 @@ export default {
     add: {
       press_enter: "Apasă 'Enter' pentru a adăuga o altă activitate",
       label: "Adaugă activitate",
-      cycle: {
+      sprint: {
         failed: "Activitatea nu a putut fi adăugată în ciclu. Te rugăm să încerci din nou.",
         success: "{count, plural, one {Activitate} other {Activități}} adăugată(e) în ciclu cu succes.",
         loading: "Se adaugă {count, plural, one {activitate} other {activități}} în ciclu",
@@ -992,7 +992,7 @@ export default {
     },
     remove: {
       label: "Elimină activitatea",
-      cycle: {
+      sprint: {
         loading: "Se elimină activitatea din ciclu",
         success: "Activitatea a fost eliminată din ciclu cu succes.",
         failed: "Activitatea nu a putut fi eliminată din ciclu. Te rugăm să încerci din nou.",
@@ -1347,7 +1347,7 @@ export default {
     work_items_closed_in: "Activități finalizate în",
     selected_projects: "Proiecte selectate",
     total_members: "Total membri",
-    total_cycles: "Total cicluri",
+    total_sprints: "Total cicluri",
     total_modules: "Total module",
     pending_work_items: {
       title: "Activități în așteptare",
@@ -1434,7 +1434,7 @@ export default {
     },
     error: {
       permission: "Nu ai permisiunea să efectuezi această acțiune.",
-      cycle_delete: "Ștergerea ciclului a eșuat",
+      sprint_delete: "Ștergerea ciclului a eșuat",
       module_delete: "Ștergerea modulului a eșuat",
       issue_delete: "Ștergerea activității a eșuat",
     },
@@ -1988,17 +1988,17 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "Adaugă ciclu",
+  project_sprints: {
+    add_sprint: "Adaugă ciclu",
     more_details: "Mai multe detalii",
-    cycle: "Ciclu",
-    update_cycle: "Actualizează ciclul",
-    create_cycle: "Creează ciclu",
-    no_matching_cycles: "Niciun ciclu găsit",
-    remove_filters_to_see_all_cycles: "Elimină filtrele pentru a vedea toate ciclurile",
-    remove_search_criteria_to_see_all_cycles: "Elimină criteriile de căutare pentru a vedea toate ciclurile",
-    only_completed_cycles_can_be_archived: "Doar ciclurile finalizate pot fi arhivate",
-    active_cycle: {
+    sprint: "Ciclu",
+    update_sprint: "Actualizează ciclul",
+    create_sprint: "Creează ciclu",
+    no_matching_sprints: "Niciun ciclu găsit",
+    remove_filters_to_see_all_sprints: "Elimină filtrele pentru a vedea toate ciclurile",
+    remove_search_criteria_to_see_all_sprints: "Elimină criteriile de căutare pentru a vedea toate ciclurile",
+    only_completed_sprints_can_be_archived: "Doar ciclurile finalizate pot fi arhivate",
+    active_sprint: {
       label: "Ciclu activ",
       progress: "Progres",
       chart: "Ritmul de finalizare a activităților",
@@ -2009,10 +2009,10 @@ export default {
       current: "Curent",
       labels: "Etichete",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "Ciclu viitor",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "Ciclu finalizat",
     },
     status: {
@@ -2339,7 +2339,7 @@ export default {
       custom: "Personalizat",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "Adaugă activități în ciclu pentru a vedea progresul",
@@ -2368,7 +2368,7 @@ export default {
           text: "Gestionează funcțiile",
         },
       },
-      cycle: {
+      sprint: {
         title: "Funcția Cicluri nu este activată pentru acest proiect.",
         description:
           "Împarte munca în intervale de timp, pleacă de la termenul limită al proiectului pentru a seta date și progresează vizibil ca echipă. Activează funcția de cicluri pentru a începe să o folosești.",
@@ -2595,9 +2595,9 @@ export default {
       manual: "Manual",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {Ciclu} other {Cicluri}}",
-    no_cycle: "Niciun ciclu",
+    no_sprint: "Niciun ciclu",
   },
   module: {
     label: "{count, plural, one {Modul} other {Module}}",

@@ -313,18 +313,18 @@ def filter_project(params, issue_filter, method, prefix=""):
     return issue_filter
 
 
-def filter_cycle(params, issue_filter, method, prefix=""):
+def filter_sprint(params, issue_filter, method, prefix=""):
     if method == "GET":
-        cycles = [item for item in params.get("cycle").split(",") if item != "null"]
-        if "None" in cycles:
-            issue_filter[f"{prefix}issue_cycle__cycle_id__isnull"] = True
-        cycles = filter_valid_uuids(cycles)
-        if len(cycles) and "" not in cycles:
-            issue_filter[f"{prefix}issue_cycle__cycle_id__in"] = cycles
+        sprints = [item for item in params.get("sprint").split(",") if item != "null"]
+        if "None" in sprints:
+            issue_filter[f"{prefix}issue_sprint__sprint_id__isnull"] = True
+        sprints = filter_valid_uuids(sprints)
+        if len(sprints) and "" not in sprints:
+            issue_filter[f"{prefix}issue_sprint__sprint_id__in"] = sprints
     else:
-        if params.get("cycle", None) and len(params.get("cycle")) and params.get("cycle") != "null":
-            issue_filter[f"{prefix}issue_cycle__cycle_id__in"] = params.get("cycle")
-    issue_filter[f"{prefix}issue_cycle__deleted_at__isnull"] = True
+        if params.get("sprint", None) and len(params.get("sprint")) and params.get("sprint") != "null":
+            issue_filter[f"{prefix}issue_sprint__sprint_id__in"] = params.get("sprint")
+    issue_filter[f"{prefix}issue_sprint__deleted_at__isnull"] = True
     return issue_filter
 
 
@@ -443,7 +443,7 @@ def issue_filters(query_params, method, prefix=""):
         "completed_at": filter_completed_at,
         "type": filter_issue_state_type,
         "project": filter_project,
-        "cycle": filter_cycle,
+        "sprint": filter_sprint,
         "module": filter_module,
         "intake_status": filter_intake_status,
         "inbox_status": filter_inbox_status,

@@ -6,7 +6,7 @@ export enum ChartXAxisProperty {
   LABELS = "LABELS",
   ASSIGNEES = "ASSIGNEES",
   ESTIMATE_POINTS = "ESTIMATE_POINTS",
-  CYCLES = "CYCLES",
+  SPRINTS = "SPRINTS",
   MODULES = "MODULES",
   PRIORITY = "PRIORITY",
   START_DATE = "START_DATE",
@@ -41,7 +41,7 @@ export interface AnalyticsTab {
 }
 export type TAnalyticsFilterParams = {
   project_ids?: string;
-  cycle_id?: string;
+  sprint_id?: string;
   module_id?: string;
 };
 

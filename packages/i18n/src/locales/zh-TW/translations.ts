@@ -10,7 +10,7 @@ export default {
     views: "視圖",
     analytics: "分析",
     work_items: "工作項目",
-    cycles: "週期",
+    sprints: "週期",
     modules: "模組",
     intake: "接收",
     drafts: "草稿",
@@ -268,21 +268,21 @@ export default {
   general_settings: "一般設定",
   sign_out: "登出",
   signing_out: "登出中",
-  active_cycles: "進行中的週期",
-  active_cycles_description: "監控跨專案的週期、追蹤高優先順序工作事項，並關注需要注意的週期。",
-  on_demand_snapshots_of_all_your_cycles: "依需求檢視所有週期的快照",
+  active_sprints: "進行中的週期",
+  active_sprints_description: "監控跨專案的週期、追蹤高優先順序工作事項，並關注需要注意的週期。",
+  on_demand_snapshots_of_all_your_sprints: "依需求檢視所有週期的快照",
   upgrade: "升級",
   "10000_feet_view": "俯瞰所有進行中的週期。",
   "10000_feet_view_description": "一次檢視所有專案的進行中週期，不需逐一檢視每個專案的週期。",
-  get_snapshot_of_each_active_cycle: "取得每個進行中週期的快照。",
-  get_snapshot_of_each_active_cycle_description: "追蹤所有進行中週期的高階指標，檢視其進度狀態，並根據期限衡量範圍。",
+  get_snapshot_of_each_active_sprint: "取得每個進行中週期的快照。",
+  get_snapshot_of_each_active_sprint_description: "追蹤所有進行中週期的高階指標，檢視其進度狀態，並根據期限衡量範圍。",
   compare_burndowns: "比較燃盡圖。",
   compare_burndowns_description: "透過檢視每個週期的燃盡報告來監控每個團隊的表現。",
   quickly_see_make_or_break_issues: "快速檢視關鍵工作事項。",
   quickly_see_make_or_break_issues_description:
     "預覽每個週期中相對於截止日期的高優先順序工作事項。一鍵檢視每個週期的所有工作事項。",
-  zoom_into_cycles_that_need_attention: "關注需要注意的週期。",
-  zoom_into_cycles_that_need_attention_description: "一鍵調查任何不符合預期的週期狀態。",
+  zoom_into_sprints_that_need_attention: "關注需要注意的週期。",
+  zoom_into_sprints_that_need_attention_description: "一鍵調查任何不符合預期的週期狀態。",
   stay_ahead_of_blockers: "預防阻礙。",
   stay_ahead_of_blockers_description: "發現跨專案的挑戰，並檢視其他檢視無法明顯看出的週期間相依性。",
   analytics: "分析",
@@ -361,7 +361,7 @@ export default {
   congrats: "恭喜！",
   open_project: "開啟專案",
   issues: "工作事項",
-  cycles: "週期",
+  sprints: "週期",
   modules: "模組",
   pages: "頁面",
   intake: "進件",
@@ -369,7 +369,7 @@ export default {
   work_management: "工作管理",
   projects_and_issues: "專案與工作事項",
   projects_and_issues_description: "為此專案開啟或關閉這些功能。",
-  cycles_description: "為每個專案設定工作時間區段，並依需求調整週期。一個週期可以是兩週，下一個是一週。",
+  sprints_description: "為每個專案設定工作時間區段，並依需求調整週期。一個週期可以是兩週，下一個是一週。",
   modules_description: "將工作組織成子專案，並指派專屬的負責人與任務對象。",
   views_description: "儲存自訂排序、篩選和顯示選項，或與團隊分享。",
   pages_description: "建立與編輯自由格式內容：筆記、文件，任何內容皆可。",
@@ -638,8 +638,8 @@ export default {
     priority: "優先順序",
     team_project: "團隊專案",
     project: "專案",
-    cycle: "週期",
-    cycles: "週期",
+    sprint: "週期",
+    sprints: "週期",
     module: "模組",
     modules: "模組",
     labels: "標籤",
@@ -958,7 +958,7 @@ export default {
     add: {
       press_enter: "按 'Enter' 以新增另一個工作事項",
       label: "新增工作事項",
-      cycle: {
+      sprint: {
         failed: "無法將工作事項新增到週期。請再試一次。",
         success: "{count, plural, one {工作事項} other {工作事項}} 已成功新增到週期。",
         loading: "正在將 {count, plural, one {工作事項} other {工作事項}} 新增到週期",
@@ -974,7 +974,7 @@ export default {
     },
     remove: {
       label: "移除工作事項",
-      cycle: {
+      sprint: {
         loading: "正在從週期移除工作事項",
         success: "已成功從週期移除工作事項。",
         failed: "無法從週期移除工作事項。請再試一次。",
@@ -1326,7 +1326,7 @@ export default {
     work_items_closed_in: "已完成的工作事項數量在",
     selected_projects: "已選取的專案",
     total_members: "成員總數",
-    total_cycles: "週期總數",
+    total_sprints: "週期總數",
     total_modules: "模組總數",
     pending_work_items: {
       title: "待處理工作事項",
@@ -1411,7 +1411,7 @@ export default {
     },
     error: {
       permission: "您沒有執行此操作的權限。",
-      cycle_delete: "無法刪除週期",
+      sprint_delete: "無法刪除週期",
       module_delete: "無法刪除模組",
       issue_delete: "無法刪除工作事項",
     },
@@ -1950,23 +1950,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "新增週期",
+  project_sprints: {
+    add_sprint: "新增週期",
     more_details: "更多詳細資訊",
-    cycle: "週期",
-    update_cycle: "更新週期",
-    create_cycle: "建立週期",
-    no_matching_cycles: "沒有符合的週期",
-    remove_filters_to_see_all_cycles: "移除篩選器以檢視所有週期",
-    remove_search_criteria_to_see_all_cycles: "移除搜尋條件以檢視所有週期",
-    only_completed_cycles_can_be_archived: "只有已完成的週期可以封存",
+    sprint: "週期",
+    update_sprint: "更新週期",
+    create_sprint: "建立週期",
+    no_matching_sprints: "沒有符合的週期",
+    remove_filters_to_see_all_sprints: "移除篩選器以檢視所有週期",
+    remove_search_criteria_to_see_all_sprints: "移除搜尋條件以檢視所有週期",
+    only_completed_sprints_can_be_archived: "只有已完成的週期可以封存",
     start_date: "開始日期",
     end_date: "結束日期",
     in_your_timezone: "在您的時區",
     transfer_work_items: "轉移 {count} 工作事項",
     date_range: "日期範圍",
     add_date: "新增日期",
-    active_cycle: {
+    active_sprint: {
       label: "使用中的週期",
       progress: "進度",
       chart: "燃盡圖",
@@ -1977,10 +1977,10 @@ export default {
       current: "目前",
       labels: "標籤",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "即將到來的週期",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "已完成的週期",
     },
     status: {
@@ -2295,7 +2295,7 @@ export default {
       custom: "自訂",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "新增工作事項到週期以檢視其進度",
@@ -2324,7 +2324,7 @@ export default {
           text: "管理功能",
         },
       },
-      cycle: {
+      sprint: {
         title: "週期功能未啟用於此專案。",
         description:
           "將工作分解成時間區段化的區塊，從專案截止日期向後設定日期，並以團隊的方式取得具體進展。啟用專案的週期功能以開始使用。",
@@ -2544,9 +2544,9 @@ export default {
       manual: "手動",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {週期} other {週期}}",
-    no_cycle: "無週期",
+    no_sprint: "無週期",
   },
   module: {
     label: "{count, plural, one {模組} other {模組}}",

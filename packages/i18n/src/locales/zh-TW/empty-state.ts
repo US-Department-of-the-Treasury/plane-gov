@@ -40,12 +40,12 @@ export default {
       description: "工作項是專案的建構模組 — 指派負責人、設定優先順序並輕鬆追蹤進度。",
       cta_primary: "建立您的第一個工作項",
     },
-    cycles: {
+    sprints: {
       title: "在週期中分組和限時您的工作。",
       description: "將工作分解為限時區塊,從專案截止日期倒推設定日期,並作為團隊取得實質性進展。",
       cta_primary: "設定您的第一個週期",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "此週期中沒有要顯示的工作項",
       description: "建立工作項以開始監控團隊在此週期中的進度並按時實現目標。",
       cta_primary: "建立工作項",
@@ -104,7 +104,7 @@ export default {
       description: "透過手動或自動化,您可以封存已完成或已取消的工作項。封存後在此處尋找它們。",
       cta_primary: "設定自動化",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "暫無已封存週期",
       description: "為了整理專案,請封存已完成的週期。封存後在此處尋找它們。",
     },
@@ -147,7 +147,7 @@ export default {
     analytics_work_items: {
       title: "建立包含工作項和受託人的專案,以開始在此處追蹤績效、進度和團隊影響。",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title: "建立週期以將工作組織成有時限的階段並追蹤衝刺進度。",
     },
     analytics_no_module: {

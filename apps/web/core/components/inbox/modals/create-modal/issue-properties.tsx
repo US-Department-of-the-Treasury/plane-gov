@@ -7,7 +7,7 @@ import type { ISearchIssueResponse, TIssue } from "@plane/types";
 import { CustomMenu } from "@plane/ui";
 import { renderFormattedPayloadDate, getDate, getTabIndex } from "@plane/utils";
 // components
-import { CycleDropdown } from "@/components/dropdowns/cycle";
+import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { IntakeStateDropdown } from "@/components/dropdowns/intake-state/dropdown";
@@ -122,16 +122,16 @@ export const InboxIssueProperties = observer(function InboxIssueProperties(props
         />
       </div>
 
-      {/* cycle */}
+      {/* sprint */}
       {isVisible && (
         <div className="h-7">
-          <CycleDropdown
-            value={data?.cycle_id || ""}
-            onChange={(cycleId) => handleData("cycle_id", cycleId)}
+          <SprintDropdown
+            value={data?.sprint_id || ""}
+            onChange={(sprintId) => handleData("sprint_id", sprintId)}
             projectId={projectId}
-            placeholder="Cycle"
+            placeholder="Sprint"
             buttonVariant="border-with-text"
-            tabIndex={getIndex("cycle_id")}
+            tabIndex={getIndex("sprint_id")}
           />
         </div>
       )}

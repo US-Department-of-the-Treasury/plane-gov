@@ -14,7 +14,7 @@ from plane.db.models import (
     DraftIssue,
     DraftIssueAssignee,
     DraftIssueLabel,
-    DraftIssueCycle,
+    DraftIssueSprint,
     DraftIssueModule,
     ProjectMember,
     EstimatePoint,
@@ -139,7 +139,7 @@ class DraftIssueCreateSerializer(BaseSerializer):
         assignees = validated_data.pop("assignee_ids", None)
         labels = validated_data.pop("label_ids", None)
         modules = validated_data.pop("module_ids", None)
-        cycle_id = self.initial_data.get("cycle_id", None)
+        sprint_id = self.initial_data.get("sprint_id", None)
         modules = self.initial_data.get("module_ids", None)
 
         workspace_id = self.context["workspace_id"]
@@ -184,9 +184,9 @@ class DraftIssueCreateSerializer(BaseSerializer):
                 batch_size=10,
             )
 
-        if cycle_id is not None:
-            DraftIssueCycle.objects.create(
-                cycle_id=cycle_id,
+        if sprint_id is not None:
+            DraftIssueSprint.objects.create(
+                sprint_id=sprint_id,
                 draft_issue=issue,
                 project_id=project_id,
                 workspace_id=workspace_id,
@@ -215,7 +215,7 @@ class DraftIssueCreateSerializer(BaseSerializer):
     def update(self, instance, validated_data):
         assignees = validated_data.pop("assignee_ids", None)
         labels = validated_data.pop("label_ids", None)
-        cycle_id = self.context.get("cycle_id", None)
+        sprint_id = self.context.get("sprint_id", None)
         modules = self.initial_data.get("module_ids", None)
 
         # Related models
@@ -259,11 +259,11 @@ class DraftIssueCreateSerializer(BaseSerializer):
                 batch_size=10,
             )
 
-        if cycle_id != "not_provided":
-            DraftIssueCycle.objects.filter(draft_issue=instance).delete()
-            if cycle_id:
-                DraftIssueCycle.objects.create(
-                    cycle_id=cycle_id,
+        if sprint_id != "not_provided":
+            DraftIssueSprint.objects.filter(draft_issue=instance).delete()
+            if sprint_id:
+                DraftIssueSprint.objects.create(
+                    sprint_id=sprint_id,
                     draft_issue=instance,
                     workspace_id=workspace_id,
                     project_id=project_id,
@@ -295,7 +295,7 @@ class DraftIssueCreateSerializer(BaseSerializer):
 
 class DraftIssueSerializer(BaseSerializer):
     # ids
-    cycle_id = serializers.PrimaryKeyRelatedField(read_only=True)
+    sprint_id = serializers.PrimaryKeyRelatedField(read_only=True)
     module_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
 
     # Many to many
@@ -316,7 +316,7 @@ class DraftIssueSerializer(BaseSerializer):
             "target_date",
             "project_id",
             "parent_id",
-            "cycle_id",
+            "sprint_id",
             "module_ids",
             "label_ids",
             "assignee_ids",

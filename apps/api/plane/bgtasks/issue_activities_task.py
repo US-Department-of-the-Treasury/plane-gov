@@ -15,7 +15,7 @@ from plane.app.serializers import IssueActivitySerializer
 from plane.bgtasks.notification_task import notifications
 from plane.db.models import (
     CommentReaction,
-    Cycle,
+    Sprint,
     Issue,
     IssueActivity,
     IssueComment,
@@ -748,7 +748,7 @@ def delete_comment_activity(
     )
 
 
-def create_cycle_issue_activity(
+def create_sprint_issue_activity(
     requested_data,
     current_instance,
     issue_id,
@@ -762,12 +762,12 @@ def create_cycle_issue_activity(
     current_instance = json.loads(current_instance) if current_instance is not None else None
 
     # Updated Records:
-    updated_records = current_instance.get("updated_cycle_issues", [])
-    created_records = json.loads(current_instance.get("created_cycle_issues", []))
+    updated_records = current_instance.get("updated_sprint_issues", [])
+    created_records = json.loads(current_instance.get("created_sprint_issues", []))
 
     for updated_record in updated_records:
-        old_cycle = Cycle.objects.filter(pk=updated_record.get("old_cycle_id", None)).first()
-        new_cycle = Cycle.objects.filter(pk=updated_record.get("new_cycle_id", None)).first()
+        old_sprint = Sprint.objects.filter(pk=updated_record.get("old_sprint_id", None)).first()
+        new_sprint = Sprint.objects.filter(pk=updated_record.get("new_sprint_id", None)).first()
         issue = Issue.objects.filter(pk=updated_record.get("issue_id")).first()
         if issue:
             issue.updated_at = timezone.now()
@@ -778,21 +778,21 @@ def create_cycle_issue_activity(
                 issue_id=updated_record.get("issue_id"),
                 actor_id=actor_id,
                 verb="updated",
-                old_value=old_cycle.name if old_cycle else "",
-                new_value=new_cycle.name if new_cycle else "",
-                field="cycles",
+                old_value=old_sprint.name if old_sprint else "",
+                new_value=new_sprint.name if new_sprint else "",
+                field="sprints",
                 project_id=project_id,
                 workspace_id=workspace_id,
-                comment=f"""updated cycle from {old_cycle.name if old_cycle else ""}
-                to {new_cycle.name if new_cycle else ""}""",
-                old_identifier=old_cycle.id if old_cycle else None,
-                new_identifier=new_cycle.id if new_cycle else None,
+                comment=f"""updated sprint from {old_sprint.name if old_sprint else ""}
+                to {new_sprint.name if new_sprint else ""}""",
+                old_identifier=old_sprint.id if old_sprint else None,
+                new_identifier=new_sprint.id if new_sprint else None,
                 epoch=epoch,
             )
         )
 
     for created_record in created_records:
-        cycle = Cycle.objects.filter(pk=created_record.get("fields").get("cycle")).first()
+        sprint = Sprint.objects.filter(pk=created_record.get("fields").get("sprint")).first()
         issue = Issue.objects.filter(pk=created_record.get("fields").get("issue")).first()
         if issue:
             issue.updated_at = timezone.now()
@@ -804,18 +804,18 @@ def create_cycle_issue_activity(
                 actor_id=actor_id,
                 verb="created",
                 old_value="",
-                new_value=cycle.name,
-                field="cycles",
+                new_value=sprint.name,
+                field="sprints",
                 project_id=project_id,
                 workspace_id=workspace_id,
-                comment=f"added cycle {cycle.name}",
-                new_identifier=cycle.id,
+                comment=f"added sprint {sprint.name}",
+                new_identifier=sprint.id,
                 epoch=epoch,
             )
         )
 
 
-def delete_cycle_issue_activity(
+def delete_sprint_issue_activity(
     requested_data,
     current_instance,
     issue_id,
@@ -828,9 +828,9 @@ def delete_cycle_issue_activity(
     requested_data = json.loads(requested_data) if requested_data is not None else None
     current_instance = json.loads(current_instance) if current_instance is not None else None
 
-    cycle_id = requested_data.get("cycle_id", "")
-    cycle_name = requested_data.get("cycle_name", "")
-    cycle = Cycle.objects.filter(pk=cycle_id).first()
+    sprint_id = requested_data.get("sprint_id", "")
+    sprint_name = requested_data.get("sprint_name", "")
+    sprint = Sprint.objects.filter(pk=sprint_id).first()
     issues = requested_data.get("issues")
     for issue in issues:
         current_issue = Issue.objects.filter(pk=issue).first()
@@ -842,13 +842,13 @@ def delete_cycle_issue_activity(
                 issue_id=issue,
                 actor_id=actor_id,
                 verb="deleted",
-                old_value=cycle.name if cycle is not None else cycle_name,
+                old_value=sprint.name if sprint is not None else sprint_name,
                 new_value="",
-                field="cycles",
+                field="sprints",
                 project_id=project_id,
                 workspace_id=workspace_id,
-                comment=f"removed this issue from {cycle.name if cycle is not None else cycle_name}",
-                old_identifier=cycle_id if cycle_id is not None else None,
+                comment=f"removed this issue from {sprint.name if sprint is not None else sprint_name}",
+                old_identifier=sprint_id if sprint_id is not None else None,
                 epoch=epoch,
             )
         )
@@ -1540,8 +1540,8 @@ def issue_activity(
             "comment.activity.created": create_comment_activity,
             "comment.activity.updated": update_comment_activity,
             "comment.activity.deleted": delete_comment_activity,
-            "cycle.activity.created": create_cycle_issue_activity,
-            "cycle.activity.deleted": delete_cycle_issue_activity,
+            "sprint.activity.created": create_sprint_issue_activity,
+            "sprint.activity.deleted": delete_sprint_issue_activity,
             "module.activity.created": create_module_issue_activity,
             "module.activity.deleted": delete_module_issue_activity,
             "link.activity.created": create_link_activity,

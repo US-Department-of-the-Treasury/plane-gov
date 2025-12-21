@@ -11,7 +11,7 @@ class LegacyToRichFiltersConverter:
     DEFAULT_FIELD_MAPPINGS = {
         "state": "state_id",
         "labels": "label_id",
-        "cycle": "cycle_id",
+        "sprint": "sprint_id",
         "module": "module_id",
         "assignees": "assignee_id",
         "mentions": "mention_id",
@@ -27,7 +27,7 @@ class LegacyToRichFiltersConverter:
     DEFAULT_UUID_FIELDS = {
         "state_id",
         "label_id",
-        "cycle_id",
+        "sprint_id",
         "module_id",
         "assignee_id",
         "mention_id",

@@ -19,7 +19,7 @@ import { EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { ContrastIcon, DiceIcon, DoubleCircleIcon } from "@plane/propel/icons";
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
-import type { ICycle, IIssueLabel, IModule, TIssue, TIssuePriorities } from "@plane/types";
+import type { ISprint, IIssueLabel, IModule, TIssue, TIssuePriorities } from "@plane/types";
 import { EIssueServiceType, EUserPermissions } from "@plane/types";
 import { copyTextToClipboard } from "@plane/utils";
 // components
@@ -43,14 +43,14 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
   const { getProjectById } = useProject();
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
   const {
-    issue: { getIssueById, getIssueIdByIdentifier, addCycleToIssue, removeIssueFromCycle, changeModulesInIssue },
+    issue: { getIssueById, getIssueIdByIdentifier, addSprintToIssue, removeIssueFromSprint, changeModulesInIssue },
     subscription: { getSubscriptionByIssueId, createSubscription, removeSubscription },
     updateIssue,
   } = useIssueDetail(EIssueServiceType.ISSUES);
   const {
     issue: {
-      addCycleToIssue: addCycleToEpic,
-      removeIssueFromCycle: removeEpicFromCycle,
+      addSprintToIssue: addSprintToEpic,
+      removeIssueFromSprint: removeEpicFromSprint,
       changeModulesInIssue: changeModulesInEpic,
     },
     subscription: { createSubscription: createEpicSubscription, removeSubscription: removeEpicSubscription },
@@ -288,29 +288,29 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
       closeOnSelect: true,
     },
     {
-      id: "add_work_item_to_cycle",
-      i18n_title: "power_k.contextual_actions.work_item.add_to_cycle",
+      id: "add_work_item_to_sprint",
+      i18n_title: "power_k.contextual_actions.work_item.add_to_sprint",
       icon: ContrastIcon,
       group: "contextual",
       contextType: "work-item",
       type: "change-page",
-      page: "update-work-item-cycle",
+      page: "update-work-item-sprint",
       onSelect: (data) => {
-        const cycleId = (data as ICycle)?.id;
+        const sprintId = (data as ISprint)?.id;
         if (!workspaceSlug || !entityDetails || !entityDetails.project_id) return;
-        if (entityDetails.cycle_id === cycleId) return;
+        if (entityDetails.sprint_id === sprintId) return;
         // handlers
-        const addCycleToEntity = entityDetails.is_epic ? addCycleToEpic : addCycleToIssue;
-        const removeCycleFromEntity = entityDetails.is_epic ? removeEpicFromCycle : removeIssueFromCycle;
+        const addSprintToEntity = entityDetails.is_epic ? addSprintToEpic : addSprintToIssue;
+        const removeSprintFromEntity = entityDetails.is_epic ? removeEpicFromSprint : removeIssueFromSprint;
 
         try {
-          if (cycleId) {
-            addCycleToEntity(workspaceSlug.toString(), entityDetails.project_id, cycleId, entityDetails.id);
+          if (sprintId) {
+            addSprintToEntity(workspaceSlug.toString(), entityDetails.project_id, sprintId, entityDetails.id);
           } else {
-            removeCycleFromEntity(
+            removeSprintFromEntity(
               workspaceSlug.toString(),
               entityDetails.project_id,
-              entityDetails.cycle_id ?? "",
+              entityDetails.sprint_id ?? "",
               entityDetails.id
             );
           }
@@ -323,8 +323,8 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
         }
       },
       modifierShortcut: "shift+c",
-      isEnabled: () => Boolean(projectDetails?.cycle_view && isEditingAllowed),
-      isVisible: () => Boolean(projectDetails?.cycle_view && isEditingAllowed),
+      isEnabled: () => Boolean(projectDetails?.sprint_view && isEditingAllowed),
+      isVisible: () => Boolean(projectDetails?.sprint_view && isEditingAllowed),
       closeOnSelect: true,
     },
     {

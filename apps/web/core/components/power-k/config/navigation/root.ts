@@ -9,7 +9,7 @@ export const usePowerKNavigationCommands = (): TPowerKCommandConfig[] => {
 
   return [
     // Open actions from lowest to highest scope
-    optionsList["open_project_cycle"],
+    optionsList["open_project_sprint"],
     optionsList["open_project_module"],
     optionsList["open_project_view"],
     optionsList["open_project_setting"],
@@ -23,7 +23,7 @@ export const usePowerKNavigationCommands = (): TPowerKCommandConfig[] => {
     // Project-Level Navigation (Only visible in project context)
     optionsList["nav_project_work_items"],
     optionsList["nav_project_pages"],
-    optionsList["nav_project_cycles"],
+    optionsList["nav_project_sprints"],
     optionsList["nav_project_modules"],
     optionsList["nav_project_views"],
     optionsList["nav_project_intake"],

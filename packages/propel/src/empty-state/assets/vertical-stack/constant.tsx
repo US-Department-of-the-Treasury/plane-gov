@@ -1,10 +1,10 @@
 import {
-  ArchivedCycleVerticalStackIllustration,
+  ArchivedSprintVerticalStackIllustration,
   ArchivedModuleVerticalStackIllustration,
   ArchivedWorkItemVerticalStackIllustration,
   ChangelogVerticalStackIllustration,
   CustomerVerticalStackIllustration,
-  CycleVerticalStackIllustration,
+  SprintVerticalStackIllustration,
   DashboardVerticalStackIllustration,
   DraftVerticalStackIllustration,
   EpicVerticalStackIllustration,
@@ -23,8 +23,8 @@ import {
 
 export const VerticalStackAssetsMap = [
   {
-    asset: <ArchivedCycleVerticalStackIllustration />,
-    title: "ArchivedCycleVerticalStackIllustration",
+    asset: <ArchivedSprintVerticalStackIllustration />,
+    title: "ArchivedSprintVerticalStackIllustration",
   },
   {
     asset: <ArchivedModuleVerticalStackIllustration />,
@@ -43,8 +43,8 @@ export const VerticalStackAssetsMap = [
     title: "CustomerVerticalStackIllustration",
   },
   {
-    asset: <CycleVerticalStackIllustration />,
-    title: "CycleVerticalStackIllustration",
+    asset: <SprintVerticalStackIllustration />,
+    title: "SprintVerticalStackIllustration",
   },
   {
     asset: <DashboardVerticalStackIllustration />,

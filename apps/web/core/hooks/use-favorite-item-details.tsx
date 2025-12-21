@@ -8,7 +8,7 @@ import {
 } from "@/components/workspace/sidebar/favorites/favorite-items/common";
 // helpers
 // hooks
-import { useCycle } from "@/hooks/store/use-cycle";
+import { useSprint } from "@/hooks/store/use-sprint";
 import { useModule } from "@/hooks/store/use-module";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectView } from "@/hooks/store/use-project-view";
@@ -26,7 +26,7 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
   // store hooks
   const { getViewById } = useProjectView();
   const { getProjectById } = useProject();
-  const { getCycleById } = useCycle();
+  const { getSprintById } = useSprint();
   const { getModuleById } = useModule();
   // additional details
   const { getAdditionalFavoriteItemDetails } = useAdditionalFavoriteItemDetails();
@@ -36,7 +36,7 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
     storeType: EPageStoreType.PROJECT,
   });
   const viewDetails = getViewById(favoriteItemId ?? "");
-  const cycleDetail = getCycleById(favoriteItemId ?? "");
+  const sprintDetail = getSprintById(favoriteItemId ?? "");
   const moduleDetail = getModuleById(favoriteItemId ?? "");
   const currentProjectDetails = getProjectById(favorite.project_id ?? "");
 
@@ -57,9 +57,9 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
       itemTitle = viewDetails?.name ?? favoriteItemName;
       itemIcon = getFavoriteItemIcon("view", viewDetails?.logo_props || favoriteItemLogoProps);
       break;
-    case "cycle":
-      itemTitle = cycleDetail?.name ?? favoriteItemName;
-      itemIcon = getFavoriteItemIcon("cycle");
+    case "sprint":
+      itemTitle = sprintDetail?.name ?? favoriteItemName;
+      itemIcon = getFavoriteItemIcon("sprint");
       break;
     case "module":
       itemTitle = moduleDetail?.name ?? favoriteItemName;

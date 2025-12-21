@@ -2,7 +2,7 @@ import { useParams } from "next/navigation";
 // plane imports
 import { getPageName } from "@plane/utils";
 // hooks
-import { useCycle } from "@/hooks/store/use-cycle";
+import { useSprint } from "@/hooks/store/use-sprint";
 import { useModule } from "@/hooks/store/use-module";
 // plane web imports
 import { useExtendedContextIndicator } from "@/plane-web/components/command-palette/power-k/hooks/use-extended-context-indicator";
@@ -17,9 +17,9 @@ type TArgs = {
 export const useContextIndicator = (args: TArgs): string | null => {
   const { activeContext } = args;
   // navigation
-  const { workItem: workItemIdentifier, cycleId, moduleId, pageId } = useParams();
+  const { workItem: workItemIdentifier, sprintId, moduleId, pageId } = useParams();
   // store hooks
-  const { getCycleById } = useCycle();
+  const { getSprintById } = useSprint();
   const { getModuleById } = useModule();
   const { getPageById } = usePageStore(EPageStoreType.PROJECT);
   // extended context indicator
@@ -33,9 +33,9 @@ export const useContextIndicator = (args: TArgs): string | null => {
       indicator = workItemIdentifier ? workItemIdentifier.toString() : null;
       break;
     }
-    case "cycle": {
-      const cycleDetails = cycleId ? getCycleById(cycleId.toString()) : null;
-      indicator = cycleDetails?.name;
+    case "sprint": {
+      const sprintDetails = sprintId ? getSprintById(sprintId.toString()) : null;
+      indicator = sprintDetails?.name;
       break;
     }
     case "module": {

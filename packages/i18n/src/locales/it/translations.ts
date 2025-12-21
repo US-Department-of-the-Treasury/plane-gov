@@ -10,7 +10,7 @@ export default {
     views: "Visualizzazioni",
     analytics: "Analisi",
     work_items: "Elementi di lavoro",
-    cycles: "Cicli",
+    sprints: "Cicli",
     modules: "Moduli",
     intake: "Intake",
     drafts: "Bozze",
@@ -273,16 +273,16 @@ export default {
   general_settings: "Impostazioni generali",
   sign_out: "Esci",
   signing_out: "Uscita in corso",
-  active_cycles: "Cicli attivi",
-  active_cycles_description:
+  active_sprints: "Cicli attivi",
+  active_sprints_description:
     "Monitora i cicli attraverso i progetti, segui gli elementi di lavoro ad alta priorità e analizza i cicli che necessitano attenzione.",
-  on_demand_snapshots_of_all_your_cycles: "Snapshot on-demand di tutti i tuoi cicli",
+  on_demand_snapshots_of_all_your_sprints: "Snapshot on-demand di tutti i tuoi cicli",
   upgrade: "Aggiorna",
   "10000_feet_view": "Vista panoramica (10.000 piedi) di tutti i cicli attivi.",
   "10000_feet_view_description":
     "Effettua uno zoom indietro per vedere i cicli in esecuzione in tutti i tuoi progetti contemporaneamente, invece di passare da un ciclo all'altro in ogni progetto.",
-  get_snapshot_of_each_active_cycle: "Ottieni uno snapshot di ogni ciclo attivo.",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "Ottieni uno snapshot di ogni ciclo attivo.",
+  get_snapshot_of_each_active_sprint_description:
     "Monitora metriche di alto livello per tutti i cicli attivi, osserva il loro stato di avanzamento e valuta la portata rispetto alle scadenze.",
   compare_burndowns: "Confronta i burndown.",
   compare_burndowns_description:
@@ -290,8 +290,8 @@ export default {
   quickly_see_make_or_break_issues: "Visualizza rapidamente gli elementi di lavoro critici.",
   quickly_see_make_or_break_issues_description:
     "Visualizza in anteprima gli elementi di lavoro ad alta priorità per ogni ciclo in base alle scadenze. Vedi tutti con un solo clic.",
-  zoom_into_cycles_that_need_attention: "Zoom sui cicli che richiedono attenzione.",
-  zoom_into_cycles_that_need_attention_description:
+  zoom_into_sprints_that_need_attention: "Zoom sui cicli che richiedono attenzione.",
+  zoom_into_sprints_that_need_attention_description:
     "Esamina lo stato di ogni ciclo che non rispetta le aspettative con un clic.",
   stay_ahead_of_blockers: "Anticipa gli ostacoli.",
   stay_ahead_of_blockers_description:
@@ -374,7 +374,7 @@ export default {
   congrats: "Congratulazioni!",
   open_project: "Apri progetto",
   issues: "Elementi di lavoro",
-  cycles: "Cicli",
+  sprints: "Cicli",
   modules: "Moduli",
   pages: "Pagine",
   intake: "Accoglienza",
@@ -382,7 +382,7 @@ export default {
   work_management: "Gestione del lavoro",
   projects_and_issues: "Progetti ed elementi di lavoro",
   projects_and_issues_description: "Attiva o disattiva queste opzioni per questo progetto.",
-  cycles_description:
+  sprints_description:
     "Definisci il tempo di lavoro per progetto e adatta il periodo secondo necessità. Un ciclo può durare 2 settimane, il successivo 1 settimana.",
   modules_description: "Organizza il lavoro in sotto-progetti con responsabili e assegnatari dedicati.",
   views_description:
@@ -655,8 +655,8 @@ export default {
     priority: "Priorità",
     team_project: "Progetto di squadra",
     project: "Progetto",
-    cycle: "Ciclo",
-    cycles: "Cicli",
+    sprint: "Ciclo",
+    sprints: "Cicli",
     module: "Modulo",
     modules: "Moduli",
     labels: "Etichette",
@@ -974,7 +974,7 @@ export default {
     add: {
       press_enter: "Premi 'Invio' per aggiungere un altro elemento di lavoro",
       label: "Aggiungi elemento di lavoro",
-      cycle: {
+      sprint: {
         failed: "Impossibile aggiungere l'elemento di lavoro al ciclo. Per favore, riprova.",
         success: "{count, plural, one {Elemento di lavoro} other {Elementi di lavoro}} aggiunto al ciclo con successo.",
         loading: "Aggiungendo {count, plural, one {elemento di lavoro} other {elementi di lavoro}} al ciclo",
@@ -990,7 +990,7 @@ export default {
     },
     remove: {
       label: "Rimuovi elemento di lavoro",
-      cycle: {
+      sprint: {
         loading: "Rimuovendo l'elemento di lavoro dal ciclo",
         success: "Elemento di lavoro rimosso dal ciclo con successo.",
         failed: "Impossibile rimuovere l'elemento di lavoro dal ciclo. Per favore, riprova.",
@@ -1347,7 +1347,7 @@ export default {
     work_items_closed_in: "Elementi di lavoro chiusi in",
     selected_projects: "Progetti selezionati",
     total_members: "Totale membri",
-    total_cycles: "Totale cicli",
+    total_sprints: "Totale cicli",
     total_modules: "Totale moduli",
     pending_work_items: {
       title: "Elementi di lavoro in sospeso",
@@ -1434,7 +1434,7 @@ export default {
     },
     error: {
       permission: "Non hai il permesso di eseguire questa azione.",
-      cycle_delete: "Impossibile eliminare il ciclo",
+      sprint_delete: "Impossibile eliminare il ciclo",
       module_delete: "Impossibile eliminare il modulo",
       issue_delete: "Impossibile eliminare l'elemento di lavoro",
     },
@@ -1987,23 +1987,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "Aggiungi ciclo",
+  project_sprints: {
+    add_sprint: "Aggiungi ciclo",
     more_details: "Altri dettagli",
-    cycle: "Ciclo",
-    update_cycle: "Aggiorna ciclo",
-    create_cycle: "Crea ciclo",
-    no_matching_cycles: "Nessun ciclo corrispondente",
-    remove_filters_to_see_all_cycles: "Rimuovi i filtri per vedere tutti i cicli",
-    remove_search_criteria_to_see_all_cycles: "Rimuovi i criteri di ricerca per vedere tutti i cicli",
-    only_completed_cycles_can_be_archived: "Solo i cicli completati possono essere archiviati",
+    sprint: "Ciclo",
+    update_sprint: "Aggiorna ciclo",
+    create_sprint: "Crea ciclo",
+    no_matching_sprints: "Nessun ciclo corrispondente",
+    remove_filters_to_see_all_sprints: "Rimuovi i filtri per vedere tutti i cicli",
+    remove_search_criteria_to_see_all_sprints: "Rimuovi i criteri di ricerca per vedere tutti i cicli",
+    only_completed_sprints_can_be_archived: "Solo i cicli completati possono essere archiviati",
     start_date: "Data di inizio",
     end_date: "Data di fine",
     in_your_timezone: "Nel tuo fuso orario",
     transfer_work_items: "Trasferisci {count} elementi di lavoro",
     date_range: "Intervallo di date",
     add_date: "Aggiungi data",
-    active_cycle: {
+    active_sprint: {
       label: "Ciclo attivo",
       progress: "Avanzamento",
       chart: "Grafico di burndown",
@@ -2014,10 +2014,10 @@ export default {
       current: "Corrente",
       labels: "Etichette",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "Ciclo in arrivo",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "Ciclo completato",
     },
     status: {
@@ -2344,7 +2344,7 @@ export default {
       custom: "Personalizzato",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "Aggiungi elementi di lavoro al ciclo per visualizzarne l'avanzamento",
@@ -2373,7 +2373,7 @@ export default {
           text: "Gestisci funzionalità",
         },
       },
-      cycle: {
+      sprint: {
         title: "I cicli non sono abilitati per questo progetto.",
         description:
           "Suddividi il lavoro in blocchi temporali, lavora a ritroso dalla scadenza del tuo progetto per impostare le date e fai progressi tangibili come team. Abilita la funzionalità dei cicli per il tuo progetto per iniziare a usarli.",
@@ -2599,9 +2599,9 @@ export default {
       manual: "Manuale",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {Ciclo} other {Cicli}}",
-    no_cycle: "Nessun ciclo",
+    no_sprint: "Nessun ciclo",
   },
   module: {
     label: "{count, plural, one {Modulo} other {Moduli}}",

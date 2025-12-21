@@ -68,25 +68,25 @@ export class IssueFiltersService extends APIService {
       });
   }
 
-  // cycle issue filters
-  async fetchCycleIssueFilters(
+  // sprint issue filters
+  async fetchSprintIssueFilters(
     workspaceSlug: string,
     projectId: string,
-    cycleId: string
+    sprintId: string
   ): Promise<IIssueFiltersResponse> {
-    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/cycles/${cycleId}/user-properties/`)
+    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/sprints/${sprintId}/user-properties/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
       });
   }
-  async patchCycleIssueFilters(
+  async patchSprintIssueFilters(
     workspaceSlug: string,
     projectId: string,
-    cycleId: string,
+    sprintId: string,
     data: Partial<IIssueFiltersResponse>
   ): Promise<any> {
-    return this.patch(`/api/workspaces/${workspaceSlug}/projects/${projectId}/cycles/${cycleId}/user-properties/`, data)
+    return this.patch(`/api/workspaces/${workspaceSlug}/projects/${projectId}/sprints/${sprintId}/user-properties/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;

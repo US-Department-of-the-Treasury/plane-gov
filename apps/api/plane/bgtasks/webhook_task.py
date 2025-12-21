@@ -21,8 +21,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 # Module imports
 from plane.api.serializers import (
-    CycleIssueSerializer,
-    CycleSerializer,
+    SprintIssueSerializer,
+    SprintSerializer,
     IssueCommentSerializer,
     IssueExpandSerializer,
     ModuleIssueSerializer,
@@ -32,8 +32,8 @@ from plane.api.serializers import (
     IntakeIssueSerializer,
 )
 from plane.db.models import (
-    Cycle,
-    CycleIssue,
+    Sprint,
+    SprintIssue,
     Issue,
     IssueComment,
     Module,
@@ -54,9 +54,9 @@ from plane.settings.mongo import MongoConnection
 SERIALIZER_MAPPER = {
     "project": ProjectSerializer,
     "issue": IssueExpandSerializer,
-    "cycle": CycleSerializer,
+    "sprint": SprintSerializer,
     "module": ModuleSerializer,
-    "cycle_issue": CycleIssueSerializer,
+    "sprint_issue": SprintIssueSerializer,
     "module_issue": ModuleIssueSerializer,
     "issue_comment": IssueCommentSerializer,
     "user": UserLiteSerializer,
@@ -66,9 +66,9 @@ SERIALIZER_MAPPER = {
 MODEL_MAPPER = {
     "project": Project,
     "issue": Issue,
-    "cycle": Cycle,
+    "sprint": Sprint,
     "module": Module,
-    "cycle_issue": CycleIssue,
+    "sprint_issue": SprintIssue,
     "module_issue": ModuleIssue,
     "issue_comment": IssueComment,
     "user": User,
@@ -391,7 +391,7 @@ def webhook_activity(
     to all active webhooks for the workspace.
 
     Args:
-        event (str): Type of event (project, issue, module, cycle, issue_comment)
+        event (str): Type of event (project, issue, module, sprint, issue_comment)
         verb (str): Action performed (created, updated, deleted)
         field (Optional[str]): Name of the field that was changed
         old_value (Any): Previous value of the field
@@ -422,8 +422,8 @@ def webhook_activity(
         if event == "module" or event == "module_issue":
             webhooks = webhooks.filter(module=True)
 
-        if event == "cycle" or event == "cycle_issue":
-            webhooks = webhooks.filter(cycle=True)
+        if event == "sprint" or event == "sprint_issue":
+            webhooks = webhooks.filter(sprint=True)
 
         if event == "issue_comment":
             webhooks = webhooks.filter(issue_comment=True)

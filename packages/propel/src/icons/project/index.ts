@@ -1,4 +1,4 @@
-export * from "./cycle-icon";
+export * from "./sprint-icon";
 export * from "./epic-icon";
 export * from "./intake-icon";
 export * from "./module-icon";

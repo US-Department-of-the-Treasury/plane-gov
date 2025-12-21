@@ -2,7 +2,7 @@ import { BarChart2, Briefcase, FileText, Home, Inbox, Layers, PenSquare, Setting
 // plane imports
 import { EUserPermissionsLevel } from "@plane/constants";
 import { ArchiveIcon, UserActivityIcon, LayersIcon, ContrastIcon, DiceIcon, Intake } from "@plane/propel/icons";
-import type { ICycle, IModule, IPartialProject, IProjectView, IWorkspace } from "@plane/types";
+import type { ISprint, IModule, IPartialProject, IProjectView, IWorkspace } from "@plane/types";
 import { EUserProjectRoles, EUserWorkspaceRoles } from "@plane/types";
 // components
 import type { TPowerKCommandConfig, TPowerKContext } from "@/components/power-k/core/types";
@@ -29,8 +29,8 @@ export type TPowerKNavigationCommandKeys =
   | "open_workspace_setting"
   | "nav_workspace_settings"
   | "nav_project_work_items"
-  | "open_project_cycle"
-  | "nav_project_cycles"
+  | "open_project_sprint"
+  | "nav_project_sprints"
   | "open_project_module"
   | "nav_project_modules"
   | "open_project_view"
@@ -292,35 +292,35 @@ export const usePowerKNavigationCommandsRecord = (): Record<TPowerKNavigationCom
       isVisible: (ctx) => baseProjectConditions(ctx),
       closeOnSelect: true,
     },
-    open_project_cycle: {
-      id: "open_project_cycle",
+    open_project_sprint: {
+      id: "open_project_sprint",
       type: "change-page",
       group: "navigation",
-      i18n_title: "power_k.navigation_actions.open_project_cycle",
+      i18n_title: "power_k.navigation_actions.open_project_sprint",
       icon: ContrastIcon,
       keySequence: "oc",
-      page: "open-project-cycle",
+      page: "open-project-sprint",
       onSelect: (data, ctx) => {
-        const cycleDetails = data as ICycle;
+        const sprintDetails = data as ISprint;
         handlePowerKNavigate(ctx, [
           ctx.params.workspaceSlug?.toString(),
           "projects",
           ctx.params.projectId?.toString(),
-          "cycles",
-          cycleDetails.id,
+          "sprints",
+          sprintDetails.id,
         ]);
       },
       isEnabled: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.cycle_view,
+        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.sprint_view,
       isVisible: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.cycle_view,
+        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.sprint_view,
       closeOnSelect: true,
     },
-    nav_project_cycles: {
-      id: "nav_project_cycles",
+    nav_project_sprints: {
+      id: "nav_project_sprints",
       type: "action",
       group: "navigation",
-      i18n_title: "power_k.navigation_actions.nav_project_cycles",
+      i18n_title: "power_k.navigation_actions.nav_project_sprints",
       icon: ContrastIcon,
       keySequence: "gc",
       action: (ctx) =>
@@ -328,12 +328,12 @@ export const usePowerKNavigationCommandsRecord = (): Record<TPowerKNavigationCom
           ctx.params.workspaceSlug?.toString(),
           "projects",
           ctx.params.projectId?.toString(),
-          "cycles",
+          "sprints",
         ]),
       isEnabled: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.cycle_view,
+        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.sprint_view,
       isVisible: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.cycle_view,
+        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.sprint_view,
       closeOnSelect: true,
     },
     open_project_module: {

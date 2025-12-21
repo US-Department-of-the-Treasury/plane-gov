@@ -10,7 +10,7 @@ class EntityNameEnum(models.TextChoices):
     VIEW = "VIEW", "View"
     PAGE = "PAGE", "Page"
     ISSUE = "ISSUE", "Issue"
-    CYCLE = "CYCLE", "Cycle"
+    SPRINT = "SPRINT", "Sprint"
     MODULE = "MODULE", "Module"
     PROJECT = "PROJECT", "Project"
 

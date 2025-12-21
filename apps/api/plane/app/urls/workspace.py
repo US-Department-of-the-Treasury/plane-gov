@@ -23,7 +23,7 @@ from plane.app.views import (
     WorkspaceEstimatesEndpoint,
     ExportWorkspaceUserActivityEndpoint,
     WorkspaceModulesEndpoint,
-    WorkspaceCyclesEndpoint,
+    WorkspaceSprintsEndpoint,
     WorkspaceFavoriteEndpoint,
     WorkspaceFavoriteGroupEndpoint,
     WorkspaceDraftIssueViewSet,
@@ -177,9 +177,9 @@ urlpatterns = [
         name="workspace-modules",
     ),
     path(
-        "workspaces/<str:slug>/cycles/",
-        WorkspaceCyclesEndpoint.as_view(),
-        name="workspace-cycles",
+        "workspaces/<str:slug>/sprints/",
+        WorkspaceSprintsEndpoint.as_view(),
+        name="workspace-sprints",
     ),
     path(
         "workspaces/<str:slug>/user-favorites/",

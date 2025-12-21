@@ -40,7 +40,7 @@ export const CalendarQuickAddIssueActions = observer(function CalendarQuickAddIs
   const ExistingIssuesListModalPayload = addIssuesToView
     ? moduleId
       ? { module: moduleId.toString(), target_date: "none" }
-      : { cycle: true, target_date: "none" }
+      : { sprint: true, target_date: "none" }
     : { target_date: "none" };
 
   const handleAddIssuesToView = async (data: ISearchIssueResponse[]) => {

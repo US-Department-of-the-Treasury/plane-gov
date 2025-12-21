@@ -729,7 +729,7 @@ class IssueVersion(ProjectBaseModel):
     external_source = models.CharField(max_length=255, null=True, blank=True)
     external_id = models.CharField(max_length=255, blank=True, null=True)
     type = models.UUIDField(blank=True, null=True)
-    cycle = models.UUIDField(null=True, blank=True)
+    sprint = models.UUIDField(null=True, blank=True)
     modules = ArrayField(models.UUIDField(), blank=True, default=list)
     properties = models.JSONField(default=dict)  # issue properties
     meta = models.JSONField(default=dict)  # issue meta
@@ -765,11 +765,11 @@ class IssueVersion(ProjectBaseModel):
             """
 
             Module = apps.get_model("db.Module")
-            CycleIssue = apps.get_model("db.CycleIssue")
+            SprintIssue = apps.get_model("db.SprintIssue")
             IssueAssignee = apps.get_model("db.IssueAssignee")
             IssueLabel = apps.get_model("db.IssueLabel")
 
-            cycle_issue = CycleIssue.objects.filter(issue=issue).first()
+            sprint_issue = SprintIssue.objects.filter(issue=issue).first()
 
             cls.objects.create(
                 issue=issue,
@@ -790,7 +790,7 @@ class IssueVersion(ProjectBaseModel):
                 external_source=issue.external_source,
                 external_id=issue.external_id,
                 type=issue.type_id,
-                cycle=cycle_issue.cycle_id if cycle_issue else None,
+                sprint=sprint_issue.sprint_id if sprint_issue else None,
                 modules=list(Module.objects.filter(issue=issue).values_list("id", flat=True)),
                 properties={},
                 meta={},

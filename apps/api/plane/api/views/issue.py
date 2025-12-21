@@ -65,7 +65,7 @@ from plane.db.models import (
     Label,
     Project,
     ProjectMember,
-    CycleIssue,
+    SprintIssue,
     Workspace,
 )
 from plane.settings.storage import S3Storage
@@ -320,8 +320,8 @@ class IssueListCreateAPIEndpoint(BaseAPIView):
         issue_queryset = (
             self.get_queryset()
             .annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(

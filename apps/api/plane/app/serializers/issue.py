@@ -23,8 +23,8 @@ from plane.db.models import (
     IssueSubscriber,
     IssueLabel,
     Label,
-    CycleIssue,
-    Cycle,
+    SprintIssue,
+    Sprint,
     Module,
     ModuleIssue,
     IssueLink,
@@ -482,9 +482,9 @@ class IssueAssigneeSerializer(BaseSerializer):
         fields = "__all__"
 
 
-class CycleBaseSerializer(BaseSerializer):
+class SprintBaseSerializer(BaseSerializer):
     class Meta:
-        model = Cycle
+        model = Sprint
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -496,11 +496,11 @@ class CycleBaseSerializer(BaseSerializer):
         ]
 
 
-class IssueCycleDetailSerializer(BaseSerializer):
-    cycle_detail = CycleBaseSerializer(read_only=True, source="cycle")
+class IssueSprintDetailSerializer(BaseSerializer):
+    sprint_detail = SprintBaseSerializer(read_only=True, source="sprint")
 
     class Meta:
-        model = CycleIssue
+        model = SprintIssue
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -755,7 +755,7 @@ class IssueIntakeSerializer(DynamicBaseSerializer):
 
 class IssueSerializer(DynamicBaseSerializer):
     # ids
-    cycle_id = serializers.PrimaryKeyRelatedField(read_only=True)
+    sprint_id = serializers.PrimaryKeyRelatedField(read_only=True)
     module_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
 
     # Many to many
@@ -782,7 +782,7 @@ class IssueSerializer(DynamicBaseSerializer):
             "sequence_id",
             "project_id",
             "parent_id",
-            "cycle_id",
+            "sprint_id",
             "module_ids",
             "label_ids",
             "assignee_ids",
@@ -846,7 +846,7 @@ class IssueListDetailSerializer(serializers.Serializer):
             "is_draft": instance.is_draft,
             "archived_at": instance.archived_at,
             # Computed fields
-            "cycle_id": instance.cycle_id,
+            "sprint_id": instance.sprint_id,
             "module_ids": self.get_module_ids(instance),
             "label_ids": self.get_label_ids(instance),
             "assignee_ids": self.get_assignee_ids(instance),
@@ -989,7 +989,7 @@ class IssueVersionDetailSerializer(BaseSerializer):
             "external_source",
             "external_id",
             "type",
-            "cycle",
+            "sprint",
             "modules",
             "meta",
             "name",

@@ -21,7 +21,7 @@ import { GridLayoutIcon } from "./layouts/grid-icon";
 import { ListLayoutIcon } from "./layouts/list-icon";
 import { SheetLayoutIcon } from "./layouts/sheet-icon";
 import { TimelineLayoutIcon } from "./layouts/timeline-icon";
-import { CycleIcon } from "./project/cycle-icon";
+import { SprintIcon } from "./project/sprint-icon";
 import { EpicIcon } from "./project/epic-icon";
 import { IntakeIcon } from "./project/intake-icon";
 import { ModuleIcon } from "./project/module-icon";
@@ -72,7 +72,7 @@ export const ICON_REGISTRY = {
   // Workspace icons
   "workspace.analytics": AnalyticsIcon,
   "workspace.archive": ArchiveIcon,
-  "workspace.cycle": CycleIcon,
+  "workspace.sprint": SprintIcon,
   "workspace.dashboard": DashboardIcon,
   "workspace.draft": DraftIcon,
   "workspace.home": HomeIcon,
@@ -84,7 +84,7 @@ export const ICON_REGISTRY = {
   "workspace.your-work": YourWorkIcon,
 
   // Project icons
-  "project.cycle": CycleIcon,
+  "project.sprint": SprintIcon,
   "project.epic": EpicIcon,
   "project.intake": IntakeIcon,
   "project.module": ModuleIcon,

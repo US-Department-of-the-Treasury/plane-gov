@@ -7,7 +7,7 @@ import { DueDatePropertyIcon, StartDatePropertyIcon } from "@plane/propel/icons"
 import type { TIssuePriorities, TWorkspaceDraftIssue } from "@plane/types";
 import { getDate, renderFormattedPayloadDate, shouldHighlightIssueDueDate } from "@plane/utils";
 // components
-import { CycleDropdown } from "@/components/dropdowns/cycle";
+import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
@@ -38,7 +38,7 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
   // store hooks
   const { getProjectById } = useProject();
   const { labelMap } = useLabel();
-  const { addCycleToIssue, addModulesToIssue } = useWorkspaceDraftIssues();
+  const { addSprintToIssue, addModulesToIssue } = useWorkspaceDraftIssues();
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
   const { getStateById } = useProjectState();
   const { isMobile } = usePlatformOS();
@@ -55,17 +55,17 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
         if (!workspaceSlug || !issue.id) return;
         await addModulesToIssue(workspaceSlug.toString(), issue.id, moduleIds);
       },
-      addIssueToCycle: async (cycleId: string) => {
+      addIssueToSprint: async (sprintId: string) => {
         if (!workspaceSlug || !issue.id) return;
-        await addCycleToIssue(workspaceSlug.toString(), issue.id, cycleId);
+        await addSprintToIssue(workspaceSlug.toString(), issue.id, sprintId);
       },
-      removeIssueFromCycle: async () => {
+      removeIssueFromSprint: async () => {
         if (!workspaceSlug || !issue.id) return;
         // TODO: To be checked
-        await addCycleToIssue(workspaceSlug.toString(), issue.id, "");
+        await addSprintToIssue(workspaceSlug.toString(), issue.id, "");
       },
     }),
-    [workspaceSlug, issue, addCycleToIssue, addModulesToIssue]
+    [workspaceSlug, issue, addSprintToIssue, addModulesToIssue]
   );
 
   const handleState = (stateId: string) =>
@@ -88,11 +88,11 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
     [issueOperations, issue]
   );
 
-  const handleCycle = useCallback(
-    (cycleId: string | null) => {
-      if (!issue || issue.cycle_id === cycleId) return;
-      if (cycleId) issueOperations.addIssueToCycle?.(cycleId);
-      else issueOperations.removeIssueFromCycle?.();
+  const handleSprint = useCallback(
+    (sprintId: string | null) => {
+      if (!issue || issue.sprint_id === sprintId) return;
+      if (sprintId) issueOperations.addIssueToSprint?.(sprintId);
+      else issueOperations.removeIssueFromSprint?.();
     },
     [issue, issueOperations]
   );
@@ -236,14 +236,14 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
         </div>
       )}
 
-      {/* cycles */}
-      {projectDetails?.cycle_view && (
+      {/* sprints */}
+      {projectDetails?.sprint_view && (
         <div className="h-5" onClick={handleEventPropagation}>
-          <CycleDropdown
+          <SprintDropdown
             buttonContainerClassName="truncate max-w-40"
             projectId={issue?.project_id}
-            value={issue?.cycle_id || null}
-            onChange={handleCycle}
+            value={issue?.sprint_id || null}
+            onChange={handleSprint}
             buttonVariant="border-with-text"
             renderByDefault={isMobile}
             showTooltip

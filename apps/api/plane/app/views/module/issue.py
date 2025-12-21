@@ -22,7 +22,7 @@ from plane.db.models import (
     IssueLink,
     ModuleIssue,
     Project,
-    CycleIssue,
+    SprintIssue,
 )
 from plane.utils.grouper import (
     issue_group_values,
@@ -49,8 +49,8 @@ class ModuleIssueViewSet(BaseViewSet):
     def apply_annotations(self, issues):
         return (
             issues.annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(

@@ -11,7 +11,7 @@ export interface IRouterStore {
   workspaceSlug: string | undefined;
   teamspaceId: string | undefined;
   projectId: string | undefined;
-  cycleId: string | undefined;
+  sprintId: string | undefined;
   moduleId: string | undefined;
   viewId: string | undefined;
   globalViewId: string | undefined;
@@ -38,7 +38,7 @@ export class RouterStore implements IRouterStore {
       workspaceSlug: computed,
       teamspaceId: computed,
       projectId: computed,
-      cycleId: computed,
+      sprintId: computed,
       moduleId: computed,
       viewId: computed,
       globalViewId: computed,
@@ -95,11 +95,11 @@ export class RouterStore implements IRouterStore {
   }
 
   /**
-   * Returns the cycle id from the query
+   * Returns the sprint id from the query
    * @returns string|undefined
    */
-  get cycleId() {
-    return this.query?.cycleId?.toString();
+  get sprintId() {
+    return this.query?.sprintId?.toString();
   }
 
   /**

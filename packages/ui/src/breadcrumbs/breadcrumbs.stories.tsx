@@ -182,7 +182,7 @@ export const WithNavigationDropdownAndIcons: Story = {
               },
               {
                 key: "feature-3",
-                title: "Cycles",
+                title: "Sprints",
                 icon: ContrastIcon,
 
                 action: () => console.log("Feature Gamma selected"),

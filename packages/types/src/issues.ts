@@ -1,4 +1,4 @@
-import type { ICycle } from "./cycle";
+import type { ISprint } from "./sprint";
 import type { TIssue } from "./issues/issue";
 import type { IModule } from "./module";
 import type { IProjectLite } from "./project";
@@ -13,9 +13,9 @@ import type {
 } from "./view-props";
 import type { IWorkspaceLite, Properties } from "./workspace";
 
-export interface IIssueCycle {
+export interface IIssueSprint {
   id: string;
-  cycle_detail: ICycle;
+  sprint_detail: ISprint;
   created_at: Date;
   updated_at: Date;
   created_by: string;
@@ -23,7 +23,7 @@ export interface IIssueCycle {
   project: string;
   workspace: string;
   issue: string;
-  cycle: string;
+  sprint: string;
 }
 
 export interface IIssueModule {
@@ -180,7 +180,7 @@ export interface ViewFlags {
 
 export type GroupByColumnTypes =
   | "project"
-  | "cycle"
+  | "sprint"
   | "module"
   | "state"
   | "state_detail.group"

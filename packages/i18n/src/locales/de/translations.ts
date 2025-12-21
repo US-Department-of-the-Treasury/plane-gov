@@ -10,7 +10,7 @@ export default {
     views: "Ansichten",
     analytics: "Analysen",
     work_items: "Arbeitselemente",
-    cycles: "Zyklen",
+    sprints: "Zyklen",
     modules: "Module",
     intake: "Eingang",
     drafts: "Entwürfe",
@@ -277,16 +277,16 @@ export default {
   general_settings: "Allgemeine Einstellungen",
   sign_out: "Abmelden",
   signing_out: "Wird abgemeldet",
-  active_cycles: "Aktive Zyklen",
-  active_cycles_description:
+  active_sprints: "Aktive Zyklen",
+  active_sprints_description:
     "Verfolgen Sie Zyklen in allen Projekten, überwachen Sie hochpriorisierte Arbeitselemente und konzentrieren Sie sich auf Zyklen, die Aufmerksamkeit erfordern.",
-  on_demand_snapshots_of_all_your_cycles: "Snapshots aller Ihrer Zyklen auf Abruf",
+  on_demand_snapshots_of_all_your_sprints: "Snapshots aller Ihrer Zyklen auf Abruf",
   upgrade: "Upgrade",
   "10000_feet_view": "Überblick aus 10.000 Fuß über alle aktiven Zyklen.",
   "10000_feet_view_description":
     "Verschaffen Sie sich einen Überblick über alle laufenden Zyklen in allen Projekten auf einmal, anstatt zwischen den Zyklen in jedem Projekt zu wechseln.",
-  get_snapshot_of_each_active_cycle: "Erhalten Sie einen Snapshot jedes aktiven Zyklus.",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "Erhalten Sie einen Snapshot jedes aktiven Zyklus.",
+  get_snapshot_of_each_active_sprint_description:
     "Behalten Sie wichtige Kennzahlen für alle aktiven Zyklen im Blick, verfolgen Sie deren Fortschritt und vergleichen Sie den Umfang mit den Fristen.",
   compare_burndowns: "Vergleichen Sie Burndown-Charts.",
   compare_burndowns_description:
@@ -294,8 +294,8 @@ export default {
   quickly_see_make_or_break_issues: "Erkennen Sie schnell kritische Arbeitselemente.",
   quickly_see_make_or_break_issues_description:
     "Sehen Sie sich hochpriorisierte Arbeitselemente für jeden Zyklus in Bezug auf Fristen an. Alle auf einen Klick anzeigen.",
-  zoom_into_cycles_that_need_attention: "Fokussieren Sie sich auf Zyklen, die besondere Aufmerksamkeit erfordern.",
-  zoom_into_cycles_that_need_attention_description:
+  zoom_into_sprints_that_need_attention: "Fokussieren Sie sich auf Zyklen, die besondere Aufmerksamkeit erfordern.",
+  zoom_into_sprints_that_need_attention_description:
     "Untersuchen Sie den Status jedes Zyklus, der nicht den Erwartungen entspricht, mit nur einem Klick.",
   stay_ahead_of_blockers: "Erkennen Sie frühzeitig Blocker.",
   stay_ahead_of_blockers_description:
@@ -380,7 +380,7 @@ export default {
   congrats: "Herzlichen Glückwunsch!",
   open_project: "Projekt öffnen",
   issues: "Arbeitselemente",
-  cycles: "Zyklen",
+  sprints: "Zyklen",
   modules: "Module",
   pages: "Seiten",
   intake: "Eingang",
@@ -388,7 +388,7 @@ export default {
   work_management: "Arbeitsverwaltung",
   projects_and_issues: "Projekte und Arbeitselemente",
   projects_and_issues_description: "Aktivieren oder deaktivieren Sie diese Funktionen im Projekt.",
-  cycles_description:
+  sprints_description:
     "Zeitlich begrenzen Sie die Arbeit pro Projekt und passen Sie den Zeitraum bei Bedarf an. Ein Zyklus kann 2 Wochen dauern, der nächste nur 1 Woche.",
   modules_description: "Organisieren Sie die Arbeit in Unterprojekte mit eigenen Leitern und Zuständigen.",
   views_description:
@@ -663,8 +663,8 @@ export default {
     priority: "Priorität",
     team_project: "Teamprojekt",
     project: "Projekt",
-    cycle: "Zyklus",
-    cycles: "Zyklen",
+    sprint: "Zyklus",
+    sprints: "Zyklen",
     module: "Modul",
     modules: "Module",
     labels: "Labels",
@@ -983,7 +983,7 @@ export default {
     add: {
       press_enter: "Drücken Sie 'Enter', um ein weiteres Arbeitselement hinzuzufügen",
       label: "Arbeitselement hinzufügen",
-      cycle: {
+      sprint: {
         failed: "Hinzufügen des Arbeitselements zum Zyklus fehlgeschlagen. Bitte versuchen Sie es erneut.",
         success:
           "{count, plural, one {Arbeitselement} few {Arbeitselemente} other {Arbeitselemente}} zum Zyklus hinzugefügt.",
@@ -1000,7 +1000,7 @@ export default {
     },
     remove: {
       label: "Arbeitselement entfernen",
-      cycle: {
+      sprint: {
         loading: "Arbeitselement wird aus dem Zyklus entfernt",
         success: "Arbeitselement aus dem Zyklus entfernt.",
         failed: "Das Entfernen des Arbeitselements aus dem Zyklus ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
@@ -1355,7 +1355,7 @@ export default {
     work_items_closed_in: "Arbeitselemente, die abgeschlossen wurden in",
     selected_projects: "Ausgewählte Projekte",
     total_members: "Gesamtmitglieder",
-    total_cycles: "Zyklen insgesamt",
+    total_sprints: "Zyklen insgesamt",
     total_modules: "Module insgesamt",
     pending_work_items: {
       title: "Ausstehende Arbeitselemente",
@@ -1442,7 +1442,7 @@ export default {
     },
     error: {
       permission: "Sie haben keine Berechtigung für diese Aktion.",
-      cycle_delete: "Löschen des Zyklus fehlgeschlagen",
+      sprint_delete: "Löschen des Zyklus fehlgeschlagen",
       module_delete: "Löschen des Moduls fehlgeschlagen",
       issue_delete: "Löschen des Arbeitselements fehlgeschlagen",
     },
@@ -1991,23 +1991,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "Zyklus hinzufügen",
+  project_sprints: {
+    add_sprint: "Zyklus hinzufügen",
     more_details: "Weitere Details",
-    cycle: "Zyklus",
-    update_cycle: "Zyklus aktualisieren",
-    create_cycle: "Zyklus erstellen",
-    no_matching_cycles: "Keine passenden Zyklen",
-    remove_filters_to_see_all_cycles: "Entfernen Sie Filter, um alle Zyklen anzuzeigen",
-    remove_search_criteria_to_see_all_cycles: "Entfernen Sie Suchkriterien, um alle Zyklen anzuzeigen",
-    only_completed_cycles_can_be_archived: "Nur abgeschlossene Zyklen können archiviert werden",
+    sprint: "Zyklus",
+    update_sprint: "Zyklus aktualisieren",
+    create_sprint: "Zyklus erstellen",
+    no_matching_sprints: "Keine passenden Zyklen",
+    remove_filters_to_see_all_sprints: "Entfernen Sie Filter, um alle Zyklen anzuzeigen",
+    remove_search_criteria_to_see_all_sprints: "Entfernen Sie Suchkriterien, um alle Zyklen anzuzeigen",
+    only_completed_sprints_can_be_archived: "Nur abgeschlossene Zyklen können archiviert werden",
     start_date: "Startdatum",
     end_date: "Enddatum",
     in_your_timezone: "In Ihrer Zeitzone",
     transfer_work_items: "Übertragen von {count} Arbeitselementen",
     date_range: "Datumsbereich",
     add_date: "Datum hinzufügen",
-    active_cycle: {
+    active_sprint: {
       label: "Aktiver Zyklus",
       progress: "Fortschritt",
       chart: "Burndown-Diagramm",
@@ -2018,10 +2018,10 @@ export default {
       current: "Aktuell",
       labels: "Labels",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "Bevorstehender Zyklus",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "Abgeschlossener Zyklus",
     },
     status: {
@@ -2336,7 +2336,7 @@ export default {
       custom: "Benutzerdefiniert",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "Fügen Sie Elemente hinzu, um den Fortschritt zu verfolgen",
@@ -2364,7 +2364,7 @@ export default {
           text: "Funktionen verwalten",
         },
       },
-      cycle: {
+      sprint: {
         title: "Zyklen sind nicht aktiviert",
         description: "Aktivieren Sie Zyklen, um Arbeit zeitlich zu begrenzen.",
         primary_button: {
@@ -2583,9 +2583,9 @@ export default {
       manual: "Manuell",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {Zyklus} few {Zyklen} other {Zyklen}}",
-    no_cycle: "Kein Zyklus",
+    no_sprint: "Kein Zyklus",
   },
   module: {
     label: "{count, plural, one {Modul} few {Module} other {Module}}",

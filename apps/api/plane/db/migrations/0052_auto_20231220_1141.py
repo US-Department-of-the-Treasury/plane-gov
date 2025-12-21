@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import plane.db.models.cycle
+import plane.db.models.sprint
 import plane.db.models.issue
 import plane.db.models.module
 import plane.db.models.view
@@ -300,19 +300,19 @@ class Migration(migrations.Migration):
                 (
                     "filters",
                     models.JSONField(
-                        default=plane.db.models.cycle.get_default_filters
+                        default=plane.db.models.sprint.get_default_filters
                     ),
                 ),
                 (
                     "display_filters",
                     models.JSONField(
-                        default=plane.db.models.cycle.get_default_display_filters
+                        default=plane.db.models.sprint.get_default_display_filters
                     ),
                 ),
                 (
                     "display_properties",
                     models.JSONField(
-                        default=plane.db.models.cycle.get_default_display_properties
+                        default=plane.db.models.sprint.get_default_display_properties
                     ),
                 ),
                 (

@@ -4,7 +4,7 @@ import { CalendarDays, LayersIcon, Link2, Paperclip } from "lucide-react";
 import { ISSUE_GROUP_BY_OPTIONS } from "@plane/constants";
 import type { ISvgIcons } from "@plane/propel/icons";
 import {
-  CycleIcon,
+  SprintIcon,
   StatePropertyIcon,
   ModuleIcon,
   MembersPropertyIcon,
@@ -30,7 +30,7 @@ import {
   SpreadsheetEstimateColumn,
   SpreadsheetLabelColumn,
   SpreadsheetModuleColumn,
-  SpreadsheetCycleColumn,
+  SpreadsheetSprintColumn,
   SpreadsheetLinkColumn,
   SpreadsheetPriorityColumn,
   SpreadsheetStartDateColumn,
@@ -78,7 +78,7 @@ export const SpreadSheetPropertyIconMap: Record<string, FC<ISvgIcons>> = {
   EstimatePropertyIcon: EstimatePropertyIcon,
   LabelPropertyIcon: LabelPropertyIcon,
   ModuleIcon: ModuleIcon,
-  ContrastIcon: CycleIcon,
+  ContrastIcon: SprintIcon,
   PriorityPropertyIcon: PriorityPropertyIcon,
   StartDatePropertyIcon: StartDatePropertyIcon,
   StatePropertyIcon: StatePropertyIcon,
@@ -94,7 +94,7 @@ export const SPREADSHEET_COLUMNS: { [key in keyof IIssueDisplayProperties]: TSpr
   estimate: SpreadsheetEstimateColumn,
   labels: SpreadsheetLabelColumn,
   modules: SpreadsheetModuleColumn,
-  cycle: SpreadsheetCycleColumn,
+  sprint: SpreadsheetSprintColumn,
   link: SpreadsheetLinkColumn,
   priority: SpreadsheetPriorityColumn,
   start_date: SpreadsheetStartDateColumn,
