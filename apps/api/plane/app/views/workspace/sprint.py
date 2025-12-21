@@ -65,12 +65,20 @@ def get_or_create_sprints_for_workspace(workspace, num_sprints=5):
 
     Creates sprints from Sprint 1 to current sprint + num_sprints future sprints.
     Each sprint is exactly 14 days (2 weeks).
+
+    If sprint_start_date is not set, defaults to the most recent Monday.
     """
+    today = timezone.now().date()
+
+    # Auto-set sprint_start_date to most recent Monday if not set
     if not workspace.sprint_start_date:
-        return []
+        # Find most recent Monday (weekday 0 = Monday)
+        days_since_monday = today.weekday()
+        most_recent_monday = today - timedelta(days=days_since_monday)
+        workspace.sprint_start_date = most_recent_monday
+        workspace.save(update_fields=['sprint_start_date'])
 
     sprint_start = workspace.sprint_start_date
-    today = timezone.now().date()
 
     # Calculate which sprint number we're currently in
     days_since_start = (today - sprint_start).days
@@ -268,14 +276,14 @@ class WorkspaceSprintViewSet(BaseViewSet):
             .distinct()
         )
 
-    @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST])
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST], level="WORKSPACE")
     def list(self, request, slug):
         """List all sprints for the workspace, auto-generating if needed."""
         workspace = Workspace.objects.get(slug=slug)
 
-        # Auto-generate sprints if sprint_start_date is set
-        if workspace.sprint_start_date:
-            get_or_create_sprints_for_workspace(workspace)
+        # Auto-generate sprints (will auto-set sprint_start_date to most recent Monday if not set)
+        get_or_create_sprints_for_workspace(workspace)
+        workspace.refresh_from_db()  # Refresh to get updated sprint_start_date
 
         queryset = self.get_queryset().filter(archived_at__isnull=True)
         sprint_view = request.GET.get("sprint_view", "all")
@@ -327,7 +335,7 @@ class WorkspaceSprintViewSet(BaseViewSet):
         data = user_timezone_converter(data, datetime_fields, workspace_timezone)
         return Response(data, status=status.HTTP_200_OK)
 
-    @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
     def retrieve(self, request, slug, pk):
         """Retrieve a specific sprint."""
         queryset = self.get_queryset().filter(pk=pk, archived_at__isnull=True)
@@ -390,7 +398,7 @@ class WorkspaceSprintViewSet(BaseViewSet):
         )
         return Response(data, status=status.HTTP_200_OK)
 
-    @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
     def partial_update(self, request, slug, pk):
         """Update a sprint (limited fields - name, description, logo_props, view_props)."""
         queryset = self.get_queryset().filter(workspace__slug=slug, pk=pk)
@@ -466,7 +474,7 @@ class WorkspaceSprintIssuesEndpoint(BaseAPIView):
     """
     permission_classes = [WorkspaceEntityPermission]
 
-    @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
     def post(self, request, slug, sprint_id):
         """Add issues to a sprint."""
         issues = request.data.get("issues", [])
@@ -540,7 +548,7 @@ class WorkspaceSprintIssuesEndpoint(BaseAPIView):
 
         return Response({"message": "success"}, status=status.HTTP_201_CREATED)
 
-    @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
     def delete(self, request, slug, sprint_id, issue_id=None):
         """Remove an issue from a sprint."""
         if not issue_id:
@@ -581,7 +589,7 @@ class WorkspaceSprintUserPropertiesEndpoint(BaseAPIView):
     """
     permission_classes = [WorkspaceEntityPermission]
 
-    @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST])
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST], level="WORKSPACE")
     def get(self, request, slug, sprint_id):
         """Get user properties for a sprint."""
         sprint = Sprint.objects.get(workspace__slug=slug, pk=sprint_id)
@@ -593,7 +601,7 @@ class WorkspaceSprintUserPropertiesEndpoint(BaseAPIView):
         serializer = SprintUserPropertiesSerializer(sprint_properties)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST])
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST], level="WORKSPACE")
     def patch(self, request, slug, sprint_id):
         """Update user properties for a sprint."""
         sprint = Sprint.objects.get(workspace__slug=slug, pk=sprint_id)
@@ -621,7 +629,7 @@ class WorkspaceSprintFavoriteEndpoint(BaseAPIView):
     """
     permission_classes = [WorkspaceEntityPermission]
 
-    @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
     def post(self, request, slug, sprint_id):
         """Add sprint to favorites."""
         workspace = Workspace.objects.get(slug=slug)
@@ -633,7 +641,7 @@ class WorkspaceSprintFavoriteEndpoint(BaseAPIView):
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
     def delete(self, request, slug, sprint_id):
         """Remove sprint from favorites."""
         UserFavorite.objects.filter(
