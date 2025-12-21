@@ -18,9 +18,13 @@ SCOUT_MONITOR = os.environ.get("SCOUT_MONITOR", False)
 SCOUT_KEY = os.environ.get("SCOUT_KEY", "")
 SCOUT_NAME = "Plane"
 
+# File logging is disabled by default on EB (CloudWatch captures stdout)
+# Set ENABLE_FILE_LOGGING=1 to enable local file logging
+ENABLE_FILE_LOGGING = int(os.environ.get("ENABLE_FILE_LOGGING", 0)) == 1
+
 LOG_DIR = os.path.join(BASE_DIR, "logs")  # noqa
 
-if not os.path.exists(LOG_DIR):
+if ENABLE_FILE_LOGGING and not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
 # Logging configuration
@@ -39,20 +43,6 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "json",
             "level": "INFO",
-        },
-        "file": {
-            "class": "plane.utils.logging.SizedTimedRotatingFileHandler",
-            "filename": (
-                os.path.join(BASE_DIR, "logs", "plane-debug.log")  # noqa
-                if DEBUG
-                else os.path.join(BASE_DIR, "logs", "plane-error.log")  # noqa
-            ),
-            "when": "s",
-            "maxBytes": 1024 * 1024 * 1,
-            "interval": 1,
-            "backupCount": 5,
-            "formatter": "json",
-            "level": "DEBUG" if DEBUG else "ERROR",
         },
     },
     "loggers": {
@@ -73,7 +63,7 @@ LOGGING = {
         },
         "plane.exception": {
             "level": "DEBUG" if DEBUG else "ERROR",
-            "handlers": ["console", "file"],
+            "handlers": ["console"],
             "propagate": False,
         },
         "plane.external": {
@@ -93,3 +83,22 @@ LOGGING = {
         },
     },
 }
+
+# Add file handler only if explicitly enabled (for local development)
+if ENABLE_FILE_LOGGING:
+    LOGGING["handlers"]["file"] = {
+        "class": "plane.utils.logging.SizedTimedRotatingFileHandler",
+        "filename": (
+            os.path.join(BASE_DIR, "logs", "plane-debug.log")  # noqa
+            if DEBUG
+            else os.path.join(BASE_DIR, "logs", "plane-error.log")  # noqa
+        ),
+        "when": "s",
+        "maxBytes": 1024 * 1024 * 1,
+        "interval": 1,
+        "backupCount": 5,
+        "formatter": "json",
+        "level": "DEBUG" if DEBUG else "ERROR",
+    }
+    # Add file handler to plane.exception logger
+    LOGGING["loggers"]["plane.exception"]["handlers"] = ["console", "file"]
