@@ -19,14 +19,14 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.exceptions import ObjectDoesNotExist
 
-# Module imports
+# Package imports
 from plane.api.serializers import (
     SprintIssueSerializer,
     SprintSerializer,
     IssueCommentSerializer,
     IssueExpandSerializer,
-    ModuleIssueSerializer,
-    ModuleSerializer,
+    EpicIssueSerializer,
+    EpicSerializer,
     ProjectSerializer,
     UserLiteSerializer,
     IntakeIssueSerializer,
@@ -36,8 +36,8 @@ from plane.db.models import (
     SprintIssue,
     Issue,
     IssueComment,
-    Module,
-    ModuleIssue,
+    Epic,
+    EpicIssue,
     Project,
     User,
     Webhook,
@@ -55,9 +55,9 @@ SERIALIZER_MAPPER = {
     "project": ProjectSerializer,
     "issue": IssueExpandSerializer,
     "sprint": SprintSerializer,
-    "module": ModuleSerializer,
+    "epic": EpicSerializer,
     "sprint_issue": SprintIssueSerializer,
-    "module_issue": ModuleIssueSerializer,
+    "epic_issue": EpicIssueSerializer,
     "issue_comment": IssueCommentSerializer,
     "user": UserLiteSerializer,
     "intake_issue": IntakeIssueSerializer,
@@ -67,9 +67,9 @@ MODEL_MAPPER = {
     "project": Project,
     "issue": Issue,
     "sprint": Sprint,
-    "module": Module,
+    "epic": Epic,
     "sprint_issue": SprintIssue,
-    "module_issue": ModuleIssue,
+    "epic_issue": EpicIssue,
     "issue_comment": IssueComment,
     "user": User,
     "intake_issue": IntakeIssue,
@@ -419,8 +419,8 @@ def webhook_activity(
         if event == "issue":
             webhooks = webhooks.filter(issue=True)
 
-        if event == "module" or event == "module_issue":
-            webhooks = webhooks.filter(module=True)
+        if event == "epic" or event == "epic_issue":
+            webhooks = webhooks.filter(epic=True)
 
         if event == "sprint" or event == "sprint_issue":
             webhooks = webhooks.filter(sprint=True)

@@ -3,7 +3,7 @@ import { useParams } from "next/navigation";
 import { getPageName } from "@plane/utils";
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
-import { useModule } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-module";
 // plane web imports
 import { useExtendedContextIndicator } from "@/plane-web/components/command-palette/power-k/hooks/use-extended-context-indicator";
 import { EPageStoreType, usePageStore } from "@/plane-web/hooks/store";
@@ -17,10 +17,10 @@ type TArgs = {
 export const useContextIndicator = (args: TArgs): string | null => {
   const { activeContext } = args;
   // navigation
-  const { workItem: workItemIdentifier, sprintId, moduleId, pageId } = useParams();
+  const { workItem: workItemIdentifier, sprintId, epicId, pageId } = useParams();
   // store hooks
   const { getSprintById } = useSprint();
-  const { getModuleById } = useModule();
+  const { getEpicById } = useEpic();
   const { getPageById } = usePageStore(EPageStoreType.PROJECT);
   // extended context indicator
   const extendedIndicator = useExtendedContextIndicator({
@@ -39,8 +39,8 @@ export const useContextIndicator = (args: TArgs): string | null => {
       break;
     }
     case "module": {
-      const moduleDetails = moduleId ? getModuleById(moduleId.toString()) : null;
-      indicator = moduleDetails?.name;
+      const epicDetails = epicId ? getEpicById(epicId.toString()) : null;
+      indicator = epicDetails?.name;
       break;
     }
     case "page": {

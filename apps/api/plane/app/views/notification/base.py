@@ -21,7 +21,7 @@ from plane.db.models import (
 from plane.utils.paginator import BasePaginator
 from plane.app.permissions import allow_permission, ROLE
 
-# Module imports
+# Package imports
 from ..base import BaseAPIView, BaseViewSet
 
 

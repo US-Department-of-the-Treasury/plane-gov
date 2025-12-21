@@ -12,7 +12,7 @@ export interface IRouterStore {
   teamspaceId: string | undefined;
   projectId: string | undefined;
   sprintId: string | undefined;
-  moduleId: string | undefined;
+  epicId: string | undefined;
   viewId: string | undefined;
   globalViewId: string | undefined;
   profileViewId: TProfileViews | undefined;
@@ -39,7 +39,7 @@ export class RouterStore implements IRouterStore {
       teamspaceId: computed,
       projectId: computed,
       sprintId: computed,
-      moduleId: computed,
+      epicId: computed,
       viewId: computed,
       globalViewId: computed,
       profileViewId: computed,
@@ -90,8 +90,8 @@ export class RouterStore implements IRouterStore {
    * Returns the module id from the query
    * @returns string|undefined
    */
-  get moduleId() {
-    return this.query?.moduleId?.toString();
+  get epicId() {
+    return this.query?.epicId?.toString();
   }
 
   /**

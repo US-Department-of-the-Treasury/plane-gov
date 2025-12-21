@@ -6,7 +6,7 @@ from django.db import IntegrityError
 #  Third party imports
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from plane.db.models import (
     Issue,
     IssueType,

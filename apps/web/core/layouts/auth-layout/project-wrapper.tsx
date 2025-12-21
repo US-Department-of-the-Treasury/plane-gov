@@ -25,7 +25,7 @@ import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
-import { useModule } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-module";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
 import { useProjectView } from "@/hooks/store/use-project-view";
@@ -48,7 +48,7 @@ export const ProjectAuthWrapper = observer(function ProjectAuthWrapper(props: IP
   const { fetchProjectDetails } = useProject();
   const { joinProject } = useUserPermissions();
   const { fetchAllSprints } = useSprint();
-  const { fetchModulesSlim, fetchModules } = useModule();
+  const { fetchEpicsSlim, fetchEpics } = useEpic();
   const { initGantt } = useTimeLineChart(GANTT_TIMELINE_TYPE.MODULE);
   const { fetchViews } = useProjectView();
   const {
@@ -120,7 +120,7 @@ export const ProjectAuthWrapper = observer(function ProjectAuthWrapper(props: IP
   useSWR(
     PROJECT_MODULES(projectId, currentProjectRole),
     async () => {
-      await Promise.all([fetchModulesSlim(workspaceSlug, projectId), fetchModules(workspaceSlug, projectId)]);
+      await Promise.all([fetchEpicsSlim(workspaceSlug, projectId), fetchEpics(workspaceSlug, projectId)]);
     },
     { revalidateIfStale: false, revalidateOnFocus: false }
   );

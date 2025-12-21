@@ -7,7 +7,7 @@ from drf_spectacular.utils import (
     OpenApiRequest,
 )
 
-# Module imports
+# Package imports
 from .base import BaseAPIView
 from plane.api.serializers import UserLiteSerializer, ProjectMemberSerializer
 from plane.db.models import User, Workspace, WorkspaceMember, ProjectMember

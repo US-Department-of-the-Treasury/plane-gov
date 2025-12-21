@@ -10,7 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
 
 
-# Module imports
+# Package imports
 from plane.app.serializers import IssueActivitySerializer
 from plane.bgtasks.notification_task import notifications
 from plane.db.models import (

@@ -5,7 +5,7 @@ from typing import Any
 from django.db import models
 from django.utils import timezone
 
-# Module imports
+# Package imports
 from plane.bgtasks.deletion_task import soft_delete_related_objects
 
 

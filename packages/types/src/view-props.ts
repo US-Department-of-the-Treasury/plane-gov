@@ -98,7 +98,7 @@ export const WORK_ITEM_FILTER_PROPERTY_KEYS = [
   "label_id",
   "state_id",
   "sprint_id",
-  "module_id",
+  "epic_id",
   "project_id",
   "created_at",
   "updated_at",

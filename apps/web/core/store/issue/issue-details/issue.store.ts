@@ -17,14 +17,14 @@ export interface IIssueStoreActions {
   addSprintToIssue: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
   addIssueToSprint: (workspaceSlug: string, projectId: string, sprintId: string, issueIds: string[]) => Promise<void>;
   removeIssueFromSprint: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
-  changeModulesInIssue: (
+  changeEpicsInIssue: (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    addModuleIds: string[],
-    removeModuleIds: string[]
+    addEpicIds: string[],
+    removeEpicIds: string[]
   ) => Promise<void>;
-  removeIssueFromModule: (workspaceSlug: string, projectId: string, moduleId: string, issueId: string) => Promise<void>;
+  removeIssueFromEpic: (workspaceSlug: string, projectId: string, epicId: string, issueId: string) => Promise<void>;
   fetchIssueWithIdentifier: (workspaceSlug: string, project_identifier: string, sequence_id: string) => Promise<TIssue>;
 }
 
@@ -151,7 +151,7 @@ export class IssueStore implements IIssueStore {
       project_id: issue?.project_id,
       parent_id: issue?.parent_id,
       sprint_id: issue?.sprint_id,
-      module_ids: issue?.module_ids,
+      epic_ids: issue?.epic_ids,
       type_id: issue?.type_id,
       created_at: issue?.created_at,
       updated_at: issue?.updated_at,
@@ -233,32 +233,32 @@ export class IssueStore implements IIssueStore {
     return sprint;
   };
 
-  changeModulesInIssue = async (
+  changeEpicsInIssue = async (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    addModuleIds: string[],
-    removeModuleIds: string[]
+    addEpicIds: string[],
+    removeEpicIds: string[]
   ) => {
-    await this.rootIssueDetailStore.rootIssueStore.moduleIssues.changeModulesInIssue(
+    await this.rootIssueDetailStore.rootIssueStore.epicIssues.changeEpicsInIssue(
       workspaceSlug,
       projectId,
       issueId,
-      addModuleIds,
-      removeModuleIds
+      addEpicIds,
+      removeEpicIds
     );
     await this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
   };
 
-  removeIssueFromModule = async (workspaceSlug: string, projectId: string, moduleId: string, issueId: string) => {
-    const currentModule = await this.rootIssueDetailStore.rootIssueStore.moduleIssues.removeIssuesFromModule(
+  removeIssueFromEpic = async (workspaceSlug: string, projectId: string, epicId: string, issueId: string) => {
+    const currentEpic = await this.rootIssueDetailStore.rootIssueStore.epicIssues.removeIssuesFromEpic(
       workspaceSlug,
       projectId,
-      moduleId,
+      epicId,
       [issueId]
     );
     await this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
-    return currentModule;
+    return currentEpic;
   };
 
   fetchIssueWithIdentifier = async (workspaceSlug: string, project_identifier: string, sequence_id: string) => {

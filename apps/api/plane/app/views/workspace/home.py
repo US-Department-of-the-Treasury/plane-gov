@@ -1,4 +1,4 @@
-# Module imports
+# Package imports
 from ..base import BaseAPIView
 from plane.db.models.workspace import WorkspaceHomePreference
 from plane.app.permissions import allow_permission, ROLE

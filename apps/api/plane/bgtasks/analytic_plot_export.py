@@ -14,7 +14,7 @@ from django.db.models import Q, Case, Value, When
 from django.db import models
 from django.db.models.functions import Concat
 
-# Module imports
+# Package imports
 from plane.db.models import Issue
 from plane.license.utils.instance_value import get_email_configuration
 from plane.utils.analytics_plot import build_graph_plot

@@ -2,7 +2,7 @@ import { observer } from "mobx-react";
 // plane package imports
 import { Expand, Shrink } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
-import type { ISprint, IModule } from "@plane/types";
+import type { ISprint, IEpic } from "@plane/types";
 // icons
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
   setFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
   title: string;
   sprint?: ISprint;
-  module?: IModule;
+  epic?: IEpic;
 };
 
 export const WorkItemsModalHeader = observer(function WorkItemsModalHeader(props: Props) {

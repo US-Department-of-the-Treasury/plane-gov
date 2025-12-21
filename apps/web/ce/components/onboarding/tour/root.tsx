@@ -7,7 +7,7 @@ import { CloseIcon, PlaneLockup } from "@plane/propel/icons";
 // assets
 import SprintsTour from "@/app/assets/onboarding/sprints.webp?url";
 import IssuesTour from "@/app/assets/onboarding/issues.webp?url";
-import ModulesTour from "@/app/assets/onboarding/modules.webp?url";
+import EpicsTour from "@/app/assets/onboarding/epics.webp?url";
 import PagesTour from "@/app/assets/onboarding/pages.webp?url";
 import ViewsTour from "@/app/assets/onboarding/views.webp?url";
 // helpers
@@ -52,8 +52,8 @@ const TOUR_STEPS: {
   {
     key: "modules",
     title: "Break into modules",
-    description: "Modules break your big thing into Projects or Features, to help you organize better.",
-    image: ModulesTour,
+    description: "Epics break your big thing into Projects or Features, to help you organize better.",
+    image: EpicsTour,
     prevStep: "sprints",
     nextStep: "views",
   },

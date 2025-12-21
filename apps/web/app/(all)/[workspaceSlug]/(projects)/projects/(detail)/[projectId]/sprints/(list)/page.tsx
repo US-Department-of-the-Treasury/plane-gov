@@ -19,7 +19,7 @@ import { SprintAppliedFiltersList } from "@/components/sprints/applied-filters";
 import { SprintsView } from "@/components/sprints/sprints-view";
 import { SprintCreateUpdateModal } from "@/components/sprints/modal";
 import { DetailedEmptyState } from "@/components/empty-state/detailed-empty-state-root";
-import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
+import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
@@ -83,7 +83,7 @@ function ProjectSprintsPage({ params }: Route.ComponentProps) {
       </div>
     );
 
-  if (loader) return <SprintModuleListLayoutLoader />;
+  if (loader) return <SprintEpicListLayoutLoader />;
 
   return (
     <>

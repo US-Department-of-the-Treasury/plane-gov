@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 
-# Module imports
+# Package imports
 from .. import BaseViewSet
 from plane.app.serializers import SprintIssueSerializer
 from plane.bgtasks.issue_activities_task import issue_activity

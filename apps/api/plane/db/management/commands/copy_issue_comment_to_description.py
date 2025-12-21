@@ -2,7 +2,7 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-# Module imports
+# Package imports
 from plane.db.models import Description
 from plane.db.models import IssueComment
 

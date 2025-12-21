@@ -70,7 +70,7 @@ export interface MenuItemFactoryProps {
   handleArchive?: () => Promise<void>;
   // Context-specific data
   sprintId?: string;
-  moduleId?: string;
+  epicId?: string;
   storeType?: EIssuesStoreType;
 }
 
@@ -207,7 +207,7 @@ export const useMenuItemFactory = (props: MenuItemFactoryProps) => {
     shouldRender: isEditingAllowed,
   });
 
-  const createRemoveFromModuleMenuItem = (): TContextMenuItem => ({
+  const createRemoveFromEpicMenuItem = (): TContextMenuItem => ({
     key: "remove-from-module",
     title: "Remove from module",
     icon: XCircle,
@@ -252,7 +252,7 @@ export const useMenuItemFactory = (props: MenuItemFactoryProps) => {
     createOpenInNewTabMenuItem,
     createCopyLinkMenuItem,
     createRemoveFromSprintMenuItem,
-    createRemoveFromModuleMenuItem,
+    createRemoveFromEpicMenuItem,
     createArchiveMenuItem,
     createRestoreMenuItem,
     createDeleteMenuItem,
@@ -332,13 +332,13 @@ export const useSprintIssueMenuItems = (props: MenuItemFactoryProps): TContextMe
   );
 };
 
-export const useModuleIssueMenuItems = (props: MenuItemFactoryProps): TContextMenuItem[] => {
+export const useEpicIssueMenuItems = (props: MenuItemFactoryProps): TContextMenuItem[] => {
   const factory = useMenuItemFactory(props);
 
   const customEditAction = () => {
     props.setIssueToEdit({
       ...props.issue,
-      module_ids: props.moduleId ? [props.moduleId] : [],
+      epic_ids: props.epicId ? [props.epicId] : [],
     });
     props.setCreateUpdateIssueModal(true);
   };
@@ -349,11 +349,11 @@ export const useModuleIssueMenuItems = (props: MenuItemFactoryProps): TContextMe
       factory.createCopyMenuItem(),
       factory.createOpenInNewTabMenuItem(),
       factory.createCopyLinkMenuItem(),
-      factory.createRemoveFromModuleMenuItem(),
+      factory.createRemoveFromEpicMenuItem(),
       factory.createArchiveMenuItem(),
       factory.createDeleteMenuItem(),
     ],
-    [factory, props.moduleId]
+    [factory, props.epicId]
   );
 };
 

@@ -2,7 +2,7 @@
 import pytz
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from .base import BaseSerializer
 from plane.db.models import Sprint, SprintIssue, User, Project
 from plane.utils.timezone_converter import convert_to_utc

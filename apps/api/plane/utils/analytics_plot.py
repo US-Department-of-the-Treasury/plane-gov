@@ -15,7 +15,7 @@ from django.db.models.functions import (
 )
 from django.utils import timezone
 
-# Module imports
+# Package imports
 from plane.db.models import Issue, Project
 
 

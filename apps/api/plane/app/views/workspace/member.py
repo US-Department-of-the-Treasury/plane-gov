@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from plane.app.permissions import WorkspaceEntityPermission, allow_permission, ROLE
 
-# Module imports
+# Package imports
 from plane.app.serializers import (
     ProjectMemberRoleSerializer,
     WorkspaceMemberAdminSerializer,

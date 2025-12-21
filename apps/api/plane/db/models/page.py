@@ -6,7 +6,7 @@ from django.utils import timezone
 # Django imports
 from django.db import models
 
-# Module imports
+# Package imports
 from plane.utils.html_processor import strip_tags
 
 from .base import BaseModel
@@ -82,7 +82,7 @@ class PageLog(BaseModel):
         ("file", "File"),
         ("link", "Link"),
         ("sprint", "Sprint"),
-        ("module", "Module"),
+        ("epic", "Epic"),
         ("back_link", "Back Link"),
         ("forward_link", "Forward Link"),
         ("page_mention", "Page Mention"),

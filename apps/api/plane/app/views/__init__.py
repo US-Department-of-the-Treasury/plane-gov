@@ -74,7 +74,7 @@ from .workspace.user import (
     UserIssueCompletedGraphEndpoint,
 )
 from .workspace.estimate import WorkspaceEstimatesEndpoint
-from .workspace.module import WorkspaceModulesEndpoint
+from .workspace.epic import WorkspaceEpicsEndpoint
 from .workspace.sprint import WorkspaceSprintsEndpoint
 from .workspace.quick_link import QuickLinkViewSet
 from .workspace.sticky import WorkspaceStickyViewSet
@@ -151,16 +151,16 @@ from .issue.subscriber import IssueSubscriberViewSet
 
 from .issue.version import IssueVersionEndpoint, WorkItemDescriptionVersionEndpoint
 
-from .module.base import (
-    ModuleViewSet,
-    ModuleLinkViewSet,
-    ModuleFavoriteViewSet,
-    ModuleUserPropertiesEndpoint,
+from .epic.base import (
+    EpicViewSet,
+    EpicLinkViewSet,
+    EpicFavoriteViewSet,
+    EpicUserPropertiesEndpoint,
 )
 
-from .module.issue import ModuleIssueViewSet
+from .epic.issue import EpicIssueViewSet
 
-from .module.archive import ModuleArchiveUnarchiveEndpoint
+from .epic.archive import EpicArchiveUnarchiveEndpoint
 
 from .api import ApiTokenEndpoint, ServiceApiTokenEndpoint
 

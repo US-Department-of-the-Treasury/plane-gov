@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from django.db import models
 from django.core.exceptions import ValidationError
 
-# Module imports
+# Package imports
 from plane.db.models import BaseModel, ProjectBaseModel
 
 

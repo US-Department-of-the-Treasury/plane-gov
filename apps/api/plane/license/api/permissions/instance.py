@@ -1,7 +1,7 @@
 # Third party imports
 from rest_framework.permissions import BasePermission
 
-# Module imports
+# Package imports
 from plane.license.models import Instance, InstanceAdmin
 
 

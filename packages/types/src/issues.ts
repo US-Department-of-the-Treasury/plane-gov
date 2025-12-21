@@ -1,6 +1,6 @@
 import type { ISprint } from "./sprint";
 import type { TIssue } from "./issues/issue";
-import type { IModule } from "./module";
+import type { IEpic } from "./epic";
 import type { IProjectLite } from "./project";
 import type { IStateLite } from "./state";
 import type { IUserLite } from "./users";
@@ -26,13 +26,13 @@ export interface IIssueSprint {
   sprint: string;
 }
 
-export interface IIssueModule {
+export interface IIssueEpic {
   created_at: Date;
   created_by: string;
   id: string;
   issue: string;
-  module: string;
-  module_detail: IModule;
+  epic: string;
+  epic_detail: IEpic;
   project: string;
   updated_at: Date;
   updated_by: string;

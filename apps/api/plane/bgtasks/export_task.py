@@ -14,7 +14,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.db.models import Prefetch
 
-# Module imports
+# Package imports
 from plane.db.models import ExporterHistory, Issue, IssueComment, IssueRelation, IssueSubscriber
 from plane.utils.exception_logger import log_exception
 from plane.utils.porters.exporter import DataExporter

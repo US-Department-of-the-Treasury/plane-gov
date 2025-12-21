@@ -30,7 +30,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
-# Module imports
+# Package imports
 from .base import BaseAPIView, BaseViewSet
 
 # fetch the space app grouper function separately

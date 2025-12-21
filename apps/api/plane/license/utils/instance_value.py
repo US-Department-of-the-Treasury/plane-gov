@@ -4,7 +4,7 @@ import os
 # Django imports
 from django.conf import settings
 
-# Module imports
+# Package imports
 from plane.license.models import InstanceConfiguration
 from plane.license.utils.encryption import decrypt_data
 

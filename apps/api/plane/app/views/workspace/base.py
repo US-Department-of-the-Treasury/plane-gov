@@ -27,7 +27,7 @@ from plane.app.permissions import (
     WorkspaceEntityPermission,
 )
 
-# Module imports
+# Package imports
 from plane.app.serializers import WorkSpaceSerializer, WorkspaceThemeSerializer
 from plane.app.views.base import BaseAPIView, BaseViewSet
 from plane.db.models import (

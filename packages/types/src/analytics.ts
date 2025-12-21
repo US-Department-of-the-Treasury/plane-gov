@@ -42,7 +42,7 @@ export interface AnalyticsTab {
 export type TAnalyticsFilterParams = {
   project_ids?: string;
   sprint_id?: string;
-  module_id?: string;
+  epic_id?: string;
 };
 
 // service types

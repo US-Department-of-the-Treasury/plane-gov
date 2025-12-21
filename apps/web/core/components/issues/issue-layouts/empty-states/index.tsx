@@ -7,7 +7,7 @@ import { TeamViewEmptyState } from "@/plane-web/components/issues/issue-layouts/
 import { ProjectArchivedEmptyState } from "./archived-issues";
 import { SprintEmptyState } from "./sprint";
 import { GlobalViewEmptyState } from "./global-view";
-import { ModuleEmptyState } from "./module";
+import { EpicEmptyState } from "./epic";
 import { ProfileViewEmptyState } from "./profile-view";
 import { ProjectEpicsEmptyState } from "./project-epic";
 import { ProjectEmptyState } from "./project-issues";
@@ -27,8 +27,8 @@ export function IssueLayoutEmptyState(props: Props) {
       return <ProjectArchivedEmptyState />;
     case EIssuesStoreType.SPRINT:
       return <SprintEmptyState />;
-    case EIssuesStoreType.MODULE:
-      return <ModuleEmptyState />;
+    case EIssuesStoreType.EPIC:
+      return <EpicEmptyState />;
     case EIssuesStoreType.GLOBAL:
       return <GlobalViewEmptyState />;
     case EIssuesStoreType.PROFILE:

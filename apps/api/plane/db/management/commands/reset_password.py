@@ -7,7 +7,7 @@ from django.core.management import BaseCommand, CommandError
 # Third party imports
 from zxcvbn import zxcvbn
 
-# Module imports
+# Package imports
 from plane.db.models import User
 
 

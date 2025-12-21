@@ -17,7 +17,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.exceptions import APIException
 from rest_framework.generics import GenericAPIView
 
-# Module imports
+# Package imports
 from plane.db.models.api import APIToken
 from plane.api.middleware.api_authentication import APIKeyAuthentication
 from plane.api.rate_limit import ApiKeyRateThrottle, ServiceTokenRateThrottle

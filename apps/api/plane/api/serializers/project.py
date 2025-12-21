@@ -2,7 +2,7 @@
 import random
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from plane.db.models import Project, ProjectIdentifier, WorkspaceMember, State, Estimate
 
 from plane.utils.content_validator import (

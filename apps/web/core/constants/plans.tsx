@@ -114,7 +114,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Modules",
+        title: "Epics",
         description: "Group replicable work in modules with their own\nleads.",
         cloud: {
           free: true,
@@ -289,7 +289,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Module Overview",
+        title: "Epic Overview",
         description: "Like Sprint Overviews, see relevant details and\nprogress charts for each module.",
         cloud: {
           free: false,
@@ -300,7 +300,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Auto-assignment In Modules",
+        title: "Auto-assignment In Epics",
         description: "Choose assignment rules for work items in a\nmodule including Linear, Round Robin, or Capacity.",
         cloud: {
           free: false,

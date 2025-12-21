@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react";
 import { Tab } from "@headlessui/react";
 // plane package imports
-import type { ISprint, IModule, IProject } from "@plane/types";
+import type { ISprint, IEpic, IProject } from "@plane/types";
 import { Spinner } from "@plane/ui";
 // hooks
 import { useAnalytics } from "@/hooks/store/use-analytics";
@@ -16,13 +16,13 @@ type Props = {
   fullScreen: boolean;
   projectDetails: IProject | undefined;
   sprintDetails: ISprint | undefined;
-  moduleDetails: IModule | undefined;
+  epicDetails: IModule | undefined;
   isEpic?: boolean;
 };
 
 export const WorkItemsModalMainContent = observer(function WorkItemsModalMainContent(props: Props) {
-  const { projectDetails, sprintDetails, moduleDetails, fullScreen, isEpic } = props;
-  const { updateSelectedProjects, updateSelectedSprint, updateSelectedModule, updateIsPeekView } = useAnalytics();
+  const { projectDetails, sprintDetails, epicDetails, fullScreen, isEpic } = props;
+  const { updateSelectedProjects, updateSelectedSprint, updateSelectedEpic, updateIsPeekView } = useAnalytics();
   const [isModalConfigured, setIsModalConfigured] = useState(false);
 
   useEffect(() => {
@@ -39,8 +39,8 @@ export const WorkItemsModalMainContent = observer(function WorkItemsModalMainCon
     }
 
     // Handle module selection
-    if (moduleDetails?.id) {
-      updateSelectedModule(moduleDetails.id);
+    if (epicDetails?.id) {
+      updateSelectedEpic(epicDetails.id);
     }
     setIsModalConfigured(true);
 
@@ -48,16 +48,16 @@ export const WorkItemsModalMainContent = observer(function WorkItemsModalMainCon
     return () => {
       updateSelectedProjects([]);
       updateSelectedSprint("");
-      updateSelectedModule("");
+      updateSelectedEpic("");
       updateIsPeekView(false);
     };
   }, [
     projectDetails?.id,
     sprintDetails?.id,
-    moduleDetails?.id,
+    epicDetails?.id,
     updateSelectedProjects,
     updateSelectedSprint,
-    updateSelectedModule,
+    updateSelectedEpic,
     updateIsPeekView,
   ]);
 

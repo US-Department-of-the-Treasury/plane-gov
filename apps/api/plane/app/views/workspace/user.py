@@ -27,7 +27,7 @@ from rest_framework.response import Response
 
 from plane.app.permissions import WorkspaceEntityPermission, WorkspaceViewerPermission
 
-# Module imports
+# Package imports
 from plane.app.serializers import (
     IssueActivitySerializer,
     ProjectMemberSerializer,

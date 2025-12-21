@@ -10,7 +10,7 @@ from django.db import models
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from plane.app.permissions import WorkSpaceAdminPermission
 from plane.app.serializers import AnalyticViewSerializer
 from plane.app.views.base import BaseAPIView, BaseViewSet

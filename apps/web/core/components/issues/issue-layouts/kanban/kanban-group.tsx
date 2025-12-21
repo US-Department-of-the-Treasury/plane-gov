@@ -206,7 +206,7 @@ export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
       } else if (groupByKey === "sprint") {
         preloadedData = { ...preloadedData, sprint_id: groupValue };
       } else if (groupByKey === "module") {
-        preloadedData = { ...preloadedData, module_ids: [groupValue] };
+        preloadedData = { ...preloadedData, epic_ids: [groupValue] };
       } else if (groupByKey === "labels" && groupValue != "None") {
         preloadedData = { ...preloadedData, label_ids: [groupValue] };
       } else if (groupByKey === "assignees" && groupValue != "None") {
@@ -226,7 +226,7 @@ export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
       } else if (subGroupByKey === "sprint") {
         preloadedData = { ...preloadedData, sprint_id: subGroupValue };
       } else if (subGroupByKey === "module") {
-        preloadedData = { ...preloadedData, module_ids: [subGroupValue] };
+        preloadedData = { ...preloadedData, epic_ids: [subGroupValue] };
       } else if (subGroupByKey === "labels" && subGroupValue != "None") {
         preloadedData = { ...preloadedData, label_ids: [subGroupValue] };
       } else if (subGroupByKey === "assignees" && subGroupValue != "None") {

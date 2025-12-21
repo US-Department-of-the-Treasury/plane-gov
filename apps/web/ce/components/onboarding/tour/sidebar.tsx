@@ -21,7 +21,7 @@ const sidebarOptions: {
   },
   {
     key: "modules",
-    label: "Modules",
+    label: "Epics",
     Icon: ModuleIcon,
   },
   {

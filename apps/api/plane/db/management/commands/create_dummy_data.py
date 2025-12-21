@@ -2,7 +2,7 @@
 from typing import Any
 from django.core.management.base import BaseCommand, CommandError
 
-# Module imports
+# Package imports
 from plane.db.models import User, Workspace, WorkspaceMember
 
 

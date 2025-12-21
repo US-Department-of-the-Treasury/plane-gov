@@ -14,7 +14,7 @@ from django.db.models.functions import Coalesce
 from rest_framework.response import Response
 from rest_framework import status
 
-# Module imports
+# Package imports
 from .. import BaseAPIView
 from plane.app.serializers import IssueSerializer
 from plane.app.permissions import ProjectEntityPermission

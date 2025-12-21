@@ -4,7 +4,7 @@ from django.urls import path, include
 # Third party imports
 from rest_framework.routers import DefaultRouter
 
-# Module imports
+# Package imports
 from plane.api.views import WorkspaceInvitationsViewset
 
 

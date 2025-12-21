@@ -5,7 +5,7 @@ from enum import Enum
 from django.db import models
 from django.conf import settings
 
-# Module imports
+# Package imports
 from plane.db.models import BaseModel
 
 ROLE_CHOICES = ((20, "Admin"),)

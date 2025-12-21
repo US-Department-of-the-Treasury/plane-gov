@@ -5,7 +5,7 @@ import requests
 from django.utils import timezone
 from django.db import DatabaseError, IntegrityError
 
-# Module imports
+# Package imports
 from plane.db.models import Account
 
 from .base import Adapter

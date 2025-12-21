@@ -52,7 +52,7 @@ export class FavoriteStore implements IFavoriteStore {
   projectStore;
   pageStore;
   sprintStore;
-  moduleStore;
+  epicStore;
 
   constructor(_rootStore: CoreRootStore) {
     makeObservable(this, {
@@ -79,7 +79,7 @@ export class FavoriteStore implements IFavoriteStore {
     this.rootStore = _rootStore;
     this.viewStore = _rootStore.projectView;
     this.projectStore = _rootStore.projectRoot.project;
-    this.moduleStore = _rootStore.module;
+    this.epicStore = _rootStore.module;
     this.sprintStore = _rootStore.sprint;
     this.pageStore = _rootStore.projectPages;
   }
@@ -266,10 +266,10 @@ export class FavoriteStore implements IFavoriteStore {
         return (
           this.viewStore.viewMap[entity_identifier] && (this.viewStore.viewMap[entity_identifier].is_favorite = false)
         );
-      case "module":
+      case "epic":
         return (
-          this.moduleStore.moduleMap[entity_identifier] &&
-          (this.moduleStore.moduleMap[entity_identifier].is_favorite = false)
+          this.epicStore.epicMap[entity_identifier] &&
+          (this.epicStore.epicMap[entity_identifier].is_favorite = false)
         );
       case "page":
         return this.pageStore.data[entity_identifier] && (this.pageStore.data[entity_identifier].is_favorite = false);

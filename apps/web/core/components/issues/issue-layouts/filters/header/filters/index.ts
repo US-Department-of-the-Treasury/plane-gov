@@ -9,4 +9,4 @@ export * from "./start-date";
 export * from "./state-group";
 export * from "./state";
 export * from "./sprint";
-export * from "./module";
+export * from "./epic";

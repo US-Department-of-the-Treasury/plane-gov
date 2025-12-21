@@ -115,12 +115,12 @@ export const WithMultipleActions: Story = {
     description: "Get started by creating your first module or import existing ones.",
     actions: [
       {
-        label: "Create Module",
+        label: "Create Epic",
         onClick: () => console.log("create-clicked"),
         variant: "primary",
       },
       {
-        label: "Import Modules",
+        label: "Import Epics",
         onClick: () => console.log("import-clicked"),
         variant: "secondary",
       },
@@ -212,16 +212,16 @@ export const SprintState: Story = {
   },
 };
 
-export const ModuleState: Story = {
-  name: "Modules",
+export const EpicState: Story = {
+  name: "Epics",
   args: {
     assetKey: "module",
     assetClassName: "w-40 h-45",
     title: "No modules found",
-    description: "Modules help you organize related work items into logical groups.",
+    description: "Epics help you organize related work items into logical groups.",
     actions: [
       {
-        label: "Create Module",
+        label: "Create Epic",
         onClick: () => console.log("create-module-clicked"),
         variant: "primary",
       },

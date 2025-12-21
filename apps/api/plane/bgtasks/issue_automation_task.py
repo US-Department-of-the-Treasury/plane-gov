@@ -9,7 +9,7 @@ from django.db.models import Q
 # Django imports
 from django.utils import timezone
 
-# Module imports
+# Package imports
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.db.models import Issue, Project, State
 from plane.utils.exception_logger import log_exception

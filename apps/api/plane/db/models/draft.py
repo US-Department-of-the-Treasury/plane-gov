@@ -3,7 +3,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-# Module imports
+# Package imports
 from plane.utils.html_processor import strip_tags
 
 from .workspace import WorkspaceBaseModel
@@ -172,26 +172,26 @@ class DraftIssueLabel(WorkspaceBaseModel):
         return f"{self.draft_issue.name} {self.label.name}"
 
 
-class DraftIssueModule(WorkspaceBaseModel):
-    module = models.ForeignKey("db.Module", on_delete=models.CASCADE, related_name="draft_issue_module")
-    draft_issue = models.ForeignKey("db.DraftIssue", on_delete=models.CASCADE, related_name="draft_issue_module")
+class DraftIssueEpic(WorkspaceBaseModel):
+    epic = models.ForeignKey("db.Epic", on_delete=models.CASCADE, related_name="draft_issue_epic")
+    draft_issue = models.ForeignKey("db.DraftIssue", on_delete=models.CASCADE, related_name="draft_issue_epic")
 
     class Meta:
-        unique_together = ["draft_issue", "module", "deleted_at"]
+        unique_together = ["draft_issue", "epic", "deleted_at"]
         constraints = [
             models.UniqueConstraint(
-                fields=["draft_issue", "module"],
+                fields=["draft_issue", "epic"],
                 condition=models.Q(deleted_at__isnull=True),
-                name="module_draft_issue_unique_issue_module_when_deleted_at_null",
+                name="epic_draft_issue_unique_issue_epic_when_deleted_at_null",
             )
         ]
-        verbose_name = "Draft Issue Module"
-        verbose_name_plural = "Draft Issue Modules"
-        db_table = "draft_issue_modules"
+        verbose_name = "Draft Issue Epic"
+        verbose_name_plural = "Draft Issue Epics"
+        db_table = "draft_issue_epics"
         ordering = ("-created_at",)
 
     def __str__(self):
-        return f"{self.module.name} {self.draft_issue.name}"
+        return f"{self.epic.name} {self.draft_issue.name}"
 
 
 class DraftIssueSprint(WorkspaceBaseModel):

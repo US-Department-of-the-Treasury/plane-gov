@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from plane.db.models import User
 
 from .base import BaseSerializer

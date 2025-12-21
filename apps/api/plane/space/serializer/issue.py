@@ -4,7 +4,7 @@ from django.utils import timezone
 # Third Party imports
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from .base import BaseSerializer
 from .user import UserLiteSerializer
 from .state import StateSerializer, StateLiteSerializer

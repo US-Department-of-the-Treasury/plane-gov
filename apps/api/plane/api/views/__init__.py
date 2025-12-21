@@ -35,12 +35,12 @@ from .sprint import (
     SprintArchiveUnarchiveAPIEndpoint,
 )
 
-from .module import (
-    ModuleListCreateAPIEndpoint,
-    ModuleDetailAPIEndpoint,
-    ModuleIssueListCreateAPIEndpoint,
-    ModuleIssueDetailAPIEndpoint,
-    ModuleArchiveUnarchiveAPIEndpoint,
+from .epic import (
+    EpicListCreateAPIEndpoint,
+    EpicDetailAPIEndpoint,
+    EpicIssueListCreateAPIEndpoint,
+    EpicIssueDetailAPIEndpoint,
+    EpicArchiveUnarchiveAPIEndpoint,
 )
 
 from .member import ProjectMemberListCreateAPIEndpoint, ProjectMemberDetailAPIEndpoint, WorkspaceMemberAPIEndpoint

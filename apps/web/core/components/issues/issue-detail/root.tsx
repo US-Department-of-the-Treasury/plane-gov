@@ -32,18 +32,18 @@ export type TIssueOperations = {
   addSprintToIssue?: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
   addIssueToSprint?: (workspaceSlug: string, projectId: string, sprintId: string, issueIds: string[]) => Promise<void>;
   removeIssueFromSprint?: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
-  removeIssueFromModule?: (
+  removeIssueFromEpic?: (
     workspaceSlug: string,
     projectId: string,
-    moduleId: string,
+    epicId: string,
     issueId: string
   ) => Promise<void>;
-  changeModulesInIssue?: (
+  changeEpicsInIssue?: (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    addModuleIds: string[],
-    removeModuleIds: string[]
+    addEpicIds: string[],
+    removeEpicIds: string[]
   ) => Promise<void>;
 };
 
@@ -69,8 +69,8 @@ export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDe
     addSprintToIssue,
     addIssueToSprint,
     removeIssueFromSprint,
-    changeModulesInIssue,
-    removeIssueFromModule,
+    changeEpicsInIssue,
+    removeIssueFromEpic,
   } = useIssueDetail();
   const {
     issues: { removeIssue: removeArchivedIssue },
@@ -218,10 +218,10 @@ export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDe
           });
         }
       },
-      removeIssueFromModule: async (workspaceSlug: string, projectId: string, moduleId: string, issueId: string) => {
+      removeIssueFromEpic: async (workspaceSlug: string, projectId: string, epicId: string, issueId: string) => {
         try {
-          const removeFromModulePromise = removeIssueFromModule(workspaceSlug, projectId, moduleId, issueId);
-          setPromiseToast(removeFromModulePromise, {
+          const removeFromEpicPromise = removeIssueFromEpic(workspaceSlug, projectId, epicId, issueId);
+          setPromiseToast(removeFromEpicPromise, {
             loading: t("issue.remove.module.loading"),
             success: {
               title: t("common.success"),
@@ -232,7 +232,7 @@ export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDe
               message: () => t("issue.remove.module.failed"),
             },
           });
-          await removeFromModulePromise;
+          await removeFromEpicPromise;
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,
             payload: { id: issueId },
@@ -245,14 +245,14 @@ export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDe
           });
         }
       },
-      changeModulesInIssue: async (
+      changeEpicsInIssue: async (
         workspaceSlug: string,
         projectId: string,
         issueId: string,
-        addModuleIds: string[],
-        removeModuleIds: string[]
+        addEpicIds: string[],
+        removeEpicIds: string[]
       ) => {
-        const promise = await changeModulesInIssue(workspaceSlug, projectId, issueId, addModuleIds, removeModuleIds);
+        const promise = await changeEpicsInIssue(workspaceSlug, projectId, issueId, addEpicIds, removeEpicIds);
         captureSuccess({
           eventName: WORK_ITEM_TRACKER_EVENTS.update,
           payload: { id: issueId },
@@ -270,8 +270,8 @@ export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDe
       addIssueToSprint,
       addSprintToIssue,
       removeIssueFromSprint,
-      changeModulesInIssue,
-      removeIssueFromModule,
+      changeEpicsInIssue,
+      removeIssueFromEpic,
       t,
       issueId,
     ]

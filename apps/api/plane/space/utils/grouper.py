@@ -7,7 +7,7 @@ from django.db.models import QuerySet
 
 from typing import List, Optional, Dict, Any, Union
 
-# Module imports
+# Package imports
 from plane.db.models import (
     Sprint,
     Issue,

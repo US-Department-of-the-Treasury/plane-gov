@@ -11,7 +11,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from plane.app.permissions import ROLE, ProjectMemberPermission, allow_permission
 from plane.app.serializers import (
     DeployBoardSerializer,
