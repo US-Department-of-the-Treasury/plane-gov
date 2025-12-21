@@ -38,19 +38,19 @@ export const IssueEpicSelect = observer(function IssueEpicSelect(props: TIssueEp
     if (!issue || !issue.epic_ids) return;
 
     setIsUpdating(true);
-    const updatedModuleIds = xor(issue.epic_ids, epicIds);
-    const modulesToAdd: string[] = [];
-    const modulesToRemove: string[] = [];
+    const updatedEpicIds = xor(issue.epic_ids, epicIds);
+    const epicsToAdd: string[] = [];
+    const epicsToRemove: string[] = [];
 
-    for (const epicId of updatedModuleIds) {
+    for (const epicId of updatedEpicIds) {
       if (issue.epic_ids.includes(epicId)) {
-        modulesToRemove.push(epicId);
+        epicsToRemove.push(epicId);
       } else {
-        modulesToAdd.push(epicId);
+        epicsToAdd.push(epicId);
       }
     }
 
-    await issueOperations.changeEpicsInIssue?.(workspaceSlug, projectId, issueId, modulesToAdd, modulesToRemove);
+    await issueOperations.changeEpicsInIssue?.(workspaceSlug, projectId, issueId, epicsToAdd, epicsToRemove);
 
     setIsUpdating(false);
   };
@@ -61,7 +61,7 @@ export const IssueEpicSelect = observer(function IssueEpicSelect(props: TIssueEp
         projectId={projectId}
         value={issue?.epic_ids ?? []}
         onChange={handleIssueModuleChange}
-        placeholder={t("module.no_module")}
+        placeholder={t("epic.no_epic")}
         disabled={disableSelect}
         className="group h-full w-full"
         buttonContainerClassName="w-full text-left h-7.5 rounded-sm"

@@ -3,20 +3,20 @@ import useSWR from "swr";
 // plane imports
 import { cn } from "@plane/utils";
 // assets
-import emptyModule from "@/app/assets/empty-state/module.svg?url";
+import emptyEpic from "@/app/assets/empty-state/epic.svg?url";
 // components
 import { EmptyState } from "@/components/common/empty-state";
 import { PageHead } from "@/components/core/page-title";
-import { ModuleLayoutRoot } from "@/components/issues/issue-layouts/roots/module-layout-root";
-import { ModuleAnalyticsSidebar } from "@/components/modules";
+import { EpicLayoutRoot } from "@/components/issues/issue-layouts/roots/epic-layout-root";
+import { EpicAnalyticsSidebar } from "@/components/epics";
 // hooks
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useAppRouter } from "@/hooks/use-app-router";
 import useLocalStorage from "@/hooks/use-local-storage";
 import type { Route } from "./+types/page";
 
-function ModuleIssuesPage({ params }: Route.ComponentProps) {
+function EpicIssuesPage({ params }: Route.ComponentProps) {
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId, epicId } = params;
@@ -27,14 +27,14 @@ function ModuleIssuesPage({ params }: Route.ComponentProps) {
   // local storage
   const { setValue, storedValue } = useLocalStorage("epic_sidebar_collapsed", "false");
   const isSidebarCollapsed = storedValue ? (storedValue === "true" ? true : false) : false;
-  // fetching module details
-  const { error } = useSWR(`CURRENT_MODULE_DETAILS_${epicId}`, () =>
+  // fetching epic details
+  const { error } = useSWR(`CURRENT_EPIC_DETAILS_${epicId}`, () =>
     fetchEpicDetails(workspaceSlug, projectId, epicId)
   );
   // derived values
-  const projectModule = getEpicById(epicId);
+  const projectEpic = getEpicById(epicId);
   const project = getProjectById(projectId);
-  const pageTitle = project?.name && projectModule?.name ? `${project?.name} - ${projectModule?.name}` : undefined;
+  const pageTitle = project?.name && projectEpic?.name ? `${project?.name} - ${projectEpic?.name}` : undefined;
 
   const toggleSidebar = () => {
     setValue(`${!isSidebarCollapsed}`);
@@ -46,18 +46,18 @@ function ModuleIssuesPage({ params }: Route.ComponentProps) {
       <PageHead title={pageTitle} />
       {error ? (
         <EmptyState
-          image={emptyModule}
-          title="Module does not exist"
-          description="The module you are looking for does not exist or has been deleted."
+          image={emptyEpic}
+          title="Epic does not exist"
+          description="The epic you are looking for does not exist or has been deleted."
           primaryButton={{
-            text: "View other modules",
-            onClick: () => router.push(`/${workspaceSlug}/projects/${projectId}/modules`),
+            text: "View other epics",
+            onClick: () => router.push(`/${workspaceSlug}/projects/${projectId}/epics`),
           }}
         />
       ) : (
         <div className="flex h-full w-full">
           <div className="h-full w-full overflow-hidden">
-            <ModuleLayoutRoot />
+            <EpicLayoutRoot />
           </div>
           {!isSidebarCollapsed && (
             <div
@@ -65,7 +65,7 @@ function ModuleIssuesPage({ params }: Route.ComponentProps) {
                 "flex h-full w-[24rem] flex-shrink-0 flex-col gap-3.5 overflow-y-auto border-l border-subtle bg-surface-1 px-6 duration-300 vertical-scrollbar scrollbar-sm absolute right-0 z-13 shadow-raised-200"
               )}
             >
-              <ModuleAnalyticsSidebar epicId={epicId} handleClose={toggleSidebar} />
+              <EpicAnalyticsSidebar epicId={epicId} handleClose={toggleSidebar} />
             </div>
           )}
         </div>
@@ -74,4 +74,4 @@ function ModuleIssuesPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ModuleIssuesPage);
+export default observer(EpicIssuesPage);

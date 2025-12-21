@@ -28,12 +28,12 @@ import {
   LayoutSelection,
   MobileLayoutSelection,
 } from "@/components/issues/issue-layouts/filters";
-import { ModuleQuickActions } from "@/components/modules";
+import { EpicQuickActions } from "@/components/epics";
 import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-toggle";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
@@ -44,15 +44,15 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 import { IconButton } from "@plane/propel/icon-button";
 
-export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
+export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
   // refs
   const parentRef = useRef<HTMLDivElement>(null);
   // states
   const [analyticsModal, setAnalyticsModal] = useState(false);
   // router
   const router = useAppRouter();
-  const { workspaceSlug, projectId, epicId: routerModuleId } = useParams();
-  const epicId = routerModuleId ? routerModuleId.toString() : undefined;
+  const { workspaceSlug, projectId, epicId: routerEpicId } = useParams();
+  const epicId = routerEpicId ? routerEpicId.toString() : undefined;
   // hooks
   const { isMobile } = usePlatformOS();
   // store hooks
@@ -61,7 +61,7 @@ export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
     issues: { getGroupIssueCount },
   } = useIssues(EIssuesStoreType.EPIC);
   const { updateFilters } = useIssuesActions(EIssuesStoreType.EPIC);
-  const { projectModuleIds, getEpicById } = useEpic();
+  const { projectEpicIds, getEpicById } = useEpic();
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
   const { currentProjectDetails, loader } = useProject();
@@ -105,14 +105,14 @@ export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
     [projectId, updateFilters]
   );
 
-  const switcherOptions = projectModuleIds
+  const switcherOptions = projectEpicIds
     ?.map((id) => {
-      const _module = id === epicId ? epicDetails : getEpicById(id);
-      if (!_module) return;
+      const _epic = id === epicId ? epicDetails : getEpicById(id);
+      if (!_epic) return;
       return {
-        value: _module.id,
-        query: _module.name,
-        content: <SwitcherLabel name={_module.name} LabelIcon={ModuleIcon} />,
+        value: _epic.id,
+        query: _epic.name,
+        content: <SwitcherLabel name={_epic.name} LabelIcon={ModuleIcon} />,
       };
     })
     .filter((option) => option !== undefined) as ICustomSearchSelectOption[];
@@ -134,7 +134,7 @@ export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
                 component={
                   <BreadcrumbLink
                     label="Epics"
-                    href={`/${workspaceSlug}/projects/${projectId}/modules/`}
+                    href={`/${workspaceSlug}/projects/${projectId}/epics/`}
                     icon={<ModuleIcon className="h-4 w-4 text-tertiary" />}
                     isLast
                   />
@@ -147,7 +147,7 @@ export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
                     selectedItem={epicId?.toString() ?? ""}
                     navigationItems={switcherOptions}
                     onChange={(value: string) => {
-                      router.push(`/${workspaceSlug}/projects/${projectId}/modules/${value}`);
+                      router.push(`/${workspaceSlug}/projects/${projectId}/epics/${value}`);
                     }}
                     title={epicDetails?.name}
                     icon={<ModuleIcon className="size-3.5 flex-shrink-0 text-tertiary" />}
@@ -161,7 +161,7 @@ export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
                 isMobile={isMobile}
                 tooltipContent={`There are ${workItemsCount} ${
                   workItemsCount > 1 ? "work items" : "work item"
-                } in this module`}
+                } in this epic`}
                 position="bottom"
               >
                 <span className="flex flex-shrink-0 cursor-default items-center justify-center rounded-xl bg-accent-primary/20 px-2 text-center text-11 font-semibold text-accent-primary">
@@ -253,7 +253,7 @@ export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
             })}
           />
           {epicId && (
-            <ModuleQuickActions
+            <EpicQuickActions
               parentRef={parentRef}
               epicId={epicId}
               projectId={projectId.toString()}

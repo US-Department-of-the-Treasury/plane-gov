@@ -149,14 +149,14 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
     (epicIds: string[] | null) => {
       if (!issue || !issue.epic_ids || !epicIds) return;
 
-      const updatedModuleIds = xor(issue.epic_ids, epicIds);
-      const modulesToAdd: string[] = [];
-      const modulesToRemove: string[] = [];
-      for (const epicId of updatedModuleIds)
-        if (issue.epic_ids.includes(epicId)) modulesToRemove.push(epicId);
-        else modulesToAdd.push(epicId);
-      if (modulesToAdd.length > 0) issueOperations.addEpicsToIssue(modulesToAdd);
-      if (modulesToRemove.length > 0) issueOperations.removeEpicsFromIssue(modulesToRemove);
+      const updatedEpicIds = xor(issue.epic_ids, epicIds);
+      const epicsToAdd: string[] = [];
+      const epicsToRemove: string[] = [];
+      for (const epicId of updatedEpicIds)
+        if (issue.epic_ids.includes(epicId)) epicsToRemove.push(epicId);
+        else epicsToAdd.push(epicId);
+      if (epicsToAdd.length > 0) issueOperations.addEpicsToIssue(epicsToAdd);
+      if (epicsToRemove.length > 0) issueOperations.removeEpicsFromIssue(epicsToRemove);
 
       captureSuccess({
         eventName: WORK_ITEM_TRACKER_EVENTS.update,

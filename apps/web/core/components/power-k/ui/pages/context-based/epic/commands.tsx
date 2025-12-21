@@ -6,7 +6,7 @@ import { EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { ModuleStatusIcon } from "@plane/propel/icons";
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
-import type { IEpic, TModuleStatus } from "@plane/types";
+import type { IEpic, TEpicStatus } from "@plane/types";
 import { EUserPermissions } from "@plane/types";
 import { copyTextToClipboard } from "@plane/utils";
 // components
@@ -22,7 +22,7 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
   const {
     permission: { allowPermissions },
   } = useUser();
-  const { getEpicById, addModuleToFavorites, removeModuleFromFavorites, updateModuleDetails } = useEpic();
+  const { getEpicById, addEpicToFavorites, removeEpicFromFavorites, updateEpicDetails } = useEpic();
   // derived values
   const epicDetails = epicId ? getEpicById(epicId.toString()) : null;
   const isFavorite = !!epicDetails?.is_favorite;
@@ -36,7 +36,7 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
   const handleUpdateEpic = useCallback(
     async (formData: Partial<IEpic>) => {
       if (!workspaceSlug || !projectId || !epicDetails) return;
-      await updateModuleDetails(workspaceSlug.toString(), projectId.toString(), epicDetails.id, formData).catch(
+      await updateEpicDetails(workspaceSlug.toString(), projectId.toString(), epicDetails.id, formData).catch(
         () => {
           setToast({
             type: TOAST_TYPE.ERROR,
@@ -46,7 +46,7 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
         }
       );
     },
-    [epicDetails, projectId, updateModuleDetails, workspaceSlug]
+    [epicDetails, projectId, updateEpicDetails, workspaceSlug]
   );
 
   const handleUpdateMember = useCallback(
@@ -65,15 +65,15 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
   const toggleFavorite = useCallback(() => {
     if (!workspaceSlug || !epicDetails || !epicDetails.project_id) return;
     try {
-      if (isFavorite) removeModuleFromFavorites(workspaceSlug.toString(), epicDetails.project_id, epicDetails.id);
-      else addModuleToFavorites(workspaceSlug.toString(), epicDetails.project_id, epicDetails.id);
+      if (isFavorite) removeEpicFromFavorites(workspaceSlug.toString(), epicDetails.project_id, epicDetails.id);
+      else addEpicToFavorites(workspaceSlug.toString(), epicDetails.project_id, epicDetails.id);
     } catch {
       setToast({
         type: TOAST_TYPE.ERROR,
         title: "Some error occurred",
       });
     }
-  }, [addModuleToFavorites, removeModuleFromFavorites, workspaceSlug, epicDetails, isFavorite]);
+  }, [addEpicToFavorites, removeEpicFromFavorites, workspaceSlug, epicDetails, isFavorite]);
 
   const copyEpicUrlToClipboard = useCallback(() => {
     const url = new URL(window.location.href);
@@ -120,7 +120,7 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
       type: "change-page",
       page: "update-epic-status",
       onSelect: (data) => {
-        const status = data as TModuleStatus;
+        const status = data as TEpicStatus;
         handleUpdateEpic({ status });
       },
       shortcut: "s",

@@ -19,12 +19,12 @@ import { useWorkItemFilterInstance } from "@/hooks/store/work-item-filters/use-w
 
 export const EpicEmptyState = observer(function EpicEmptyState() {
   // router
-  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, epicId: routerModuleId } = useParams();
+  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, epicId: routerEpicId } = useParams();
   const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
   const projectId = routerProjectId ? routerProjectId.toString() : undefined;
-  const epicId = routerModuleId ? routerModuleId.toString() : undefined;
+  const epicId = routerEpicId ? routerEpicId.toString() : undefined;
   // states
-  const [epicIssuesListModal, setModuleIssuesListModal] = useState(false);
+  const [epicIssuesListModal, setEpicIssuesListModal] = useState(false);
   // plane hooks
   const { t } = useTranslation();
   // store hooks
@@ -32,7 +32,7 @@ export const EpicEmptyState = observer(function EpicEmptyState() {
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
   // derived values
-  const moduleWorkItemFilter = useWorkItemFilterInstance(EIssuesStoreType.EPIC, epicId);
+  const epicWorkItemFilter = useWorkItemFilterInstance(EIssuesStoreType.EPIC, epicId);
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
     EUserPermissionsLevel.PROJECT
@@ -48,14 +48,14 @@ export const EpicEmptyState = observer(function EpicEmptyState() {
         setToast({
           type: TOAST_TYPE.SUCCESS,
           title: "Success!",
-          message: "Work items added to the module successfully.",
+          message: "Work items added to the epic successfully.",
         })
       )
       .catch(() =>
         setToast({
           type: TOAST_TYPE.ERROR,
           title: "Error!",
-          message: "Selected work items could not be added to the module. Please try again.",
+          message: "Selected work items could not be added to the epic. Please try again.",
         })
       );
   };
@@ -66,12 +66,12 @@ export const EpicEmptyState = observer(function EpicEmptyState() {
         workspaceSlug={workspaceSlug?.toString()}
         projectId={projectId?.toString()}
         isOpen={epicIssuesListModal}
-        handleClose={() => setModuleIssuesListModal(false)}
+        handleClose={() => setEpicIssuesListModal(false)}
         searchParams={{ module: epicId != undefined ? epicId.toString() : "" }}
         handleOnSubmit={handleAddIssuesToModule}
       />
       <div className="grid h-full w-full place-items-center">
-        {moduleWorkItemFilter?.hasActiveFilters ? (
+        {epicWorkItemFilter?.hasActiveFilters ? (
           <EmptyStateDetailed
             assetKey="search"
             title={t("common_empty_state.search.title")}
@@ -79,8 +79,8 @@ export const EpicEmptyState = observer(function EpicEmptyState() {
             actions={[
               {
                 label: "Clear filters",
-                onClick: moduleWorkItemFilter?.clearFilters,
-                disabled: !canPerformEmptyStateActions || !moduleWorkItemFilter,
+                onClick: epicWorkItemFilter?.clearFilters,
+                disabled: !canPerformEmptyStateActions || !epicWorkItemFilter,
                 variant: "secondary",
               },
             ]}
@@ -102,7 +102,7 @@ export const EpicEmptyState = observer(function EpicEmptyState() {
               },
               {
                 label: t("project_empty_state.epic_work_items.cta_secondary"),
-                onClick: () => setModuleIssuesListModal(true),
+                onClick: () => setEpicIssuesListModal(true),
                 disabled: !canPerformEmptyStateActions,
                 variant: "secondary",
               },

@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { ModuleIcon } from "@plane/propel/icons";
 import { Loader } from "@plane/ui";
 import { FilterHeader, FilterOption } from "@/components/issues/issue-layouts/filters";
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 // ui
 
 type Props = {

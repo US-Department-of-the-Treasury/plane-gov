@@ -31,14 +31,14 @@ export const SpreadsheetEpicColumn = observer(function SpreadsheetEpicColumn(pro
     async (epicIds: string[] | null) => {
       if (!workspaceSlug || !issue || !issue.project_id || !issue.epic_ids || !epicIds) return;
 
-      const updatedModuleIds = xor(issue.epic_ids, epicIds);
-      const modulesToAdd: string[] = [];
-      const modulesToRemove: string[] = [];
-      for (const epicId of updatedModuleIds) {
-        if (issue.epic_ids.includes(epicId)) modulesToRemove.push(epicId);
-        else modulesToAdd.push(epicId);
+      const updatedEpicIds = xor(issue.epic_ids, epicIds);
+      const epicsToAdd: string[] = [];
+      const epicsToRemove: string[] = [];
+      for (const epicId of updatedEpicIds) {
+        if (issue.epic_ids.includes(epicId)) epicsToRemove.push(epicId);
+        else epicsToAdd.push(epicId);
       }
-      changeEpicsInIssue(workspaceSlug.toString(), issue.project_id, issue.id, modulesToAdd, modulesToRemove);
+      changeEpicsInIssue(workspaceSlug.toString(), issue.project_id, issue.id, epicsToAdd, epicsToRemove);
 
       captureSuccess({
         eventName: WORK_ITEM_TRACKER_EVENTS.update,

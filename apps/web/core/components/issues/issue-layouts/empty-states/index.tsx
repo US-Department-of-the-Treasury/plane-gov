@@ -9,7 +9,6 @@ import { SprintEmptyState } from "./sprint";
 import { GlobalViewEmptyState } from "./global-view";
 import { EpicEmptyState } from "./epic";
 import { ProfileViewEmptyState } from "./profile-view";
-import { ProjectEpicsEmptyState } from "./project-epic";
 import { ProjectEmptyState } from "./project-issues";
 import { ProjectViewEmptyState } from "./project-view";
 
@@ -33,8 +32,6 @@ export function IssueLayoutEmptyState(props: Props) {
       return <GlobalViewEmptyState />;
     case EIssuesStoreType.PROFILE:
       return <ProfileViewEmptyState />;
-    case EIssuesStoreType.EPIC:
-      return <ProjectEpicsEmptyState />;
     case EIssuesStoreType.TEAM:
       return <TeamEmptyState />;
     case EIssuesStoreType.TEAM_VIEW:

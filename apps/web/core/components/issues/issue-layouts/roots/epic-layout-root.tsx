@@ -13,35 +13,35 @@ import { useIssues } from "@/hooks/store/use-issues";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
 // local imports
 import { IssuePeekOverview } from "../../peek-overview";
-import { ModuleCalendarLayout } from "../calendar/roots/module-root";
+import { EpicCalendarLayout } from "../calendar/roots/epic-root";
 import { BaseGanttRoot } from "../gantt";
-import { ModuleKanBanLayout } from "../kanban/roots/module-root";
-import { ModuleListLayout } from "../list/roots/module-root";
-import { ModuleSpreadsheetLayout } from "../spreadsheet/roots/module-root";
+import { EpicKanBanLayout } from "../kanban/roots/epic-root";
+import { EpicListLayout } from "../list/roots/epic-root";
+import { EpicSpreadsheetLayout } from "../spreadsheet/roots/epic-root";
 
-function ModuleIssueLayout(props: { activeLayout: EIssueLayoutTypes | undefined; epicId: string }) {
+function EpicIssueLayout(props: { activeLayout: EIssueLayoutTypes | undefined; epicId: string }) {
   switch (props.activeLayout) {
     case EIssueLayoutTypes.LIST:
-      return <ModuleListLayout />;
+      return <EpicListLayout />;
     case EIssueLayoutTypes.KANBAN:
-      return <ModuleKanBanLayout />;
+      return <EpicKanBanLayout />;
     case EIssueLayoutTypes.CALENDAR:
-      return <ModuleCalendarLayout />;
+      return <EpicCalendarLayout />;
     case EIssueLayoutTypes.GANTT:
       return <BaseGanttRoot viewId={props.epicId} />;
     case EIssueLayoutTypes.SPREADSHEET:
-      return <ModuleSpreadsheetLayout />;
+      return <EpicSpreadsheetLayout />;
     default:
       return null;
   }
 }
 
-export const ModuleLayoutRoot = observer(function ModuleLayoutRoot() {
+export const EpicLayoutRoot = observer(function EpicLayoutRoot() {
   // router
-  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, epicId: routerModuleId } = useParams();
+  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, epicId: routerEpicId } = useParams();
   const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
   const projectId = routerProjectId ? routerProjectId.toString() : undefined;
-  const epicId = routerModuleId ? routerModuleId.toString() : undefined;
+  const epicId = routerEpicId ? routerEpicId.toString() : undefined;
   // hooks
   const { issuesFilter } = useIssues(EIssuesStoreType.EPIC);
   // derived values
@@ -73,18 +73,18 @@ export const ModuleLayoutRoot = observer(function ModuleLayoutRoot() {
         projectId={projectId}
         workspaceSlug={workspaceSlug}
       >
-        {({ filter: moduleWorkItemsFilter }) => (
+        {({ filter: epicWorkItemsFilter }) => (
           <div className="relative flex h-full w-full flex-col overflow-hidden">
-            {moduleWorkItemsFilter && (
+            {epicWorkItemsFilter && (
               <WorkItemFiltersRow
-                filter={moduleWorkItemsFilter}
+                filter={epicWorkItemsFilter}
                 trackerElements={{
                   saveView: PROJECT_VIEW_TRACKER_ELEMENTS.EPIC_HEADER_SAVE_AS_VIEW_BUTTON,
                 }}
               />
             )}
             <Row variant={ERowVariant.HUGGING} className="h-full w-full overflow-auto">
-              <ModuleIssueLayout activeLayout={activeLayout} epicId={epicId} />
+              <EpicIssueLayout activeLayout={activeLayout} epicId={epicId} />
             </Row>
             {/* peek overview */}
             <IssuePeekOverview />

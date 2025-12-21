@@ -360,10 +360,10 @@ const useSprintIssueActions = () => {
 
 const useEpicIssueActions = () => {
   // router
-  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, epicId: routerModuleId } = useParams();
+  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, epicId: routerEpicId } = useParams();
   const workspaceSlug = routerWorkspaceSlug?.toString();
   const projectId = routerProjectId?.toString();
-  const epicId = routerModuleId?.toString();
+  const epicId = routerEpicId?.toString();
   // store hooks
   const { issues, issuesFilter } = useIssues(EIssuesStoreType.EPIC);
 
