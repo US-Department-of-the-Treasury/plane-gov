@@ -49,7 +49,7 @@ export function Layout({ children }: { children: ReactNode }) {
   // Microsoft Clarity session recorder removed for government deployment - no external session tracking
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -86,7 +86,7 @@ export const meta: Route.MetaFunction = () => [
   { property: "og:title", content: APP_TITLE },
   {
     property: "og:description",
-    content: "Open-source project management tool to manage work items, cycles, and product roadmaps easily",
+    content: "Open-source project management tool to manage work items, sprints, and product roadmaps easily",
   },
   {
     name: "keywords",

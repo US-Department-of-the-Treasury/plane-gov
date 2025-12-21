@@ -23,7 +23,7 @@ from plane.db.models import (
     Issue,
     FileAsset,
     IssueLink,
-    CycleIssue,
+    SprintIssue,
 )
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.utils.issue_relation_mapper import get_actual_relation
@@ -100,8 +100,8 @@ class IssueRelationViewSet(BaseViewSet):
             .select_related("workspace", "project", "state", "parent")
             .prefetch_related("assignees", "labels", "issue_module__module")
             .annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(

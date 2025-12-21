@@ -26,11 +26,11 @@ const meta: Meta<BaseEmptyStateCommonProps> = {
     assetKey: {
       control: "select",
       options: [
-        "archived-cycle",
+        "archived-sprint",
         "archived-module",
         "archived-work-item",
         "customer",
-        "cycle",
+        "sprint",
         "dashboard",
         "draft",
         "epic",
@@ -80,7 +80,7 @@ export const Default: Story = {
     assetKey: "epic",
     assetClassName: "w-40 h-45",
     title: "Create an epic and split work into smaller goals",
-    description: "For larger bodies of work that span several cycles and can live across modules, create an epic.",
+    description: "For larger bodies of work that span several sprints and can live across modules, create an epic.",
     actions: [
       {
         label: "Create an Epic",
@@ -195,17 +195,17 @@ export const ArchivedState: Story = {
   },
 };
 
-export const CycleState: Story = {
-  name: "Cycles",
+export const SprintState: Story = {
+  name: "Sprints",
   args: {
-    assetKey: "cycle",
+    assetKey: "sprint",
     assetClassName: "w-40 h-45",
-    title: "No cycles found",
-    description: "Create cycles to organize your work into time-boxed iterations.",
+    title: "No sprints found",
+    description: "Create sprints to organize your work into time-boxed iterations.",
     actions: [
       {
-        label: "Create Cycle",
-        onClick: () => console.log("create-cycle-clicked"),
+        label: "Create Sprint",
+        onClick: () => console.log("create-sprint-clicked"),
         variant: "primary",
       },
     ],

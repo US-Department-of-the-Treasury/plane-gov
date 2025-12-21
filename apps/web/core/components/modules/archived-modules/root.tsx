@@ -9,7 +9,7 @@ import type { TModuleFilters } from "@plane/types";
 // components
 import { calculateTotalFilters } from "@plane/utils";
 import { ArchivedModulesView, ModuleAppliedFiltersList } from "@/components/modules";
-import { CycleModuleListLayoutLoader } from "@/components/ui/loader/cycle-module-list-loader";
+import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
 // helpers
 // hooks
 import { useModule } from "@/hooks/store/use-module";
@@ -52,7 +52,7 @@ export const ArchivedModuleLayoutRoot = observer(function ArchivedModuleLayoutRo
   if (!workspaceSlug || !projectId) return <></>;
 
   if (loader || !projectArchivedModuleIds) {
-    return <CycleModuleListLayoutLoader />;
+    return <SprintModuleListLayoutLoader />;
   }
 
   return (

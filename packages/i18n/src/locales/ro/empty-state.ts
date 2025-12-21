@@ -42,13 +42,13 @@ export default {
         "Elementele de lucru sunt blocurile de construcție ale proiectului dvs. — alocați proprietari, stabiliți priorități și urmăriți progresul cu ușurință.",
       cta_primary: "Creați primul dvs. element de lucru",
     },
-    cycles: {
+    sprints: {
       title: "Grupați și limitați în timp munca dvs. în Cicluri.",
       description:
         "Împărțiți munca în bucăți limitate în timp, lucrați înapoi de la termenul limită al proiectului pentru a stabili datele și faceți progrese tangibile ca echipă.",
       cta_primary: "Setați primul dvs. ciclu",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "Niciun element de lucru de afișat în acest ciclu",
       description:
         "Creați elemente de lucru pentru a începe monitorizarea progresului echipei dvs. în acest ciclu și pentru a-vă atinge obiectivele la timp.",
@@ -111,7 +111,7 @@ export default {
         "Manual sau prin automatizare, puteți arhiva elemente de lucru finalizate sau anulate. Găsiți-le aici odată arhivate.",
       cta_primary: "Configurați automatizarea",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "Încă nu există cicluri arhivate",
       description: "Pentru a vă aranja proiectul, arhivați ciclurile finalizate. Găsiți-le aici odată arhivate.",
     },
@@ -158,7 +158,7 @@ export default {
       title:
         "Creați proiecte cu elemente de lucru și responsabili pentru a începe urmărirea performanței, progresului și impactului echipei aici.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title: "Creați cicluri pentru a organiza munca în faze limitate în timp și a urmări progresul în sprint-uri.",
     },
     analytics_no_module: {

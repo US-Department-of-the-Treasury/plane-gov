@@ -1,5 +1,33 @@
-import sanitizeHtml from "sanitize-html";
 import type { Content, JSONContent } from "@plane/types";
+
+/**
+ * @description Strips HTML tags from a string using browser-native DOMParser
+ * @param {string} htmlString - HTML string to sanitize
+ * @param {string[]} allowedTags - Tags to preserve (not yet implemented, kept for API compatibility)
+ * @returns {string} Text content with HTML tags removed
+ */
+const stripHtmlTags = (htmlString: string, allowedTags: string[] = []): string => {
+  if (!htmlString) return "";
+
+  // Use DOMParser in browser environment
+  if (typeof window !== "undefined" && typeof DOMParser !== "undefined") {
+    const doc = new DOMParser().parseFromString(htmlString, "text/html");
+
+    // If we need to check for specific tags being present
+    if (allowedTags.length > 0) {
+      const hasAllowedTags = allowedTags.some((tag) => doc.body.querySelector(tag) !== null);
+      if (hasAllowedTags) {
+        // Return non-empty to indicate content exists
+        return doc.body.textContent?.trim() || " ";
+      }
+    }
+
+    return doc.body.textContent?.trim() || "";
+  }
+
+  // SSR fallback: simple regex strip
+  return htmlString.replace(/<[^>]*>/g, "").trim();
+};
 
 /**
  * @description Adds space between camelCase words
@@ -120,8 +148,7 @@ const text = stripHTML(html);
 console.log(text); // Some text
  */
 export const sanitizeHTML = (htmlString: string) => {
-  const sanitizedText = sanitizeHtml(htmlString, { allowedTags: [] }); // sanitize the string to remove all HTML tags
-  return sanitizedText.trim(); // trim the string to remove leading and trailing whitespaces
+  return stripHtmlTags(htmlString); // strip all HTML tags and trim
 };
 
 /**
@@ -155,8 +182,8 @@ export const checkEmailValidity = (email: string): boolean => {
 };
 
 export const isEmptyHtmlString = (htmlString: string, allowedHTMLTags: string[] = []) => {
-  // Remove HTML tags using sanitize-html
-  const cleanText = sanitizeHtml(htmlString, { allowedTags: allowedHTMLTags });
+  // Remove HTML tags and check if empty
+  const cleanText = stripHtmlTags(htmlString, allowedHTMLTags);
   // Trim the string and check if it's empty
   return cleanText.trim() === "";
 };

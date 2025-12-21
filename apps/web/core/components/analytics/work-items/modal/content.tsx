@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react";
 import { Tab } from "@headlessui/react";
 // plane package imports
-import type { ICycle, IModule, IProject } from "@plane/types";
+import type { ISprint, IModule, IProject } from "@plane/types";
 import { Spinner } from "@plane/ui";
 // hooks
 import { useAnalytics } from "@/hooks/store/use-analytics";
@@ -15,14 +15,14 @@ import WorkItemsInsightTable from "../workitems-insight-table";
 type Props = {
   fullScreen: boolean;
   projectDetails: IProject | undefined;
-  cycleDetails: ICycle | undefined;
+  sprintDetails: ISprint | undefined;
   moduleDetails: IModule | undefined;
   isEpic?: boolean;
 };
 
 export const WorkItemsModalMainContent = observer(function WorkItemsModalMainContent(props: Props) {
-  const { projectDetails, cycleDetails, moduleDetails, fullScreen, isEpic } = props;
-  const { updateSelectedProjects, updateSelectedCycle, updateSelectedModule, updateIsPeekView } = useAnalytics();
+  const { projectDetails, sprintDetails, moduleDetails, fullScreen, isEpic } = props;
+  const { updateSelectedProjects, updateSelectedSprint, updateSelectedModule, updateIsPeekView } = useAnalytics();
   const [isModalConfigured, setIsModalConfigured] = useState(false);
 
   useEffect(() => {
@@ -33,9 +33,9 @@ export const WorkItemsModalMainContent = observer(function WorkItemsModalMainCon
       updateSelectedProjects([projectDetails.id]);
     }
 
-    // Handle cycle selection
-    if (cycleDetails?.id) {
-      updateSelectedCycle(cycleDetails.id);
+    // Handle sprint selection
+    if (sprintDetails?.id) {
+      updateSelectedSprint(sprintDetails.id);
     }
 
     // Handle module selection
@@ -47,16 +47,16 @@ export const WorkItemsModalMainContent = observer(function WorkItemsModalMainCon
     // Cleanup fields
     return () => {
       updateSelectedProjects([]);
-      updateSelectedCycle("");
+      updateSelectedSprint("");
       updateSelectedModule("");
       updateIsPeekView(false);
     };
   }, [
     projectDetails?.id,
-    cycleDetails?.id,
+    sprintDetails?.id,
     moduleDetails?.id,
     updateSelectedProjects,
-    updateSelectedCycle,
+    updateSelectedSprint,
     updateSelectedModule,
     updateIsPeekView,
   ]);

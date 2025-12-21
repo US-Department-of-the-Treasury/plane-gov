@@ -1,0 +1,63 @@
+import type { FC } from "react";
+import { observer } from "mobx-react";
+// components
+import { useTranslation } from "@plane/i18n";
+// assets
+import AllFiltersImage from "@/app/assets/empty-state/sprint/all-filters.svg?url";
+import NameFilterImage from "@/app/assets/empty-state/sprint/name-filter.svg?url";
+// components
+import { SprintsList } from "@/components/sprints/list";
+import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
+// hooks
+import { useSprint } from "@/hooks/store/use-sprint";
+import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
+
+export interface ISprintsView {
+  workspaceSlug: string;
+  projectId: string;
+}
+
+export const SprintsView = observer(function SprintsView(props: ISprintsView) {
+  const { workspaceSlug, projectId } = props;
+  // store hooks
+  const { getFilteredSprintIds, getFilteredCompletedSprintIds, loader, currentProjectActiveSprintId } = useSprint();
+  const { searchQuery } = useSprintFilter();
+  const { t } = useTranslation();
+  // derived values
+  const filteredSprintIds = getFilteredSprintIds(projectId, false);
+  const filteredCompletedSprintIds = getFilteredCompletedSprintIds(projectId);
+  const filteredUpcomingSprintIds = (filteredSprintIds ?? []).filter(
+    (sprintId) => sprintId !== currentProjectActiveSprintId
+  );
+
+  if (loader || !filteredSprintIds) return <SprintModuleListLayoutLoader />;
+
+  if (filteredSprintIds.length === 0 && filteredCompletedSprintIds?.length === 0)
+    return (
+      <div className="grid h-full w-full place-items-center">
+        <div className="text-center">
+          <img
+            src={searchQuery.trim() === "" ? AllFiltersImage : NameFilterImage}
+            className="mx-auto h-36 w-36 sm:h-48 sm:w-48 object-contain"
+            alt="No matching sprints"
+          />
+          <h5 className="mb-1 mt-7 text-18 font-medium">{t("project_sprints.no_matching_sprints")}</h5>
+          <p className="text-14 text-placeholder">
+            {searchQuery.trim() === ""
+              ? t("project_sprints.remove_filters_to_see_all_sprints")
+              : t("project_sprints.remove_search_criteria_to_see_all_sprints")}
+          </p>
+        </div>
+      </div>
+    );
+
+  return (
+    <SprintsList
+      completedSprintIds={filteredCompletedSprintIds ?? []}
+      upcomingSprintIds={filteredUpcomingSprintIds}
+      sprintIds={filteredSprintIds}
+      workspaceSlug={workspaceSlug}
+      projectId={projectId}
+    />
+  );
+});

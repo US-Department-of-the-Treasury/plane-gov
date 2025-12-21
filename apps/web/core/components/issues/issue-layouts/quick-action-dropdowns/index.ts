@@ -1,6 +1,6 @@
 export * from "./all-issue";
 export * from "./archived-issue";
-export * from "./cycle-issue";
+export * from "./sprint-issue";
 export * from "./module-issue";
 export * from "./project-issue";
 export * from "./helper";

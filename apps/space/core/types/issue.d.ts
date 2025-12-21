@@ -48,7 +48,7 @@ export interface IIssue extends Pick<
   | "sort_order"
   | "start_date"
   | "target_date"
-  | "cycle_id"
+  | "sprint_id"
   | "module_ids"
   | "label_ids"
   | "assignee_ids"

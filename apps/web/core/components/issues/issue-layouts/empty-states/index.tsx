@@ -5,7 +5,7 @@ import { TeamProjectWorkItemEmptyState } from "@/plane-web/components/issues/iss
 import { TeamViewEmptyState } from "@/plane-web/components/issues/issue-layouts/empty-states/team-view-issues";
 // components
 import { ProjectArchivedEmptyState } from "./archived-issues";
-import { CycleEmptyState } from "./cycle";
+import { SprintEmptyState } from "./sprint";
 import { GlobalViewEmptyState } from "./global-view";
 import { ModuleEmptyState } from "./module";
 import { ProfileViewEmptyState } from "./profile-view";
@@ -25,8 +25,8 @@ export function IssueLayoutEmptyState(props: Props) {
       return <ProjectViewEmptyState />;
     case EIssuesStoreType.ARCHIVED:
       return <ProjectArchivedEmptyState />;
-    case EIssuesStoreType.CYCLE:
-      return <CycleEmptyState />;
+    case EIssuesStoreType.SPRINT:
+      return <SprintEmptyState />;
     case EIssuesStoreType.MODULE:
       return <ModuleEmptyState />;
     case EIssuesStoreType.GLOBAL:

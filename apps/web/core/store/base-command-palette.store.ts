@@ -13,7 +13,7 @@ export interface ModalData {
 export interface IBaseCommandPaletteStore {
   // observables
   isCreateProjectModalOpen: boolean;
-  isCreateCycleModalOpen: boolean;
+  isCreateSprintModalOpen: boolean;
   isCreateModuleModalOpen: boolean;
   isCreateViewModalOpen: boolean;
   createPageModal: TCreatePageModal;
@@ -27,7 +27,7 @@ export interface IBaseCommandPaletteStore {
   getIsProjectListOpen: (projectId: string) => boolean;
   // toggle actions
   toggleCreateProjectModal: (value?: boolean) => void;
-  toggleCreateCycleModal: (value?: boolean) => void;
+  toggleCreateSprintModal: (value?: boolean) => void;
   toggleCreateViewModal: (value?: boolean) => void;
   toggleCreatePageModal: (value?: TCreatePageModal) => void;
   toggleCreateIssueModal: (value?: boolean, storeType?: TCreateModalStoreTypes, allowedProjectIds?: string[]) => void;
@@ -41,7 +41,7 @@ export interface IBaseCommandPaletteStore {
 export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStore {
   // observables
   isCreateProjectModalOpen: boolean = false;
-  isCreateCycleModalOpen: boolean = false;
+  isCreateSprintModalOpen: boolean = false;
   isCreateModuleModalOpen: boolean = false;
   isCreateViewModalOpen: boolean = false;
   isCreateIssueModalOpen: boolean = false;
@@ -57,7 +57,7 @@ export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStor
     makeObservable(this, {
       // observable
       isCreateProjectModalOpen: observable.ref,
-      isCreateCycleModalOpen: observable.ref,
+      isCreateSprintModalOpen: observable.ref,
       isCreateModuleModalOpen: observable.ref,
       isCreateViewModalOpen: observable.ref,
       isCreateIssueModalOpen: observable.ref,
@@ -70,7 +70,7 @@ export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStor
       projectListOpenMap: observable,
       // toggle actions
       toggleCreateProjectModal: action,
-      toggleCreateCycleModal: action,
+      toggleCreateSprintModal: action,
       toggleCreateViewModal: action,
       toggleCreatePageModal: action,
       toggleCreateIssueModal: action,
@@ -89,7 +89,7 @@ export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStor
   protected getCoreModalsState(): boolean {
     return Boolean(
       this.isCreateIssueModalOpen ||
-      this.isCreateCycleModalOpen ||
+      this.isCreateSprintModalOpen ||
       this.isCreateProjectModalOpen ||
       this.isCreateModuleModalOpen ||
       this.isCreateViewModalOpen ||
@@ -127,15 +127,15 @@ export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStor
   };
 
   /**
-   * Toggles the create cycle modal
+   * Toggles the create sprint modal
    * @param value
    * @returns
    */
-  toggleCreateCycleModal = (value?: boolean) => {
+  toggleCreateSprintModal = (value?: boolean) => {
     if (value !== undefined) {
-      this.isCreateCycleModalOpen = value;
+      this.isCreateSprintModalOpen = value;
     } else {
-      this.isCreateCycleModalOpen = !this.isCreateCycleModalOpen;
+      this.isCreateSprintModalOpen = !this.isCreateSprintModalOpen;
     }
   };
 

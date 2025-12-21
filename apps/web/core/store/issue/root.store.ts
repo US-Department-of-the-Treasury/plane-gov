@@ -1,7 +1,7 @@
 import { isEmpty } from "lodash-es";
 import { autorun, makeObservable, observable } from "mobx";
 // types
-import type { ICycle, IIssueLabel, IModule, IProject, IState, IUserLite, TIssueServiceType } from "@plane/types";
+import type { ISprint, IIssueLabel, IModule, IProject, IState, IUserLite, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 // plane web store
 import type { IProjectEpics, IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
@@ -24,8 +24,8 @@ import type { IWorkspaceMembership } from "@/store/member/workspace/workspace-me
 // issues data store
 import type { IArchivedIssuesFilter, IArchivedIssues } from "./archived";
 import { ArchivedIssuesFilter, ArchivedIssues } from "./archived";
-import type { ICycleIssuesFilter, ICycleIssues } from "./cycle";
-import { CycleIssuesFilter, CycleIssues } from "./cycle";
+import type { ISprintIssuesFilter, ISprintIssues } from "./sprint";
+import { SprintIssuesFilter, SprintIssues } from "./sprint";
 import type { IIssueStore } from "./issue.store";
 import { IssueStore } from "./issue.store";
 import type { ICalendarStore } from "./issue_calendar_view.store";
@@ -50,7 +50,7 @@ export interface IIssueRootStore {
   workspaceSlug: string | undefined;
   teamspaceId: string | undefined;
   projectId: string | undefined;
-  cycleId: string | undefined;
+  sprintId: string | undefined;
   moduleId: string | undefined;
   viewId: string | undefined;
   globalViewId: string | undefined; // all issues view id
@@ -63,7 +63,7 @@ export interface IIssueRootStore {
   memberMap: Record<string, IUserLite> | undefined;
   projectMap: Record<string, IProject> | undefined;
   moduleMap: Record<string, IModule> | undefined;
-  cycleMap: Record<string, ICycle> | undefined;
+  sprintMap: Record<string, ISprint> | undefined;
 
   rootStore: RootStore;
   serviceType: TIssueServiceType;
@@ -88,8 +88,8 @@ export interface IIssueRootStore {
   projectIssuesFilter: IProjectIssuesFilter;
   projectIssues: IProjectIssues;
 
-  cycleIssuesFilter: ICycleIssuesFilter;
-  cycleIssues: ICycleIssues;
+  sprintIssuesFilter: ISprintIssuesFilter;
+  sprintIssues: ISprintIssues;
 
   moduleIssuesFilter: IModuleIssuesFilter;
   moduleIssues: IModuleIssues;
@@ -118,7 +118,7 @@ export class IssueRootStore implements IIssueRootStore {
   workspaceSlug: string | undefined = undefined;
   teamspaceId: string | undefined = undefined;
   projectId: string | undefined = undefined;
-  cycleId: string | undefined = undefined;
+  sprintId: string | undefined = undefined;
   moduleId: string | undefined = undefined;
   viewId: string | undefined = undefined;
   globalViewId: string | undefined = undefined;
@@ -131,7 +131,7 @@ export class IssueRootStore implements IIssueRootStore {
   memberMap: Record<string, IUserLite> | undefined = undefined;
   projectMap: Record<string, IProject> | undefined = undefined;
   moduleMap: Record<string, IModule> | undefined = undefined;
-  cycleMap: Record<string, ICycle> | undefined = undefined;
+  sprintMap: Record<string, ISprint> | undefined = undefined;
 
   rootStore: RootStore;
   serviceType: TIssueServiceType;
@@ -156,8 +156,8 @@ export class IssueRootStore implements IIssueRootStore {
   projectIssuesFilter: IProjectIssuesFilter;
   projectIssues: IProjectIssues;
 
-  cycleIssuesFilter: ICycleIssuesFilter;
-  cycleIssues: ICycleIssues;
+  sprintIssuesFilter: ISprintIssuesFilter;
+  sprintIssues: ISprintIssues;
 
   moduleIssuesFilter: IModuleIssuesFilter;
   moduleIssues: IModuleIssues;
@@ -185,7 +185,7 @@ export class IssueRootStore implements IIssueRootStore {
       workspaceSlug: observable.ref,
       teamspaceId: observable.ref,
       projectId: observable.ref,
-      cycleId: observable.ref,
+      sprintId: observable.ref,
       moduleId: observable.ref,
       viewId: observable.ref,
       userId: observable.ref,
@@ -198,7 +198,7 @@ export class IssueRootStore implements IIssueRootStore {
       workSpaceMemberRolesMap: observable,
       projectMap: observable,
       moduleMap: observable,
-      cycleMap: observable,
+      sprintMap: observable,
     });
 
     this.serviceType = serviceType;
@@ -209,7 +209,7 @@ export class IssueRootStore implements IIssueRootStore {
       if (this.workspaceSlug !== rootStore.router.workspaceSlug) this.workspaceSlug = rootStore.router.workspaceSlug;
       if (this.teamspaceId !== rootStore.router.teamspaceId) this.teamspaceId = rootStore.router.teamspaceId;
       if (this.projectId !== rootStore.router.projectId) this.projectId = rootStore.router.projectId;
-      if (this.cycleId !== rootStore.router.cycleId) this.cycleId = rootStore.router.cycleId;
+      if (this.sprintId !== rootStore.router.sprintId) this.sprintId = rootStore.router.sprintId;
       if (this.moduleId !== rootStore.router.moduleId) this.moduleId = rootStore.router.moduleId;
       if (this.viewId !== rootStore.router.viewId) this.viewId = rootStore.router.viewId;
       if (this.globalViewId !== rootStore.router.globalViewId) this.globalViewId = rootStore.router.globalViewId;
@@ -224,7 +224,7 @@ export class IssueRootStore implements IIssueRootStore {
       if (!isEmpty(rootStore?.projectRoot?.project?.projectMap))
         this.projectMap = rootStore?.projectRoot?.project?.projectMap;
       if (!isEmpty(rootStore?.module?.moduleMap)) this.moduleMap = rootStore?.module?.moduleMap;
-      if (!isEmpty(rootStore?.cycle?.cycleMap)) this.cycleMap = rootStore?.cycle?.cycleMap;
+      if (!isEmpty(rootStore?.sprint?.sprintMap)) this.sprintMap = rootStore?.sprint?.sprintMap;
     });
 
     this.issues = new IssueStore();
@@ -247,8 +247,8 @@ export class IssueRootStore implements IIssueRootStore {
     this.teamIssuesFilter = new TeamIssuesFilter(this);
     this.teamIssues = new TeamIssues(this, this.teamIssuesFilter);
 
-    this.cycleIssuesFilter = new CycleIssuesFilter(this);
-    this.cycleIssues = new CycleIssues(this, this.cycleIssuesFilter);
+    this.sprintIssuesFilter = new SprintIssuesFilter(this);
+    this.sprintIssues = new SprintIssues(this, this.sprintIssuesFilter);
 
     this.moduleIssuesFilter = new ModuleIssuesFilter(this);
     this.moduleIssues = new ModuleIssues(this, this.moduleIssuesFilter);

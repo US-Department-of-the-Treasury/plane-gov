@@ -8,5 +8,5 @@ export * from "./project";
 export * from "./start-date";
 export * from "./state-group";
 export * from "./state";
-export * from "./cycle";
+export * from "./sprint";
 export * from "./module";

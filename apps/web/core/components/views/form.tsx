@@ -235,7 +235,7 @@ export const ProjectViewForm = observer(function ProjectViewForm(props: Props) {
                               ...updatedDisplayProperties,
                             });
                           }}
-                          cycleViewDisabled={!projectDetails?.cycle_view}
+                          sprintViewDisabled={!projectDetails?.sprint_view}
                           moduleViewDisabled={!projectDetails?.module_view}
                         />
                       </FiltersDropdown>

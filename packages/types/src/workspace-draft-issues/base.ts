@@ -13,7 +13,7 @@ export type TWorkspaceDraftIssue = {
 
   project_id: string | undefined;
   parent_id: string | undefined;
-  cycle_id: string | undefined;
+  sprint_id: string | undefined;
   module_ids: string[] | undefined;
 
   start_date: string | undefined;

@@ -69,10 +69,10 @@ def project_docs(**kwargs):
     return extend_schema(**_merge_schema_options(defaults, kwargs))
 
 
-def cycle_docs(**kwargs):
-    """Decorator for cycle-related endpoints"""
+def sprint_docs(**kwargs):
+    """Decorator for sprint-related endpoints"""
     defaults = {
-        "tags": ["Cycles"],
+        "tags": ["Sprints"],
         "parameters": [WORKSPACE_SLUG_PARAMETER, PROJECT_ID_PARAMETER],
         "responses": {
             401: UNAUTHORIZED_RESPONSE,

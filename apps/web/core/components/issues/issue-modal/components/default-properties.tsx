@@ -11,7 +11,7 @@ import type { ISearchIssueResponse, TIssue } from "@plane/types";
 import { CustomMenu } from "@plane/ui";
 import { getDate, renderFormattedPayloadDate, getTabIndex } from "@plane/utils";
 // components
-import { CycleDropdown } from "@/components/dropdowns/cycle";
+import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
@@ -194,22 +194,22 @@ export const IssueDefaultProperties = observer(function IssueDefaultProperties(p
           </div>
         )}
       />
-      {projectDetails?.cycle_view && (
+      {projectDetails?.sprint_view && (
         <Controller
           control={control}
-          name="cycle_id"
+          name="sprint_id"
           render={({ field: { value, onChange } }) => (
             <div className="h-7">
-              <CycleDropdown
+              <SprintDropdown
                 projectId={projectId ?? undefined}
-                onChange={(cycleId) => {
-                  onChange(cycleId);
+                onChange={(sprintId) => {
+                  onChange(sprintId);
                   handleFormChange();
                 }}
-                placeholder={t("cycle.label", { count: 1 })}
+                placeholder={t("sprint.label", { count: 1 })}
                 value={value}
                 buttonVariant="border-with-text"
-                tabIndex={getIndex("cycle_id")}
+                tabIndex={getIndex("sprint_id")}
               />
             </div>
           )}

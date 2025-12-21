@@ -16,7 +16,7 @@ from drf_spectacular.utils import OpenApiResponse, OpenApiRequest
 
 # Module imports
 from plane.db.models import (
-    Cycle,
+    Sprint,
     Intake,
     IssueUserProperty,
     Module,
@@ -100,7 +100,7 @@ class ProjectListCreateAPIEndpoint(BaseAPIView):
                 .values("count")
             )
             .annotate(
-                total_cycles=Cycle.objects.filter(project_id=OuterRef("id"))
+                total_sprints=Sprint.objects.filter(project_id=OuterRef("id"))
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")
@@ -322,7 +322,7 @@ class ProjectDetailAPIEndpoint(BaseAPIView):
                 .values("count")
             )
             .annotate(
-                total_cycles=Cycle.objects.filter(project_id=OuterRef("id"))
+                total_sprints=Sprint.objects.filter(project_id=OuterRef("id"))
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")
@@ -482,7 +482,7 @@ class ProjectDetailAPIEndpoint(BaseAPIView):
         Only admins can delete projects and the action cannot be undone.
         """
         project = Project.objects.get(pk=pk, workspace__slug=slug)
-        # Delete the user favorite cycle
+        # Delete the user favorite sprint
         UserFavorite.objects.filter(entity_type="project", entity_identifier=pk, project_id=pk).delete()
         project.delete()
         webhook_activity.delay(

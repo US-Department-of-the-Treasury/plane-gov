@@ -51,7 +51,7 @@ export function CreateWebhookModal(props: ICreateWebhookModal) {
       payload = {
         ...payload,
         project: true,
-        cycle: true,
+        sprint: true,
         module: true,
         issue: true,
         issue_comment: true,
@@ -60,7 +60,7 @@ export function CreateWebhookModal(props: ICreateWebhookModal) {
       payload = {
         ...payload,
         project: formData.project ?? false,
-        cycle: formData.cycle ?? false,
+        sprint: formData.sprint ?? false,
         module: formData.module ?? false,
         issue: formData.issue ?? false,
         issue_comment: formData.issue_comment ?? false,

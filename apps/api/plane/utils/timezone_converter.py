@@ -80,7 +80,7 @@ def convert_to_utc(date, project_id, is_start_date=False):
 
         return utc_datetime
     else:
-        # the cycle end date is the last minute of the day
+        # the sprint end date is the last minute of the day
         localized_datetime += timedelta(hours=23, minutes=59, seconds=0)
 
         # Convert the localized datetime to UTC

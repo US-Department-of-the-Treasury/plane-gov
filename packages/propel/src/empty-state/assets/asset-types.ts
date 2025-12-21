@@ -23,12 +23,12 @@ export type HorizontalStackAssetType =
 
 // Vertical Stack Asset Types
 export type VerticalStackAssetType =
-  | "archived-cycle"
+  | "archived-sprint"
   | "archived-module"
   | "archived-work-item"
   | "changelog"
   | "customer"
-  | "cycle"
+  | "sprint"
   | "dashboard"
   | "draft"
   | "epic"

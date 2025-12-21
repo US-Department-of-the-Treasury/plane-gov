@@ -41,13 +41,13 @@ export default {
         "Pracovné položky sú stavebnými kameňmi vášho projektu — priraďujte vlastníkov, nastavujte priority a jednoducho sledujte pokrok.",
       cta_primary: "Vytvorte svoju prvú pracovnú položku",
     },
-    cycles: {
+    sprints: {
       title: "Zoskupujte a časovo obmedzte svoju prácu v cykloch.",
       description:
         "Rozdeľte prácu do časovo obmedzených blokov, pracujte spätne od termínu projektu na nastavenie dátumov a dosahujte hmatateľný pokrok ako tým.",
       cta_primary: "Nastavte svoj prvý cyklus",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "V tomto cykle nie sú žiadne pracovné položky na zobrazenie",
       description:
         "Vytvorte pracovné položky na začatie sledovania pokroku vášho tímu v tomto cykle a dosiahnutie vašich cieľov včas.",
@@ -110,7 +110,7 @@ export default {
         "Ručne alebo pomocou automatizácie môžete archivovať dokončené alebo zrušené pracovné položky. Nájdete ich tu, akonáhle budú archivované.",
       cta_primary: "Nastaviť automatizáciu",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "Zatiaľ žiadne archivované cykly",
       description:
         "Pre upratanie vášho projektu archivujte dokončené cykly. Nájdete ich tu, akonáhle budú archivované.",
@@ -158,7 +158,7 @@ export default {
       title:
         "Vytvorte projekty s pracovnými položkami a priradenými osobami na začatie sledovania výkonu, pokroku a dopadu tímu tu.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title: "Vytvorte cykly na organizáciu práce do časovo obmedzených fáz a sledovanie pokroku naprieč šprintmi.",
     },
     analytics_no_module: {

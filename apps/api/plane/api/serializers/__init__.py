@@ -23,14 +23,14 @@ from .issue import (
     IssueLinkUpdateSerializer,
 )
 from .state import StateLiteSerializer, StateSerializer
-from .cycle import (
-    CycleSerializer,
-    CycleIssueSerializer,
-    CycleLiteSerializer,
-    CycleIssueRequestSerializer,
-    TransferCycleIssueRequestSerializer,
-    CycleCreateSerializer,
-    CycleUpdateSerializer,
+from .sprint import (
+    SprintSerializer,
+    SprintIssueSerializer,
+    SprintLiteSerializer,
+    SprintIssueRequestSerializer,
+    TransferSprintIssueRequestSerializer,
+    SprintCreateSerializer,
+    SprintUpdateSerializer,
 )
 from .module import (
     ModuleSerializer,

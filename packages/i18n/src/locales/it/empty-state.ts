@@ -44,13 +44,13 @@ export default {
         "Gli elementi di lavoro sono i mattoni del tuo progetto — assegna proprietari, imposta priorità e traccia facilmente i progressi.",
       cta_primary: "Crea il tuo primo elemento di lavoro",
     },
-    cycles: {
+    sprints: {
       title: "Raggruppa e delimita temporalmente il tuo lavoro in Cicli.",
       description:
         "Suddividi il lavoro in blocchi temporali, lavora a ritroso dalla scadenza del progetto per impostare le date e fai progressi tangibili come team.",
       cta_primary: "Imposta il tuo primo ciclo",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "Nessun elemento di lavoro da mostrare in questo ciclo",
       description:
         "Crea elementi di lavoro per iniziare a monitorare il progresso del tuo team in questo ciclo e raggiungere i tuoi obiettivi in tempo.",
@@ -113,7 +113,7 @@ export default {
         "Manualmente o tramite automazione, puoi archiviare elementi di lavoro completati o annullati. Trovali qui una volta archiviati.",
       cta_primary: "Imposta automazione",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "Nessun ciclo archiviato ancora",
       description: "Per riordinare il tuo progetto, archivia i cicli completati. Trovali qui una volta archiviati.",
     },
@@ -160,7 +160,7 @@ export default {
       title:
         "Crea progetti con elementi di lavoro e assegnatari per iniziare a tracciare prestazioni, progressi e impatto del team qui.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title: "Crea cicli per organizzare il lavoro in fasi temporali e tracciare i progressi attraverso gli sprint.",
     },
     analytics_no_module: {

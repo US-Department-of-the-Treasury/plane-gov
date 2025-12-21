@@ -26,7 +26,7 @@ import { convertToISODateString } from "@plane/utils";
 // plane web imports
 import { workItemSortWithOrderByExtended } from "@/plane-web/store/issue/helpers/base-issue.store";
 // services
-import { CycleService } from "@/services/cycle.service";
+import { SprintService } from "@/services/sprint.service";
 import { IssueArchiveService, IssueService } from "@/services/issue";
 import { ModuleService } from "@/services/module.service";
 //
@@ -70,16 +70,16 @@ export interface IBaseIssuesStore {
     isSubGroupCumulative: boolean
   ) => number | undefined;
 
-  addIssueToCycle: (
+  addIssueToSprint: (
     workspaceSlug: string,
     projectId: string,
-    cycleId: string,
+    sprintId: string,
     issueIds: string[],
     fetchAddedIssues?: boolean
   ) => Promise<void>;
-  removeIssueFromCycle: (workspaceSlug: string, projectId: string, cycleId: string, issueId: string) => Promise<void>;
-  addCycleToIssue: (workspaceSlug: string, projectId: string, cycleId: string, issueId: string) => Promise<void>;
-  removeCycleFromIssue: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>;
+  removeIssueFromSprint: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
+  addSprintToIssue: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
+  removeSprintFromIssue: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>;
 
   addIssueToList: (issueId: string) => void;
   removeIssueFromList: (issueId: string) => void;
@@ -116,14 +116,14 @@ export const ISSUE_GROUP_BY_KEY: Record<TIssueDisplayFilterOptions, keyof TIssue
   created_by: "created_by",
   assignees: "assignee_ids",
   target_date: "target_date",
-  cycle: "cycle_id",
+  sprint: "sprint_id",
   module: "module_ids",
   team_project: "project_id",
 };
 
 export const ISSUE_FILTER_DEFAULT_DATA: Record<TIssueDisplayFilterOptions, keyof TIssue> = {
   project: "project_id",
-  cycle: "cycle_id",
+  sprint: "sprint_id",
   module: "module_ids",
   state: "state_id",
   "state_detail.group": "state__group", // state_detail.group is only being used for state_group display,
@@ -152,8 +152,8 @@ const ISSUE_ORDERBY_KEY: Record<TIssueOrderByOptions, keyof TIssue> = {
   "-labels__name": "label_ids",
   issue_module__module__name: "module_ids",
   "-issue_module__module__name": "module_ids",
-  issue_cycle__cycle__name: "cycle_id",
-  "-issue_cycle__cycle__name": "cycle_id",
+  issue_sprint__sprint__name: "sprint_id",
+  "-issue_sprint__sprint__name": "sprint_id",
   target_date: "target_date",
   "-target_date": "target_date",
   estimate_point__key: "estimate_point",
@@ -183,7 +183,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
   issueService;
   issueArchiveService;
   moduleService;
-  cycleService;
+  sprintService;
   // root store
   rootIssueStore;
   issueFilterStore;
@@ -206,7 +206,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       paginationOptions: observable,
       // computed
       moduleId: computed,
-      cycleId: computed,
+      sprintId: computed,
       orderBy: computed,
       groupBy: computed,
       subGroupBy: computed,
@@ -233,10 +233,10 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       bulkArchiveIssues: action.bound,
       bulkUpdateProperties: action.bound,
 
-      addIssueToCycle: action.bound,
-      removeIssueFromCycle: action.bound,
-      addCycleToIssue: action.bound,
-      removeCycleFromIssue: action.bound,
+      addIssueToSprint: action.bound,
+      removeIssueFromSprint: action.bound,
+      addSprintToIssue: action.bound,
+      removeSprintFromIssue: action.bound,
 
       addIssuesToModule: action.bound,
       removeIssuesFromModule: action.bound,
@@ -250,12 +250,12 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     this.issueService = new IssueService(serviceType);
     this.issueArchiveService = new IssueArchiveService();
     this.moduleService = new ModuleService();
-    this.cycleService = new CycleService();
+    this.sprintService = new SprintService();
 
     this.controller = new AbortController();
   }
 
-  // Abstract class to be implemented to fetch parent stats such as project, module or cycle details
+  // Abstract class to be implemented to fetch parent stats such as project, module or sprint details
   abstract fetchParentStats: (workspaceSlug: string, projectId?: string, id?: string) => void;
 
   abstract updateParentStats: (prevIssueState?: TIssue, nextIssueState?: TIssue, id?: string) => void;
@@ -265,9 +265,9 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     return this.rootIssueStore.moduleId;
   }
 
-  // current Cycle Id from url
-  get cycleId() {
-    return this.rootIssueStore.cycleId;
+  // current Sprint Id from url
+  get sprintId() {
+    return this.rootIssueStore.sprintId;
   }
 
   // current Order by value
@@ -449,7 +449,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    * @param options Pagination options
    * @param workspaceSlug
    * @param projectId
-   * @param id Id can be anything from cycleId, moduleId, viewId or userId based on the store
+   * @param id Id can be anything from sprintId, moduleId, viewId or userId based on the store
    */
   onfetchIssues(
     issuesResponse: TIssuesResponse,
@@ -513,7 +513,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    * @param workspaceSlug
    * @param projectId
    * @param data Default Issue Data
-   * @param id optional id like moduleId and cycleId, not used here but required in overridden the Module or cycle issues methods
+   * @param id optional id like moduleId and sprintId, not used here but required in overridden the Module or sprint issues methods
    * @param shouldUpdateList If false, then it would not update the Issue Id list but only makes an API call and adds to the main Issue Map
    * @returns
    */
@@ -645,12 +645,12 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       this.removeIssueFromList(data.id);
       this.rootIssueStore.issues.removeIssue(data.id);
     });
-    const currentCycleId = data.cycle_id !== "" && data.cycle_id === "None" ? undefined : data.cycle_id;
+    const currentSprintId = data.sprint_id !== "" && data.sprint_id === "None" ? undefined : data.sprint_id;
     const currentModuleIds =
       data.module_ids && data.module_ids.length > 0 ? data.module_ids.filter((moduleId) => moduleId != "None") : [];
     const promiseRequests = [];
-    if (currentCycleId) {
-      promiseRequests.push(this.addCycleToIssue(workspaceSlug, projectId, currentCycleId, response.id));
+    if (currentSprintId) {
+      promiseRequests.push(this.addSprintToIssue(workspaceSlug, projectId, currentSprintId, response.id));
     }
     if (currentModuleIds.length > 0) {
       promiseRequests.push(this.changeModulesInIssue(workspaceSlug, projectId, response.id, currentModuleIds, []));
@@ -792,119 +792,119 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
   }
 
   /**
-   * This method is used to add issues to a particular Cycle
+   * This method is used to add issues to a particular Sprint
    * @param workspaceSlug
    * @param projectId
-   * @param cycleId
+   * @param sprintId
    * @param issueIds
-   * @param fetchAddedIssues If True we make an additional call to fetch all the issues from their Ids, Since the addIssueToCycle API does not return them
+   * @param fetchAddedIssues If True we make an additional call to fetch all the issues from their Ids, Since the addIssueToSprint API does not return them
    */
-  async addIssueToCycle(
+  async addIssueToSprint(
     workspaceSlug: string,
     projectId: string,
-    cycleId: string,
+    sprintId: string,
     issueIds: string[],
     fetchAddedIssues = true
   ) {
-    // Perform an APi call to add issue to cycle
-    await this.issueService.addIssueToCycle(workspaceSlug, projectId, cycleId, {
+    // Perform an APi call to add issue to sprint
+    await this.issueService.addIssueToSprint(workspaceSlug, projectId, sprintId, {
       issues: issueIds,
     });
 
-    // if cycle Id is the current Cycle Id then call fetch parent stats
-    if (this.cycleId === cycleId) this.fetchParentStats(workspaceSlug, projectId);
+    // if sprint Id is the current Sprint Id then call fetch parent stats
+    if (this.sprintId === sprintId) this.fetchParentStats(workspaceSlug, projectId);
 
     // if true, fetch the issue data for all the issueIds
     if (fetchAddedIssues) await this.rootIssueStore.issues.getIssues(workspaceSlug, projectId, issueIds);
 
     // Update issueIds from current store
     runInAction(() => {
-      // If cycle Id is the current cycle Id, then, add issue to list of issueIds
-      if (this.cycleId === cycleId) issueIds.forEach((issueId) => this.addIssueToList(issueId));
-      // If cycle Id is not the current cycle Id, then, remove issue to list of issueIds
-      else if (this.cycleId) issueIds.forEach((issueId) => this.removeIssueFromList(issueId));
+      // If sprint Id is the current sprint Id, then, add issue to list of issueIds
+      if (this.sprintId === sprintId) issueIds.forEach((issueId) => this.addIssueToList(issueId));
+      // If sprint Id is not the current sprint Id, then, remove issue to list of issueIds
+      else if (this.sprintId) issueIds.forEach((issueId) => this.removeIssueFromList(issueId));
     });
 
-    // For Each issue update cycle Id by calling current store's update Issue, without making an API call
+    // For Each issue update sprint Id by calling current store's update Issue, without making an API call
     issueIds.forEach((issueId) => {
-      this.issueUpdate(workspaceSlug, projectId, issueId, { cycle_id: cycleId }, false);
+      this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: sprintId }, false);
     });
   }
 
   /**
-   * This method is used to remove issue from a cycle
+   * This method is used to remove issue from a sprint
    * @param workspaceSlug
    * @param projectId
-   * @param cycleId
+   * @param sprintId
    * @param issueId
    */
-  async removeIssueFromCycle(workspaceSlug: string, projectId: string, cycleId: string, issueId: string) {
+  async removeIssueFromSprint(workspaceSlug: string, projectId: string, sprintId: string, issueId: string) {
     const issueBeforeRemoval = clone(this.rootIssueStore.issues.getIssueById(issueId));
 
     // update parent stats optimistically
-    if (this.cycleId === cycleId) this.updateParentStats(issueBeforeRemoval, undefined, cycleId);
+    if (this.sprintId === sprintId) this.updateParentStats(issueBeforeRemoval, undefined, sprintId);
 
-    // Perform an APi call to remove issue from cycle
-    await this.issueService.removeIssueFromCycle(workspaceSlug, projectId, cycleId, issueId);
+    // Perform an APi call to remove issue from sprint
+    await this.issueService.removeIssueFromSprint(workspaceSlug, projectId, sprintId, issueId);
 
-    // if cycle Id is the current Cycle Id then call fetch parent stats
-    if (this.cycleId === cycleId) this.fetchParentStats(workspaceSlug, projectId, cycleId);
+    // if sprint Id is the current Sprint Id then call fetch parent stats
+    if (this.sprintId === sprintId) this.fetchParentStats(workspaceSlug, projectId, sprintId);
 
     runInAction(() => {
-      // If cycle Id is the current cycle Id, then, remove issue from list of issueIds
-      this.cycleId === cycleId && this.removeIssueFromList(issueId);
+      // If sprint Id is the current sprint Id, then, remove issue from list of issueIds
+      this.sprintId === sprintId && this.removeIssueFromList(issueId);
     });
 
-    // update Issue cycle Id to null by calling current store's update Issue, without making an API call
-    this.issueUpdate(workspaceSlug, projectId, issueId, { cycle_id: null }, false);
+    // update Issue sprint Id to null by calling current store's update Issue, without making an API call
+    this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: null }, false);
   }
 
   /**
-   * Adds cycle to issue optimistically
+   * Adds sprint to issue optimistically
    * @param workspaceSlug
    * @param projectId
-   * @param cycleId
+   * @param sprintId
    * @param issueId
    * @returns
    */
-  addCycleToIssue = async (workspaceSlug: string, projectId: string, cycleId: string, issueId: string) => {
-    const issueCycleId = this.rootIssueStore.issues.getIssueById(issueId)?.cycle_id;
+  addSprintToIssue = async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => {
+    const issueSprintId = this.rootIssueStore.issues.getIssueById(issueId)?.sprint_id;
 
-    if (issueCycleId === cycleId) return;
+    if (issueSprintId === sprintId) return;
 
     const issueBeforeUpdate = clone(this.rootIssueStore.issues.getIssueById(issueId));
 
     try {
       // Update issueIds from current store
       runInAction(() => {
-        // If cycle Id before update is the same as current cycle Id then, remove issueId from list
-        if (this.cycleId === issueCycleId) this.removeIssueFromList(issueId);
-        // If cycle Id is the current cycle Id, then, add issue to list of issueIds
-        if (this.cycleId === cycleId) this.addIssueToList(issueId);
-        // For Each issue update cycle Id by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { cycle_id: cycleId }, false);
+        // If sprint Id before update is the same as current sprint Id then, remove issueId from list
+        if (this.sprintId === issueSprintId) this.removeIssueFromList(issueId);
+        // If sprint Id is the current sprint Id, then, add issue to list of issueIds
+        if (this.sprintId === sprintId) this.addIssueToList(issueId);
+        // For Each issue update sprint Id by calling current store's update Issue, without making an API call
+        this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: sprintId }, false);
       });
 
       const issueAfterUpdate = clone(this.rootIssueStore.issues.getIssueById(issueId));
 
       // update parent stats optimistically
-      if (this.cycleId === cycleId || this.cycleId === issueCycleId)
-        this.updateParentStats(issueBeforeUpdate, issueAfterUpdate, this.cycleId);
+      if (this.sprintId === sprintId || this.sprintId === issueSprintId)
+        this.updateParentStats(issueBeforeUpdate, issueAfterUpdate, this.sprintId);
 
-      await this.issueService.addIssueToCycle(workspaceSlug, projectId, cycleId, {
+      await this.issueService.addIssueToSprint(workspaceSlug, projectId, sprintId, {
         issues: [issueId],
       });
 
-      // if cycle Id is the current Cycle Id then call fetch parent stats
-      if (this.cycleId === cycleId || this.cycleId === issueCycleId)
-        this.fetchParentStats(workspaceSlug, projectId, this.cycleId);
+      // if sprint Id is the current Sprint Id then call fetch parent stats
+      if (this.sprintId === sprintId || this.sprintId === issueSprintId)
+        this.fetchParentStats(workspaceSlug, projectId, this.sprintId);
     } catch (error) {
-      // remove the new issue ids from the cycle issues map
+      // remove the new issue ids from the sprint issues map
       runInAction(() => {
-        // If cycle Id is the current cycle Id, then, remove issue to list of issueIds
-        if (this.cycleId === cycleId) this.removeIssueFromList(issueId);
-        // For Each issue update cycle Id to previous value by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { cycle_id: issueCycleId }, false);
+        // If sprint Id is the current sprint Id, then, remove issue to list of issueIds
+        if (this.sprintId === sprintId) this.removeIssueFromList(issueId);
+        // For Each issue update sprint Id to previous value by calling current store's update Issue, without making an API call
+        this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: issueSprintId }, false);
       });
 
       throw error;
@@ -912,42 +912,42 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
   };
 
   /*
-   * Remove a cycle from issue
+   * Remove a sprint from issue
    * @param workspaceSlug
    * @param projectId
    * @param issueId
    * @returns
    */
-  removeCycleFromIssue = async (workspaceSlug: string, projectId: string, issueId: string) => {
+  removeSprintFromIssue = async (workspaceSlug: string, projectId: string, issueId: string) => {
     const issueBeforeRemoval = clone(this.rootIssueStore.issues.getIssueById(issueId));
-    const issueCycleId = this.rootIssueStore.issues.getIssueById(issueId)?.cycle_id;
-    if (!issueCycleId) return;
+    const issueSprintId = this.rootIssueStore.issues.getIssueById(issueId)?.sprint_id;
+    if (!issueSprintId) return;
     try {
       // perform optimistic update, update store
       // Update issueIds from current store
       runInAction(() => {
-        // If cycle Id is the current cycle Id, then, add issue to list of issueIds
-        if (this.cycleId === issueCycleId) this.removeIssueFromList(issueId);
-        // For Each issue update cycle Id by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { cycle_id: null }, false);
+        // If sprint Id is the current sprint Id, then, add issue to list of issueIds
+        if (this.sprintId === issueSprintId) this.removeIssueFromList(issueId);
+        // For Each issue update sprint Id by calling current store's update Issue, without making an API call
+        this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: null }, false);
       });
 
       // update parent stats optimistically
-      if (this.cycleId === issueCycleId) this.updateParentStats(issueBeforeRemoval, undefined, issueCycleId);
+      if (this.sprintId === issueSprintId) this.updateParentStats(issueBeforeRemoval, undefined, issueSprintId);
 
       // make API call
-      await this.issueService.removeIssueFromCycle(workspaceSlug, projectId, issueCycleId, issueId);
+      await this.issueService.removeIssueFromSprint(workspaceSlug, projectId, issueSprintId, issueId);
 
-      // if cycle Id is the current Cycle Id then call fetch parent stats
-      if (this.cycleId === issueCycleId) this.fetchParentStats(workspaceSlug, projectId, issueCycleId);
+      // if sprint Id is the current Sprint Id then call fetch parent stats
+      if (this.sprintId === issueSprintId) this.fetchParentStats(workspaceSlug, projectId, issueSprintId);
     } catch (error) {
       // revert back changes if fails
       // Update issueIds from current store
       runInAction(() => {
-        // If cycle Id is the current cycle Id, then, add issue to list of issueIds
-        if (this.cycleId === issueCycleId) this.addIssueToList(issueId);
-        // For Each issue update cycle Id by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { cycle_id: issueCycleId }, false);
+        // If sprint Id is the current sprint Id, then, add issue to list of issueIds
+        if (this.sprintId === issueSprintId) this.addIssueToList(issueId);
+        // For Each issue update sprint Id by calling current store's update Issue, without making an API call
+        this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: issueSprintId }, false);
       });
 
       throw error;
@@ -1656,7 +1656,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    * @returns string | string[] of sortable fields to be used for sorting
    */
   populateIssueDataForSorting(
-    dataType: "state_id" | "label_ids" | "assignee_ids" | "module_ids" | "cycle_id" | "estimate_point",
+    dataType: "state_id" | "label_ids" | "assignee_ids" | "module_ids" | "sprint_id" | "estimate_point",
     dataIds: string | string[] | null | undefined,
     projectId: string | undefined | null,
     order?: "asc" | "desc"
@@ -1704,12 +1704,12 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
         }
         break;
       }
-      case "cycle_id": {
-        const cycleMap = this.rootIssueStore?.cycleMap;
-        if (!cycleMap) break;
+      case "sprint_id": {
+        const sprintMap = this.rootIssueStore?.sprintMap;
+        if (!sprintMap) break;
         for (const dataId of dataIdsArray) {
-          const cycle = cycleMap[dataId];
-          if (cycle && cycle.name) dataValues.push(cycle.name.toLocaleLowerCase());
+          const sprint = sprintMap[dataId];
+          if (sprint && sprint.name) dataValues.push(sprint.name.toLocaleLowerCase());
         }
         break;
       }
@@ -1882,21 +1882,21 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
           )
         );
 
-      case "issue_cycle__cycle__name":
+      case "issue_sprint__sprint__name":
         return getIssueIds(
           orderBy(array, [
-            getSortOrderToFilterEmptyValues.bind(null, "cycle_id"), //preferring sorting based on empty values to always keep the empty values below
-            (issue) => this.populateIssueDataForSorting("cycle_id", issue?.["cycle_id"], issue?.["project_id"], "asc"),
+            getSortOrderToFilterEmptyValues.bind(null, "sprint_id"), //preferring sorting based on empty values to always keep the empty values below
+            (issue) => this.populateIssueDataForSorting("sprint_id", issue?.["sprint_id"], issue?.["project_id"], "asc"),
           ])
         );
-      case "-issue_cycle__cycle__name":
+      case "-issue_sprint__sprint__name":
         return getIssueIds(
           orderBy(
             array,
             [
-              getSortOrderToFilterEmptyValues.bind(null, "cycle_id"), //preferring sorting based on empty values to always keep the empty values below
+              getSortOrderToFilterEmptyValues.bind(null, "sprint_id"), //preferring sorting based on empty values to always keep the empty values below
               (issue) =>
-                this.populateIssueDataForSorting("cycle_id", issue?.["cycle_id"], issue?.["project_id"], "asc"),
+                this.populateIssueDataForSorting("sprint_id", issue?.["sprint_id"], issue?.["project_id"], "asc"),
             ],
             ["asc", "desc"]
           )

@@ -12,7 +12,7 @@ import { EModalPosition, EModalWidth, ModalCore } from "@plane/ui";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssueModal } from "@/hooks/context/use-issue-modal";
-import { useCycle } from "@/hooks/store/use-cycle";
+import { useSprint } from "@/hooks/store/use-sprint";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useModule } from "@/hooks/store/use-module";
@@ -64,8 +64,8 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
   // store hooks
   const { t } = useTranslation();
-  const { workspaceSlug, projectId: routerProjectId, cycleId, moduleId, workItem } = useParams();
-  const { fetchCycleDetails } = useCycle();
+  const { workspaceSlug, projectId: routerProjectId, sprintId, moduleId, workItem } = useParams();
+  const { fetchSprintDetails } = useSprint();
   const { fetchModuleDetails } = useModule();
   const { issues } = useIssues(storeType);
   const { issues: projectIssues } = useIssues(EIssuesStoreType.PROJECT);
@@ -120,11 +120,11 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.project_id, data?.id, data?.sourceIssueId, projectId, isOpen, activeProjectId]);
 
-  const addIssueToCycle = async (issue: TIssue, cycleId: string) => {
+  const addIssueToSprint = async (issue: TIssue, sprintId: string) => {
     if (!workspaceSlug || !issue.project_id) return;
 
-    await issues.addIssueToCycle(workspaceSlug.toString(), issue.project_id, cycleId, [issue.id]);
-    fetchCycleDetails(workspaceSlug.toString(), issue.project_id, cycleId);
+    await issues.addIssueToSprint(workspaceSlug.toString(), issue.project_id, sprintId, [issue.id]);
+    fetchSprintDetails(workspaceSlug.toString(), issue.project_id, sprintId);
   };
 
   const addIssueToModule = async (issue: TIssue, moduleIds: string[]) => {
@@ -165,11 +165,11 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
       if (is_draft_issue) {
         response = (await draftIssues.createIssue(workspaceSlug.toString(), payload)) as TIssue;
       }
-      // if cycle id in payload does not match the cycleId in url
+      // if sprint id in payload does not match the sprintId in url
       // or if the moduleIds in Payload does not match the moduleId in url
       // use the project issue store to create issues
       else if (
-        (payload.cycle_id !== cycleId && storeType === EIssuesStoreType.CYCLE) ||
+        (payload.sprint_id !== sprintId && storeType === EIssuesStoreType.SPRINT) ||
         (!payload.module_ids?.includes(moduleId?.toString()) && storeType === EIssuesStoreType.MODULE)
       ) {
         response = await projectIssues.createIssue(workspaceSlug.toString(), payload.project_id, payload);
@@ -193,14 +193,14 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
 
       if (!response) throw new Error();
 
-      // check if we should add issue to cycle/module
+      // check if we should add issue to sprint/module
       if (!is_draft_issue) {
         if (
-          payload.cycle_id &&
-          payload.cycle_id !== "" &&
-          (payload.cycle_id !== cycleId || storeType !== EIssuesStoreType.CYCLE)
+          payload.sprint_id &&
+          payload.sprint_id !== "" &&
+          (payload.sprint_id !== sprintId || storeType !== EIssuesStoreType.SPRINT)
         ) {
-          await addIssueToCycle(response, payload.cycle_id);
+          await addIssueToSprint(response, payload.sprint_id);
         }
         if (
           payload.module_ids &&
@@ -272,17 +272,17 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
       if (isDraft) await draftIssues.updateIssue(workspaceSlug.toString(), data.id, payload);
       else if (updateIssue) await updateIssue(payload.project_id, data.id, payload);
 
-      // check if we should add/remove issue to/from cycle
+      // check if we should add/remove issue to/from sprint
       if (
-        payload.cycle_id &&
-        payload.cycle_id !== "" &&
-        (payload.cycle_id !== cycleId || storeType !== EIssuesStoreType.CYCLE)
+        payload.sprint_id &&
+        payload.sprint_id !== "" &&
+        (payload.sprint_id !== sprintId || storeType !== EIssuesStoreType.SPRINT)
       ) {
-        await addIssueToCycle(data as TBaseIssue, payload.cycle_id);
+        await addIssueToSprint(data as TBaseIssue, payload.sprint_id);
       }
-      if (data.cycle_id && !payload.cycle_id && data.project_id) {
-        await issues.removeIssueFromCycle(workspaceSlug.toString(), data.project_id, data.cycle_id, data.id);
-        fetchCycleDetails(workspaceSlug.toString(), data.project_id, data.cycle_id);
+      if (data.sprint_id && !payload.sprint_id && data.project_id) {
+        await issues.removeIssueFromSprint(workspaceSlug.toString(), data.project_id, data.sprint_id, data.id);
+        fetchSprintDetails(workspaceSlug.toString(), data.project_id, data.sprint_id);
       }
 
       if (data.module_ids && payload.module_ids && data.project_id) {
@@ -378,7 +378,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
     data: {
       ...data,
       description_html: description,
-      cycle_id: data?.cycle_id ? data?.cycle_id : cycleId ? cycleId.toString() : null,
+      sprint_id: data?.sprint_id ? data?.sprint_id : sprintId ? sprintId.toString() : null,
       module_ids: data?.module_ids ? data?.module_ids : moduleId ? [moduleId.toString()] : null,
     },
     onAssetUpload: handleUpdateUploadedAssetIds,

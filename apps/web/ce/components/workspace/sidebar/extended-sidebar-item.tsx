@@ -193,7 +193,7 @@ export const ExtendedSidebarItem = observer(function ExtendedSidebarItem(props: 
             </div>
           </Link>
           <div className="flex items-center gap-2">
-            {item.key === "active_cycles" && (
+            {item.key === "active_sprints" && (
               <div className="flex-shrink-0">
                 <UpgradeBadge />
               </div>

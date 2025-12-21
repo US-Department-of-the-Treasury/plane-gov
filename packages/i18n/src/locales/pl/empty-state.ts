@@ -41,13 +41,13 @@ export default {
         "Elementy robocze są podstawowymi elementami Twojego projektu — przypisuj właścicieli, ustalaj priorytety i łatwo śledź postęp.",
       cta_primary: "Utwórz swój pierwszy element roboczy",
     },
-    cycles: {
+    sprints: {
       title: "Grupuj i ograniczaj czasowo swoją pracę w Cyklach.",
       description:
         "Podziel pracę na bloki czasowe, pracuj wstecz od terminu projektu, aby ustalić daty, i osiągaj wymierny postęp jako zespół.",
       cta_primary: "Ustaw swój pierwszy cykl",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "Brak elementów roboczych do wyświetlenia w tym cyklu",
       description:
         "Utwórz elementy robocze, aby rozpocząć monitorowanie postępów Twojego zespołu w tym cyklu i osiągnąć swoje cele na czas.",
@@ -111,7 +111,7 @@ export default {
         "Ręcznie lub za pomocą automatyzacji możesz archiwizować ukończone lub anulowane elementy robocze. Znajdź je tutaj po zarchiwizowaniu.",
       cta_primary: "Ustaw automatyzację",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "Jeszcze brak zarchiwizowanych cykli",
       description: "Aby uporządkować swój projekt, archiwizuj ukończone cykle. Znajdź je tutaj po zarchiwizowaniu.",
     },
@@ -158,7 +158,7 @@ export default {
       title:
         "Utwórz projekty z elementami roboczymi i osobami przypisanymi, aby rozpocząć śledzenie wydajności, postępów i wpływu zespołu tutaj.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title: "Utwórz cykle, aby organizować pracę w fazy czasowe i śledzić postępy przez sprinty.",
     },
     analytics_no_module: {

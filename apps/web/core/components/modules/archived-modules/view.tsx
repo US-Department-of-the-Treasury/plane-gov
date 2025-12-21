@@ -6,7 +6,7 @@ import NameFilterImage from "@/app/assets/empty-state/module/name-filter.svg?url
 // components
 import { ModuleListItem, ModulePeekOverview } from "@/components/modules";
 // ui
-import { CycleModuleListLayoutLoader } from "@/components/ui/loader/cycle-module-list-loader";
+import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
 // hooks
 import { useModule } from "@/hooks/store/use-module";
 import { useModuleFilter } from "@/hooks/store/use-module-filter";
@@ -24,7 +24,7 @@ export const ArchivedModulesView = observer(function ArchivedModulesView(props: 
   // derived values
   const filteredArchivedModuleIds = getFilteredArchivedModuleIds(projectId);
 
-  if (loader || !filteredArchivedModuleIds) return <CycleModuleListLayoutLoader />;
+  if (loader || !filteredArchivedModuleIds) return <SprintModuleListLayoutLoader />;
 
   if (filteredArchivedModuleIds.length === 0)
     return (

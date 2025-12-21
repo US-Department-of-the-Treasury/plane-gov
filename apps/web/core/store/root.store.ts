@@ -15,10 +15,10 @@ import type { IStateStore } from "@/plane-web/store/state.store";
 import { StateStore } from "@/plane-web/store/state.store";
 import { WorkspaceRootStore } from "@/plane-web/store/workspace";
 // stores
-import type { ICycleStore } from "./cycle.store";
-import { CycleStore } from "./cycle.store";
-import type { ICycleFilterStore } from "./cycle_filter.store";
-import { CycleFilterStore } from "./cycle_filter.store";
+import type { ISprintStore } from "./sprint.store";
+import { SprintStore } from "./sprint.store";
+import type { ISprintFilterStore } from "./sprint_filter.store";
+import { SprintFilterStore } from "./sprint_filter.store";
 import type { IDashboardStore } from "./dashboard.store";
 import { DashboardStore } from "./dashboard.store";
 import type { IEditorAssetStore } from "./editor/asset.store";
@@ -69,8 +69,8 @@ export class CoreRootStore {
   workspaceRoot: IWorkspaceRootStore;
   projectRoot: IProjectRootStore;
   memberRoot: IMemberRootStore;
-  cycle: ICycleStore;
-  cycleFilter: ICycleFilterStore;
+  sprint: ISprintStore;
+  sprintFilter: ISprintFilterStore;
   module: IModuleStore;
   moduleFilter: IModuleFilterStore;
   projectView: IProjectViewStore;
@@ -105,8 +105,8 @@ export class CoreRootStore {
     this.workspaceRoot = new WorkspaceRootStore(this as unknown as RootStore);
     this.projectRoot = new ProjectRootStore(this);
     this.memberRoot = new MemberRootStore(this as unknown as RootStore);
-    this.cycle = new CycleStore(this);
-    this.cycleFilter = new CycleFilterStore(this);
+    this.sprint = new SprintStore(this);
+    this.sprintFilter = new SprintFilterStore(this);
     this.module = new ModulesStore(this);
     this.moduleFilter = new ModuleFilterStore(this);
     this.projectView = new ProjectViewStore(this);
@@ -139,8 +139,8 @@ export class CoreRootStore {
     this.workspaceRoot = new WorkspaceRootStore(this as unknown as RootStore);
     this.projectRoot = new ProjectRootStore(this);
     this.memberRoot = new MemberRootStore(this as unknown as RootStore);
-    this.cycle = new CycleStore(this);
-    this.cycleFilter = new CycleFilterStore(this);
+    this.sprint = new SprintStore(this);
+    this.sprintFilter = new SprintFilterStore(this);
     this.module = new ModulesStore(this);
     this.moduleFilter = new ModuleFilterStore(this);
     this.projectView = new ProjectViewStore(this);

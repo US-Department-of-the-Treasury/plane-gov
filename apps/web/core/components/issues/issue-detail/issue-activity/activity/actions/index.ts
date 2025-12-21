@@ -9,7 +9,7 @@ export * from "./parent";
 export * from "./relation";
 export * from "./start_date";
 export * from "./target_date";
-export * from "./cycle";
+export * from "./sprint";
 export * from "./module";
 export * from "./label";
 export * from "./link";

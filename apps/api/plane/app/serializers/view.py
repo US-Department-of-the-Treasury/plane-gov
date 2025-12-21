@@ -31,7 +31,7 @@ class ViewIssueListSerializer(serializers.Serializer):
             "sequence_id": instance.sequence_id,
             "project_id": instance.project_id,
             "parent_id": instance.parent_id,
-            "cycle_id": instance.cycle_id,
+            "sprint_id": instance.sprint_id,
             "sub_issues_count": instance.sub_issues_count,
             "created_at": instance.created_at,
             "updated_at": instance.updated_at,

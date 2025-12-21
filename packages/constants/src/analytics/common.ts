@@ -58,10 +58,10 @@ export const ANALYTICS_INSIGHTS_FIELDS: Record<TAnalyticsTabsBase, IInsightField
       },
     },
     {
-      key: "total_cycles",
+      key: "total_sprints",
       i18nKey: "workspace_analytics.total",
       i18nProps: {
-        entity: "common.cycles",
+        entity: "common.sprints",
       },
     },
     {
@@ -141,8 +141,8 @@ export const ANALYTICS_X_AXIS_VALUES: { value: ChartXAxisProperty; label: string
     label: "Estimate point",
   },
   {
-    value: ChartXAxisProperty.CYCLES,
-    label: "Cycle",
+    value: ChartXAxisProperty.SPRINTS,
+    label: "Sprint",
   },
   {
     value: ChartXAxisProperty.MODULES,

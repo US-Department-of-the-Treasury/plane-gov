@@ -85,8 +85,8 @@ export const DateRangeDropdown = observer(function DateRangeDropdown(props: Prop
     maxDate,
     onSelect,
     placeholder = {
-      from: t("project_cycles.add_date"),
-      to: t("project_cycles.add_date"),
+      from: t("project_sprints.add_date"),
+      to: t("project_sprints.add_date"),
     },
     placement,
     showTooltip = false,
@@ -168,7 +168,7 @@ export const DateRangeDropdown = observer(function DateRangeDropdown(props: Prop
       <DropdownButton
         className={buttonClassName}
         isActive={isOpen}
-        tooltipHeading={customTooltipHeading ?? t("project_cycles.date_range")}
+        tooltipHeading={customTooltipHeading ?? t("project_sprints.date_range")}
         tooltipContent={
           <>
             {customTooltipContent ?? (

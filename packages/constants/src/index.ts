@@ -2,7 +2,7 @@ export * from "./ai";
 export * from "./analytics";
 export * from "./auth";
 export * from "./chart";
-export * from "./cycle";
+export * from "./sprint";
 export * from "./dashboard";
 export * from "./emoji";
 export * from "./endpoints";

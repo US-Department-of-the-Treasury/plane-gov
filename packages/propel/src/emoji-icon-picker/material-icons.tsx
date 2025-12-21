@@ -432,7 +432,7 @@ export const MATERIAL_ICONS_LIST = [
     name: "keyboard_option_key",
   },
   {
-    name: "cycle",
+    name: "sprint",
   },
   {
     name: "rebase",

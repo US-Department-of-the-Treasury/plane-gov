@@ -65,27 +65,27 @@ export const PROJECT_TRACKER_ELEMENTS = {
 
 /**
  * ===========================================================================
- * Cycle Events and Elements
+ * Sprint Events and Elements
  * ===========================================================================
  */
-export const CYCLE_TRACKER_EVENTS = {
-  create: "cycle_created",
-  update: "cycle_updated",
-  delete: "cycle_deleted",
-  favorite: "cycle_favorited",
-  unfavorite: "cycle_unfavorited",
-  archive: "cycle_archived",
-  restore: "cycle_restored",
+export const SPRINT_TRACKER_EVENTS = {
+  create: "sprint_created",
+  update: "sprint_updated",
+  delete: "sprint_deleted",
+  favorite: "sprint_favorited",
+  unfavorite: "sprint_unfavorited",
+  archive: "sprint_archived",
+  restore: "sprint_restored",
 };
 
-export const CYCLE_TRACKER_ELEMENTS = {
-  RIGHT_HEADER_ADD_BUTTON: "right_header_add_cycle_button",
-  EMPTY_STATE_ADD_BUTTON: "empty_state_add_cycle_button",
-  COMMAND_PALETTE_ADD_ITEM: "command_palette_add_cycle_item",
-  RIGHT_SIDEBAR: "cycle_right_sidebar",
-  QUICK_ACTIONS: "cycle_quick_actions",
-  CONTEXT_MENU: "cycle_context_menu",
-  LIST_ITEM: "cycle_list_item",
+export const SPRINT_TRACKER_ELEMENTS = {
+  RIGHT_HEADER_ADD_BUTTON: "right_header_add_sprint_button",
+  EMPTY_STATE_ADD_BUTTON: "empty_state_add_sprint_button",
+  COMMAND_PALETTE_ADD_ITEM: "command_palette_add_sprint_item",
+  RIGHT_SIDEBAR: "sprint_right_sidebar",
+  QUICK_ACTIONS: "sprint_quick_actions",
+  CONTEXT_MENU: "sprint_context_menu",
+  LIST_ITEM: "sprint_list_item",
 } as const;
 
 /**
@@ -150,21 +150,21 @@ export const WORK_ITEM_TRACKER_ELEMENTS = {
   HEADER_ADD_BUTTON: {
     WORK_ITEMS: "work_items_header_add_work_item_button",
     PROJECT_VIEW: "project_view_header_add_work_item_button",
-    CYCLE: "cycle_header_add_work_item_button",
+    SPRINT: "sprint_header_add_work_item_button",
     MODULE: "module_header_add_work_item_button",
   },
   COMMAND_PALETTE_ADD_BUTTON: "command_palette_add_work_item_button",
   EMPTY_STATE_ADD_BUTTON: {
     WORK_ITEMS: "work_items_empty_state_add_work_item_button",
     PROJECT_VIEW: "project_view_empty_state_add_work_item_button",
-    CYCLE: "cycle_empty_state_add_work_item_button",
+    SPRINT: "sprint_empty_state_add_work_item_button",
     MODULE: "module_empty_state_add_work_item_button",
     GLOBAL_VIEW: "global_view_empty_state_add_work_item_button",
   },
   QUICK_ACTIONS: {
     WORK_ITEMS: "work_items_quick_actions",
     PROJECT_VIEW: "project_view_work_items_quick_actions",
-    CYCLE: "cycle_work_items_quick_actions",
+    SPRINT: "sprint_work_items_quick_actions",
     MODULE: "module_work_items_quick_actions",
     GLOBAL_VIEW: "global_view_work_items_quick_actions",
     ARCHIVED: "archived_work_items_quick_actions",
@@ -173,7 +173,7 @@ export const WORK_ITEM_TRACKER_ELEMENTS = {
   CONTEXT_MENU: {
     WORK_ITEMS: "work_items_context_menu",
     PROJECT_VIEW: "project_view_context_menu",
-    CYCLE: "cycle_context_menu",
+    SPRINT: "sprint_context_menu",
     MODULE: "module_context_menu",
     GLOBAL_VIEW: "global_view_context_menu",
     ARCHIVED: "archived_context_menu",
@@ -318,7 +318,7 @@ export const PROJECT_VIEW_TRACKER_ELEMENTS = {
   EMPTY_STATE_CREATE_BUTTON: "project_view_empty_state_create_button",
   HEADER_SAVE_VIEW_BUTTON: "project_view_header_save_view_button",
   PROJECT_HEADER_SAVE_AS_VIEW_BUTTON: "project_view_header_save_as_view_button",
-  CYCLE_HEADER_SAVE_AS_VIEW_BUTTON: "cycle_header_save_as_view_button",
+  SPRINT_HEADER_SAVE_AS_VIEW_BUTTON: "sprint_header_save_as_view_button",
   MODULE_HEADER_SAVE_AS_VIEW_BUTTON: "module_header_save_as_view_button",
   QUICK_ACTIONS: "project_view_quick_actions",
   LIST_ITEM_CONTEXT_MENU: "project_view_list_item_context_menu",

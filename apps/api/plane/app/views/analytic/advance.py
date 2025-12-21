@@ -11,7 +11,7 @@ from plane.db.models import (
     WorkspaceMember,
     Project,
     Issue,
-    Cycle,
+    Sprint,
     Module,
     IssueView,
     ProjectPage,
@@ -78,7 +78,7 @@ class AdvanceAnalyticsEndpoint(AdvanceAnalyticsBaseView):
             "total_guests": self.get_filtered_counts(members_query.filter(role=ROLE.GUEST.value)),
             "total_projects": self.get_filtered_counts(Project.objects.filter(**self.filters["project_filters"])),
             "total_work_items": self.get_filtered_counts(Issue.issue_objects.filter(**self.filters["base_filters"])),
-            "total_cycles": self.get_filtered_counts(Cycle.objects.filter(**self.filters["base_filters"])),
+            "total_sprints": self.get_filtered_counts(Sprint.objects.filter(**self.filters["base_filters"])),
             "total_intake": self.get_filtered_counts(
                 Issue.objects.filter(**self.filters["base_filters"]).filter(
                     issue_intake__status__in=["-2", "-1", "0", "1", "2"]  # TODO: Add description for reference.
@@ -180,7 +180,7 @@ class AdvanceAnalyticsChartEndpoint(AdvanceAnalyticsBaseView):
             }
 
         total_work_items = base_queryset.filter(**date_filter).count()
-        total_cycles = Cycle.objects.filter(**self.filters["base_filters"], **date_filter).count()
+        total_sprints = Sprint.objects.filter(**self.filters["base_filters"], **date_filter).count()
         total_modules = Module.objects.filter(**self.filters["base_filters"], **date_filter).count()
         total_intake = Issue.objects.filter(
             issue_intake__isnull=False, **self.filters["base_filters"], **date_filter
@@ -193,7 +193,7 @@ class AdvanceAnalyticsChartEndpoint(AdvanceAnalyticsBaseView):
 
         data = {
             "work_items": total_work_items,
-            "cycles": total_cycles,
+            "sprints": total_sprints,
             "modules": total_modules,
             "intake": total_intake,
             "members": total_members,
@@ -215,7 +215,7 @@ class AdvanceAnalyticsChartEndpoint(AdvanceAnalyticsBaseView):
         queryset = (
             Issue.issue_objects.filter(**self.filters["base_filters"])
             .select_related("workspace", "state", "parent")
-            .prefetch_related("assignees", "labels", "issue_module__module", "issue_cycle__cycle")
+            .prefetch_related("assignees", "labels", "issue_module__module", "issue_sprint__sprint")
         )
 
         workspace = Workspace.objects.get(slug=self._workspace_slug)
@@ -292,7 +292,7 @@ class AdvanceAnalyticsChartEndpoint(AdvanceAnalyticsBaseView):
             queryset = (
                 Issue.issue_objects.filter(**self.filters["base_filters"])
                 .select_related("workspace", "state", "parent")
-                .prefetch_related("assignees", "labels", "issue_module__module", "issue_cycle__cycle")
+                .prefetch_related("assignees", "labels", "issue_module__module", "issue_sprint__sprint")
             )
 
             # Apply date range filter if available

@@ -4,7 +4,7 @@ export { ReadonlyState, type TReadonlyStateProps } from "./state";
 export { ReadonlyPriority, type TReadonlyPriorityProps } from "./priority";
 export { ReadonlyMember, type TReadonlyMemberProps } from "./member";
 export { ReadonlyLabels, type TReadonlyLabelsProps } from "./labels";
-export { ReadonlyCycle, type TReadonlyCycleProps } from "./cycle";
+export { ReadonlySprint, type TReadonlySprintProps } from "./sprint";
 export { ReadonlyDate, type TReadonlyDateProps } from "./date";
 export { ReadonlyEstimate, type TReadonlyEstimateProps } from "./estimate";
 export { ReadonlyModule, type TReadonlyModuleProps } from "./module";

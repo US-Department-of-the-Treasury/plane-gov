@@ -9,7 +9,7 @@ import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useMember } from "@/hooks/store/use-member";
 // local imports
 import { PowerKMembersMenu } from "../../../../menus/members";
-import { PowerKWorkItemCyclesMenu } from "./cycles-menu";
+import { PowerKWorkItemSprintsMenu } from "./sprints-menu";
 import { PowerKWorkItemEstimatesMenu } from "./estimates-menu";
 import { PowerKWorkItemLabelsMenu } from "./labels-menu";
 import { PowerKWorkItemModulesMenu } from "./modules-menu";
@@ -61,9 +61,9 @@ export const PowerKWorkItemContextBasedPages = observer(function PowerKWorkItemC
       {activePage === "update-work-item-estimate" && (
         <PowerKWorkItemEstimatesMenu handleSelect={handleSelection} workItemDetails={entityDetails} />
       )}
-      {/* cycles menu */}
-      {activePage === "update-work-item-cycle" && (
-        <PowerKWorkItemCyclesMenu handleSelect={handleSelection} workItemDetails={entityDetails} />
+      {/* sprints menu */}
+      {activePage === "update-work-item-sprint" && (
+        <PowerKWorkItemSprintsMenu handleSelect={handleSelection} workItemDetails={entityDetails} />
       )}
       {/* modules menu */}
       {activePage === "update-work-item-module" && (

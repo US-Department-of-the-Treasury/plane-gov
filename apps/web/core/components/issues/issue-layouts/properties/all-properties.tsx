@@ -21,7 +21,7 @@ import {
   shouldHighlightIssueDueDate,
 } from "@plane/utils";
 // components
-import { CycleDropdown } from "@/components/dropdowns/cycle";
+import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
@@ -68,7 +68,7 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
     issues: { changeModulesInIssue },
   } = useIssues(storeType);
   const {
-    issues: { addCycleToIssue, removeCycleFromIssue },
+    issues: { addSprintToIssue, removeSprintFromIssue },
   } = useIssues(storeType);
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
   const { getStateById } = useProjectState();
@@ -93,16 +93,16 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
         if (!workspaceSlug || !issue.project_id || !issue.id) return;
         await changeModulesInIssue?.(workspaceSlug.toString(), issue.project_id, issue.id, [], moduleIds);
       },
-      addIssueToCycle: async (cycleId: string) => {
+      addIssueToSprint: async (sprintId: string) => {
         if (!workspaceSlug || !issue.project_id || !issue.id) return;
-        await addCycleToIssue?.(workspaceSlug.toString(), issue.project_id, cycleId, issue.id);
+        await addSprintToIssue?.(workspaceSlug.toString(), issue.project_id, sprintId, issue.id);
       },
-      removeIssueFromCycle: async () => {
+      removeIssueFromSprint: async () => {
         if (!workspaceSlug || !issue.project_id || !issue.id) return;
-        await removeCycleFromIssue?.(workspaceSlug.toString(), issue.project_id, issue.id);
+        await removeSprintFromIssue?.(workspaceSlug.toString(), issue.project_id, issue.id);
       },
     }),
-    [workspaceSlug, issue, changeModulesInIssue, addCycleToIssue, removeCycleFromIssue]
+    [workspaceSlug, issue, changeModulesInIssue, addSprintToIssue, removeSprintFromIssue]
   );
 
   const handleState = (stateId: string) => {
@@ -166,11 +166,11 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
     [issueOperations, issue]
   );
 
-  const handleCycle = useCallback(
-    (cycleId: string | null) => {
-      if (!issue || issue.cycle_id === cycleId) return;
-      if (cycleId) issueOperations.addIssueToCycle?.(cycleId);
-      else issueOperations.removeIssueFromCycle?.();
+  const handleSprint = useCallback(
+    (sprintId: string | null) => {
+      if (!issue || issue.sprint_id === sprintId) return;
+      if (sprintId) issueOperations.addIssueToSprint?.(sprintId);
+      else issueOperations.removeIssueFromSprint?.();
 
       captureSuccess({
         eventName: WORK_ITEM_TRACKER_EVENTS.update,
@@ -398,15 +398,15 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
               </WithDisplayPropertiesHOC>
             )}
 
-            {/* cycles */}
-            {projectDetails?.cycle_view && (
-              <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="cycle">
+            {/* sprints */}
+            {projectDetails?.sprint_view && (
+              <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="sprint">
                 <div className="h-5" onFocus={handleEventPropagation} onClick={handleEventPropagation}>
-                  <CycleDropdown
+                  <SprintDropdown
                     buttonContainerClassName="truncate max-w-40"
                     projectId={issue?.project_id}
-                    value={issue?.cycle_id}
-                    onChange={handleCycle}
+                    value={issue?.sprint_id}
+                    onChange={handleSprint}
                     disabled={isReadOnly}
                     buttonVariant="border-with-text"
                     renderByDefault={isMobile}

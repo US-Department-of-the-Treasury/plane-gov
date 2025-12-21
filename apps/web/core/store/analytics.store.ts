@@ -9,7 +9,7 @@ export interface IBaseAnalyticsStore {
   currentTab: TAnalyticsTabsBase;
   selectedProjects: string[];
   selectedDuration: DurationType;
-  selectedCycle: string;
+  selectedSprint: string;
   selectedModule: string;
   isPeekView?: boolean;
   isEpic?: boolean;
@@ -19,7 +19,7 @@ export interface IBaseAnalyticsStore {
   //actions
   updateSelectedProjects: (projects: string[]) => void;
   updateSelectedDuration: (duration: DurationType) => void;
-  updateSelectedCycle: (cycle: string) => void;
+  updateSelectedSprint: (sprint: string) => void;
   updateSelectedModule: (module: string) => void;
   updateIsPeekView: (isPeekView: boolean) => void;
   updateIsEpic: (isEpic: boolean) => void;
@@ -30,7 +30,7 @@ export abstract class BaseAnalyticsStore implements IBaseAnalyticsStore {
   currentTab: TAnalyticsTabsBase = "overview";
   selectedProjects: string[] = [];
   selectedDuration: DurationType = "last_30_days";
-  selectedCycle: string = "";
+  selectedSprint: string = "";
   selectedModule: string = "";
   isPeekView: boolean = false;
   isEpic: boolean = false;
@@ -40,7 +40,7 @@ export abstract class BaseAnalyticsStore implements IBaseAnalyticsStore {
       currentTab: observable.ref,
       selectedDuration: observable.ref,
       selectedProjects: observable,
-      selectedCycle: observable.ref,
+      selectedSprint: observable.ref,
       selectedModule: observable.ref,
       isPeekView: observable.ref,
       isEpic: observable.ref,
@@ -49,7 +49,7 @@ export abstract class BaseAnalyticsStore implements IBaseAnalyticsStore {
       // actions
       updateSelectedProjects: action,
       updateSelectedDuration: action,
-      updateSelectedCycle: action,
+      updateSelectedSprint: action,
       updateSelectedModule: action,
       updateIsPeekView: action,
       updateIsEpic: action,
@@ -82,9 +82,9 @@ export abstract class BaseAnalyticsStore implements IBaseAnalyticsStore {
     }
   };
 
-  updateSelectedCycle = (cycle: string) => {
+  updateSelectedSprint = (sprint: string) => {
     runInAction(() => {
-      this.selectedCycle = cycle;
+      this.selectedSprint = sprint;
     });
   };
 

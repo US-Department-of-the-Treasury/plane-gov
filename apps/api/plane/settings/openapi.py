@@ -58,16 +58,16 @@ SPECTACULAR_SETTINGS = {
         },
         # Project Organization
         {
-            "name": "Cycles",
+            "name": "Sprints",
             "description": (
-                "**Sprint & Development Cycles**\n\n"
-                "Create and manage development cycles (sprints) to organize work into time-boxed iterations. "
+                "**Sprint & Development Sprints**\n\n"
+                "Create and manage development sprints (sprints) to organize work into time-boxed iterations. "
                 "Track progress, assign work items, and monitor team velocity.\n\n"
                 "*Key Features:*\n"
-                "- Create and configure development cycles\n"
-                "- Assign work items to cycles\n"
-                "- Track cycle progress and completion\n"
-                "- Generate cycle analytics and reports\n\n"
+                "- Create and configure development sprints\n"
+                "- Assign work items to sprints\n"
+                "- Track sprint progress and completion\n"
+                "- Generate sprint analytics and reports\n\n"
                 "*Use Cases:* Sprint planning, iterative development, progress tracking, team velocity."
             ),
         },

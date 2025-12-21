@@ -55,7 +55,7 @@ export const SidebarWorkspaceMenuItem = observer(function SidebarWorkspaceMenuIt
         <div className="flex items-center gap-1.5 py-[1px]">
           <item.Icon
             className={cn("size-4", {
-              "rotate-180": item.key === "active_cycles",
+              "rotate-180": item.key === "active_sprints",
             })}
           />
           <p className="text-13 leading-5 font-medium">{t(item.labelTranslationKey)}</p>

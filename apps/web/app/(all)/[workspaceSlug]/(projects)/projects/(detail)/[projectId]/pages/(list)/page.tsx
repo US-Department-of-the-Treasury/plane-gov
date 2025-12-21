@@ -48,7 +48,7 @@ function ProjectPagesPage({ params }: Route.ComponentProps) {
   const resolvedPath = resolvedTheme === "light" ? lightPagesAsset : darkPagesAsset;
   const pageType = getPageType(type);
 
-  // No access to cycle
+  // No access to sprint
   if (currentProjectDetails?.page_view === false)
     return (
       <div className="flex items-center justify-center h-full w-full">

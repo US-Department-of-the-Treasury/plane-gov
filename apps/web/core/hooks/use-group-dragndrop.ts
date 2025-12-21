@@ -11,7 +11,7 @@ import { useIssuesActions } from "./use-issues-actions";
 type DNDStoreType =
   | EIssuesStoreType.PROJECT
   | EIssuesStoreType.MODULE
-  | EIssuesStoreType.CYCLE
+  | EIssuesStoreType.SPRINT
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.PROFILE
   | EIssuesStoreType.ARCHIVED
@@ -34,11 +34,11 @@ export const useGroupIssuesDragNDrop = (
   } = useIssueDetail();
   const { updateIssue } = useIssuesActions(storeType);
   const {
-    issues: { getIssueIds, addCycleToIssue, removeCycleFromIssue, changeModulesInIssue },
+    issues: { getIssueIds, addSprintToIssue, removeSprintFromIssue, changeModulesInIssue },
   } = useIssues(storeType);
 
   /**
-   * update Issue on Drop, checks if modules or cycles are changed and then calls appropriate functions
+   * update Issue on Drop, checks if modules or sprints are changed and then calls appropriate functions
    * @param projectId
    * @param issueId
    * @param data
@@ -61,20 +61,20 @@ export const useGroupIssuesDragNDrop = (
       message: "Error while updating work item",
     };
     const moduleKey = ISSUE_FILTER_DEFAULT_DATA["module"];
-    const cycleKey = ISSUE_FILTER_DEFAULT_DATA["cycle"];
+    const sprintKey = ISSUE_FILTER_DEFAULT_DATA["sprint"];
 
     const isModuleChanged = Object.keys(data).includes(moduleKey);
-    const isCycleChanged = Object.keys(data).includes(cycleKey);
+    const isSprintChanged = Object.keys(data).includes(sprintKey);
 
-    if (isCycleChanged && workspaceSlug) {
-      if (data[cycleKey]) {
-        addCycleToIssue(workspaceSlug.toString(), projectId, data[cycleKey]?.toString() ?? "", issueId).catch(() =>
+    if (isSprintChanged && workspaceSlug) {
+      if (data[sprintKey]) {
+        addSprintToIssue(workspaceSlug.toString(), projectId, data[sprintKey]?.toString() ?? "", issueId).catch(() =>
           setToast(errorToastProps)
         );
       } else {
-        removeCycleFromIssue(workspaceSlug.toString(), projectId, issueId).catch(() => setToast(errorToastProps));
+        removeSprintFromIssue(workspaceSlug.toString(), projectId, issueId).catch(() => setToast(errorToastProps));
       }
-      delete data[cycleKey];
+      delete data[sprintKey];
     }
 
     if (isModuleChanged && workspaceSlug && issueUpdates[moduleKey]) {

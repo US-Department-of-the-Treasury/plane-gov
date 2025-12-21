@@ -10,7 +10,7 @@ export default {
     views: "Подання",
     analytics: "Аналітика",
     work_items: "Робочі одиниці",
-    cycles: "Цикли",
+    sprints: "Цикли",
     modules: "Модулі",
     intake: "Надходження",
     drafts: "Чернетки",
@@ -273,24 +273,24 @@ export default {
   general_settings: "Загальні налаштування",
   sign_out: "Вийти",
   signing_out: "Вихід",
-  active_cycles: "Активні цикли",
-  active_cycles_description:
+  active_sprints: "Активні цикли",
+  active_sprints_description:
     "Відстежуйте цикли між проєктами, слідкуйте за пріоритетними робочими одиницями та звертайте увагу на цикли, які потребують втручання.",
-  on_demand_snapshots_of_all_your_cycles: "Знімки всіх ваших циклів на вимогу",
+  on_demand_snapshots_of_all_your_sprints: "Знімки всіх ваших циклів на вимогу",
   upgrade: "Підвищити",
   "10000_feet_view": "Огляд з висоти 10 000 футів для всіх активних циклів.",
   "10000_feet_view_description":
     "Переглядайте всі поточні цикли у різних проєктах одночасно, замість перемикання між ними в кожному проєкті.",
-  get_snapshot_of_each_active_cycle: "Отримайте знімок кожного активного циклу.",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "Отримайте знімок кожного активного циклу.",
+  get_snapshot_of_each_active_sprint_description:
     "Відстежуйте ключові метрики для всіх активних циклів, переглядайте їхній прогрес і порівнюйте обсяг із крайніми строками.",
   compare_burndowns: "Порівнюйте burndown-графіки.",
   compare_burndowns_description: "Контролюйте ефективність команд за допомогою огляду burndown-звітів кожного циклу.",
   quickly_see_make_or_break_issues: "Швидко визначайте критичні робочі одиниці.",
   quickly_see_make_or_break_issues_description:
     "Переглядайте найпріоритетніші робочі одиниці для кожного циклу з урахуванням термінів. Усе за один клік.",
-  zoom_into_cycles_that_need_attention: "Зосередьтеся на циклах, що потребують уваги.",
-  zoom_into_cycles_that_need_attention_description:
+  zoom_into_sprints_that_need_attention: "Зосередьтеся на циклах, що потребують уваги.",
+  zoom_into_sprints_that_need_attention_description:
     "Одним кліком вивчайте стан будь-якого циклу, який не відповідає очікуванням.",
   stay_ahead_of_blockers: "Вчасно виявляйте перешкоди.",
   stay_ahead_of_blockers_description:
@@ -371,7 +371,7 @@ export default {
   congrats: "Вітаємо!",
   open_project: "Відкрити проєкт",
   issues: "Робочі одиниці",
-  cycles: "Цикли",
+  sprints: "Цикли",
   modules: "Модулі",
   pages: "Сторінки",
   intake: "Надходження",
@@ -379,7 +379,7 @@ export default {
   work_management: "Управління роботою",
   projects_and_issues: "Проєкти та робочі одиниці",
   projects_and_issues_description: "Увімкніть або вимкніть ці функції в проєкті.",
-  cycles_description:
+  sprints_description:
     "Обмежуйте роботу в часі для кожного проєкту та за потреби коригуйте період. Один цикл може тривати 2 тижні, наступний — 1 тиждень.",
   modules_description: "Організуйте роботу в підпроєкти з окремими керівниками та виконавцями.",
   views_description: "Зберігайте власні сортування, фільтри та варіанти відображення або діліться ними з командою.",
@@ -653,8 +653,8 @@ export default {
     priority: "Пріоритет",
     team_project: "Командний проєкт",
     project: "Проєкт",
-    cycle: "Цикл",
-    cycles: "Цикли",
+    sprint: "Цикл",
+    sprints: "Цикли",
     module: "Модуль",
     modules: "Модулі",
     labels: "Мітки",
@@ -973,7 +973,7 @@ export default {
     add: {
       press_enter: "Натисніть 'Enter', щоб додати ще одну робочу одиницю",
       label: "Додати робочу одиницю",
-      cycle: {
+      sprint: {
         failed: "Не вдалося додати робочу одиницю в цикл. Спробуйте ще раз.",
         success: "{count, plural, one {Робоча одиниця} few {Робочі одиниці} other {Робочих одиниць}} додано до циклу.",
         loading:
@@ -990,7 +990,7 @@ export default {
     },
     remove: {
       label: "Видалити робочу одиницю",
-      cycle: {
+      sprint: {
         loading: "Вилучення робочої одиниці з циклу",
         success: "Робочу одиницю вилучено з циклу.",
         failed: "Не вдалося вилучити робочу одиницю з циклу. Спробуйте ще раз.",
@@ -1344,7 +1344,7 @@ export default {
     work_items_closed_in: "Робочі одиниці, закриті в",
     selected_projects: "Вибрані проєкти",
     total_members: "Усього учасників",
-    total_cycles: "Усього циклів",
+    total_sprints: "Усього циклів",
     total_modules: "Усього модулів",
     pending_work_items: {
       title: "Робочі одиниці, що очікують",
@@ -1431,7 +1431,7 @@ export default {
     },
     error: {
       permission: "У вас немає прав для цієї дії.",
-      cycle_delete: "Не вдалося видалити цикл",
+      sprint_delete: "Не вдалося видалити цикл",
       module_delete: "Не вдалося видалити модуль",
       issue_delete: "Не вдалося видалити робочу одиницю",
     },
@@ -1973,23 +1973,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "Додати цикл",
+  project_sprints: {
+    add_sprint: "Додати цикл",
     more_details: "Докладніше",
-    cycle: "Цикл",
-    update_cycle: "Оновити цикл",
-    create_cycle: "Створити цикл",
-    no_matching_cycles: "Немає циклів за цим запитом",
-    remove_filters_to_see_all_cycles: "Приберіть фільтри, щоб побачити всі цикли",
-    remove_search_criteria_to_see_all_cycles: "Приберіть критерії пошуку, щоб побачити всі цикли",
-    only_completed_cycles_can_be_archived: "Архівувати можна лише завершені цикли",
+    sprint: "Цикл",
+    update_sprint: "Оновити цикл",
+    create_sprint: "Створити цикл",
+    no_matching_sprints: "Немає циклів за цим запитом",
+    remove_filters_to_see_all_sprints: "Приберіть фільтри, щоб побачити всі цикли",
+    remove_search_criteria_to_see_all_sprints: "Приберіть критерії пошуку, щоб побачити всі цикли",
+    only_completed_sprints_can_be_archived: "Архівувати можна лише завершені цикли",
     start_date: "Дата початку",
     end_date: "Дата завершення",
     in_your_timezone: "У вашому часовому поясі",
     transfer_work_items: "Перенести {count} робочих одиниць",
     date_range: "Діапазон дат",
     add_date: "Додати дату",
-    active_cycle: {
+    active_sprint: {
       label: "Активний цикл",
       progress: "Прогрес",
       chart: "Burndown-графік",
@@ -2000,10 +2000,10 @@ export default {
       current: "Поточний",
       labels: "Мітки",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "Майбутній цикл",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "Завершений цикл",
     },
     status: {
@@ -2315,7 +2315,7 @@ export default {
       custom: "Власне",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "Додайте одиниці, щоб відстежувати прогрес",
@@ -2343,7 +2343,7 @@ export default {
           text: "Керувати функціями",
         },
       },
-      cycle: {
+      sprint: {
         title: "Цикли не увімкнені",
         description: "Увімкніть цикли, щоб обмежувати роботу в часі.",
         primary_button: {
@@ -2562,9 +2562,9 @@ export default {
       manual: "Вручну",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {Цикл} few {Цикли} other {Циклів}}",
-    no_cycle: "Немає циклу",
+    no_sprint: "Немає циклу",
   },
   module: {
     label: "{count, plural, one {Модуль} few {Модулі} other {Модулів}}",

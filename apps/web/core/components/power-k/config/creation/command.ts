@@ -16,7 +16,7 @@ export type TPowerKCreationCommandKeys =
   | "create_work_item"
   | "create_page"
   | "create_view"
-  | "create_cycle"
+  | "create_sprint"
   | "create_module"
   | "create_project"
   | "create_workspace";
@@ -34,7 +34,7 @@ export const usePowerKCreationCommandsRecord = (): Record<TPowerKCreationCommand
   const {
     toggleCreateIssueModal,
     toggleCreateProjectModal,
-    toggleCreateCycleModal,
+    toggleCreateSprintModal,
     toggleCreateModuleModal,
     toggleCreateViewModal,
     toggleCreatePageModal,
@@ -98,17 +98,17 @@ export const usePowerKCreationCommandsRecord = (): Record<TPowerKCreationCommand
         ),
       closeOnSelect: true,
     },
-    create_cycle: {
-      id: "create_cycle",
+    create_sprint: {
+      id: "create_sprint",
       type: "action",
       group: "create",
-      i18n_title: "power_k.creation_actions.create_cycle",
+      i18n_title: "power_k.creation_actions.create_sprint",
       icon: ContrastIcon,
       keySequence: "nc",
-      action: () => toggleCreateCycleModal(true),
-      isEnabled: (ctx) => Boolean(getProjectDetails(ctx)?.cycle_view && hasProjectMemberLevelPermissions(ctx)),
+      action: () => toggleCreateSprintModal(true),
+      isEnabled: (ctx) => Boolean(getProjectDetails(ctx)?.sprint_view && hasProjectMemberLevelPermissions(ctx)),
       isVisible: (ctx) =>
-        Boolean(ctx.params.projectId && getProjectDetails(ctx)?.cycle_view && hasProjectMemberLevelPermissions(ctx)),
+        Boolean(ctx.params.projectId && getProjectDetails(ctx)?.sprint_view && hasProjectMemberLevelPermissions(ctx)),
       closeOnSelect: true,
     },
     create_module: {

@@ -1,6 +1,6 @@
 // types
 import {
-  CYCLE_TRACKER_ELEMENTS,
+  SPRINT_TRACKER_ELEMENTS,
   MODULE_TRACKER_ELEMENTS,
   PROJECT_PAGE_TRACKER_ELEMENTS,
   PROJECT_TRACKER_ELEMENTS,
@@ -46,7 +46,7 @@ export const getProjectShortcutsList: () => TCommandPaletteActionList = () => {
   const {
     toggleCreatePageModal,
     toggleCreateModuleModal,
-    toggleCreateCycleModal,
+    toggleCreateSprintModal,
     toggleCreateViewModal,
     toggleBulkDeleteIssueModal,
   } = store.commandPalette;
@@ -69,11 +69,11 @@ export const getProjectShortcutsList: () => TCommandPaletteActionList = () => {
       },
     },
     q: {
-      title: "Create a new cycle",
-      description: "Create a new cycle in the current project",
+      title: "Create a new sprint",
+      description: "Create a new sprint in the current project",
       action: () => {
-        toggleCreateCycleModal(true);
-        captureClick({ elementName: CYCLE_TRACKER_ELEMENTS.COMMAND_PALETTE_ADD_ITEM });
+        toggleCreateSprintModal(true);
+        captureClick({ elementName: SPRINT_TRACKER_ELEMENTS.COMMAND_PALETTE_ADD_ITEM });
       },
     },
     v: {
@@ -107,7 +107,7 @@ export const getNavigationShortcutsList = (): TCommandPaletteShortcut[] => [
 export const getCommonShortcutsList = (platform: string): TCommandPaletteShortcut[] => [
   { keys: "P", description: "Create project" },
   { keys: "C", description: "Create work item" },
-  { keys: "Q", description: "Create cycle" },
+  { keys: "Q", description: "Create sprint" },
   { keys: "M", description: "Create module" },
   { keys: "V", description: "Create view" },
   { keys: "D", description: "Create page" },

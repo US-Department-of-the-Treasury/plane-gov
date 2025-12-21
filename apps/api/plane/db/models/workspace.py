@@ -412,7 +412,7 @@ class WorkspaceUserPreference(BaseModel):
 
     class UserPreferenceKeys(models.TextChoices):
         VIEWS = "views", "Views"
-        ACTIVE_CYCLES = "active_cycles", "Active Cycles"
+        ACTIVE_SPRINTS = "active_sprints", "Active Sprints"
         ANALYTICS = "analytics", "Analytics"
         DRAFTS = "drafts", "Drafts"
         YOUR_WORK = "your_work", "Your Work"

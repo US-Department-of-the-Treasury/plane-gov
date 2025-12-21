@@ -35,7 +35,7 @@ class Webhook(BaseModel):
     project = models.BooleanField(default=False)
     issue = models.BooleanField(default=False)
     module = models.BooleanField(default=False)
-    cycle = models.BooleanField(default=False)
+    sprint = models.BooleanField(default=False)
     issue_comment = models.BooleanField(default=False)
     is_internal = models.BooleanField(default=False)
 

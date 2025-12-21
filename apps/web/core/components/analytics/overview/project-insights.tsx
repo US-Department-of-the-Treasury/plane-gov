@@ -26,11 +26,11 @@ const ProjectInsights = observer(function ProjectInsights() {
   const params = useParams();
   const { t } = useTranslation();
   const workspaceSlug = params.workspaceSlug.toString();
-  const { selectedDuration, selectedDurationLabel, selectedProjects, selectedCycle, selectedModule, isPeekView } =
+  const { selectedDuration, selectedDurationLabel, selectedProjects, selectedSprint, selectedModule, isPeekView } =
     useAnalytics();
 
   const { data: projectInsightsData, isLoading: isLoadingProjectInsight } = useSWR(
-    `radar-chart-project-insights-${workspaceSlug}-${selectedDuration}-${selectedProjects}-${selectedCycle}-${selectedModule}-${isPeekView}`,
+    `radar-chart-project-insights-${workspaceSlug}-${selectedDuration}-${selectedProjects}-${selectedSprint}-${selectedModule}-${isPeekView}`,
     () =>
       analyticsService.getAdvanceAnalyticsCharts<TChartData<string, string>[]>(
         workspaceSlug,
@@ -38,7 +38,7 @@ const ProjectInsights = observer(function ProjectInsights() {
         {
           // date_filter: selectedDuration,
           ...(selectedProjects?.length > 0 && { project_ids: selectedProjects?.join(",") }),
-          ...(selectedCycle ? { cycle_id: selectedCycle } : {}),
+          ...(selectedSprint ? { sprint_id: selectedSprint } : {}),
           ...(selectedModule ? { module_id: selectedModule } : {}),
         },
         isPeekView

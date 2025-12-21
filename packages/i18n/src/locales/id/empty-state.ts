@@ -42,13 +42,13 @@ export default {
         "Item kerja adalah blok bangunan proyek Anda — tetapkan pemilik, atur prioritas, dan lacak kemajuan dengan mudah.",
       cta_primary: "Buat item kerja pertama Anda",
     },
-    cycles: {
+    sprints: {
       title: "Kelompokkan dan batasi waktu pekerjaan Anda dalam Siklus.",
       description:
         "Pecah pekerjaan menjadi potongan dengan batas waktu, bekerja mundur dari tenggat proyek Anda untuk menetapkan tanggal, dan buat kemajuan nyata sebagai tim.",
       cta_primary: "Atur siklus pertama Anda",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "Tidak ada item kerja untuk ditampilkan dalam siklus ini",
       description:
         "Buat item kerja untuk mulai memantau kemajuan tim Anda dalam siklus ini dan capai tujuan Anda tepat waktu.",
@@ -110,7 +110,7 @@ export default {
         "Secara manual atau melalui otomasi, Anda dapat mengarsipkan item kerja yang selesai atau dibatalkan. Temukan di sini setelah diarsipkan.",
       cta_primary: "Atur otomasi",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "Belum ada siklus yang diarsipkan",
       description:
         "Untuk merapikan proyek Anda, arsipkan siklus yang telah selesai. Temukan di sini setelah diarsipkan.",
@@ -158,7 +158,7 @@ export default {
       title:
         "Buat proyek dengan item kerja dan penerima tugas untuk mulai melacak kinerja, kemajuan, dan dampak tim di sini.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title:
         "Buat siklus untuk mengorganisir pekerjaan ke dalam fase berbatas waktu dan melacak kemajuan di seluruh sprint.",
     },
