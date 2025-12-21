@@ -4,7 +4,7 @@ Thank you for your interest in contributing to the Treasury fork of Plane. This 
 
 ## Submitting Issues
 
-Before submitting a new issue, please search existing [issues](https://github.com/US-Department-of-the-Treasury/plane/issues) to avoid duplicates.
+Before submitting a new issue, please search existing [issues](https://github.com/US-Department-of-the-Treasury/plane-treasury/issues) to avoid duplicates.
 
 When creating an issue, please provide:
 
@@ -17,77 +17,143 @@ When creating an issue, please provide:
 
 ### Requirements
 
-- Node.js 20+ LTS
+- Node.js 22+ (see `engines` in package.json)
 - Python 3.12+
-- PostgreSQL 14+
-- Redis 6.2+
+- PostgreSQL 14+ (running)
+- Redis 6.2+ (running)
 - pnpm (package manager)
 
-### Setup
-
-1. Clone the repository:
+**macOS quick install:**
 
 ```bash
-git clone https://github.com/US-Department-of-the-Treasury/plane.git
-cd plane
+brew install node@22 python@3.12 postgresql@14 redis pnpm
+brew services start postgresql@14
+brew services start redis
 ```
 
-2. Install frontend dependencies:
+### Quick Start (Recommended)
+
+The easiest way to start all services:
 
 ```bash
+git clone https://github.com/US-Department-of-the-Treasury/plane-treasury.git
+cd plane-treasury
 pnpm install
+./scripts/setup-security.sh  # One-time: install gitleaks
+./scripts/dev.sh             # Starts all services
 ```
 
-3. Set up security tools (required for commits):
+This script:
+
+- Checks all prerequisites
+- Builds internal packages
+- Starts Django API server
+- Starts all frontend services
+- Shows all URLs when ready
+
+### Manual Setup
+
+If you prefer to set up manually:
+
+1. Clone and install:
 
 ```bash
+git clone https://github.com/US-Department-of-the-Treasury/plane-treasury.git
+cd plane-treasury
+pnpm install
 ./scripts/setup-security.sh
 ```
 
-This installs [gitleaks](https://github.com/gitleaks/gitleaks) which scans for secrets before each commit. **This is required** - commits will warn if gitleaks is not installed.
-
-4. Set up Python environment:
+2. Set up Python environment:
 
 ```bash
 cd apps/api
-python -m venv venv
+python3.12 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Configure environment:
+3. Configure environment:
 
 ```bash
-cp .env.example .env
-# Edit .env with your local settings
+# From project root
+cp apps/api/.env.example apps/api/.env
+# Edit apps/api/.env with your local settings (database, redis, etc.)
 ```
 
-5. Run database migrations:
+4. Create database and run migrations:
 
 ```bash
+createdb plane  # or: psql -c "CREATE DATABASE plane;"
 cd apps/api
+source venv/bin/activate
+set -a && source .env && set +a
 python manage.py migrate
 ```
 
-6. Start the development servers:
+5. Start the servers:
 
-**API server:**
+**Option A - All services (recommended):**
 
 ```bash
-cd apps/api
-python manage.py runserver
+pnpm dev:all  # Runs scripts/dev.sh
 ```
 
-**Frontend:**
+**Option B - Separate terminals:**
 
 ```bash
+# Terminal 1: API server
+cd apps/api && source venv/bin/activate
+set -a && source .env && set +a
+python manage.py runserver 8000
+
+# Terminal 2: Frontend services
+pnpm dev:build  # Builds packages first, then starts dev servers
+```
+
+### Services & Ports
+
+| Service | URL                             | Description             |
+| ------- | ------------------------------- | ----------------------- |
+| Web App | http://localhost:3000           | Main application        |
+| Admin   | http://localhost:3001/god-mode/ | Instance administration |
+| Space   | http://localhost:3002           | Public project sharing  |
+| Live    | http://localhost:3100           | Real-time collaboration |
+| API     | http://localhost:8000           | Django REST API         |
+
+### Troubleshooting
+
+**"Failed to resolve entry for package @plane/utils"**
+
+The internal packages need to be built first. Run:
+
+```bash
+pnpm turbo run build --filter="@plane/*"
 pnpm dev
 ```
 
-7. Access the application:
+Or use `pnpm dev:build` which does this automatically.
 
-- Frontend: http://localhost:3000
-- Admin setup: http://localhost:3001/god-mode/
+**API server fails with Redis/Database errors**
+
+Ensure PostgreSQL and Redis are running:
+
+```bash
+brew services list  # Check status
+brew services start postgresql@14
+brew services start redis
+```
+
+**Environment variables not loading**
+
+The Django app requires environment variables. Load them before running:
+
+```bash
+cd apps/api
+source venv/bin/activate
+set -a && source .env && set +a
+python manage.py runserver
+```
 
 ## Code Guidelines
 

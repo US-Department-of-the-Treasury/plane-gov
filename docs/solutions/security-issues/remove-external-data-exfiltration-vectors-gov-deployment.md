@@ -31,7 +31,7 @@ related_commits:
   - cc125dc7f0 (sec: Remove all external data exfiltration vectors)
   - 501a886ac6 (sec: Remove all external network calls)
 related_pr:
-  - https://github.com/US-Department-of-the-Treasury/plane/pull/19
+  - https://github.com/US-Department-of-the-Treasury/plane-treasury/pull/19
 ---
 
 # Remove External Data Exfiltration Vectors for Government Deployment

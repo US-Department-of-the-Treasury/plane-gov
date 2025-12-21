@@ -9,7 +9,7 @@ This is a fork of [Plane](https://github.com/makeplane/plane) maintained by the 
 ## Fork Architecture
 
 ```
-origin   → github.com/US-Department-of-the-Treasury/plane (push here)
+origin   → github.com/US-Department-of-the-Treasury/plane-treasury (push here)
 upstream → github.com/makeplane/plane (pull updates from here)
 ```
 
@@ -136,7 +136,7 @@ For general improvements (bug fixes, non-Treasury features):
 This project is licensed under the [GNU Affero General Public License v3.0](./LICENSE.txt), the same license as upstream Plane.
 
 Per AGPL requirements, source code is available at:
-https://github.com/US-Department-of-the-Treasury/plane
+https://github.com/US-Department-of-the-Treasury/plane-treasury
 
 ## Contact
 
