@@ -11,33 +11,44 @@ This guide explains how to use Plane for project management at Treasury, with re
 ```
 Workspace: Treasury
 │
+├── Initiative: FedRAMP Compliance (cross-project program)
+│   ├── Epic (in Audit Tracker): Audit Logging
+│   ├── Epic (in Audit Tracker): Access Controls
+│   ├── Epic (in Benefits Portal): Session Management
+│   └── Epic (in Infrastructure): Deploy WAF
+│
 ├── Project: Audit Tracker (product/application)
-│   ├── Epics (feature groupings)
+│   ├── Epics (large features, 1-3 months)
 │   │   └── Epic: User Management Overhaul
-│   │       ├── Issue: Add role-based access (story)
-│   │       ├── Issue: Migrate legacy users (task)
-│   │       └── Issue: Add SSO support (story)
+│   │       ├── Issue: Add role-based access
+│   │       ├── Issue: Migrate legacy users
+│   │       └── Issue: Add SSO support
 │   ├── Sprints (2-week time boxes)
 │   │   └── Sprint 23 (Jan 6-20)
 │   │       ├── Issue from Epic above
-│   │       └── Issue: Fix login bug (standalone)
-│   ├── Issues (individual work items)
+│   │       └── Issue: Fix login bug
 │   └── Inbox (incoming requests)
 │
-└── Project: Benefits Portal
+├── Project: Benefits Portal
+│   └── ...
+│
+└── Project: Infrastructure
     └── ...
 ```
 
+**Key insight:** Epics live in ONE project. Initiatives group Epics ACROSS projects.
+
 ### What Each Primitive Means
 
-| Concept       | Scope                      | Duration         | Example                    |
-| ------------- | -------------------------- | ---------------- | -------------------------- |
-| **Workspace** | Your organization          | Permanent        | "Treasury"                 |
-| **Project**   | A product or application   | Permanent        | "Audit Tracker"            |
-| **Epic**      | Large feature or milestone | 1-3 months       | "User Management Overhaul" |
-| **Sprint**    | Time-boxed work period     | 2 weeks          | "Sprint 23 (Jan 6-20)"     |
-| **Issue**     | Individual work item       | Hours to 2 weeks | "Add PDF export"           |
-| **Label**     | Cross-cutting category     | N/A              | `fedramp`, `security`      |
+| Concept        | Scope                       | Duration         | Example                    |
+| -------------- | --------------------------- | ---------------- | -------------------------- |
+| **Workspace**  | Your organization           | Permanent        | "Treasury"                 |
+| **Initiative** | Cross-project program       | 1-4 quarters     | "FedRAMP Compliance"       |
+| **Project**    | A product or application    | Permanent        | "Audit Tracker"            |
+| **Epic**       | Large feature (one project) | 1-3 months       | "User Management Overhaul" |
+| **Sprint**     | Time-boxed work period      | 2 weeks          | "Sprint 23 (Jan 6-20)"     |
+| **Issue**      | Individual work item        | Hours to 2 weeks | "Add PDF export"           |
+| **Label**      | Cross-cutting category      | N/A              | `security`, `tech-debt`    |
 
 ---
 
@@ -77,6 +88,74 @@ Create a separate Project when:
 2. **States**: Customize workflow states (Backlog → Todo → In Progress → Done)
 3. **Labels**: Create project-specific labels
 4. **Members**: Add team members with appropriate roles
+
+---
+
+## Initiatives
+
+Initiatives are **cross-project programs** that group related Epics from multiple projects. Think of them as "Epics of Epics" that span your entire organization.
+
+**This is identical to Jira's "Initiative" (requires Jira Premium).**
+
+### When to Use Initiatives
+
+Use an Initiative when work spans multiple projects:
+
+- Compliance programs (FedRAMP, FISMA, SOC 2)
+- Platform migrations affecting all products
+- Security hardening across applications
+- Major organizational changes
+
+### When NOT to Use Initiatives
+
+Skip Initiatives when:
+
+- Work lives entirely in one project → just use an Epic
+- You're tracking a category, not a program → use Labels instead
+- You have a small team with one product → Epics are enough
+
+### Initiative vs Epic vs Label
+
+| Use Case                           | Right Tool     | Example                                     |
+| ---------------------------------- | -------------- | ------------------------------------------- |
+| Large feature in one product       | **Epic**       | "User Management Overhaul" in Audit Tracker |
+| Program spanning multiple products | **Initiative** | "FedRAMP Compliance" across all projects    |
+| Category for filtering             | **Label**      | `security`, `tech-debt`, `public-affairs`   |
+
+### How to Create an Initiative
+
+1. Go to **Workspace** → **Initiatives**
+2. Click **+ New Initiative**
+3. Fill in:
+   - **Name**: Clear program name (e.g., "FedRAMP Authorization")
+   - **Description**: Goals, scope, success criteria
+   - **Start/Target Date**: Program timeline
+4. Link Epics from various projects to the Initiative
+
+### Example: FedRAMP Compliance Initiative
+
+```
+Initiative: FedRAMP Authorization (Q1-Q2 2025)
+│
+├── Epic (Audit Tracker): Audit Logging
+│   ├── Issue: Add login event logging
+│   ├── Issue: Add data access logging
+│   └── Issue: Create audit dashboard
+│
+├── Epic (Audit Tracker): Access Controls
+│   ├── Issue: Implement RBAC
+│   └── Issue: Add session timeout
+│
+├── Epic (Benefits Portal): Session Management
+│   ├── Issue: Add idle timeout
+│   └── Issue: Implement secure cookies
+│
+└── Epic (Infrastructure): Deploy WAF
+    ├── Issue: Configure AWS WAF rules
+    └── Issue: Set up monitoring alerts
+```
+
+The Initiative dashboard shows progress across ALL linked Epics, regardless of which project they're in.
 
 ---
 
@@ -370,27 +449,36 @@ New Request → Inbox → Triage → Accept/Decline/Snooze
 
 ### Scenario: Treasury needs FedRAMP compliance by Q2
 
-**Step 1: Create Epics in each project (labeled for tracking)**
+**Step 1: Create the Initiative**
+
+```
+Initiative: FedRAMP Authorization
+- Start: January 2025
+- Target: June 2025
+- Description: Achieve FedRAMP Moderate authorization for all Treasury applications
+```
+
+**Step 2: Create Epics in each project**
 
 ```
 Project: Audit Tracker
 ├── Epic: Audit Logging (Jan-Feb)
-│   └── Label: fedramp
 ├── Epic: Access Controls (Feb-Mar)
-│   └── Label: fedramp
 └── Epic: Data Encryption (Mar-Apr)
-    └── Label: fedramp
 
 Project: Benefits Portal
 ├── Epic: Session Management (Jan-Feb)
-│   └── Label: fedramp
 └── Epic: Input Validation (Feb-Mar)
-    └── Label: fedramp
+
+Project: Infrastructure
+└── Epic: WAF and Security Monitoring (Jan-Mar)
 ```
 
-Use the `fedramp` label to track all compliance work across projects.
+**Step 3: Link Epics to the Initiative**
 
-**Step 2: Break Epics into Issues**
+Edit each Epic and set its Initiative to "FedRAMP Authorization". Now the Initiative dashboard shows progress across all projects.
+
+**Step 4: Break Epics into Issues**
 
 ```
 Epic: Audit Logging
@@ -402,7 +490,7 @@ Epic: Audit Logging
 └── Issue: Write audit documentation
 ```
 
-**Step 3: Sprint Planning**
+**Step 5: Sprint Planning**
 
 ```
 Sprint 23 (Jan 6-20)
@@ -412,7 +500,7 @@ Sprint 23 (Jan 6-20)
 └── Issue: Update dependencies (Task, no epic)
 ```
 
-**Step 4: Daily Work**
+**Step 6: Daily Work**
 
 - Pick issue from "Todo"
 - Move to "In Progress"
@@ -420,12 +508,12 @@ Sprint 23 (Jan 6-20)
 - Move to "Done"
 - Pick next issue
 
-**Step 5: Sprint Review**
+**Step 7: Sprint Review**
 
 - Demo completed work
 - Incomplete issues move to Sprint 24
-- Update epic progress
-- Filter by `fedramp` label to check overall compliance progress
+- Check Epic progress (% complete)
+- Check Initiative dashboard for overall FedRAMP progress across all projects
 
 ---
 
