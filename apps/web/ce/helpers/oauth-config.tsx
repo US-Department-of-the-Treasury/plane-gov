@@ -7,6 +7,7 @@ import GithubDarkLogo from "@/app/assets/logos/github-dark.svg?url";
 import GitlabLogo from "@/app/assets/logos/gitlab-logo.svg?url";
 import GiteaLogo from "@/app/assets/logos/gitea-logo.svg?url";
 import GoogleLogo from "@/app/assets/logos/google-logo.svg?url";
+import PivCardLogo from "@/app/assets/logos/piv-card.svg?url";
 import type { IInstanceConfig } from "@plane/types";
 
 export type OAuthConfigParams = {
@@ -21,7 +22,8 @@ export const isOAuthEnabled = (config: IInstanceConfig | undefined) =>
     (config?.is_google_enabled ||
       config?.is_github_enabled ||
       config?.is_gitlab_enabled ||
-      config?.is_gitea_enabled)) ||
+      config?.is_gitea_enabled ||
+      config?.is_oidc_enabled)) ||
   false;
 
 export function OAUTH_CONFIG({
@@ -31,6 +33,16 @@ export function OAUTH_CONFIG({
   resolvedTheme,
 }: OAuthConfigParams): TOAuthOption[] {
   return [
+    // PIV/OIDC should be FIRST when enabled (primary method for government)
+    {
+      id: "oidc",
+      text: `${OauthButtonContent} with ${config?.oidc_provider_name || "PIV Card"}`,
+      icon: <img src={PivCardLogo} className="h-4 w-4 object-contain" alt="PIV Card" />,
+      onClick: () => {
+        window.location.assign(`${API_BASE_URL}/auth/oidc/${next_path ? `?next_path=${next_path}` : ``}`);
+      },
+      enabled: config?.is_oidc_enabled || false,
+    },
     {
       id: "google",
       text: `${OauthButtonContent} with Google`,

@@ -1,117 +1,17 @@
 # Third party imports
-import pytz
 from rest_framework import serializers
 
 # Module imports
 from .base import BaseSerializer
-from plane.db.models import Sprint, SprintIssue, User, Project
-from plane.utils.timezone_converter import convert_to_utc
-
-
-class SprintCreateSerializer(BaseSerializer):
-    """
-    Serializer for creating sprints with timezone handling and date validation.
-
-    Manages sprint creation including project timezone conversion, date range validation,
-    and UTC normalization for time-bound iteration planning and sprint management.
-    """
-
-    owned_by = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        required=False,
-        allow_null=True,
-        help_text="User who owns the sprint. If not provided, defaults to the current user.",
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        project = self.context.get("project")
-        if project and project.timezone:
-            project_timezone = pytz.timezone(project.timezone)
-            self.fields["start_date"].timezone = project_timezone
-            self.fields["end_date"].timezone = project_timezone
-
-    class Meta:
-        model = Sprint
-        fields = [
-            "name",
-            "description",
-            "start_date",
-            "end_date",
-            "owned_by",
-            "external_source",
-            "external_id",
-            "timezone",
-        ]
-        read_only_fields = [
-            "id",
-            "workspace",
-            "project",
-            "created_by",
-            "updated_by",
-            "created_at",
-            "updated_at",
-            "deleted_at",
-        ]
-
-    def validate(self, data):
-        project_id = self.initial_data.get("project_id") or (
-            self.instance.project_id if self.instance and hasattr(self.instance, "project_id") else None
-        )
-
-        if not project_id:
-            raise serializers.ValidationError("Project ID is required")
-
-        project = Project.objects.filter(id=project_id).first()
-        if not project:
-            raise serializers.ValidationError("Project not found")
-        if not project.sprint_view:
-            raise serializers.ValidationError("Sprints are not enabled for this project")
-        if (
-            data.get("start_date", None) is not None
-            and data.get("end_date", None) is not None
-            and data.get("start_date", None) > data.get("end_date", None)
-        ):
-            raise serializers.ValidationError("Start date cannot exceed end date")
-
-        if data.get("start_date", None) is not None and data.get("end_date", None) is not None:
-            data["start_date"] = convert_to_utc(
-                date=str(data.get("start_date").date()),
-                project_id=project_id,
-                is_start_date=True,
-            )
-            data["end_date"] = convert_to_utc(
-                date=str(data.get("end_date", None).date()),
-                project_id=project_id,
-            )
-
-        if not data.get("owned_by"):
-            data["owned_by"] = self.context["request"].user
-
-        return data
-
-
-class SprintUpdateSerializer(SprintCreateSerializer):
-    """
-    Serializer for updating sprints with enhanced ownership management.
-
-    Extends sprint creation with update-specific features including ownership
-    assignment and modification tracking for sprint lifesprint management.
-    """
-
-    class Meta(SprintCreateSerializer.Meta):
-        model = Sprint
-        fields = SprintCreateSerializer.Meta.fields + [
-            "owned_by",
-        ]
+from plane.db.models import Sprint, SprintIssue
 
 
 class SprintSerializer(BaseSerializer):
     """
-    Sprint serializer with comprehensive project metrics and time tracking.
+    Sprint serializer with comprehensive workspace metrics and time tracking.
 
     Provides sprint details including work item counts by status, progress estimates,
-    and time-bound iteration data for project management and sprint planning.
+    and time-bound iteration data for workspace management and sprint planning.
     """
 
     total_issues = serializers.IntegerField(read_only=True)
@@ -134,8 +34,7 @@ class SprintSerializer(BaseSerializer):
             "created_by",
             "updated_by",
             "workspace",
-            "project",
-            "owned_by",
+            "number",
             "deleted_at",
         ]
 
@@ -153,7 +52,7 @@ class SprintIssueSerializer(BaseSerializer):
     class Meta:
         model = SprintIssue
         fields = "__all__"
-        read_only_fields = ["workspace", "project", "sprint"]
+        read_only_fields = ["workspace", "sprint"]
 
 
 class SprintLiteSerializer(BaseSerializer):
