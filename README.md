@@ -1,8 +1,6 @@
 # U.S. Department of the Treasury - Plane
 
-> **This is the U.S. Department of the Treasury's fork of [Plane](https://github.com/makeplane/plane).**
->
-> This fork adds federal authentication support (PIV/CAC) and other Treasury-specific features while tracking upstream development.
+> **This is the U.S. Department of the Treasury's fork of [Plane](https://github.com/makeplane/plane) for internal government use.**
 
 |                   |                                                                  |
 | ----------------- | ---------------------------------------------------------------- |
@@ -10,16 +8,14 @@
 | **License**       | AGPL-3.0 (same as upstream)                                      |
 | **Treasury Docs** | [TREASURY.md](./TREASURY.md)                                     |
 
-## What's Different in This Fork
+## About This Fork
+
+This is a self-hosted deployment of Plane for Treasury use. Key differences from upstream:
 
 - **PIV/CAC Authentication** - Federal smart card authentication via client certificates
 - **OIDC Integration** - OpenID Connect for Login.gov and other federal identity providers
 - **Security Hardening** - Removed external telemetry, analytics, and third-party integrations
 - **Native Deployment** - Simplified deployment without Docker dependencies
-
-For Treasury-specific setup and deployment instructions, see [TREASURY.md](./TREASURY.md).
-
----
 
 ## About Plane
 
@@ -38,6 +34,12 @@ Plane is an open-source project management tool to track issues, run cycles, and
 - **Pages** - Capture and organize ideas with a rich text editor. Convert notes into actionable items.
 
 - **Analytics** - Access real-time insights across project data. Visualize trends and track progress.
+
+## Deployment
+
+This fork is deployed on Treasury infrastructure. See [TREASURY.md](./TREASURY.md) for deployment details.
+
+For production AWS deployment, see the `terraform/` directory.
 
 ## Local Development
 
