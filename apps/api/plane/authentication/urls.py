@@ -42,6 +42,10 @@ from .views import (
     GiteaOauthInitiateSpaceEndpoint,
     OIDCOauthInitiateEndpoint,
     OIDCCallbackEndpoint,
+    FederationPageEndpoint,
+    FederationDiscoverEndpoint,
+    FederationCallbackEndpoint,
+    FederationSaveCredentialsEndpoint,
 )
 
 urlpatterns = [
@@ -151,4 +155,9 @@ urlpatterns = [
     ## OIDC Authentication (Login.gov, Azure AD, etc.)
     path("oidc/", OIDCOauthInitiateEndpoint.as_view(), name="oidc-initiate"),
     path("oidc/callback/", OIDCCallbackEndpoint.as_view(), name="oidc-callback"),
+    ## Federation - Dynamic OAuth Client Registration
+    path("federation/", FederationPageEndpoint.as_view(), name="federation-page"),
+    path("federation/discover/", FederationDiscoverEndpoint.as_view(), name="federation-discover"),
+    path("federation/callback/", FederationCallbackEndpoint.as_view(), name="federation-callback"),
+    path("federation/save-credentials/", FederationSaveCredentialsEndpoint.as_view(), name="federation-save-credentials"),
 ]

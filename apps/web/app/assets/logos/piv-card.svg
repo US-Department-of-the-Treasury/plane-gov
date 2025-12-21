@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+  <!-- Card body -->
+  <rect x="2" y="4" width="20" height="16" rx="2" fill="#1E3A5F" stroke="#0F2942" stroke-width="0.5"/>
+  <!-- Gold chip -->
+  <rect x="4" y="7" width="7" height="5" rx="0.5" fill="#C9A227"/>
+  <line x1="5.5" y1="7" x2="5.5" y2="12" stroke="#8B7019" stroke-width="0.5"/>
+  <line x1="7.5" y1="7" x2="7.5" y2="12" stroke="#8B7019" stroke-width="0.5"/>
+  <line x1="9.5" y1="7" x2="9.5" y2="12" stroke="#8B7019" stroke-width="0.5"/>
+  <line x1="4" y1="9.5" x2="11" y2="9.5" stroke="#8B7019" stroke-width="0.5"/>
+  <!-- ID lines representing text/data -->
+  <rect x="13" y="7" width="7" height="1.5" rx="0.5" fill="#4A6B8A"/>
+  <rect x="13" y="10" width="5" height="1" rx="0.5" fill="#4A6B8A"/>
+  <!-- Photo placeholder -->
+  <rect x="4" y="14" width="5" height="4" rx="0.5" fill="#2E5077"/>
+  <circle cx="6.5" cy="15.5" r="1" fill="#4A6B8A"/>
+  <path d="M4.5 18 L5.5 17 L7.5 17 L8.5 18" fill="#4A6B8A"/>
+</svg>
