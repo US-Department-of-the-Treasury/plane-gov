@@ -41,6 +41,7 @@
     "@react-pdf/renderer": "^3.4.5",
     "@react-router/node": "catalog:",
     "@sentry/react-router": "catalog:",
+    "@tanstack/react-query": "^5.90.12",
     "@tanstack/react-table": "^8.21.3",
     "axios": "catalog:",
     "clsx": "^2.0.0",
@@ -75,7 +76,8 @@
     "smooth-scroll-into-view-if-needed": "^2.0.2",
     "swr": "catalog:",
     "use-font-face-observer": "^1.2.2",
-    "uuid": "catalog:"
+    "uuid": "catalog:",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "catalog:",
@@ -83,6 +85,7 @@
     "@plane/typescript-config": "workspace:*",
     "@react-router/dev": "catalog:",
     "@tailwindcss/typography": "0.5.19",
+    "@tanstack/react-query-devtools": "^5.91.1",
     "@types/lodash-es": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

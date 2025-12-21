@@ -13,6 +13,8 @@ import "@/lib/polyfills";
 import { AppProgressBar } from "@/lib/b-progress";
 // mobx store provider
 import { StoreProvider } from "@/lib/store-context";
+// tanstack query provider
+import { QueryProvider } from "@/store/queries";
 // wrappers
 import { InstanceWrapper } from "@/lib/wrappers/instance-wrapper";
 
@@ -34,20 +36,22 @@ export function AppProvider(props: IAppProvider) {
   const { children } = props;
   // themes
   return (
-    <StoreProvider>
-      <ThemeProvider themes={["light", "dark", "light-contrast", "dark-contrast", "custom"]} defaultTheme="system">
-        <AppProgressBar />
-        <TranslationProvider>
-          <ToastWithTheme />
-          <StoreWrapper>
-            <InstanceWrapper>
-              <Suspense>
-                <SWRConfig value={WEB_SWR_CONFIG}>{children}</SWRConfig>
-              </Suspense>
-            </InstanceWrapper>
-          </StoreWrapper>
-        </TranslationProvider>
-      </ThemeProvider>
-    </StoreProvider>
+    <QueryProvider>
+      <StoreProvider>
+        <ThemeProvider themes={["light", "dark", "light-contrast", "dark-contrast", "custom"]} defaultTheme="system">
+          <AppProgressBar />
+          <TranslationProvider>
+            <ToastWithTheme />
+            <StoreWrapper>
+              <InstanceWrapper>
+                <Suspense>
+                  <SWRConfig value={WEB_SWR_CONFIG}>{children}</SWRConfig>
+                </Suspense>
+              </InstanceWrapper>
+            </StoreWrapper>
+          </TranslationProvider>
+        </ThemeProvider>
+      </StoreProvider>
+    </QueryProvider>
   );
 }
