@@ -45,6 +45,8 @@ export interface IInstanceConfig {
   is_github_enabled: boolean;
   is_gitlab_enabled: boolean;
   is_gitea_enabled: boolean;
+  is_oidc_enabled: boolean;
+  oidc_provider_name: string | undefined;
   is_magic_login_enabled: boolean;
   is_email_password_enabled: boolean;
   github_app_name: string | undefined;
@@ -101,4 +103,5 @@ export type IFormattedInstanceConfiguration = {
   [key in TInstanceConfigurationKeys]: string;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- TExtendedLoginMediums is 'never' in CE but extended in EE
 export type TLoginMediums = TCoreLoginMediums | TExtendedLoginMediums;
