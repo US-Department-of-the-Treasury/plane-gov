@@ -75,7 +75,13 @@ from .workspace.user import (
 )
 from .workspace.estimate import WorkspaceEstimatesEndpoint
 from .workspace.module import WorkspaceModulesEndpoint
-from .workspace.sprint import WorkspaceSprintsEndpoint
+from .workspace.sprint import (
+    WorkspaceSprintsEndpoint,
+    WorkspaceSprintViewSet,
+    WorkspaceSprintIssuesEndpoint,
+    WorkspaceSprintUserPropertiesEndpoint,
+    WorkspaceSprintFavoriteEndpoint,
+)
 from .workspace.quick_link import QuickLinkViewSet
 from .workspace.sticky import WorkspaceStickyViewSet
 from .workspace.dev import GenerateFakeMembersEndpoint
