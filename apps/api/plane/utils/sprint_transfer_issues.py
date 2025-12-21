@@ -16,7 +16,7 @@ from django.db import models
 from django.db.models.functions import Cast, Concat
 from django.utils import timezone
 
-# Module imports
+# Package imports
 from plane.db.models import (
     Sprint,
     SprintIssue,

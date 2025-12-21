@@ -22,14 +22,14 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from plane.app.views.base import BaseAPIView
 from plane.db.models import (
     Workspace,
     Project,
     Issue,
     Sprint,
-    Module,
+    Epic,
     Page,
     IssueView,
     ProjectMember,
@@ -132,14 +132,14 @@ class GlobalSearchEndpoint(BaseAPIView):
             .values("name", "id", "project_id", "project__identifier", "workspace__slug")
         )
 
-    def filter_modules(self, query, slug, project_id, workspace_search):
+    def filter_epics(self, query, slug, project_id, workspace_search):
         fields = ["name"]
         q = Q()
         if query:
             for field in fields:
                 q |= Q(**{f"{field}__icontains": query})
 
-        modules = Module.objects.filter(
+        epics = Epic.objects.filter(
             q,
             project__project_projectmember__member=self.request.user,
             project__project_projectmember__is_active=True,
@@ -148,10 +148,10 @@ class GlobalSearchEndpoint(BaseAPIView):
         )
 
         if workspace_search == "false" and project_id:
-            modules = modules.filter(project_id=project_id)
+            epics = epics.filter(project_id=project_id)
 
         return (
-            modules.order_by("-created_at")
+            epics.order_by("-created_at")
             .distinct()
             .values("name", "id", "project_id", "project__identifier", "workspace__slug")
         )
@@ -274,7 +274,7 @@ class GlobalSearchEndpoint(BaseAPIView):
             "project": self.filter_projects,
             "issue": self.filter_issues,
             "sprint": self.filter_sprints,
-            "module": self.filter_modules,
+            "epic": self.filter_epics,
             "issue_view": self.filter_views,
             "page": self.filter_pages,
             "intake": self.filter_intakes,
@@ -461,7 +461,7 @@ class SearchEndpoint(BaseAPIView):
                     )
                     response_data["sprint"] = list(sprints)
 
-                elif query_type == "module":
+                elif query_type == "epic":
                     fields = ["name"]
                     q = Q()
 
@@ -469,8 +469,8 @@ class SearchEndpoint(BaseAPIView):
                         for field in fields:
                             q |= Q(**{f"{field}__icontains": query})
 
-                    modules = (
-                        Module.objects.filter(
+                    epics = (
+                        Epic.objects.filter(
                             q,
                             project__project_projectmember__member=self.request.user,
                             project__project_projectmember__is_active=True,
@@ -488,7 +488,7 @@ class SearchEndpoint(BaseAPIView):
                             "workspace__slug",
                         )[:count]
                     )
-                    response_data["module"] = list(modules)
+                    response_data["epic"] = list(epics)
 
                 elif query_type == "page":
                     fields = ["name"]
@@ -664,7 +664,7 @@ class SearchEndpoint(BaseAPIView):
                     )
                     response_data["sprint"] = list(sprints)
 
-                elif query_type == "module":
+                elif query_type == "epic":
                     fields = ["name"]
                     q = Q()
 
@@ -672,8 +672,8 @@ class SearchEndpoint(BaseAPIView):
                         for field in fields:
                             q |= Q(**{f"{field}__icontains": query})
 
-                    modules = (
-                        Module.objects.filter(
+                    epics = (
+                        Epic.objects.filter(
                             q,
                             project__project_projectmember__member=self.request.user,
                             project__project_projectmember__is_active=True,
@@ -690,7 +690,7 @@ class SearchEndpoint(BaseAPIView):
                             "workspace__slug",
                         )[:count]
                     )
-                    response_data["module"] = list(modules)
+                    response_data["epic"] = list(epics)
 
                 elif query_type == "page":
                     fields = ["name"]

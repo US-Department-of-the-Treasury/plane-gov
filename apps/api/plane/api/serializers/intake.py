@@ -1,4 +1,4 @@
-# Module imports
+# Package imports
 from .base import BaseSerializer
 from .issue import IssueExpandSerializer
 from plane.db.models import IntakeIssue, Issue, State, StateGroup

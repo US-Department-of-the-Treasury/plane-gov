@@ -1,3 +1,3 @@
 export * from "./issues";
-export * from "./modules";
+export * from "./epics";
 export * from "./root";

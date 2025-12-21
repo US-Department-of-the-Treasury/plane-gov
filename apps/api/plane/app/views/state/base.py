@@ -9,7 +9,7 @@ from django.db.utils import IntegrityError
 from rest_framework.response import Response
 from rest_framework import status
 
-# Module imports
+# Package imports
 from .. import BaseViewSet, BaseAPIView
 from plane.app.serializers import StateSerializer
 from plane.app.permissions import ROLE, allow_permission

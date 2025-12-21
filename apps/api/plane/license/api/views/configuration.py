@@ -15,7 +15,7 @@ from django.db.models import Q, Case, When, Value
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from .base import BaseAPIView
 from plane.license.api.permissions import InstanceAdminPermission
 from plane.license.models import InstanceConfiguration

@@ -5,7 +5,7 @@ import { Logo } from "@plane/propel/emoji-icon-picker";
 import {
   SprintGroupIcon,
   SprintIcon,
-  ModuleIcon,
+  EpicIcon,
   StatePropertyIcon,
   PriorityIcon,
   StateGroupIcon,
@@ -23,7 +23,7 @@ import type {
   TFilterConfig,
   TFilterValue,
   IIssueLabel,
-  IModule,
+  IEpic,
   IProject,
   TWorkItemFilterProperty,
 } from "@plane/types";
@@ -36,7 +36,7 @@ import {
   getFileURL,
   getLabelFilterConfig,
   getMentionFilterConfig,
-  getModuleFilterConfig,
+  getEpicFilterConfig,
   getPriorityFilterConfig,
   getProjectFilterConfig,
   getStartDateFilterConfig,
@@ -51,7 +51,7 @@ import {
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
-import { useModule } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
 // plane web imports
@@ -62,7 +62,7 @@ export type TWorkItemFiltersEntityProps = {
   sprintIds?: string[];
   labelIds?: string[];
   memberIds?: string[];
-  moduleIds?: string[];
+  epicIds?: string[];
   projectId?: string;
   projectIds?: string[];
   stateIds?: string[];
@@ -83,13 +83,13 @@ export type TWorkItemFiltersConfig = {
 };
 
 export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps): TWorkItemFiltersConfig => {
-  const { allowedFilters, sprintIds, labelIds, memberIds, moduleIds, projectId, projectIds, stateIds, workspaceSlug } =
+  const { allowedFilters, sprintIds, labelIds, memberIds, epicIds, projectId, projectIds, stateIds, workspaceSlug } =
     props;
   // store hooks
   const { loader: projectLoader, getProjectById } = useProject();
   const { getSprintById } = useSprint();
   const { getLabelById } = useLabel();
-  const { getModuleById } = useModule();
+  const { getEpicById } = useEpic();
   const { getStateById } = useProjectState();
   const { getUserDetails } = useMember();
   // derived values
@@ -119,10 +119,10 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
     () => (sprintIds ? (sprintIds.map((sprintId) => getSprintById(sprintId)).filter((sprint) => sprint) as ISprint[]) : []),
     [sprintIds, getSprintById]
   );
-  const modules = useMemo(
+  const epics = useMemo(
     () =>
-      moduleIds ? (moduleIds.map((moduleId) => getModuleById(moduleId)).filter((module) => module) as IModule[]) : [],
-    [moduleIds, getModuleById]
+      epicIds ? (epicIds.map((epicId) => getEpicById(epicId)).filter((epic) => epic) as IEpic[]) : [],
+    [epicIds, getEpicById]
   );
   const projects = useMemo(
     () =>
@@ -194,17 +194,17 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
     [isFilterEnabled, project?.sprint_view, sprints, operatorConfigs]
   );
 
-  // module filter config
-  const moduleFilterConfig = useMemo(
+  // epic filter config
+  const epicFilterConfig = useMemo(
     () =>
-      getModuleFilterConfig<TWorkItemFilterProperty>("module_id")({
-        isEnabled: isFilterEnabled("module_id") && project?.module_view === true && modules !== undefined,
-        filterIcon: ModuleIcon,
-        getOptionIcon: () => <ModuleIcon className="h-3 w-3 flex-shrink-0" />,
-        modules: modules ?? [],
+      getEpicFilterConfig<TWorkItemFilterProperty>("epic_id")({
+        isEnabled: isFilterEnabled("epic_id") && project?.epic_view === true && epics !== undefined,
+        filterIcon: EpicIcon,
+        getOptionIcon: () => <EpicIcon className="h-3 w-3 flex-shrink-0" />,
+        epics: epics ?? [],
         ...operatorConfigs,
       }),
-    [isFilterEnabled, project?.module_view, modules, operatorConfigs]
+    [isFilterEnabled, project?.epic_view, epics, operatorConfigs]
   );
 
   // assignee filter config
@@ -367,7 +367,7 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
       mentionFilterConfig,
       labelFilterConfig,
       sprintFilterConfig,
-      moduleFilterConfig,
+      epicFilterConfig,
       startDateFilterConfig,
       targetDateFilterConfig,
       createdAtFilterConfig,
@@ -381,7 +381,7 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
       state_id: stateFilterConfig,
       label_id: labelFilterConfig,
       sprint_id: sprintFilterConfig,
-      module_id: moduleFilterConfig,
+      epic_id: epicFilterConfig,
       assignee_id: assigneeFilterConfig,
       mention_id: mentionFilterConfig,
       created_by_id: createdByFilterConfig,

@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django import apps
 
-# Module imports
+# Package imports
 from plane.utils.html_processor import strip_tags
 from plane.db.mixins import SoftDeletionManager
 from plane.utils.exception_logger import log_exception
@@ -730,7 +730,7 @@ class IssueVersion(ProjectBaseModel):
     external_id = models.CharField(max_length=255, blank=True, null=True)
     type = models.UUIDField(blank=True, null=True)
     sprint = models.UUIDField(null=True, blank=True)
-    modules = ArrayField(models.UUIDField(), blank=True, default=list)
+    epics = ArrayField(models.UUIDField(), blank=True, default=list)
     properties = models.JSONField(default=dict)  # issue properties
     meta = models.JSONField(default=dict)  # issue meta
     last_saved_at = models.DateTimeField(default=timezone.now)
@@ -764,7 +764,7 @@ class IssueVersion(ProjectBaseModel):
             Log the issue version
             """
 
-            Module = apps.get_model("db.Module")
+            Epic = apps.get_model("db.Epic")
             SprintIssue = apps.get_model("db.SprintIssue")
             IssueAssignee = apps.get_model("db.IssueAssignee")
             IssueLabel = apps.get_model("db.IssueLabel")
@@ -791,7 +791,7 @@ class IssueVersion(ProjectBaseModel):
                 external_id=issue.external_id,
                 type=issue.type_id,
                 sprint=sprint_issue.sprint_id if sprint_issue else None,
-                modules=list(Module.objects.filter(issue=issue).values_list("id", flat=True)),
+                epics=list(Epic.objects.filter(issue=issue).values_list("id", flat=True)),
                 properties={},
                 meta={},
                 last_saved_at=timezone.now(),

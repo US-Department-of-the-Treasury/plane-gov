@@ -338,7 +338,7 @@ export const WORKSPACE_DEFAULT_SEARCH_RESULT: IWorkspaceSearchResults = {
     project: [],
     issue: [],
     sprint: [],
-    module: [],
+    epic: [],
     issue_view: [],
     page: [],
   },

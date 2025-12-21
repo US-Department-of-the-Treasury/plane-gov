@@ -1,6 +1,6 @@
 import {
   ArchivedSprintVerticalStackIllustration,
-  ArchivedModuleVerticalStackIllustration,
+  ArchivedEpicVerticalStackIllustration,
   ArchivedWorkItemVerticalStackIllustration,
   ChangelogVerticalStackIllustration,
   CustomerVerticalStackIllustration,
@@ -11,7 +11,7 @@ import {
   Error404VerticalStackIllustration,
   InitiativeVerticalStackIllustration,
   InvalidLinkVerticalStackIllustration,
-  ModuleVerticalStackIllustration,
+  EpicVerticalStackIllustration,
   NoAccessVerticalStackIllustration,
   PageVerticalStackIllustration,
   ProjectVerticalStackIllustration,
@@ -27,8 +27,8 @@ export const VerticalStackAssetsMap = [
     title: "ArchivedSprintVerticalStackIllustration",
   },
   {
-    asset: <ArchivedModuleVerticalStackIllustration />,
-    title: "ArchivedModuleVerticalStackIllustration",
+    asset: <ArchivedEpicVerticalStackIllustration />,
+    title: "ArchivedEpicVerticalStackIllustration",
   },
   {
     asset: <ArchivedWorkItemVerticalStackIllustration />,
@@ -71,8 +71,8 @@ export const VerticalStackAssetsMap = [
     title: "InvalidLinkVerticalStackIllustration",
   },
   {
-    asset: <ModuleVerticalStackIllustration />,
-    title: "ModuleVerticalStackIllustration",
+    asset: <EpicVerticalStackIllustration />,
+    title: "EpicVerticalStackIllustration",
   },
   {
     asset: <NoAccessVerticalStackIllustration />,

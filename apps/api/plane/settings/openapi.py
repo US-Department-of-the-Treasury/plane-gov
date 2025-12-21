@@ -118,16 +118,16 @@ SPECTACULAR_SETTINGS = {
         },
         # Project Organization
         {
-            "name": "Modules",
+            "name": "Epics",
             "description": (
-                "**Feature Modules**\n\n"
-                "Group related work items into modules for better organization and tracking. "
+                "**Feature Epics**\n\n"
+                "Group related work items into epics for better organization and tracking. "
                 "Plan features, track progress, and manage deliverables at a higher level.\n\n"
                 "*Key Features:*\n"
-                "- Create and organize feature modules\n"
-                "- Group work items by module\n"
-                "- Track module progress and completion\n"
-                "- Manage module leads and assignments\n\n"
+                "- Create and organize feature epics\n"
+                "- Group work items by epic\n"
+                "- Track epic progress and completion\n"
+                "- Manage epic leads and assignments\n\n"
                 "*Use Cases:* Feature planning, release organization, progress tracking, team coordination."
             ),
         },
@@ -260,7 +260,7 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_NO_READ_ONLY_REQUIRED": True,
     "COMPONENT_SPLIT_REQUEST": True,
     "ENUM_NAME_OVERRIDES": {
-        "ModuleStatusEnum": "plane.db.models.module.ModuleStatus",
+        "EpicStatusEnum": "plane.db.models.epic.EpicStatus",
         "IntakeWorkItemStatusEnum": "plane.db.models.intake.IntakeIssueStatus",
     },
 }

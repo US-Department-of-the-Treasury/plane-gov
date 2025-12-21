@@ -54,9 +54,9 @@ const TotalInsights = observer(function TotalInsights({
   const params = useParams();
   const workspaceSlug = params.workspaceSlug.toString();
   const { t } = useTranslation();
-  const { selectedDuration, selectedProjects, selectedSprint, selectedModule, isPeekView, isEpic } = useAnalytics();
+  const { selectedDuration, selectedProjects, selectedSprint, selectedEpic, isPeekView, isEpic } = useAnalytics();
   const { data: totalInsightsData, isLoading } = useSWR(
-    `total-insights-${analyticsType}-${selectedDuration}-${selectedProjects}-${selectedSprint}-${selectedModule}-${isEpic}`,
+    `total-insights-${analyticsType}-${selectedDuration}-${selectedProjects}-${selectedSprint}-${selectedEpic}-${isEpic}`,
     () =>
       analyticsService.getAdvanceAnalytics<IAnalyticsResponse>(
         workspaceSlug,
@@ -65,7 +65,7 @@ const TotalInsights = observer(function TotalInsights({
           // date_filter: selectedDuration,
           ...(selectedProjects?.length > 0 ? { project_ids: selectedProjects.join(",") } : {}),
           ...(selectedSprint ? { sprint_id: selectedSprint } : {}),
-          ...(selectedModule ? { module_id: selectedModule } : {}),
+          ...(selectedEpic ? { epic_id: selectedEpic } : {}),
           ...(isEpic ? { epic: true } : {}),
         },
         isPeekView

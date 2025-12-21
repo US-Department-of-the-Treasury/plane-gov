@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.db import models
 
-# Module imports
+# Package imports
 from .base import BaseModel
 
 

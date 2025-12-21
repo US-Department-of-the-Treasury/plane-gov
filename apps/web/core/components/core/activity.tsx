@@ -23,7 +23,6 @@ import {
   SprintIcon,
   EpicIcon,
   IntakeIcon,
-  ModuleIcon,
   RelatedIcon,
   WorkItemsIcon,
 } from "@plane/propel/icons";
@@ -466,14 +465,14 @@ const activityDetails: {
     },
     icon: <SprintIcon height={12} width={12} className="text-secondary" aria-hidden="true" />,
   },
-  modules: {
+  epics: {
     message: (activity, showIssue, workspaceSlug) => {
       if (activity.verb === "created")
         return (
           <>
-            added {showIssue ? <IssueLink activity={activity} /> : "this work item"} to the module{" "}
+            added {showIssue ? <IssueLink activity={activity} /> : "this work item"} to the epic{" "}
             <a
-              href={`/${workspaceSlug}/projects/${activity.project}/modules/${activity.new_identifier}`}
+              href={`/${workspaceSlug}/projects/${activity.project}/epics/${activity.new_identifier}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline items-center gap-1 font-medium text-primary hover:underline"
@@ -485,9 +484,9 @@ const activityDetails: {
       else if (activity.verb === "updated")
         return (
           <>
-            set the module to{" "}
+            set the epic to{" "}
             <a
-              href={`/${workspaceSlug}/projects/${activity.project}/modules/${activity.new_identifier}`}
+              href={`/${workspaceSlug}/projects/${activity.project}/epics/${activity.new_identifier}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline items-center gap-1 font-medium text-primary hover:underline"
@@ -499,9 +498,9 @@ const activityDetails: {
       else
         return (
           <>
-            removed <IssueLink activity={activity} /> from the module{" "}
+            removed <IssueLink activity={activity} /> from the epic{" "}
             <a
-              href={`/${workspaceSlug}/projects/${activity.project}/modules/${activity.old_identifier}`}
+              href={`/${workspaceSlug}/projects/${activity.project}/epics/${activity.old_identifier}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline items-center gap-1 font-medium text-primary hover:underline"
@@ -511,7 +510,7 @@ const activityDetails: {
           </>
         );
     },
-    icon: <ModuleIcon className="h-3 w-3 !text-secondary" aria-hidden="true" />,
+    icon: <EpicIcon className="h-3 w-3 !text-secondary" aria-hidden="true" />,
   },
   name: {
     message: (activity, showIssue) => (

@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from plane.db.models import WorkspaceMemberInvite
 from .base import BaseSerializer
 from plane.app.permissions.base import ROLE

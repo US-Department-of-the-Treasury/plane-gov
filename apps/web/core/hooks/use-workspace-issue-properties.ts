@@ -1,26 +1,26 @@
 import useSWR from "swr";
 // plane web imports
-import { WORKSPACE_ESTIMATES, WORKSPACE_SPRINTS, WORKSPACE_LABELS, WORKSPACE_MODULES } from "@/constants/fetch-keys";
+import { WORKSPACE_ESTIMATES, WORKSPACE_SPRINTS, WORKSPACE_LABELS, WORKSPACE_EPICS } from "@/constants/fetch-keys";
 import { useWorkspaceIssuePropertiesExtended } from "@/plane-web/hooks/use-workspace-issue-properties-extended";
 // plane imports
 import { useProjectEstimates } from "./store/estimates";
 import { useSprint } from "./store/use-sprint";
 import { useLabel } from "./store/use-label";
-import { useModule } from "./store/use-module";
+import { useEpic } from "./store/use-epic";
 
 export const useWorkspaceIssueProperties = (workspaceSlug: string | string[] | undefined) => {
   const { fetchWorkspaceLabels } = useLabel();
 
   const { getWorkspaceEstimates } = useProjectEstimates();
 
-  const { fetchWorkspaceModules } = useModule();
+  const { fetchWorkspaceEpics } = useEpic();
 
   const { fetchWorkspaceSprints } = useSprint();
 
-  // fetch workspace Modules
+  // fetch workspace Epics
   useSWR(
-    workspaceSlug ? WORKSPACE_MODULES(workspaceSlug.toString()) : null,
-    workspaceSlug ? () => fetchWorkspaceModules(workspaceSlug.toString()) : null,
+    workspaceSlug ? WORKSPACE_EPICS(workspaceSlug.toString()) : null,
+    workspaceSlug ? () => fetchWorkspaceEpics(workspaceSlug.toString()) : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 

@@ -33,7 +33,7 @@ interface IBaseGanttRoot {
 
 export type GanttStoreType =
   | EIssuesStoreType.PROJECT
-  | EIssuesStoreType.MODULE
+  | EIssuesStoreType.EPIC
   | EIssuesStoreType.SPRINT
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.EPIC;

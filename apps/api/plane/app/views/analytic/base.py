@@ -10,7 +10,7 @@ from django.db import models
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from plane.app.permissions import WorkSpaceAdminPermission
 from plane.app.serializers import AnalyticViewSerializer
 from plane.app.views.base import BaseAPIView, BaseViewSet
@@ -22,7 +22,7 @@ from plane.db.models import (
     Project,
     ProjectMember,
     Sprint,
-    Module,
+    Epic,
 )
 
 from plane.utils.analytics_plot import build_graph_plot
@@ -44,7 +44,7 @@ class AnalyticsEndpoint(BaseAPIView):
             "assignees__id",
             "estimate_point__value",
             "issue_sprint__sprint_id",
-            "issue_module__module_id",
+            "issue_epic__epic_id",
             "priority",
             "start_date",
             "target_date",
@@ -156,18 +156,18 @@ class AnalyticsEndpoint(BaseAPIView):
                 .values("issue_sprint__sprint_id", "issue_sprint__sprint__name")
             )
 
-        module_details = {}
-        if x_axis in ["issue_module__module_id"] or segment in ["issue_module__module_id"]:
-            module_details = (
+        epic_details = {}
+        if x_axis in ["issue_epic__epic_id"] or segment in ["issue_epic__epic_id"]:
+            epic_details = (
                 Issue.issue_objects.filter(
                     workspace__slug=slug,
                     **filters,
-                    issue_module__module_id__isnull=False,
-                    issue_module__deleted_at__isnull=True,
+                    issue_epic__epic_id__isnull=False,
+                    issue_epic__deleted_at__isnull=True,
                 )
-                .distinct("issue_module__module_id")
-                .order_by("issue_module__module_id")
-                .values("issue_module__module_id", "issue_module__module__name")
+                .distinct("issue_epic__epic_id")
+                .order_by("issue_epic__epic_id")
+                .values("issue_epic__epic_id", "issue_epic__epic__name")
             )
 
         return Response(
@@ -179,7 +179,7 @@ class AnalyticsEndpoint(BaseAPIView):
                     "assignee_details": assignee_details,
                     "label_details": label_details,
                     "sprint_details": sprint_details,
-                    "module_details": module_details,
+                    "epic_details": epic_details,
                 },
             },
             status=status.HTTP_200_OK,
@@ -239,7 +239,7 @@ class ExportAnalyticsEndpoint(BaseAPIView):
             "assignees__id",
             "estimate_point",
             "issue_sprint__sprint_id",
-            "issue_module__module_id",
+            "issue_epic__epic_id",
             "priority",
             "start_date",
             "target_date",
@@ -422,7 +422,7 @@ class ProjectStatsEndpoint(BaseAPIView):
             "completed_issues",
             "total_members",
             "total_sprints",
-            "total_modules",
+            "total_epics",
         }
         requested_fields = set(filter(None, fields)) & valid_fields
 
@@ -458,9 +458,9 @@ class ProjectStatsEndpoint(BaseAPIView):
                 .values("count")
             )
 
-        if "total_modules" in requested_fields:
-            annotations["total_modules"] = (
-                Module.objects.filter(project_id=OuterRef("id"))
+        if "total_epics" in requested_fields:
+            annotations["total_epics"] = (
+                Epic.objects.filter(project_id=OuterRef("id"))
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")

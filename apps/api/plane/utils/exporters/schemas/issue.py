@@ -99,7 +99,7 @@ class IssueExportSchema(ExportSchema):
     updated_at = DateTimeField(source="updated_at", label="Updated At")
     completed_at = DateTimeField(source="completed_at", label="Completed At")
     archived_at = DateTimeField(source="archived_at", label="Archived At")
-    module_name = ListField(label="Module Name")
+    epic_name = ListField(label="Epic Name")
     created_by = StringField(label="Created By")
     labels = ListField(label="Labels")
     comments = JSONField(label="Comments")
@@ -121,8 +121,8 @@ class IssueExportSchema(ExportSchema):
     def prepare_state_name(self, i):
         return i.state.name if i.state else None
 
-    def prepare_module_name(self, i):
-        return [m.module.name for m in i.issue_module.all()]
+    def prepare_epic_name(self, i):
+        return [m.epic.name for m in i.issue_epic.all()]
 
     def prepare_created_by(self, i):
         return self._get_created_by(i)

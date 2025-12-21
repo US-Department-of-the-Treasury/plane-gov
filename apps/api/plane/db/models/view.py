@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.db import models
 
-# Module import
+# Epic import
 from .workspace import WorkspaceBaseModel
 from plane.utils.issue_filters import issue_filters
 

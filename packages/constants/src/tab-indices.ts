@@ -9,7 +9,7 @@ export const ISSUE_FORM_TAB_INDICES = [
   "start_date",
   "target_date",
   "sprint_id",
-  "module_ids",
+  "epic_ids",
   "estimate_point",
   "parent_id",
   "create_more",
@@ -30,7 +30,7 @@ export const INTAKE_ISSUE_CREATE_FORM_TAB_INDICES = [
   "start_date",
   "target_date",
   "sprint_id",
-  "module_ids",
+  "epic_ids",
   "estimate_point",
   "parent_id",
   "create_more",
@@ -55,7 +55,7 @@ export const PROJECT_CREATE_TAB_INDICES = [
 
 export const PROJECT_SPRINT_TAB_INDICES = ["name", "description", "date_range", "cancel", "submit", "project_id"];
 
-export const PROJECT_MODULE_TAB_INDICES = [
+export const PROJECT_EPIC_TAB_INDICES = [
   "name",
   "description",
   "date_range",
@@ -76,7 +76,7 @@ export enum ETabIndices {
   CREATE_LABEL = "create-label",
   PROJECT_CREATE = "project-create",
   PROJECT_SPRINT = "project-sprint",
-  PROJECT_MODULE = "project-module",
+  PROJECT_EPIC = "project-epic",
   PROJECT_VIEW = "project-view",
   PROJECT_PAGE = "project-page",
 }
@@ -87,7 +87,7 @@ export const TAB_INDEX_MAP: Record<ETabIndices, string[]> = {
   [ETabIndices.CREATE_LABEL]: CREATE_LABEL_TAB_INDICES,
   [ETabIndices.PROJECT_CREATE]: PROJECT_CREATE_TAB_INDICES,
   [ETabIndices.PROJECT_SPRINT]: PROJECT_SPRINT_TAB_INDICES,
-  [ETabIndices.PROJECT_MODULE]: PROJECT_MODULE_TAB_INDICES,
+  [ETabIndices.PROJECT_EPIC]: PROJECT_EPIC_TAB_INDICES,
   [ETabIndices.PROJECT_VIEW]: PROJECT_VIEW_TAB_INDICES,
   [ETabIndices.PROJECT_PAGE]: PROJECT_PAGE_TAB_INDICES,
 };

@@ -1,6 +1,6 @@
 export * from "./404-error";
 export * from "./archived-sprint";
-export * from "./archived-module";
+export * from "./archived-epic";
 export * from "./archived-work-item";
 export * from "./changelog";
 export * from "./customer";
@@ -10,7 +10,6 @@ export * from "./draft";
 export * from "./epic";
 export * from "./initiative";
 export * from "./invalid-link";
-export * from "./module";
 export * from "./no-access";
 export * from "./page";
 export * from "./project";

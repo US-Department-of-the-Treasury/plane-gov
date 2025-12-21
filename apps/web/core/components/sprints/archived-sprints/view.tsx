@@ -6,7 +6,7 @@ import NameFilterImage from "@/app/assets/empty-state/sprint/name-filter.svg?url
 // components
 import { SprintsList } from "@/components/sprints/list";
 // ui
-import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
+import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
@@ -24,7 +24,7 @@ export const ArchivedSprintsView = observer(function ArchivedSprintsView(props: 
   // derived values
   const filteredArchivedSprintIds = getFilteredArchivedSprintIds(projectId);
 
-  if (loader || !filteredArchivedSprintIds) return <SprintModuleListLayoutLoader />;
+  if (loader || !filteredArchivedSprintIds) return <SprintEpicListLayoutLoader />;
 
   if (filteredArchivedSprintIds.length === 0)
     return (

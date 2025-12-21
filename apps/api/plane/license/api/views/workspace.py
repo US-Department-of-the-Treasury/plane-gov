@@ -4,7 +4,7 @@ from rest_framework import status
 from django.db import IntegrityError
 from django.db.models import OuterRef, Func, F
 
-# Module imports
+# Package imports
 from plane.app.views.base import BaseAPIView
 from plane.license.api.permissions import InstanceAdminPermission
 from plane.db.models import Workspace, WorkspaceMember, Project

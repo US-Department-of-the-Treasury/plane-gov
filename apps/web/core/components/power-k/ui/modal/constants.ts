@@ -20,8 +20,8 @@ export const POWER_K_MODAL_PAGE_DETAILS: Record<TPowerKPageType, TPowerKModalPag
   "open-project-sprint": {
     i18n_placeholder: "power_k.page_placeholders.open_project_sprint",
   },
-  "open-project-module": {
-    i18n_placeholder: "power_k.page_placeholders.open_project_module",
+  "open-project-epic": {
+    i18n_placeholder: "power_k.page_placeholders.open_project_epic",
   },
   "open-project-view": {
     i18n_placeholder: "power_k.page_placeholders.open_project_view",
@@ -44,17 +44,17 @@ export const POWER_K_MODAL_PAGE_DETAILS: Record<TPowerKPageType, TPowerKModalPag
   "update-work-item-sprint": {
     i18n_placeholder: "power_k.page_placeholders.update_work_item_sprint",
   },
-  "update-work-item-module": {
-    i18n_placeholder: "power_k.page_placeholders.update_work_item_module",
+  "update-work-item-epic": {
+    i18n_placeholder: "power_k.page_placeholders.update_work_item_epic",
   },
   "update-work-item-labels": {
     i18n_placeholder: "power_k.page_placeholders.update_work_item_labels",
   },
-  "update-module-member": {
-    i18n_placeholder: "power_k.page_placeholders.update_module_member",
+  "update-epic-member": {
+    i18n_placeholder: "power_k.page_placeholders.update_epic_member",
   },
-  "update-module-status": {
-    i18n_placeholder: "power_k.page_placeholders.update_module_status",
+  "update-epic-status": {
+    i18n_placeholder: "power_k.page_placeholders.update_epic_status",
   },
   "update-theme": {
     i18n_placeholder: "power_k.page_placeholders.update_theme",

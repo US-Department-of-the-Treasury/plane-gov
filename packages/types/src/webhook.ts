@@ -5,7 +5,7 @@ export interface IWebhook {
   is_active: boolean;
   issue: boolean;
   issue_comment: boolean;
-  module: boolean;
+  epic: boolean;
   project: boolean;
   secret_key?: string;
   updated_at: string;

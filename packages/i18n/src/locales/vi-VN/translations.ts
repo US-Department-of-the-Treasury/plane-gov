@@ -11,7 +11,7 @@ export default {
     analytics: "Phân tích",
     work_items: "Mục công việc",
     sprints: "Chu kỳ",
-    modules: "Mô-đun",
+    epics: "Epic",
     intake: "Thu thập",
     drafts: "Bản nháp",
     favorites: "Yêu thích",
@@ -374,7 +374,7 @@ export default {
   open_project: "Mở dự án",
   issues: "Mục công việc",
   sprints: "Chu kỳ",
-  modules: "Mô-đun",
+  epics: "Epic",
   pages: "Trang",
   intake: "Thu thập",
   time_tracking: "Theo dõi thời gian",
@@ -384,7 +384,7 @@ export default {
     "Bật hoặc tắt các tính năng này trong dự án này. Có thể thay đổi theo thời gian phù hợp với nhu cầu.",
   sprints_description:
     "Thiết lập thời gian làm việc theo dự án và điều chỉnh thời gian nếu cần. Một chu kỳ có thể là 2 tuần, chu kỳ tiếp theo là 1 tuần.",
-  modules_description: "Tổ chức công việc thành các dự án con với người lãnh đạo và người được phân công riêng.",
+  epics_description: "Tổ chức công việc thành các dự án con với người lãnh đạo và người được phân công riêng.",
   views_description: "Lưu các tùy chọn sắp xếp, lọc và hiển thị tùy chỉnh hoặc chia sẻ chúng với nhóm của bạn.",
   pages_description: "Tạo và chỉnh sửa nội dung tự do: ghi chú, tài liệu, bất cứ thứ gì.",
   intake_description:
@@ -660,8 +660,8 @@ export default {
     project: "Dự án",
     sprint: "Chu kỳ",
     sprints: "Chu kỳ",
-    module: "Mô-đun",
-    modules: "Mô-đun",
+    epic: "Epic",
+    epics: "Epic",
     labels: "Nhãn",
     label: "Nhãn",
     assignees: "Người phụ trách",
@@ -998,10 +998,10 @@ export default {
         success: "Đã xóa mục công việc khỏi chu kỳ thành công.",
         failed: "Không thể xóa mục công việc khỏi chu kỳ. Vui lòng thử lại.",
       },
-      module: {
-        loading: "Đang xóa mục công việc khỏi mô-đun",
-        success: "Đã xóa mục công việc khỏi mô-đun thành công.",
-        failed: "Không thể xóa mục công việc khỏi mô-đun. Vui lòng thử lại.",
+      epic: {
+        loading: "Đang xóa mục công việc khỏi epic",
+        success: "Đã xóa mục công việc khỏi epic thành công.",
+        failed: "Không thể xóa mục công việc khỏi epic. Vui lòng thử lại.",
       },
       parent: {
         label: "Xóa mục công việc cha",
@@ -1348,7 +1348,7 @@ export default {
     selected_projects: "Dự án đã chọn",
     total_members: "Tổng số thành viên",
     total_sprints: "Tổng số chu kỳ",
-    total_modules: "Tổng số mô-đun",
+    total_epics: "Tổng số epic",
     pending_work_items: {
       title: "Mục công việc đang chờ xử lý",
       empty_state: "Phân tích mục công việc đang chờ xử lý của đồng nghiệp sẽ hiển thị ở đây.",
@@ -1434,7 +1434,7 @@ export default {
     error: {
       permission: "Bạn không có quyền thực hiện thao tác này.",
       sprint_delete: "Xóa chu kỳ thất bại",
-      module_delete: "Xóa mô-đun thất bại",
+      epic_delete: "Xóa epic thất bại",
       issue_delete: "Xóa mục công việc thất bại",
     },
     state: {
@@ -1461,7 +1461,7 @@ export default {
       general: {
         title: "Không có dự án hoạt động",
         description:
-          "Coi mỗi dự án như là cấp cha của công việc định hướng mục tiêu. Dự án là nơi chứa mục công việc, chu kỳ và mô-đun, cùng với đồng nghiệp giúp bạn đạt được mục tiêu. Tạo dự án mới hoặc lọc dự án đã lưu trữ.",
+          "Coi mỗi dự án như là cấp cha của công việc định hướng mục tiêu. Dự án là nơi chứa mục công việc, chu kỳ và epic, cùng với đồng nghiệp giúp bạn đạt được mục tiêu. Tạo dự án mới hoặc lọc dự án đã lưu trữ.",
         primary_button: {
           text: "Bắt đầu dự án đầu tiên của bạn",
           comic: {
@@ -2143,29 +2143,29 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Thêm mô-đun",
-    update_module: "Cập nhật mô-đun",
-    create_module: "Tạo mô-đun",
-    archive_module: "Lưu trữ mô-đun",
-    restore_module: "Khôi phục mô-đun",
-    delete_module: "Xóa mô-đun",
+  project_epic: {
+    add_epic: "Thêm epic",
+    update_epic: "Cập nhật epic",
+    create_epic: "Tạo epic",
+    archive_epic: "Lưu trữ epic",
+    restore_epic: "Khôi phục epic",
+    delete_epic: "Xóa epic",
     empty_state: {
       general: {
-        title: "Ánh xạ cột mốc dự án vào mô-đun, dễ dàng theo dõi công việc tổng hợp.",
+        title: "Ánh xạ cột mốc dự án vào epic, dễ dàng theo dõi công việc tổng hợp.",
         description:
-          "Một nhóm mục công việc thuộc cấp cha trong cấu trúc logic tạo thành một mô-đun. Xem nó như một cách theo dõi công việc theo cột mốc dự án. Chúng có chu kỳ riêng và thời hạn cùng với các tính năng phân tích giúp bạn hiểu bạn đang ở đâu so với cột mốc.",
+          "Một nhóm mục công việc thuộc cấp cha trong cấu trúc logic tạo thành một epic. Xem nó như một cách theo dõi công việc theo cột mốc dự án. Chúng có chu kỳ riêng và thời hạn cùng với các tính năng phân tích giúp bạn hiểu bạn đang ở đâu so với cột mốc.",
         primary_button: {
-          text: "Xây dựng mô-đun đầu tiên của bạn",
+          text: "Xây dựng epic đầu tiên của bạn",
           comic: {
             title: "Mô-đun giúp nhóm công việc theo cấu trúc phân cấp.",
-            description: "Mô-đun giỏ hàng, mô-đun khung gầm và mô-đun kho đều là ví dụ tốt về nhóm như vậy.",
+            description: "Mô-đun giỏ hàng, epic khung gầm và epic kho đều là ví dụ tốt về nhóm như vậy.",
           },
         },
       },
       no_issues: {
-        title: "Không có mục công việc trong mô-đun",
-        description: "Tạo hoặc thêm mục công việc bạn muốn hoàn thành như một phần của mô-đun này",
+        title: "Không có mục công việc trong epic",
+        description: "Tạo hoặc thêm mục công việc bạn muốn hoàn thành như một phần của epic này",
         primary_button: {
           text: "Tạo mục công việc mới",
         },
@@ -2174,9 +2174,9 @@ export default {
         },
       },
       archived: {
-        title: "Chưa có mô-đun đã lưu trữ",
+        title: "Chưa có epic đã lưu trữ",
         description:
-          "Để tổ chức dự án của bạn, hãy lưu trữ mô-đun đã hoàn thành hoặc đã hủy. Bạn có thể tìm thấy chúng ở đây sau khi lưu trữ.",
+          "Để tổ chức dự án của bạn, hãy lưu trữ epic đã hoàn thành hoặc đã hủy. Bạn có thể tìm thấy chúng ở đây sau khi lưu trữ.",
       },
       sidebar: {
         in_active: "Mô-đun này chưa được kích hoạt.",
@@ -2184,17 +2184,17 @@ export default {
       },
     },
     quick_actions: {
-      archive_module: "Lưu trữ mô-đun",
-      archive_module_description: "Chỉ mô-đun đã hoàn thành hoặc đã hủy\ncó thể được lưu trữ.",
-      delete_module: "Xóa mô-đun",
+      archive_epic: "Lưu trữ epic",
+      archive_epic_description: "Chỉ epic đã hoàn thành hoặc đã hủy\ncó thể được lưu trữ.",
+      delete_epic: "Xóa epic",
     },
     toast: {
       copy: {
-        success: "Đã sao chép liên kết mô-đun vào bảng tạm",
+        success: "Đã sao chép liên kết epic vào bảng tạm",
       },
       delete: {
-        success: "Đã xóa mô-đun thành công",
-        error: "Xóa mô-đun thất bại",
+        success: "Đã xóa epic thành công",
+        error: "Xóa epic thất bại",
       },
     },
   },
@@ -2372,9 +2372,9 @@ export default {
           text: "Quản lý tính năng",
         },
       },
-      module: {
-        title: "Dự án chưa bật tính năng mô-đun.",
-        description: "Mô-đun là khối xây dựng cơ bản của dự án. Bật mô-đun từ cài đặt dự án để bắt đầu sử dụng chúng.",
+      epic: {
+        title: "Dự án chưa bật tính năng epic.",
+        description: "Mô-đun là khối xây dựng cơ bản của dự án. Bật epic từ cài đặt dự án để bắt đầu sử dụng chúng.",
         primary_button: {
           text: "Quản lý tính năng",
         },
@@ -2488,7 +2488,7 @@ export default {
     },
     member: {
       title: "Thành viên",
-      description: "Có thể đọc, viết, chỉnh sửa và xóa thực thể trong dự án, chu kỳ và mô-đun",
+      description: "Có thể đọc, viết, chỉnh sửa và xóa thực thể trong dự án, chu kỳ và epic",
     },
     admin: {
       title: "Quản trị viên",
@@ -2567,7 +2567,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Tồn đọng",
       planned: "Đã lên kế hoạch",
@@ -2594,9 +2594,9 @@ export default {
     label: "{count, plural, one {chu kỳ} other {chu kỳ}}",
     no_sprint: "Không có chu kỳ",
   },
-  module: {
-    label: "{count, plural, one {mô-đun} other {mô-đun}}",
-    no_module: "Không có mô-đun",
+  epic: {
+    label: "{count, plural, one {epic} other {epic}}",
+    no_epic: "Không có epic",
   },
   description_versions: {
     last_edited_by: "Chỉnh sửa lần cuối bởi",

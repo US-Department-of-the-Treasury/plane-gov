@@ -29,7 +29,7 @@ from plane.app.permissions import allow_permission, ROLE
 from plane.db.models import Sprint, UserFavorite, Issue, Label, User, Project
 from plane.utils.analytics_plot import burndown_plot
 
-# Module imports
+# Package imports
 from .. import BaseAPIView
 
 

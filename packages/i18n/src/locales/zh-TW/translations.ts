@@ -11,7 +11,7 @@ export default {
     analytics: "分析",
     work_items: "工作項目",
     sprints: "週期",
-    modules: "模組",
+    epics: "Epic",
     intake: "接收",
     drafts: "草稿",
     favorites: "收藏",
@@ -362,7 +362,7 @@ export default {
   open_project: "開啟專案",
   issues: "工作事項",
   sprints: "週期",
-  modules: "模組",
+  epics: "Epic",
   pages: "頁面",
   intake: "進件",
   time_tracking: "時間追蹤",
@@ -370,7 +370,7 @@ export default {
   projects_and_issues: "專案與工作事項",
   projects_and_issues_description: "為此專案開啟或關閉這些功能。",
   sprints_description: "為每個專案設定工作時間區段，並依需求調整週期。一個週期可以是兩週，下一個是一週。",
-  modules_description: "將工作組織成子專案，並指派專屬的負責人與任務對象。",
+  epics_description: "將工作組織成子專案，並指派專屬的負責人與任務對象。",
   views_description: "儲存自訂排序、篩選和顯示選項，或與團隊分享。",
   pages_description: "建立與編輯自由格式內容：筆記、文件，任何內容皆可。",
   intake_description: "允許非成員分享錯誤、回饋和建議，而不會中斷您的工作流程。",
@@ -640,8 +640,8 @@ export default {
     project: "專案",
     sprint: "週期",
     sprints: "週期",
-    module: "模組",
-    modules: "模組",
+    epic: "Epic",
+    epics: "Epic",
     labels: "標籤",
     label: "標籤",
     assignees: "指派對象",
@@ -979,10 +979,10 @@ export default {
         success: "已成功從週期移除工作事項。",
         failed: "無法從週期移除工作事項。請再試一次。",
       },
-      module: {
-        loading: "正在從模組移除工作事項",
-        success: "已成功從模組移除工作事項。",
-        failed: "無法從模組移除工作事項。請再試一次。",
+      epic: {
+        loading: "正在從epic移除工作事項",
+        success: "已成功從epic移除工作事項。",
+        failed: "無法從epic移除工作事項。請再試一次。",
       },
       parent: {
         label: "移除父工作事項",
@@ -1327,7 +1327,7 @@ export default {
     selected_projects: "已選取的專案",
     total_members: "成員總數",
     total_sprints: "週期總數",
-    total_modules: "模組總數",
+    total_epics: "epic總數",
     pending_work_items: {
       title: "待處理工作事項",
       empty_state: "在此顯示同事待處理工作事項的分析。",
@@ -1367,9 +1367,9 @@ export default {
         primary_button: {
           text: "開始您的第一個專案",
           comic: {
-            title: "分析功能在週期 + 模組中效果最佳",
+            title: "分析功能在週期 + epic中效果最佳",
             description:
-              "首先，將您的問題在週期中進行時間限制，如果可能的話，將跨越多個週期的問題分組到模組中。在左側導覽中查看這兩個功能。",
+              "首先，將您的問題在週期中進行時間限制，如果可能的話，將跨越多個週期的問題分組到epic中。在左側導覽中查看這兩個功能。",
           },
         },
       },
@@ -1412,7 +1412,7 @@ export default {
     error: {
       permission: "您沒有執行此操作的權限。",
       sprint_delete: "無法刪除週期",
-      module_delete: "無法刪除模組",
+      epic_delete: "無法刪除epic",
       issue_delete: "無法刪除工作事項",
     },
     state: {
@@ -1439,7 +1439,7 @@ export default {
       general: {
         title: "沒有使用中的專案",
         description:
-          "請將每個專案視為目標導向工作的上層。專案是工作、週期和模組所在的地方，並與您的同事一起協助您達成目標。建立新專案或篩選已封存的專案。",
+          "請將每個專案視為目標導向工作的上層。專案是工作、週期和epic所在的地方，並與您的同事一起協助您達成目標。建立新專案或篩選已封存的專案。",
         primary_button: {
           text: "開始您的第一個專案",
           comic: {
@@ -2106,29 +2106,29 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "新增模組",
-    update_module: "更新模組",
-    create_module: "建立模組",
-    archive_module: "封存模組",
-    restore_module: "還原模組",
-    delete_module: "刪除模組",
+  project_epic: {
+    add_epic: "新增epic",
+    update_epic: "更新epic",
+    create_epic: "建立epic",
+    archive_epic: "封存epic",
+    restore_epic: "還原epic",
+    delete_epic: "刪除epic",
     empty_state: {
       general: {
-        title: "將您的專案里程碑對應到模組並輕鬆追蹤彙總工作。",
+        title: "將您的專案里程碑對應到epic並輕鬆追蹤彙總工作。",
         description:
-          "屬於邏輯、階層式上層的一組工作事項形成一個模組。將其視為一種依專案里程碑追蹤工作的方式。它們有自己的期間和截止日期以及分析，可協助您了解您距離里程碑有多近或多遠。",
+          "屬於邏輯、階層式上層的一組工作事項形成一個epic。將其視為一種依專案里程碑追蹤工作的方式。它們有自己的期間和截止日期以及分析，可協助您了解您距離里程碑有多近或多遠。",
         primary_button: {
-          text: "建立您的第一個模組",
+          text: "建立您的第一個epic",
           comic: {
-            title: "模組協助依階層結構分組工作。",
-            description: "購物車模組、底盤模組和倉庫模組都是這種分組的好例子。",
+            title: "epic協助依階層結構分組工作。",
+            description: "購物車epic、底盤epic和倉庫epic都是這種分組的好例子。",
           },
         },
       },
       no_issues: {
-        title: "模組中沒有工作事項",
-        description: "建立或新增您想要作為此模組一部分完成的工作事項",
+        title: "epic中沒有工作事項",
+        description: "建立或新增您想要作為此epic一部分完成的工作事項",
         primary_button: {
           text: "建立新工作事項",
         },
@@ -2137,26 +2137,26 @@ export default {
         },
       },
       archived: {
-        title: "尚無已封存的模組",
-        description: "為了整理您的專案，可以封存已完成或取消的模組。一旦封存，您可以在這裡找到它們。",
+        title: "尚無已封存的epic",
+        description: "為了整理您的專案，可以封存已完成或取消的epic。一旦封存，您可以在這裡找到它們。",
       },
       sidebar: {
-        in_active: "此模組尚未啟用。",
+        in_active: "此epic尚未啟用。",
         invalid_date: "日期無效。請輸入有效日期。",
       },
     },
     quick_actions: {
-      archive_module: "封存模組",
-      archive_module_description: "只有已完成或取消的\n模組可以封存。",
-      delete_module: "刪除模組",
+      archive_epic: "封存epic",
+      archive_epic_description: "只有已完成或取消的\nepic可以封存。",
+      delete_epic: "刪除epic",
     },
     toast: {
       copy: {
-        success: "模組連結已複製到剪貼簿",
+        success: "epic連結已複製到剪貼簿",
       },
       delete: {
-        success: "模組刪除成功",
-        error: "刪除模組失敗",
+        success: "epic刪除成功",
+        error: "刪除epic失敗",
       },
     },
   },
@@ -2332,9 +2332,9 @@ export default {
           text: "管理功能",
         },
       },
-      module: {
-        title: "模組未啟用於此專案。",
-        description: "模組是專案的基本組成部分。從專案設定啟用模組以開始使用。",
+      epic: {
+        title: "epic未啟用於此專案。",
+        description: "epic是專案的基本組成部分。從專案設定啟用epic以開始使用。",
         primary_button: {
           text: "管理功能",
         },
@@ -2442,7 +2442,7 @@ export default {
     },
     member: {
       title: "成員",
-      description: "在專案、週期和模組內具有讀取、寫入、編輯和刪除實體的能力",
+      description: "在專案、週期和epic內具有讀取、寫入、編輯和刪除實體的能力",
     },
     admin: {
       title: "管理員",
@@ -2521,7 +2521,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "待辦事項",
       planned: "已規劃",
@@ -2548,9 +2548,9 @@ export default {
     label: "{count, plural, one {週期} other {週期}}",
     no_sprint: "無週期",
   },
-  module: {
-    label: "{count, plural, one {模組} other {模組}}",
-    no_module: "無模組",
+  epic: {
+    label: "{count, plural, one {epic} other {epic}}",
+    no_epic: "無epic",
   },
   description_versions: {
     last_edited_by: "最後編輯者",

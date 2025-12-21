@@ -11,7 +11,7 @@ export default {
     analytics: "Analitik",
     work_items: "Item kerja",
     sprints: "Siklus",
-    modules: "Modul",
+    epices: "Epic",
     intake: "Intake",
     drafts: "Draft",
     favorites: "Favorit",
@@ -375,7 +375,7 @@ export default {
   open_project: "Buka proyek",
   issues: "Item kerja",
   sprints: "Siklus",
-  modules: "Modul",
+  epices: "Epic",
   pages: "Halaman",
   intake: "Penerimaan",
   time_tracking: "Pelacakan waktu",
@@ -384,7 +384,7 @@ export default {
   projects_and_issues_description: "Aktifkan atau nonaktifkan ini untuk proyek ini.",
   sprints_description:
     "Tetapkan batas waktu kerja per proyek dan sesuaikan periode waktunya sesuai kebutuhan. Satu siklus bisa 2 minggu, berikutnya 1 minggu.",
-  modules_description: "Atur pekerjaan ke dalam sub-proyek dengan pemimpin dan penanggung jawab khusus.",
+  epices_description: "Atur pekerjaan ke dalam sub-proyek dengan pemimpin dan penanggung jawab khusus.",
   views_description: "Simpan pengurutan, filter, dan opsi tampilan khusus atau bagikan dengan tim Anda.",
   pages_description: "Buat dan edit konten bebas bentuk: catatan, dokumen, apa saja.",
   intake_description: "Izinkan non-anggota membagikan bug, masukan, dan saran tanpa mengganggu alur kerja Anda.",
@@ -656,8 +656,8 @@ export default {
     project: "Proyek",
     sprint: "Siklus",
     sprints: "Siklus",
-    module: "Modul",
-    modules: "Modul",
+    epice: "Epic",
+    epices: "Epic",
     labels: "Label",
     label: "Label",
     assignees: "Penugas",
@@ -995,10 +995,10 @@ export default {
         success: "Item kerja berhasil dihapus dari siklus.",
         failed: "Item kerja tidak dapat dihapus dari siklus. Silakan coba lagi.",
       },
-      module: {
-        loading: "Menghapus item kerja dari modul",
-        success: "Item kerja berhasil dihapus dari modul.",
-        failed: "Item kerja tidak dapat dihapus dari modul. Silakan coba lagi.",
+      epice: {
+        loading: "Menghapus item kerja dari epic",
+        success: "Item kerja berhasil dihapus dari epic.",
+        failed: "Item kerja tidak dapat dihapus dari epic. Silakan coba lagi.",
       },
       parent: {
         label: "Hapus item kerja induk",
@@ -1346,7 +1346,7 @@ export default {
     selected_projects: "Proyek yang dipilih",
     total_members: "Jumlah anggota total",
     total_sprints: "Jumlah siklus total",
-    total_modules: "Jumlah modul total",
+    total_epics: "Jumlah epic total",
     pending_work_items: {
       title: "Item kerja yang menunggu",
       empty_state: "Analisis item kerja yang menunggu oleh rekan kerja muncul di sini.",
@@ -1432,7 +1432,7 @@ export default {
     error: {
       permission: "Anda tidak memiliki izin untuk melakukan tindakan ini.",
       sprint_delete: "Gagal menghapus siklus",
-      module_delete: "Gagal menghapus modul",
+      epic_delete: "Gagal menghapus epic",
       issue_delete: "Gagal menghapus item kerja",
     },
     state: {
@@ -2139,29 +2139,29 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Tambah Modul",
-    update_module: "Perbarui Modul",
-    create_module: "Buat Modul",
-    archive_module: "Arsipkan Modul",
-    restore_module: "Pulihkan Modul",
-    delete_module: "Hapus modul",
+  project_epic: {
+    add_epic: "Tambah Modul",
+    update_epic: "Perbarui Modul",
+    create_epic: "Buat Modul",
+    archive_epic: "Arsipkan Modul",
+    restore_epic: "Pulihkan Modul",
+    delete_epic: "Hapus epic",
     empty_state: {
       general: {
         title: "Peta tonggak proyek Anda ke Modul dan lacak pekerjaan terakumulasi dengan mudah.",
         description:
-          "Sekelompok item kerja yang tergolong dalam induk yang logis dan hierarkis membentuk satu modul. Anggap saja mereka sebagai cara untuk melacak pekerjaan berdasarkan tonggak proyek. Mereka memiliki periode dan tenggat waktu sendiri serta analitik untuk membantu Anda melihat seberapa dekat atau jauh Anda dari tonggak tersebut.",
+          "Sekelompok item kerja yang tergolong dalam induk yang logis dan hierarkis membentuk satu epic. Anggap saja mereka sebagai cara untuk melacak pekerjaan berdasarkan tonggak proyek. Mereka memiliki periode dan tenggat waktu sendiri serta analitik untuk membantu Anda melihat seberapa dekat atau jauh Anda dari tonggak tersebut.",
         primary_button: {
-          text: "Buat modul pertama Anda",
+          text: "Buat epic pertama Anda",
           comic: {
             title: "Modul membantu mengelompokkan pekerjaan menurut hierarki.",
-            description: "Modul kereta, modul sasis, dan modul gudang adalah contoh bagus dari pengelompokan ini.",
+            description: "Modul kereta, epic sasis, dan epic gudang adalah contoh bagus dari pengelompokan ini.",
           },
         },
       },
       no_issues: {
-        title: "Tidak ada item kerja dalam modul",
-        description: "Buat atau tambahkan item kerja yang ingin Anda capai sebagai bagian dari modul ini",
+        title: "Tidak ada item kerja dalam epic",
+        description: "Buat atau tambahkan item kerja yang ingin Anda capai sebagai bagian dari epic ini",
         primary_button: {
           text: "Buat item kerja baru",
         },
@@ -2172,7 +2172,7 @@ export default {
       archived: {
         title: "Belum ada Modul yang diarsipkan",
         description:
-          "Untuk membersihkan proyek Anda, arsipkan modul yang telah selesai atau dibatalkan. Temukan di sini setelah diarsipkan.",
+          "Untuk membersihkan proyek Anda, arsipkan epic yang telah selesai atau dibatalkan. Temukan di sini setelah diarsipkan.",
       },
       sidebar: {
         in_active: "Modul ini belum aktif.",
@@ -2180,17 +2180,17 @@ export default {
       },
     },
     quick_actions: {
-      archive_module: "Arsipkan modul",
-      archive_module_description: "Hanya modul yang telah diselesaikan atau dibatalkan\n yang dapat diarsipkan.",
-      delete_module: "Hapus modul",
+      archive_epic: "Arsipkan epic",
+      archive_epic_description: "Hanya epic yang telah diselesaikan atau dibatalkan\n yang dapat diarsipkan.",
+      delete_epic: "Hapus epic",
     },
     toast: {
       copy: {
-        success: "Tautan modul disalin ke clipboard",
+        success: "Tautan epic disalin ke clipboard",
       },
       delete: {
         success: "Modul berhasil dihapus",
-        error: "Gagal menghapus modul",
+        error: "Gagal menghapus epic",
       },
     },
   },
@@ -2370,10 +2370,10 @@ export default {
           text: "Kelola fitur",
         },
       },
-      module: {
+      epice: {
         title: "Modul tidak diaktifkan untuk proyek ini.",
         description:
-          "Modul adalah blok bangunan dari proyek Anda. Aktifkan modul dari pengaturan proyek untuk mulai menggunakannya.",
+          "Modul adalah blok bangunan dari proyek Anda. Aktifkan epic dari pengaturan proyek untuk mulai menggunakannya.",
         primary_button: {
           text: "Kelola fitur",
         },
@@ -2488,7 +2488,7 @@ export default {
     member: {
       title: "Anggota",
       description:
-        "Kemampuan untuk membaca, menulis, mengedit, dan menghapus entitas di dalam proyek, siklus, dan modul",
+        "Kemampuan untuk membaca, menulis, mengedit, dan menghapus entitas di dalam proyek, siklus, dan epic",
     },
     admin: {
       title: "Admin",
@@ -2567,7 +2567,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Backlog",
       planned: "Direncanakan",
@@ -2594,9 +2594,9 @@ export default {
     label: "{count, plural, one {Siklus} other {Siklus}}",
     no_sprint: "Tidak ada siklus",
   },
-  module: {
+  epice: {
     label: "{count, plural, one {Modul} other {Modul}}",
-    no_module: "Tidak ada modul",
+    no_epic: "Tidak ada epic",
   },
   description_versions: {
     last_edited_by: "Terakhir disunting oleh",

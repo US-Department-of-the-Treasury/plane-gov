@@ -27,7 +27,7 @@ const meta: Meta<BaseEmptyStateCommonProps> = {
       control: "select",
       options: [
         "archived-sprint",
-        "archived-module",
+        "archived-epic",
         "archived-work-item",
         "customer",
         "sprint",
@@ -36,7 +36,6 @@ const meta: Meta<BaseEmptyStateCommonProps> = {
         "epic",
         "error-404",
         "invalid-link",
-        "module",
         "no-access",
         "page",
         "project",
@@ -80,7 +79,7 @@ export const Default: Story = {
     assetKey: "epic",
     assetClassName: "w-40 h-45",
     title: "Create an epic and split work into smaller goals",
-    description: "For larger bodies of work that span several sprints and can live across modules, create an epic.",
+    description: "For larger bodies of work that span several sprints and can live across projects, create an epic.",
     actions: [
       {
         label: "Create an Epic",
@@ -109,18 +108,18 @@ export const WithSingleAction: Story = {
 
 export const WithMultipleActions: Story = {
   args: {
-    assetKey: "module",
+    assetKey: "epic",
     assetClassName: "w-40 h-45",
-    title: "No modules found",
-    description: "Get started by creating your first module or import existing ones.",
+    title: "No epics found",
+    description: "Get started by creating your first epic or import existing ones.",
     actions: [
       {
-        label: "Create Module",
+        label: "Create Epic",
         onClick: () => console.log("create-clicked"),
         variant: "primary",
       },
       {
-        label: "Import Modules",
+        label: "Import Epics",
         onClick: () => console.log("import-clicked"),
         variant: "secondary",
       },
@@ -212,17 +211,17 @@ export const SprintState: Story = {
   },
 };
 
-export const ModuleState: Story = {
-  name: "Modules",
+export const EpicState: Story = {
+  name: "Epics",
   args: {
-    assetKey: "module",
+    assetKey: "epic",
     assetClassName: "w-40 h-45",
-    title: "No modules found",
-    description: "Modules help you organize related work items into logical groups.",
+    title: "No epics found",
+    description: "Epics help you organize related work items into logical groups.",
     actions: [
       {
-        label: "Create Module",
-        onClick: () => console.log("create-module-clicked"),
+        label: "Create Epic",
+        onClick: () => console.log("create-epic-clicked"),
         variant: "primary",
       },
     ],

@@ -1,4 +1,4 @@
-# Module imports
+# Package imports
 from ..base import BaseAPIView
 from plane.db.models.workspace import WorkspaceUserPreference
 from plane.app.serializers.workspace import WorkspaceUserPreferenceSerializer

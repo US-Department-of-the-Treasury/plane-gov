@@ -3,8 +3,6 @@ import { merge } from "lodash-es";
 import type { TIssueMap } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
 import { StoreContext } from "@/lib/store-context";
-// plane web types
-import type { IProjectEpics, IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
 // types
 import type { ITeamIssues, ITeamIssuesFilter } from "@/plane-web/store/issue/team";
 import type { ITeamProjectWorkItemsFilter, ITeamProjectWorkItems } from "@/plane-web/store/issue/team-project";
@@ -12,7 +10,7 @@ import type { ITeamViewIssues, ITeamViewIssuesFilter } from "@/plane-web/store/i
 import type { IWorkspaceIssues } from "@/plane-web/store/issue/workspace/issue.store";
 import type { IArchivedIssues, IArchivedIssuesFilter } from "@/store/issue/archived";
 import type { ISprintIssues, ISprintIssuesFilter } from "@/store/issue/sprint";
-import type { IModuleIssues, IModuleIssuesFilter } from "@/store/issue/module";
+import type { IEpicIssues, IEpicIssuesFilter } from "@/store/issue/epic";
 import type { IProfileIssues, IProfileIssuesFilter } from "@/store/issue/profile";
 import type { IProjectIssues, IProjectIssuesFilter } from "@/store/issue/project";
 import type { IProjectViewIssues, IProjectViewIssuesFilter } from "@/store/issue/project-views";
@@ -49,9 +47,9 @@ export type TStoreIssues = {
     issues: ISprintIssues;
     issuesFilter: ISprintIssuesFilter;
   };
-  [EIssuesStoreType.MODULE]: defaultIssueStore & {
-    issues: IModuleIssues;
-    issuesFilter: IModuleIssuesFilter;
+  [EIssuesStoreType.EPIC]: defaultIssueStore & {
+    issues: IEpicIssues;
+    issuesFilter: IEpicIssuesFilter;
   };
   [EIssuesStoreType.TEAM_VIEW]: defaultIssueStore & {
     issues: ITeamViewIssues;
@@ -68,10 +66,6 @@ export type TStoreIssues = {
   [EIssuesStoreType.DEFAULT]: defaultIssueStore & {
     issues: IProjectIssues;
     issuesFilter: IProjectIssuesFilter;
-  };
-  [EIssuesStoreType.EPIC]: defaultIssueStore & {
-    issues: IProjectEpics;
-    issuesFilter: IProjectEpicsFilter;
   };
   [EIssuesStoreType.TEAM_PROJECT_WORK_ITEMS]: defaultIssueStore & {
     issues: ITeamProjectWorkItems;
@@ -118,10 +112,10 @@ export const useIssues = <T extends EIssuesStoreType>(storeType?: T): TStoreIssu
         issues: context.issue.sprintIssues,
         issuesFilter: context.issue.sprintIssuesFilter,
       }) as TStoreIssues[T];
-    case EIssuesStoreType.MODULE:
+    case EIssuesStoreType.EPIC:
       return merge(defaultStore, {
-        issues: context.issue.moduleIssues,
-        issuesFilter: context.issue.moduleIssuesFilter,
+        issues: context.issue.epicIssues,
+        issuesFilter: context.issue.epicIssuesFilter,
       }) as TStoreIssues[T];
     case EIssuesStoreType.TEAM_VIEW:
       return merge(defaultStore, {
@@ -137,11 +131,6 @@ export const useIssues = <T extends EIssuesStoreType>(storeType?: T): TStoreIssu
       return merge(defaultStore, {
         issues: context.issue.archivedIssues,
         issuesFilter: context.issue.archivedIssuesFilter,
-      }) as TStoreIssues[T];
-    case EIssuesStoreType.EPIC:
-      return merge(defaultStore, {
-        issues: context.issue.projectEpics,
-        issuesFilter: context.issue.projectEpicsFilter,
       }) as TStoreIssues[T];
     case EIssuesStoreType.TEAM_PROJECT_WORK_ITEMS:
       return merge(defaultStore, {

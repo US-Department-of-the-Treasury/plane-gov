@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from drf_spectacular.utils import OpenApiResponse
 
-# Module imports
+# Package imports
 from plane.api.serializers import UserLiteSerializer
 from plane.api.views.base import BaseAPIView
 from plane.db.models import User

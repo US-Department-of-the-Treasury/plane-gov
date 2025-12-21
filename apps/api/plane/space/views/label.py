@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 
-# Module imports
+# Package imports
 from .base import BaseAPIView
 from plane.db.models import DeployBoard, Label
 

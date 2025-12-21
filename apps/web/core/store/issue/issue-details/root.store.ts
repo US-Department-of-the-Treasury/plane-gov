@@ -281,15 +281,15 @@ export abstract class IssueDetail implements IIssueDetail {
     this.issue.addIssueToSprint(workspaceSlug, projectId, sprintId, issueIds);
   removeIssueFromSprint = async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) =>
     this.issue.removeIssueFromSprint(workspaceSlug, projectId, sprintId, issueId);
-  changeModulesInIssue = async (
+  changeEpicsInIssue = async (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    addModuleIds: string[],
-    removeModuleIds: string[]
-  ) => this.issue.changeModulesInIssue(workspaceSlug, projectId, issueId, addModuleIds, removeModuleIds);
-  removeIssueFromModule = async (workspaceSlug: string, projectId: string, moduleId: string, issueId: string) =>
-    this.issue.removeIssueFromModule(workspaceSlug, projectId, moduleId, issueId);
+    addEpicIds: string[],
+    removeEpicIds: string[]
+  ) => this.issue.changeEpicsInIssue(workspaceSlug, projectId, issueId, addEpicIds, removeEpicIds);
+  removeIssueFromEpic = async (workspaceSlug: string, projectId: string, epicId: string, issueId: string) =>
+    this.issue.removeIssueFromEpic(workspaceSlug, projectId, epicId, issueId);
 
   // reactions
   addReactions = (issueId: string, reactions: TIssueReaction[]) => this.reaction.addReactions(issueId, reactions);

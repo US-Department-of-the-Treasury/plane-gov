@@ -54,7 +54,7 @@ export const WORKSPACE_PARTIAL_PROJECTS = (workspaceSlug: string) =>
 
 export const WORKSPACE_MEMBERS = (workspaceSlug: string) => `WORKSPACE_MEMBERS_${workspaceSlug.toUpperCase()}`;
 
-export const WORKSPACE_MODULES = (workspaceSlug: string) => `WORKSPACE_MODULES_${workspaceSlug.toUpperCase()}`;
+export const WORKSPACE_EPICS = (workspaceSlug: string) => `WORKSPACE_EPICS_${workspaceSlug.toUpperCase()}`;
 
 export const WORKSPACE_SPRINTS = (workspaceSlug: string) => `WORKSPACE_SPRINTS_${workspaceSlug.toUpperCase()}`;
 
@@ -175,8 +175,8 @@ export const PROJECT_ESTIMATES = (projectId: string, projectRole: EUserPermissio
 export const PROJECT_ALL_SPRINTS = (projectId: string, projectRole: EUserPermissions | undefined) =>
   `PROJECT_ALL_SPRINTS_${projectId.toString().toUpperCase()}_${projectRole}`;
 
-export const PROJECT_MODULES = (projectId: string, projectRole: EUserPermissions | undefined) =>
-  `PROJECT_MODULES_${projectId.toString().toUpperCase()}_${projectRole}`;
+export const PROJECT_EPICS = (projectId: string, projectRole: EUserPermissions | undefined) =>
+  `PROJECT_EPICS_${projectId.toString().toUpperCase()}_${projectRole}`;
 
 export const PROJECT_VIEWS = (projectId: string, projectRole: EUserPermissions | undefined) =>
   `PROJECT_VIEWS_${projectId.toString().toUpperCase()}_${projectRole}`;

@@ -57,15 +57,15 @@ export default {
       cta_primary: "Créer un élément de travail",
       cta_secondary: "Ajouter un élément de travail existant",
     },
-    modules: {
-      title: "Associez vos objectifs de projet aux Modules et suivez-les facilement.",
+    epics: {
+      title: "Associez vos objectifs de projet aux Épiques et suivez-les facilement.",
       description:
-        "Les modules sont composés d’éléments de travail interconnectés. Ils aident à suivre les progrès à travers les phases du projet, chacune avec des délais spécifiques et des analyses pour indiquer à quel point vous êtes proche de la réalisation de ces phases.",
-      cta_primary: "Définir votre premier module",
+        "Les épiques sont composés d'éléments de travail interconnectés. Ils aident à suivre les progrès à travers les phases du projet, chacune avec des délais spécifiques et des analyses pour indiquer à quel point vous êtes proche de la réalisation de ces phases.",
+      cta_primary: "Définir votre premier épique",
     },
-    module_work_items: {
-      title: "Aucun élément de travail à afficher dans ce Module",
-      description: "Créez des éléments de travail pour commencer à suivre ce module.",
+    epic_work_items: {
+      title: "Aucun élément de travail à afficher dans cet Épique",
+      description: "Créez des éléments de travail pour commencer à suivre cet épique.",
       cta_primary: "Créer un élément de travail",
       cta_secondary: "Ajouter un élément de travail existant",
     },
@@ -117,10 +117,10 @@ export default {
       title: "Aucun sprint archivé pour le moment",
       description: "Pour organiser votre projet, archivez les sprints terminés. Retrouvez-les ici une fois archivés.",
     },
-    archive_modules: {
-      title: "Aucun Module archivé pour le moment",
+    archive_epics: {
+      title: "Aucun Épique archivé pour le moment",
       description:
-        "Pour organiser votre projet, archivez les modules terminés ou annulés. Retrouvez-les ici une fois archivés.",
+        "Pour organiser votre projet, archivez les épiques terminés ou annulés. Retrouvez-les ici une fois archivés.",
     },
     home_widget_quick_links: {
       title: "Gardez les références, ressources ou documents importants à portée de main pour votre travail",
@@ -164,8 +164,8 @@ export default {
       title:
         "Créez des sprints pour organiser le travail en phases délimitées dans le temps et suivre les progrès à travers les sprints.",
     },
-    analytics_no_module: {
-      title: "Créez des modules pour organiser votre travail et suivre les progrès à travers différentes étapes.",
+    analytics_no_epic: {
+      title: "Créez des épiques pour organiser votre travail et suivre les progrès à travers différentes étapes.",
     },
     analytics_no_intake: {
       title: "Configurez l’intake pour gérer les demandes entrantes et suivre comment elles sont acceptées et rejetées",

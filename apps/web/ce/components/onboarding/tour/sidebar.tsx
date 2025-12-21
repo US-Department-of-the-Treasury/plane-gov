@@ -1,5 +1,5 @@
 // plane imports
-import { SprintIcon, ModuleIcon, PageIcon, ViewsIcon, WorkItemsIcon } from "@plane/propel/icons";
+import { SprintIcon, EpicIcon, PageIcon, ViewsIcon, WorkItemsIcon } from "@plane/propel/icons";
 import type { ISvgIcons } from "@plane/propel/icons";
 // types
 import type { TTourSteps } from "./root";
@@ -20,9 +20,9 @@ const sidebarOptions: {
     Icon: SprintIcon,
   },
   {
-    key: "modules",
-    label: "Modules",
-    Icon: ModuleIcon,
+    key: "epics",
+    label: "Epics",
+    Icon: EpicIcon,
   },
   {
     key: "views",

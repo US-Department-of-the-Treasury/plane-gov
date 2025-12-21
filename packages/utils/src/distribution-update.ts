@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { get, set } from "lodash-es";
 // plane imports
 import { COMPLETED_STATE_GROUPS, STATE_DISTRIBUTION } from "@plane/constants";
-import type { ISprint, IEstimatePoint, IModule, IState, TIssue } from "@plane/types";
+import type { ISprint, IEstimatePoint, IEpic, IState, TIssue } from "@plane/types";
 // helper
 import { getDate } from "./datetime";
 
@@ -193,11 +193,11 @@ const getChartUpdates = (
 };
 
 /**
- * Method to update distribution of either sprint or module object
+ * Method to update distribution of either sprint or epic object
  * @param distributionObject
  * @param distributionUpdates
  */
-export const updateDistribution = (distributionObject: ISprint | IModule, distributionUpdates: DistributionUpdates) => {
+export const updateDistribution = (distributionObject: ISprint | IEpic, distributionUpdates: DistributionUpdates) => {
   const { pathUpdates, assigneeUpdates, labelUpdates } = distributionUpdates;
 
   // iterate over path updates and directly apply changes on the distribution object

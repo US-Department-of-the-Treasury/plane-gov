@@ -6,7 +6,7 @@ from plane.space.views import (
     ProjectIssuesPublicEndpoint,
     WorkspaceProjectAnchorEndpoint,
     ProjectSprintsEndpoint,
-    ProjectModulesEndpoint,
+    ProjectEpicsEndpoint,
     ProjectStatesEndpoint,
     ProjectLabelsEndpoint,
     ProjectMembersEndpoint,
@@ -40,9 +40,9 @@ urlpatterns = [
         name="project-sprints",
     ),
     path(
-        "anchor/<str:anchor>/modules/",
-        ProjectModulesEndpoint.as_view(),
-        name="project-modules",
+        "anchor/<str:anchor>/epics/",
+        ProjectEpicsEndpoint.as_view(),
+        name="project-epics",
     ),
     path(
         "anchor/<str:anchor>/states/",

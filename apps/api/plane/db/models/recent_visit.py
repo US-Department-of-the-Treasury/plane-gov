@@ -2,7 +2,7 @@
 from django.db import models
 from django.conf import settings
 
-# Module imports
+# Package imports
 from .workspace import WorkspaceBaseModel
 
 
@@ -11,7 +11,7 @@ class EntityNameEnum(models.TextChoices):
     PAGE = "PAGE", "Page"
     ISSUE = "ISSUE", "Issue"
     SPRINT = "SPRINT", "Sprint"
-    MODULE = "MODULE", "Module"
+    EPIC = "EPIC", "Epic"
     PROJECT = "PROJECT", "Project"
 
 

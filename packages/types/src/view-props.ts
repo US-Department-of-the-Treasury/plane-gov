@@ -13,7 +13,7 @@ export type TIssueGroupByOptions =
   | "project"
   | "assignees"
   | "sprint"
-  | "module"
+  | "epic"
   | "target_date"
   | "team_project"
   | null;
@@ -32,8 +32,8 @@ export type TIssueOrderByOptions =
   | "-assignees__first_name"
   | "labels__name"
   | "-labels__name"
-  | "issue_module__module__name"
-  | "-issue_module__module__name"
+  | "issue_epic__epic__name"
+  | "-issue_epic__epic__name"
   | "issue_sprint__sprint__name"
   | "-issue_sprint__sprint__name"
   | "target_date"
@@ -63,7 +63,7 @@ export type TIssueParams =
   | "subscriber"
   | "labels"
   | "sprint"
-  | "module"
+  | "epic"
   | "start_date"
   | "target_date"
   | "project"
@@ -98,7 +98,7 @@ export const WORK_ITEM_FILTER_PROPERTY_KEYS = [
   "label_id",
   "state_id",
   "sprint_id",
-  "module_id",
+  "epic_id",
   "project_id",
   "created_at",
   "updated_at",
@@ -128,7 +128,7 @@ export interface IIssueFilterOptions {
   labels?: string[] | null;
   priority?: string[] | null;
   sprint?: string[] | null;
-  module?: string[] | null;
+  epic?: string[] | null;
   project?: string[] | null;
   team_project?: string[] | null;
   start_date?: string[] | null;
@@ -165,7 +165,7 @@ export interface IIssueDisplayProperties {
   estimate?: boolean;
   created_on?: boolean;
   updated_on?: boolean;
-  modules?: boolean;
+  epics?: boolean;
   sprint?: boolean;
   issue_type?: boolean;
 }

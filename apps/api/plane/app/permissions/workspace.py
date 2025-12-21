@@ -1,7 +1,7 @@
 # Third Party imports
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
-# Module imports
+# Package imports
 from plane.db.models import WorkspaceMember
 
 

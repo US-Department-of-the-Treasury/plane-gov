@@ -48,7 +48,7 @@ function WebhookDetailsPage({ params }: Route.ComponentProps) {
       is_active: formData.is_active,
       project: formData.project,
       sprint: formData.sprint,
-      module: formData.module,
+      epic: formData.epic,
       issue: formData.issue,
       issue_comment: formData.issue_comment,
     };

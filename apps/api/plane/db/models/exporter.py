@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import ArrayField
 # Django imports
 from django.db import models
 
-# Module imports
+# Package imports
 from .base import BaseModel
 
 

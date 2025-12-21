@@ -9,7 +9,7 @@ from drf_spectacular.utils import (
     OpenApiTypes,
 )
 
-# Module imports
+# Package imports
 from plane.api.views.base import BaseViewSet
 from plane.db.models import WorkspaceMemberInvite, Workspace
 from plane.api.serializers import WorkspaceInviteSerializer

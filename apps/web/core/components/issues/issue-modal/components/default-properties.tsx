@@ -15,7 +15,7 @@ import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { ModuleDropdown } from "@/components/dropdowns/module/dropdown";
+import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
 import { PriorityDropdown } from "@/components/dropdowns/priority";
 import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 import { ParentIssuesListModal } from "@/components/issues/parent-issues-list-modal";
@@ -215,22 +215,22 @@ export const IssueDefaultProperties = observer(function IssueDefaultProperties(p
           )}
         />
       )}
-      {projectDetails?.module_view && workspaceSlug && (
+      {projectDetails?.epic_view && workspaceSlug && (
         <Controller
           control={control}
-          name="module_ids"
+          name="epic_ids"
           render={({ field: { value, onChange } }) => (
             <div className="h-7">
-              <ModuleDropdown
+              <EpicDropdown
                 projectId={projectId ?? undefined}
                 value={value ?? []}
-                onChange={(moduleIds) => {
-                  onChange(moduleIds);
+                onChange={(epicIds) => {
+                  onChange(epicIds);
                   handleFormChange();
                 }}
-                placeholder={t("modules")}
+                placeholder={t("workspace_actions.epics")}
                 buttonVariant="border-with-text"
-                tabIndex={getIndex("module_ids")}
+                tabIndex={getIndex("epic_ids")}
                 multiple
                 showCount
               />
