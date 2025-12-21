@@ -30,7 +30,7 @@ from plane.db.models import (
     WorkspaceMember,
     ProjectMember,
     Project,
-    CycleIssue,
+    SprintIssue,
     UserRecentVisit,
     IssueAssignee,
     IssueLabel,
@@ -160,8 +160,8 @@ class WorkspaceViewIssuesViewSet(BaseViewSet):
     def apply_annotations(self, issues):
         return (
             issues.annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(

@@ -75,7 +75,7 @@ from .workspace.user import (
 )
 from .workspace.estimate import WorkspaceEstimatesEndpoint
 from .workspace.module import WorkspaceModulesEndpoint
-from .workspace.cycle import WorkspaceCyclesEndpoint
+from .workspace.sprint import WorkspaceSprintsEndpoint
 from .workspace.quick_link import QuickLinkViewSet
 from .workspace.sticky import WorkspaceStickyViewSet
 from .workspace.dev import GenerateFakeMembersEndpoint
@@ -87,17 +87,17 @@ from .view.base import (
     IssueViewViewSet,
     IssueViewFavoriteViewSet,
 )
-from .cycle.base import (
-    CycleViewSet,
-    CycleDateCheckEndpoint,
-    CycleFavoriteViewSet,
-    TransferCycleIssueEndpoint,
-    CycleUserPropertiesEndpoint,
-    CycleAnalyticsEndpoint,
-    CycleProgressEndpoint,
+from .sprint.base import (
+    SprintViewSet,
+    SprintDateCheckEndpoint,
+    SprintFavoriteViewSet,
+    TransferSprintIssueEndpoint,
+    SprintUserPropertiesEndpoint,
+    SprintAnalyticsEndpoint,
+    SprintProgressEndpoint,
 )
-from .cycle.issue import CycleIssueViewSet
-from .cycle.archive import CycleArchiveUnarchiveEndpoint
+from .sprint.issue import SprintIssueViewSet
+from .sprint.archive import SprintArchiveUnarchiveEndpoint
 
 from .asset.base import FileAssetEndpoint, UserAssetsEndpoint, FileAssetViewSet
 from .asset.v2 import (

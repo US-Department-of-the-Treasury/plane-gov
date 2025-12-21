@@ -25,7 +25,7 @@ type Props = {
 };
 
 const initialWebhookPayload: Partial<IWebhook> = {
-  cycle: true,
+  sprint: true,
   issue: true,
   issue_comment: true,
   module: true,
@@ -56,7 +56,7 @@ export const WebhookForm = observer(function WebhookForm(props: Props) {
   useEffect(() => {
     if (!data) return;
 
-    if (data.project && data.cycle && data.module && data.issue && data.issue_comment) setWebhookEventType("all");
+    if (data.project && data.sprint && data.module && data.issue && data.issue_comment) setWebhookEventType("all");
     else setWebhookEventType("individual");
   }, [data]);
 

@@ -13,7 +13,7 @@ import type {
   TLoader,
 } from "@plane/types";
 // hooks
-import { useCycle } from "@/hooks/store/use-cycle";
+import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
 import { useModule } from "@/hooks/store/use-module";
@@ -59,11 +59,11 @@ export const KanBan = observer(function KanBan(props: IKanBan) {
 
   const member = useMember();
   const label = useLabel();
-  const cycle = useCycle();
+  const sprint = useSprint();
   const modules = useModule();
   const state = useStates();
 
-  const groupList = getGroupByColumns(groupBy as GroupByColumnTypes, cycle, modules, label, state, member);
+  const groupList = getGroupByColumns(groupBy as GroupByColumnTypes, sprint, modules, label, state, member);
 
   if (!groupList) return null;
 

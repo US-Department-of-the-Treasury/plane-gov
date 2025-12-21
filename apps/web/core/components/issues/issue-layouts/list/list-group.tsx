@@ -59,7 +59,7 @@ interface Props {
   handleOnDrop: (source: GroupDropLocation, destination: GroupDropLocation) => Promise<void>;
   disableIssueCreation?: boolean;
   addIssuesToView?: (issueIds: string[]) => Promise<TIssue>;
-  isCompletedCycle?: boolean;
+  isCompletedSprint?: boolean;
   showEmptyGroup?: boolean;
   loadMoreIssues: (groupId?: string) => void;
   selectionHelpers: TSelectionHelper;
@@ -86,7 +86,7 @@ export const ListGroup = observer(function ListGroup(props: Props) {
     handleOnDrop,
     disableIssueCreation,
     addIssuesToView,
-    isCompletedCycle,
+    isCompletedSprint,
     showEmptyGroup,
     loadMoreIssues,
     selectionHelpers,
@@ -156,8 +156,8 @@ export const ListGroup = observer(function ListGroup(props: Props) {
         preloadedData = { ...preloadedData, label_ids: [value] };
       } else if (groupByKey === "assignees" && value != "None") {
         preloadedData = { ...preloadedData, assignee_ids: [value] };
-      } else if (groupByKey === "cycle" && value != "None") {
-        preloadedData = { ...preloadedData, cycle_id: value };
+      } else if (groupByKey === "sprint" && value != "None") {
+        preloadedData = { ...preloadedData, sprint_id: value };
       } else if (groupByKey === "module" && value != "None") {
         preloadedData = { ...preloadedData, module_ids: [value] };
       } else if (groupByKey === "created_by") {
@@ -269,7 +269,7 @@ export const ListGroup = observer(function ListGroup(props: Props) {
           issuePayload={group.payload}
           canEditProperties={canEditProperties}
           disableIssueCreation={
-            disableIssueCreation || isGroupByCreatedBy || isCompletedCycle || isWorkflowIssueCreationDisabled
+            disableIssueCreation || isGroupByCreatedBy || isCompletedSprint || isWorkflowIssueCreationDisabled
           }
           addIssuesToView={addIssuesToView}
           selectionHelpers={selectionHelpers}
@@ -311,7 +311,7 @@ export const ListGroup = observer(function ListGroup(props: Props) {
           {enableIssueQuickAdd &&
             !disableIssueCreation &&
             !isGroupByCreatedBy &&
-            !isCompletedCycle &&
+            !isCompletedSprint &&
             !isWorkflowIssueCreationDisabled && (
               <div className="sticky bottom-0 z-[1] w-full flex-shrink-0">
                 <QuickAddIssueRoot

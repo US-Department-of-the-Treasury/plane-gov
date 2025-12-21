@@ -219,50 +219,50 @@ ATTACHMENT_UPLOAD_CONFIRM_EXAMPLE = OpenApiExample(
     description="Confirm that the attachment has been successfully uploaded",
 )
 
-# Cycle Examples
-CYCLE_CREATE_EXAMPLE = OpenApiExample(
-    "CycleCreateSerializer",
+# Sprint Examples
+SPRINT_CREATE_EXAMPLE = OpenApiExample(
+    "SprintCreateSerializer",
     value={
-        "name": "Cycle 1",
-        "description": "Cycle 1 description",
+        "name": "Sprint 1",
+        "description": "Sprint 1 description",
         "start_date": "2021-01-01",
         "end_date": "2021-01-31",
         "external_id": "1234567890",
         "external_source": "github",
     },
-    description="Example request for creating a cycle",
+    description="Example request for creating a sprint",
 )
 
-CYCLE_UPDATE_EXAMPLE = OpenApiExample(
-    "CycleUpdateSerializer",
+SPRINT_UPDATE_EXAMPLE = OpenApiExample(
+    "SprintUpdateSerializer",
     value={
-        "name": "Updated Cycle",
-        "description": "Updated cycle description",
+        "name": "Updated Sprint",
+        "description": "Updated sprint description",
         "start_date": "2021-01-01",
         "end_date": "2021-01-31",
         "external_id": "1234567890",
         "external_source": "github",
     },
-    description="Example request for updating a cycle",
+    description="Example request for updating a sprint",
 )
 
-CYCLE_ISSUE_REQUEST_EXAMPLE = OpenApiExample(
-    "CycleIssueRequestSerializer",
+SPRINT_ISSUE_REQUEST_EXAMPLE = OpenApiExample(
+    "SprintIssueRequestSerializer",
     value={
         "issues": [
             "0ec6cfa4-e906-4aad-9390-2df0303a41cd",
             "0ec6cfa4-e906-4aad-9390-2df0303a41ce",
         ],
     },
-    description="Example request for adding cycle issues",
+    description="Example request for adding sprint issues",
 )
 
-TRANSFER_CYCLE_ISSUE_EXAMPLE = OpenApiExample(
-    "TransferCycleIssueRequestSerializer",
+TRANSFER_SPRINT_ISSUE_EXAMPLE = OpenApiExample(
+    "TransferSprintIssueRequestSerializer",
     value={
-        "new_cycle_id": "0ec6cfa4-e906-4aad-9390-2df0303a41ce",
+        "new_sprint_id": "0ec6cfa4-e906-4aad-9390-2df0303a41ce",
     },
-    description="Example request for transferring cycle issues",
+    description="Example request for transferring sprint issues",
 )
 
 # Module Examples
@@ -382,9 +382,9 @@ INTAKE_ISSUE_UPDATE_EXAMPLE = OpenApiExample(
 # RESPONSE EXAMPLES - Centralized examples for API responses
 # ============================================================================
 
-# Cycle Response Examples
-CYCLE_EXAMPLE = OpenApiExample(
-    name="Cycle",
+# Sprint Response Examples
+SPRINT_EXAMPLE = OpenApiExample(
+    name="Sprint",
     value={
         "id": "550e8400-e29b-41d4-a716-446655440000",
         "name": "Sprint 1 - Q1 2024",
@@ -403,29 +403,29 @@ CYCLE_EXAMPLE = OpenApiExample(
     },
 )
 
-# Transfer Cycle Issue Response Examples
-TRANSFER_CYCLE_ISSUE_SUCCESS_EXAMPLE = OpenApiExample(
-    name="Transfer Cycle Issue Success",
+# Transfer Sprint Issue Response Examples
+TRANSFER_SPRINT_ISSUE_SUCCESS_EXAMPLE = OpenApiExample(
+    name="Transfer Sprint Issue Success",
     value={
         "message": "Success",
     },
-    description="Successful transfer of cycle issues to new cycle",
+    description="Successful transfer of sprint issues to new sprint",
 )
 
-TRANSFER_CYCLE_ISSUE_ERROR_EXAMPLE = OpenApiExample(
-    name="Transfer Cycle Issue Error",
+TRANSFER_SPRINT_ISSUE_ERROR_EXAMPLE = OpenApiExample(
+    name="Transfer Sprint Issue Error",
     value={
-        "error": "New Cycle Id is required",
+        "error": "New Sprint Id is required",
     },
-    description="Error when required cycle ID is missing",
+    description="Error when required sprint ID is missing",
 )
 
-TRANSFER_CYCLE_COMPLETED_ERROR_EXAMPLE = OpenApiExample(
-    name="Transfer to Completed Cycle Error",
+TRANSFER_SPRINT_COMPLETED_ERROR_EXAMPLE = OpenApiExample(
+    name="Transfer to Completed Sprint Error",
     value={
-        "error": "The cycle where the issues are transferred is already completed",
+        "error": "The sprint where the issues are transferred is already completed",
     },
-    description="Error when trying to transfer to a completed cycle",
+    description="Error when trying to transfer to a completed sprint",
 )
 
 # Module Response Examples
@@ -659,12 +659,12 @@ PROJECT_MEMBER_EXAMPLE = OpenApiExample(
     ],
 )
 
-# Cycle Issue Response Examples
-CYCLE_ISSUE_EXAMPLE = OpenApiExample(
-    name="CycleIssue",
+# Sprint Issue Response Examples
+SPRINT_ISSUE_EXAMPLE = OpenApiExample(
+    name="SprintIssue",
     value={
         "id": "550e8400-e29b-41d4-a716-446655440000",
-        "cycle": "550e8400-e29b-41d4-a716-446655440001",
+        "sprint": "550e8400-e29b-41d4-a716-446655440001",
         "issue": "550e8400-e29b-41d4-a716-446655440002",
         "sub_issues_count": 3,
         "created_at": "2024-01-01T10:30:00Z",
@@ -706,7 +706,7 @@ SAMPLE_LABEL = {
     "description": "Issues that represent bugs in the system",
 }
 
-SAMPLE_CYCLE = {
+SAMPLE_SPRINT = {
     "id": "550e8400-e29b-41d4-a716-446655440000",
     "name": "Sprint 1 - Q1 2024",
     "description": "First sprint of the quarter focusing on core features",
@@ -782,9 +782,9 @@ SAMPLE_GENERIC = {
     "created_at": "2024-01-15T12:00:00Z",
 }
 
-SAMPLE_CYCLE_ISSUE = {
+SAMPLE_SPRINT_ISSUE = {
     "id": "550e8400-e29b-41d4-a716-446655440000",
-    "cycle": "550e8400-e29b-41d4-a716-446655440001",
+    "sprint": "550e8400-e29b-41d4-a716-446655440001",
     "issue": "550e8400-e29b-41d4-a716-446655440002",
     "sub_issues_count": 3,
     "created_at": "2024-01-01T10:30:00Z",
@@ -802,7 +802,7 @@ SCHEMA_EXAMPLES = {
     "Issue": SAMPLE_ISSUE,
     "WorkItem": SAMPLE_ISSUE,
     "Label": SAMPLE_LABEL,
-    "Cycle": SAMPLE_CYCLE,
+    "Sprint": SAMPLE_SPRINT,
     "Module": SAMPLE_MODULE,
     "Project": SAMPLE_PROJECT,
     "State": SAMPLE_STATE,
@@ -810,7 +810,7 @@ SCHEMA_EXAMPLES = {
     "Link": SAMPLE_LINK,
     "Activity": SAMPLE_ACTIVITY,
     "Intake": SAMPLE_INTAKE,
-    "CycleIssue": SAMPLE_CYCLE_ISSUE,
+    "SprintIssue": SAMPLE_SPRINT_ISSUE,
     "Sticky": SAMPLE_STICKY,
 }
 

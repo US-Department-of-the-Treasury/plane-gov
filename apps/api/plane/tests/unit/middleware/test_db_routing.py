@@ -313,8 +313,8 @@ class TestExceptionHandling:
 
     @patch("plane.middleware.db_routing.set_use_read_replica")
     @patch("plane.middleware.db_routing.clear_read_replica_context")
-    def test_integration_full_request_cycle(self, mock_clear, mock_set, middleware, request_factory, mock_get_response):
-        """Test complete request cycle from __call__ through process_view."""
+    def test_integration_full_request_sprint(self, mock_clear, mock_set, middleware, request_factory, mock_get_response):
+        """Test complete request sprint from __call__ through process_view."""
         request = request_factory.get("/api/test/")
         view_func = Mock()
         view_func.use_read_replica = True

@@ -22,7 +22,7 @@ export type TWorkItemLevelModalsProps = {
 export const WorkItemLevelModals = observer(function WorkItemLevelModals(props: TWorkItemLevelModalsProps) {
   const { workItemIdentifier } = props;
   // router
-  const { workspaceSlug, cycleId, moduleId } = useParams();
+  const { workspaceSlug, sprintId, moduleId } = useParams();
   const router = useAppRouter();
   // store hooks
   const { data: currentUser } = useUser();
@@ -70,7 +70,7 @@ export const WorkItemLevelModals = observer(function WorkItemLevelModals(props: 
   };
 
   const getCreateIssueModalData = () => {
-    if (cycleId) return { cycle_id: cycleId.toString() };
+    if (sprintId) return { sprint_id: sprintId.toString() };
     if (moduleId) return { module_ids: [moduleId.toString()] };
     return undefined;
   };

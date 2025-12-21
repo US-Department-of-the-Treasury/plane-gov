@@ -1,6 +1,6 @@
 import { observer } from "mobx-react";
 // components
-import { CycleCreateUpdateModal } from "@/components/cycles/modal";
+import { SprintCreateUpdateModal } from "@/components/sprints/modal";
 import { CreateUpdateModuleModal } from "@/components/modules";
 import { CreatePageModal } from "@/components/pages/modals/create-page-modal";
 import { CreateUpdateProjectViewModal } from "@/components/views/modal";
@@ -18,8 +18,8 @@ export const ProjectLevelModals = observer(function ProjectLevelModals(props: TP
   const { workspaceSlug, projectId } = props;
   // store hooks
   const {
-    isCreateCycleModalOpen,
-    toggleCreateCycleModal,
+    isCreateSprintModalOpen,
+    toggleCreateSprintModal,
     isCreateModuleModalOpen,
     toggleCreateModuleModal,
     isCreateViewModalOpen,
@@ -30,9 +30,9 @@ export const ProjectLevelModals = observer(function ProjectLevelModals(props: TP
 
   return (
     <>
-      <CycleCreateUpdateModal
-        isOpen={isCreateCycleModalOpen}
-        handleClose={() => toggleCreateCycleModal(false)}
+      <SprintCreateUpdateModal
+        isOpen={isCreateSprintModalOpen}
+        handleClose={() => toggleCreateSprintModal(false)}
         workspaceSlug={workspaceSlug.toString()}
         projectId={projectId.toString()}
       />

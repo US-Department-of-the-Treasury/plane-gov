@@ -261,7 +261,7 @@ export const useYjsSetup = ({ docId, serverUrl, authToken, onStateChange }: UseY
     };
   }, [docId, serverUrl, authToken]);
 
-  // IndexedDB persistence lifecycle
+  // IndexedDB persistence lifesprint
   useEffect(() => {
     if (!yjsSession) return;
 

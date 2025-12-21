@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 // plane imports
 import type { ISvgIcons } from "@plane/propel/icons";
-import { CycleIcon, FavoriteFolderIcon, ModuleIcon, PageIcon, ProjectIcon, ViewsIcon } from "@plane/propel/icons";
+import { SprintIcon, FavoriteFolderIcon, ModuleIcon, PageIcon, ProjectIcon, ViewsIcon } from "@plane/propel/icons";
 import type { IFavorite } from "@plane/types";
 
 export const FAVORITE_ITEM_ICONS: Record<string, React.FC<ISvgIcons> | LucideIcon> = {
@@ -9,7 +9,7 @@ export const FAVORITE_ITEM_ICONS: Record<string, React.FC<ISvgIcons> | LucideIco
   project: ProjectIcon,
   view: ViewsIcon,
   module: ModuleIcon,
-  cycle: CycleIcon,
+  sprint: SprintIcon,
   folder: FavoriteFolderIcon,
 };
 
@@ -23,9 +23,9 @@ export const FAVORITE_ITEM_LINKS: {
     itemLevel: "project",
     getLink: () => `issues`,
   },
-  cycle: {
+  sprint: {
     itemLevel: "project",
-    getLink: (favorite) => `cycles/${favorite.entity_identifier}`,
+    getLink: (favorite) => `sprints/${favorite.entity_identifier}`,
   },
   module: {
     itemLevel: "project",

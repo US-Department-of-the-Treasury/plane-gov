@@ -1,6 +1,6 @@
 import { LayoutGrid } from "lucide-react";
 // plane imports
-import { CycleIcon, ModuleIcon, PageIcon, ProjectIcon, ViewsIcon } from "@plane/propel/icons";
+import { SprintIcon, ModuleIcon, PageIcon, ProjectIcon, ViewsIcon } from "@plane/propel/icons";
 import type {
   IWorkspaceDefaultSearchResult,
   IWorkspaceIssueSearchResult,
@@ -22,16 +22,16 @@ export type TCommandGroups = {
 };
 
 export const commandGroups: TCommandGroups = {
-  cycle: {
-    icon: <CycleIcon className="h-3 w-3" />,
-    itemName: (cycle: IWorkspaceDefaultSearchResult) => (
+  sprint: {
+    icon: <SprintIcon className="h-3 w-3" />,
+    itemName: (sprint: IWorkspaceDefaultSearchResult) => (
       <h6>
-        <span className="text-11 text-tertiary">{cycle.project__identifier}</span> {cycle.name}
+        <span className="text-11 text-tertiary">{sprint.project__identifier}</span> {sprint.name}
       </h6>
     ),
-    path: (cycle: IWorkspaceDefaultSearchResult) =>
-      `/${cycle?.workspace__slug}/projects/${cycle?.project_id}/cycles/${cycle?.id}`,
-    title: "Cycles",
+    path: (sprint: IWorkspaceDefaultSearchResult) =>
+      `/${sprint?.workspace__slug}/projects/${sprint?.project_id}/sprints/${sprint?.id}`,
+    title: "Sprints",
   },
   issue: {
     icon: null,

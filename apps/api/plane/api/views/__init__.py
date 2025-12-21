@@ -26,13 +26,13 @@ from .issue import (
     IssueSearchEndpoint,
 )
 
-from .cycle import (
-    CycleListCreateAPIEndpoint,
-    CycleDetailAPIEndpoint,
-    CycleIssueListCreateAPIEndpoint,
-    CycleIssueDetailAPIEndpoint,
-    TransferCycleIssueAPIEndpoint,
-    CycleArchiveUnarchiveAPIEndpoint,
+from .sprint import (
+    SprintListCreateAPIEndpoint,
+    SprintDetailAPIEndpoint,
+    SprintIssueListCreateAPIEndpoint,
+    SprintIssueDetailAPIEndpoint,
+    TransferSprintIssueAPIEndpoint,
+    SprintArchiveUnarchiveAPIEndpoint,
 )
 
 from .module import (

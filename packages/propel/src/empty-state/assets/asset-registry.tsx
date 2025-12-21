@@ -30,12 +30,12 @@ import {
 } from "./horizontal-stack";
 import { InboxIllustration, SearchIllustration } from "./illustration";
 import {
-  ArchivedCycleVerticalStackIllustration,
+  ArchivedSprintVerticalStackIllustration,
   ArchivedModuleVerticalStackIllustration,
   ArchivedWorkItemVerticalStackIllustration,
   ChangelogVerticalStackIllustration,
   CustomerVerticalStackIllustration,
-  CycleVerticalStackIllustration,
+  SprintVerticalStackIllustration,
   DashboardVerticalStackIllustration,
   DraftVerticalStackIllustration,
   EpicVerticalStackIllustration,
@@ -78,12 +78,12 @@ export const HORIZONTAL_STACK_ASSETS: Record<HorizontalStackAssetType, React.Com
 
 // Vertical Stack Asset Registry
 export const VERTICAL_STACK_ASSETS: Record<VerticalStackAssetType, React.ComponentType<{ className?: string }>> = {
-  "archived-cycle": ArchivedCycleVerticalStackIllustration,
+  "archived-sprint": ArchivedSprintVerticalStackIllustration,
   "archived-module": ArchivedModuleVerticalStackIllustration,
   "archived-work-item": ArchivedWorkItemVerticalStackIllustration,
   changelog: ChangelogVerticalStackIllustration,
   customer: CustomerVerticalStackIllustration,
-  cycle: CycleVerticalStackIllustration,
+  sprint: SprintVerticalStackIllustration,
   dashboard: DashboardVerticalStackIllustration,
   draft: DraftVerticalStackIllustration,
   epic: EpicVerticalStackIllustration,

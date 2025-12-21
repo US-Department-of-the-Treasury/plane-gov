@@ -161,9 +161,9 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
           });
         }
       },
-      addCycleToIssue: async (workspaceSlug: string, projectId: string, cycleId: string, issueId: string) => {
+      addSprintToIssue: async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => {
         try {
-          await issues.addCycleToIssue(workspaceSlug, projectId, cycleId, issueId);
+          await issues.addSprintToIssue(workspaceSlug, projectId, sprintId, issueId);
           fetchActivities(workspaceSlug, projectId, issueId);
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,
@@ -173,7 +173,7 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
           setToast({
             type: TOAST_TYPE.ERROR,
             title: t("toast.error"),
-            message: t("issue.add.cycle.failed"),
+            message: t("issue.add.sprint.failed"),
           });
           captureError({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,
@@ -182,9 +182,9 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
           });
         }
       },
-      addIssueToCycle: async (workspaceSlug: string, projectId: string, cycleId: string, issueIds: string[]) => {
+      addIssueToSprint: async (workspaceSlug: string, projectId: string, sprintId: string, issueIds: string[]) => {
         try {
-          await issues.addIssueToCycle(workspaceSlug, projectId, cycleId, issueIds);
+          await issues.addIssueToSprint(workspaceSlug, projectId, sprintId, issueIds);
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,
             payload: { id: issueIds },
@@ -193,7 +193,7 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
           setToast({
             type: TOAST_TYPE.ERROR,
             title: t("toast.error"),
-            message: t("issue.add.cycle.failed"),
+            message: t("issue.add.sprint.failed"),
           });
           captureError({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,
@@ -202,21 +202,21 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
           });
         }
       },
-      removeIssueFromCycle: async (workspaceSlug: string, projectId: string, cycleId: string, issueId: string) => {
+      removeIssueFromSprint: async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => {
         try {
-          const removeFromCyclePromise = issues.removeIssueFromCycle(workspaceSlug, projectId, cycleId, issueId);
-          setPromiseToast(removeFromCyclePromise, {
-            loading: t("issue.remove.cycle.loading"),
+          const removeFromSprintPromise = issues.removeIssueFromSprint(workspaceSlug, projectId, sprintId, issueId);
+          setPromiseToast(removeFromSprintPromise, {
+            loading: t("issue.remove.sprint.loading"),
             success: {
               title: t("toast.success"),
-              message: () => t("issue.remove.cycle.success"),
+              message: () => t("issue.remove.sprint.success"),
             },
             error: {
               title: t("toast.error"),
-              message: () => t("issue.remove.cycle.failed"),
+              message: () => t("issue.remove.sprint.failed"),
             },
           });
-          await removeFromCyclePromise;
+          await removeFromSprintPromise;
           fetchActivities(workspaceSlug, projectId, issueId);
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,

@@ -20,7 +20,7 @@ import {
 import {
   BlockedIcon,
   BlockerIcon,
-  CycleIcon,
+  SprintIcon,
   EpicIcon,
   IntakeIcon,
   ModuleIcon,
@@ -416,17 +416,17 @@ const activityDetails: {
     },
     icon: <Link2Icon size={12} className="text-secondary" aria-hidden="true" />,
   },
-  cycles: {
+  sprints: {
     message: (activity, showIssue, workspaceSlug) => {
       if (activity.verb === "created")
         return (
           <>
             <span className="flex-shrink-0">
               added {showIssue ? <IssueLink activity={activity} /> : "this work item"}{" "}
-              <span className="whitespace-nowrap">to the cycle</span>{" "}
+              <span className="whitespace-nowrap">to the sprint</span>{" "}
             </span>
             <a
-              href={`/${workspaceSlug}/projects/${activity.project}/cycles/${activity.new_identifier}`}
+              href={`/${workspaceSlug}/projects/${activity.project}/sprints/${activity.new_identifier}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline items-center gap-1 font-medium text-primary hover:underline"
@@ -438,9 +438,9 @@ const activityDetails: {
       else if (activity.verb === "updated")
         return (
           <>
-            <span className="flex-shrink-0 whitespace-nowrap">set the cycle to </span>
+            <span className="flex-shrink-0 whitespace-nowrap">set the sprint to </span>
             <a
-              href={`/${workspaceSlug}/projects/${activity.project}/cycles/${activity.new_identifier}`}
+              href={`/${workspaceSlug}/projects/${activity.project}/sprints/${activity.new_identifier}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline items-center gap-1 font-medium text-primary hover:underline"
@@ -452,9 +452,9 @@ const activityDetails: {
       else
         return (
           <>
-            removed <IssueLink activity={activity} /> from the cycle{" "}
+            removed <IssueLink activity={activity} /> from the sprint{" "}
             <a
-              href={`/${workspaceSlug}/projects/${activity.project}/cycles/${activity.old_identifier}`}
+              href={`/${workspaceSlug}/projects/${activity.project}/sprints/${activity.old_identifier}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline items-center gap-1 font-medium text-primary hover:underline"
@@ -464,7 +464,7 @@ const activityDetails: {
           </>
         );
     },
-    icon: <CycleIcon height={12} width={12} className="text-secondary" aria-hidden="true" />,
+    icon: <SprintIcon height={12} width={12} className="text-secondary" aria-hidden="true" />,
   },
   modules: {
     message: (activity, showIssue, workspaceSlug) => {

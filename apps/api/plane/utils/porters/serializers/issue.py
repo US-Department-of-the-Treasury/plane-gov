@@ -21,7 +21,7 @@ class IssueExportSerializer(IssueSerializer):
     assignees = serializers.SerializerMethodField()
     parent = serializers.SerializerMethodField()
     labels = serializers.SerializerMethodField()
-    cycles = serializers.SerializerMethodField()
+    sprints = serializers.SerializerMethodField()
     modules = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
     estimate = serializers.SerializerMethodField()
@@ -50,7 +50,7 @@ class IssueExportSerializer(IssueSerializer):
             "archived_at",
             "estimate",
             "labels",
-            "cycles",
+            "sprints",
             "modules",
             "links",
             "relations",
@@ -83,8 +83,8 @@ class IssueExportSerializer(IssueSerializer):
             if il.deleted_at is None
         ]
 
-    def get_cycles(self, obj):
-        return [ic.cycle.name for ic in obj.issue_cycle.all()]
+    def get_sprints(self, obj):
+        return [ic.sprint.name for ic in obj.issue_sprint.all()]
 
     def get_modules(self, obj):
         return [im.module.name for im in obj.issue_module.all()]

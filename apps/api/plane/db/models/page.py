@@ -81,7 +81,7 @@ class PageLog(BaseModel):
         ("video", "Video"),
         ("file", "File"),
         ("link", "Link"),
-        ("cycle", "Cycle"),
+        ("sprint", "Sprint"),
         ("module", "Module"),
         ("back_link", "Back Link"),
         ("forward_link", "Forward Link"),

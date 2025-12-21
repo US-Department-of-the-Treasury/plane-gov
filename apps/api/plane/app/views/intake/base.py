@@ -27,7 +27,7 @@ from plane.db.models import (
     FileAsset,
     Project,
     ProjectMember,
-    CycleIssue,
+    SprintIssue,
     IssueDescriptionVersion,
     WorkspaceMember,
 )
@@ -108,8 +108,8 @@ class IntakeIssueViewSet(BaseViewSet):
                 )
             )
             .annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(

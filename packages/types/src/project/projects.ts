@@ -19,7 +19,7 @@ export interface IPartialProject {
   member_role?: TUserPermissions | EUserProjectRoles | null;
   archived_at: string | null;
   workspace: IWorkspace | string;
-  cycle_view: boolean;
+  sprint_view: boolean;
   issue_views_view: boolean;
   module_view: boolean;
   page_view: boolean;
@@ -62,7 +62,7 @@ export type TProjectAnalyticsCountParams = {
 export type TProjectAnalyticsCount = Pick<IProject, "id"> & {
   total_issues?: number;
   completed_issues?: number;
-  total_cycles?: number;
+  total_sprints?: number;
   total_members?: number;
   total_modules?: number;
 };
@@ -148,7 +148,7 @@ export type TProjectIssuesSearchParams = {
   search: string;
   parent?: boolean;
   issue_relation?: boolean;
-  cycle?: boolean;
+  sprint?: boolean;
   module?: string;
   sub_issue?: boolean;
   issue_id?: string;

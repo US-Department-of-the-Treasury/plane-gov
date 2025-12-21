@@ -123,8 +123,8 @@ class IssueFilterSet(BaseFilterSet):
     assignee_id = filters.UUIDFilter(method="filter_assignee_id")
     assignee_id__in = UUIDInFilter(method="filter_assignee_id_in", lookup_expr="in")
 
-    cycle_id = filters.UUIDFilter(method="filter_cycle_id")
-    cycle_id__in = UUIDInFilter(method="filter_cycle_id_in", lookup_expr="in")
+    sprint_id = filters.UUIDFilter(method="filter_sprint_id")
+    sprint_id__in = UUIDInFilter(method="filter_sprint_id_in", lookup_expr="in")
 
     module_id = filters.UUIDFilter(method="filter_module_id")
     module_id__in = UUIDInFilter(method="filter_module_id_in", lookup_expr="in")
@@ -191,18 +191,18 @@ class IssueFilterSet(BaseFilterSet):
             issue_assignee__deleted_at__isnull=True,
         )
 
-    def filter_cycle_id(self, queryset, name, value):
-        """Filter by cycle ID, excluding soft deleted cycles"""
+    def filter_sprint_id(self, queryset, name, value):
+        """Filter by sprint ID, excluding soft deleted sprints"""
         return Q(
-            issue_cycle__cycle_id=value,
-            issue_cycle__deleted_at__isnull=True,
+            issue_sprint__sprint_id=value,
+            issue_sprint__deleted_at__isnull=True,
         )
 
-    def filter_cycle_id_in(self, queryset, name, value):
-        """Filter by cycle IDs (in), excluding soft deleted cycles"""
+    def filter_sprint_id_in(self, queryset, name, value):
+        """Filter by sprint IDs (in), excluding soft deleted sprints"""
         return Q(
-            issue_cycle__cycle_id__in=value,
-            issue_cycle__deleted_at__isnull=True,
+            issue_sprint__sprint_id__in=value,
+            issue_sprint__deleted_at__isnull=True,
         )
 
     def filter_module_id(self, queryset, name, value):

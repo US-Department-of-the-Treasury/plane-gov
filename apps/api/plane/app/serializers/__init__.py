@@ -41,11 +41,11 @@ from .project import (
 )
 from .state import StateSerializer, StateLiteSerializer
 from .view import IssueViewSerializer, ViewIssueListSerializer
-from .cycle import (
-    CycleSerializer,
-    CycleIssueSerializer,
-    CycleWriteSerializer,
-    CycleUserPropertiesSerializer,
+from .sprint import (
+    SprintSerializer,
+    SprintIssueSerializer,
+    SprintWriteSerializer,
+    SprintUserPropertiesSerializer,
 )
 from .asset import FileAssetSerializer
 from .issue import (

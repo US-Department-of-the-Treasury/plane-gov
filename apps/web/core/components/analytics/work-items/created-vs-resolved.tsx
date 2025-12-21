@@ -22,7 +22,7 @@ const CreatedVsResolved = observer(function CreatedVsResolved() {
     selectedDuration,
     selectedDurationLabel,
     selectedProjects,
-    selectedCycle,
+    selectedSprint,
     selectedModule,
     isPeekView,
     isEpic,
@@ -31,7 +31,7 @@ const CreatedVsResolved = observer(function CreatedVsResolved() {
   const { t } = useTranslation();
   const workspaceSlug = params.workspaceSlug.toString();
   const { data: createdVsResolvedData, isLoading: isCreatedVsResolvedLoading } = useSWR(
-    `created-vs-resolved-${workspaceSlug}-${selectedDuration}-${selectedProjects}-${selectedCycle}-${selectedModule}-${isPeekView}-${isEpic}`,
+    `created-vs-resolved-${workspaceSlug}-${selectedDuration}-${selectedProjects}-${selectedSprint}-${selectedModule}-${isPeekView}-${isEpic}`,
     () =>
       analyticsService.getAdvanceAnalyticsCharts<IChartResponse>(
         workspaceSlug,
@@ -39,7 +39,7 @@ const CreatedVsResolved = observer(function CreatedVsResolved() {
         {
           // date_filter: selectedDuration,
           ...(selectedProjects?.length > 0 && { project_ids: selectedProjects?.join(",") }),
-          ...(selectedCycle ? { cycle_id: selectedCycle } : {}),
+          ...(selectedSprint ? { sprint_id: selectedSprint } : {}),
           ...(selectedModule ? { module_id: selectedModule } : {}),
           ...(isEpic ? { epic: true } : {}),
         },

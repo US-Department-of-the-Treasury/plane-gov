@@ -1,11 +1,11 @@
 import { isNil } from "lodash-es";
 // types
 import { EIconSize, ISSUE_PRIORITIES } from "@plane/constants";
-import { CycleGroupIcon, CycleIcon, ModuleIcon, PriorityIcon, StateGroupIcon } from "@plane/propel/icons";
+import { SprintGroupIcon, SprintIcon, ModuleIcon, PriorityIcon, StateGroupIcon } from "@plane/propel/icons";
 import type {
   GroupByColumnTypes,
   IGroupByColumn,
-  TCycleGroups,
+  TSprintGroups,
   IIssueDisplayProperties,
   TGroupedIssues,
 } from "@plane/types";
@@ -14,7 +14,7 @@ import { Avatar } from "@plane/ui";
 // components
 // constants
 // stores
-import type { ICycleStore } from "@/store/cycle.store";
+import type { ISprintStore } from "@/store/sprint.store";
 import type { IIssueLabelStore } from "@/store/label.store";
 import type { IIssueMemberStore } from "@/store/members.store";
 import type { IIssueModuleStore } from "@/store/module.store";
@@ -25,7 +25,7 @@ export const HIGHLIGHT_WITH_LINE = "highlight-with-line";
 
 export const getGroupByColumns = (
   groupBy: GroupByColumnTypes | null,
-  cycle: ICycleStore,
+  sprint: ISprintStore,
   module: IIssueModuleStore,
   label: IIssueLabelStore,
   projectState: IStateStore,
@@ -33,8 +33,8 @@ export const getGroupByColumns = (
   includeNone?: boolean
 ): IGroupByColumn[] | undefined => {
   switch (groupBy) {
-    case "cycle":
-      return getCycleColumns(cycle);
+    case "sprint":
+      return getSprintColumns(sprint);
     case "module":
       return getModuleColumns(module);
     case "state":
@@ -52,32 +52,32 @@ export const getGroupByColumns = (
   }
 };
 
-const getCycleColumns = (cycleStore: ICycleStore): IGroupByColumn[] | undefined => {
-  const { cycles } = cycleStore;
+const getSprintColumns = (sprintStore: ISprintStore): IGroupByColumn[] | undefined => {
+  const { sprints } = sprintStore;
 
-  if (!cycles) return;
+  if (!sprints) return;
 
-  const cycleGroups: IGroupByColumn[] = [];
+  const sprintGroups: IGroupByColumn[] = [];
 
-  cycles.map((cycle) => {
-    if (cycle) {
-      const cycleStatus = cycle?.status ? (cycle.status.toLocaleLowerCase() as TCycleGroups) : "draft";
-      cycleGroups.push({
-        id: cycle.id,
-        name: cycle.name,
-        icon: <CycleGroupIcon cycleGroup={cycleStatus} className="h-3.5 w-3.5" />,
-        payload: { cycle_id: cycle.id },
+  sprints.map((sprint) => {
+    if (sprint) {
+      const sprintStatus = sprint?.status ? (sprint.status.toLocaleLowerCase() as TSprintGroups) : "draft";
+      sprintGroups.push({
+        id: sprint.id,
+        name: sprint.name,
+        icon: <SprintGroupIcon sprintGroup={sprintStatus} className="h-3.5 w-3.5" />,
+        payload: { sprint_id: sprint.id },
       });
     }
   });
-  cycleGroups.push({
+  sprintGroups.push({
     id: "None",
     name: "None",
-    icon: <CycleIcon className="h-3.5 w-3.5" />,
-    payload: { cycle_id: null },
+    icon: <SprintIcon className="h-3.5 w-3.5" />,
+    payload: { sprint_id: null },
   });
 
-  return cycleGroups;
+  return sprintGroups;
 };
 
 const getModuleColumns = (moduleStore: IIssueModuleStore): IGroupByColumn[] | undefined => {

@@ -51,7 +51,7 @@ export class FavoriteStore implements IFavoriteStore {
   viewStore;
   projectStore;
   pageStore;
-  cycleStore;
+  sprintStore;
   moduleStore;
 
   constructor(_rootStore: CoreRootStore) {
@@ -80,7 +80,7 @@ export class FavoriteStore implements IFavoriteStore {
     this.viewStore = _rootStore.projectView;
     this.projectStore = _rootStore.projectRoot.project;
     this.moduleStore = _rootStore.module;
-    this.cycleStore = _rootStore.cycle;
+    this.sprintStore = _rootStore.sprint;
     this.pageStore = _rootStore.projectPages;
   }
 
@@ -273,10 +273,10 @@ export class FavoriteStore implements IFavoriteStore {
         );
       case "page":
         return this.pageStore.data[entity_identifier] && (this.pageStore.data[entity_identifier].is_favorite = false);
-      case "cycle":
+      case "sprint":
         return (
-          this.cycleStore.cycleMap[entity_identifier] &&
-          (this.cycleStore.cycleMap[entity_identifier].is_favorite = false)
+          this.sprintStore.sprintMap[entity_identifier] &&
+          (this.sprintStore.sprintMap[entity_identifier].is_favorite = false)
         );
       case "project":
         return (

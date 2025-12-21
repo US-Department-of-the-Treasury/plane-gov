@@ -101,9 +101,9 @@ export const PROJECT_ERROR_MESSAGES = {
     i18n_title: "workspace_projects.error.permission",
     i18n_message: undefined,
   },
-  cycleDeleteError: {
+  sprintDeleteError: {
     i18n_title: "error",
-    i18n_message: "workspace_projects.error.cycle_delete",
+    i18n_message: "workspace_projects.error.sprint_delete",
   },
   moduleDeleteError: {
     i18n_title: "error",
@@ -117,7 +117,7 @@ export const PROJECT_ERROR_MESSAGES = {
 
 export enum EProjectFeatureKey {
   WORK_ITEMS = "work_items",
-  CYCLES = "cycles",
+  SPRINTS = "sprints",
   MODULES = "modules",
   VIEWS = "views",
   PAGES = "pages",

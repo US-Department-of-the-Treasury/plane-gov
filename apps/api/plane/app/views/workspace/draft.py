@@ -27,9 +27,9 @@ from plane.app.serializers import (
 from plane.db.models import (
     Issue,
     DraftIssue,
-    CycleIssue,
+    SprintIssue,
     ModuleIssue,
-    DraftIssueCycle,
+    DraftIssueSprint,
     Workspace,
     FileAsset,
 )
@@ -48,9 +48,9 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
             .select_related("workspace", "project", "state", "parent")
             .prefetch_related("assignees", "labels", "draft_issue_module__module")
             .annotate(
-                cycle_id=Subquery(
-                    DraftIssueCycle.objects.filter(draft_issue=OuterRef("id"), deleted_at__isnull=True).values(
-                        "cycle_id"
+                sprint_id=Subquery(
+                    DraftIssueSprint.objects.filter(draft_issue=OuterRef("id"), deleted_at__isnull=True).values(
+                        "sprint_id"
                     )[:1]
                 )
             )
@@ -132,7 +132,7 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
                     "target_date",
                     "project_id",
                     "parent_id",
-                    "cycle_id",
+                    "sprint_id",
                     "module_ids",
                     "label_ids",
                     "assignee_ids",
@@ -169,7 +169,7 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
             partial=True,
             context={
                 "project_id": project_id,
-                "cycle_id": request.data.get("cycle_id", "not_provided"),
+                "sprint_id": request.data.get("sprint_id", "not_provided"),
             },
         )
 
@@ -232,9 +232,9 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
                 origin=base_host(request=request, is_app=True),
             )
 
-            if request.data.get("cycle_id", None):
-                created_records = CycleIssue.objects.create(
-                    cycle_id=request.data.get("cycle_id", None),
+            if request.data.get("sprint_id", None):
+                created_records = SprintIssue.objects.create(
+                    sprint_id=request.data.get("sprint_id", None),
                     issue_id=serializer.data.get("id", None),
                     project_id=draft_issue.project_id,
                     workspace_id=draft_issue.workspace_id,
@@ -243,15 +243,15 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
                 )
                 # Capture Issue Activity
                 issue_activity.delay(
-                    type="cycle.activity.created",
+                    type="sprint.activity.created",
                     requested_data=None,
                     actor_id=str(self.request.user.id),
                     issue_id=None,
                     project_id=str(self.kwargs.get("project_id", None)),
                     current_instance=json.dumps(
                         {
-                            "updated_cycle_issues": None,
-                            "created_cycle_issues": serializers.serialize("json", [created_records]),
+                            "updated_sprint_issues": None,
+                            "created_sprint_issues": serializers.serialize("json", [created_records]),
                         }
                     ),
                     epoch=int(timezone.now().timestamp()),

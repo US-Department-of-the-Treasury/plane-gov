@@ -21,7 +21,7 @@ import { handleDragDrop } from "./utils";
 export type CalendarStoreType =
   | EIssuesStoreType.PROJECT
   | EIssuesStoreType.MODULE
-  | EIssuesStoreType.CYCLE
+  | EIssuesStoreType.SPRINT
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.TEAM
   | EIssuesStoreType.TEAM_VIEW
@@ -30,7 +30,7 @@ export type CalendarStoreType =
 interface IBaseCalendarRoot {
   QuickActions: FC<IQuickActionProps>;
   addIssuesToView?: (issueIds: string[]) => Promise<any>;
-  isCompletedCycle?: boolean;
+  isCompletedSprint?: boolean;
   viewId?: string | undefined;
   isEpic?: boolean;
   canEditPropertiesBasedOnProject?: (projectId: string) => boolean;
@@ -40,7 +40,7 @@ export const BaseCalendarRoot = observer(function BaseCalendarRoot(props: IBaseC
   const {
     QuickActions,
     addIssuesToView,
-    isCompletedCycle = false,
+    isCompletedSprint = false,
     viewId,
     isEpic = false,
     canEditPropertiesBasedOnProject,
@@ -169,7 +169,7 @@ export const BaseCalendarRoot = observer(function BaseCalendarRoot(props: IBaseC
               handleRemoveFromView={async () => removeIssueFromView && removeIssueFromView(issue.project_id, issue.id)}
               handleArchive={async () => archiveIssue && archiveIssue(issue.project_id, issue.id)}
               handleRestore={async () => restoreIssue && restoreIssue(issue.project_id, issue.id)}
-              readOnly={!canEditProperties(issue.project_id ?? undefined) || isCompletedCycle}
+              readOnly={!canEditProperties(issue.project_id ?? undefined) || isCompletedSprint}
               placements={placement}
             />
           )}
@@ -178,7 +178,7 @@ export const BaseCalendarRoot = observer(function BaseCalendarRoot(props: IBaseC
           getGroupIssueCount={getGroupIssueCount}
           addIssuesToView={addIssuesToView}
           quickAddCallback={quickAddIssue}
-          readOnly={isCompletedCycle}
+          readOnly={isCompletedSprint}
           updateFilters={updateFilters}
           handleDragAndDrop={handleDragAndDrop}
           canEditProperties={canEditProperties}

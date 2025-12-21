@@ -14,14 +14,14 @@ export const INDIVIDUAL_WEBHOOK_OPTIONS: {
     description: "Project created, updated, or deleted",
   },
   {
-    key: "cycle",
-    label: "Cycles",
-    description: "Cycle created, updated, or deleted",
+    key: "sprint",
+    label: "Sprints",
+    description: "Sprint created, updated, or deleted",
   },
   {
     key: "issue",
     label: "Work items",
-    description: "Work item created, updated, deleted, added to a cycle or module",
+    description: "Work item created, updated, deleted, added to a sprint or module",
   },
   {
     key: "module",

@@ -10,7 +10,7 @@ export default {
     views: "Chế độ xem",
     analytics: "Phân tích",
     work_items: "Mục công việc",
-    cycles: "Chu kỳ",
+    sprints: "Chu kỳ",
     modules: "Mô-đun",
     intake: "Thu thập",
     drafts: "Bản nháp",
@@ -273,24 +273,24 @@ export default {
   general_settings: "Cài đặt chung",
   sign_out: "Đăng xuất",
   signing_out: "Đang đăng xuất",
-  active_cycles: "Chu kỳ hoạt động",
-  active_cycles_description:
+  active_sprints: "Chu kỳ hoạt động",
+  active_sprints_description:
     "Theo dõi chu kỳ trên các dự án, theo dõi mục công việc ưu tiên cao và chú ý đến các chu kỳ cần quan tâm.",
-  on_demand_snapshots_of_all_your_cycles: "Ảnh chụp nhanh theo yêu cầu của tất cả chu kỳ của bạn",
+  on_demand_snapshots_of_all_your_sprints: "Ảnh chụp nhanh theo yêu cầu của tất cả chu kỳ của bạn",
   upgrade: "Nâng cấp",
   "10000_feet_view": "Góc nhìn tổng quan về tất cả chu kỳ hoạt động.",
   "10000_feet_view_description":
     "Phóng to tầm nhìn để xem tất cả chu kỳ đang diễn ra trong tất cả dự án cùng một lúc, thay vì xem từng chu kỳ trong mỗi dự án.",
-  get_snapshot_of_each_active_cycle: "Nhận ảnh chụp nhanh của mỗi chu kỳ hoạt động.",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "Nhận ảnh chụp nhanh của mỗi chu kỳ hoạt động.",
+  get_snapshot_of_each_active_sprint_description:
     "Theo dõi số liệu tổng hợp cho tất cả chu kỳ hoạt động, xem trạng thái tiến độ và hiểu phạm vi liên quan đến thời hạn.",
   compare_burndowns: "So sánh biểu đồ burndown.",
   compare_burndowns_description: "Giám sát hiệu suất của từng nhóm bằng cách xem báo cáo burndown cho mỗi chu kỳ.",
   quickly_see_make_or_break_issues: "Nhanh chóng xem các vấn đề quan trọng.",
   quickly_see_make_or_break_issues_description:
     "Xem trước các mục công việc ưu tiên cao liên quan đến thời hạn trong mỗi chu kỳ. Xem tất cả mục công việc trong mỗi chu kỳ chỉ bằng một cú nhấp chuột.",
-  zoom_into_cycles_that_need_attention: "Phóng to vào chu kỳ cần chú ý.",
-  zoom_into_cycles_that_need_attention_description:
+  zoom_into_sprints_that_need_attention: "Phóng to vào chu kỳ cần chú ý.",
+  zoom_into_sprints_that_need_attention_description:
     "Điều tra bất kỳ trạng thái chu kỳ nào không đáp ứng mong đợi chỉ bằng một cú nhấp chuột.",
   stay_ahead_of_blockers: "Đi trước các yếu tố chặn.",
   stay_ahead_of_blockers_description:
@@ -373,7 +373,7 @@ export default {
   congrats: "Chúc mừng!",
   open_project: "Mở dự án",
   issues: "Mục công việc",
-  cycles: "Chu kỳ",
+  sprints: "Chu kỳ",
   modules: "Mô-đun",
   pages: "Trang",
   intake: "Thu thập",
@@ -382,7 +382,7 @@ export default {
   projects_and_issues: "Dự án và mục công việc",
   projects_and_issues_description:
     "Bật hoặc tắt các tính năng này trong dự án này. Có thể thay đổi theo thời gian phù hợp với nhu cầu.",
-  cycles_description:
+  sprints_description:
     "Thiết lập thời gian làm việc theo dự án và điều chỉnh thời gian nếu cần. Một chu kỳ có thể là 2 tuần, chu kỳ tiếp theo là 1 tuần.",
   modules_description: "Tổ chức công việc thành các dự án con với người lãnh đạo và người được phân công riêng.",
   views_description: "Lưu các tùy chọn sắp xếp, lọc và hiển thị tùy chỉnh hoặc chia sẻ chúng với nhóm của bạn.",
@@ -658,8 +658,8 @@ export default {
     priority: "Ưu tiên",
     team_project: "Dự án nhóm",
     project: "Dự án",
-    cycle: "Chu kỳ",
-    cycles: "Chu kỳ",
+    sprint: "Chu kỳ",
+    sprints: "Chu kỳ",
     module: "Mô-đun",
     modules: "Mô-đun",
     labels: "Nhãn",
@@ -977,7 +977,7 @@ export default {
     add: {
       press_enter: "Nhấn 'Enter' để thêm mục công việc khác",
       label: "Thêm mục công việc",
-      cycle: {
+      sprint: {
         failed: "Không thể thêm mục công việc vào chu kỳ. Vui lòng thử lại.",
         success: "{count, plural, one {Mục công việc} other {Mục công việc}} đã được thêm vào chu kỳ thành công.",
         loading: "Đang thêm {count, plural, one {mục công việc} other {mục công việc}} vào chu kỳ",
@@ -993,7 +993,7 @@ export default {
     },
     remove: {
       label: "Xóa mục công việc",
-      cycle: {
+      sprint: {
         loading: "Đang xóa mục công việc khỏi chu kỳ",
         success: "Đã xóa mục công việc khỏi chu kỳ thành công.",
         failed: "Không thể xóa mục công việc khỏi chu kỳ. Vui lòng thử lại.",
@@ -1347,7 +1347,7 @@ export default {
     work_items_closed_in: "Mục công việc đã đóng trong",
     selected_projects: "Dự án đã chọn",
     total_members: "Tổng số thành viên",
-    total_cycles: "Tổng số chu kỳ",
+    total_sprints: "Tổng số chu kỳ",
     total_modules: "Tổng số mô-đun",
     pending_work_items: {
       title: "Mục công việc đang chờ xử lý",
@@ -1433,7 +1433,7 @@ export default {
     },
     error: {
       permission: "Bạn không có quyền thực hiện thao tác này.",
-      cycle_delete: "Xóa chu kỳ thất bại",
+      sprint_delete: "Xóa chu kỳ thất bại",
       module_delete: "Xóa mô-đun thất bại",
       issue_delete: "Xóa mục công việc thất bại",
     },
@@ -1981,23 +1981,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "Thêm chu kỳ",
+  project_sprints: {
+    add_sprint: "Thêm chu kỳ",
     more_details: "Thêm chi tiết",
-    cycle: "Chu kỳ",
-    update_cycle: "Cập nhật chu kỳ",
-    create_cycle: "Tạo chu kỳ",
-    no_matching_cycles: "Không có chu kỳ phù hợp",
-    remove_filters_to_see_all_cycles: "Xóa bộ lọc để xem tất cả chu kỳ",
-    remove_search_criteria_to_see_all_cycles: "Xóa tiêu chí tìm kiếm để xem tất cả chu kỳ",
-    only_completed_cycles_can_be_archived: "Chỉ có thể lưu trữ chu kỳ đã hoàn thành",
+    sprint: "Chu kỳ",
+    update_sprint: "Cập nhật chu kỳ",
+    create_sprint: "Tạo chu kỳ",
+    no_matching_sprints: "Không có chu kỳ phù hợp",
+    remove_filters_to_see_all_sprints: "Xóa bộ lọc để xem tất cả chu kỳ",
+    remove_search_criteria_to_see_all_sprints: "Xóa tiêu chí tìm kiếm để xem tất cả chu kỳ",
+    only_completed_sprints_can_be_archived: "Chỉ có thể lưu trữ chu kỳ đã hoàn thành",
     start_date: "Ngày bắt đầu",
     end_date: "Ngày kết thúc",
     in_your_timezone: "Trong múi giờ của bạn",
     transfer_work_items: "Chuyển {count} mục công việc",
     date_range: "Khoảng thời gian",
     add_date: "Thêm ngày",
-    active_cycle: {
+    active_sprint: {
       label: "Chu kỳ hoạt động",
       progress: "Tiến độ",
       chart: "Biểu đồ burndown",
@@ -2008,10 +2008,10 @@ export default {
       current: "Hiện tại",
       labels: "Nhãn",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "Chu kỳ sắp tới",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "Chu kỳ đã hoàn thành",
     },
     status: {
@@ -2335,7 +2335,7 @@ export default {
       custom: "Tùy chỉnh",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "Thêm mục công việc vào chu kỳ để xem tiến độ của nó",
@@ -2364,7 +2364,7 @@ export default {
           text: "Quản lý tính năng",
         },
       },
-      cycle: {
+      sprint: {
         title: "Dự án này chưa bật tính năng chu kỳ.",
         description:
           "Chia nhỏ công việc theo khung thời gian, đặt ngày từ thời hạn dự án, và đạt được tiến độ cụ thể với tư cách là một nhóm. Bật tính năng chu kỳ cho dự án của bạn để bắt đầu sử dụng.",
@@ -2590,9 +2590,9 @@ export default {
       manual: "Thủ công",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {chu kỳ} other {chu kỳ}}",
-    no_cycle: "Không có chu kỳ",
+    no_sprint: "Không có chu kỳ",
   },
   module: {
     label: "{count, plural, one {mô-đun} other {mô-đun}}",

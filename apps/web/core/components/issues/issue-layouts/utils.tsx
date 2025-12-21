@@ -6,11 +6,11 @@ import scrollIntoView from "smooth-scroll-into-view-if-needed";
 import { EIconSize, ISSUE_PRIORITIES, STATE_GROUPS } from "@plane/constants";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import type { ISvgIcons } from "@plane/propel/icons";
-import { CycleGroupIcon, CycleIcon, ModuleIcon, PriorityIcon, StateGroupIcon } from "@plane/propel/icons";
+import { SprintGroupIcon, SprintIcon, ModuleIcon, PriorityIcon, StateGroupIcon } from "@plane/propel/icons";
 import type {
   GroupByColumnTypes,
   IGroupByColumn,
-  TCycleGroups,
+  TSprintGroups,
   IIssueDisplayProperties,
   IPragmaticDropPayload,
   TIssue,
@@ -107,7 +107,7 @@ export const getGroupByColumns = ({
     ({ isWorkspaceLevel, projectId }: TGetColumns) => IGroupByColumn[] | undefined
   > = {
     project: getProjectColumns,
-    cycle: getCycleColumns,
+    sprint: getSprintColumns,
     module: getModuleColumns,
     state: getStateColumns,
     "state_detail.group": getStateGroupColumns,
@@ -145,34 +145,34 @@ const getProjectColumns = (): IGroupByColumn[] | undefined => {
     .filter((column) => column !== undefined) as IGroupByColumn[];
 };
 
-const getCycleColumns = (): IGroupByColumn[] | undefined => {
+const getSprintColumns = (): IGroupByColumn[] | undefined => {
   const { currentProjectDetails } = store.projectRoot.project;
   // Check for the current project details
   if (!currentProjectDetails || !currentProjectDetails?.id) return;
-  const { getProjectCycleDetails } = store.cycle;
-  // Get the cycle details for the current project
-  const cycleDetails = currentProjectDetails?.id ? getProjectCycleDetails(currentProjectDetails?.id) : undefined;
-  // Map the cycle details to the group by columns
-  const cycles: IGroupByColumn[] = [];
-  cycleDetails?.map((cycle) => {
-    const cycleStatus = cycle.status ? (cycle.status.toLocaleLowerCase() as TCycleGroups) : "draft";
-    const isDropDisabled = cycleStatus === "completed";
-    cycles.push({
-      id: cycle.id,
-      name: cycle.name,
-      icon: <CycleGroupIcon cycleGroup={cycleStatus} className="h-3.5 w-3.5" />,
-      payload: { cycle_id: cycle.id },
+  const { getProjectSprintDetails } = store.sprint;
+  // Get the sprint details for the current project
+  const sprintDetails = currentProjectDetails?.id ? getProjectSprintDetails(currentProjectDetails?.id) : undefined;
+  // Map the sprint details to the group by columns
+  const sprints: IGroupByColumn[] = [];
+  sprintDetails?.map((sprint) => {
+    const sprintStatus = sprint.status ? (sprint.status.toLocaleLowerCase() as TSprintGroups) : "draft";
+    const isDropDisabled = sprintStatus === "completed";
+    sprints.push({
+      id: sprint.id,
+      name: sprint.name,
+      icon: <SprintGroupIcon sprintGroup={sprintStatus} className="h-3.5 w-3.5" />,
+      payload: { sprint_id: sprint.id },
       isDropDisabled,
-      dropErrorMessage: isDropDisabled ? "Work item cannot be moved to completed cycles" : undefined,
+      dropErrorMessage: isDropDisabled ? "Work item cannot be moved to completed sprints" : undefined,
     });
   });
-  cycles.push({
+  sprints.push({
     id: "None",
     name: "None",
-    icon: <CycleIcon className="h-3.5 w-3.5" />,
+    icon: <SprintIcon className="h-3.5 w-3.5" />,
     payload: {},
   });
-  return cycles;
+  return sprints;
 };
 
 const getModuleColumns = (): IGroupByColumn[] | undefined => {

@@ -3,7 +3,7 @@ import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 // ui icons
 import {
-  CycleIcon,
+  SprintIcon,
   StatePropertyIcon,
   ModuleIcon,
   MembersPropertyIcon,
@@ -36,7 +36,7 @@ import { DateAlert } from "@/plane-web/components/issues/issue-details/sidebar/d
 import { TransferHopInfo } from "@/plane-web/components/issues/issue-details/sidebar/transfer-hop-info";
 import { IssueWorklogProperty } from "@/plane-web/components/issues/worklog/property";
 import type { TIssueOperations } from "../issue-detail";
-import { IssueCycleSelect } from "../issue-detail/cycle-select";
+import { IssueSprintSelect } from "../issue-detail/sprint-select";
 import { IssueLabel } from "../issue-detail/label";
 import { IssueModuleSelect } from "../issue-detail/module-select";
 
@@ -215,13 +215,13 @@ export const PeekOverviewProperties = observer(function PeekOverviewProperties(p
           </SidebarPropertyListItem>
         )}
 
-        {projectDetails?.cycle_view && (
+        {projectDetails?.sprint_view && (
           <SidebarPropertyListItem
-            icon={CycleIcon}
-            label={t("common.cycle")}
+            icon={SprintIcon}
+            label={t("common.sprint")}
             appendElement={<TransferHopInfo workItem={issue} />}
           >
-            <IssueCycleSelect
+            <IssueSprintSelect
               className="w-full grow h-7.5"
               workspaceSlug={workspaceSlug}
               projectId={projectId}

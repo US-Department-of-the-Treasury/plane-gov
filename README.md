@@ -19,13 +19,13 @@ This is a self-hosted deployment of Plane for Treasury use. Key differences from
 
 ## About Plane
 
-Plane is an open-source project management tool to track issues, run cycles, and manage product roadmaps.
+Plane is an open-source project management tool to track issues, run sprints, and manage product roadmaps.
 
 ### Features
 
 - **Issues** - Create and manage tasks with a rich text editor that supports file uploads. Add sub-properties and reference related issues.
 
-- **Cycles** - Track team progress with burn-down charts and other tools.
+- **Sprints** - Track team progress with burn-down charts and other tools.
 
 - **Modules** - Divide complex projects into smaller, manageable modules.
 

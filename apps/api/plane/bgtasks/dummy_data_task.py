@@ -19,14 +19,14 @@ from plane.db.models import (
     State,
     StateGroup,
     Label,
-    Cycle,
+    Sprint,
     Module,
     Issue,
     IssueSequence,
     IssueAssignee,
     IssueLabel,
     IssueActivity,
-    CycleIssue,
+    SprintIssue,
     ModuleIssue,
     Page,
     ProjectPage,
@@ -139,14 +139,14 @@ def create_labels(workspace, project, user_id):
     )
 
 
-def create_cycles(workspace, project, user_id, cycle_count):
+def create_sprints(workspace, project, user_id, sprint_count):
     fake = Faker()
     Faker.seed(0)
 
-    cycles = []
+    sprints = []
     used_date_ranges = set()  # Track used date ranges
 
-    while len(cycles) <= cycle_count:
+    while len(sprints) <= sprint_count:
         # Generate a start date, allowing for None
         start_date_option = [None, fake.date_this_year()]
         start_date = start_date_option[random.randint(0, 1)]
@@ -168,9 +168,9 @@ def create_cycles(workspace, project, user_id, cycle_count):
         # Add the unique date range to the set
         (used_date_ranges.add((start_date, end_date)) if (end_date is not None and start_date is not None) else None)
 
-        # Append the cycle with unique date range
-        cycles.append(
-            Cycle(
+        # Append the sprint with unique date range
+        sprints.append(
+            Sprint(
                 name=fake.name(),
                 owned_by_id=user_id,
                 sort_order=random.randint(0, 65535),
@@ -181,7 +181,7 @@ def create_cycles(workspace, project, user_id, cycle_count):
             )
         )
 
-    return Cycle.objects.bulk_create(cycles, ignore_conflicts=True)
+    return Sprint.objects.bulk_create(sprints, ignore_conflicts=True)
 
 
 def create_modules(workspace, project, user_id, module_count):
@@ -432,22 +432,22 @@ def create_issue_labels(workspace, project, user_id, issue_count):
     IssueLabel.objects.bulk_create(bulk_issue_labels, batch_size=1000, ignore_conflicts=True)
 
 
-def create_cycle_issues(workspace, project, user_id, issue_count):
+def create_sprint_issues(workspace, project, user_id, issue_count):
     # assignees
-    cycles = Cycle.objects.filter(project=project).values_list("id", flat=True)
+    sprints = Sprint.objects.filter(project=project).values_list("id", flat=True)
     issues = random.sample(
         list(Issue.objects.filter(project=project).values_list("id", flat=True)),
         int(issue_count / 2),
     )
 
     # Bulk issue
-    bulk_cycle_issues = []
+    bulk_sprint_issues = []
     for issue in issues:
-        cycle = cycles[random.randint(0, len(cycles) - 1)]
-        bulk_cycle_issues.append(CycleIssue(cycle_id=cycle, issue_id=issue, project=project, workspace=workspace))
+        sprint = sprints[random.randint(0, len(sprints) - 1)]
+        bulk_sprint_issues.append(SprintIssue(sprint_id=sprint, issue_id=issue, project=project, workspace=workspace))
 
     # Issue assignees
-    CycleIssue.objects.bulk_create(bulk_cycle_issues, batch_size=1000, ignore_conflicts=True)
+    SprintIssue.objects.bulk_create(bulk_sprint_issues, batch_size=1000, ignore_conflicts=True)
 
 
 def create_module_issues(workspace, project, user_id, issue_count):
@@ -486,7 +486,7 @@ def create_dummy_data(
     email,
     members,
     issue_count,
-    cycle_count,
+    sprint_count,
     module_count,
     pages_count,
     intake_issue_count,
@@ -508,8 +508,8 @@ def create_dummy_data(
     # Create labels
     create_labels(workspace=workspace, project=project, user_id=user_id)
 
-    # create cycles
-    create_cycles(workspace=workspace, project=project, user_id=user_id, cycle_count=cycle_count)
+    # create sprints
+    create_sprints(workspace=workspace, project=project, user_id=user_id, sprint_count=sprint_count)
 
     # create modules
     create_modules(workspace=workspace, project=project, user_id=user_id, module_count=module_count)
@@ -540,8 +540,8 @@ def create_dummy_data(
     # create issue labels
     create_issue_labels(workspace=workspace, project=project, user_id=user_id, issue_count=issue_count)
 
-    # create cycle issues
-    create_cycle_issues(workspace=workspace, project=project, user_id=user_id, issue_count=issue_count)
+    # create sprint issues
+    create_sprint_issues(workspace=workspace, project=project, user_id=user_id, issue_count=issue_count)
 
     # create module issues
     create_module_issues(workspace=workspace, project=project, user_id=user_id, issue_count=issue_count)

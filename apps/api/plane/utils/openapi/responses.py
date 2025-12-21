@@ -270,13 +270,13 @@ MODULE_ISSUE_NOT_FOUND_RESPONSE = OpenApiResponse(
     ],
 )
 
-# Cycle-specific Responses
-CYCLE_CANNOT_ARCHIVE_RESPONSE = OpenApiResponse(
-    description="Cycle cannot be archived",
+# Sprint-specific Responses
+SPRINT_CANNOT_ARCHIVE_RESPONSE = OpenApiResponse(
+    description="Sprint cannot be archived",
     examples=[
         OpenApiExample(
-            name="Cycle Cannot Archive",
-            value={"error": "Only completed cycles can be archived"},
+            name="Sprint Cannot Archive",
+            value={"error": "Only completed sprints can be archived"},
         )
     ],
 )

@@ -1,6 +1,6 @@
 // plane imports
 import { EUserPermissions, EProjectFeatureKey } from "@plane/constants";
-import { CycleIcon, IntakeIcon, ModuleIcon, PageIcon, ViewsIcon, WorkItemsIcon } from "@plane/propel/icons";
+import { SprintIcon, IntakeIcon, ModuleIcon, PageIcon, ViewsIcon, WorkItemsIcon } from "@plane/propel/icons";
 // components
 import type { TNavigationItem } from "@/components/workspace/sidebar/project-navigation";
 
@@ -8,7 +8,7 @@ export const getProjectFeatureNavigation = (
   workspaceSlug: string,
   projectId: string,
   project: {
-    cycle_view: boolean;
+    sprint_view: boolean;
     module_view: boolean;
     issue_views_view: boolean;
     page_view: boolean;
@@ -26,13 +26,13 @@ export const getProjectFeatureNavigation = (
     sortOrder: 1,
   },
   {
-    i18n_key: "sidebar.cycles",
-    key: EProjectFeatureKey.CYCLES,
-    name: "Cycles",
-    href: `/${workspaceSlug}/projects/${projectId}/cycles`,
-    icon: CycleIcon,
+    i18n_key: "sidebar.sprints",
+    key: EProjectFeatureKey.SPRINTS,
+    name: "Sprints",
+    href: `/${workspaceSlug}/projects/${projectId}/sprints`,
+    icon: SprintIcon,
     access: [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    shouldRender: project.cycle_view,
+    shouldRender: project.sprint_view,
     sortOrder: 2,
   },
   {

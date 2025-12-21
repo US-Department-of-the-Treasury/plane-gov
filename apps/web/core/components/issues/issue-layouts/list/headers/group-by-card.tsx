@@ -56,11 +56,11 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
   const [isOpen, setIsOpen] = useState(false);
   const [openExistingIssueListModal, setOpenExistingIssueListModal] = useState(false);
   // router
-  const { workspaceSlug, projectId, moduleId, cycleId } = useParams();
+  const { workspaceSlug, projectId, moduleId, sprintId } = useParams();
   const storeType = useIssueStoreType();
   // derived values
-  const renderExistingIssueModal = moduleId || cycleId;
-  const existingIssuesListModalPayload = moduleId ? { module: moduleId.toString() } : { cycle: true };
+  const renderExistingIssueModal = moduleId || sprintId;
+  const existingIssuesListModalPayload = moduleId ? { module: moduleId.toString() } : { sprint: true };
   const isGroupSelectionEmpty = selectionHelpers.isGroupSelected(groupID) === "empty";
   // auth
   const canSelectIssues = canEditProperties(projectId?.toString()) && !selectionHelpers.isSelectionDisabled;
@@ -76,13 +76,13 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
       setToast({
         type: TOAST_TYPE.SUCCESS,
         title: "Success!",
-        message: "Work items added to the cycle successfully.",
+        message: "Work items added to the sprint successfully.",
       });
     } catch (error) {
       setToast({
         type: TOAST_TYPE.ERROR,
         title: "Error!",
-        message: "Selected work items could not be added to the cycle. Please try again.",
+        message: "Selected work items could not be added to the sprint. Please try again.",
       });
     }
   };

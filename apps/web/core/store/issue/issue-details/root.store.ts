@@ -275,12 +275,12 @@ export abstract class IssueDetail implements IIssueDetail {
     this.issue.removeIssue(workspaceSlug, projectId, issueId);
   archiveIssue = async (workspaceSlug: string, projectId: string, issueId: string) =>
     this.issue.archiveIssue(workspaceSlug, projectId, issueId);
-  addCycleToIssue = async (workspaceSlug: string, projectId: string, cycleId: string, issueId: string) =>
-    this.issue.addCycleToIssue(workspaceSlug, projectId, cycleId, issueId);
-  addIssueToCycle = async (workspaceSlug: string, projectId: string, cycleId: string, issueIds: string[]) =>
-    this.issue.addIssueToCycle(workspaceSlug, projectId, cycleId, issueIds);
-  removeIssueFromCycle = async (workspaceSlug: string, projectId: string, cycleId: string, issueId: string) =>
-    this.issue.removeIssueFromCycle(workspaceSlug, projectId, cycleId, issueId);
+  addSprintToIssue = async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) =>
+    this.issue.addSprintToIssue(workspaceSlug, projectId, sprintId, issueId);
+  addIssueToSprint = async (workspaceSlug: string, projectId: string, sprintId: string, issueIds: string[]) =>
+    this.issue.addIssueToSprint(workspaceSlug, projectId, sprintId, issueIds);
+  removeIssueFromSprint = async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) =>
+    this.issue.removeIssueFromSprint(workspaceSlug, projectId, sprintId, issueId);
   changeModulesInIssue = async (
     workspaceSlug: string,
     projectId: string,

@@ -86,7 +86,7 @@ export const meta: Route.MetaFunction = () => [
   { property: "og:title", content: APP_TITLE },
   {
     property: "og:description",
-    content: "Open-source project management tool to manage work items, cycles, and product roadmaps easily",
+    content: "Open-source project management tool to manage work items, sprints, and product roadmaps easily",
   },
   {
     name: "keywords",

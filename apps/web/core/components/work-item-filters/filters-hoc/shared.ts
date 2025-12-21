@@ -4,12 +4,12 @@ import type { IWorkItemFilterInstance } from "@plane/shared-state";
 import type { EIssuesStoreType, IIssueFilters, TWorkItemFilterExpression, TWorkItemFilterProperty } from "@plane/types";
 
 export type TSharedWorkItemFiltersProps = {
-  entityType: EIssuesStoreType; // entity type (project, cycle, workspace, teamspace, etc)
+  entityType: EIssuesStoreType; // entity type (project, sprint, workspace, teamspace, etc)
   filtersToShowByLayout: TWorkItemFilterProperty[];
   updateFilters: (updatedFilters: TWorkItemFilterExpression) => void;
   isTemporary?: boolean;
   showOnMount?: boolean;
-} & ({ isTemporary: true; entityId?: string } | { isTemporary?: false; entityId: string }); // entity id (project_id, cycle_id, workspace_id, etc)
+} & ({ isTemporary: true; entityId?: string } | { isTemporary?: false; entityId: string }); // entity id (project_id, sprint_id, workspace_id, etc)
 
 export type TSharedWorkItemFiltersHOCProps = TSharedWorkItemFiltersProps & {
   children: React.ReactNode | ((props: { filter: IWorkItemFilterInstance | undefined }) => React.ReactNode);

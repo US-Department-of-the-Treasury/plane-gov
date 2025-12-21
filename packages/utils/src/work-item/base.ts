@@ -302,7 +302,7 @@ export const getComputedDisplayProperties = (
   created_on: displayProperties?.created_on ?? true,
   updated_on: displayProperties?.updated_on ?? true,
   modules: displayProperties?.modules ?? true,
-  cycle: displayProperties?.cycle ?? true,
+  sprint: displayProperties?.sprint ?? true,
   issue_type: displayProperties?.issue_type ?? true,
 });
 

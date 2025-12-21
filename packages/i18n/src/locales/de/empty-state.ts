@@ -44,13 +44,13 @@ export default {
         "Arbeitselemente sind die Bausteine Ihres Projekts — weisen Sie Eigentümer zu, setzen Sie Prioritäten und verfolgen Sie den Fortschritt einfach.",
       cta_primary: "Erstellen Sie Ihr erstes Arbeitselement",
     },
-    cycles: {
+    sprints: {
       title: "Gruppieren und zeitlich begrenzen Sie Ihre Arbeit in Zyklen.",
       description:
         "Teilen Sie die Arbeit in zeitlich begrenzte Blöcke auf, arbeiten Sie rückwärts von Ihrer Projektfrist, um Termine festzulegen, und machen Sie greifbare Fortschritte als Team.",
       cta_primary: "Legen Sie Ihren ersten Zyklus fest",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "Keine Arbeitselemente in diesem Zyklus anzuzeigen",
       description:
         "Erstellen Sie Arbeitselemente, um den Fortschritt Ihres Teams in diesem Zyklus zu überwachen und Ihre Ziele rechtzeitig zu erreichen.",
@@ -113,7 +113,7 @@ export default {
         "Manuell oder durch Automatisierung können Sie abgeschlossene oder stornierte Arbeitselemente archivieren. Finden Sie sie hier, sobald sie archiviert sind.",
       cta_primary: "Automatisierung einrichten",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "Noch keine archivierten Zyklen",
       description:
         "Um Ihr Projekt aufzuräumen, archivieren Sie abgeschlossene Zyklen. Finden Sie sie hier, sobald sie archiviert sind.",
@@ -161,7 +161,7 @@ export default {
       title:
         "Erstellen Sie Projekte mit Arbeitselementen und Zugewiesenen, um hier Leistung, Fortschritt und Teameinfluss zu verfolgen.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title:
         "Erstellen Sie Zyklen, um Arbeit in zeitlich begrenzte Phasen zu organisieren und Fortschritte über Sprints hinweg zu verfolgen.",
     },

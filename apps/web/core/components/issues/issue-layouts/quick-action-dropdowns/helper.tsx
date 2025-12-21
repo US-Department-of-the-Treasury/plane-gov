@@ -69,7 +69,7 @@ export interface MenuItemFactoryProps {
   handleUpdate?: (data: TIssue) => Promise<void>;
   handleArchive?: () => Promise<void>;
   // Context-specific data
-  cycleId?: string;
+  sprintId?: string;
   moduleId?: string;
   storeType?: EIssuesStoreType;
 }
@@ -199,11 +199,11 @@ export const useMenuItemFactory = (props: MenuItemFactoryProps) => {
     action: actionHandlers.handleCopyIssueLink,
   });
 
-  const createRemoveFromCycleMenuItem = (): TContextMenuItem => ({
-    key: "remove-from-cycle",
-    title: "Remove from cycle",
+  const createRemoveFromSprintMenuItem = (): TContextMenuItem => ({
+    key: "remove-from-sprint",
+    title: "Remove from sprint",
     icon: XCircle,
-    action: () => handleOptionalAction(handleRemoveFromView, "Remove from cycle"),
+    action: () => handleOptionalAction(handleRemoveFromView, "Remove from sprint"),
     shouldRender: isEditingAllowed,
   });
 
@@ -251,7 +251,7 @@ export const useMenuItemFactory = (props: MenuItemFactoryProps) => {
     createCopyMenuItem,
     createOpenInNewTabMenuItem,
     createCopyLinkMenuItem,
-    createRemoveFromCycleMenuItem,
+    createRemoveFromSprintMenuItem,
     createRemoveFromModuleMenuItem,
     createArchiveMenuItem,
     createRestoreMenuItem,
@@ -307,13 +307,13 @@ export const useAllIssueMenuItems = (props: MenuItemFactoryProps): TContextMenuI
   );
 };
 
-export const useCycleIssueMenuItems = (props: MenuItemFactoryProps): TContextMenuItem[] => {
+export const useSprintIssueMenuItems = (props: MenuItemFactoryProps): TContextMenuItem[] => {
   const factory = useMenuItemFactory(props);
 
   const customEditAction = () => {
     props.setIssueToEdit({
       ...props.issue,
-      cycle_id: props.cycleId ?? null,
+      sprint_id: props.sprintId ?? null,
     });
     props.setCreateUpdateIssueModal(true);
   };
@@ -324,11 +324,11 @@ export const useCycleIssueMenuItems = (props: MenuItemFactoryProps): TContextMen
       factory.createCopyMenuItem(),
       factory.createOpenInNewTabMenuItem(),
       factory.createCopyLinkMenuItem(),
-      factory.createRemoveFromCycleMenuItem(),
+      factory.createRemoveFromSprintMenuItem(),
       factory.createArchiveMenuItem(),
       factory.createDeleteMenuItem(),
     ],
-    [factory, props.cycleId]
+    [factory, props.sprintId]
   );
 };
 

@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 
 from django.db.models import F, QuerySet
 
-from plane.db.models import CycleIssue, FileAsset
+from plane.db.models import SprintIssue, FileAsset
 
 from .base import (
     DateField,
@@ -37,30 +37,30 @@ def get_issue_attachments_dict(issues_queryset: QuerySet) -> Dict[str, List[str]
     return attachment_dict
 
 
-def get_issue_last_cycles_dict(issues_queryset: QuerySet) -> Dict[str, Optional[CycleIssue]]:
-    """Get the last cycle for each issue in the given queryset.
+def get_issue_last_sprints_dict(issues_queryset: QuerySet) -> Dict[str, Optional[SprintIssue]]:
+    """Get the last sprint for each issue in the given queryset.
 
     Args:
         issues_queryset: Queryset of Issue objects
 
     Returns:
-        Dictionary mapping issue IDs to their last CycleIssue object
+        Dictionary mapping issue IDs to their last SprintIssue object
     """
-    # Fetch all cycle issues for the given issues, ordered by created_at descending
-    # select_related is used to fetch cycle data in the same query
-    cycle_issues = (
-        CycleIssue.objects.filter(issue_id__in=issues_queryset.values_list("id", flat=True))
-        .select_related("cycle")
+    # Fetch all sprint issues for the given issues, ordered by created_at descending
+    # select_related is used to fetch sprint data in the same query
+    sprint_issues = (
+        SprintIssue.objects.filter(issue_id__in=issues_queryset.values_list("id", flat=True))
+        .select_related("sprint")
         .order_by("issue_id", "-created_at")
     )
 
-    # Keep only the last (most recent) cycle for each issue
-    last_cycles_dict = {}
-    for cycle_issue in cycle_issues:
-        if cycle_issue.issue_id not in last_cycles_dict:
-            last_cycles_dict[cycle_issue.issue_id] = cycle_issue
+    # Keep only the last (most recent) sprint for each issue
+    last_sprints_dict = {}
+    for sprint_issue in sprint_issues:
+        if sprint_issue.issue_id not in last_sprints_dict:
+            last_sprints_dict[sprint_issue.issue_id] = sprint_issue
 
-    return last_cycles_dict
+    return last_sprints_dict
 
 
 class IssueExportSchema(ExportSchema):
@@ -109,9 +109,9 @@ class IssueExportSchema(ExportSchema):
     subscribers_count = NumberField(label="Subscribers Count")
     attachment_count = NumberField(label="Attachment Count")
     attachment_links = ListField(label="Attachment Links")
-    cycle_name = StringField(label="Cycle Name")
-    cycle_start_date = DateField(label="Cycle Start Date")
-    cycle_end_date = DateField(label="Cycle End Date")
+    sprint_name = StringField(label="Sprint Name")
+    sprint_start_date = DateField(label="Sprint Start Date")
+    sprint_end_date = DateField(label="Sprint End Date")
     parent = StringField(label="Parent")
     relations = JSONField(label="Relations")
 
@@ -161,23 +161,23 @@ class IssueExportSchema(ExportSchema):
             for asset in (self.context.get("attachments_dict") or {}).get(i.id, [])
         ]
 
-    def prepare_cycle_name(self, i):
-        cycles_dict = self.context.get("cycles_dict") or {}
-        last_cycle = cycles_dict.get(i.id)
-        return last_cycle.cycle.name if last_cycle else ""
+    def prepare_sprint_name(self, i):
+        sprints_dict = self.context.get("sprints_dict") or {}
+        last_sprint = sprints_dict.get(i.id)
+        return last_sprint.sprint.name if last_sprint else ""
 
-    def prepare_cycle_start_date(self, i):
-        cycles_dict = self.context.get("cycles_dict") or {}
-        last_cycle = cycles_dict.get(i.id)
-        if last_cycle and last_cycle.cycle.start_date:
-            return self._format_date(last_cycle.cycle.start_date)
+    def prepare_sprint_start_date(self, i):
+        sprints_dict = self.context.get("sprints_dict") or {}
+        last_sprint = sprints_dict.get(i.id)
+        if last_sprint and last_sprint.sprint.start_date:
+            return self._format_date(last_sprint.sprint.start_date)
         return ""
 
-    def prepare_cycle_end_date(self, i):
-        cycles_dict = self.context.get("cycles_dict") or {}
-        last_cycle = cycles_dict.get(i.id)
-        if last_cycle and last_cycle.cycle.end_date:
-            return self._format_date(last_cycle.cycle.end_date)
+    def prepare_sprint_end_date(self, i):
+        sprints_dict = self.context.get("sprints_dict") or {}
+        last_sprint = sprints_dict.get(i.id)
+        if last_sprint and last_sprint.sprint.end_date:
+            return self._format_date(last_sprint.sprint.end_date)
         return ""
 
     def prepare_parent(self, i):
@@ -206,5 +206,5 @@ class IssueExportSchema(ExportSchema):
         """Get context data for issue serialization."""
         return {
             "attachments_dict": get_issue_attachments_dict(queryset),
-            "cycles_dict": get_issue_last_cycles_dict(queryset),
+            "sprints_dict": get_issue_last_sprints_dict(queryset),
         }

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { EUserPermissionsLevel, EUserPermissions } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { CycleIcon, IntakeIcon, ModuleIcon, PageIcon, ViewsIcon, WorkItemsIcon } from "@plane/propel/icons";
+import { SprintIcon, IntakeIcon, ModuleIcon, PageIcon, ViewsIcon, WorkItemsIcon } from "@plane/propel/icons";
 import type { EUserProjectRoles } from "@plane/types";
 // plane ui
 // components
@@ -71,13 +71,13 @@ export const ProjectNavigation = observer(function ProjectNavigation(props: TPro
         sortOrder: 1,
       },
       {
-        i18n_key: "sidebar.cycles",
-        key: "cycles",
-        name: "Cycles",
-        href: `/${workspaceSlug}/projects/${projectId}/cycles`,
-        icon: CycleIcon,
+        i18n_key: "sidebar.sprints",
+        key: "sprints",
+        name: "Sprints",
+        href: `/${workspaceSlug}/projects/${projectId}/sprints`,
+        icon: SprintIcon,
         access: [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-        shouldRender: project?.cycle_view ?? false,
+        shouldRender: project?.sprint_view ?? false,
         sortOrder: 2,
       },
       {

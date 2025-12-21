@@ -138,24 +138,24 @@ export class IssueService extends APIService {
       });
   }
 
-  async addIssueToCycle(
+  async addIssueToSprint(
     workspaceSlug: string,
     projectId: string,
-    cycleId: string,
+    sprintId: string,
     data: {
       issues: string[];
     }
   ) {
-    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/cycles/${cycleId}/cycle-issues/`, data)
+    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/sprints/${sprintId}/sprint-issues/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
       });
   }
 
-  async removeIssueFromCycle(workspaceSlug: string, projectId: string, cycleId: string, bridgeId: string) {
+  async removeIssueFromSprint(workspaceSlug: string, projectId: string, sprintId: string, bridgeId: string) {
     return this.delete(
-      `/api/workspaces/${workspaceSlug}/projects/${projectId}/cycles/${cycleId}/cycle-issues/${bridgeId}/`
+      `/api/workspaces/${workspaceSlug}/projects/${projectId}/sprints/${sprintId}/sprint-issues/${bridgeId}/`
     )
       .then((response) => response?.data)
       .catch((error) => {

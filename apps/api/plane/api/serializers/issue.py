@@ -28,7 +28,7 @@ from plane.utils.content_validator import (
 )
 
 from .base import BaseSerializer
-from .cycle import CycleLiteSerializer, CycleSerializer
+from .sprint import SprintLiteSerializer, SprintSerializer
 from .module import ModuleLiteSerializer, ModuleSerializer
 from .state import StateLiteSerializer
 from .user import UserLiteSerializer
@@ -42,7 +42,7 @@ class IssueSerializer(BaseSerializer):
     """
     Comprehensive work item serializer with full relationship management.
 
-    Handles complete work item lifecycle including assignees, labels, validation,
+    Handles complete work item lifesprint including assignees, labels, validation,
     and related model updates. Supports dynamic field expansion and HTML content
     processing.
     """
@@ -578,18 +578,18 @@ class IssueActivitySerializer(BaseSerializer):
         exclude = ["created_by", "updated_by"]
 
 
-class CycleIssueSerializer(BaseSerializer):
+class SprintIssueSerializer(BaseSerializer):
     """
-    Serializer for work items within cycles.
+    Serializer for work items within sprints.
 
-    Provides cycle context for work items including cycle metadata
+    Provides sprint context for work items including sprint metadata
     and timing information for sprint and iteration management.
     """
 
-    cycle = CycleSerializer(read_only=True)
+    sprint = SprintSerializer(read_only=True)
 
     class Meta:
-        fields = ["cycle"]
+        fields = ["sprint"]
 
 
 class ModuleIssueSerializer(BaseSerializer):
@@ -623,11 +623,11 @@ class IssueExpandSerializer(BaseSerializer):
     """
     Extended work item serializer with full relationship expansion.
 
-    Provides work items with expanded related data including cycles, modules,
+    Provides work items with expanded related data including sprints, modules,
     labels, assignees, and states for comprehensive data representation.
     """
 
-    cycle = CycleLiteSerializer(source="issue_cycle.cycle", read_only=True)
+    sprint = SprintLiteSerializer(source="issue_sprint.sprint", read_only=True)
     module = ModuleLiteSerializer(source="issue_module.module", read_only=True)
 
     labels = serializers.SerializerMethodField()

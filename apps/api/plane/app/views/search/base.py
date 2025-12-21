@@ -28,7 +28,7 @@ from plane.db.models import (
     Workspace,
     Project,
     Issue,
-    Cycle,
+    Sprint,
     Module,
     Page,
     IssueView,
@@ -108,14 +108,14 @@ class GlobalSearchEndpoint(BaseAPIView):
             "workspace__slug",
         )[:100]
 
-    def filter_cycles(self, query, slug, project_id, workspace_search):
+    def filter_sprints(self, query, slug, project_id, workspace_search):
         fields = ["name"]
         q = Q()
         if query:
             for field in fields:
                 q |= Q(**{f"{field}__icontains": query})
 
-        cycles = Cycle.objects.filter(
+        sprints = Sprint.objects.filter(
             q,
             project__project_projectmember__member=self.request.user,
             project__project_projectmember__is_active=True,
@@ -124,10 +124,10 @@ class GlobalSearchEndpoint(BaseAPIView):
         )
 
         if workspace_search == "false" and project_id:
-            cycles = cycles.filter(project_id=project_id)
+            sprints = sprints.filter(project_id=project_id)
 
         return (
-            cycles.order_by("-created_at")
+            sprints.order_by("-created_at")
             .distinct()
             .values("name", "id", "project_id", "project__identifier", "workspace__slug")
         )
@@ -273,7 +273,7 @@ class GlobalSearchEndpoint(BaseAPIView):
             "workspace": self.filter_workspaces,
             "project": self.filter_projects,
             "issue": self.filter_issues,
-            "cycle": self.filter_cycles,
+            "sprint": self.filter_sprints,
             "module": self.filter_modules,
             "issue_view": self.filter_views,
             "page": self.filter_pages,
@@ -413,7 +413,7 @@ class SearchEndpoint(BaseAPIView):
                     )
                     response_data["issue"] = list(issues)
 
-                elif query_type == "cycle":
+                elif query_type == "sprint":
                     fields = ["name"]
                     q = Q()
 
@@ -421,8 +421,8 @@ class SearchEndpoint(BaseAPIView):
                         for field in fields:
                             q |= Q(**{f"{field}__icontains": query})
 
-                    cycles = (
-                        Cycle.objects.filter(
+                    sprints = (
+                        Sprint.objects.filter(
                             q,
                             project__project_projectmember__member=self.request.user,
                             project__project_projectmember__is_active=True,
@@ -459,7 +459,7 @@ class SearchEndpoint(BaseAPIView):
                             "workspace__slug",
                         )[:count]
                     )
-                    response_data["cycle"] = list(cycles)
+                    response_data["sprint"] = list(sprints)
 
                 elif query_type == "module":
                     fields = ["name"]
@@ -617,7 +617,7 @@ class SearchEndpoint(BaseAPIView):
                     )
                     response_data["issue"] = list(issues)
 
-                elif query_type == "cycle":
+                elif query_type == "sprint":
                     fields = ["name"]
                     q = Q()
 
@@ -625,8 +625,8 @@ class SearchEndpoint(BaseAPIView):
                         for field in fields:
                             q |= Q(**{f"{field}__icontains": query})
 
-                    cycles = (
-                        Cycle.objects.filter(
+                    sprints = (
+                        Sprint.objects.filter(
                             q,
                             project__project_projectmember__member=self.request.user,
                             project__project_projectmember__is_active=True,
@@ -662,7 +662,7 @@ class SearchEndpoint(BaseAPIView):
                             "workspace__slug",
                         )[:count]
                     )
-                    response_data["cycle"] = list(cycles)
+                    response_data["sprint"] = list(sprints)
 
                 elif query_type == "module":
                     fields = ["name"]

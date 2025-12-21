@@ -10,7 +10,7 @@ export default {
     views: "Görünümler",
     analytics: "Analizler",
     work_items: "İş öğeleri",
-    cycles: "Döngüler",
+    sprints: "Döngüler",
     modules: "Modüller",
     intake: "Talep",
     drafts: "Taslaklar",
@@ -273,24 +273,24 @@ export default {
   general_settings: "Genel ayarlar",
   sign_out: "Çıkış yap",
   signing_out: "Çıkış yapılıyor",
-  active_cycles: "Aktif Döngüler",
-  active_cycles_description:
+  active_sprints: "Aktif Döngüler",
+  active_sprints_description:
     "Projeler arasında döngüleri izleyin, yüksek öncelikli iş öğelerini takip edin ve dikkat gerektiren döngülere odaklanın.",
-  on_demand_snapshots_of_all_your_cycles: "Tüm döngülerinizin anlık görüntüleri",
+  on_demand_snapshots_of_all_your_sprints: "Tüm döngülerinizin anlık görüntüleri",
   upgrade: "Yükselt",
   "10000_feet_view": "Tüm aktif döngülerin genel görünümü",
   "10000_feet_view_description":
     "Her projede tek tek dolaşmak yerine, tüm projelerinizdeki çalışan döngüleri bir arada görün.",
-  get_snapshot_of_each_active_cycle: "Her aktif döngünün anlık görüntüsünü alın",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "Her aktif döngünün anlık görüntüsünü alın",
+  get_snapshot_of_each_active_sprint_description:
     "Tüm aktif döngüler için üst düzey metrikleri takip edin, ilerleme durumlarını görün ve son teslim tarihlerine göre kapsamı anlayın.",
   compare_burndowns: "Burndown'ları karşılaştırın",
   compare_burndowns_description: "Her ekibin performansını her döngünün burndown raporuyla izleyin.",
   quickly_see_make_or_break_issues: "Kritik iş öğelerini hızlıca görün",
   quickly_see_make_or_break_issues_description:
     "Her döngü için yüksek öncelikli iş öğelerini son teslim tarihlerine göre önizleyin. Tümünü tek tıkla görün.",
-  zoom_into_cycles_that_need_attention: "Dikkat gerektiren döngülere odaklanın",
-  zoom_into_cycles_that_need_attention_description:
+  zoom_into_sprints_that_need_attention: "Dikkat gerektiren döngülere odaklanın",
+  zoom_into_sprints_that_need_attention_description:
     "Beklentilere uymayan herhangi bir döngünün durumunu tek tıkla inceleyin.",
   stay_ahead_of_blockers: "Engellerin önüne geçin",
   stay_ahead_of_blockers_description:
@@ -372,7 +372,7 @@ export default {
   congrats: "Tebrikler!",
   open_project: "Projeyi aç",
   issues: "İş Öğeleri",
-  cycles: "Döngüler",
+  sprints: "Döngüler",
   modules: "Modüller",
   pages: "Sayfalar",
   intake: "Talep",
@@ -380,7 +380,7 @@ export default {
   work_management: "İş Yönetimi",
   projects_and_issues: "Projeler ve İş Öğeleri",
   projects_and_issues_description: "Bu projede bu özellikleri açıp kapatın.",
-  cycles_description:
+  sprints_description:
     "Projeye göre işi zamanla sınırlandırın ve gerektiğinde zaman dilimini ayarlayın. Bir döngü 2 hafta, bir sonraki 1 hafta olabilir.",
   modules_description: "İşi, özel liderler ve atanmış kişilerle alt projelere ayırın.",
   views_description: "Özel sıralamaları, filtreleri ve görüntüleme seçeneklerini kaydedin veya ekibinizle paylaşın.",
@@ -652,8 +652,8 @@ export default {
     priority: "Öncelik",
     team_project: "Takım projesi",
     project: "Proje",
-    cycle: "Döngü",
-    cycles: "Döngüler",
+    sprint: "Döngü",
+    sprints: "Döngüler",
     module: "Modül",
     modules: "Modüller",
     labels: "Etiketler",
@@ -973,7 +973,7 @@ export default {
     add: {
       press_enter: "Başka bir iş öğesi eklemek için 'Enter'a basın",
       label: "İş öğesi ekle",
-      cycle: {
+      sprint: {
         failed: "İş öğesi döngüye eklenemedi. Lütfen tekrar deneyin.",
         success: "{count, plural, one {İş öğesi} other {İş öğeleri}} döngüye başarıyla eklendi.",
         loading: "{count, plural, one {İş öğesi} other {İş öğeleri}} döngüye ekleniyor",
@@ -989,7 +989,7 @@ export default {
     },
     remove: {
       label: "İş öğesini kaldır",
-      cycle: {
+      sprint: {
         loading: "İş öğesi döngüden kaldırılıyor",
         success: "İş öğesi döngüden başarıyla kaldırıldı.",
         failed: "İş öğesi döngüden kaldırılamadı. Lütfen tekrar deneyin.",
@@ -1344,7 +1344,7 @@ export default {
     work_items_closed_in: "Kapanan iş öğeleri",
     selected_projects: "Seçilen projeler",
     total_members: "Toplam üye",
-    total_cycles: "Toplam döngü",
+    total_sprints: "Toplam döngü",
     total_modules: "Toplam modül",
     pending_work_items: {
       title: "Bekleyen iş öğeleri",
@@ -1431,7 +1431,7 @@ export default {
     },
     error: {
       permission: "Bu işlemi yapma izniniz yok.",
-      cycle_delete: "Döngü silinemedi",
+      sprint_delete: "Döngü silinemedi",
       module_delete: "Modül silinemedi",
       issue_delete: "İş öğesi silinemedi",
     },
@@ -1957,23 +1957,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "Döngü ekle",
+  project_sprints: {
+    add_sprint: "Döngü ekle",
     more_details: "Daha fazla detay",
-    cycle: "Döngü",
-    update_cycle: "Döngüyü güncelle",
-    create_cycle: "Döngü oluştur",
-    no_matching_cycles: "Eşleşen döngü yok",
-    remove_filters_to_see_all_cycles: "Tüm döngüleri görmek için filtreleri kaldırın",
-    remove_search_criteria_to_see_all_cycles: "Tüm döngüleri görmek için arama kriterlerini kaldırın",
-    only_completed_cycles_can_be_archived: "Yalnızca tamamlanmış döngüler arşivlenebilir",
+    sprint: "Döngü",
+    update_sprint: "Döngüyü güncelle",
+    create_sprint: "Döngü oluştur",
+    no_matching_sprints: "Eşleşen döngü yok",
+    remove_filters_to_see_all_sprints: "Tüm döngüleri görmek için filtreleri kaldırın",
+    remove_search_criteria_to_see_all_sprints: "Tüm döngüleri görmek için arama kriterlerini kaldırın",
+    only_completed_sprints_can_be_archived: "Yalnızca tamamlanmış döngüler arşivlenebilir",
     start_date: "Başlangıç tarihi",
     end_date: "Bitiş tarihi",
     in_your_timezone: "Saat diliminizde",
     transfer_work_items: "{count} iş öğesini aktar",
     date_range: "Tarih aralığı",
     add_date: "Tarih ekle",
-    active_cycle: {
+    active_sprint: {
       label: "Aktif döngü",
       progress: "İlerleme",
       chart: "Burndown grafiği",
@@ -1984,10 +1984,10 @@ export default {
       current: "Mevcut",
       labels: "Etiketler",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "Yaklaşan döngü",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "Tamamlanan döngü",
     },
     status: {
@@ -2311,7 +2311,7 @@ export default {
       custom: "Özel",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "İlerlemeyi görüntülemek için döngüye iş öğeleri ekleyin",
@@ -2340,7 +2340,7 @@ export default {
           text: "Özellikleri yönet",
         },
       },
-      cycle: {
+      sprint: {
         title: "Döngüler bu proje için etkin değil.",
         description:
           "İşleri zaman dilimlerine bölün, proje son teslim tarihinden geriye çalışarak tarihler belirleyin ve takım olarak somut ilerleme kaydedin. Döngüleri kullanmaya başlamak için projenizde döngü özelliğini etkinleştirin.",
@@ -2567,9 +2567,9 @@ export default {
       manual: "Manuel",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {Döngü} other {Döngüler}}",
-    no_cycle: "Döngü yok",
+    no_sprint: "Döngü yok",
   },
   module: {
     label: "{count, plural, one {Modül} other {Modüller}}",

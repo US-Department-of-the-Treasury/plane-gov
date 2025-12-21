@@ -194,27 +194,27 @@ class DraftIssueModule(WorkspaceBaseModel):
         return f"{self.module.name} {self.draft_issue.name}"
 
 
-class DraftIssueCycle(WorkspaceBaseModel):
+class DraftIssueSprint(WorkspaceBaseModel):
     """
-    Draft Issue Cycles
+    Draft Issue Sprints
     """
 
-    draft_issue = models.ForeignKey("db.DraftIssue", on_delete=models.CASCADE, related_name="draft_issue_cycle")
-    cycle = models.ForeignKey("db.Cycle", on_delete=models.CASCADE, related_name="draft_issue_cycle")
+    draft_issue = models.ForeignKey("db.DraftIssue", on_delete=models.CASCADE, related_name="draft_issue_sprint")
+    sprint = models.ForeignKey("db.Sprint", on_delete=models.CASCADE, related_name="draft_issue_sprint")
 
     class Meta:
-        unique_together = ["draft_issue", "cycle", "deleted_at"]
+        unique_together = ["draft_issue", "sprint", "deleted_at"]
         constraints = [
             models.UniqueConstraint(
-                fields=["draft_issue", "cycle"],
+                fields=["draft_issue", "sprint"],
                 condition=models.Q(deleted_at__isnull=True),
-                name="draft_issue_cycle_when_deleted_at_null",
+                name="draft_issue_sprint_when_deleted_at_null",
             )
         ]
-        verbose_name = "Draft Issue Cycle"
-        verbose_name_plural = "Draft Issue Cycles"
-        db_table = "draft_issue_cycles"
+        verbose_name = "Draft Issue Sprint"
+        verbose_name_plural = "Draft Issue Sprints"
+        db_table = "draft_issue_sprints"
         ordering = ("-created_at",)
 
     def __str__(self):
-        return f"{self.cycle}"
+        return f"{self.sprint}"

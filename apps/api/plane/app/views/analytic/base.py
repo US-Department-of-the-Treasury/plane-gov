@@ -21,7 +21,7 @@ from plane.db.models import (
     Workspace,
     Project,
     ProjectMember,
-    Cycle,
+    Sprint,
     Module,
 )
 
@@ -43,7 +43,7 @@ class AnalyticsEndpoint(BaseAPIView):
             "labels__id",
             "assignees__id",
             "estimate_point__value",
-            "issue_cycle__cycle_id",
+            "issue_sprint__sprint_id",
             "issue_module__module_id",
             "priority",
             "start_date",
@@ -142,18 +142,18 @@ class AnalyticsEndpoint(BaseAPIView):
                 )
             )
 
-        cycle_details = {}
-        if x_axis in ["issue_cycle__cycle_id"] or segment in ["issue_cycle__cycle_id"]:
-            cycle_details = (
+        sprint_details = {}
+        if x_axis in ["issue_sprint__sprint_id"] or segment in ["issue_sprint__sprint_id"]:
+            sprint_details = (
                 Issue.issue_objects.filter(
                     workspace__slug=slug,
                     **filters,
-                    issue_cycle__cycle_id__isnull=False,
-                    issue_cycle__deleted_at__isnull=True,
+                    issue_sprint__sprint_id__isnull=False,
+                    issue_sprint__deleted_at__isnull=True,
                 )
-                .distinct("issue_cycle__cycle_id")
-                .order_by("issue_cycle__cycle_id")
-                .values("issue_cycle__cycle_id", "issue_cycle__cycle__name")
+                .distinct("issue_sprint__sprint_id")
+                .order_by("issue_sprint__sprint_id")
+                .values("issue_sprint__sprint_id", "issue_sprint__sprint__name")
             )
 
         module_details = {}
@@ -178,7 +178,7 @@ class AnalyticsEndpoint(BaseAPIView):
                     "state_details": state_details,
                     "assignee_details": assignee_details,
                     "label_details": label_details,
-                    "cycle_details": cycle_details,
+                    "sprint_details": sprint_details,
                     "module_details": module_details,
                 },
             },
@@ -238,7 +238,7 @@ class ExportAnalyticsEndpoint(BaseAPIView):
             "labels__id",
             "assignees__id",
             "estimate_point",
-            "issue_cycle__cycle_id",
+            "issue_sprint__sprint_id",
             "issue_module__module_id",
             "priority",
             "start_date",
@@ -421,7 +421,7 @@ class ProjectStatsEndpoint(BaseAPIView):
             "total_issues",
             "completed_issues",
             "total_members",
-            "total_cycles",
+            "total_sprints",
             "total_modules",
         }
         requested_fields = set(filter(None, fields)) & valid_fields
@@ -450,9 +450,9 @@ class ProjectStatsEndpoint(BaseAPIView):
                 .values("count")
             )
 
-        if "total_cycles" in requested_fields:
-            annotations["total_cycles"] = (
-                Cycle.objects.filter(project_id=OuterRef("id"))
+        if "total_sprints" in requested_fields:
+            annotations["total_sprints"] = (
+                Sprint.objects.filter(project_id=OuterRef("id"))
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")

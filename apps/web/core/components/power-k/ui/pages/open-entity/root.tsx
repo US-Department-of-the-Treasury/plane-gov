@@ -1,5 +1,5 @@
 // local imports
-import { PowerKOpenProjectCyclesMenu } from "./project-cycles-menu";
+import { PowerKOpenProjectSprintsMenu } from "./project-sprints-menu";
 import { PowerKOpenProjectModulesMenu } from "./project-modules-menu";
 import { PowerKOpenProjectSettingsMenu } from "./project-settings-menu";
 import { PowerKOpenProjectViewsMenu } from "./project-views-menu";
@@ -21,8 +21,8 @@ export function PowerKOpenEntityPages(props: TPowerKOpenEntityActionsProps) {
       {activePage === "open-project-setting" && (
         <PowerKOpenProjectSettingsMenu context={context} handleSelect={handleSelection} />
       )}
-      {activePage === "open-project-cycle" && (
-        <PowerKOpenProjectCyclesMenu context={context} handleSelect={handleSelection} />
+      {activePage === "open-project-sprint" && (
+        <PowerKOpenProjectSprintsMenu context={context} handleSelect={handleSelection} />
       )}
       {activePage === "open-project-module" && (
         <PowerKOpenProjectModulesMenu context={context} handleSelect={handleSelection} />

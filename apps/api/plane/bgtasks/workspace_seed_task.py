@@ -30,9 +30,9 @@ from plane.db.models import (
     IssueActivity,
     Page,
     ProjectPage,
-    Cycle,
+    Sprint,
     Module,
-    CycleIssue,
+    SprintIssue,
     ModuleIssue,
     IssueView,
     User,
@@ -101,7 +101,7 @@ def create_project_and_member(workspace: Workspace, bot_user: User) -> Dict[int,
             identifier=project_identifier,
             created_by_id=bot_user.id,
             # Enable all views in seed data
-            cycle_view=True,
+            sprint_view=True,
             module_view=True,
             issue_views_view=True,
         )
@@ -139,7 +139,7 @@ def create_project_and_member(workspace: Workspace, bot_user: User) -> Dict[int,
                     display_properties={
                         "key": True,
                         "link": True,
-                        "cycle": False,
+                        "sprint": False,
                         "state": True,
                         "labels": False,
                         "modules": False,
@@ -241,7 +241,7 @@ def create_project_issues(
     project_map: Dict[int, uuid.UUID],
     states_map: Dict[int, uuid.UUID],
     labels_map: Dict[int, uuid.UUID],
-    cycles_map: Dict[int, uuid.UUID],
+    sprints_map: Dict[int, uuid.UUID],
     module_map: Dict[int, uuid.UUID],
     bot_user: User,
 ) -> None:
@@ -273,7 +273,7 @@ def create_project_issues(
         labels = issue_seed.pop("labels")
         project_id = issue_seed.pop("project_id")
         state_id = issue_seed.pop("state_id")
-        cycle_id = issue_seed.pop("cycle_id")
+        sprint_id = issue_seed.pop("sprint_id")
         module_ids = issue_seed.pop("module_ids")
 
         issue = Issue.objects.create(
@@ -310,11 +310,11 @@ def create_project_issues(
                 created_by_id=bot_user.id,
             )
 
-        # Create cycle issues
-        if cycle_id:
-            CycleIssue.objects.create(
+        # Create sprint issues
+        if sprint_id:
+            SprintIssue.objects.create(
                 issue=issue,
-                cycle_id=cycles_map[cycle_id],
+                sprint_id=sprints_map[sprint_id],
                 project_id=project_map[project_id],
                 workspace_id=workspace.id,
                 created_by_id=bot_user.id,
@@ -379,43 +379,43 @@ def create_pages(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_us
     return
 
 
-def create_cycles(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_user: User) -> Dict[int, uuid.UUID]:
-    """Creates cycles for each project in the workspace.
+def create_sprints(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_user: User) -> Dict[int, uuid.UUID]:
+    """Creates sprints for each project in the workspace.
 
     Args:
         workspace: The workspace containing the projects
         project_map: Mapping of seed project IDs to actual project IDs
-        bot_user: The bot user to use for creating the cycles
+        bot_user: The bot user to use for creating the sprints
     Returns:
-        A mapping of seed cycle IDs to actual cycle IDs
+        A mapping of seed sprint IDs to actual sprint IDs
     """
-    cycle_seeds = read_seed_file("cycles.json")
-    if not cycle_seeds:
+    sprint_seeds = read_seed_file("sprints.json")
+    if not sprint_seeds:
         return {}
 
-    cycle_map: Dict[int, uuid.UUID] = {}
+    sprint_map: Dict[int, uuid.UUID] = {}
 
-    for cycle_seed in cycle_seeds:
-        cycle_id = cycle_seed.pop("id")
-        project_id = cycle_seed.pop("project_id")
-        type = cycle_seed.pop("type")
+    for sprint_seed in sprint_seeds:
+        sprint_id = sprint_seed.pop("id")
+        project_id = sprint_seed.pop("project_id")
+        type = sprint_seed.pop("type")
 
         if type == "CURRENT":
             start_date = timezone.now()
             end_date = start_date + timedelta(days=14)
 
         if type == "UPCOMING":
-            # Get the last cycle
-            last_cycle = Cycle.objects.filter(project_id=project_map[project_id]).order_by("-end_date").first()
-            if last_cycle:
-                start_date = last_cycle.end_date + timedelta(days=1)
+            # Get the last sprint
+            last_sprint = Sprint.objects.filter(project_id=project_map[project_id]).order_by("-end_date").first()
+            if last_sprint:
+                start_date = last_sprint.end_date + timedelta(days=1)
                 end_date = start_date + timedelta(days=14)
             else:
                 start_date = timezone.now() + timedelta(days=14)
                 end_date = start_date + timedelta(days=14)
 
-        cycle = Cycle.objects.create(
-            **cycle_seed,
+        sprint = Sprint.objects.create(
+            **sprint_seed,
             start_date=start_date,
             end_date=end_date,
             project_id=project_map[project_id],
@@ -424,9 +424,9 @@ def create_cycles(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_u
             owned_by_id=bot_user.id,
         )
 
-        cycle_map[cycle_id] = cycle.id
-        logger.info(f"Task: workspace_seed_task -> Cycle {cycle_id} created")
-    return cycle_map
+        sprint_map[sprint_id] = sprint.id
+        logger.info(f"Task: workspace_seed_task -> Sprint {sprint_id} created")
+    return sprint_map
 
 
 def create_modules(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_user: User) -> None:
@@ -527,14 +527,14 @@ def workspace_seed(workspace_id: uuid.UUID) -> None:
         # Create project labels
         label_map = create_project_labels(workspace, project_map, bot_user)
 
-        # Create project cycles
-        cycle_map = create_cycles(workspace, project_map, bot_user)
+        # Create project sprints
+        sprint_map = create_sprints(workspace, project_map, bot_user)
 
         # Create project modules
         module_map = create_modules(workspace, project_map, bot_user)
 
         # create project issues
-        create_project_issues(workspace, project_map, state_map, label_map, cycle_map, module_map, bot_user)
+        create_project_issues(workspace, project_map, state_map, label_map, sprint_map, module_map, bot_user)
 
         # create project views
         create_views(workspace, project_map, bot_user)

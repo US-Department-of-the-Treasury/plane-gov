@@ -774,7 +774,7 @@ export default [
   "mortgage",
   "moscow",
   "moto",
-  "motorcycles",
+  "motorsprints",
   "mov",
   "movie",
   "mp",

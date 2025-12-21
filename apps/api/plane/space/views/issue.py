@@ -60,7 +60,7 @@ from plane.db.models import (
     IssueVote,
     ProjectPublicMember,
     FileAsset,
-    CycleIssue,
+    SprintIssue,
 )
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.utils.issue_filters import issue_filters
@@ -92,8 +92,8 @@ class ProjectIssuesPublicEndpoint(BaseAPIView):
             )
             .prefetch_related(Prefetch("votes", queryset=IssueVote.objects.select_related("actor")))
             .annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(
@@ -602,8 +602,8 @@ class IssueRetrievePublicEndpoint(BaseAPIView):
             .select_related("workspace", "project", "state", "parent")
             .prefetch_related("assignees", "labels", "issue_module__module")
             .annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(
@@ -758,7 +758,7 @@ class IssueRetrievePublicEndpoint(BaseAPIView):
                 "sequence_id",
                 "project_id",
                 "parent_id",
-                "cycle_id",
+                "sprint_id",
                 "created_by",
                 "state__group",
                 "vote_items",

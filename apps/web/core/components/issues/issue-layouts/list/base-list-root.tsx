@@ -24,7 +24,7 @@ import type { IQuickActionProps, TRenderQuickActions } from "./list-view-types";
 type ListStoreType =
   | EIssuesStoreType.PROJECT
   | EIssuesStoreType.MODULE
-  | EIssuesStoreType.CYCLE
+  | EIssuesStoreType.SPRINT
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.PROFILE
   | EIssuesStoreType.ARCHIVED
@@ -38,7 +38,7 @@ interface IBaseListRoot {
   addIssuesToView?: (issueIds: string[]) => Promise<any>;
   canEditPropertiesBasedOnProject?: (projectId: string) => boolean;
   viewId?: string | undefined;
-  isCompletedCycle?: boolean;
+  isCompletedSprint?: boolean;
   isEpic?: boolean;
 }
 export const BaseListRoot = observer(function BaseListRoot(props: IBaseListRoot) {
@@ -47,7 +47,7 @@ export const BaseListRoot = observer(function BaseListRoot(props: IBaseListRoot)
     viewId,
     addIssuesToView,
     canEditPropertiesBasedOnProject,
-    isCompletedCycle = false,
+    isCompletedSprint = false,
     isEpic = false,
   } = props;
   // router
@@ -114,11 +114,11 @@ export const BaseListRoot = observer(function BaseListRoot(props: IBaseListRoot)
         handleRemoveFromView={async () => removeIssueFromView && removeIssueFromView(issue.project_id, issue.id)}
         handleArchive={async () => archiveIssue && archiveIssue(issue.project_id, issue.id)}
         handleRestore={async () => restoreIssue && restoreIssue(issue.project_id, issue.id)}
-        readOnly={!canEditProperties(issue.project_id ?? undefined) || isCompletedCycle}
+        readOnly={!canEditProperties(issue.project_id ?? undefined) || isCompletedSprint}
       />
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isCompletedCycle, canEditProperties, removeIssue, updateIssue, removeIssueFromView, archiveIssue, restoreIssue]
+    [isCompletedSprint, canEditProperties, removeIssue, updateIssue, removeIssueFromView, archiveIssue, restoreIssue]
   );
 
   const loadMoreIssues = useCallback(
@@ -164,7 +164,7 @@ export const BaseListRoot = observer(function BaseListRoot(props: IBaseListRoot)
           canEditProperties={canEditProperties}
           disableIssueCreation={!enableIssueCreation || !isEditingAllowed}
           addIssuesToView={addIssuesToView}
-          isCompletedCycle={isCompletedCycle}
+          isCompletedSprint={isCompletedSprint}
           handleOnDrop={handleOnDrop}
           handleCollapsedGroups={handleCollapsedGroups}
           collapsedGroups={collapsedGroups}

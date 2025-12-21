@@ -71,7 +71,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
     features: [
       {
         title: "Projects",
-        description: "Add projects to house work items, cycles, and modules.",
+        description: "Add projects to house work items, sprints, and modules.",
         cloud: {
           free: true,
           one: true,
@@ -82,7 +82,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Work items",
-        description: "Add work via work items, set properties for tracking, and add to\ncycles or modules.",
+        description: "Add work via work items, set properties for tracking, and add to\nsprints or modules.",
         cloud: {
           free: true,
           one: true,
@@ -103,7 +103,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Cycles",
+        title: "Sprints",
         description: "Track work in timeboxes with differing frequency.",
         cloud: {
           free: true,
@@ -155,7 +155,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
     features: [
       {
         title: "Bulk Ops",
-        description: "Add several work items to cycles or modules, transfer\nthem, or edit their properties.",
+        description: "Add several work items to sprints or modules, transfer\nthem, or edit their properties.",
         cloud: {
           free: false,
           one: "Limited props",
@@ -186,8 +186,8 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Active Cycles",
-        description: "See all running cycles across all projects, or soon, in\na single project.",
+        title: "Active Sprints",
+        description: "See all running sprints across all projects, or soon, in\na single project.",
         cloud: {
           free: false,
           one: true,
@@ -231,7 +231,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Work item Transfers",
-        description: "Move a work item from a project or a cycle to\nanother.",
+        description: "Move a work item from a project or a sprint to\nanother.",
         cloud: {
           free: false,
           one: false,
@@ -241,9 +241,9 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Auto-transfer Cycle Work items",
+        title: "Auto-transfer Sprint Work items",
         description:
-          "Transfer incomplete work items from a completed cycle\nto the next cycle or to the default project state. ",
+          "Transfer incomplete work items from a completed sprint\nto the next sprint or to the default project state. ",
         cloud: {
           free: false,
           one: false,
@@ -254,7 +254,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Epics",
-        description: "Organize long-term work in epics that house work items,\ncycles, and modules.",
+        description: "Organize long-term work in epics that house work items,\nsprints, and modules.",
         cloud: {
           free: false,
           one: false,
@@ -290,7 +290,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Module Overview",
-        description: "Like Cycle Overviews, see relevant details and\nprogress charts for each module.",
+        description: "Like Sprint Overviews, see relevant details and\nprogress charts for each module.",
         cloud: {
           free: false,
           one: false,
@@ -373,8 +373,8 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Teamspace Cycles",
-        description: "See multiple cycles in multiple projects at once.",
+        title: "Teamspace Sprints",
+        description: "See multiple sprints in multiple projects at once.",
         cloud: {
           free: false,
           one: false,
@@ -532,7 +532,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       {
         title: "Progress Charts",
         description:
-          "Track progress in cycles, modules, and overviews\nthroughout Plane without switching to dashboards\nor Analytics.",
+          "Track progress in sprints, modules, and overviews\nthroughout Plane without switching to dashboards\nor Analytics.",
         cloud: {
           free: false,
           one: false,
@@ -542,8 +542,8 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Cycle Reports",
-        description: "Get on-demand cycle reports during and after a\ncycle. Revisit reports anytime from permalinks.",
+        title: "Sprint Reports",
+        description: "Get on-demand sprint reports during and after a\nsprint. Revisit reports anytime from permalinks.",
         cloud: {
           free: false,
           one: false,
@@ -1294,8 +1294,8 @@ export const PLANE_PLANS: PlanePlans = {
     },
   },
   planHighlights: {
-    free: ["Upto 12 users", "Pages", "Unlimited projects", "Unlimited cycles and modules"],
-    one: ["Upto 50 users", "OIDC and SAML", "Active cycles", "Limited time tracking"],
+    free: ["Upto 12 users", "Pages", "Unlimited projects", "Unlimited sprints and modules"],
+    one: ["Upto 50 users", "OIDC and SAML", "Active sprints", "Limited time tracking"],
     pro: ["Unlimited users", "Custom work items + Properties", "Work item templates", "Full Time Tracking"],
     business: ["RBAC", "Project Templates", "Baselines And Deviations", "Custom Reports"],
     enterprise: ["Private + managed deployments", "GAC", "LDAP support", "Databases + Formulas"],

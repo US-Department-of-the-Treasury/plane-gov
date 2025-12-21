@@ -42,13 +42,13 @@ export default {
         "Các mục công việc là những khối xây dựng của dự án của bạn — chỉ định người sở hữu, đặt mức độ ưu tiên và theo dõi tiến độ dễ dàng.",
       cta_primary: "Tạo mục công việc đầu tiên của bạn",
     },
-    cycles: {
+    sprints: {
       title: "Nhóm và giới hạn thời gian công việc của bạn trong Chu kỳ.",
       description:
         "Chia nhỏ công việc thành các phần có giới hạn thời gian, làm ngược từ thời hạn dự án để đặt ngày và tạo tiến triển cụ thể như một đội.",
       cta_primary: "Đặt chu kỳ đầu tiên của bạn",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "Không có mục công việc để hiển thị trong chu kỳ này",
       description:
         "Tạo các mục công việc để bắt đầu giám sát tiến độ của đội bạn trong chu kỳ này và đạt được mục tiêu đúng hạn.",
@@ -110,7 +110,7 @@ export default {
         "Thủ công hoặc thông qua tự động hóa, bạn có thể lưu trữ các mục công việc đã hoàn thành hoặc bị hủy. Tìm chúng ở đây sau khi lưu trữ.",
       cta_primary: "Thiết lập tự động hóa",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "Chưa có chu kỳ được lưu trữ",
       description: "Để sắp xếp dự án của bạn, hãy lưu trữ các chu kỳ đã hoàn thành. Tìm chúng ở đây sau khi lưu trữ.",
     },
@@ -157,7 +157,7 @@ export default {
       title:
         "Tạo dự án với các mục công việc và người được giao để bắt đầu theo dõi hiệu suất, tiến độ và tác động của đội ở đây.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title:
         "Tạo chu kỳ để tổ chức công việc thành các giai đoạn có giới hạn thời gian và theo dõi tiến độ qua các sprint.",
     },

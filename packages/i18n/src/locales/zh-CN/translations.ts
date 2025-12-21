@@ -10,7 +10,7 @@ export default {
     views: "视图",
     analytics: "分析",
     work_items: "工作项",
-    cycles: "周期",
+    sprints: "周期",
     modules: "模块",
     intake: "收集",
     drafts: "草稿",
@@ -268,22 +268,22 @@ export default {
   general_settings: "常规设置",
   sign_out: "退出登录",
   signing_out: "正在退出登录",
-  active_cycles: "活动周期",
-  active_cycles_description: "监控各个项目的周期，跟踪高优先级工作项，并关注需要注意的周期。",
-  on_demand_snapshots_of_all_your_cycles: "所有周期的实时快照",
+  active_sprints: "活动周期",
+  active_sprints_description: "监控各个项目的周期，跟踪高优先级工作项，并关注需要注意的周期。",
+  on_demand_snapshots_of_all_your_sprints: "所有周期的实时快照",
   upgrade: "升级",
   "10000_feet_view": "所有活动周期的全局视图。",
   "10000_feet_view_description": "放大视角，一次性查看所有项目中正在进行的周期，而不是在每个项目中逐个查看周期。",
-  get_snapshot_of_each_active_cycle: "获取每个活动周期的快照。",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "获取每个活动周期的快照。",
+  get_snapshot_of_each_active_sprint_description:
     "跟踪所有活动周期的高级指标，查看其进度状态，并了解与截止日期相关的范围。",
   compare_burndowns: "比较燃尽图。",
   compare_burndowns_description: "通过查看每个周期的燃尽报告，监控每个团队的表现。",
   quickly_see_make_or_break_issues: "快速查看关键工作项。",
   quickly_see_make_or_break_issues_description:
     "预览每个周期中与截止日期相关的高优先级工作项。一键查看每个周期的所有工作项。",
-  zoom_into_cycles_that_need_attention: "关注需要注意的周期。",
-  zoom_into_cycles_that_need_attention_description: "一键调查任何不符合预期的周期状态。",
+  zoom_into_sprints_that_need_attention: "关注需要注意的周期。",
+  zoom_into_sprints_that_need_attention_description: "一键调查任何不符合预期的周期状态。",
   stay_ahead_of_blockers: "提前预防阻塞。",
   stay_ahead_of_blockers_description: "发现从一个项目到另一个项目的挑战，并查看从其他视图中不易发现的周期间依赖关系。",
   analytics: "分析",
@@ -362,7 +362,7 @@ export default {
   congrats: "恭喜！",
   open_project: "打开项目",
   issues: "工作项",
-  cycles: "周期",
+  sprints: "周期",
   modules: "模块",
   pages: "页面",
   intake: "收集",
@@ -370,7 +370,7 @@ export default {
   work_management: "工作管理",
   projects_and_issues: "项目和工作项",
   projects_and_issues_description: "在此项目中开启或关闭这些功能。",
-  cycles_description: "为每个项目设置时间框，并根据需要调整周期。一个周期可以是两周，下一个周期是一周。",
+  sprints_description: "为每个项目设置时间框，并根据需要调整周期。一个周期可以是两周，下一个周期是一周。",
   modules_description: "将工作组织为子项目，并指定专门的负责人和受理人。",
   views_description: "保存自定义排序、筛选和显示选项，或与团队共享。",
   pages_description: "创建和编辑自由格式的内容：笔记、文档，任何内容。",
@@ -639,8 +639,8 @@ export default {
     priority: "优先级",
     team_project: "团队项目",
     project: "项目",
-    cycle: "周期",
-    cycles: "周期",
+    sprint: "周期",
+    sprints: "周期",
     module: "模块",
     modules: "模块",
     labels: "标签",
@@ -958,7 +958,7 @@ export default {
     add: {
       press_enter: "按'Enter'添加另一个工作项",
       label: "添加工作项",
-      cycle: {
+      sprint: {
         failed: "无法将工作项添加到周期。请重试。",
         success: "{count, plural, one {工作项} other {工作项}}已成功添加到周期。",
         loading: "正在将{count, plural, one {工作项} other {工作项}}添加到周期",
@@ -974,7 +974,7 @@ export default {
     },
     remove: {
       label: "移除工作项",
-      cycle: {
+      sprint: {
         loading: "正在从周期中移除工作项",
         success: "已成功从周期中移除工作项。",
         failed: "无法从周期中移除工作项。请重试。",
@@ -1326,7 +1326,7 @@ export default {
     work_items_closed_in: "已关闭的工作项",
     selected_projects: "已选择的项目",
     total_members: "总成员数",
-    total_cycles: "总周期数",
+    total_sprints: "总周期数",
     total_modules: "总模块数",
     pending_work_items: {
       title: "待处理工作项",
@@ -1410,7 +1410,7 @@ export default {
     },
     error: {
       permission: "您没有执行此操作的权限。",
-      cycle_delete: "删除周期失败",
+      sprint_delete: "删除周期失败",
       module_delete: "删除模块失败",
       issue_delete: "删除工作项失败",
     },
@@ -1930,23 +1930,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "添加周期",
+  project_sprints: {
+    add_sprint: "添加周期",
     more_details: "更多详情",
-    cycle: "周期",
-    update_cycle: "更新周期",
-    create_cycle: "创建周期",
-    no_matching_cycles: "没有匹配的周期",
-    remove_filters_to_see_all_cycles: "移除筛选器以查看所有周期",
-    remove_search_criteria_to_see_all_cycles: "移除搜索条件以查看所有周期",
-    only_completed_cycles_can_be_archived: "只能归档已完成的周期",
+    sprint: "周期",
+    update_sprint: "更新周期",
+    create_sprint: "创建周期",
+    no_matching_sprints: "没有匹配的周期",
+    remove_filters_to_see_all_sprints: "移除筛选器以查看所有周期",
+    remove_search_criteria_to_see_all_sprints: "移除搜索条件以查看所有周期",
+    only_completed_sprints_can_be_archived: "只能归档已完成的周期",
     start_date: "开始日期",
     end_date: "结束日期",
     in_your_timezone: "在您的时区",
     transfer_work_items: "转移 {count} 工作项",
     date_range: "日期范围",
     add_date: "添加日期",
-    active_cycle: {
+    active_sprint: {
       label: "活动周期",
       progress: "进度",
       chart: "燃尽图",
@@ -1957,10 +1957,10 @@ export default {
       current: "当前",
       labels: "标签",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "即将到来的周期",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "已完成的周期",
     },
     status: {
@@ -2273,7 +2273,7 @@ export default {
       custom: "自定义",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "向周期添加工作项以查看其进度",
@@ -2302,7 +2302,7 @@ export default {
           text: "管理功能",
         },
       },
-      cycle: {
+      sprint: {
         title: "此项目未启用周期功能。",
         description:
           "按时间框将工作分解，从项目截止日期倒推设置日期，并作为团队取得切实的进展。为您的项目启用周期功能以开始使用它们。",
@@ -2522,9 +2522,9 @@ export default {
       manual: "手动",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {周期} other {周期}}",
-    no_cycle: "无周期",
+    no_sprint: "无周期",
   },
   module: {
     label: "{count, plural, one {模块} other {模块}}",

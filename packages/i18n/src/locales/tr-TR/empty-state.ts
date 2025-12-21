@@ -41,13 +41,13 @@ export default {
         "İş öğeleri projenizin yapı taşlarıdır — sahipler atayın, öncelikleri belirleyin ve ilerlemeyi kolayca takip edin.",
       cta_primary: "İlk iş öğenizi oluşturun",
     },
-    cycles: {
+    sprints: {
       title: "Çalışmanızı Döngülerde gruplayın ve zaman sınırlayın.",
       description:
         "Çalışmayı zaman sınırlı parçalara bölün, tarihleri belirlemek için proje son tarihinden geriye doğru çalışın ve bir ekip olarak somut ilerleme kaydedin.",
       cta_primary: "İlk döngünüzü ayarlayın",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "Bu döngüde gösterilecek iş öğesi yok",
       description:
         "Ekibinizin bu döngüdeki ilerlemesini izlemeye başlamak ve hedeflerinize zamanında ulaşmak için iş öğeleri oluşturun.",
@@ -109,7 +109,7 @@ export default {
         "Manuel veya otomasyon yoluyla tamamlanmış veya iptal edilmiş iş öğelerini arşivleyebilirsiniz. Arşivlendikten sonra burada bulun.",
       cta_primary: "Otomasyonu ayarla",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "Henüz arşivlenmiş döngü yok",
       description: "Projenizi düzenlemek için tamamlanmış döngüleri arşivleyin. Arşivlendikten sonra burada bulun.",
     },
@@ -156,7 +156,7 @@ export default {
       title:
         "Performansı, ilerlemeyi ve ekip etkisini burada izlemeye başlamak için iş öğeleri ve atananlar içeren projeler oluşturun.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title:
         "Çalışmayı zaman sınırlı aşamalara organize etmek ve sprintler boyunca ilerlemeyi takip etmek için döngüler oluşturun.",
     },

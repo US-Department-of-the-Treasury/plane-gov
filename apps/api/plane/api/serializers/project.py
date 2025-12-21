@@ -57,7 +57,7 @@ class ProjectCreateSerializer(BaseSerializer):
         "view_timeline",
         "view_kanban",
         "empty_dashboard",
-        "cycle",
+        "sprint",
     ]
 
     class Meta:
@@ -72,7 +72,7 @@ class ProjectCreateSerializer(BaseSerializer):
             "emoji",
             "cover_image",
             "module_view",
-            "cycle_view",
+            "sprint_view",
             "issue_views_view",
             "page_view",
             "intake_view",
@@ -177,12 +177,12 @@ class ProjectSerializer(BaseSerializer):
     """
     Comprehensive project serializer with metrics and member context.
 
-    Provides complete project data including member counts, cycle/module totals,
+    Provides complete project data including member counts, sprint/module totals,
     deployment status, and user-specific context for project management.
     """
 
     total_members = serializers.IntegerField(read_only=True)
-    total_cycles = serializers.IntegerField(read_only=True)
+    total_sprints = serializers.IntegerField(read_only=True)
     total_modules = serializers.IntegerField(read_only=True)
     is_member = serializers.BooleanField(read_only=True)
     sort_order = serializers.FloatField(read_only=True)

@@ -131,7 +131,7 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
   const {
     issue: { getIssueById },
   } = useIssueDetail();
-  const { fetchCycles } = useProjectIssueProperties();
+  const { fetchSprints } = useProjectIssueProperties();
   const { getStateById } = useProjectState();
 
   // form info
@@ -175,7 +175,7 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
         reset(getUpdateFormDataForReset(projectId, getValues()));
       }
     }
-    if (projectId && routeProjectId !== projectId) fetchCycles(workspaceSlug?.toString(), projectId);
+    if (projectId && routeProjectId !== projectId) fetchSprints(workspaceSlug?.toString(), projectId);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
