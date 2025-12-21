@@ -3,7 +3,7 @@ import { observer } from "mobx-react";
 // plane types
 import type { ILinkDetails } from "@plane/types";
 // components
-import { ModulesLinksListItem } from "@/components/epics";
+import { EpicLinksListItem } from "@/components/epics";
 // hooks
 import { useEpic } from "@/hooks/store/use-epic";
 
@@ -14,23 +14,23 @@ type Props = {
   epicId: string;
 };
 
-export const ModuleLinksList = observer(function ModuleLinksList(props: Props) {
+export const EpicLinksList = observer(function EpicLinksList(props: Props) {
   const { epicId, handleDeleteLink, handleEditLink, disabled } = props;
   // store hooks
   const { getEpicById } = useEpic();
   // derived values
   const currentEpic = getEpicById(epicId);
-  const moduleLinks = currentEpic?.link_epic;
+  const epicLinks = currentEpic?.link_epic;
   // memoized link handlers
   const memoizedDeleteLink = useCallback((id: string) => handleDeleteLink(id), [handleDeleteLink]);
   const memoizedEditLink = useCallback((link: ILinkDetails) => handleEditLink(link), [handleEditLink]);
 
-  if (!moduleLinks) return null;
+  if (!epicLinks) return null;
 
   return (
     <>
-      {moduleLinks.map((link) => (
-        <ModulesLinksListItem
+      {epicLinks.map((link) => (
+        <EpicLinksListItem
           key={link.id}
           handleDeleteLink={() => memoizedDeleteLink(link.id)}
           handleEditLink={() => memoizedEditLink(link)}

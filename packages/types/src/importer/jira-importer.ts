@@ -6,7 +6,7 @@ export interface IJiraImporterForm {
 }
 
 export interface IJiraConfig {
-  epics_to_modules: boolean;
+  import_jira_epics: boolean;
 }
 
 export interface IJiraData {
@@ -15,7 +15,7 @@ export interface IJiraData {
   total_issues: number;
   total_labels: number;
   total_states: number;
-  total_modules: number;
+  total_epics: number;
 }
 
 export interface User {

@@ -12,7 +12,7 @@ import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { IntakeStateDropdown } from "@/components/dropdowns/intake-state/dropdown";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { EpicDropdown } from "@/components/dropdowns/module/dropdown";
+import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
 import { PriorityDropdown } from "@/components/dropdowns/priority";
 import { ParentIssuesListModal } from "@/components/issues/parent-issues-list-modal";
 import { IssueLabelSelect } from "@/components/issues/select";
@@ -136,7 +136,7 @@ export const InboxIssueProperties = observer(function InboxIssueProperties(props
         </div>
       )}
 
-      {/* module */}
+      {/* epic */}
       {isVisible && (
         <div className="h-7">
           <EpicDropdown

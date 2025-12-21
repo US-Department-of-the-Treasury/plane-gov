@@ -60,7 +60,7 @@ export default {
         "Epics are made up of interconnected work items. They assist in monitoring progress through project phases, each with specific deadlines and analytics to indicate how close you are to achieving those phases.",
       cta_primary: "Set your first module",
     },
-    module_work_items: {
+    epic_work_items: {
       title: "No work items to show in this Epic",
       description: "Create work items to begin monitoring this module.",
       cta_primary: "Create work item",
@@ -112,7 +112,7 @@ export default {
       title: "No archived sprints yet",
       description: "To tidy up your project, archive completed sprints. Find them here once archived.",
     },
-    archive_modules: {
+    archive_epics: {
       title: "No archived Epics yet",
       description: "To tidy up your project, archive completed or cancelled modules. Find them here once archived.",
     },

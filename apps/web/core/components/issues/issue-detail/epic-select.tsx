@@ -5,7 +5,7 @@ import { useTranslation } from "@plane/i18n";
 // hooks
 // components
 import { cn } from "@plane/utils";
-import { EpicDropdown } from "@/components/dropdowns/module/dropdown";
+import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
 // ui
 // helpers
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";

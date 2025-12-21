@@ -38,7 +38,7 @@ export const useContextIndicator = (args: TArgs): string | null => {
       indicator = sprintDetails?.name;
       break;
     }
-    case "module": {
+    case "epic": {
       const epicDetails = epicId ? getEpicById(epicId.toString()) : null;
       indicator = epicDetails?.name;
       break;

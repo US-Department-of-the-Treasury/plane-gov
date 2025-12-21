@@ -6,7 +6,7 @@ import { MoreHorizontal } from "lucide-react";
 import {
   EUserPermissions,
   EUserPermissionsLevel,
-  MODULE_TRACKER_ELEMENTS,
+  EPIC_TRACKER_ELEMENTS,
   EPIC_TRACKER_EVENTS,
 } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -17,7 +17,7 @@ import { ContextMenu, CustomMenu } from "@plane/ui";
 import { copyUrlToClipboard, cn } from "@plane/utils";
 // components
 import { useEpicMenuItems } from "@/components/common/quick-actions-helper";
-import { ArchiveModuleModal, CreateUpdateEpicModal, DeleteEpicModal } from "@/components/epics";
+import { ArchiveEpicModal, CreateUpdateEpicModal, DeleteEpicModal } from "@/components/epics";
 // helpers
 import { captureClick, captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
@@ -39,7 +39,7 @@ export const EpicQuickActions = observer(function EpicQuickActions(props: Props)
   const router = useAppRouter();
   // states
   const [editModal, setEditModal] = useState(false);
-  const [archiveModuleModal, setArchiveModuleModal] = useState(false);
+  const [archiveEpicModal, setArchiveEpicModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   // store hooks
   const { allowPermissions } = useUserPermissions();
@@ -57,36 +57,36 @@ export const EpicQuickActions = observer(function EpicQuickActions(props: Props)
     projectId
   );
 
-  const moduleLink = `${workspaceSlug}/projects/${projectId}/epics/${epicId}`;
+  const epicLink = `${workspaceSlug}/projects/${projectId}/epics/${epicId}`;
   const handleCopyText = () =>
-    copyUrlToClipboard(moduleLink).then(() => {
+    copyUrlToClipboard(epicLink).then(() => {
       setToast({
         type: TOAST_TYPE.SUCCESS,
         title: "Link Copied!",
-        message: "Module link copied to clipboard.",
+        message: "Epic link copied to clipboard.",
       });
     });
-  const handleOpenInNewTab = () => window.open(`/${moduleLink}`, "_blank");
+  const handleOpenInNewTab = () => window.open(`/${epicLink}`, "_blank");
 
-  const handleRestoreModule = async () =>
+  const handleRestoreEpic = async () =>
     await restoreEpic(workspaceSlug, projectId, epicId)
       .then(() => {
         setToast({
           type: TOAST_TYPE.SUCCESS,
           title: "Restore success",
-          message: "Your module can be found in project modules.",
+          message: "Your epic can be found in project epics.",
         });
         captureSuccess({
           eventName: EPIC_TRACKER_EVENTS.restore,
           payload: { id: epicId },
         });
-        router.push(`/${workspaceSlug}/projects/${projectId}/archives/modules`);
+        router.push(`/${workspaceSlug}/projects/${projectId}/archives/epics`);
       })
       .catch((error) => {
         setToast({
           type: TOAST_TYPE.ERROR,
           title: "Error!",
-          message: "Module could not be restored. Please try again.",
+          message: "Epic could not be restored. Please try again.",
         });
         captureError({
           eventName: EPIC_TRACKER_EVENTS.restore,
@@ -103,8 +103,8 @@ export const EpicQuickActions = observer(function EpicQuickActions(props: Props)
     epicId,
     isEditingAllowed,
     handleEdit: () => setEditModal(true),
-    handleArchive: () => setArchiveModuleModal(true),
-    handleRestore: handleRestoreModule,
+    handleArchive: () => setArchiveEpicModal(true),
+    handleRestore: handleRestoreEpic,
     handleDelete: () => setDeleteModal(true),
     handleCopyLink: handleCopyText,
     handleOpenInNewTab,
@@ -120,7 +120,7 @@ export const EpicQuickActions = observer(function EpicQuickActions(props: Props)
 
       onClick: () => {
         captureClick({
-          elementName: MODULE_TRACKER_ELEMENTS.CONTEXT_MENU,
+          elementName: EPIC_TRACKER_ELEMENTS.CONTEXT_MENU,
         });
         item.action();
       },
@@ -138,12 +138,12 @@ export const EpicQuickActions = observer(function EpicQuickActions(props: Props)
             projectId={projectId}
             workspaceSlug={workspaceSlug}
           />
-          <ArchiveModuleModal
+          <ArchiveEpicModal
             workspaceSlug={workspaceSlug}
             projectId={projectId}
             epicId={epicId}
-            isOpen={archiveModuleModal}
-            handleClose={() => setArchiveModuleModal(false)}
+            isOpen={archiveEpicModal}
+            handleClose={() => setArchiveEpicModal(false)}
           />
           <DeleteEpicModal data={epicDetails} isOpen={deleteModal} onClose={() => setDeleteModal(false)} />
           {additionalModals}
@@ -163,7 +163,7 @@ export const EpicQuickActions = observer(function EpicQuickActions(props: Props)
               key={item.key}
               onClick={() => {
                 captureClick({
-                  elementName: MODULE_TRACKER_ELEMENTS.QUICK_ACTIONS,
+                  elementName: EPIC_TRACKER_ELEMENTS.QUICK_ACTIONS,
                 });
                 item.action();
               }}

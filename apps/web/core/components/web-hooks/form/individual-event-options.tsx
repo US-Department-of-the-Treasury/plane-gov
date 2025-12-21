@@ -21,10 +21,10 @@ export const INDIVIDUAL_WEBHOOK_OPTIONS: {
   {
     key: "issue",
     label: "Work items",
-    description: "Work item created, updated, deleted, added to a sprint or module",
+    description: "Work item created, updated, deleted, added to a sprint or epic",
   },
   {
-    key: "module",
+    key: "epic",
     label: "Epics",
     description: "Epic created, updated, or deleted",
   },

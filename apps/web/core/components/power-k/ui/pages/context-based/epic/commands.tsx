@@ -33,15 +33,15 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
   // translation
   const { t } = useTranslation();
 
-  const handleUpdateModule = useCallback(
-    async (formData: Partial<IModule>) => {
+  const handleUpdateEpic = useCallback(
+    async (formData: Partial<IEpic>) => {
       if (!workspaceSlug || !projectId || !epicDetails) return;
       await updateModuleDetails(workspaceSlug.toString(), projectId.toString(), epicDetails.id, formData).catch(
         () => {
           setToast({
             type: TOAST_TYPE.ERROR,
             title: "Error!",
-            message: "Module could not be updated. Please try again.",
+            message: "Epic could not be updated. Please try again.",
           });
         }
       );
@@ -57,9 +57,9 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
       if (updatedMembers.includes(memberId)) updatedMembers.splice(updatedMembers.indexOf(memberId), 1);
       else updatedMembers.push(memberId);
 
-      handleUpdateModule({ member_ids: updatedMembers });
+      handleUpdateEpic({ member_ids: updatedMembers });
     },
-    [handleUpdateModule, epicDetails]
+    [handleUpdateEpic, epicDetails]
   );
 
   const toggleFavorite = useCallback(() => {
@@ -75,19 +75,19 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
     }
   }, [addModuleToFavorites, removeModuleFromFavorites, workspaceSlug, epicDetails, isFavorite]);
 
-  const copyModuleUrlToClipboard = useCallback(() => {
+  const copyEpicUrlToClipboard = useCallback(() => {
     const url = new URL(window.location.href);
     copyTextToClipboard(url.href)
       .then(() => {
         setToast({
           type: TOAST_TYPE.SUCCESS,
-          title: t("power_k.contextual_actions.module.copy_url_toast_success"),
+          title: t("power_k.contextual_actions.epic.copy_url_toast_success"),
         });
       })
       .catch(() => {
         setToast({
           type: TOAST_TYPE.ERROR,
-          title: t("power_k.contextual_actions.module.copy_url_toast_error"),
+          title: t("power_k.contextual_actions.epic.copy_url_toast_error"),
         });
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,13 +95,13 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
 
   return [
     {
-      id: "add_remove_module_members",
-      i18n_title: "power_k.contextual_actions.module.add_remove_members",
+      id: "add_remove_epic_members",
+      i18n_title: "power_k.contextual_actions.epic.add_remove_members",
       icon: Users,
       group: "contextual",
-      contextType: "module",
+      contextType: "epic",
       type: "change-page",
-      page: "update-module-member",
+      page: "update-epic-member",
       onSelect: (data) => {
         const memberId = data as string;
         handleUpdateMember(memberId);
@@ -112,16 +112,16 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
       closeOnSelect: false,
     },
     {
-      id: "change_module_status",
-      i18n_title: "power_k.contextual_actions.module.change_status",
+      id: "change_epic_status",
+      i18n_title: "power_k.contextual_actions.epic.change_status",
       iconNode: <ModuleStatusIcon status="backlog" className="shrink-0 size-3.5" />,
       group: "contextual",
-      contextType: "module",
+      contextType: "epic",
       type: "change-page",
-      page: "update-module-status",
+      page: "update-epic-status",
       onSelect: (data) => {
         const status = data as TModuleStatus;
-        handleUpdateModule({ status });
+        handleUpdateEpic({ status });
       },
       shortcut: "s",
       isEnabled: () => isEditingAllowed,
@@ -129,13 +129,13 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
       closeOnSelect: true,
     },
     {
-      id: "toggle_module_favorite",
+      id: "toggle_epic_favorite",
       i18n_title: isFavorite
-        ? "power_k.contextual_actions.module.remove_from_favorites"
-        : "power_k.contextual_actions.module.add_to_favorites",
+        ? "power_k.contextual_actions.epic.remove_from_favorites"
+        : "power_k.contextual_actions.epic.add_to_favorites",
       icon: isFavorite ? StarOff : Star,
       group: "contextual",
-      contextType: "module",
+      contextType: "epic",
       type: "action",
       action: toggleFavorite,
       modifierShortcut: "shift+f",
@@ -144,13 +144,13 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
       closeOnSelect: true,
     },
     {
-      id: "copy_module_url",
-      i18n_title: "power_k.contextual_actions.module.copy_url",
+      id: "copy_epic_url",
+      i18n_title: "power_k.contextual_actions.epic.copy_url",
       icon: LinkIcon,
       group: "contextual",
-      contextType: "module",
+      contextType: "epic",
       type: "action",
-      action: copyModuleUrlToClipboard,
+      action: copyEpicUrlToClipboard,
       modifierShortcut: "cmd+shift+,",
       isEnabled: () => true,
       isVisible: () => true,

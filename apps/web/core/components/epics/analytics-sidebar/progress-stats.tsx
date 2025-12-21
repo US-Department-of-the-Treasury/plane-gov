@@ -30,7 +30,7 @@ type TEpicProgressStats = {
   totalIssuesCount: number;
 };
 
-export const ModuleProgressStats = observer(function ModuleProgressStats(props: TEpicProgressStats) {
+export const EpicProgressStats = observer(function EpicProgressStats(props: TEpicProgressStats) {
   const {
     distribution,
     groupedIssues,
@@ -47,8 +47,8 @@ export const ModuleProgressStats = observer(function ModuleProgressStats(props: 
   // plane imports
   const { t } = useTranslation();
   // hooks
-  const { storedValue: currentTab, setValue: setModuleTab } = useLocalStorage(
-    `module-analytics-tab-${epicId}`,
+  const { storedValue: currentTab, setValue: setEpicTab } = useLocalStorage(
+    `epic-analytics-tab-${epicId}`,
     "stat-assignees"
   );
   // derived values
@@ -133,7 +133,7 @@ export const ModuleProgressStats = observer(function ModuleProgressStats(props: 
                   : "text-placeholder hover:text-secondary"
               )}
               key={stat.key}
-              onClick={() => setModuleTab(stat.key)}
+              onClick={() => setEpicTab(stat.key)}
             >
               {t(stat.i18n_title)}
             </Tab>

@@ -26,7 +26,7 @@ import { DateDropdown } from "@/components/dropdowns/date";
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { EpicDropdown } from "@/components/dropdowns/module/dropdown";
+import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
 import { PriorityDropdown } from "@/components/dropdowns/priority";
 import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 // helpers
@@ -379,7 +379,7 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
         {!isEpic && (
           <>
             {/* modules */}
-            {projectDetails?.module_view && (
+            {projectDetails?.epic_view && (
               <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="modules">
                 <div className="h-5" onFocus={handleEventPropagation} onClick={handleEventPropagation}>
                   <EpicDropdown

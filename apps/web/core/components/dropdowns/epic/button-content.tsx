@@ -6,7 +6,7 @@ import { cn } from "@plane/utils";
 import { useEpic } from "@/hooks/store/use-module";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 
-type ModuleButtonContentProps = {
+type EpicButtonContentProps = {
   disabled: boolean;
   dropdownArrow: boolean;
   dropdownArrowClassName: string;
@@ -20,7 +20,7 @@ type ModuleButtonContentProps = {
   className?: string;
 };
 
-export function ModuleButtonContent(props: ModuleButtonContentProps) {
+export function EpicButtonContent(props: EpicButtonContentProps) {
   const {
     disabled,
     dropdownArrow,
@@ -48,8 +48,8 @@ export function ModuleButtonContent(props: ModuleButtonContentProps) {
               <div className="max-w-40 flex-grow truncate">
                 {value.length > 0
                   ? value.length === 1
-                    ? `${getEpicById(value[0])?.name || "module"}`
-                    : `${value.length} Module${value.length === 1 ? "" : "s"}`
+                    ? `${getEpicById(value[0])?.name || "epic"}`
+                    : `${value.length} Epic${value.length === 1 ? "" : "s"}`
                   : placeholder}
               </div>
             )}

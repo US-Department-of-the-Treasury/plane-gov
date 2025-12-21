@@ -10,7 +10,7 @@ import {
   EUserPermissionsLevel,
   EEstimateSystem,
   EPIC_TRACKER_EVENTS,
-  MODULE_TRACKER_ELEMENTS,
+  EPIC_TRACKER_ELEMENTS,
 } from "@plane/constants";
 // plane types
 import { useTranslation } from "@plane/i18n";
@@ -31,7 +31,7 @@ import { Loader, CustomSelect, TextArea } from "@plane/ui";
 import { getDate, renderFormattedPayloadDate } from "@plane/utils";
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { CreateUpdateModuleLinkModal, ModuleAnalyticsProgress, ModuleLinksList } from "@/components/epics";
+import { CreateUpdateEpicLinkModal, EpicAnalyticsProgress, EpicLinksList } from "@/components/epics";
 import { captureElementAndEvent, captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
@@ -56,7 +56,7 @@ type Props = {
 export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props: Props) {
   const { epicId, handleClose, isArchived } = props;
   // states
-  const [moduleLinkModal, setModuleLinkModal] = useState(false);
+  const [epicLinkModal, setEpicLinkModal] = useState(false);
   const [selectedLinkToUpdate, setSelectedLinkToUpdate] = useState<ILinkDetails | null>(null);
   // router
   const { workspaceSlug, projectId } = useParams();
@@ -84,7 +84,7 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
       .then((res) => {
         captureElementAndEvent({
           element: {
-            elementName: MODULE_TRACKER_ELEMENTS.RIGHT_SIDEBAR,
+            elementName: EPIC_TRACKER_ELEMENTS.RIGHT_SIDEBAR,
           },
           event: {
             eventName: EPIC_TRACKER_EVENTS.update,
@@ -156,7 +156,7 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
         setToast({
           type: TOAST_TYPE.SUCCESS,
           title: "Success!",
-          message: "Module link deleted successfully.",
+          message: "Epic link deleted successfully.",
         });
       })
       .catch(() => {
@@ -180,7 +180,7 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
     setToast({
       type: TOAST_TYPE.SUCCESS,
       title: "Success!",
-      message: "Module updated successfully.",
+      message: "Epic updated successfully.",
     });
   };
 
@@ -193,7 +193,7 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
 
   const handleEditLink = (link: ILinkDetails) => {
     setSelectedLinkToUpdate(link);
-    setModuleLinkModal(true);
+    setEpicLinkModal(true);
   };
 
   if (!epicDetails)
@@ -211,7 +211,7 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
       </Loader>
     );
 
-  const moduleStatus = EPIC_STATUS.find((status) => status.value === epicDetails.status);
+  const epicStatus = EPIC_STATUS.find((status) => status.value === epicDetails.status);
 
   const issueCount =
     epicDetails.total_issues === 0
@@ -230,10 +230,10 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
 
   return (
     <div className="relative">
-      <CreateUpdateModuleLinkModal
-        isOpen={moduleLinkModal}
+      <CreateUpdateEpicLinkModal
+        isOpen={epicLinkModal}
         handleClose={() => {
-          setModuleLinkModal(false);
+          setEpicLinkModal(false);
           setTimeout(() => {
             setSelectedLinkToUpdate(null);
           }, 500);
@@ -267,11 +267,11 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
                         isEditingAllowed && !isArchived ? "cursor-pointer" : "cursor-not-allowed"
                       }`}
                       style={{
-                        color: moduleStatus ? moduleStatus.color : "#a3a3a2",
-                        backgroundColor: moduleStatus ? `${moduleStatus.color}20` : "#a3a3a220",
+                        color: epicStatus ? epicStatus.color : "#a3a3a2",
+                        backgroundColor: epicStatus ? `${epicStatus.color}20` : "#a3a3a220",
                       }}
                     >
-                      {(moduleStatus && t(moduleStatus?.i18n_label)) ?? t("project_modules.status.backlog")}
+                      {(epicStatus && t(epicStatus?.i18n_label)) ?? t("project_epics.status.backlog")}
                     </span>
                   }
                   value={value}
@@ -424,7 +424,7 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
         </div>
 
         {workspaceSlug && projectId && epicDetails?.id && (
-          <ModuleAnalyticsProgress
+          <EpicAnalyticsProgress
             workspaceSlug={workspaceSlug.toString()}
             projectId={projectId.toString()}
             epicId={epicDetails?.id}
@@ -457,7 +457,7 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
                               <div className="flex w-full items-center justify-end">
                                 <button
                                   className="flex items-center gap-1.5 text-13 font-medium text-accent-primary"
-                                  onClick={() => setModuleLinkModal(true)}
+                                  onClick={() => setEpicLinkModal(true)}
                                 >
                                   <Plus className="h-3 w-3" />
                                   {t("add_link")}
@@ -466,7 +466,7 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
                             )}
 
                             {epicId && (
-                              <ModuleLinksList
+                              <EpicLinksList
                                 epicId={epicId}
                                 handleEditLink={handleEditLink}
                                 handleDeleteLink={handleDeleteLink}
@@ -483,7 +483,7 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
                             {isEditingAllowed && !isArchived && (
                               <button
                                 className="flex items-center gap-1.5 text-13 font-medium text-accent-primary"
-                                onClick={() => setModuleLinkModal(true)}
+                                onClick={() => setEpicLinkModal(true)}
                               >
                                 <Plus className="h-3 w-3" />
                                 {t("add_link")}

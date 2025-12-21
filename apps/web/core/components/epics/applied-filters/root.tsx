@@ -21,7 +21,7 @@ type Props = {
 const MEMBERS_FILTERS = ["lead", "members"];
 const DATE_FILTERS = ["start_date", "target_date"];
 
-export function ModuleAppliedFiltersList(props: Props) {
+export function EpicAppliedFiltersList(props: Props) {
   const {
     appliedFilters,
     isFavoriteFilterApplied,
@@ -87,11 +87,11 @@ export function ModuleAppliedFiltersList(props: Props) {
         })}
         {!isArchived && isFavoriteFilterApplied && (
           <div
-            key="module_display_filters"
+            key="epic_display_filters"
             className="flex flex-wrap items-center gap-2 rounded-md border border-subtle px-2 py-1 capitalize"
           >
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-11 text-tertiary">Modules</span>
+              <span className="text-11 text-tertiary">Epics</span>
               <div className="flex items-center gap-1 rounded-sm p-1 text-11 bg-layer-1">
                 Favorite
                 {isEditingAllowed && (

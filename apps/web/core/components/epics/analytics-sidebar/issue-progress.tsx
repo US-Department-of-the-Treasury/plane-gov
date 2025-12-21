@@ -15,7 +15,7 @@ import { CustomSelect, Spinner } from "@plane/ui";
 // helpers
 import { getDate } from "@plane/utils";
 import ProgressChart from "@/components/core/sidebar/progress-chart";
-import { ModuleProgressStats } from "@/components/epics";
+import { EpicProgressStats } from "@/components/epics";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useEpic } from "@/hooks/store/use-epic";
@@ -27,17 +27,17 @@ type TEpicAnalyticsProgress = {
   epicId: string;
 };
 
-const moduleBurnDownChartOptions = [
+const epicBurnDownChartOptions = [
   { value: "burndown", i18n_label: "issues" },
   { value: "points", i18n_label: "points" },
 ];
 
-export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress(props: TEpicAnalyticsProgress) {
+export const EpicAnalyticsProgress = observer(function EpicAnalyticsProgress(props: TEpicAnalyticsProgress) {
   // props
   const { workspaceSlug, projectId, epicId } = props;
   // router
   const searchParams = useSearchParams();
-  const peekModule = searchParams.get("peekModule") || undefined;
+  const peekEpic = searchParams.get("peekEpic") || undefined;
   // plane hooks
   const { t } = useTranslation();
   // hooks
@@ -87,11 +87,11 @@ export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress
     }),
     [plotType, epicDetails]
   );
-  const moduleStartDate = getDate(epicDetails?.start_date);
-  const moduleEndDate = getDate(epicDetails?.target_date);
-  const isModuleStartDateValid = moduleStartDate && moduleStartDate <= new Date();
-  const isModuleEndDateValid = moduleStartDate && moduleEndDate && moduleEndDate >= moduleStartDate;
-  const isModuleDateValid = isModuleStartDateValid && isModuleEndDateValid;
+  const epicStartDate = getDate(epicDetails?.start_date);
+  const epicEndDate = getDate(epicDetails?.target_date);
+  const isEpicStartDateValid = epicStartDate && epicStartDate <= new Date();
+  const isEpicEndDateValid = epicStartDate && epicEndDate && epicEndDate >= epicStartDate;
+  const isEpicDateValid = isEpicStartDateValid && isEpicEndDateValid;
   const isArchived = !!epicDetails?.archived_at;
 
   // handlers
@@ -115,11 +115,11 @@ export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress
   if (!epicDetails) return <></>;
   return (
     <div className="border-t border-subtle space-y-4 py-4 px-3">
-      <Disclosure defaultOpen={isModuleDateValid ? true : false}>
+      <Disclosure defaultOpen={isEpicDateValid ? true : false}>
         {({ open }) => (
           <div className="space-y-6">
             {/* progress bar header */}
-            {isModuleDateValid ? (
+            {isEpicDateValid ? (
               <div className="relative w-full flex justify-between items-center gap-2">
                 <Disclosure.Button className="relative flex items-center gap-2 w-full">
                   <div className="font-medium text-secondary text-13">{t("progress")}</div>
@@ -134,13 +134,13 @@ export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress
                         value={plotType}
                         label={
                           <span>
-                            {t(moduleBurnDownChartOptions.find((v) => v.value === plotType)?.i18n_label || "none")}
+                            {t(epicBurnDownChartOptions.find((v) => v.value === plotType)?.i18n_label || "none")}
                           </span>
                         }
                         onChange={onChange}
                         maxHeight="lg"
                       >
-                        {moduleBurnDownChartOptions.map((item) => (
+                        {epicBurnDownChartOptions.map((item) => (
                           <CustomSelect.Option key={item.value} value={item.value}>
                             {t(item.i18n_label)}
                           </CustomSelect.Option>
@@ -165,8 +165,8 @@ export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress
                   <AlertCircle height={14} width={14} className="text-secondary" />
                   <span className="text-11 italic text-secondary">
                     {epicDetails?.start_date && epicDetails?.target_date
-                      ? t("project_module.empty_state.sidebar.in_active")
-                      : t("project_module.empty_state.sidebar.invalid_date")}
+                      ? t("project_epic.empty_state.sidebar.in_active")
+                      : t("project_epic.empty_state.sidebar.invalid_date")}
                   </span>
                 </div>
               </div>
@@ -176,7 +176,7 @@ export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress
               <Disclosure.Panel className="space-y-4">
                 {/* progress burndown chart */}
                 <div>
-                  {moduleStartDate && moduleEndDate && completionChartDistributionData && (
+                  {epicStartDate && epicEndDate && completionChartDistributionData && (
                     <Fragment>
                       {plotType === "points" ? (
                         <ProgressChart
@@ -198,7 +198,7 @@ export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress
                 {/* progress detailed view */}
                 {chartDistributionData && (
                   <div className="w-full border-t border-subtle pt-5">
-                    <ModuleProgressStats
+                    <EpicProgressStats
                       distribution={chartDistributionData}
                       groupedIssues={groupedIssues}
                       handleFiltersUpdate={updateFilterValueFromSidebar.bind(
@@ -206,7 +206,7 @@ export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress
                         EIssuesStoreType.EPIC,
                         epicId
                       )}
-                      isEditable={Boolean(!peekModule) && epicFilter !== undefined}
+                      isEditable={Boolean(!peekEpic) && epicFilter !== undefined}
                       epicId={epicId}
                       noBackground={false}
                       plotType={plotType}

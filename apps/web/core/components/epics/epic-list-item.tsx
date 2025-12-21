@@ -42,26 +42,26 @@ export const EpicListItem = observer(function EpicListItem(props: Props) {
 
   const progress = isNaN(completionPercentage) ? 0 : Math.floor(completionPercentage);
 
-  const completedModuleCheck = epicDetails.status === "completed";
+  const completedEpicCheck = epicDetails.status === "completed";
 
   // handlers
-  const openModuleOverview = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+  const openEpicOverview = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     e.stopPropagation();
     e.preventDefault();
 
-    const query = generateQueryParams(searchParams, ["peekModule"]);
-    if (searchParams.has("peekModule") && searchParams.get("peekModule") === epicId) {
+    const query = generateQueryParams(searchParams, ["peekEpic"]);
+    if (searchParams.has("peekEpic") && searchParams.get("peekEpic") === epicId) {
       router.push(`${pathname}?${query}`);
     } else {
-      router.push(`${pathname}?${query && `${query}&`}peekModule=${epicId}`);
+      router.push(`${pathname}?${query && `${query}&`}peekEpic=${epicId}`);
     }
   };
 
-  const handleArchivedModuleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-    openModuleOverview(e);
+  const handleArchivedEpicClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    openEpicOverview(e);
   };
 
-  const handleItemClick = epicDetails.archived_at ? handleArchivedModuleClick : undefined;
+  const handleItemClick = epicDetails.archived_at ? handleArchivedEpicClick : undefined;
 
   return (
     <ListItem
@@ -70,7 +70,7 @@ export const EpicListItem = observer(function EpicListItem(props: Props) {
       onItemClick={handleItemClick}
       prependTitleElement={
         <CircularProgressIndicator size={30} percentage={progress} strokeWidth={3}>
-          {completedModuleCheck ? (
+          {completedEpicCheck ? (
             progress === 100 ? (
               <Check className="h-3 w-3 stroke-[2] text-accent-primary" />
             ) : (
@@ -85,7 +85,7 @@ export const EpicListItem = observer(function EpicListItem(props: Props) {
       }
       appendTitleElement={
         <button
-          onClick={openModuleOverview}
+          onClick={openEpicOverview}
           className={`z-[5] flex-shrink-0 ${isMobile ? "flex" : "hidden group-hover:flex"}`}
         >
           <Info className="h-4 w-4 text-placeholder" />

@@ -17,7 +17,7 @@ export type TPowerKCreationCommandKeys =
   | "create_page"
   | "create_view"
   | "create_sprint"
-  | "create_module"
+  | "create_epic"
   | "create_project"
   | "create_workspace";
 
@@ -111,17 +111,17 @@ export const usePowerKCreationCommandsRecord = (): Record<TPowerKCreationCommand
         Boolean(ctx.params.projectId && getProjectDetails(ctx)?.sprint_view && hasProjectMemberLevelPermissions(ctx)),
       closeOnSelect: true,
     },
-    create_module: {
-      id: "create_module",
+    create_epic: {
+      id: "create_epic",
       type: "action",
       group: "create",
-      i18n_title: "power_k.creation_actions.create_module",
+      i18n_title: "power_k.creation_actions.create_epic",
       icon: DiceIcon,
       keySequence: "nm",
       action: () => toggleCreateEpicModal(true),
-      isEnabled: (ctx) => Boolean(getProjectDetails(ctx)?.module_view && hasProjectMemberLevelPermissions(ctx)),
+      isEnabled: (ctx) => Boolean(getProjectDetails(ctx)?.epic_view && hasProjectMemberLevelPermissions(ctx)),
       isVisible: (ctx) =>
-        Boolean(ctx.params.projectId && getProjectDetails(ctx)?.module_view && hasProjectMemberLevelPermissions(ctx)),
+        Boolean(ctx.params.projectId && getProjectDetails(ctx)?.epic_view && hasProjectMemberLevelPermissions(ctx)),
       closeOnSelect: true,
     },
     create_project: {

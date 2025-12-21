@@ -24,7 +24,7 @@ type Props = {
   layoutDisplayFiltersOptions: ILayoutDisplayFiltersOptions | undefined;
   ignoreGroupedFilters?: Partial<TIssueGroupByOptions>[];
   sprintViewDisabled?: boolean;
-  moduleViewDisabled?: boolean;
+  epicViewDisabled?: boolean;
   isEpic?: boolean;
 };
 
@@ -37,7 +37,7 @@ export const DisplayFiltersSelection = observer(function DisplayFiltersSelection
     layoutDisplayFiltersOptions,
     ignoreGroupedFilters = [],
     sprintViewDisabled = false,
-    moduleViewDisabled = false,
+    epicViewDisabled = false,
     isEpic = false,
   } = props;
 
@@ -48,8 +48,8 @@ export const DisplayFiltersSelection = observer(function DisplayFiltersSelection
   if (sprintViewDisabled) {
     ignoreGroupedFilters.push("sprint");
   }
-  if (moduleViewDisabled) {
-    ignoreGroupedFilters.push("module");
+  if (epicViewDisabled) {
+    ignoreGroupedFilters.push("epic");
   }
 
   return (
@@ -62,7 +62,7 @@ export const DisplayFiltersSelection = observer(function DisplayFiltersSelection
             displayPropertiesToRender={layoutDisplayFiltersOptions.display_properties}
             handleUpdate={handleDisplayPropertiesUpdate}
             sprintViewDisabled={sprintViewDisabled}
-            moduleViewDisabled={moduleViewDisabled}
+            epicViewDisabled={epicViewDisabled}
             isEpic={isEpic}
           />
         </div>

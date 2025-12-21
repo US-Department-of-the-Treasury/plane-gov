@@ -21,7 +21,7 @@ export interface IPartialProject {
   workspace: IWorkspace | string;
   sprint_view: boolean;
   issue_views_view: boolean;
-  module_view: boolean;
+  epic_view: boolean;
   page_view: boolean;
   inbox_view: boolean;
   guest_view_all_features?: boolean;

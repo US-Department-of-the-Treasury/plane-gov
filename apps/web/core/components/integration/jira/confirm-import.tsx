@@ -29,7 +29,7 @@ export function JiraConfirmImport() {
             <p className="text-13 text-secondary">States</p>
           </div>
           <div>
-            <h4 className="mb-2 text-16 font-semibold">{watch("data.total_modules")}</h4>
+            <h4 className="mb-2 text-16 font-semibold">{watch("data.total_epics")}</h4>
             <p className="text-13 text-secondary">Epics</p>
           </div>
           <div>

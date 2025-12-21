@@ -24,7 +24,7 @@ export function PowerKOpenEntityPages(props: TPowerKOpenEntityActionsProps) {
       {activePage === "open-project-sprint" && (
         <PowerKOpenProjectSprintsMenu context={context} handleSelect={handleSelection} />
       )}
-      {activePage === "open-project-module" && (
+      {activePage === "open-project-epic" && (
         <PowerKOpenProjectEpicsMenu context={context} handleSelect={handleSelection} />
       )}
       {activePage === "open-project-view" && (

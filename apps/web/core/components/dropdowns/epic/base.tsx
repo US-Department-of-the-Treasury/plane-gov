@@ -13,8 +13,8 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 import { DropdownButton } from "../buttons";
 import { BUTTON_VARIANTS_WITHOUT_TEXT } from "../constants";
 import type { TDropdownProps } from "../types";
-import { ModuleButtonContent } from "./button-content";
-import { ModuleOptions } from "./module-options";
+import { EpicButtonContent } from "./button-content";
+import { EpicOptions } from "./epic-options";
 
 type TEpicDropdownBaseProps = TDropdownProps & {
   button?: ReactNode;
@@ -137,7 +137,7 @@ export const EpicDropdownBase = observer(function EpicDropdownBase(props: TEpicD
           <DropdownButton
             className={buttonClassName}
             isActive={isOpen}
-            tooltipHeading={t("common.module")}
+            tooltipHeading={t("common.epic")}
             tooltipContent={
               Array.isArray(value)
                 ? `${value
@@ -150,7 +150,7 @@ export const EpicDropdownBase = observer(function EpicDropdownBase(props: TEpicD
             variant={buttonVariant}
             renderToolTipByDefault={renderByDefault}
           >
-            <ModuleButtonContent
+            <EpicButtonContent
               disabled={disabled}
               dropdownArrow={dropdownArrow}
               dropdownArrowClassName={dropdownArrowClassName}
@@ -180,7 +180,7 @@ export const EpicDropdownBase = observer(function EpicDropdownBase(props: TEpicD
       {...comboboxProps}
     >
       {isOpen && projectId && (
-        <ModuleOptions
+        <EpicOptions
           isOpen={isOpen}
           placement={placement}
           referenceElement={referenceElement}

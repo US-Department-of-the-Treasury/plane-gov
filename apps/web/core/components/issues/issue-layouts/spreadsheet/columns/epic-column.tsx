@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
 import type { TIssue } from "@plane/types";
 // components
-import { EpicDropdown } from "@/components/dropdowns/module/dropdown";
+import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
 // constants
 // hooks
 import { captureSuccess } from "@/helpers/event-tracker.helper";

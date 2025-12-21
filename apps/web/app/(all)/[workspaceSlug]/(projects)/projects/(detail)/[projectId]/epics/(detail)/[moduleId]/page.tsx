@@ -25,7 +25,7 @@ function ModuleIssuesPage({ params }: Route.ComponentProps) {
   const { getProjectById } = useProject();
   // const { issuesFilter } = useIssues(EIssuesStoreType.EPIC);
   // local storage
-  const { setValue, storedValue } = useLocalStorage("module_sidebar_collapsed", "false");
+  const { setValue, storedValue } = useLocalStorage("epic_sidebar_collapsed", "false");
   const isSidebarCollapsed = storedValue ? (storedValue === "true" ? true : false) : false;
   // fetching module details
   const { error } = useSWR(`CURRENT_MODULE_DETAILS_${epicId}`, () =>

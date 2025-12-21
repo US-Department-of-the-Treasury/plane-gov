@@ -16,7 +16,7 @@ type Props = {
   value: TEpicOrderByOptions | undefined;
 };
 
-export function ModuleOrderByDropdown(props: Props) {
+export function EpicOrderByDropdown(props: Props) {
   const { onChange, value } = props;
   // hooks
   const { t } = useTranslation();

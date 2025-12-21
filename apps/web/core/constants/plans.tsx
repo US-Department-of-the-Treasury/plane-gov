@@ -71,7 +71,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
     features: [
       {
         title: "Projects",
-        description: "Add projects to house work items, sprints, and modules.",
+        description: "Add projects to house work items, sprints, and epics.",
         cloud: {
           free: true,
           one: true,
@@ -82,7 +82,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Work items",
-        description: "Add work via work items, set properties for tracking, and add to\nsprints or modules.",
+        description: "Add work via work items, set properties for tracking, and add to\nsprints or epics.",
         cloud: {
           free: true,
           one: true,
@@ -115,7 +115,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Epics",
-        description: "Group replicable work in modules with their own\nleads.",
+        description: "Group replicable work in epics with their own\nleads.",
         cloud: {
           free: true,
           one: true,
@@ -155,7 +155,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
     features: [
       {
         title: "Bulk Ops",
-        description: "Add several work items to sprints or modules, transfer\nthem, or edit their properties.",
+        description: "Add several work items to sprints or epics, transfer\nthem, or edit their properties.",
         cloud: {
           free: false,
           one: "Limited props",
@@ -254,7 +254,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Epics",
-        description: "Organize long-term work in epics that house work items,\nsprints, and modules.",
+        description: "Organize long-term work in epics that house work items,\nsprints, and epics.",
         cloud: {
           free: false,
           one: false,
@@ -290,7 +290,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Epic Overview",
-        description: "Like Sprint Overviews, see relevant details and\nprogress charts for each module.",
+        description: "Like Sprint Overviews, see relevant details and\nprogress charts for each epic.",
         cloud: {
           free: false,
           one: false,
@@ -301,7 +301,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Auto-assignment In Epics",
-        description: "Choose assignment rules for work items in a\nmodule including Linear, Round Robin, or Capacity.",
+        description: "Choose assignment rules for work items in an\nepic including Linear, Round Robin, or Capacity.",
         cloud: {
           free: false,
           one: false,
@@ -532,7 +532,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       {
         title: "Progress Charts",
         description:
-          "Track progress in sprints, modules, and overviews\nthroughout Plane without switching to dashboards\nor Analytics.",
+          "Track progress in sprints, epics, and overviews\nthroughout Plane without switching to dashboards\nor Analytics.",
         cloud: {
           free: false,
           one: false,
@@ -1294,7 +1294,7 @@ export const PLANE_PLANS: PlanePlans = {
     },
   },
   planHighlights: {
-    free: ["Upto 12 users", "Pages", "Unlimited projects", "Unlimited sprints and modules"],
+    free: ["Upto 12 users", "Pages", "Unlimited projects", "Unlimited sprints and epics"],
     one: ["Upto 50 users", "OIDC and SAML", "Active sprints", "Limited time tracking"],
     pro: ["Unlimited users", "Custom work items + Properties", "Work item templates", "Full Time Tracking"],
     business: ["RBAC", "Project Templates", "Baselines And Deviations", "Custom Reports"],

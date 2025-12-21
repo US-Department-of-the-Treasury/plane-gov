@@ -9,15 +9,15 @@ import { storage } from "@/lib/local-storage";
 import type { CoreRootStore } from "./root.store";
 
 // localStorage keys
-const MODULE_DISPLAY_FILTERS_KEY = "module_display_filters";
-const MODULE_FILTERS_KEY = "module_filters";
+const EPIC_DISPLAY_FILTERS_KEY = "epic_display_filters";
+const EPIC_FILTERS_KEY = "epic_filters";
 
 export interface IEpicFilterStore {
   // observables
   displayFilters: Record<string, TEpicDisplayFilters>;
   filters: Record<string, TEpicFiltersByState>;
   searchQuery: string;
-  archivedModulesSearchQuery: string;
+  archivedEpicsSearchQuery: string;
   // computed
   currentProjectDisplayFilters: TEpicDisplayFilters | undefined;
   currentProjectFilters: TEpicFilters | undefined;
@@ -30,7 +30,7 @@ export interface IEpicFilterStore {
   updateDisplayFilters: (projectId: string, displayFilters: TEpicDisplayFilters) => void;
   updateFilters: (projectId: string, filters: TEpicFilters, state?: keyof TEpicFiltersByState) => void;
   updateSearchQuery: (query: string) => void;
-  updateArchivedModulesSearchQuery: (query: string) => void;
+  updateArchivedEpicsSearchQuery: (query: string) => void;
   clearAllFilters: (projectId: string, state?: keyof TEpicFiltersByState) => void;
 }
 
@@ -39,7 +39,7 @@ export class EpicFilterStore implements IEpicFilterStore {
   displayFilters: Record<string, TEpicDisplayFilters> = {};
   filters: Record<string, TEpicFiltersByState> = {};
   searchQuery: string = "";
-  archivedModulesSearchQuery: string = "";
+  archivedEpicsSearchQuery: string = "";
   // root store
   rootStore: CoreRootStore;
 
@@ -49,7 +49,7 @@ export class EpicFilterStore implements IEpicFilterStore {
       displayFilters: observable,
       filters: observable,
       searchQuery: observable.ref,
-      archivedModulesSearchQuery: observable.ref,
+      archivedEpicsSearchQuery: observable.ref,
       // computed
       currentProjectDisplayFilters: computed,
       currentProjectFilters: computed,
@@ -58,7 +58,7 @@ export class EpicFilterStore implements IEpicFilterStore {
       updateDisplayFilters: action,
       updateFilters: action,
       updateSearchQuery: action,
-      updateArchivedModulesSearchQuery: action,
+      updateArchivedEpicsSearchQuery: action,
       clearAllFilters: action,
     });
     // root store
@@ -83,8 +83,8 @@ export class EpicFilterStore implements IEpicFilterStore {
    */
   loadFromLocalStorage = () => {
     try {
-      const displayFiltersData = storage.get(MODULE_DISPLAY_FILTERS_KEY);
-      const filtersData = storage.get(MODULE_FILTERS_KEY);
+      const displayFiltersData = storage.get(EPIC_DISPLAY_FILTERS_KEY);
+      const filtersData = storage.get(EPIC_FILTERS_KEY);
 
       runInAction(() => {
         if (displayFiltersData) {
@@ -114,14 +114,14 @@ export class EpicFilterStore implements IEpicFilterStore {
    * @description Save display filters to localStorage (debounced)
    */
   saveDisplayFiltersToLocalStorage = () => {
-    storage.set(MODULE_DISPLAY_FILTERS_KEY, this.displayFilters);
+    storage.set(EPIC_DISPLAY_FILTERS_KEY, this.displayFilters);
   };
 
   /**
    * @description Save filters to localStorage (debounced)
    */
   saveFiltersToLocalStorage = () => {
-    storage.set(MODULE_FILTERS_KEY, this.filters);
+    storage.set(EPIC_FILTERS_KEY, this.filters);
   };
 
   /**
@@ -230,8 +230,8 @@ export class EpicFilterStore implements IEpicFilterStore {
    * @description update archived search query
    * @param {string} query
    */
-  updateArchivedModulesSearchQuery = (query: string) => {
-    this.archivedModulesSearchQuery = query;
+  updateArchivedEpicsSearchQuery = (query: string) => {
+    this.archivedEpicsSearchQuery = query;
   };
 
   /**

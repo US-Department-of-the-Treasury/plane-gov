@@ -12,7 +12,7 @@ import { getDate, renderFormattedPayloadDate, getTabIndex } from "@plane/utils";
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
 import { ProjectDropdown } from "@/components/dropdowns/project/dropdown";
-import { ModuleStatusSelect } from "@/components/epics";
+import { EpicStatusSelect } from "@/components/epics";
 // hooks
 import { useUser } from "@/hooks/store/user/user-user";
 
@@ -55,11 +55,11 @@ export function EpicForm(props: Props) {
     },
   });
 
-  const { getIndex } = getTabIndex(ETabIndices.PROJECT_MODULE, isMobile);
+  const { getIndex } = getTabIndex(ETabIndices.PROJECT_EPIC, isMobile);
 
   const { t } = useTranslation();
 
-  const handleCreateUpdateModule = async (formData: Partial<IEpic>) => {
+  const handleCreateUpdateEpic = async (formData: Partial<IEpic>) => {
     await handleFormSubmit(formData, dirtyFields);
 
     reset({
@@ -75,7 +75,7 @@ export function EpicForm(props: Props) {
   }, [data, reset]);
 
   return (
-    <form onSubmit={handleSubmit(handleCreateUpdateModule)}>
+    <form onSubmit={handleSubmit(handleCreateUpdateEpic)}>
       <div className="space-y-5 p-5">
         <div className="flex items-center gap-x-3">
           {!status && (
@@ -102,7 +102,7 @@ export function EpicForm(props: Props) {
             />
           )}
           <h3 className="text-18 font-medium text-secondary">
-            {status ? t("common.update") : t("common.create")} {t("common.module").toLowerCase()}
+            {status ? t("common.update") : t("common.create")} {t("common.epic").toLowerCase()}
           </h3>
         </div>
         <div className="space-y-3">
@@ -186,7 +186,7 @@ export function EpicForm(props: Props) {
               )}
             />
             <div className="h-7">
-              <ModuleStatusSelect control={control} error={errors.status} tabIndex={getIndex("status")} />
+              <EpicStatusSelect control={control} error={errors.status} tabIndex={getIndex("status")} />
             </div>
             <Controller
               control={control}
@@ -234,10 +234,10 @@ export function EpicForm(props: Props) {
           {status
             ? isSubmitting
               ? t("updating")
-              : t("project_module.update_module")
+              : t("project_epic.update_epic")
             : isSubmitting
               ? t("creating")
-              : t("project_module.create_module")}
+              : t("project_epic.create_epic")}
         </Button>
       </div>
     </form>

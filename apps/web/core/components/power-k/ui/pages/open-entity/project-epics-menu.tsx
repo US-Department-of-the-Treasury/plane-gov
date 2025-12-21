@@ -1,16 +1,16 @@
 import { observer } from "mobx-react";
 // plane types
-import type { IModule } from "@plane/types";
+import type { IEpic } from "@plane/types";
 import { Spinner } from "@plane/ui";
 // components
 import type { TPowerKContext } from "@/components/power-k/core/types";
-import { PowerKModulesMenu } from "@/components/power-k/menus/modules";
+import { PowerKEpicsMenu } from "@/components/power-k/menus/epics";
 // hooks
 import { useEpic } from "@/hooks/store/use-module";
 
 type Props = {
   context: TPowerKContext;
-  handleSelect: (module: IModule) => void;
+  handleSelect: (epic: IEpic) => void;
 };
 
 export const PowerKOpenProjectEpicsMenu = observer(function PowerKOpenProjectEpicsMenu(props: Props) {
@@ -20,12 +20,12 @@ export const PowerKOpenProjectEpicsMenu = observer(function PowerKOpenProjectEpi
   // derived values
   const projectId = context.params.projectId?.toString();
   const isFetched = projectId ? fetchedMap[projectId] : false;
-  const projectModuleIds = projectId ? getProjectEpicIds(projectId) : undefined;
-  const modulesList = projectModuleIds
-    ? projectModuleIds.map((epicId) => getEpicById(epicId)).filter((module) => !!module)
+  const projectEpicIds = projectId ? getProjectEpicIds(projectId) : undefined;
+  const epicsList = projectEpicIds
+    ? projectEpicIds.map((epicId) => getEpicById(epicId)).filter((epic) => !!epic)
     : [];
 
   if (!isFetched) return <Spinner />;
 
-  return <PowerKModulesMenu modules={modulesList} onSelect={handleSelect} />;
+  return <PowerKEpicsMenu epics={epicsList} onSelect={handleSelect} />;
 });

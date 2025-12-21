@@ -68,15 +68,15 @@ export const POWER_K_SEARCH_RESULTS_GROUPS_MAP: Record<TPowerKSearchResultsKeys,
       `/${view?.workspace__slug}/projects/${view?.project_id}/views/${view?.id}`,
     title: "Views",
   },
-  module: {
+  epic: {
     icon: DiceIcon,
-    itemName: (module: IWorkspaceDefaultSearchResult) => (
+    itemName: (epic: IWorkspaceDefaultSearchResult) => (
       <p>
-        <span className="text-11 text-tertiary">{module.project__identifier}</span> {module.name}
+        <span className="text-11 text-tertiary">{epic.project__identifier}</span> {epic.name}
       </p>
     ),
-    path: (module: IWorkspaceDefaultSearchResult) =>
-      `/${module?.workspace__slug}/projects/${module?.project_id}/modules/${module?.id}`,
+    path: (epic: IWorkspaceDefaultSearchResult) =>
+      `/${epic?.workspace__slug}/projects/${epic?.project_id}/epics/${epic?.id}`,
     title: "Epics",
   },
   page: {

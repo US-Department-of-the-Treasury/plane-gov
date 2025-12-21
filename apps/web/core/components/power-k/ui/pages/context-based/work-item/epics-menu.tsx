@@ -3,12 +3,12 @@ import { observer } from "mobx-react";
 import type { IEpic, TIssue } from "@plane/types";
 import { Spinner } from "@plane/ui";
 // components
-import { PowerKModulesMenu } from "@/components/power-k/menus/modules";
+import { PowerKEpicsMenu } from "@/components/power-k/menus/epics";
 // hooks
 import { useEpic } from "@/hooks/store/use-module";
 
 type Props = {
-  handleSelect: (module: IModule) => void;
+  handleSelect: (epic: IEpic) => void;
   workItemDetails: TIssue;
 };
 
@@ -17,13 +17,13 @@ export const PowerKWorkItemEpicsMenu = observer(function PowerKWorkItemEpicsMenu
   // store hooks
   const { getProjectEpicIds, getEpicById } = useEpic();
   // derived values
-  const projectModuleIds = workItemDetails.project_id ? getProjectEpicIds(workItemDetails.project_id) : undefined;
-  const modulesList = projectModuleIds ? projectModuleIds.map((epicId) => getEpicById(epicId)) : undefined;
-  const filteredModulesList = modulesList ? modulesList.filter((module) => !!module) : undefined;
+  const projectEpicIds = workItemDetails.project_id ? getProjectEpicIds(workItemDetails.project_id) : undefined;
+  const epicsList = projectEpicIds ? projectEpicIds.map((epicId) => getEpicById(epicId)) : undefined;
+  const filteredEpicsList = epicsList ? epicsList.filter((epic) => !!epic) : undefined;
 
-  if (!filteredModulesList) return <Spinner />;
+  if (!filteredEpicsList) return <Spinner />;
 
   return (
-    <PowerKModulesMenu modules={filteredModulesList} onSelect={handleSelect} value={workItemDetails.epic_ids ?? []} />
+    <PowerKEpicsMenu epics={filteredEpicsList} onSelect={handleSelect} value={workItemDetails.epic_ids ?? []} />
   );
 });

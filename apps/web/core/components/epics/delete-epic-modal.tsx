@@ -27,7 +27,7 @@ export const DeleteEpicModal = observer(function DeleteEpicModal(props: Props) {
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   // router
   const router = useAppRouter();
-  const { workspaceSlug, projectId, epicId, peekModule } = useParams();
+  const { workspaceSlug, projectId, epicId, peekEpic } = useParams();
   // store hooks
   const { deleteEpic } = useEpic();
   const { t } = useTranslation();
@@ -44,12 +44,12 @@ export const DeleteEpicModal = observer(function DeleteEpicModal(props: Props) {
 
     await deleteEpic(workspaceSlug.toString(), projectId.toString(), data.id)
       .then(() => {
-        if (epicId || peekModule) router.push(`/${workspaceSlug}/projects/${data.project_id}/modules`);
+        if (epicId || peekEpic) router.push(`/${workspaceSlug}/projects/${data.project_id}/epics`);
         handleClose();
         setToast({
           type: TOAST_TYPE.SUCCESS,
           title: "Success!",
-          message: "Module deleted successfully.",
+          message: "Epic deleted successfully.",
         });
         captureSuccess({
           eventName: EPIC_TRACKER_EVENTS.delete,
@@ -60,7 +60,7 @@ export const DeleteEpicModal = observer(function DeleteEpicModal(props: Props) {
         const isPermissionError = errors?.error === "You don't have the required permissions.";
         const currentError = isPermissionError
           ? PROJECT_ERROR_MESSAGES.permissionError
-          : PROJECT_ERROR_MESSAGES.moduleDeleteError;
+          : PROJECT_ERROR_MESSAGES.epicDeleteError;
         setToast({
           title: t(currentError.i18n_title),
           type: TOAST_TYPE.ERROR,
@@ -81,12 +81,12 @@ export const DeleteEpicModal = observer(function DeleteEpicModal(props: Props) {
       handleSubmit={handleDeletion}
       isSubmitting={isDeleteLoading}
       isOpen={isOpen}
-      title="Delete module"
+      title="Delete epic"
       content={
         <>
-          Are you sure you want to delete module-{" "}
+          Are you sure you want to delete epic-{" "}
           <span className="break-all font-medium text-primary">{data?.name}</span>? All of the data related to the
-          module will be permanently removed. This action cannot be undone.
+          epic will be permanently removed. This action cannot be undone.
         </>
       }
     />

@@ -18,7 +18,7 @@ type Props = {
   epicId: string;
 };
 
-export const ModuleGanttBlock = observer(function ModuleGanttBlock(props: Props) {
+export const EpicGanttBlock = observer(function EpicGanttBlock(props: Props) {
   const { epicId } = props;
   // router
   const router = useAppRouter();

@@ -13,13 +13,13 @@ import { cn, calculateTotalFilters } from "@plane/utils";
 // components
 import { ArchiveTabsList } from "@/components/archives";
 import { FiltersDropdown } from "@/components/issues/issue-layouts/filters";
-import { ModuleFiltersSelection, ModuleOrderByDropdown } from "@/components/epics";
+import { EpicFiltersSelection, EpicOrderByDropdown } from "@/components/epics";
 // helpers
 // hooks
 import { useMember } from "@/hooks/store/use-member";
 import { useEpicFilter } from "@/hooks/store/use-epic-filter";
 
-export const ArchivedModulesHeader = observer(function ArchivedModulesHeader() {
+export const ArchivedEpicsHeader = observer(function ArchivedEpicsHeader() {
   // router
   const { projectId } = useParams();
   // refs
@@ -28,19 +28,19 @@ export const ArchivedModulesHeader = observer(function ArchivedModulesHeader() {
   const {
     currentProjectArchivedFilters,
     currentProjectDisplayFilters,
-    archivedModulesSearchQuery,
+    archivedEpicsSearchQuery,
     updateFilters,
     updateDisplayFilters,
-    updateArchivedModulesSearchQuery,
+    updateArchivedEpicsSearchQuery,
   } = useEpicFilter();
   const {
     workspace: { workspaceMemberIds },
   } = useMember();
   // states
-  const [isSearchOpen, setIsSearchOpen] = useState(archivedModulesSearchQuery !== "" ? true : false);
+  const [isSearchOpen, setIsSearchOpen] = useState(archivedEpicsSearchQuery !== "" ? true : false);
   // outside click detector hook
   useOutsideClickDetector(inputRef, () => {
-    if (isSearchOpen && archivedModulesSearchQuery.trim() === "") setIsSearchOpen(false);
+    if (isSearchOpen && archivedEpicsSearchQuery.trim() === "") setIsSearchOpen(false);
   });
 
   const handleFilters = useCallback(
@@ -65,7 +65,7 @@ export const ArchivedModulesHeader = observer(function ArchivedModulesHeader() {
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
-      if (archivedModulesSearchQuery && archivedModulesSearchQuery.trim() !== "") updateArchivedModulesSearchQuery("");
+      if (archivedEpicsSearchQuery && archivedEpicsSearchQuery.trim() !== "") updateArchivedEpicsSearchQuery("");
       else {
         setIsSearchOpen(false);
         inputRef.current?.blur();
@@ -107,8 +107,8 @@ export const ArchivedModulesHeader = observer(function ArchivedModulesHeader() {
             ref={inputRef}
             className="w-full max-w-[234px] border-none bg-transparent text-13 text-primary placeholder:text-placeholder focus:outline-none"
             placeholder="Search"
-            value={archivedModulesSearchQuery}
-            onChange={(e) => updateArchivedModulesSearchQuery(e.target.value)}
+            value={archivedEpicsSearchQuery}
+            onChange={(e) => updateArchivedEpicsSearchQuery(e.target.value)}
             onKeyDown={handleInputKeyDown}
           />
           {isSearchOpen && (
@@ -116,7 +116,7 @@ export const ArchivedModulesHeader = observer(function ArchivedModulesHeader() {
               type="button"
               className="grid place-items-center"
               onClick={() => {
-                updateArchivedModulesSearchQuery("");
+                updateArchivedEpicsSearchQuery("");
                 setIsSearchOpen(false);
               }}
             >
@@ -124,7 +124,7 @@ export const ArchivedModulesHeader = observer(function ArchivedModulesHeader() {
             </button>
           )}
         </div>
-        <ModuleOrderByDropdown
+        <EpicOrderByDropdown
           value={currentProjectDisplayFilters?.order_by}
           onChange={(val) => {
             if (!projectId || val === currentProjectDisplayFilters?.order_by) return;
@@ -139,7 +139,7 @@ export const ArchivedModulesHeader = observer(function ArchivedModulesHeader() {
           placement="bottom-end"
           isFiltersApplied={isFiltersApplied}
         >
-          <ModuleFiltersSelection
+          <EpicFiltersSelection
             displayFilters={currentProjectDisplayFilters ?? {}}
             filters={currentProjectArchivedFilters ?? {}}
             handleDisplayFiltersUpdate={(val) => {
