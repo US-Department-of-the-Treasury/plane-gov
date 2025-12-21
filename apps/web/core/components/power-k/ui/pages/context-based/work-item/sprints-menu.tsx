@@ -15,10 +15,11 @@ type Props = {
 export const PowerKWorkItemSprintsMenu = observer(function PowerKWorkItemSprintsMenu(props: Props) {
   const { handleSelect, workItemDetails } = props;
   // store hooks
-  const { getProjectSprintIds, getSprintById } = useSprint();
+  const { currentWorkspaceSprintIds, getSprintById } = useSprint();
   // derived values
-  const projectSprintIds = workItemDetails.project_id ? getProjectSprintIds(workItemDetails.project_id) : undefined;
-  const sprintsList = projectSprintIds ? projectSprintIds.map((sprintId) => getSprintById(sprintId)) : undefined;
+  const sprintsList = currentWorkspaceSprintIds
+    ? currentWorkspaceSprintIds.map((sprintId) => getSprintById(sprintId))
+    : undefined;
   const filteredSprintsList = sprintsList ? sprintsList.filter((sprint) => !!sprint) : undefined;
 
   if (!filteredSprintsList) return <Spinner />;
