@@ -78,8 +78,16 @@ echo ""
 echo -e "${YELLOW}Building packages...${NC}"
 cd "$PROJECT_ROOT"
 
+# Check if packages are actually built (not just cached)
+# Turbo cache can be stale in fresh worktrees/checkouts
+BUILD_FLAGS="--no-daemon"
+if [ ! -f "$PROJECT_ROOT/packages/utils/dist/index.js" ]; then
+    echo -e "${YELLOW}  Fresh checkout detected, forcing rebuild...${NC}"
+    BUILD_FLAGS="--force --no-daemon"
+fi
+
 # Build internal packages first (ensures @plane/* packages are ready)
-pnpm turbo run build --filter="@plane/*" --no-daemon
+pnpm turbo run build --filter="@plane/*" $BUILD_FLAGS
 
 echo ""
 echo -e "${YELLOW}Setting up Python environment...${NC}"

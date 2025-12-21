@@ -20,6 +20,7 @@ import { PageHead } from "@/components/core/page-title";
 import { MemberListFiltersDropdown } from "@/components/project/dropdowns/filters/member-list";
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 import { WorkspaceMembersList } from "@/components/workspace/settings/members-list";
+import { DevGenerateFakeUsers } from "@/components/workspace/settings/dev-generate-fake-users";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
@@ -153,14 +154,17 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
             />
             <MembersActivityButton workspaceSlug={workspaceSlug} />
             {canPerformWorkspaceAdminActions && (
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => setInviteModal(true)}
-                data-ph-element={MEMBER_TRACKER_ELEMENTS.HEADER_ADD_BUTTON}
-              >
-                {t("workspace_settings.settings.members.add_member")}
-              </Button>
+              <>
+                <DevGenerateFakeUsers workspaceSlug={workspaceSlug} />
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() => setInviteModal(true)}
+                  data-ph-element={MEMBER_TRACKER_ELEMENTS.HEADER_ADD_BUTTON}
+                >
+                  {t("workspace_settings.settings.members.add_member")}
+                </Button>
+              </>
             )}
           </div>
         </div>
