@@ -15,12 +15,24 @@ from corsheaders.defaults import default_headers
 
 # Module imports
 from plane.utils.url import is_valid_url
+from plane.utils.ssm import get_secret_or_env
+
+# Environment detection
+# Set via ENVIRONMENT env var: 'local', 'staging', 'prod'
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "local")
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Secret Key
-SECRET_KEY = os.environ.get("SECRET_KEY", get_random_secret_key())
+# In production: fetched from SSM (/plane/{env}/secret-key)
+# In local: from .env.local or auto-generated
+SECRET_KEY = get_secret_or_env(
+    ssm_name="secret-key",
+    env_name="SECRET_KEY",
+    environment=ENVIRONMENT,
+    default=get_random_secret_key(),
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.environ.get("DEBUG", "0"))
@@ -137,9 +149,17 @@ SITE_ID = 1
 AUTH_USER_MODEL = "db.User"
 
 # Database
-if bool(os.environ.get("DATABASE_URL")):
-    # Parse database configuration from $DATABASE_URL
-    DATABASES = {"default": dj_database_url.config()}
+# In production: DATABASE_URL fetched from SSM (/plane/{env}/database-url)
+# In local: from .env.local
+DATABASE_URL = get_secret_or_env(
+    ssm_name="database-url",
+    env_name="DATABASE_URL",
+    environment=ENVIRONMENT,
+)
+
+if DATABASE_URL:
+    # Parse database configuration from DATABASE_URL
+    DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
 else:
     DATABASES = {
         "default": {
@@ -174,7 +194,13 @@ if os.environ.get("ENABLE_READ_REPLICA", "0") == "1":
 
 
 # Redis Config
-REDIS_URL = os.environ.get("REDIS_URL")
+# In production: fetched from SSM (/plane/{env}/redis-url)
+# In local: from .env.local
+REDIS_URL = get_secret_or_env(
+    ssm_name="redis-url",
+    env_name="REDIS_URL",
+    environment=ENVIRONMENT,
+)
 REDIS_SSL = REDIS_URL and "rediss" in REDIS_URL
 
 if REDIS_SSL:
@@ -275,16 +301,15 @@ def _get_celery_broker_url():
     if explicit_broker:
         return explicit_broker
 
-    # Build from DATABASE_URL if available
-    database_url = os.environ.get("DATABASE_URL")
-    if database_url:
+    # Use the DATABASE_URL already fetched (from SSM or env var)
+    if DATABASE_URL:
         # Convert postgres:// or postgresql:// to sqla+postgresql+psycopg://
         # Using postgresql+psycopg to use psycopg v3 driver (not psycopg2)
-        if database_url.startswith("postgres://"):
-            return database_url.replace("postgres://", "sqla+postgresql+psycopg://", 1)
-        elif database_url.startswith("postgresql://"):
-            return database_url.replace("postgresql://", "sqla+postgresql+psycopg://", 1)
-        return f"sqla+{database_url}"
+        if DATABASE_URL.startswith("postgres://"):
+            return DATABASE_URL.replace("postgres://", "sqla+postgresql+psycopg://", 1)
+        elif DATABASE_URL.startswith("postgresql://"):
+            return DATABASE_URL.replace("postgresql://", "sqla+postgresql+psycopg://", 1)
+        return f"sqla+{DATABASE_URL}"
 
     # Build from individual POSTGRES_* settings
     # Using postgresql+psycopg to use psycopg v3 driver (not psycopg2)

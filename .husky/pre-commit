@@ -1,3 +1,18 @@
+# Prevent committing .env files (not .env.example)
+# This project uses .env for local secrets (gitignored), not .env.local
+ENV_FILES=$(git diff --cached --name-only | grep -E '(^|/)\.env$' | grep -v '.example' || true)
+if [ -n "$ENV_FILES" ]; then
+  echo ""
+  echo "ERROR: Attempting to commit .env file(s):"
+  echo "$ENV_FILES"
+  echo ""
+  echo "This project uses .env for LOCAL secrets (gitignored)."
+  echo "Use .env.example for committed placeholder values."
+  echo ""
+  echo "To unstage: git reset HEAD <file>"
+  exit 1
+fi
+
 # Run gitleaks if installed (secret detection)
 if command -v gitleaks &> /dev/null; then
   echo "Running gitleaks secret detection..."
