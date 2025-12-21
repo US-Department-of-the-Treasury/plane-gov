@@ -1,39 +1,46 @@
-# Security policy
-This document outlines the security protocols and vulnerability reporting guidelines for the Plane project. Ensuring the security of our systems is a top priority, and while we work diligently to maintain robust protection, vulnerabilities may still occur. We highly value the community’s role in identifying and reporting security concerns to uphold the integrity of our systems and safeguard our users.
+# Security Policy
 
-## Reporting a vulnerability
-If you have identified a security vulnerability, submit your findings to [security@plane.so](mailto:security@plane.so). 
-Ensure your report includes all relevant information needed for us to reproduce and assess the issue. Include the IP address or URL of the affected system.
+This document outlines security protocols and vulnerability reporting guidelines for the Treasury fork of Plane.
 
-To ensure a responsible and effective disclosure process, please adhere to the following:
+## Reporting a Vulnerability
 
-- Maintain confidentiality and refrain from publicly disclosing the vulnerability until we have had the opportunity to investigate and address the issue.
-- Refrain from running automated vulnerability scans on our infrastructure or dashboard without prior consent. Contact us to set up a sandbox environment if necessary.
-- Do not exploit any discovered vulnerabilities for malicious purposes, such as accessing or altering user data.
-- Do not engage in physical security attacks, social engineering, distributed denial of service (DDoS) attacks, spam campaigns, or attacks on third-party applications as part of your vulnerability testing.
+If you have identified a security vulnerability in this repository:
 
-## Out of scope
-While we appreciate all efforts to assist in improving our security, please note that the following types of vulnerabilities are considered out of scope:
+1. **Do not** open a public GitHub issue
+2. Report the vulnerability through appropriate Treasury security channels
+3. Include all relevant information needed to reproduce and assess the issue
 
-- Vulnerabilities requiring man-in-the-middle (MITM) attacks or physical access to a user’s device.
-- Content spoofing or text injection issues without a clear attack vector or the ability to modify HTML/CSS.
-- Issues related to email spoofing.
-- Missing DNSSEC, CAA, or CSP headers.
-- Absence of secure or HTTP-only flags on non-sensitive cookies.
+### What to Include
 
-## Our commitment
+- Description of the vulnerability
+- Steps to reproduce
+- Potential impact
+- Any suggested remediation
 
-At Plane, we are committed to maintaining transparent and collaborative communication throughout the vulnerability resolution process. Here's what you can expect from us:
+## Responsible Disclosure
 
-- **Response Time** <br/>
-We will acknowledge receipt of your vulnerability report within three business days and provide an estimated timeline for resolution.
-- **Legal Protection** <br/>
-We will not initiate legal action against you for reporting vulnerabilities, provided you adhere to the reporting guidelines.
-- **Confidentiality** <br/>
-Your report will be treated with confidentiality. We will not disclose your personal information to third parties without your consent.
-- **Recognition** <br/>
-With your permission, we are happy to publicly acknowledge your contribution to improving our security once the issue is resolved.
-- **Timely Resolution** <br/>
-We are committed to working closely with you throughout the resolution process, providing timely updates as necessary. Our goal is to address all reported vulnerabilities swiftly, and we will actively engage with you to coordinate a responsible disclosure once the issue is fully resolved.
+Please adhere to the following:
 
-We appreciate your help in ensuring the security of our platform. Your contributions are crucial to protecting our users and maintaining a secure environment. Thank you for working with us to keep Plane safe.
+- Maintain confidentiality until the issue is addressed
+- Do not exploit discovered vulnerabilities
+- Do not run automated vulnerability scans without authorization
+- Do not engage in denial of service attacks or social engineering
+
+## Out of Scope
+
+The following are considered out of scope:
+
+- Vulnerabilities requiring physical access to a user's device
+- Content spoofing without a clear attack vector
+- Missing DNSSEC, CAA, or CSP headers
+- Absence of flags on non-sensitive cookies
+
+## Upstream Vulnerabilities
+
+For vulnerabilities in the upstream Plane project (not specific to Treasury modifications), please report to the upstream maintainers at [makeplane/plane](https://github.com/makeplane/plane).
+
+## Our Commitment
+
+- We will acknowledge receipt of vulnerability reports promptly
+- We will provide updates on remediation progress
+- We will not take legal action against good-faith security researchers
