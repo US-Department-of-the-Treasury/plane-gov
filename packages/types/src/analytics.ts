@@ -7,7 +7,6 @@ export enum ChartXAxisProperty {
   ASSIGNEES = "ASSIGNEES",
   ESTIMATE_POINTS = "ESTIMATE_POINTS",
   SPRINTS = "SPRINTS",
-  MODULES = "MODULES",
   PRIORITY = "PRIORITY",
   START_DATE = "START_DATE",
   TARGET_DATE = "TARGET_DATE",
@@ -42,7 +41,7 @@ export interface AnalyticsTab {
 export type TAnalyticsFilterParams = {
   project_ids?: string;
   sprint_id?: string;
-  module_id?: string;
+  epic_id?: string;
 };
 
 // service types

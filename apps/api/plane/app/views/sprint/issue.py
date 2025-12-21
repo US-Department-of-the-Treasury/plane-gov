@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 
-# Module imports
+# Package imports
 from .. import BaseViewSet
 from plane.app.serializers import SprintIssueSerializer
 from plane.bgtasks.issue_activities_task import issue_activity
@@ -98,7 +98,7 @@ class SprintIssueViewSet(BaseViewSet):
                 .annotate(count=Func(F("id"), function="Count"))
                 .values("count")
             )
-            .prefetch_related("assignees", "labels", "issue_module__module", "issue_sprint__sprint")
+            .prefetch_related("assignees", "labels", "issue_epic__epic", "issue_sprint__sprint")
         )
 
     @method_decorator(gzip_page)

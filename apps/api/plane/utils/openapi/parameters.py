@@ -1,7 +1,7 @@
 """
 Common OpenAPI parameters for drf-spectacular.
 
-This module provides reusable parameter definitions that can be shared
+This epic provides reusable parameter definitions that can be shared
 across multiple API endpoints to ensure consistency.
 """
 
@@ -115,32 +115,32 @@ SPRINT_ID_PARAMETER = OpenApiParameter(
     ],
 )
 
-MODULE_ID_PARAMETER = OpenApiParameter(
-    name="module_id",
-    description="Module ID",
+EPIC_ID_PARAMETER = OpenApiParameter(
+    name="epic_id",
+    description="Epic ID",
     required=True,
     type=OpenApiTypes.UUID,
     location=OpenApiParameter.PATH,
     examples=[
         OpenApiExample(
-            name="Example module ID",
+            name="Example epic ID",
             value="550e8400-e29b-41d4-a716-446655440000",
-            description="A typical module UUID",
+            description="A typical epic UUID",
         )
     ],
 )
 
-MODULE_PK_PARAMETER = OpenApiParameter(
+EPIC_PK_PARAMETER = OpenApiParameter(
     name="pk",
-    description="Module ID",
+    description="Epic ID",
     required=True,
     type=OpenApiTypes.UUID,
     location=OpenApiParameter.PATH,
     examples=[
         OpenApiExample(
-            name="Example module ID",
+            name="Example epic ID",
             value="550e8400-e29b-41d4-a716-446655440000",
-            description="A typical module UUID",
+            description="A typical epic UUID",
         )
     ],
 )

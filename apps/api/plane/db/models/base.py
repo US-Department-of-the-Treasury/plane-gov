@@ -6,7 +6,7 @@ from django.db import models
 # Third party imports
 from crum import get_current_user
 
-# Module imports
+# Package imports
 from ..mixins import AuditModel
 
 

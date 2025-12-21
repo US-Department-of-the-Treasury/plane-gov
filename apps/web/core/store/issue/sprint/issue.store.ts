@@ -412,11 +412,11 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
       this.rootIssueStore.issues.removeIssue(data.id);
     });
 
-    const currentModuleIds =
-      data.module_ids && data.module_ids.length > 0 ? data.module_ids.filter((moduleId) => moduleId != "None") : [];
+    const currentEpicIds =
+      data.epic_ids && data.epic_ids.length > 0 ? data.epic_ids.filter((epicId) => epicId != "None") : [];
 
-    if (currentModuleIds.length > 0) {
-      await this.changeModulesInIssue(workspaceSlug, projectId, response.id, currentModuleIds, []);
+    if (currentEpicIds.length > 0) {
+      await this.changeEpicsInIssue(workspaceSlug, projectId, response.id, currentEpicIds, []);
     }
 
     return response;

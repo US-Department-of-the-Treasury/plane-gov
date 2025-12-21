@@ -29,7 +29,7 @@ import { getEnabledDisplayFilters } from "@/plane-web/store/issue/helpers/filter
 interface ILocalStoreIssueFilters {
   key: EIssuesStoreType;
   workspaceSlug: string;
-  viewId: string | undefined; // It can be projectId, moduleId, sprintId, projectViewId
+  viewId: string | undefined; // It can be projectId, epicId, sprintId, projectViewId
   userId: string | undefined;
   filters: IIssueFilters;
 }
@@ -133,7 +133,7 @@ export class IssueFilterHelperStore implements IIssueFilterHelperStore {
     created_by: filters?.created_by || null,
     labels: filters?.labels || null,
     sprint: filters?.sprint || null,
-    module: filters?.module || null,
+    epic: filters?.epic || null,
     start_date: filters?.start_date || null,
     target_date: filters?.target_date || null,
     project: filters?.project || null,
@@ -199,7 +199,7 @@ export class IssueFilterHelperStore implements IIssueFilterHelperStore {
     get: (
       currentView: EIssuesStoreType,
       workspaceSlug: string,
-      viewId: string | undefined, // It can be projectId, moduleId, sprintId, projectViewId
+      viewId: string | undefined, // It can be projectId, epicId, sprintId, projectViewId
       userId: string | undefined
     ) => {
       const storageFilters = this.handleIssuesLocalFilters.fetchFiltersFromStorage();
@@ -219,7 +219,7 @@ export class IssueFilterHelperStore implements IIssueFilterHelperStore {
       currentView: EIssuesStoreType,
       filterType: EIssueFilterType,
       workspaceSlug: string,
-      viewId: string | undefined, // It can be projectId, moduleId, sprintId, projectViewId
+      viewId: string | undefined, // It can be projectId, epicId, sprintId, projectViewId
       userId: string | undefined,
       filters: Partial<IIssueFiltersResponse & { kanban_filters: TIssueKanbanFilters }>
     ) => {

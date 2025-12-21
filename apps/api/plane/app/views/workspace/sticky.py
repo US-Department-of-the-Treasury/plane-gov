@@ -2,7 +2,7 @@
 from rest_framework.response import Response
 from rest_framework import status
 
-# Module imports
+# Package imports
 from plane.app.views.base import BaseViewSet
 from plane.app.permissions import ROLE, allow_permission
 from plane.db.models import Sticky, Workspace

@@ -8,10 +8,10 @@ from pythonjsonlogger.jsonlogger import JsonFormatter
 from celery.signals import after_setup_logger, after_setup_task_logger
 from celery.schedules import crontab
 
-# Module imports
+# Package imports
 from plane.settings.redis import redis_instance
 
-# Set the default Django settings module for the 'celery' program.
+# Set the default Django settings epic for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "plane.settings.production")
 
 ri = redis_instance()
@@ -77,7 +77,7 @@ app.conf.beat_schedule = {
 # Setup logging
 @after_setup_logger.connect
 def setup_loggers(logger, *args, **kwargs):
-    formatter = JsonFormatter('"%(levelname)s %(asctime)s %(module)s %(name)s %(message)s')
+    formatter = JsonFormatter('"%(levelname)s %(asctime)s %(epic)s %(name)s %(message)s')
     handler = logging.StreamHandler()
     handler.setFormatter(fmt=formatter)
     logger.addHandler(handler)
@@ -85,13 +85,13 @@ def setup_loggers(logger, *args, **kwargs):
 
 @after_setup_task_logger.connect
 def setup_task_loggers(logger, *args, **kwargs):
-    formatter = JsonFormatter('"%(levelname)s %(asctime)s %(module)s %(name)s %(message)s')
+    formatter = JsonFormatter('"%(levelname)s %(asctime)s %(epic)s %(name)s %(message)s')
     handler = logging.StreamHandler()
     handler.setFormatter(fmt=formatter)
     logger.addHandler(handler)
 
 
-# Load task modules from all registered Django app configs.
+# Load task epics from all registered Django app configs.
 app.autodiscover_tasks()
 
 app.conf.beat_scheduler = "django_celery_beat.schedulers.DatabaseScheduler"

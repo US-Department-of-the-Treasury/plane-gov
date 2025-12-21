@@ -6,7 +6,7 @@ from django.db.models import Q
 from rest_framework import authentication
 from rest_framework.exceptions import AuthenticationFailed
 
-# Module imports
+# Package imports
 from plane.db.models import APIToken
 
 

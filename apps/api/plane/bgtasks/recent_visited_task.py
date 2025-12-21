@@ -5,7 +5,7 @@ from django.db import DatabaseError
 # Third party imports
 from celery import shared_task
 
-# Module imports
+# Package imports
 from plane.db.models import UserRecentVisit, Workspace
 from plane.utils.exception_logger import log_exception
 

@@ -11,7 +11,7 @@ from django.db.models import Q
 from celery import shared_task
 from botocore.client import Config
 
-# Module imports
+# Package imports
 from plane.db.models import ExporterHistory
 
 

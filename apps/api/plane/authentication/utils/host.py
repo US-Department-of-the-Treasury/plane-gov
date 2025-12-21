@@ -5,7 +5,7 @@ from django.http import HttpRequest
 # Third party imports
 from rest_framework.request import Request
 
-# Module imports
+# Package imports
 from plane.utils.ip_address import get_client_ip
 
 

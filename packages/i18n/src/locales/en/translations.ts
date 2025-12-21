@@ -207,7 +207,7 @@ export default {
   open_project: "Open project",
   issues: "Work items",
   sprints: "Sprints",
-  modules: "Modules",
+  epics: "Epics",
   pages: "Pages",
   intake: "Intake",
   time_tracking: "Time Tracking",
@@ -216,7 +216,7 @@ export default {
   projects_and_issues_description: "Toggle these on or off this project.",
   sprints_description:
     "Timebox work per project and adjust the time period as needed. One sprint can be 2 weeks, the next 1 week.",
-  modules_description: "Organize work into sub-projects with dedicated leads and assignees.",
+  epics_description: "Organize work into sub-projects with dedicated leads and assignees.",
   views_description: "Save custom sorts, filters, and display options or share them with your team.",
   pages_description: "Create and edit free-form content; notes, docs, anything.",
   intake_description: "Let non-members share bugs, feedback, and suggestions; without disrupting your workflow.",
@@ -490,8 +490,8 @@ export default {
     project: "Project",
     sprint: "Sprint",
     sprints: "Sprints",
-    module: "Module",
-    modules: "Modules",
+    epic: "Epic",
+    epics: "Epics",
     labels: "Labels",
     label: "Label",
     admins: "Admins",
@@ -831,10 +831,10 @@ export default {
         success: "Work item removed from the sprint successfully.",
         failed: "Work item could not be removed from the sprint. Please try again.",
       },
-      module: {
-        loading: "Removing work item from the module",
-        success: "Work item removed from the module successfully.",
-        failed: "Work item could not be removed from the module. Please try again.",
+      epic: {
+        loading: "Removing work item from the epic",
+        success: "Work item removed from the epic successfully.",
+        failed: "Work item could not be removed from the epic. Please try again.",
       },
       parent: {
         label: "Remove parent work item",
@@ -1181,7 +1181,7 @@ export default {
     selected_projects: "Selected projects",
     total_members: "Total members",
     total_sprints: "Total sprints",
-    total_modules: "Total modules",
+    total_epics: "Total epics",
     pending_work_items: {
       title: "Pending work items",
       empty_state: "Analysis of pending work items by co-workers appears here.",
@@ -1234,9 +1234,9 @@ export default {
         primary_button: {
           text: "Start your first project",
           comic: {
-            title: "Analytics works best with Sprints + Modules",
+            title: "Analytics works best with Sprints + Epics",
             description:
-              "First, timebox your issues into Sprints and, if you can, group issues that span more than a sprint into Modules. Check out both on the left nav.",
+              "First, timebox your issues into Sprints and, if you can, group issues that span more than a sprint into Epics. Check out both on the left nav.",
           },
         },
       },
@@ -1261,7 +1261,7 @@ export default {
     error: {
       permission: "You don't have permission to perform this action.",
       sprint_delete: "Failed to delete sprint",
-      module_delete: "Failed to delete module",
+      epic_delete: "Failed to delete epic",
       issue_delete: "Failed to delete work item",
     },
     state: {
@@ -1288,7 +1288,7 @@ export default {
       general: {
         title: "No active projects",
         description:
-          "Think of each project as the parent for goal-oriented work. Projects are where Jobs, Sprints, and Modules live and, along with your colleagues, help you achieve that goal. Create a new project or filter for archived projects.",
+          "Think of each project as the parent for goal-oriented work. Projects are where Jobs, Sprints, and Epics live and, along with your colleagues, help you achieve that goal. Create a new project or filter for archived projects.",
         primary_button: {
           text: "Start your first project",
           comic: {
@@ -2005,30 +2005,30 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Add Module",
-    update_module: "Update Module",
-    create_module: "Create Module",
-    archive_module: "Archive Module",
-    restore_module: "Restore Module",
-    delete_module: "Delete module",
+  project_epic: {
+    add_epic: "Add Epic",
+    update_epic: "Update Epic",
+    create_epic: "Create Epic",
+    archive_epic: "Archive Epic",
+    restore_epic: "Restore Epic",
+    delete_epic: "Delete epic",
     empty_state: {
       general: {
-        title: "Map your project milestones to Modules and track aggregated work easily.",
+        title: "Map your project milestones to Epics and track aggregated work easily.",
         description:
-          "A group of work items that belong to a logical, hierarchical parent form a module. Think of them as a way to track work by project milestones. They have their own periods and deadlines as well as analytics to help you see how close or far you are from a milestone.",
+          "A group of work items that belong to a logical, hierarchical parent form an epic. Think of them as a way to track work by project milestones. They have their own periods and deadlines as well as analytics to help you see how close or far you are from a milestone.",
         primary_button: {
-          text: "Build your first module",
+          text: "Build your first epic",
           comic: {
-            title: "Modules help group work by hierarchy.",
+            title: "Epics help group work by hierarchy.",
             description:
-              "A cart module, a chassis module, and a warehouse module are all good example of this grouping.",
+              "A cart epic, a chassis epic, and a warehouse epic are all good example of this grouping.",
           },
         },
       },
       no_issues: {
-        title: "No work items in the module",
-        description: "Create or add work items which you want to accomplish as part of this module",
+        title: "No work items in the epic",
+        description: "Create or add work items which you want to accomplish as part of this epic",
         primary_button: {
           text: "Create new work items",
         },
@@ -2037,26 +2037,26 @@ export default {
         },
       },
       archived: {
-        title: "No archived Modules yet",
-        description: "To tidy up your project, archive completed or cancelled modules. Find them here once archived.",
+        title: "No archived Epics yet",
+        description: "To tidy up your project, archive completed or cancelled epics. Find them here once archived.",
       },
       sidebar: {
-        in_active: "This module isn't active yet.",
+        in_active: "This epic isn.t active yet.",
         invalid_date: "Invalid date. Please enter valid date.",
       },
     },
     quick_actions: {
-      archive_module: "Archive module",
-      archive_module_description: "Only completed or canceled\nmodule can be archived.",
-      delete_module: "Delete module",
+      archive_epic: "Archive epic",
+      archive_epic_description: "Only completed or canceled\nepic can be archived.",
+      delete_epic: "Delete epic",
     },
     toast: {
       copy: {
-        success: "Module link copied to clipboard",
+        success: "Epic link copied to clipboard",
       },
       delete: {
-        success: "Module deleted successfully",
-        error: "Failed to delete module",
+        success: "Epic deleted successfully",
+        error: "Failed to delete epic",
       },
     },
   },
@@ -2234,10 +2234,10 @@ export default {
           text: "Manage features",
         },
       },
-      module: {
-        title: "Modules are not enabled for the project.",
+      epic: {
+        title: "Epics are not enabled for the project.",
         description:
-          "Modules are the building blocks of your project. Enable modules from project settings to start using them.",
+          "Epics are the building blocks of your project. Enable epics from project settings to start using them.",
         primary_button: {
           text: "Manage features",
         },
@@ -2349,7 +2349,7 @@ export default {
     },
     member: {
       title: "Member",
-      description: "Ability to read, write, edit, and delete entities inside projects, sprints, and modules",
+      description: "Ability to read, write, edit, and delete entities inside projects, sprints, and epics",
     },
     admin: {
       title: "Admin",
@@ -2428,7 +2428,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Backlog",
       planned: "Planned",
@@ -2455,9 +2455,9 @@ export default {
     label: "{count, plural, one {Sprint} other {Sprints}}",
     no_sprint: "No sprint",
   },
-  module: {
-    label: "{count, plural, one {Module} other {Modules}}",
-    no_module: "No module",
+  epic: {
+    label: "{count, plural, one {Epic} other {Epics}}",
+    no_epic: "No epic",
   },
   description_versions: {
     last_edited_by: "Last edited by",
@@ -2528,7 +2528,7 @@ export default {
         unassign_from_me: "Un-assign from me",
         change_estimate: "Change estimate",
         add_to_sprint: "Add to sprint",
-        add_to_modules: "Add to modules",
+        add_to_epics: "Add to epics",
         add_labels: "Add labels",
         subscribe: "Subscribe to notifications",
         unsubscribe: "Unsubscribe from notifications",
@@ -2552,16 +2552,16 @@ export default {
         copy_url_toast_success: "Sprint URL copied to clipboard.",
         copy_url_toast_error: "Some error occurred while copying the sprint URL to clipboard.",
       },
-      module: {
-        title: "Module actions",
-        indicator: "Module",
+      epic: {
+        title: "Epic actions",
+        indicator: "Epic",
         add_remove_members: "Add/remove members",
         change_status: "Change status",
         add_to_favorites: "Add to favorites",
         remove_from_favorites: "Remove from favorites",
         copy_url: "Copy URL",
-        copy_url_toast_success: "Module URL copied to clipboard.",
-        copy_url_toast_error: "Some error occurred while copying the module URL to clipboard.",
+        copy_url_toast_success: "Epic URL copied to clipboard.",
+        copy_url_toast_error: "Some error occurred while copying the epic URL to clipboard.",
       },
       page: {
         title: "Page actions",
@@ -2584,7 +2584,7 @@ export default {
       create_page: "New page",
       create_view: "New view",
       create_sprint: "New sprint",
-      create_module: "New module",
+      create_epic: "New epic",
       create_project: "New project",
       create_workspace: "New workspace",
     },
@@ -2608,8 +2608,8 @@ export default {
       nav_project_work_items: "Go to work items",
       open_project_sprint: "Open a sprint",
       nav_project_sprints: "Go to sprints",
-      open_project_module: "Open a module",
-      nav_project_modules: "Go to modules",
+      open_project_epic: "Open an epic",
+      nav_project_epics: "Go to epics",
       open_project_view: "Open a project view",
       nav_project_views: "Go to project views",
       nav_project_pages: "Go to pages",
@@ -2662,7 +2662,7 @@ export default {
       open_project: "Open a project",
       open_workspace_setting: "Open a workspace setting",
       open_project_sprint: "Open a sprint",
-      open_project_module: "Open a module",
+      open_project_epic: "Open an epic",
       open_project_view: "Open a project view",
       open_project_setting: "Open a project setting",
       update_work_item_state: "Change state",
@@ -2670,10 +2670,10 @@ export default {
       update_work_item_assignee: "Assign to",
       update_work_item_estimate: "Change estimate",
       update_work_item_sprint: "Add to sprint",
-      update_work_item_module: "Add to modules",
+      update_work_item_epic: "Add to epics",
       update_work_item_labels: "Add labels",
-      update_module_member: "Change members",
-      update_module_status: "Change status",
+      update_epic_member: "Change members",
+      update_epic_status: "Change status",
       update_theme: "Change theme",
       update_timezone: "Change timezone",
       update_start_of_week: "Change first day of week",

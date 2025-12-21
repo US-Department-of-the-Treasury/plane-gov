@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from django.db import models
 from django.core.exceptions import ValidationError
 
-# Module imports
+# Package imports
 from plane.db.models import BaseModel, ProjectBaseModel
 
 
@@ -34,7 +34,7 @@ class Webhook(BaseModel):
     secret_key = models.CharField(max_length=255, default=generate_token)
     project = models.BooleanField(default=False)
     issue = models.BooleanField(default=False)
-    module = models.BooleanField(default=False)
+    epic = models.BooleanField(default=False)
     sprint = models.BooleanField(default=False)
     issue_comment = models.BooleanField(default=False)
     is_internal = models.BooleanField(default=False)

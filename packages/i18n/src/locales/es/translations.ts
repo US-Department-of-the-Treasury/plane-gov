@@ -11,7 +11,7 @@ export default {
     analytics: "Análisis",
     work_items: "Elementos de trabajo",
     sprints: "Ciclos",
-    modules: "Módulos",
+    epics: "Épicos",
     intake: "Entrada",
     drafts: "Borradores",
     favorites: "Favoritos",
@@ -381,7 +381,7 @@ export default {
   open_project: "Abrir proyecto",
   issues: "Elementos de trabajo",
   sprints: "Ciclos",
-  modules: "Módulos",
+  epics: "Épicos",
   pages: "Páginas",
   intake: "Entrada",
   time_tracking: "Seguimiento de tiempo",
@@ -390,7 +390,7 @@ export default {
   projects_and_issues_description: "Activa o desactiva estos en este proyecto.",
   sprints_description:
     "Organiza el trabajo por proyecto en períodos de tiempo y ajusta la duración según sea necesario. Un ciclo puede ser de 2 semanas y el siguiente de 1 semana.",
-  modules_description: "Organiza el trabajo en subproyectos con líderes y responsables dedicados.",
+  epics_description: "Organiza el trabajo en subproyectos con líderes y responsables dedicados.",
   views_description:
     "Guarda ordenamientos, filtros y opciones de visualización personalizadas o compártelos con tu equipo.",
   pages_description: "Crea y edita contenido libre; notas, documentos, lo que sea.",
@@ -666,8 +666,8 @@ export default {
     project: "Proyecto",
     sprint: "Ciclo",
     sprints: "Ciclos",
-    module: "Módulo",
-    modules: "Módulos",
+    epic: "Épico",
+    epics: "Épicos",
     labels: "Etiquetas",
     label: "Etiqueta",
     assignees: "Asignados",
@@ -1005,10 +1005,10 @@ export default {
         success: "Elemento de trabajo eliminado del ciclo correctamente.",
         failed: "No se pudo eliminar el elemento de trabajo del ciclo. Por favor, inténtalo de nuevo.",
       },
-      module: {
-        loading: "Eliminando elemento de trabajo del módulo",
-        success: "Elemento de trabajo eliminado del módulo correctamente.",
-        failed: "No se pudo eliminar el elemento de trabajo del módulo. Por favor, inténtalo de nuevo.",
+      epic: {
+        loading: "Eliminando elemento de trabajo del épico",
+        success: "Elemento de trabajo eliminado del épico correctamente.",
+        failed: "No se pudo eliminar el elemento de trabajo del épico. Por favor, inténtalo de nuevo.",
       },
       parent: {
         label: "Eliminar elemento de trabajo padre",
@@ -1358,7 +1358,7 @@ export default {
     selected_projects: "Proyectos seleccionados",
     total_members: "Total de miembros",
     total_sprints: "Total de Ciclos",
-    total_modules: "Total de Módulos",
+    total_epics: "Total de Módulos",
     pending_work_items: {
       title: "Elementos de trabajo pendientes",
       empty_state: "El análisis de elementos de trabajo pendientes por compañeros aparece aquí.",
@@ -1444,7 +1444,7 @@ export default {
     error: {
       permission: "No tienes permiso para realizar esta acción.",
       sprint_delete: "Error al eliminar el ciclo",
-      module_delete: "Error al eliminar el módulo",
+      epic_delete: "Error al eliminar el épico",
       issue_delete: "Error al eliminar el elemento de trabajo",
     },
     state: {
@@ -2162,13 +2162,13 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Agregar Módulo",
-    update_module: "Actualizar Módulo",
-    create_module: "Crear Módulo",
-    archive_module: "Archivar Módulo",
-    restore_module: "Restaurar Módulo",
-    delete_module: "Eliminar módulo",
+  project_epic: {
+    add_epic: "Agregar Módulo",
+    update_epic: "Actualizar Módulo",
+    create_epic: "Crear Módulo",
+    archive_epic: "Archivar Módulo",
+    restore_epic: "Restaurar Módulo",
+    delete_epic: "Eliminar épico",
     empty_state: {
       general: {
         title: "Mapea los hitos de tu proyecto a Módulos y rastrea el trabajo agregado fácilmente.",
@@ -2184,7 +2184,7 @@ export default {
         },
       },
       no_issues: {
-        title: "No hay elementos de trabajo en el módulo",
+        title: "No hay elementos de trabajo en el épico",
         description: "Crea o agrega elementos de trabajo que quieras lograr como parte de este módulo",
         primary_button: {
           text: "Crear nuevos elementos de trabajo",
@@ -2196,7 +2196,7 @@ export default {
       archived: {
         title: "Aún no hay Módulos archivados",
         description:
-          "Para mantener ordenado tu proyecto, archiva los módulos completados o cancelados. Encuéntralos aquí una vez archivados.",
+          "Para mantener ordenado tu proyecto, archiva los épicos completados o cancelados. Encuéntralos aquí una vez archivados.",
       },
       sidebar: {
         in_active: "Este módulo aún no está activo.",
@@ -2204,17 +2204,17 @@ export default {
       },
     },
     quick_actions: {
-      archive_module: "Archivar módulo",
-      archive_module_description: "Solo los módulos completados o\ncancelados pueden ser archivados.",
-      delete_module: "Eliminar módulo",
+      archive_epic: "Archivar épico",
+      archive_epic_description: "Solo los épicos completados o\ncancelados pueden ser archivados.",
+      delete_epic: "Eliminar épico",
     },
     toast: {
       copy: {
-        success: "Enlace del módulo copiado al portapapeles",
+        success: "Enlace del épico copiado al portapapeles",
       },
       delete: {
         success: "Módulo eliminado exitosamente",
-        error: "Error al eliminar el módulo",
+        error: "Error al eliminar el épico",
       },
     },
   },
@@ -2395,10 +2395,10 @@ export default {
           text: "Gestionar funciones",
         },
       },
-      module: {
-        title: "Los Módulos no están habilitados para el proyecto.",
+      epic: {
+        title: "Los Épicos no están habilitados para el proyecto.",
         description:
-          "Los Módulos son los componentes básicos de tu proyecto. Habilita los módulos desde la configuración del proyecto para comenzar a usarlos.",
+          "Los Épicos son los componentes básicos de tu proyecto. Habilita los épicos desde la configuración del proyecto para comenzar a usarlos.",
         primary_button: {
           text: "Gestionar funciones",
         },
@@ -2591,7 +2591,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Pendientes",
       planned: "Planificado",
@@ -2618,9 +2618,9 @@ export default {
     label: "{count, plural, one {Ciclo} other {Ciclos}}",
     no_sprint: "Sin ciclo",
   },
-  module: {
+  epic: {
     label: "{count, plural, one {Módulo} other {Módulos}}",
-    no_module: "Sin módulo",
+    no_epic: "Sin módulo",
   },
   description_versions: {
     last_edited_by: "Última edición por",

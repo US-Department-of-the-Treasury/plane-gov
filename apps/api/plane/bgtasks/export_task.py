@@ -14,7 +14,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.db.models import Prefetch
 
-# Module imports
+# Package imports
 from plane.db.models import ExporterHistory, Issue, IssueComment, IssueRelation, IssueSubscriber
 from plane.utils.exception_logger import log_exception
 from plane.utils.porters.exporter import DataExporter
@@ -159,7 +159,7 @@ def issue_export_task(
             .prefetch_related(
                 "labels",
                 "issue_sprint__sprint",
-                "issue_module__module",
+                "issue_epic__epic",
                 "assignees",
                 "issue_link",
                 Prefetch(

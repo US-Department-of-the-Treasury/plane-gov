@@ -9,7 +9,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework.response import Response
 from rest_framework import status
 
-# Module imports
+# Package imports
 from .. import BaseViewSet
 from plane.app.serializers import IssueReactionSerializer
 from plane.app.permissions import allow_permission, ROLE

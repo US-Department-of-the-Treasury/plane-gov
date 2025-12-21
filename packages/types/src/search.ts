@@ -1,12 +1,12 @@
 import type { ISprint } from "./sprint";
 import type { TIssue } from "./issues/issue";
-import type { IModule } from "./module";
+import type { IEpic } from "./epic";
 import type { TPage } from "./page";
 import type { IProject } from "./project";
 import type { IUser } from "./users";
 import type { IWorkspace } from "./workspace";
 
-export type TSearchEntities = "user_mention" | "issue" | "project" | "sprint" | "module" | "page";
+export type TSearchEntities = "user_mention" | "issue" | "project" | "sprint" | "epic" | "page";
 
 export type TUserSearchResponse = {
   member__avatar_url: IUser["avatar_url"];
@@ -42,12 +42,12 @@ export type TSprintSearchResponse = {
   workspace__slug: IWorkspace["slug"];
 };
 
-export type TModuleSearchResponse = {
-  name: IModule["name"];
-  id: IModule["id"];
-  project_id: IModule["project_id"];
+export type TEpicSearchResponse = {
+  name: IEpic["name"];
+  id: IEpic["id"];
+  project_id: IEpic["project_id"];
   project__identifier: IProject["identifier"];
-  status: IModule["status"];
+  status: IEpic["status"];
   workspace__slug: IWorkspace["slug"];
 };
 
@@ -62,7 +62,7 @@ export type TPageSearchResponse = {
 export type TSearchResponse = {
   sprint?: TSprintSearchResponse[];
   issue?: TIssueSearchResponse[];
-  module?: TModuleSearchResponse[];
+  epic?: TEpicSearchResponse[];
   page?: TPageSearchResponse[];
   project?: TProjectSearchResponse[];
   user_mention?: TUserSearchResponse[];

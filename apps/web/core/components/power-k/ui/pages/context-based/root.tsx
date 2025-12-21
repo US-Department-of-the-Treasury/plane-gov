@@ -7,8 +7,8 @@ import {
 } from "@/plane-web/components/command-palette/power-k/pages/context-based";
 // local imports
 import { usePowerKSprintContextBasedActions } from "./sprint/commands";
-import { PowerKModuleContextBasedPages } from "./module";
-import { usePowerKModuleContextBasedActions } from "./module/commands";
+import { PowerKEpicContextBasedPages } from "./epic";
+import { usePowerKEpicContextBasedActions } from "./epic/commands";
 import { usePowerKPageContextBasedActions } from "./page/commands";
 import { PowerKWorkItemContextBasedPages } from "./work-item";
 import { usePowerKWorkItemContextBasedCommands } from "./work-item/commands";
@@ -27,8 +27,8 @@ export function PowerKContextBasedPagesList(props: ContextBasedActionsProps) {
       {activeContext === "work-item" && (
         <PowerKWorkItemContextBasedPages activePage={activePage} handleSelection={handleSelection} />
       )}
-      {activeContext === "module" && (
-        <PowerKModuleContextBasedPages activePage={activePage} handleSelection={handleSelection} />
+      {activeContext === "epic" && (
+        <PowerKEpicContextBasedPages activePage={activePage} handleSelection={handleSelection} />
       )}
       <PowerKContextBasedActionsExtended {...props} />
     </>
@@ -38,9 +38,9 @@ export function PowerKContextBasedPagesList(props: ContextBasedActionsProps) {
 export const usePowerKContextBasedActions = (): TPowerKCommandConfig[] => {
   const workItemCommands = usePowerKWorkItemContextBasedCommands();
   const sprintCommands = usePowerKSprintContextBasedActions();
-  const moduleCommands = usePowerKModuleContextBasedActions();
+  const epicCommands = usePowerKEpicContextBasedActions();
   const pageCommands = usePowerKPageContextBasedActions();
   const extendedCommands = usePowerKContextBasedExtendedActions();
 
-  return [...workItemCommands, ...sprintCommands, ...moduleCommands, ...pageCommands, ...extendedCommands];
+  return [...workItemCommands, ...sprintCommands, ...epicCommands, ...pageCommands, ...extendedCommands];
 };

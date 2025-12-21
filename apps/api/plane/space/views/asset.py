@@ -15,7 +15,7 @@ from plane.bgtasks.storage_metadata_task import get_asset_object_metadata
 from plane.db.models import DeployBoard, FileAsset
 from plane.settings.storage import S3Storage
 
-# Module imports
+# Package imports
 from .base import BaseAPIView
 
 

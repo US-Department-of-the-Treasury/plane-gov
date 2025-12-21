@@ -79,7 +79,7 @@ export function JiraProjectDetail(props: Props) {
       }))
     );
     setValue("data.total_states", projectInfo.states);
-    setValue("data.total_modules", projectInfo.modules);
+    setValue("data.total_epics", projectInfo.modules);
   }, [projectInfo, setValue]);
 
   useEffect(() => {
@@ -136,7 +136,7 @@ export function JiraProjectDetail(props: Props) {
           </div>
           <div>
             <h4 className="mb-2 text-16 font-semibold">{projectInfo?.modules}</h4>
-            <p className="text-13 text-secondary">Modules</p>
+            <p className="text-13 text-secondary">Epics</p>
           </div>
           <div>
             <h4 className="mb-2 text-16 font-semibold">{projectInfo?.labels}</h4>
@@ -152,12 +152,12 @@ export function JiraProjectDetail(props: Props) {
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
         <div className="col-span-1">
           <h3 className="font-semibold">Import Epics</h3>
-          <p className="text-13 text-secondary">Import epics as modules</p>
+          <p className="text-13 text-secondary">Import Jira epics as epics</p>
         </div>
         <div className="col-span-1">
           <Controller
             control={control}
-            name="config.epics_to_modules"
+            name="config.import_jira_epics"
             render={({ field: { value, onChange } }) => <ToggleSwitch onChange={onChange} value={value} />}
           />
         </div>

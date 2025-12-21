@@ -31,7 +31,7 @@ import {
 import { InboxIllustration, SearchIllustration } from "./illustration";
 import {
   ArchivedSprintVerticalStackIllustration,
-  ArchivedModuleVerticalStackIllustration,
+  ArchivedEpicVerticalStackIllustration,
   ArchivedWorkItemVerticalStackIllustration,
   ChangelogVerticalStackIllustration,
   CustomerVerticalStackIllustration,
@@ -42,7 +42,6 @@ import {
   Error404VerticalStackIllustration,
   InitiativeVerticalStackIllustration,
   InvalidLinkVerticalStackIllustration,
-  ModuleVerticalStackIllustration,
   NoAccessVerticalStackIllustration,
   PageVerticalStackIllustration,
   ProjectVerticalStackIllustration,
@@ -79,7 +78,7 @@ export const HORIZONTAL_STACK_ASSETS: Record<HorizontalStackAssetType, React.Com
 // Vertical Stack Asset Registry
 export const VERTICAL_STACK_ASSETS: Record<VerticalStackAssetType, React.ComponentType<{ className?: string }>> = {
   "archived-sprint": ArchivedSprintVerticalStackIllustration,
-  "archived-module": ArchivedModuleVerticalStackIllustration,
+  "archived-epic": ArchivedEpicVerticalStackIllustration,
   "archived-work-item": ArchivedWorkItemVerticalStackIllustration,
   changelog: ChangelogVerticalStackIllustration,
   customer: CustomerVerticalStackIllustration,
@@ -90,7 +89,6 @@ export const VERTICAL_STACK_ASSETS: Record<VerticalStackAssetType, React.Compone
   "error-404": Error404VerticalStackIllustration,
   initiative: InitiativeVerticalStackIllustration,
   "invalid-link": InvalidLinkVerticalStackIllustration,
-  module: ModuleVerticalStackIllustration,
   "no-access": NoAccessVerticalStackIllustration,
   page: PageVerticalStackIllustration,
   project: ProjectVerticalStackIllustration,

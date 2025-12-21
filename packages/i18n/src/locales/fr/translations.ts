@@ -11,7 +11,7 @@ export default {
     analytics: "Analyses",
     work_items: "Éléments de travail",
     sprints: "Sprints",
-    modules: "Modules",
+    epics: "Epics",
     intake: "Intake",
     drafts: "Brouillons",
     favorites: "Favoris",
@@ -377,7 +377,7 @@ export default {
   open_project: "Ouvrir le projet",
   issues: "Éléments de travail",
   sprints: "Sprints",
-  modules: "Modules",
+  epics: "Epics",
   pages: "Pages",
   intake: "Intake",
   time_tracking: "Suivi du temps",
@@ -386,7 +386,7 @@ export default {
   projects_and_issues_description: "Activez ou désactivez ces éléments pour ce projet.",
   sprints_description:
     "Définissez un cadre temporel pour chaque projet et ajustez la durée selon les besoins. Un sprint peut durer deux semaines, le suivant une semaine.",
-  modules_description: "Organisez le travail en sous-projets avec des responsables et des acteurs spécifiques.",
+  epics_description: "Organisez le travail en sous-projets avec des responsables et des acteurs spécifiques.",
   views_description:
     "Enregistrez des tris, filtres et options d’affichage personnalisés ou partagez-les avec votre équipe.",
   pages_description: "Créez et modifiez du contenu libre : notes, documents, tout ce que vous voulez.",
@@ -664,8 +664,8 @@ export default {
     project: "Projet",
     sprint: "Sprint",
     sprints: "Sprints",
-    module: "Module",
-    modules: "Modules",
+    epic: "Épique",
+    epics: "Épiques",
     labels: "Étiquettes",
     label: "Étiquette",
     assignees: "Acteurs",
@@ -1003,10 +1003,10 @@ export default {
         success: "Élément de travail supprimé du sprint avec succès.",
         failed: "L’élément de travail n’a pas pu être supprimé du sprint. Veuillez réessayer.",
       },
-      module: {
-        loading: "Suppression de l’élément de travail du module",
-        success: "Élément de travail supprimé du module avec succès.",
-        failed: "L’élément de travail n’a pas pu être supprimé du module. Veuillez réessayer.",
+      epic: {
+        loading: "Suppression de l'élément de travail de l'épique",
+        success: "Élément de travail supprimé de l'épique avec succès.",
+        failed: "L'élément de travail n'a pas pu être supprimé de l'épique. Veuillez réessayer.",
       },
       parent: {
         label: "Supprimer l’élément de travail parent",
@@ -1357,7 +1357,7 @@ export default {
     selected_projects: "Projets sélectionnés",
     total_members: "Total des membres",
     total_sprints: "Total des Sprints",
-    total_modules: "Total des Modules",
+    total_epics: "Total des Épiques",
     pending_work_items: {
       title: "Éléments de travail en attente",
       empty_state: "L’analyse des éléments de travail en attente par acteur apparaît ici.",
@@ -1399,9 +1399,9 @@ export default {
         primary_button: {
           text: "Commencez votre premier projet",
           comic: {
-            title: "L’analytics fonctionne mieux avec les Sprints + Modules",
+            title: "L'analytics fonctionne mieux avec les Sprints + Épiques",
             description:
-              "D’abord, encadrez vos éléments de travail dans des Sprints et, si possible, regroupez les éléments qui s’étendent sur plus d’un sprint dans des Modules. Consultez les deux dans la navigation de gauche.",
+              "D'abord, encadrez vos éléments de travail dans des Sprints et, si possible, regroupez les éléments qui s'étendent sur plus d'un sprint dans des Épiques. Consultez les deux dans la navigation de gauche.",
           },
         },
       },
@@ -1443,7 +1443,7 @@ export default {
     error: {
       permission: "Vous n’avez pas la permission d’effectuer cette action.",
       sprint_delete: "Échec de la suppression du sprint",
-      module_delete: "Échec de la suppression du module",
+      epic_delete: "Échec de la suppression de l'épique",
       issue_delete: "Échec de la suppression de l’élément de travail",
     },
     state: {
@@ -1470,7 +1470,7 @@ export default {
       general: {
         title: "Aucun projet actif",
         description:
-          "Considérez chaque projet comme le parent d’activités axées sur les objectifs. Les projets regroupent les tâches, les sprints et les modules et, avec l'aide de vos collègues, vous aident à atteindre ces objectifs. Créez un nouveau projet ou filtrez les projets archivés.",
+          "Considérez chaque projet comme le parent d'activités axées sur les objectifs. Les projets regroupent les tâches, les sprints et les épiques et, avec l'aide de vos collègues, vous aident à atteindre ces objectifs. Créez un nouveau projet ou filtrez les projets archivés.",
         primary_button: {
           text: "Commencez votre premier projet",
           comic: {
@@ -2159,30 +2159,30 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Ajouter un module",
-    update_module: "Mettre à jour le module",
-    create_module: "Créer un module",
-    archive_module: "Archiver le module",
-    restore_module: "Restaurer le module",
-    delete_module: "Supprimer le module",
+  project_epic: {
+    add_epic: "Ajouter un épique",
+    update_epic: "Mettre à jour l'épique",
+    create_epic: "Créer un épique",
+    archive_epic: "Archiver l'épique",
+    restore_epic: "Restaurer l'épique",
+    delete_epic: "Supprimer l'épique",
     empty_state: {
       general: {
-        title: "Associez vos jalons de projet aux Modules et suivez facilement le travail agrégé.",
+        title: "Associez vos jalons de projet aux Épiques et suivez facilement le travail agrégé.",
         description:
-          "Un groupe d’éléments de travail qui appartiennent à un parent logique et hiérarchique forme un module. Considérez-les comme un moyen de suivre le travail par étapes clés du projet. Ils ont leurs propres périodes et délais ainsi que des analyses pour vous aider à voir à quel point vous êtes proche ou pas d’atteindre une étape clé.",
+          "Un groupe d'éléments de travail qui appartiennent à un parent logique et hiérarchique forme un épique. Considérez-les comme un moyen de suivre le travail par étapes clés du projet. Ils ont leurs propres périodes et délais ainsi que des analyses pour vous aider à voir à quel point vous êtes proche ou pas d'atteindre une étape clé.",
         primary_button: {
-          text: "Construisez votre premier module",
+          text: "Construisez votre premier épique",
           comic: {
-            title: "Les modules aident à regrouper le travail par étapes clés.",
+            title: "Les épiques aident à regrouper le travail par étapes clés.",
             description:
-              "Un module « panier », un module « châssis » et un module « entrepôt » sont tous de bons exemples de ce regroupement.",
+              "Un épique « panier », un épique « châssis » et un épique « entrepôt » sont tous de bons exemples de ce regroupement.",
           },
         },
       },
       no_issues: {
-        title: "Aucun élément de travail dans le module",
-        description: "Créez ou ajoutez des éléments de travail que vous souhaitez accomplir dans le cadre de ce module",
+        title: "Aucun élément de travail dans l'épique",
+        description: "Créez ou ajoutez des éléments de travail que vous souhaitez accomplir dans le cadre de cet épique",
         primary_button: {
           text: "Créer de nouveaux éléments de travail",
         },
@@ -2191,27 +2191,27 @@ export default {
         },
       },
       archived: {
-        title: "Aucun module archivé pour le moment",
+        title: "Aucun épique archivé pour le moment",
         description:
-          "Pour organiser votre projet, archivez les modules terminés ou annulés. Retrouvez-les ici une fois archivés.",
+          "Pour organiser votre projet, archivez les épiques terminés ou annulés. Retrouvez-les ici une fois archivés.",
       },
       sidebar: {
-        in_active: "Ce module n’est pas encore actif.",
+        in_active: "Cet épique n'est pas encore actif.",
         invalid_date: "Date invalide. Veuillez entrer une date valide.",
       },
     },
     quick_actions: {
-      archive_module: "Archiver le module",
-      archive_module_description: "Seuls les modules terminés ou\nannulés peuvent être archivés.",
-      delete_module: "Supprimer le module",
+      archive_epic: "Archiver l'épique",
+      archive_epic_description: "Seuls les épiques terminés ou\nannulés peuvent être archivés.",
+      delete_epic: "Supprimer l'épique",
     },
     toast: {
       copy: {
-        success: "Lien du module copié dans le presse-papiers",
+        success: "Lien de l'épique copié dans le presse-papiers",
       },
       delete: {
-        success: "Module supprimé avec succès",
-        error: "Échec de la suppression du module",
+        success: "Épique supprimé avec succès",
+        error: "Échec de la suppression de l'épique",
       },
     },
   },
@@ -2391,10 +2391,10 @@ export default {
           text: "Gérer les fonctionnalités",
         },
       },
-      module: {
-        title: "Les Modules ne sont pas activés pour le projet.",
+      epic: {
+        title: "Les Épiques ne sont pas activés pour le projet.",
         description:
-          "Les Modules sont les éléments constitutifs de votre projet. Activez les modules depuis les paramètres du projet pour commencer à les utiliser.",
+          "Les Épiques sont les éléments constitutifs de votre projet. Activez les épiques depuis les paramètres du projet pour commencer à les utiliser.",
         primary_button: {
           text: "Gérer les fonctionnalités",
         },
@@ -2507,7 +2507,7 @@ export default {
     },
     member: {
       title: "Membre",
-      description: "Capacité à lire, écrire, modifier et supprimer des entités dans les projets, sprints et modules",
+      description: "Capacité à lire, écrire, modifier et supprimer des entités dans les projets, sprints et épiques",
     },
     admin: {
       title: "Administrateur",
@@ -2586,7 +2586,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Backlog",
       planned: "Planifié",
@@ -2613,9 +2613,9 @@ export default {
     label: "{count, plural, one {Sprint} other {Sprints}}",
     no_sprint: "Pas de sprint",
   },
-  module: {
-    label: "{count, plural, one {Module} other {Modules}}",
-    no_module: "Pas de module",
+  epic: {
+    label: "{count, plural, one {Épique} other {Épiques}}",
+    no_epic: "Pas d'épique",
   },
   description_versions: {
     last_edited_by: "Dernière modification par",

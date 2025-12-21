@@ -30,13 +30,13 @@ from .sprint import (
     SprintIssueRequestSerializer,
     TransferSprintIssueRequestSerializer,
 )
-from .module import (
-    ModuleSerializer,
-    ModuleIssueSerializer,
-    ModuleLiteSerializer,
-    ModuleIssueRequestSerializer,
-    ModuleCreateSerializer,
-    ModuleUpdateSerializer,
+from .epic import (
+    EpicSerializer,
+    EpicIssueSerializer,
+    EpicLiteSerializer,
+    EpicIssueRequestSerializer,
+    EpicCreateSerializer,
+    EpicUpdateSerializer,
 )
 from .intake import (
     IntakeIssueSerializer,

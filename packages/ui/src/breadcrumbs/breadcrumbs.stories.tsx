@@ -189,7 +189,7 @@ export const WithNavigationDropdownAndIcons: Story = {
               },
               {
                 key: "feature-3",
-                title: "Modules",
+                title: "Epics",
                 icon: GridIcon,
 
                 action: () => console.log("Feature Gamma selected"),

@@ -4,7 +4,7 @@ import os
 import secrets
 
 
-# Module imports
+# Package imports
 from plane.authentication.adapter.credential import CredentialAdapter
 from plane.license.utils.instance_value import get_configuration_value
 from plane.settings.redis import redis_instance

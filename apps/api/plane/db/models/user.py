@@ -12,7 +12,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-# Module imports
+# Package imports
 from plane.db.models import FileAsset
 from ..mixins import TimeAuditModel
 from plane.utils.color import get_random_color
@@ -264,7 +264,7 @@ class Account(TimeAuditModel):
 def create_user_notification(sender, instance, created, **kwargs):
     # create preferences
     if created and not instance.is_bot:
-        # Module imports
+        # Package imports
         from plane.db.models import UserNotificationPreference
 
         UserNotificationPreference.objects.create(

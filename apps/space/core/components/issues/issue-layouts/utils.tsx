@@ -1,7 +1,7 @@
 import { isNil } from "lodash-es";
 // types
 import { EIconSize, ISSUE_PRIORITIES } from "@plane/constants";
-import { SprintGroupIcon, SprintIcon, ModuleIcon, PriorityIcon, StateGroupIcon } from "@plane/propel/icons";
+import { SprintGroupIcon, SprintIcon, EpicIcon, PriorityIcon, StateGroupIcon } from "@plane/propel/icons";
 import type {
   GroupByColumnTypes,
   IGroupByColumn,
@@ -17,7 +17,7 @@ import { Avatar } from "@plane/ui";
 import type { ISprintStore } from "@/store/sprint.store";
 import type { IIssueLabelStore } from "@/store/label.store";
 import type { IIssueMemberStore } from "@/store/members.store";
-import type { IIssueModuleStore } from "@/store/module.store";
+import type { IIssueEpicStore } from "@/store/epic.store";
 import type { IStateStore } from "@/store/state.store";
 
 export const HIGHLIGHT_CLASS = "highlight";
@@ -26,7 +26,7 @@ export const HIGHLIGHT_WITH_LINE = "highlight-with-line";
 export const getGroupByColumns = (
   groupBy: GroupByColumnTypes | null,
   sprint: ISprintStore,
-  module: IIssueModuleStore,
+  epic: IIssueEpicStore,
   label: IIssueLabelStore,
   projectState: IStateStore,
   member: IIssueMemberStore,
@@ -35,8 +35,8 @@ export const getGroupByColumns = (
   switch (groupBy) {
     case "sprint":
       return getSprintColumns(sprint);
-    case "module":
-      return getModuleColumns(module);
+    case "epic":
+      return getEpicColumns(epic);
     case "state":
       return getStateColumns(projectState);
     case "priority":
@@ -80,30 +80,30 @@ const getSprintColumns = (sprintStore: ISprintStore): IGroupByColumn[] | undefin
   return sprintGroups;
 };
 
-const getModuleColumns = (moduleStore: IIssueModuleStore): IGroupByColumn[] | undefined => {
-  const { modules } = moduleStore;
+const getEpicColumns = (epicStore: IIssueEpicStore): IGroupByColumn[] | undefined => {
+  const { epics } = epicStore;
 
-  if (!modules) return;
+  if (!epics) return;
 
-  const moduleGroups: IGroupByColumn[] = [];
+  const epicGroups: IGroupByColumn[] = [];
 
-  modules.map((moduleInfo) => {
-    if (moduleInfo)
-      moduleGroups.push({
-        id: moduleInfo.id,
-        name: moduleInfo.name,
-        icon: <ModuleIcon className="h-3.5 w-3.5" />,
-        payload: { module_ids: [moduleInfo.id] },
+  epics.map((epicInfo) => {
+    if (epicInfo)
+      epicGroups.push({
+        id: epicInfo.id,
+        name: epicInfo.name,
+        icon: <EpicIcon className="h-3.5 w-3.5" />,
+        payload: { epic_ids: [epicInfo.id] },
       });
   }) as any;
-  moduleGroups.push({
+  epicGroups.push({
     id: "None",
     name: "None",
-    icon: <ModuleIcon className="h-3.5 w-3.5" />,
-    payload: { module_ids: [] },
+    icon: <EpicIcon className="h-3.5 w-3.5" />,
+    payload: { epic_ids: [] },
   });
 
-  return moduleGroups as any;
+  return epicGroups as any;
 };
 
 const getStateColumns = (projectState: IStateStore): IGroupByColumn[] | undefined => {

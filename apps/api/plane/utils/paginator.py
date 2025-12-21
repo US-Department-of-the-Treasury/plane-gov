@@ -11,7 +11,7 @@ from django.db.models.functions import RowNumber
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 
 
 class Cursor:
@@ -192,7 +192,7 @@ class GroupedOffsetPaginator(OffsetPaginator):
     FIELD_MAPPER = {
         "labels__id": "label_ids",
         "assignees__id": "assignee_ids",
-        "issue_module__module_id": "module_ids",
+        "issue_epic__epic_id": "epic_ids",
     }
 
     def __init__(
@@ -387,7 +387,7 @@ class SubGroupedOffsetPaginator(OffsetPaginator):
     FIELD_MAPPER = {
         "labels__id": "label_ids",
         "assignees__id": "assignee_ids",
-        "issue_module__module_id": "module_ids",
+        "issue_epic__epic_id": "epic_ids",
     }
 
     def __init__(

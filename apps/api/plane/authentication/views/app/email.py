@@ -4,7 +4,7 @@ from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
 from django.views import View
 
-# Module imports
+# Package imports
 from plane.authentication.provider.credentials.email import EmailProvider
 from plane.authentication.utils.login import user_login
 from plane.license.models import Instance

@@ -1,11 +1,11 @@
 import React from "react";
 // plane imports
 import { AreaChart } from "@plane/propel/charts/area-chart";
-import type { TChartData, TModuleCompletionChartDistribution } from "@plane/types";
+import type { TChartData, TEpicCompletionChartDistribution } from "@plane/types";
 import { renderFormattedDateWithoutYear } from "@plane/utils";
 
 type Props = {
-  distribution: TModuleCompletionChartDistribution;
+  distribution: TEpicCompletionChartDistribution;
   totalIssues: number;
   className?: string;
   plotTitle?: string;

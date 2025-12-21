@@ -31,12 +31,12 @@ export interface IssuesModalProps {
 
 export const CreateUpdateIssueModal = observer(function CreateUpdateIssueModal(props: IssuesModalProps) {
   // router params
-  const { sprintId, moduleId } = useParams();
+  const { sprintId, epicId } = useParams();
   // derived values
   const dataForPreload = {
     ...props.data,
     sprint_id: props.data?.sprint_id ? props.data?.sprint_id : sprintId ? sprintId.toString() : null,
-    module_ids: props.data?.module_ids ? props.data?.module_ids : moduleId ? [moduleId.toString()] : null,
+    epic_ids: props.data?.epic_ids ? props.data?.epic_ids : epicId ? [epicId.toString()] : null,
   };
 
   if (!props.isOpen) return null;

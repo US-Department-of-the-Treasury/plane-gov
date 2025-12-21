@@ -14,7 +14,7 @@ import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
-import { useModule } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
 import { useProjectView } from "@/hooks/store/use-project-view";
@@ -49,7 +49,7 @@ export const ProjectLevelWorkItemFiltersHOC = observer(function ProjectLevelWork
   const {
     project: { getProjectMemberIds },
   } = useMember();
-  const { getProjectModuleIds } = useModule();
+  const { getProjectEpicIds } = useEpic();
   const { getProjectStateIds } = useProjectState();
   // derived values
   const hasProjectMemberLevelPermissions = allowPermissions(
@@ -218,7 +218,7 @@ export const ProjectLevelWorkItemFiltersHOC = observer(function ProjectLevelWork
         sprintIds={currentWorkspaceSprintIds ?? undefined}
         labelIds={getProjectLabelIds(projectId)}
         memberIds={getProjectMemberIds(projectId, false) ?? undefined}
-        moduleIds={getProjectModuleIds(projectId) ?? undefined}
+        epicIds={getProjectEpicIds(projectId) ?? undefined}
         stateIds={getProjectStateIds(projectId)}
         saveViewOptions={saveViewOptions}
         updateViewOptions={updateViewOptions}

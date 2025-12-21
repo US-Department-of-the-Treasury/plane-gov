@@ -1,7 +1,7 @@
 """
 Helper decorators for drf-spectacular OpenAPI documentation.
 
-This module provides domain-specific decorators that apply common
+This epic provides domain-specific decorators that apply common
 parameters, responses, and tags to API endpoints based on their context.
 """
 
@@ -219,10 +219,10 @@ def issue_attachment_docs(**kwargs):
     return extend_schema(**_merge_schema_options(defaults, kwargs))
 
 
-def module_docs(**kwargs):
-    """Decorator for module management endpoints"""
+def epic_docs(**kwargs):
+    """Decorator for epic management endpoints"""
     defaults = {
-        "tags": ["Modules"],
+        "tags": ["Epics"],
         "parameters": [WORKSPACE_SLUG_PARAMETER, PROJECT_ID_PARAMETER],
         "responses": {
             401: UNAUTHORIZED_RESPONSE,
@@ -234,10 +234,10 @@ def module_docs(**kwargs):
     return extend_schema(**_merge_schema_options(defaults, kwargs))
 
 
-def module_issue_docs(**kwargs):
-    """Decorator for module issue management endpoints"""
+def epic_issue_docs(**kwargs):
+    """Decorator for epic issue management endpoints"""
     defaults = {
-        "tags": ["Modules"],
+        "tags": ["Epics"],
         "parameters": [WORKSPACE_SLUG_PARAMETER, PROJECT_ID_PARAMETER],
         "responses": {
             401: UNAUTHORIZED_RESPONSE,

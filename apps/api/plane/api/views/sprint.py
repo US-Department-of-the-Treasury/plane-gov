@@ -19,7 +19,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from drf_spectacular.utils import OpenApiRequest, OpenApiResponse
 
-# Module imports
+# Package imports
 from plane.api.serializers import (
     SprintIssueSerializer,
     SprintSerializer,

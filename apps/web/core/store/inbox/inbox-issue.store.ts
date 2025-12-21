@@ -197,12 +197,12 @@ export class InboxIssueStore implements IInboxIssueStore {
           this.issue.id,
         ]);
       }
-      if (issue.module_ids) {
-        await this.store.issue.issueDetail.changeModulesInIssue(
+      if (issue.epic_ids) {
+        await this.store.issue.issueDetail.changeEpicsInIssue(
           this.workspaceSlug,
           this.projectId,
           this.issue.id,
-          issue.module_ids,
+          issue.epic_ids,
           []
         );
       }

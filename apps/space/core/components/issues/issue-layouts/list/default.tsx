@@ -13,7 +13,7 @@ import type {
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
-import { useModule } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useStates } from "@/hooks/store/use-state";
 //
 import { getGroupByColumns } from "../utils";
@@ -51,10 +51,10 @@ export const List = observer(function List(props: IList) {
   const member = useMember();
   const label = useLabel();
   const sprint = useSprint();
-  const modules = useModule();
+  const epics = useEpic();
   const state = useStates();
 
-  const groupList = getGroupByColumns(groupBy as GroupByColumnTypes, sprint, modules, label, state, member, true);
+  const groupList = getGroupByColumns(groupBy as GroupByColumnTypes, sprint, epics, label, state, member, true);
 
   if (!groupList) return null;
 

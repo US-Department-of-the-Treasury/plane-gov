@@ -78,13 +78,13 @@ from .issue import (
     IssueListDetailSerializer,
 )
 
-from .module import (
-    ModuleDetailSerializer,
-    ModuleWriteSerializer,
-    ModuleSerializer,
-    ModuleIssueSerializer,
-    ModuleLinkSerializer,
-    ModuleUserPropertiesSerializer,
+from .epic import (
+    EpicDetailSerializer,
+    EpicWriteSerializer,
+    EpicSerializer,
+    EpicIssueSerializer,
+    EpicLinkSerializer,
+    EpicUserPropertiesSerializer,
 )
 
 from .api import APITokenSerializer, APITokenReadSerializer

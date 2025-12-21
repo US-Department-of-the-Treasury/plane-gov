@@ -10,7 +10,7 @@ import { useIssuesActions } from "./use-issues-actions";
 
 type DNDStoreType =
   | EIssuesStoreType.PROJECT
-  | EIssuesStoreType.MODULE
+  | EIssuesStoreType.EPIC
   | EIssuesStoreType.SPRINT
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.PROFILE
@@ -34,11 +34,11 @@ export const useGroupIssuesDragNDrop = (
   } = useIssueDetail();
   const { updateIssue } = useIssuesActions(storeType);
   const {
-    issues: { getIssueIds, addSprintToIssue, removeSprintFromIssue, changeModulesInIssue },
+    issues: { getIssueIds, addSprintToIssue, removeSprintFromIssue, changeEpicsInIssue },
   } = useIssues(storeType);
 
   /**
-   * update Issue on Drop, checks if modules or sprints are changed and then calls appropriate functions
+   * update Issue on Drop, checks if epics or sprints are changed and then calls appropriate functions
    * @param projectId
    * @param issueId
    * @param data
@@ -60,10 +60,10 @@ export const useGroupIssuesDragNDrop = (
       title: "Error!",
       message: "Error while updating work item",
     };
-    const moduleKey = ISSUE_FILTER_DEFAULT_DATA["module"];
+    const epicKey = ISSUE_FILTER_DEFAULT_DATA["epic"];
     const sprintKey = ISSUE_FILTER_DEFAULT_DATA["sprint"];
 
-    const isModuleChanged = Object.keys(data).includes(moduleKey);
+    const isEpicChanged = Object.keys(data).includes(epicKey);
     const isSprintChanged = Object.keys(data).includes(sprintKey);
 
     if (isSprintChanged && workspaceSlug) {
@@ -77,15 +77,15 @@ export const useGroupIssuesDragNDrop = (
       delete data[sprintKey];
     }
 
-    if (isModuleChanged && workspaceSlug && issueUpdates[moduleKey]) {
-      changeModulesInIssue(
+    if (isEpicChanged && workspaceSlug && issueUpdates[epicKey]) {
+      changeEpicsInIssue(
         workspaceSlug.toString(),
         projectId,
         issueId,
-        issueUpdates[moduleKey].ADD,
-        issueUpdates[moduleKey].REMOVE
+        issueUpdates[epicKey].ADD,
+        issueUpdates[epicKey].REMOVE
       ).catch(() => setToast(errorToastProps));
-      delete data[moduleKey];
+      delete data[epicKey];
     }
 
     updateIssue && updateIssue(projectId, issueId, data).catch(() => setToast(errorToastProps));

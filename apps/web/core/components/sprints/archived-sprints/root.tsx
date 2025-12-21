@@ -8,7 +8,7 @@ import { EmptyStateDetailed } from "@plane/propel/empty-state";
 import type { TSprintFilters } from "@plane/types";
 import { calculateTotalFilters } from "@plane/utils";
 // components
-import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
+import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
@@ -51,7 +51,7 @@ export const ArchivedSprintLayoutRoot = observer(function ArchivedSprintLayoutRo
   if (!workspaceSlug || !projectId) return <></>;
 
   if (loader || !currentProjectArchivedSprintIds) {
-    return <SprintModuleListLayoutLoader />;
+    return <SprintEpicListLayoutLoader />;
   }
 
   return (

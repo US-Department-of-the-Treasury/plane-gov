@@ -28,7 +28,7 @@ import { workItemSortWithOrderByExtended } from "@/plane-web/store/issue/helpers
 // services
 import { SprintService } from "@/services/sprint.service";
 import { IssueArchiveService, IssueService } from "@/services/issue";
-import { ModuleService } from "@/services/module.service";
+import { EpicService } from "@/services/epic.service";
 //
 import type { IIssueRootStore } from "../root.store";
 import {
@@ -83,25 +83,25 @@ export interface IBaseIssuesStore {
 
   addIssueToList: (issueId: string) => void;
   removeIssueFromList: (issueId: string) => void;
-  addIssuesToModule: (
+  addIssuesToEpic: (
     workspaceSlug: string,
     projectId: string,
-    moduleId: string,
+    epicId: string,
     issueIds: string[],
     fetchAddedIssues?: boolean
   ) => Promise<void>;
-  removeIssuesFromModule: (
+  removeIssuesFromEpic: (
     workspaceSlug: string,
     projectId: string,
-    moduleId: string,
+    epicId: string,
     issueIds: string[]
   ) => Promise<void>;
-  changeModulesInIssue(
+  changeEpicsInIssue(
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    addModuleIds: string[],
-    removeModuleIds: string[]
+    addEpicIds: string[],
+    removeEpicIds: string[]
   ): Promise<void>;
   updateIssueDates(workspaceSlug: string, updates: IBlockUpdateDependencyData[], projectId?: string): Promise<void>;
 }
@@ -117,14 +117,14 @@ export const ISSUE_GROUP_BY_KEY: Record<TIssueDisplayFilterOptions, keyof TIssue
   assignees: "assignee_ids",
   target_date: "target_date",
   sprint: "sprint_id",
-  module: "module_ids",
+  epic: "epic_ids",
   team_project: "project_id",
 };
 
 export const ISSUE_FILTER_DEFAULT_DATA: Record<TIssueDisplayFilterOptions, keyof TIssue> = {
   project: "project_id",
   sprint: "sprint_id",
-  module: "module_ids",
+  epic: "epic_ids",
   state: "state_id",
   "state_detail.group": "state__group", // state_detail.group is only being used for state_group display,
   priority: "priority",
@@ -150,8 +150,8 @@ const ISSUE_ORDERBY_KEY: Record<TIssueOrderByOptions, keyof TIssue> = {
   "-assignees__first_name": "assignee_ids",
   labels__name: "label_ids",
   "-labels__name": "label_ids",
-  issue_module__module__name: "module_ids",
-  "-issue_module__module__name": "module_ids",
+  issue_epic__epic__name: "epic_ids",
+  "-issue_epic__epic__name": "epic_ids",
   issue_sprint__sprint__name: "sprint_id",
   "-issue_sprint__sprint__name": "sprint_id",
   target_date: "target_date",
@@ -182,7 +182,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
   // services
   issueService;
   issueArchiveService;
-  moduleService;
+  epicService;
   sprintService;
   // root store
   rootIssueStore;
@@ -205,7 +205,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
 
       paginationOptions: observable,
       // computed
-      moduleId: computed,
+      epicId: computed,
       sprintId: computed,
       orderBy: computed,
       groupBy: computed,
@@ -238,9 +238,9 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       addSprintToIssue: action.bound,
       removeSprintFromIssue: action.bound,
 
-      addIssuesToModule: action.bound,
-      removeIssuesFromModule: action.bound,
-      changeModulesInIssue: action.bound,
+      addIssuesToEpic: action.bound,
+      removeIssuesFromEpic: action.bound,
+      changeEpicsInIssue: action.bound,
     });
     this.rootIssueStore = _rootStore;
     this.issueFilterStore = issueFilterStore;
@@ -249,20 +249,20 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
 
     this.issueService = new IssueService(serviceType);
     this.issueArchiveService = new IssueArchiveService();
-    this.moduleService = new ModuleService();
+    this.epicService = new EpicService();
     this.sprintService = new SprintService();
 
     this.controller = new AbortController();
   }
 
-  // Abstract class to be implemented to fetch parent stats such as project, module or sprint details
+  // Abstract class to be implemented to fetch parent stats such as project, epic or sprint details
   abstract fetchParentStats: (workspaceSlug: string, projectId?: string, id?: string) => void;
 
   abstract updateParentStats: (prevIssueState?: TIssue, nextIssueState?: TIssue, id?: string) => void;
 
-  // current Module Id from url
-  get moduleId() {
-    return this.rootIssueStore.moduleId;
+  // current Epic Id from url
+  get epicId() {
+    return this.rootIssueStore.epicId;
   }
 
   // current Sprint Id from url
@@ -449,7 +449,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    * @param options Pagination options
    * @param workspaceSlug
    * @param projectId
-   * @param id Id can be anything from sprintId, moduleId, viewId or userId based on the store
+   * @param id Id can be anything from sprintId, epicId, viewId or userId based on the store
    */
   onfetchIssues(
     issuesResponse: TIssuesResponse,
@@ -513,7 +513,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    * @param workspaceSlug
    * @param projectId
    * @param data Default Issue Data
-   * @param id optional id like moduleId and sprintId, not used here but required in overridden the Module or sprint issues methods
+   * @param id optional id like epicId and sprintId, not used here but required in overridden the epic or sprint issues methods
    * @param shouldUpdateList If false, then it would not update the Issue Id list but only makes an API call and adds to the main Issue Map
    * @returns
    */
@@ -646,14 +646,14 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       this.rootIssueStore.issues.removeIssue(data.id);
     });
     const currentSprintId = data.sprint_id !== "" && data.sprint_id === "None" ? undefined : data.sprint_id;
-    const currentModuleIds =
-      data.module_ids && data.module_ids.length > 0 ? data.module_ids.filter((moduleId) => moduleId != "None") : [];
+    const currentEpicIds =
+      data.epic_ids && data.epic_ids.length > 0 ? data.epic_ids.filter((epicId) => epicId != "None") : [];
     const promiseRequests = [];
     if (currentSprintId) {
       promiseRequests.push(this.addSprintToIssue(workspaceSlug, projectId, currentSprintId, response.id));
     }
-    if (currentModuleIds.length > 0) {
-      promiseRequests.push(this.changeModulesInIssue(workspaceSlug, projectId, response.id, currentModuleIds, []));
+    if (currentEpicIds.length > 0) {
+      promiseRequests.push(this.changeEpicsInIssue(workspaceSlug, projectId, response.id, currentEpicIds, []));
     }
     if (promiseRequests && promiseRequests.length > 0) {
       await Promise.all(promiseRequests);
@@ -955,70 +955,70 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
   };
 
   /**
-   * This method is used to add issues to a module
+   * This method is used to add issues to an epic
    * @param workspaceSlug
    * @param projectId
-   * @param moduleId
+   * @param epicId
    * @param issueIds
-   * @param fetchAddedIssues If True we make an additional call to fetch all the issues from their Ids, Since the addIssuesToModule API does not return them
+   * @param fetchAddedIssues If True we make an additional call to fetch all the issues from their Ids, Since the addIssuesToEpic API does not return them
    */
-  async addIssuesToModule(
+  async addIssuesToEpic(
     workspaceSlug: string,
     projectId: string,
-    moduleId: string,
+    epicId: string,
     issueIds: string[],
     fetchAddedIssues = true
   ) {
-    // Perform an APi call to add issue to module
-    await this.moduleService.addIssuesToModule(workspaceSlug, projectId, moduleId, {
+    // Perform an API call to add issue to epic
+    await this.epicService.addIssuesToEpic(workspaceSlug, projectId, epicId, {
       issues: issueIds,
     });
 
     // if true, fetch the issue data for all the issueIds
     if (fetchAddedIssues) await this.rootIssueStore.issues.getIssues(workspaceSlug, projectId, issueIds);
 
-    // if module Id is the current Module Id then call fetch parent stats
-    if (this.moduleId === moduleId) this.fetchParentStats(workspaceSlug, projectId);
+    // if epic Id is the current Epic Id then call fetch parent stats
+    if (this.epicId === epicId) this.fetchParentStats(workspaceSlug, projectId);
 
     runInAction(() => {
-      // if module Id is the current Module Id, then, add issue to list of issueIds
-      this.moduleId === moduleId && issueIds.forEach((issueId) => this.addIssueToList(issueId));
+      // if epic Id is the current Epic Id, then, add issue to list of issueIds
+      this.epicId === epicId && issueIds.forEach((issueId) => this.addIssueToList(issueId));
     });
 
-    // For Each issue update module Ids by calling current store's update Issue, without making an API call
+    // For Each issue update epic Ids by calling current store's update Issue, without making an API call
     issueIds.forEach((issueId) => {
-      const issueModuleIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "module_ids"]) ?? [];
-      const updatedIssueModuleIds = uniq(concat(issueModuleIds, [moduleId]));
-      this.issueUpdate(workspaceSlug, projectId, issueId, { module_ids: updatedIssueModuleIds }, false);
+      const issueEpicIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "epic_ids"]) ?? [];
+      const updatedIssueEpicIds = uniq(concat(issueEpicIds, [epicId]));
+      this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: updatedIssueEpicIds }, false);
     });
   }
 
   /**
-   * This method is used to remove issue from a module
+   * This method is used to remove issue from an epic
    * @param workspaceSlug
    * @param projectId
-   * @param moduleId
+   * @param epicId
    * @param issueIds
    * @returns
    */
-  async removeIssuesFromModule(workspaceSlug: string, projectId: string, moduleId: string, issueIds: string[]) {
-    // Perform an APi call to remove issue to module
-    const response = await this.moduleService.removeIssuesFromModuleBulk(workspaceSlug, projectId, moduleId, issueIds);
+  async removeIssuesFromEpic(workspaceSlug: string, projectId: string, epicId: string, issueIds: string[]) {
+    // Perform an API call to remove issue from epic
+    const response = await this.epicService.removeIssuesFromEpicBulk(workspaceSlug, projectId, epicId, issueIds);
 
-    // if module Id is the current Module Id then call fetch parent stats
-    if (this.moduleId === moduleId) this.fetchParentStats(workspaceSlug, projectId);
+    // if epic Id is the current Epic Id then call fetch parent stats
+    if (this.epicId === epicId) this.fetchParentStats(workspaceSlug, projectId);
 
     runInAction(() => {
-      // if module Id is the current Module Id, then remove issue from list of issueIds
-      this.moduleId === moduleId && issueIds.forEach((issueId) => this.removeIssueFromList(issueId));
+      // if epic Id is the current Epic Id, then remove issue from list of issueIds
+      this.epicId === epicId && issueIds.forEach((issueId) => this.removeIssueFromList(issueId));
     });
 
-    // For Each issue update module Ids by calling current store's update Issue, without making an API call
+    // For Each issue update epic Ids by calling current store's update Issue, without making an API call
     runInAction(() => {
       issueIds.forEach((issueId) => {
-        const issueModuleIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "module_ids"]) ?? [];
-        const updatedIssueModuleIds = pull(issueModuleIds, moduleId);
-        this.issueUpdate(workspaceSlug, projectId, issueId, { module_ids: updatedIssueModuleIds }, false);
+        const issueEpicIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "epic_ids"]) ?? [];
+        const updatedIssueEpicIds = pull(issueEpicIds, epicId);
+        this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: updatedIssueEpicIds }, false);
       });
     });
 
@@ -1026,101 +1026,101 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
   }
 
   /*
-   * add Modules to Array in a non optimistic way while creating issues
+   * add Epics to Array in a non optimistic way while creating issues
    * @param workspaceSlug
    * @param projectId
    * @param issueId
-   * @param moduleIds array of modules to be added
+   * @param epicIds array of epics to be added
    */
-  async addModulesToIssue(workspaceSlug: string, projectId: string, issueId: string, moduleIds: string[]) {
-    // keep a copy of the original module ids
-    const originalModuleIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "module_ids"]) ?? [];
+  async addEpicsToIssue(workspaceSlug: string, projectId: string, issueId: string, epicIds: string[]) {
+    // keep a copy of the original epic ids
+    const originalEpicIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "epic_ids"]) ?? [];
     //Perform API call
-    await this.moduleService.addModulesToIssue(workspaceSlug, projectId, issueId, {
-      modules: moduleIds,
-      removed_modules: [],
+    await this.epicService.addEpicsToIssue(workspaceSlug, projectId, issueId, {
+      epics: epicIds,
+      removed_epics: [],
     });
 
     runInAction(() => {
-      // get current Module Ids of the issue
-      let currentModuleIds = [...originalModuleIds];
+      // get current Epic Ids of the issue
+      let currentEpicIds = [...originalEpicIds];
 
-      // If current Module Id is included in the modules list, then add Issue to List
-      if (moduleIds.includes(this.moduleId ?? "")) this.addIssueToList(issueId);
-      currentModuleIds = uniq(concat([...currentModuleIds], moduleIds));
+      // If current Epic Id is included in the epics list, then add Issue to List
+      if (epicIds.includes(this.epicId ?? "")) this.addIssueToList(issueId);
+      currentEpicIds = uniq(concat([...currentEpicIds], epicIds));
 
-      // For current Issue, update module Ids by calling current store's update Issue, without making an API call
-      this.issueUpdate(workspaceSlug, projectId, issueId, { module_ids: currentModuleIds }, false);
+      // For current Issue, update epic Ids by calling current store's update Issue, without making an API call
+      this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: currentEpicIds }, false);
     });
 
-    if (moduleIds.includes(this.moduleId ?? "")) {
-      this.fetchParentStats(workspaceSlug, projectId, this.moduleId);
+    if (epicIds.includes(this.epicId ?? "")) {
+      this.fetchParentStats(workspaceSlug, projectId, this.epicId);
     }
   }
 
   /*
-   * change modules array in issue
+   * change epics array in issue
    * @param workspaceSlug
    * @param projectId
    * @param issueId
-   * @param addModuleIds array of modules to be added
-   * @param removeModuleIds array of modules to be removed
+   * @param addEpicIds array of epics to be added
+   * @param removeEpicIds array of epics to be removed
    */
-  async changeModulesInIssue(
+  async changeEpicsInIssue(
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    addModuleIds: string[],
-    removeModuleIds: string[]
+    addEpicIds: string[],
+    removeEpicIds: string[]
   ) {
-    // keep a copy of the original module ids
+    // keep a copy of the original epic ids
     const issueBeforeChanges = clone(this.rootIssueStore.issues.getIssueById(issueId));
-    const originalModuleIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "module_ids"]) ?? [];
+    const originalEpicIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "epic_ids"]) ?? [];
     try {
       runInAction(() => {
-        // get current Module Ids of the issue
-        let currentModuleIds = [...originalModuleIds];
-        // remove the new issue id to the module issues
-        removeModuleIds.forEach((moduleId) => {
-          // If module Id is equal to current module Id, them remove Issue from List
-          this.moduleId === moduleId && this.removeIssueFromList(issueId);
-          currentModuleIds = pull(currentModuleIds, moduleId);
+        // get current Epic Ids of the issue
+        let currentEpicIds = [...originalEpicIds];
+        // remove the new issue id from the epic issues
+        removeEpicIds.forEach((epicId) => {
+          // If epic Id is equal to current epic Id, then remove Issue from List
+          this.epicId === epicId && this.removeIssueFromList(issueId);
+          currentEpicIds = pull(currentEpicIds, epicId);
         });
 
-        // If current Module Id is included in the modules list, then add Issue to List
-        if (addModuleIds.includes(this.moduleId ?? "")) this.addIssueToList(issueId);
-        currentModuleIds = uniq(concat([...currentModuleIds], addModuleIds));
+        // If current Epic Id is included in the epics list, then add Issue to List
+        if (addEpicIds.includes(this.epicId ?? "")) this.addIssueToList(issueId);
+        currentEpicIds = uniq(concat([...currentEpicIds], addEpicIds));
 
-        // For current Issue, update module Ids by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { module_ids: currentModuleIds }, false);
+        // For current Issue, update epic Ids by calling current store's update Issue, without making an API call
+        this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: currentEpicIds }, false);
       });
 
       const issueAfterChanges = clone(this.rootIssueStore.issues.getIssueById(issueId));
 
       // update parent stats optimistically
-      if (addModuleIds.includes(this.moduleId || "") || removeModuleIds.includes(this.moduleId || "")) {
-        this.updateParentStats(issueBeforeChanges, issueAfterChanges, this.moduleId);
+      if (addEpicIds.includes(this.epicId || "") || removeEpicIds.includes(this.epicId || "")) {
+        this.updateParentStats(issueBeforeChanges, issueAfterChanges, this.epicId);
       }
 
       //Perform API call
-      await this.moduleService.addModulesToIssue(workspaceSlug, projectId, issueId, {
-        modules: addModuleIds,
-        removed_modules: removeModuleIds,
+      await this.epicService.addEpicsToIssue(workspaceSlug, projectId, issueId, {
+        epics: addEpicIds,
+        removed_epics: removeEpicIds,
       });
 
-      if (addModuleIds.includes(this.moduleId || "") || removeModuleIds.includes(this.moduleId || "")) {
+      if (addEpicIds.includes(this.epicId || "") || removeEpicIds.includes(this.epicId || "")) {
         this.fetchParentStats(workspaceSlug, projectId);
       }
     } catch (error) {
-      // revert the issue back to its original module ids
+      // revert the issue back to its original epic ids
       runInAction(() => {
-        // If current Module Id is included in the add modules list, then remove Issue from List
-        if (addModuleIds.includes(this.moduleId ?? "")) this.removeIssueFromList(issueId);
-        // If current Module Id is included in the removed modules list, then add Issue to List
-        if (removeModuleIds.includes(this.moduleId ?? "")) this.addIssueToList(issueId);
+        // If current Epic Id is included in the add epics list, then remove Issue from List
+        if (addEpicIds.includes(this.epicId ?? "")) this.removeIssueFromList(issueId);
+        // If current Epic Id is included in the removed epics list, then add Issue to List
+        if (removeEpicIds.includes(this.epicId ?? "")) this.addIssueToList(issueId);
 
-        // For current Issue, update module Ids by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { module_ids: originalModuleIds }, false);
+        // For current Issue, update epic Ids by calling current store's update Issue, without making an API call
+        this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: originalEpicIds }, false);
       });
 
       throw error;
@@ -1656,7 +1656,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    * @returns string | string[] of sortable fields to be used for sorting
    */
   populateIssueDataForSorting(
-    dataType: "state_id" | "label_ids" | "assignee_ids" | "module_ids" | "sprint_id" | "estimate_point",
+    dataType: "state_id" | "label_ids" | "assignee_ids" | "epic_ids" | "sprint_id" | "estimate_point",
     dataIds: string | string[] | null | undefined,
     projectId: string | undefined | null,
     order?: "asc" | "desc"
@@ -1695,12 +1695,12 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
         }
         break;
       }
-      case "module_ids": {
-        const moduleMap = this.rootIssueStore?.moduleMap;
-        if (!moduleMap) break;
+      case "epic_ids": {
+        const epicMap = this.rootIssueStore?.epicMap;
+        if (!epicMap) break;
         for (const dataId of dataIdsArray) {
-          const currentModule = moduleMap[dataId];
-          if (currentModule && currentModule.name) dataValues.push(currentModule.name.toLocaleLowerCase());
+          const currentEpic = epicMap[dataId];
+          if (currentEpic && currentEpic.name) dataValues.push(currentEpic.name.toLocaleLowerCase());
         }
         break;
       }
@@ -1861,22 +1861,22 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
           )
         );
 
-      case "issue_module__module__name":
+      case "issue_epic__epic__name":
         return getIssueIds(
           orderBy(array, [
-            getSortOrderToFilterEmptyValues.bind(null, "module_ids"), //preferring sorting based on empty values to always keep the empty values below
+            getSortOrderToFilterEmptyValues.bind(null, "epic_ids"), //preferring sorting based on empty values to always keep the empty values below
             (issue) =>
-              this.populateIssueDataForSorting("module_ids", issue?.["module_ids"], issue?.["project_id"], "asc"),
+              this.populateIssueDataForSorting("epic_ids", issue?.["epic_ids"], issue?.["project_id"], "asc"),
           ])
         );
-      case "-issue_module__module__name":
+      case "-issue_epic__epic__name":
         return getIssueIds(
           orderBy(
             array,
             [
-              getSortOrderToFilterEmptyValues.bind(null, "module_ids"), //preferring sorting based on empty values to always keep the empty values below
+              getSortOrderToFilterEmptyValues.bind(null, "epic_ids"), //preferring sorting based on empty values to always keep the empty values below
               (issue) =>
-                this.populateIssueDataForSorting("module_ids", issue?.["module_ids"], issue?.["project_id"], "asc"),
+                this.populateIssueDataForSorting("epic_ids", issue?.["epic_ids"], issue?.["project_id"], "asc"),
             ],
             ["asc", "desc"]
           )

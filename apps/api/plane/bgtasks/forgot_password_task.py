@@ -10,7 +10,7 @@ from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-# Module imports
+# Package imports
 from plane.license.utils.instance_value import get_email_configuration
 from plane.utils.exception_logger import log_exception
 

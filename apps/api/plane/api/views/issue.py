@@ -35,7 +35,7 @@ from drf_spectacular.utils import (
     OpenApiRequest,
 )
 
-# Module imports
+# Package imports
 from plane.api.serializers import (
     IssueAttachmentSerializer,
     IssueActivitySerializer,

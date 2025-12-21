@@ -5,7 +5,7 @@ from urllib.parse import urlencode, urljoin
 from django.http import HttpResponseRedirect
 from django.views import View
 
-# Module imports
+# Package imports
 from plane.authentication.provider.oauth.gitea import GiteaOAuthProvider
 from plane.authentication.utils.login import user_login
 from plane.authentication.utils.redirection_path import get_redirection_path

@@ -16,7 +16,7 @@ from celery import shared_task
 if TYPE_CHECKING:
     from pymongo.collection import Collection
 
-# Module imports
+# Package imports
 from plane.db.models import (
     EmailNotificationLog,
     PageVersion,

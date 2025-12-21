@@ -1,6 +1,6 @@
 """
 Database routing utilities for read replica selection.
-This module provides request-scoped context management for database routing,
+This epic provides request-scoped context management for database routing,
 specifically for determining when to use read replicas vs primary database.
 Used in conjunction with middleware and DRF views that set use_read_replica=True.
 The context is maintained per request to ensure proper isolation between

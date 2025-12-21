@@ -54,15 +54,15 @@ export default {
       cta_primary: "İş öğesi oluştur",
       cta_secondary: "Mevcut iş öğesini ekle",
     },
-    modules: {
-      title: "Proje hedeflerinizi Modüllere eşleyin ve kolayca takip edin.",
+    epics: {
+      title: "Proje hedeflerinizi Epic'lere eşleyin ve kolayca takip edin.",
       description:
-        "Modüller birbirine bağlı iş öğelerinden oluşur. Proje aşamalarındaki ilerlemeyi izlemeye yardımcı olurlar, her biri bu aşamalara ne kadar yakın olduğunuzu göstermek için belirli son tarihler ve analizlerle.",
-      cta_primary: "İlk modülünüzü ayarlayın",
+        "Epic'ler birbirine bağlı iş öğelerinden oluşur. Proje aşamalarındaki ilerlemeyi izlemeye yardımcı olurlar, her biri bu aşamalara ne kadar yakın olduğunuzu göstermek için belirli son tarihler ve analizlerle.",
+      cta_primary: "İlk epic'inizi ayarlayın",
     },
-    module_work_items: {
-      title: "Bu Modülde gösterilecek iş öğesi yok",
-      description: "Bu modülü izlemeye başlamak için iş öğeleri oluşturun.",
+    epic_work_items: {
+      title: "Bu Epic'te gösterilecek iş öğesi yok",
+      description: "Bu epic'i izlemeye başlamak için iş öğeleri oluşturun.",
       cta_primary: "İş öğesi oluştur",
       cta_secondary: "Mevcut iş öğesini ekle",
     },
@@ -113,10 +113,10 @@ export default {
       title: "Henüz arşivlenmiş döngü yok",
       description: "Projenizi düzenlemek için tamamlanmış döngüleri arşivleyin. Arşivlendikten sonra burada bulun.",
     },
-    archive_modules: {
-      title: "Henüz arşivlenmiş Modül yok",
+    archive_epics: {
+      title: "Henüz arşivlenmiş Epic yok",
       description:
-        "Projenizi düzenlemek için tamamlanmış veya iptal edilmiş modülleri arşivleyin. Arşivlendikten sonra burada bulun.",
+        "Projenizi düzenlemek için tamamlanmış veya iptal edilmiş epic'leri arşivleyin. Arşivlendikten sonra burada bulun.",
     },
     home_widget_quick_links: {
       title: "Çalışmanız için önemli referansları, kaynakları veya belgeleri elinizin altında tutun",
@@ -160,8 +160,8 @@ export default {
       title:
         "Çalışmayı zaman sınırlı aşamalara organize etmek ve sprintler boyunca ilerlemeyi takip etmek için döngüler oluşturun.",
     },
-    analytics_no_module: {
-      title: "Çalışmanızı organize etmek ve farklı aşamalarda ilerlemeyi takip etmek için modüller oluşturun.",
+    analytics_no_epic: {
+      title: "Çalışmanızı organize etmek ve farklı aşamalarda ilerlemeyi takip etmek için epic'ler oluşturun.",
     },
     analytics_no_intake: {
       title:

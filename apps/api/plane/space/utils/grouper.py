@@ -7,12 +7,12 @@ from django.db.models import QuerySet
 
 from typing import List, Optional, Dict, Any, Union
 
-# Module imports
+# Package imports
 from plane.db.models import (
     Sprint,
     Issue,
     Label,
-    Module,
+    Epic,
     Project,
     ProjectMember,
     State,
@@ -26,13 +26,13 @@ def issue_queryset_grouper(
     FIELD_MAPPER = {
         "label_ids": "labels__id",
         "assignee_ids": "assignees__id",
-        "module_ids": "issue_module__module_id",
+        "epic_ids": "issue_epic__epic_id",
     }
 
     GROUP_FILTER_MAPPER = {
         "assignees__id": Q(issue_assignee__deleted_at__isnull=True),
         "labels__id": Q(label_issue__deleted_at__isnull=True),
-        "issue_module__module_id": Q(issue_module__deleted_at__isnull=True),
+        "issue_epic__epic_id": Q(issue_epic__deleted_at__isnull=True),
     }
 
     for group_key in [group_by, sub_group_by]:
@@ -48,9 +48,9 @@ def issue_queryset_grouper(
             "labels__id",
             ~Q(labels__id__isnull=True) & Q(label_issue__deleted_at__isnull=True),
         ),
-        "module_ids": (
-            "issue_module__module_id",
-            ~Q(issue_module__module_id__isnull=True),
+        "epic_ids": (
+            "issue_epic__epic_id",
+            ~Q(issue_epic__epic_id__isnull=True),
         ),
     }
     default_annotations = {
@@ -71,10 +71,10 @@ def issue_on_results(
     FIELD_MAPPER = {
         "labels__id": "label_ids",
         "assignees__id": "assignee_ids",
-        "issue_module__module_id": "module_ids",
+        "issue_epic__epic_id": "epic_ids",
     }
 
-    original_list = ["assignee_ids", "label_ids", "module_ids"]
+    original_list = ["assignee_ids", "label_ids", "epic_ids"]
 
     required_fields = [
         "id",
@@ -205,8 +205,8 @@ def issue_group_values(
             return list(
                 WorkspaceMember.objects.filter(workspace__slug=slug, is_active=True).values_list("member_id", flat=True)
             )
-    if field == "issue_module__module_id":
-        queryset = Module.objects.filter(workspace__slug=slug).values_list("id", flat=True)
+    if field == "issue_epic__epic_id":
+        queryset = Epic.objects.filter(workspace__slug=slug).values_list("id", flat=True)
         if project_id:
             return list(queryset.filter(project_id=project_id)) + ["None"]
         else:

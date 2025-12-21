@@ -12,7 +12,7 @@ import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { IntakeStateDropdown } from "@/components/dropdowns/intake-state/dropdown";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { ModuleDropdown } from "@/components/dropdowns/module/dropdown";
+import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
 import { PriorityDropdown } from "@/components/dropdowns/priority";
 import { ParentIssuesListModal } from "@/components/issues/parent-issues-list-modal";
 import { IssueLabelSelect } from "@/components/issues/select";
@@ -136,18 +136,18 @@ export const InboxIssueProperties = observer(function InboxIssueProperties(props
         </div>
       )}
 
-      {/* module */}
+      {/* epic */}
       {isVisible && (
         <div className="h-7">
-          <ModuleDropdown
-            value={data?.module_ids || []}
-            onChange={(moduleIds) => handleData("module_ids", moduleIds)}
+          <EpicDropdown
+            value={data?.epic_ids || []}
+            onChange={(epicIds) => handleData("epic_ids", epicIds)}
             projectId={projectId}
-            placeholder="Modules"
+            placeholder="Epics"
             buttonVariant="border-with-text"
             multiple
             showCount
-            tabIndex={getIndex("module_ids")}
+            tabIndex={getIndex("epic_ids")}
           />
         </div>
       )}

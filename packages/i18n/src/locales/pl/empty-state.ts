@@ -54,15 +54,15 @@ export default {
       cta_primary: "Utwórz element roboczy",
       cta_secondary: "Dodaj istniejący element roboczy",
     },
-    modules: {
-      title: "Mapuj cele swojego projektu na Moduły i łatwo śledź.",
+    epics: {
+      title: "Mapuj cele swojego projektu na Epic i łatwo śledź.",
       description:
-        "Moduły składają się z połączonych elementów roboczych. Pomagają one monitorować postęp przez fazy projektu, każda z konkretnymi terminami i analityką, aby wskazać, jak blisko jesteś osiągnięcia tych faz.",
-      cta_primary: "Ustaw swój pierwszy moduł",
+        "Epic składają się z połączonych elementów roboczych. Pomagają one monitorować postęp przez fazy projektu, każda z konkretnymi terminami i analityką, aby wskazać, jak blisko jesteś osiągnięcia tych faz.",
+      cta_primary: "Ustaw swój pierwszy epic",
     },
-    module_work_items: {
-      title: "Brak elementów roboczych do wyświetlenia w tym Module",
-      description: "Utwórz elementy robocze, aby rozpocząć monitorowanie tego modułu.",
+    epic_work_items: {
+      title: "Brak elementów roboczych do wyświetlenia w tym Epic",
+      description: "Utwórz elementy robocze, aby rozpocząć monitorowanie tego epic.",
       cta_primary: "Utwórz element roboczy",
       cta_secondary: "Dodaj istniejący element roboczy",
     },
@@ -115,10 +115,10 @@ export default {
       title: "Jeszcze brak zarchiwizowanych cykli",
       description: "Aby uporządkować swój projekt, archiwizuj ukończone cykle. Znajdź je tutaj po zarchiwizowaniu.",
     },
-    archive_modules: {
-      title: "Jeszcze brak zarchiwizowanych Modułów",
+    archive_epics: {
+      title: "Jeszcze brak zarchiwizowanych Epic",
       description:
-        "Aby uporządkować swój projekt, archiwizuj ukończone lub anulowane moduły. Znajdź je tutaj po zarchiwizowaniu.",
+        "Aby uporządkować swój projekt, archiwizuj ukończone lub anulowane epic. Znajdź je tutaj po zarchiwizowaniu.",
     },
     home_widget_quick_links: {
       title: "Miej pod ręką ważne odniesienia, zasoby lub dokumenty do swojej pracy",
@@ -161,8 +161,8 @@ export default {
     analytics_no_sprint: {
       title: "Utwórz cykle, aby organizować pracę w fazy czasowe i śledzić postępy przez sprinty.",
     },
-    analytics_no_module: {
-      title: "Utwórz moduły, aby organizować swoją pracę i śledzić postępy przez różne fazy.",
+    analytics_no_epic: {
+      title: "Utwórz epic, aby organizować swoją pracę i śledzić postępy przez różne fazy.",
     },
     analytics_no_intake: {
       title:

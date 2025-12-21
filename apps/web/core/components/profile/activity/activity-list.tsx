@@ -91,7 +91,7 @@ export const ActivityList = observer(function ActivityList(props: Props) {
 
             const message =
               activityItem.verb === "created" &&
-              !["sprints", "modules", "attachment", "link", "estimate"].includes(
+              !["sprints", "epics", "attachment", "link", "estimate"].includes(
                 activityItem.field?.toString() as string
               ) &&
               !activityItem.field ? (
