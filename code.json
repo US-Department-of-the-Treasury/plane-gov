@@ -13,7 +13,7 @@
       "permissions": {
         "licenses": [
           {
-            "URL": "https://github.com/US-Department-of-the-Treasury/plane-treasury/blob/main/LICENSE.txt",
+            "URL": "https://github.com/US-Department-of-the-Treasury/plane-treasury/blob/master/LICENSE.txt",
             "name": "AGPL-3.0"
           }
         ],
