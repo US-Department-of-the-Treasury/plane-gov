@@ -39,3 +39,9 @@ from .space.password_management import (
 from .app.password_management import ForgotPasswordEndpoint, ResetPasswordEndpoint
 
 from .app.oidc import OIDCOauthInitiateEndpoint, OIDCCallbackEndpoint
+from .app.federation import (
+    FederationPageEndpoint,
+    FederationDiscoverEndpoint,
+    FederationCallbackEndpoint,
+    FederationSaveCredentialsEndpoint,
+)
