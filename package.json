@@ -17,7 +17,10 @@
     "check:lint": "turbo run check:lint",
     "check:format": "turbo run check:format",
     "check:types": "turbo run check:types",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "command -v gitleaks >/dev/null 2>&1 || echo '\\n⚠️  gitleaks not installed - run: ./scripts/setup-security.sh\\n'",
+    "security:setup": "./scripts/setup-security.sh",
+    "security:scan": "gitleaks detect --source . --verbose"
   },
   "devDependencies": {
     "@eslint/js": "9.39.1",

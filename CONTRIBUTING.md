@@ -38,7 +38,15 @@ cd plane
 pnpm install
 ```
 
-3. Set up Python environment:
+3. Set up security tools (required for commits):
+
+```bash
+./scripts/setup-security.sh
+```
+
+This installs [gitleaks](https://github.com/gitleaks/gitleaks) which scans for secrets before each commit. **This is required** - commits will warn if gitleaks is not installed.
+
+4. Set up Python environment:
 
 ```bash
 cd apps/api
