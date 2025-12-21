@@ -109,3 +109,24 @@ build/
 build/
 .react-router/
 temp/
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/terraform.tfvars
+terraform/.terraform.lock.hcl
+terraform/tfplan
+*.tfplan
+
+# Secrets and credentials (additional patterns)
+*.pem
+*.key
+*credentials*
+*secret*
+!*.example
+!secrets.tf
+
+# Deployment artifacts
+backend-deploy.zip
+*.zip

@@ -1,0 +1,160 @@
+#!/bin/bash
+set -e
+
+# Deploy Frontend Apps to S3 + CloudFront
+# Usage: ./deploy-frontend.sh [web|admin]
+#
+# Note: 'space' app has SSR enabled and requires server deployment (not S3)
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+TERRAFORM_DIR="$REPO_ROOT/terraform"
+
+APP=$1
+
+if [ -z "$APP" ]; then
+    echo "Usage: $0 [web|admin]"
+    echo ""
+    echo "Note: 'space' app requires SSR and cannot be deployed to S3."
+    echo "      Use deploy-backend.sh or a server-based deployment for space."
+    exit 1
+fi
+
+if [[ ! "$APP" =~ ^(web|admin)$ ]]; then
+    echo "Error: APP must be one of: web, admin"
+    echo ""
+    echo "Note: 'space' app requires SSR and cannot be deployed to S3."
+    exit 1
+fi
+
+echo "========================================="
+echo "Deploying $APP frontend to AWS"
+echo "========================================="
+
+# Get infrastructure outputs from Terraform
+cd "$TERRAFORM_DIR"
+
+BUCKET=$(terraform output -raw "${APP}_bucket" 2>/dev/null) || {
+    echo "Error: Could not get ${APP}_bucket from Terraform outputs"
+    echo "Run 'terraform apply' first to create infrastructure"
+    exit 1
+}
+
+CLOUDFRONT_ID=$(terraform output -raw "${APP}_cloudfront_id" 2>/dev/null) || {
+    echo "Error: Could not get ${APP}_cloudfront_id from Terraform outputs"
+    exit 1
+}
+
+APP_URL=$(terraform output -raw "${APP}_url" 2>/dev/null) || {
+    echo "Warning: Could not get ${APP}_url from Terraform outputs"
+    APP_URL="(unknown)"
+}
+
+API_URL=$(terraform output -raw api_url 2>/dev/null) || {
+    echo "Error: Could not get api_url from Terraform outputs"
+    exit 1
+}
+
+echo "Bucket: $BUCKET"
+echo "CloudFront: $CLOUDFRONT_ID"
+echo "URL: $APP_URL"
+echo "API URL: $API_URL"
+
+# Navigate to app directory
+APP_DIR="$REPO_ROOT/apps/$APP"
+if [ ! -d "$APP_DIR" ]; then
+    echo "Error: App directory not found: $APP_DIR"
+    exit 1
+fi
+
+cd "$APP_DIR"
+
+# Set environment variables for build
+export VITE_API_BASE_URL="$API_URL"
+
+# App-specific configuration
+S3_PREFIX=""
+case "$APP" in
+    admin)
+        # Admin app is served at /god-mode/ path
+        export VITE_ADMIN_BASE_PATH="/god-mode"
+        S3_PREFIX="god-mode/"
+        echo "Admin basename: /god-mode"
+        echo "S3 prefix: $S3_PREFIX"
+        ;;
+    web)
+        # Web app is served at root
+        S3_PREFIX=""
+        ;;
+esac
+
+echo ""
+echo "Installing dependencies (pnpm workspace)..."
+cd "$REPO_ROOT"
+pnpm install --frozen-lockfile
+
+echo ""
+echo "Building production bundle..."
+pnpm --filter "$APP" run build
+
+# React Router with ssr:false builds to build/client/
+BUILD_DIR="$APP_DIR/build/client"
+if [ ! -d "$BUILD_DIR" ]; then
+    echo "Error: Build directory not found: $BUILD_DIR"
+    echo "Expected React Router static build output at build/client/"
+    exit 1
+fi
+
+# Sync to S3 with appropriate prefix
+echo ""
+echo "Uploading to S3..."
+
+# Static assets with long cache (JS, CSS, images)
+aws s3 sync "$BUILD_DIR/" "s3://${BUCKET}/${S3_PREFIX}" \
+    --delete \
+    --cache-control "public, max-age=31536000, immutable" \
+    --exclude "*.html" \
+    --exclude "service-worker.js" \
+    --exclude "manifest.json" \
+    --exclude "robots.txt"
+
+# HTML and service files without cache (must revalidate for SPA routing)
+aws s3 sync "$BUILD_DIR/" "s3://${BUCKET}/${S3_PREFIX}" \
+    --cache-control "public, max-age=0, must-revalidate" \
+    --exclude "*" \
+    --include "*.html" \
+    --include "service-worker.js" \
+    --include "manifest.json" \
+    --include "robots.txt"
+
+# Invalidate CloudFront cache
+echo ""
+echo "Invalidating CloudFront cache..."
+INVALIDATION_ID=$(aws cloudfront create-invalidation \
+    --distribution-id "$CLOUDFRONT_ID" \
+    --paths "/*" \
+    --query 'Invalidation.Id' \
+    --output text)
+
+echo "Invalidation ID: $INVALIDATION_ID"
+echo ""
+echo "Waiting for invalidation to complete..."
+aws cloudfront wait invalidation-completed \
+    --distribution-id "$CLOUDFRONT_ID" \
+    --id "$INVALIDATION_ID"
+
+echo ""
+echo "========================================="
+echo "Deployment complete!"
+echo "========================================="
+echo "URL: $APP_URL"
+echo ""
+echo "Verifying deployment..."
+
+# Verify the app is accessible
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" || echo "000")
+if [ "$HTTP_STATUS" = "200" ]; then
+    echo "✓ App is accessible (HTTP $HTTP_STATUS)"
+else
+    echo "⚠ Warning: App returned HTTP $HTTP_STATUS (may need a few minutes for CloudFront propagation)"
+fi

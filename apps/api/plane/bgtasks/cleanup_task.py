@@ -1,7 +1,7 @@
 # Python imports
 from datetime import timedelta
 import logging
-from typing import List, Dict, Any, Callable, Optional
+from typing import List, Dict, Any, Callable, Optional, TYPE_CHECKING
 import os
 
 # Django imports
@@ -11,9 +11,10 @@ from django.db.models.functions import RowNumber
 
 # Third party imports
 from celery import shared_task
-from pymongo.errors import BulkWriteError
-from pymongo.collection import Collection
-from pymongo.operations import InsertOne
+
+# Type hints only - pymongo is optional
+if TYPE_CHECKING:
+    from pymongo.collection import Collection
 
 # Module imports
 from plane.db.models import (
@@ -31,7 +32,7 @@ logger = logging.getLogger("plane.worker")
 BATCH_SIZE = 500
 
 
-def get_mongo_collection(collection_name: str) -> Optional[Collection]:
+def get_mongo_collection(collection_name: str) -> Optional["Collection"]:
     """Get MongoDB collection if available, otherwise return None."""
     if not MongoConnection.is_configured():
         logger.info("MongoDB not configured")
@@ -48,7 +49,7 @@ def get_mongo_collection(collection_name: str) -> Optional[Collection]:
 
 
 def flush_to_mongo_and_delete(
-    mongo_collection: Optional[Collection],
+    mongo_collection: Optional["Collection"],
     buffer: List[Dict[str, Any]],
     ids_to_delete: List[int],
     model,
@@ -68,10 +69,15 @@ def flush_to_mongo_and_delete(
     # Try to insert into MongoDB if available
     if mongo_collection is not None and mongo_available:
         try:
+            # Import pymongo operations only when MongoDB is actually used
+            from pymongo.operations import InsertOne
+            from pymongo.errors import BulkWriteError
+
             mongo_collection.bulk_write([InsertOne(doc) for doc in buffer])
-        except BulkWriteError as bwe:
-            logger.error(f"MongoDB bulk write error: {str(bwe)}")
-            log_exception(bwe)
+        except Exception as e:
+            # Handle both BulkWriteError and import errors
+            logger.error(f"MongoDB bulk write error: {str(e)}")
+            log_exception(e)
             mongo_archival_failed = True
 
     # If MongoDB is available and archival failed, log the error and return

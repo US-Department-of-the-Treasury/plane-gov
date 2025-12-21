@@ -1,0 +1,25 @@
+# Treasury Plane - AWS Infrastructure Configuration
+# Copy this file to terraform.tfvars and fill in your values
+#
+# IMPORTANT: terraform.tfvars is gitignored - never commit actual values
+
+aws_region   = "us-east-1"
+environment  = "dev"  # dev, staging, or prod
+project_name = "treasury-plane"
+
+# Domain configuration (optional - leave empty for ALB/CloudFront URLs only)
+domain_name     = ""  # e.g., "plane.example.gov"
+route53_zone_id = ""  # Your Route53 hosted zone ID
+
+# Elastic Beanstalk
+eb_instance_type = "t3.small"
+eb_min_instances = 2
+eb_max_instances = 4
+
+# Database
+db_name     = "plane"
+db_username = "plane_admin"
+
+# Features
+enable_redis    = true   # Required for live collaboration
+enable_piv_mtls = false  # PIV/CAC authentication - enable after uploading Federal PKI certs
