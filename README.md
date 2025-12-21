@@ -45,6 +45,36 @@ For production AWS deployment, see the `terraform/` directory.
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup instructions.
 
+### Prerequisites
+
+- **Node.js 20+** and **pnpm**
+- **Python 3.11+** and **pip**
+- **PostgreSQL 15+** and **Redis** (or use `./scripts/local-dev-setup.sh`)
+- **AWS CLI** configured with credentials
+
+### Secrets Setup
+
+This project uses AWS SSM Parameter Store for secrets management. No secrets are committed to git.
+
+```bash
+# First time setup (requires AWS credentials)
+./scripts/setup-ssm-secrets.sh pull
+
+# This updates .env files with secrets from SSM
+```
+
+If you're the first developer or setting up a new environment:
+
+```bash
+# Initialize default local secrets in SSM
+./scripts/setup-ssm-secrets.sh init
+
+# Then pull them locally
+./scripts/setup-ssm-secrets.sh pull
+```
+
+See `docs/solutions/security/ssm-secrets-management.md` for detailed documentation.
+
 ## Tech Stack
 
 - **Frontend**: React Router, TypeScript
