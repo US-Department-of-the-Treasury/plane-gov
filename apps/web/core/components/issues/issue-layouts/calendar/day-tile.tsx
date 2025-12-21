@@ -16,14 +16,14 @@ import { MONTHS_LIST } from "@/constants/calendar";
 // types
 import type { IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
 import type { ISprintIssuesFilter } from "@/store/issue/sprint";
-import type { IModuleIssuesFilter } from "@/store/issue/module";
+import type { IEpicIssuesFilter } from "@/store/issue/epic";
 import type { IProjectIssuesFilter } from "@/store/issue/project";
 import type { IProjectViewIssuesFilter } from "@/store/issue/project-views";
 import type { TRenderQuickActions } from "../list/list-view-types";
 import { CalendarIssueBlocks } from "./issue-blocks";
 
 type Props = {
-  issuesFilterStore: IProjectIssuesFilter | IModuleIssuesFilter | ISprintIssuesFilter | IProjectViewIssuesFilter;
+  issuesFilterStore: IProjectIssuesFilter | IEpicIssuesFilter | ISprintIssuesFilter | IProjectViewIssuesFilter;
   date: ICalendarDate;
   issues: TIssueMap | undefined;
   groupedIssueIds: TGroupedIssues;

@@ -55,13 +55,13 @@ export default {
       cta_secondary: "Add existing work item",
     },
     modules: {
-      title: "Map your project goals to Modules and track easily.",
+      title: "Map your project goals to Epics and track easily.",
       description:
-        "Modules are made up of interconnected work items. They assist in monitoring progress through project phases, each with specific deadlines and analytics to indicate how close you are to achieving those phases.",
+        "Epics are made up of interconnected work items. They assist in monitoring progress through project phases, each with specific deadlines and analytics to indicate how close you are to achieving those phases.",
       cta_primary: "Set your first module",
     },
     module_work_items: {
-      title: "No work items to show in this Module",
+      title: "No work items to show in this Epic",
       description: "Create work items to begin monitoring this module.",
       cta_primary: "Create work item",
       cta_secondary: "Add existing work item",
@@ -113,7 +113,7 @@ export default {
       description: "To tidy up your project, archive completed sprints. Find them here once archived.",
     },
     archive_modules: {
-      title: "No archived Modules yet",
+      title: "No archived Epics yet",
       description: "To tidy up your project, archive completed or cancelled modules. Find them here once archived.",
     },
     home_widget_quick_links: {

@@ -14,7 +14,7 @@ from django.db.models.functions import Coalesce
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from ..base import BaseViewSet
 from plane.app.permissions import allow_permission, ROLE
 from plane.db.models import (

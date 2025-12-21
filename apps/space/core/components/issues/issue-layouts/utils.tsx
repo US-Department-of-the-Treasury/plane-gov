@@ -17,7 +17,7 @@ import { Avatar } from "@plane/ui";
 import type { ISprintStore } from "@/store/sprint.store";
 import type { IIssueLabelStore } from "@/store/label.store";
 import type { IIssueMemberStore } from "@/store/members.store";
-import type { IIssueModuleStore } from "@/store/module.store";
+import type { IIssueEpicStore } from "@/store/epic.store";
 import type { IStateStore } from "@/store/state.store";
 
 export const HIGHLIGHT_CLASS = "highlight";
@@ -26,7 +26,7 @@ export const HIGHLIGHT_WITH_LINE = "highlight-with-line";
 export const getGroupByColumns = (
   groupBy: GroupByColumnTypes | null,
   sprint: ISprintStore,
-  module: IIssueModuleStore,
+  module: IIssueEpicStore,
   label: IIssueLabelStore,
   projectState: IStateStore,
   member: IIssueMemberStore,
@@ -36,7 +36,7 @@ export const getGroupByColumns = (
     case "sprint":
       return getSprintColumns(sprint);
     case "module":
-      return getModuleColumns(module);
+      return getEpicColumns(module);
     case "state":
       return getStateColumns(projectState);
     case "priority":
@@ -80,7 +80,7 @@ const getSprintColumns = (sprintStore: ISprintStore): IGroupByColumn[] | undefin
   return sprintGroups;
 };
 
-const getModuleColumns = (moduleStore: IIssueModuleStore): IGroupByColumn[] | undefined => {
+const getEpicColumns = (moduleStore: IIssueEpicStore): IGroupByColumn[] | undefined => {
   const { modules } = moduleStore;
 
   if (!modules) return;
@@ -93,14 +93,14 @@ const getModuleColumns = (moduleStore: IIssueModuleStore): IGroupByColumn[] | un
         id: moduleInfo.id,
         name: moduleInfo.name,
         icon: <ModuleIcon className="h-3.5 w-3.5" />,
-        payload: { module_ids: [moduleInfo.id] },
+        payload: { epic_ids: [moduleInfo.id] },
       });
   }) as any;
   moduleGroups.push({
     id: "None",
     name: "None",
     icon: <ModuleIcon className="h-3.5 w-3.5" />,
-    payload: { module_ids: [] },
+    payload: { epic_ids: [] },
   });
 
   return moduleGroups as any;

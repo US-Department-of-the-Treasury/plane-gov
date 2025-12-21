@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.views import View
 from django.utils.http import url_has_allowed_host_and_scheme
 
-# Module imports
+# Package imports
 from plane.authentication.provider.credentials.email import EmailProvider
 from plane.authentication.utils.login import user_login
 from plane.license.models import Instance

@@ -5,7 +5,7 @@ from django.db.models import Q, QuerySet
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from .base import BaseAPIView
 from plane.db.models import Issue, ProjectMember, IssueRelation
 from plane.utils.issue_search import search_issues

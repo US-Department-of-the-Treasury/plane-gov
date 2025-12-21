@@ -1,7 +1,7 @@
 # Django imports
 from django.urls import path
 
-# Module imports
+# Package imports
 from plane.space.views import (
     EntityAssetEndpoint,
     AssetRestoreEndpoint,

@@ -34,7 +34,7 @@ export const PROJECT_BASE_FEATURES_LIST: TBaseFeatureList = {
   modules: {
     key: "modules",
     property: "module_view",
-    title: "Modules",
+    title: "Epics",
     description: "Group work into sub-project-like set-ups with their own leads and assignees.",
     icon: <ModuleIcon width={20} height={20} className="flex-shrink-0 text-tertiary" />,
     isPro: false,

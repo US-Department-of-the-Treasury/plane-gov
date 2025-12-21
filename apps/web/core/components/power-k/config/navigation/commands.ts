@@ -2,7 +2,7 @@ import { BarChart2, Briefcase, FileText, Home, Inbox, Layers, PenSquare, Setting
 // plane imports
 import { EUserPermissionsLevel } from "@plane/constants";
 import { ArchiveIcon, UserActivityIcon, LayersIcon, ContrastIcon, DiceIcon, Intake } from "@plane/propel/icons";
-import type { ISprint, IModule, IPartialProject, IProjectView, IWorkspace } from "@plane/types";
+import type { ISprint, IEpic, IPartialProject, IProjectView, IWorkspace } from "@plane/types";
 import { EUserProjectRoles, EUserWorkspaceRoles } from "@plane/types";
 // components
 import type { TPowerKCommandConfig, TPowerKContext } from "@/components/power-k/core/types";
@@ -345,13 +345,13 @@ export const usePowerKNavigationCommandsRecord = (): Record<TPowerKNavigationCom
       keySequence: "om",
       page: "open-project-module",
       onSelect: (data, ctx) => {
-        const moduleDetails = data as IModule;
+        const epicDetails = data as IEpic;
         handlePowerKNavigate(ctx, [
           ctx.params.workspaceSlug?.toString(),
           "projects",
           ctx.params.projectId?.toString(),
           "modules",
-          moduleDetails.id,
+          epicDetails.id,
         ]);
       },
       isEnabled: (ctx) =>

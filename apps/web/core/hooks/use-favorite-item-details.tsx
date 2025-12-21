@@ -9,7 +9,7 @@ import {
 // helpers
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
-import { useModule } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectView } from "@/hooks/store/use-project-view";
 // plane web hooks
@@ -27,7 +27,7 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
   const { getViewById } = useProjectView();
   const { getProjectById } = useProject();
   const { getSprintById } = useSprint();
-  const { getModuleById } = useModule();
+  const { getEpicById } = useEpic();
   // additional details
   const { getAdditionalFavoriteItemDetails } = useAdditionalFavoriteItemDetails();
   // derived values
@@ -37,7 +37,7 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
   });
   const viewDetails = getViewById(favoriteItemId ?? "");
   const sprintDetail = getSprintById(favoriteItemId ?? "");
-  const moduleDetail = getModuleById(favoriteItemId ?? "");
+  const moduleDetail = getEpicById(favoriteItemId ?? "");
   const currentProjectDetails = getProjectById(favorite.project_id ?? "");
 
   let itemIcon;
@@ -61,9 +61,9 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
       itemTitle = sprintDetail?.name ?? favoriteItemName;
       itemIcon = getFavoriteItemIcon("sprint");
       break;
-    case "module":
+    case "epic":
       itemTitle = moduleDetail?.name ?? favoriteItemName;
-      itemIcon = getFavoriteItemIcon("module");
+      itemIcon = getFavoriteItemIcon("epic");
       break;
     default: {
       const additionalDetails = getAdditionalFavoriteItemDetails(workspaceSlug, favorite);

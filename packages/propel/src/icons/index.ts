@@ -38,7 +38,7 @@ export * from "./layer-stack";
 export * from "./layers-icon";
 export * from "./layouts";
 export * from "./lead-icon";
-export * from "./module";
+export * from "./epic";
 export * from "./monospace-icon";
 export * from "./multiple-sticky";
 export * from "./off-track-icon";

@@ -1,7 +1,7 @@
 # Django imports
 from django.core.management.base import BaseCommand, CommandError
 
-# Module imports
+# Package imports
 from plane.license.models import Instance, InstanceAdmin
 from plane.db.models import User
 

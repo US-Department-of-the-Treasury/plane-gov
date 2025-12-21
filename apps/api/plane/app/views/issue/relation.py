@@ -13,7 +13,7 @@ from django.contrib.postgres.fields import ArrayField
 from rest_framework.response import Response
 from rest_framework import status
 
-# Module imports
+# Package imports
 from .. import BaseViewSet
 from plane.app.serializers import IssueRelationSerializer, RelatedIssueSerializer
 from plane.app.permissions import ProjectEntityPermission

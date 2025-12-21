@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 
-# Module imports
+# Package imports
 from plane.license.models import Instance, InstanceEdition
 
 

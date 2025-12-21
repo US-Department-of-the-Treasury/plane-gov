@@ -35,7 +35,7 @@ export const usePowerKCreationCommandsRecord = (): Record<TPowerKCreationCommand
     toggleCreateIssueModal,
     toggleCreateProjectModal,
     toggleCreateSprintModal,
-    toggleCreateModuleModal,
+    toggleCreateEpicModal,
     toggleCreateViewModal,
     toggleCreatePageModal,
   } = useCommandPalette();
@@ -118,7 +118,7 @@ export const usePowerKCreationCommandsRecord = (): Record<TPowerKCreationCommand
       i18n_title: "power_k.creation_actions.create_module",
       icon: DiceIcon,
       keySequence: "nm",
-      action: () => toggleCreateModuleModal(true),
+      action: () => toggleCreateEpicModal(true),
       isEnabled: (ctx) => Boolean(getProjectDetails(ctx)?.module_view && hasProjectMemberLevelPermissions(ctx)),
       isVisible: (ctx) =>
         Boolean(ctx.params.projectId && getProjectDetails(ctx)?.module_view && hasProjectMemberLevelPermissions(ctx)),

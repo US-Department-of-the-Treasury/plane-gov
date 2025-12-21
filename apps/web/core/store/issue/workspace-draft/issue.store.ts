@@ -60,10 +60,10 @@ export interface IWorkspaceDraftIssues {
     issueId: string,
     sprintId: string
   ) => Promise<TWorkspaceDraftIssue | undefined>;
-  addModulesToIssue: (
+  addEpicsToIssue: (
     workspaceSlug: string,
     issueId: string,
-    moduleIds: string[]
+    epicIds: string[]
   ) => Promise<TWorkspaceDraftIssue | undefined>;
 
   // dummies
@@ -87,18 +87,18 @@ export interface IWorkspaceDraftIssues {
   ) => Promise<void>;
   removeIssueFromSprint: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
 
-  removeIssuesFromModule: (
+  removeIssuesFromEpic: (
     workspaceSlug: string,
     projectId: string,
-    moduleId: string,
+    epicId: string,
     issueIds: string[]
   ) => Promise<void>;
-  changeModulesInIssue(
+  changeEpicsInIssue(
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    addModuleIds: string[],
-    removeModuleIds: string[]
+    addEpicIds: string[],
+    removeEpicIds: string[]
   ): Promise<void>;
   archiveIssue: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>;
   archiveBulkIssues: (workspaceSlug: string, projectId: string, issueIds: string[]) => Promise<void>;
@@ -130,7 +130,7 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
       deleteIssue: action,
       moveIssue: action,
       addSprintToIssue: action,
-      addModulesToIssue: action,
+      addEpicsToIssue: action,
     });
   }
 
@@ -371,10 +371,10 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
     }
   };
 
-  addModulesToIssue = async (workspaceSlug: string, issueId: string, moduleIds: string[]) => {
+  addEpicsToIssue = async (workspaceSlug: string, issueId: string, epicIds: string[]) => {
     try {
       this.loader = "update";
-      const response = this.updateIssue(workspaceSlug, issueId, { module_ids: moduleIds });
+      const response = this.updateIssue(workspaceSlug, issueId, { epic_ids: epicIds });
       return response;
     } catch (error) {
       this.loader = undefined;
@@ -400,13 +400,13 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
   ) => {};
   removeIssueFromSprint = async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => {};
 
-  removeIssuesFromModule = async (workspaceSlug: string, projectId: string, moduleId: string, issueIds: string[]) => {};
-  changeModulesInIssue = async (
+  removeIssuesFromEpic = async (workspaceSlug: string, projectId: string, epicId: string, issueIds: string[]) => {};
+  changeEpicsInIssue = async (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    addModuleIds: string[],
-    removeModuleIds: string[]
+    addEpicIds: string[],
+    removeEpicIds: string[]
   ) => {};
   archiveIssue = async (workspaceSlug: string, projectId: string, issueId: string) => {};
   archiveBulkIssues = async (workspaceSlug: string, projectId: string, issueIds: string[]) => {};

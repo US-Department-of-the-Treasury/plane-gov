@@ -1,7 +1,7 @@
 # Python imports
 import os
 
-# Module imports
+# Package imports
 from plane.authentication.adapter.credential import CredentialAdapter
 from plane.db.models import User
 from plane.authentication.adapter.error import (

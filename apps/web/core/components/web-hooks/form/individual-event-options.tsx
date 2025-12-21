@@ -25,8 +25,8 @@ export const INDIVIDUAL_WEBHOOK_OPTIONS: {
   },
   {
     key: "module",
-    label: "Modules",
-    description: "Module created, updated, or deleted",
+    label: "Epics",
+    description: "Epic created, updated, or deleted",
   },
   {
     key: "issue_comment",

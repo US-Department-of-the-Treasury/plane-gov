@@ -2,7 +2,7 @@
 from rest_framework import serializers
 import base64
 
-# Module imports
+# Package imports
 from .base import BaseSerializer
 from plane.utils.content_validator import (
     validate_binary_data,

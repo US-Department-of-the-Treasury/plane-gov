@@ -1,7 +1,7 @@
 # Third party imports
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from .base import BaseSerializer
 from .issue import IssueStateSerializer
 from plane.db.models import Sprint, SprintIssue, SprintUserProperties

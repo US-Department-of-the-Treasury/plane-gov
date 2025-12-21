@@ -49,7 +49,7 @@ export interface IIssue extends Pick<
   | "start_date"
   | "target_date"
   | "sprint_id"
-  | "module_ids"
+  | "epic_ids"
   | "label_ids"
   | "assignee_ids"
   | "attachment_count"

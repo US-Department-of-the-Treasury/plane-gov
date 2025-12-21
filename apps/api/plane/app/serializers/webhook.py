@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 # Third party imports
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from .base import DynamicBaseSerializer
 from plane.db.models import Webhook, WebhookLog
 from plane.db.models.webhook import validate_domain, validate_schema

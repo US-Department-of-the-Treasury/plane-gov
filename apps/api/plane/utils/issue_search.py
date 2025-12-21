@@ -4,7 +4,7 @@ import re
 # Django imports
 from django.db.models import Q
 
-# Module imports
+# Package imports
 
 
 def search_issues(query, queryset):

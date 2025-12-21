@@ -4,7 +4,7 @@ import uuid
 from uuid import UUID
 
 
-# Module imports
+# Package imports
 from plane.db.models import (
     IssueMention,
     IssueSubscriber,

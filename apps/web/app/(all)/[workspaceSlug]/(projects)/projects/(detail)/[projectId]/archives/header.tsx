@@ -37,7 +37,7 @@ const PROJECT_ARCHIVES_BREADCRUMB_LIST: {
     icon: SprintIcon,
   },
   modules: {
-    label: "Modules",
+    label: "Epics",
     href: "/modules",
     icon: ModuleIcon,
   },

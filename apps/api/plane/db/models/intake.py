@@ -1,7 +1,7 @@
 # Django imports
 from django.db import models
 
-# Module imports
+# Package imports
 from plane.db.models.project import ProjectBaseModel
 
 

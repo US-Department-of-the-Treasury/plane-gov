@@ -14,7 +14,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-# Module imports
+# Package imports
 from plane.license.api.permissions import InstanceAdminPermission
 from plane.authentication.session import BaseSessionAuthentication
 from plane.utils.exception_logger import log_exception

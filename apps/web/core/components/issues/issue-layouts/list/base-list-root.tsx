@@ -23,7 +23,7 @@ import type { IQuickActionProps, TRenderQuickActions } from "./list-view-types";
 
 type ListStoreType =
   | EIssuesStoreType.PROJECT
-  | EIssuesStoreType.MODULE
+  | EIssuesStoreType.EPIC
   | EIssuesStoreType.SPRINT
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.PROFILE

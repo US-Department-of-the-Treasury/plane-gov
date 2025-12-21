@@ -77,7 +77,7 @@ export const commandGroups: TCommandGroups = {
     ),
     path: (module: IWorkspaceDefaultSearchResult) =>
       `/${module?.workspace__slug}/projects/${module?.project_id}/modules/${module?.id}`,
-    title: "Modules",
+    title: "Epics",
   },
   page: {
     icon: <PageIcon className="h-3 w-3" />,

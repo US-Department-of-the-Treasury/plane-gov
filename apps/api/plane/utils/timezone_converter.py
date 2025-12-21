@@ -6,7 +6,7 @@ from datetime import timedelta
 # Django imports
 from django.utils import timezone
 
-# Module imports
+# Package imports
 from plane.db.models import Project
 
 

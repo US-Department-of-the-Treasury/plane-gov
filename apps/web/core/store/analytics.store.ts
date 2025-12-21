@@ -10,7 +10,7 @@ export interface IBaseAnalyticsStore {
   selectedProjects: string[];
   selectedDuration: DurationType;
   selectedSprint: string;
-  selectedModule: string;
+  selectedEpic: string;
   isPeekView?: boolean;
   isEpic?: boolean;
   //computed
@@ -20,7 +20,7 @@ export interface IBaseAnalyticsStore {
   updateSelectedProjects: (projects: string[]) => void;
   updateSelectedDuration: (duration: DurationType) => void;
   updateSelectedSprint: (sprint: string) => void;
-  updateSelectedModule: (module: string) => void;
+  updateSelectedEpic: (epic: string) => void;
   updateIsPeekView: (isPeekView: boolean) => void;
   updateIsEpic: (isEpic: boolean) => void;
 }
@@ -31,7 +31,7 @@ export abstract class BaseAnalyticsStore implements IBaseAnalyticsStore {
   selectedProjects: string[] = [];
   selectedDuration: DurationType = "last_30_days";
   selectedSprint: string = "";
-  selectedModule: string = "";
+  selectedEpic: string = "";
   isPeekView: boolean = false;
   isEpic: boolean = false;
   constructor() {
@@ -41,7 +41,7 @@ export abstract class BaseAnalyticsStore implements IBaseAnalyticsStore {
       selectedDuration: observable.ref,
       selectedProjects: observable,
       selectedSprint: observable.ref,
-      selectedModule: observable.ref,
+      selectedEpic: observable.ref,
       isPeekView: observable.ref,
       isEpic: observable.ref,
       // computed
@@ -50,7 +50,7 @@ export abstract class BaseAnalyticsStore implements IBaseAnalyticsStore {
       updateSelectedProjects: action,
       updateSelectedDuration: action,
       updateSelectedSprint: action,
-      updateSelectedModule: action,
+      updateSelectedEpic: action,
       updateIsPeekView: action,
       updateIsEpic: action,
     });
@@ -88,9 +88,9 @@ export abstract class BaseAnalyticsStore implements IBaseAnalyticsStore {
     });
   };
 
-  updateSelectedModule = (module: string) => {
+  updateSelectedEpic = (epic: string) => {
     runInAction(() => {
-      this.selectedModule = module;
+      this.selectedEpic = module;
     });
   };
 

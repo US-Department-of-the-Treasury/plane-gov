@@ -12,7 +12,7 @@ from django.db import transaction
 # Third party imports
 from celery import shared_task
 
-# Module imports
+# Package imports
 from plane.db.models import (
     Issue,
     IssueVersion,

@@ -7,7 +7,7 @@ from django.db import IntegrityError
 # Third Party imports
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from .base import BaseSerializer, DynamicBaseSerializer
 from .user import UserLiteSerializer
 from .state import StateLiteSerializer

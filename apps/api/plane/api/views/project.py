@@ -14,7 +14,7 @@ from rest_framework.serializers import ValidationError
 from drf_spectacular.utils import OpenApiResponse, OpenApiRequest
 
 
-# Module imports
+# Package imports
 from plane.db.models import (
     Sprint,
     Intake,

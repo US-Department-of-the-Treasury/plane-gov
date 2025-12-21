@@ -4,7 +4,7 @@ from urllib.parse import urlencode, urlparse
 import pytz
 import requests
 
-# Module imports
+# Package imports
 from plane.authentication.adapter.oauth import OauthAdapter
 from plane.license.utils.instance_value import get_configuration_value
 from plane.authentication.adapter.error import (

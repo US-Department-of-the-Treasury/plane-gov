@@ -4,7 +4,7 @@ import os
 # Django imports
 from django.core.management.base import BaseCommand, CommandError
 
-# Module imports
+# Package imports
 from plane.license.models import InstanceConfiguration
 from plane.utils.instance_config_variables import instance_config_variables
 

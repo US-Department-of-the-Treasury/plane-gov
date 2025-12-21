@@ -48,7 +48,7 @@ export const useIssuesActions = (storeType: EIssuesStoreType): IssueActions => {
   const projectIssueActions = useProjectIssueActions();
   const projectEpicsActions = useProjectEpicsActions();
   const sprintIssueActions = useSprintIssueActions();
-  const moduleIssueActions = useModuleIssueActions();
+  const moduleIssueActions = useEpicIssueActions();
   const teamViewIssueActions = useTeamViewIssueActions();
   const projectViewIssueActions = useProjectViewIssueActions();
   const globalIssueActions = useGlobalIssueActions();
@@ -70,7 +70,7 @@ export const useIssuesActions = (storeType: EIssuesStoreType): IssueActions => {
       return archivedIssueActions;
     case EIssuesStoreType.SPRINT:
       return sprintIssueActions;
-    case EIssuesStoreType.MODULE:
+    case EIssuesStoreType.EPIC:
       return moduleIssueActions;
     case EIssuesStoreType.GLOBAL:
       return globalIssueActions;
@@ -358,49 +358,49 @@ const useSprintIssueActions = () => {
   );
 };
 
-const useModuleIssueActions = () => {
+const useEpicIssueActions = () => {
   // router
-  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, moduleId: routerModuleId } = useParams();
+  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, epicId: routerModuleId } = useParams();
   const workspaceSlug = routerWorkspaceSlug?.toString();
   const projectId = routerProjectId?.toString();
-  const moduleId = routerModuleId?.toString();
+  const epicId = routerModuleId?.toString();
   // store hooks
-  const { issues, issuesFilter } = useIssues(EIssuesStoreType.MODULE);
+  const { issues, issuesFilter } = useIssues(EIssuesStoreType.EPIC);
 
   const fetchIssues = useCallback(
-    async (loadType: TLoader, options: IssuePaginationOptions, moduleId?: string) => {
-      if (!workspaceSlug || !projectId || !moduleId) return;
-      return issues.fetchIssues(workspaceSlug.toString(), projectId.toString(), loadType, options, moduleId.toString());
+    async (loadType: TLoader, options: IssuePaginationOptions, epicId?: string) => {
+      if (!workspaceSlug || !projectId || !epicId) return;
+      return issues.fetchIssues(workspaceSlug.toString(), projectId.toString(), loadType, options, epicId.toString());
     },
     [issues.fetchIssues, workspaceSlug, projectId]
   );
   const fetchNextIssues = useCallback(
     async (groupId?: string, subGroupId?: string) => {
-      if (!workspaceSlug || !projectId || !moduleId) return;
+      if (!workspaceSlug || !projectId || !epicId) return;
       return issues.fetchNextIssues(
         workspaceSlug.toString(),
         projectId.toString(),
-        moduleId.toString(),
+        epicId.toString(),
         groupId,
         subGroupId
       );
     },
-    [issues.fetchIssues, workspaceSlug, projectId, moduleId]
+    [issues.fetchIssues, workspaceSlug, projectId, epicId]
   );
 
   const createIssue = useCallback(
     async (projectId: string | undefined | null, data: Partial<TIssue>) => {
-      if (!moduleId || !workspaceSlug || !projectId) return;
-      return await issues.createIssue(workspaceSlug, projectId, data, moduleId);
+      if (!epicId || !workspaceSlug || !projectId) return;
+      return await issues.createIssue(workspaceSlug, projectId, data, epicId);
     },
-    [issues.createIssue, moduleId, workspaceSlug]
+    [issues.createIssue, epicId, workspaceSlug]
   );
   const quickAddIssue = useCallback(
     async (projectId: string | undefined | null, data: TIssue) => {
-      if (!moduleId || !workspaceSlug || !projectId) return;
-      return await issues.quickAddIssue(workspaceSlug, projectId, data, moduleId);
+      if (!epicId || !workspaceSlug || !projectId) return;
+      return await issues.quickAddIssue(workspaceSlug, projectId, data, epicId);
     },
-    [issues.quickAddIssue, workspaceSlug, moduleId]
+    [issues.quickAddIssue, workspaceSlug, epicId]
   );
   const updateIssue = useCallback(
     async (projectId: string | undefined | null, issueId: string, data: Partial<TIssue>) => {
@@ -418,25 +418,25 @@ const useModuleIssueActions = () => {
   );
   const removeIssueFromView = useCallback(
     async (projectId: string | undefined | null, issueId: string) => {
-      if (!moduleId || !workspaceSlug || !projectId) return;
-      return await issues.removeIssuesFromModule(workspaceSlug, projectId, moduleId, [issueId]);
+      if (!epicId || !workspaceSlug || !projectId) return;
+      return await issues.removeIssuesFromEpic(workspaceSlug, projectId, epicId, [issueId]);
     },
-    [issues.removeIssuesFromModule, moduleId, workspaceSlug]
+    [issues.removeIssuesFromEpic, epicId, workspaceSlug]
   );
   const archiveIssue = useCallback(
     async (projectId: string | undefined | null, issueId: string) => {
       if (!workspaceSlug || !projectId) return;
       return await issues.archiveIssue(workspaceSlug, projectId, issueId);
     },
-    [issues.archiveIssue, moduleId, workspaceSlug]
+    [issues.archiveIssue, epicId, workspaceSlug]
   );
 
   const updateFilters = useCallback(
     async (projectId: string, filterType: TSupportedFilterTypeForUpdate, filters: TSupportedFilterForUpdate) => {
-      if (!moduleId || !workspaceSlug) return;
-      return await issuesFilter.updateFilters(workspaceSlug, projectId, filterType, filters, moduleId);
+      if (!epicId || !workspaceSlug) return;
+      return await issuesFilter.updateFilters(workspaceSlug, projectId, filterType, filters, epicId);
     },
-    [issuesFilter.updateFilters, moduleId]
+    [issuesFilter.updateFilters, epicId]
   );
 
   return useMemo(

@@ -371,7 +371,7 @@ export default {
   open_project: "プロジェクトを開く",
   issues: "作業項目",
   sprints: "Sprints",
-  modules: "Modules",
+  modules: "Epics",
   pages: "Pages",
   intake: "Intake",
   time_tracking: "時間トラッキング",

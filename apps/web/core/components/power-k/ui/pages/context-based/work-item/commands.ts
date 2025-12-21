@@ -19,7 +19,7 @@ import { EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { ContrastIcon, DiceIcon, DoubleCircleIcon } from "@plane/propel/icons";
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
-import type { ISprint, IIssueLabel, IModule, TIssue, TIssuePriorities } from "@plane/types";
+import type { ISprint, IIssueLabel, IEpic, TIssue, TIssuePriorities } from "@plane/types";
 import { EIssueServiceType, EUserPermissions } from "@plane/types";
 import { copyTextToClipboard } from "@plane/utils";
 // components
@@ -43,7 +43,7 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
   const { getProjectById } = useProject();
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
   const {
-    issue: { getIssueById, getIssueIdByIdentifier, addSprintToIssue, removeIssueFromSprint, changeModulesInIssue },
+    issue: { getIssueById, getIssueIdByIdentifier, addSprintToIssue, removeIssueFromSprint, changeEpicsInIssue },
     subscription: { getSubscriptionByIssueId, createSubscription, removeSubscription },
     updateIssue,
   } = useIssueDetail(EIssueServiceType.ISSUES);
@@ -51,7 +51,7 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
     issue: {
       addSprintToIssue: addSprintToEpic,
       removeIssueFromSprint: removeEpicFromSprint,
-      changeModulesInIssue: changeModulesInEpic,
+      changeEpicsInIssue: changeModulesInEpic,
     },
     subscription: { createSubscription: createEpicSubscription, removeSubscription: removeEpicSubscription },
     updateIssue: updateEpic,
@@ -336,15 +336,15 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
       type: "change-page",
       page: "update-work-item-module",
       onSelect: (data) => {
-        const moduleId = (data as IModule)?.id;
+        const epicId = (data as IEpic)?.id;
         if (!workspaceSlug || !entityDetails || !entityDetails.project_id) return;
         // handlers
-        const changeModulesInEntity = entityDetails.is_epic ? changeModulesInEpic : changeModulesInIssue;
+        const changeEpicsInEntity = entityDetails.is_epic ? changeModulesInEpic : changeEpicsInIssue;
         try {
-          if (entityDetails.module_ids?.includes(moduleId)) {
-            changeModulesInEntity(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [], [moduleId]);
+          if (entityDetails.epic_ids?.includes(epicId)) {
+            changeEpicsInEntity(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [], [epicId]);
           } else {
-            changeModulesInEntity(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [moduleId], []);
+            changeEpicsInEntity(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [epicId], []);
           }
         } catch {
           setToast({

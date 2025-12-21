@@ -39,7 +39,7 @@ import { IssueWorklogProperty } from "@/plane-web/components/issues/worklog/prop
 import { SidebarPropertyListItem } from "@/components/common/layout/sidebar/property-list-item";
 import { IssueSprintSelect } from "./sprint-select";
 import { IssueLabel } from "./label";
-import { IssueModuleSelect } from "./module-select";
+import { IssueEpicSelect } from "./epic-select";
 import type { TIssueOperations } from "./root";
 
 type Props = {
@@ -205,7 +205,7 @@ export const IssueDetailsSidebar = observer(function IssueDetailsSidebar(props: 
 
             {projectDetails?.module_view && (
               <SidebarPropertyListItem icon={ModuleIcon} label={t("common.modules")}>
-                <IssueModuleSelect
+                <IssueEpicSelect
                   className="w-full grow"
                   workspaceSlug={workspaceSlug}
                   projectId={projectId}

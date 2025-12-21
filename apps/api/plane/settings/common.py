@@ -13,7 +13,7 @@ from django.core.management.utils import get_random_secret_key
 from corsheaders.defaults import default_headers
 
 
-# Module imports
+# Package imports
 from plane.utils.url import is_valid_url
 from plane.utils.ssm import get_secret_or_env
 

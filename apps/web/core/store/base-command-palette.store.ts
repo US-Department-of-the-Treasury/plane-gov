@@ -14,7 +14,7 @@ export interface IBaseCommandPaletteStore {
   // observables
   isCreateProjectModalOpen: boolean;
   isCreateSprintModalOpen: boolean;
-  isCreateModuleModalOpen: boolean;
+  isCreateEpicModalOpen: boolean;
   isCreateViewModalOpen: boolean;
   createPageModal: TCreatePageModal;
   isCreateIssueModalOpen: boolean;
@@ -31,7 +31,7 @@ export interface IBaseCommandPaletteStore {
   toggleCreateViewModal: (value?: boolean) => void;
   toggleCreatePageModal: (value?: TCreatePageModal) => void;
   toggleCreateIssueModal: (value?: boolean, storeType?: TCreateModalStoreTypes, allowedProjectIds?: string[]) => void;
-  toggleCreateModuleModal: (value?: boolean) => void;
+  toggleCreateEpicModal: (value?: boolean) => void;
   toggleDeleteIssueModal: (value?: boolean) => void;
   toggleBulkDeleteIssueModal: (value?: boolean) => void;
   toggleAllStickiesModal: (value?: boolean) => void;
@@ -42,7 +42,7 @@ export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStor
   // observables
   isCreateProjectModalOpen: boolean = false;
   isCreateSprintModalOpen: boolean = false;
-  isCreateModuleModalOpen: boolean = false;
+  isCreateEpicModalOpen: boolean = false;
   isCreateViewModalOpen: boolean = false;
   isCreateIssueModalOpen: boolean = false;
   isDeleteIssueModalOpen: boolean = false;
@@ -58,7 +58,7 @@ export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStor
       // observable
       isCreateProjectModalOpen: observable.ref,
       isCreateSprintModalOpen: observable.ref,
-      isCreateModuleModalOpen: observable.ref,
+      isCreateEpicModalOpen: observable.ref,
       isCreateViewModalOpen: observable.ref,
       isCreateIssueModalOpen: observable.ref,
       isDeleteIssueModalOpen: observable.ref,
@@ -74,7 +74,7 @@ export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStor
       toggleCreateViewModal: action,
       toggleCreatePageModal: action,
       toggleCreateIssueModal: action,
-      toggleCreateModuleModal: action,
+      toggleCreateEpicModal: action,
       toggleDeleteIssueModal: action,
       toggleBulkDeleteIssueModal: action,
       toggleAllStickiesModal: action,
@@ -91,7 +91,7 @@ export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStor
       this.isCreateIssueModalOpen ||
       this.isCreateSprintModalOpen ||
       this.isCreateProjectModalOpen ||
-      this.isCreateModuleModalOpen ||
+      this.isCreateEpicModalOpen ||
       this.isCreateViewModalOpen ||
       store.powerK.isShortcutsListModalOpen ||
       this.isBulkDeleteIssueModalOpen ||
@@ -207,11 +207,11 @@ export abstract class BaseCommandPaletteStore implements IBaseCommandPaletteStor
    * @param value
    * @returns
    */
-  toggleCreateModuleModal = (value?: boolean) => {
+  toggleCreateEpicModal = (value?: boolean) => {
     if (value !== undefined) {
-      this.isCreateModuleModalOpen = value;
+      this.isCreateEpicModalOpen = value;
     } else {
-      this.isCreateModuleModalOpen = !this.isCreateModuleModalOpen;
+      this.isCreateEpicModalOpen = !this.isCreateEpicModalOpen;
     }
   };
 

@@ -16,8 +16,8 @@ import type { IIssueLabelStore } from "./label.store";
 import { LabelStore } from "./label.store";
 import type { IIssueMemberStore } from "./members.store";
 import { MemberStore } from "./members.store";
-import type { IIssueModuleStore } from "./module.store";
-import { ModuleStore } from "./module.store";
+import type { IIssueEpicStore } from "./epic.store";
+import { EpicStore } from "./epic.store";
 import type { IPublishListStore } from "./publish/publish_list.store";
 import { PublishListStore } from "./publish/publish_list.store";
 import type { IStateStore } from "./state.store";
@@ -32,7 +32,7 @@ export class CoreRootStore {
   issueDetail: IIssueDetailStore;
   state: IStateStore;
   label: IIssueLabelStore;
-  module: IIssueModuleStore;
+  module: IIssueEpicStore;
   member: IIssueMemberStore;
   sprint: ISprintStore;
   issueFilter: IIssueFilterStore;
@@ -45,7 +45,7 @@ export class CoreRootStore {
     this.issueDetail = new IssueDetailStore(this);
     this.state = new StateStore(this);
     this.label = new LabelStore(this);
-    this.module = new ModuleStore(this);
+    this.module = new EpicStore(this);
     this.member = new MemberStore(this);
     this.sprint = new SprintStore(this);
     this.issueFilter = new IssueFilterStore(this);
@@ -67,7 +67,7 @@ export class CoreRootStore {
     this.issueDetail = new IssueDetailStore(this);
     this.state = new StateStore(this);
     this.label = new LabelStore(this);
-    this.module = new ModuleStore(this);
+    this.module = new EpicStore(this);
     this.member = new MemberStore(this);
     this.sprint = new SprintStore(this);
     this.issueFilter = new IssueFilterStore(this);

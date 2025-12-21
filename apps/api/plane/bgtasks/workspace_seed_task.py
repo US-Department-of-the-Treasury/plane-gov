@@ -15,7 +15,7 @@ from django.contrib.auth.hashers import make_password
 # Third party imports
 from celery import shared_task
 
-# Module imports
+# Package imports
 from plane.db.models import (
     Workspace,
     WorkspaceMember,

@@ -108,7 +108,7 @@ export const getGroupByColumns = ({
   > = {
     project: getProjectColumns,
     sprint: getSprintColumns,
-    module: getModuleColumns,
+    module: getEpicColumns,
     state: getStateColumns,
     "state_detail.group": getStateGroupColumns,
     priority: getPriorityColumns,
@@ -175,22 +175,22 @@ const getSprintColumns = (): IGroupByColumn[] | undefined => {
   return sprints;
 };
 
-const getModuleColumns = (): IGroupByColumn[] | undefined => {
+const getEpicColumns = (): IGroupByColumn[] | undefined => {
   // get current project details
   const { currentProjectDetails } = store.projectRoot.project;
   if (!currentProjectDetails || !currentProjectDetails?.id) return;
   // get project module ids and module details
-  const { getProjectModuleDetails } = store.module;
+  const { getProjectEpicDetails } = store.module;
   // get module details
-  const moduleDetails = currentProjectDetails?.id ? getProjectModuleDetails(currentProjectDetails?.id) : undefined;
+  const epicDetails = currentProjectDetails?.id ? getProjectEpicDetails(currentProjectDetails?.id) : undefined;
   // map module details to group by columns
   const modules: IGroupByColumn[] = [];
-  moduleDetails?.map((module) => {
+  epicDetails?.map((module) => {
     modules.push({
       id: module.id,
       name: module.name,
       icon: <ModuleIcon className="h-3.5 w-3.5" />,
-      payload: { module_ids: [module.id] },
+      payload: { epic_ids: [module.id] },
     });
   });
   modules.push({

@@ -1,7 +1,7 @@
 # Third party imports
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from .base import DynamicBaseSerializer
 from plane.db.models import IssueView
 from plane.utils.issue_filters import issue_filters

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from django.db.models import Q
 from django.db import IntegrityError
 
-# Module imports
+# Package imports
 from plane.app.views.base import BaseAPIView
 from plane.db.models import UserFavorite, Workspace
 from plane.app.serializers import UserFavoriteSerializer

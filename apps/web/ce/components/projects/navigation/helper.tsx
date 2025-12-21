@@ -38,7 +38,7 @@ export const getProjectFeatureNavigation = (
   {
     i18n_key: "sidebar.modules",
     key: EProjectFeatureKey.MODULES,
-    name: "Modules",
+    name: "Epics",
     href: `/${workspaceSlug}/projects/${projectId}/modules`,
     icon: ModuleIcon,
     access: [EUserPermissions.ADMIN, EUserPermissions.MEMBER],

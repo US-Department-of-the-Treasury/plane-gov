@@ -11,7 +11,7 @@ from django.db.models.functions import RowNumber
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 
 
 class Cursor:

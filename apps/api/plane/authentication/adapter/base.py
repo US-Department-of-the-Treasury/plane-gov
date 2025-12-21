@@ -13,7 +13,7 @@ from django.conf import settings
 # Third party imports
 from zxcvbn import zxcvbn
 
-# Module imports
+# Package imports
 from plane.db.models import Profile, User, WorkspaceMemberInvite, FileAsset
 from plane.license.utils.instance_value import get_configuration_value
 from .error import AuthenticationException, AUTHENTICATION_ERROR_CODES

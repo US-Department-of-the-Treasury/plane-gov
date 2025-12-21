@@ -1,4 +1,4 @@
-# Module imports
+# Package imports
 from plane.license.models import Instance
 from plane.app.serializers import BaseSerializer
 from plane.app.serializers import UserAdminLiteSerializer

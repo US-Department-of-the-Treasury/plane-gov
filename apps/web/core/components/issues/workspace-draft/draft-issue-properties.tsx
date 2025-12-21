@@ -11,7 +11,7 @@ import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { ModuleDropdown } from "@/components/dropdowns/module/dropdown";
+import { EpicDropdown } from "@/components/dropdowns/module/dropdown";
 import { PriorityDropdown } from "@/components/dropdowns/priority";
 import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 // helpers
@@ -38,7 +38,7 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
   // store hooks
   const { getProjectById } = useProject();
   const { labelMap } = useLabel();
-  const { addSprintToIssue, addModulesToIssue } = useWorkspaceDraftIssues();
+  const { addSprintToIssue, addEpicsToIssue } = useWorkspaceDraftIssues();
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
   const { getStateById } = useProjectState();
   const { isMobile } = usePlatformOS();
@@ -51,9 +51,9 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
 
   const issueOperations = useMemo(
     () => ({
-      updateIssueModules: async (moduleIds: string[]) => {
+      updateIssueModules: async (epicIds: string[]) => {
         if (!workspaceSlug || !issue.id) return;
-        await addModulesToIssue(workspaceSlug.toString(), issue.id, moduleIds);
+        await addEpicsToIssue(workspaceSlug.toString(), issue.id, epicIds);
       },
       addIssueToSprint: async (sprintId: string) => {
         if (!workspaceSlug || !issue.id) return;
@@ -65,7 +65,7 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
         await addSprintToIssue(workspaceSlug.toString(), issue.id, "");
       },
     }),
-    [workspaceSlug, issue, addSprintToIssue, addModulesToIssue]
+    [workspaceSlug, issue, addSprintToIssue, addEpicsToIssue]
   );
 
   const handleState = (stateId: string) =>
@@ -80,10 +80,10 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
   const handleAssignee = (ids: string[]) =>
     issue?.project_id && updateIssue && updateIssue(issue.project_id, issue.id, { assignee_ids: ids });
 
-  const handleModule = useCallback(
-    (moduleIds: string[] | null) => {
-      if (!issue || !issue.module_ids || !moduleIds) return;
-      issueOperations.updateIssueModules(moduleIds);
+  const handleEpic = useCallback(
+    (epicIds: string[] | null) => {
+      if (!issue || !issue.epic_ids || !epicIds) return;
+      issueOperations.updateIssueModules(epicIds);
     },
     [issueOperations, issue]
   );
@@ -222,11 +222,11 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
       {/* modules */}
       {projectDetails?.module_view && (
         <div className="h-5" onClick={handleEventPropagation}>
-          <ModuleDropdown
+          <EpicDropdown
             buttonContainerClassName="truncate max-w-40"
             projectId={issue?.project_id}
-            value={issue?.module_ids ?? []}
-            onChange={handleModule}
+            value={issue?.epic_ids ?? []}
+            onChange={handleEpic}
             renderByDefault={isMobile}
             multiple
             buttonVariant="border-with-text"

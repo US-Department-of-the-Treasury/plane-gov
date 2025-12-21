@@ -17,7 +17,7 @@ import type {
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
-import { useModule } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-module";
 import { useStates } from "@/hooks/store/use-state";
 //
 import { getGroupByColumns } from "../utils";
@@ -61,7 +61,7 @@ export const KanBanSwimLanes = observer(function KanBanSwimLanes(props: IKanBanS
   const member = useMember();
   const label = useLabel();
   const sprint = useSprint();
-  const modules = useModule();
+  const modules = useEpic();
   const state = useStates();
 
   const groupByList = getGroupByColumns(groupBy as GroupByColumnTypes, sprint, modules, label, state, member);

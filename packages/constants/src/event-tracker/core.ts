@@ -90,33 +90,33 @@ export const SPRINT_TRACKER_ELEMENTS = {
 
 /**
  * ===========================================================================
- * Module Events and Elements
+ * Epic Events and Elements
  * ===========================================================================
  */
-export const MODULE_TRACKER_EVENTS = {
-  create: "module_created",
-  update: "module_updated",
-  delete: "module_deleted",
-  favorite: "module_favorited",
-  unfavorite: "module_unfavorited",
-  archive: "module_archived",
-  restore: "module_restored",
+export const EPIC_TRACKER_EVENTS = {
+  create: "epic_created",
+  update: "epic_updated",
+  delete: "epic_deleted",
+  favorite: "epic_favorited",
+  unfavorite: "epic_unfavorited",
+  archive: "epic_archived",
+  restore: "epic_restored",
   link: {
-    create: "module_link_created",
-    update: "module_link_updated",
-    delete: "module_link_deleted",
+    create: "epic_link_created",
+    update: "epic_link_updated",
+    delete: "epic_link_deleted",
   },
 };
 
-export const MODULE_TRACKER_ELEMENTS = {
-  RIGHT_HEADER_ADD_BUTTON: "right_header_add_module_button",
-  EMPTY_STATE_ADD_BUTTON: "empty_state_add_module_button",
-  COMMAND_PALETTE_ADD_ITEM: "command_palette_add_module_item",
-  RIGHT_SIDEBAR: "module_right_sidebar",
-  QUICK_ACTIONS: "module_quick_actions",
-  CONTEXT_MENU: "module_context_menu",
-  LIST_ITEM: "module_list_item",
-  CARD_ITEM: "module_card_item",
+export const EPIC_TRACKER_ELEMENTS = {
+  RIGHT_HEADER_ADD_BUTTON: "right_header_add_epic_button",
+  EMPTY_STATE_ADD_BUTTON: "empty_state_add_epic_button",
+  COMMAND_PALETTE_ADD_ITEM: "command_palette_add_epic_item",
+  RIGHT_SIDEBAR: "epic_right_sidebar",
+  QUICK_ACTIONS: "epic_quick_actions",
+  CONTEXT_MENU: "epic_context_menu",
+  LIST_ITEM: "epic_list_item",
+  CARD_ITEM: "epic_card_item",
 } as const;
 
 /**
@@ -151,21 +151,21 @@ export const WORK_ITEM_TRACKER_ELEMENTS = {
     WORK_ITEMS: "work_items_header_add_work_item_button",
     PROJECT_VIEW: "project_view_header_add_work_item_button",
     SPRINT: "sprint_header_add_work_item_button",
-    MODULE: "module_header_add_work_item_button",
+    EPIC: "epic_header_add_work_item_button",
   },
   COMMAND_PALETTE_ADD_BUTTON: "command_palette_add_work_item_button",
   EMPTY_STATE_ADD_BUTTON: {
     WORK_ITEMS: "work_items_empty_state_add_work_item_button",
     PROJECT_VIEW: "project_view_empty_state_add_work_item_button",
     SPRINT: "sprint_empty_state_add_work_item_button",
-    MODULE: "module_empty_state_add_work_item_button",
+    EPIC: "epic_empty_state_add_work_item_button",
     GLOBAL_VIEW: "global_view_empty_state_add_work_item_button",
   },
   QUICK_ACTIONS: {
     WORK_ITEMS: "work_items_quick_actions",
     PROJECT_VIEW: "project_view_work_items_quick_actions",
     SPRINT: "sprint_work_items_quick_actions",
-    MODULE: "module_work_items_quick_actions",
+    EPIC: "epic_work_items_quick_actions",
     GLOBAL_VIEW: "global_view_work_items_quick_actions",
     ARCHIVED: "archived_work_items_quick_actions",
     DRAFT: "draft_work_items_quick_actions",
@@ -174,7 +174,7 @@ export const WORK_ITEM_TRACKER_ELEMENTS = {
     WORK_ITEMS: "work_items_context_menu",
     PROJECT_VIEW: "project_view_context_menu",
     SPRINT: "sprint_context_menu",
-    MODULE: "module_context_menu",
+    EPIC: "epic_context_menu",
     GLOBAL_VIEW: "global_view_context_menu",
     ARCHIVED: "archived_context_menu",
     DRAFT: "draft_context_menu",
@@ -319,7 +319,7 @@ export const PROJECT_VIEW_TRACKER_ELEMENTS = {
   HEADER_SAVE_VIEW_BUTTON: "project_view_header_save_view_button",
   PROJECT_HEADER_SAVE_AS_VIEW_BUTTON: "project_view_header_save_as_view_button",
   SPRINT_HEADER_SAVE_AS_VIEW_BUTTON: "sprint_header_save_as_view_button",
-  MODULE_HEADER_SAVE_AS_VIEW_BUTTON: "module_header_save_as_view_button",
+  EPIC_HEADER_SAVE_AS_VIEW_BUTTON: "epic_header_save_as_view_button",
   QUICK_ACTIONS: "project_view_quick_actions",
   LIST_ITEM_CONTEXT_MENU: "project_view_list_item_context_menu",
 };

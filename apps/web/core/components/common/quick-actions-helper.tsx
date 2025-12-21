@@ -1,5 +1,5 @@
 // types
-import type { ISprint, IModule, IProjectView, IWorkspaceView } from "@plane/types";
+import type { ISprint, IEpic, IProjectView, IWorkspaceView } from "@plane/types";
 import type { TContextMenuItem } from "@plane/ui";
 // hooks
 import { useQuickActionsFactory } from "@/plane-web/components/common/quick-actions-factory";
@@ -19,12 +19,12 @@ interface UseSprintMenuItemsProps {
   handleOpenInNewTab: () => void;
 }
 
-interface UseModuleMenuItemsProps {
-  moduleDetails: IModule | undefined;
+interface UseEpicMenuItemsProps {
+  epicDetails: IEpic | undefined;
   isEditingAllowed: boolean;
   workspaceSlug: string;
   projectId: string;
-  moduleId: string;
+  epicId: string;
   handleEdit: () => void;
   handleArchive: () => void;
   handleRestore: () => void;
@@ -82,12 +82,12 @@ export const useSprintMenuItems = (props: UseSprintMenuItemsProps): MenuResult =
   return { items, modals: null };
 };
 
-export const useModuleMenuItems = (props: UseModuleMenuItemsProps): MenuResult => {
+export const useEpicMenuItems = (props: UseEpicMenuItemsProps): MenuResult => {
   const factory = useQuickActionsFactory();
-  const { moduleDetails, isEditingAllowed, ...handlers } = props;
+  const { epicDetails, isEditingAllowed, ...handlers } = props;
 
-  const isArchived = !!moduleDetails?.archived_at;
-  const moduleState = moduleDetails?.status?.toLocaleLowerCase();
+  const isArchived = !!epicDetails?.archived_at;
+  const moduleState = epicDetails?.status?.toLocaleLowerCase();
   const isInArchivableGroup = !!moduleState && ["completed", "cancelled"].includes(moduleState);
 
   // Assemble final menu items - order defined here
