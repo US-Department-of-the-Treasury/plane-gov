@@ -1,16 +1,16 @@
 // type
 import { API_BASE_URL } from "@plane/constants";
-import type { IModule } from "@plane/types";
+import type { IEpic } from "@plane/types";
 // helpers
 // services
 import { APIService } from "@/services/api.service";
 
-export class ModuleArchiveService extends APIService {
+export class EpicArchiveService extends APIService {
   constructor() {
     super(API_BASE_URL);
   }
 
-  async getArchivedModules(workspaceSlug: string, projectId: string): Promise<IModule[]> {
+  async getArchivedEpics(workspaceSlug: string, projectId: string): Promise<IEpic[]> {
     return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/archived-modules/`)
       .then((response) => response?.data)
       .catch((error) => {
@@ -18,7 +18,7 @@ export class ModuleArchiveService extends APIService {
       });
   }
 
-  async getArchivedModuleDetails(workspaceSlug: string, projectId: string, epicId: string): Promise<IModule> {
+  async getArchivedEpicDetails(workspaceSlug: string, projectId: string, epicId: string): Promise<IEpic> {
     return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/archived-modules/${epicId}/`)
       .then((response) => response?.data)
       .catch((error) => {
@@ -26,7 +26,7 @@ export class ModuleArchiveService extends APIService {
       });
   }
 
-  async archiveModule(
+  async archiveEpic(
     workspaceSlug: string,
     projectId: string,
     epicId: string
@@ -40,7 +40,7 @@ export class ModuleArchiveService extends APIService {
       });
   }
 
-  async restoreModule(workspaceSlug: string, projectId: string, epicId: string): Promise<void> {
+  async restoreEpic(workspaceSlug: string, projectId: string, epicId: string): Promise<void> {
     return this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/archive/`)
       .then((response) => response?.data)
       .catch((error) => {

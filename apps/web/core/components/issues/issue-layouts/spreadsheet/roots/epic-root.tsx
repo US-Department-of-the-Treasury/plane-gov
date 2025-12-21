@@ -3,11 +3,11 @@ import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // mobx store
 // components
-import { ModuleIssueQuickActions } from "../../quick-action-dropdowns";
+import { EpicIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseSpreadsheetRoot } from "../base-spreadsheet-root";
 
-export const ModuleSpreadsheetLayout = observer(function ModuleSpreadsheetLayout() {
+export const EpicSpreadsheetLayout = observer(function EpicSpreadsheetLayout() {
   const { epicId } = useParams();
 
-  return <BaseSpreadsheetRoot QuickActions={ModuleIssueQuickActions} viewId={epicId?.toString()} />;
+  return <BaseSpreadsheetRoot QuickActions={EpicIssueQuickActions} viewId={epicId?.toString()} />;
 });

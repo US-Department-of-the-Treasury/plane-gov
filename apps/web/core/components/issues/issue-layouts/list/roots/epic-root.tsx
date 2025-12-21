@@ -6,17 +6,17 @@ import { EIssuesStoreType } from "@plane/types";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
 // local imports
-import { ModuleIssueQuickActions } from "../../quick-action-dropdowns";
+import { EpicIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseListRoot } from "../base-list-root";
 
-export const ModuleListLayout = observer(function ModuleListLayout() {
+export const EpicListLayout = observer(function EpicListLayout() {
   const { workspaceSlug, projectId, epicId } = useParams();
 
   const { issues } = useIssues(EIssuesStoreType.EPIC);
 
   return (
     <BaseListRoot
-      QuickActions={ModuleIssueQuickActions}
+      QuickActions={EpicIssueQuickActions}
       addIssuesToView={(issueIds: string[]) => {
         if (!workspaceSlug || !projectId || !epicId) throw new Error();
         return issues.addIssuesToModule(workspaceSlug.toString(), projectId.toString(), epicId.toString(), issueIds);

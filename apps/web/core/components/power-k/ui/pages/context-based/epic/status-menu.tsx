@@ -4,16 +4,16 @@ import { observer } from "mobx-react";
 import { EPIC_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { ModuleStatusIcon } from "@plane/propel/icons";
-import type { TModuleStatus } from "@plane/types";
+import type { TEpicStatus } from "@plane/types";
 // local imports
 import { PowerKModalCommandItem } from "../../../modal/command-item";
 
 type Props = {
-  handleSelect: (data: TModuleStatus) => void;
-  value: TModuleStatus;
+  handleSelect: (data: TEpicStatus) => void;
+  value: TEpicStatus;
 };
 
-export const PowerKModuleStatusMenu = observer(function PowerKModuleStatusMenu(props: Props) {
+export const PowerKEpicStatusMenu = observer(function PowerKEpicStatusMenu(props: Props) {
   const { handleSelect, value } = props;
   // translation
   const { t } = useTranslation();

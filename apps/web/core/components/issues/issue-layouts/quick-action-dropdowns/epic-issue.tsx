@@ -30,7 +30,7 @@ import type { IQuickActionProps } from "../list/list-view-types";
 import type { MenuItemFactoryProps } from "./helper";
 import { useEpicIssueMenuItems } from "./helper";
 
-export const ModuleIssueQuickActions = observer(function ModuleIssueQuickActions(props: IQuickActionProps) {
+export const EpicIssueQuickActions = observer(function EpicIssueQuickActions(props: IQuickActionProps) {
   const {
     issue,
     handleDelete,
@@ -107,7 +107,7 @@ export const ModuleIssueQuickActions = observer(function ModuleIssueQuickActions
       ...item,
 
       onClick: () => {
-        captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.MODULE });
+        captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.EPIC });
         item.action();
       },
     };
@@ -196,7 +196,7 @@ export const ModuleIssueQuickActions = observer(function ModuleIssueQuickActions
                   <CustomMenu.MenuItem
                     key={nestedItem.key}
                     onClick={() => {
-                      captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.MODULE });
+                      captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.EPIC });
                       nestedItem.action();
                     }}
                     className={cn(
@@ -232,7 +232,7 @@ export const ModuleIssueQuickActions = observer(function ModuleIssueQuickActions
             <CustomMenu.MenuItem
               key={item.key}
               onClick={() => {
-                captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.MODULE });
+                captureClick({ elementName: WORK_ITEM_TRACKER_ELEMENTS.QUICK_ACTIONS.EPIC });
                 item.action();
               }}
               className={cn(

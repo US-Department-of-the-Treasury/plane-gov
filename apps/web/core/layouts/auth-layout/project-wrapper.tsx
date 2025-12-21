@@ -16,7 +16,7 @@ import {
   PROJECT_STATES,
   PROJECT_ESTIMATES,
   PROJECT_ALL_SPRINTS,
-  PROJECT_MODULES,
+  PROJECT_EPICS,
   PROJECT_VIEWS,
   PROJECT_INTAKE_STATE,
 } from "@/constants/fetch-keys";
@@ -25,7 +25,7 @@ import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
 import { useProjectView } from "@/hooks/store/use-project-view";
@@ -49,7 +49,7 @@ export const ProjectAuthWrapper = observer(function ProjectAuthWrapper(props: IP
   const { joinProject } = useUserPermissions();
   const { fetchAllSprints } = useSprint();
   const { fetchEpicsSlim, fetchEpics } = useEpic();
-  const { initGantt } = useTimeLineChart(GANTT_TIMELINE_TYPE.MODULE);
+  const { initGantt } = useTimeLineChart(GANTT_TIMELINE_TYPE.EPIC);
   const { fetchViews } = useProjectView();
   const {
     project: { fetchProjectMembers, fetchProjectMemberPreferences },
@@ -67,7 +67,7 @@ export const ProjectAuthWrapper = observer(function ProjectAuthWrapper(props: IP
   );
   const currentProjectRole = getProjectRoleByWorkspaceSlugAndProjectId(workspaceSlug, projectId);
   const isWorkspaceAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE, workspaceSlug);
-  // Initialize module timeline chart
+  // Initialize epic timeline chart
   useEffect(() => {
     initGantt();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,9 +116,9 @@ export const ProjectAuthWrapper = observer(function ProjectAuthWrapper(props: IP
     revalidateIfStale: false,
     revalidateOnFocus: false,
   });
-  // fetching project modules
+  // fetching project epics
   useSWR(
-    PROJECT_MODULES(projectId, currentProjectRole),
+    PROJECT_EPICS(projectId, currentProjectRole),
     async () => {
       await Promise.all([fetchEpicsSlim(workspaceSlug, projectId), fetchEpics(workspaceSlug, projectId)]);
     },

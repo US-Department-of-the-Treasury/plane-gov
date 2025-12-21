@@ -6,10 +6,10 @@ import { EIssuesStoreType } from "@plane/types";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
 // local imports
-import { ModuleIssueQuickActions } from "../../quick-action-dropdowns";
+import { EpicIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseCalendarRoot } from "../base-calendar-root";
 
-export const ModuleCalendarLayout = observer(function ModuleCalendarLayout() {
+export const EpicCalendarLayout = observer(function EpicCalendarLayout() {
   const { workspaceSlug, projectId, epicId } = useParams();
 
   const {
@@ -28,7 +28,7 @@ export const ModuleCalendarLayout = observer(function ModuleCalendarLayout() {
 
   return (
     <BaseCalendarRoot
-      QuickActions={ModuleIssueQuickActions}
+      QuickActions={EpicIssueQuickActions}
       addIssuesToView={addIssuesToView}
       viewId={epicId?.toString()}
     />

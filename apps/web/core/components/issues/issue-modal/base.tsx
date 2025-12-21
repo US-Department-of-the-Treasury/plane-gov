@@ -15,7 +15,7 @@ import { useIssueModal } from "@/hooks/context/use-issue-modal";
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -286,23 +286,23 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
       }
 
       if (data.epic_ids && payload.epic_ids && data.project_id) {
-        const updatedModuleIds = xor(data.epic_ids, payload.epic_ids);
-        const modulesToAdd: string[] = [];
-        const modulesToRemove: string[] = [];
+        const updatedEpicIds = xor(data.epic_ids, payload.epic_ids);
+        const epicsToAdd: string[] = [];
+        const epicsToRemove: string[] = [];
 
-        for (const epicId of updatedModuleIds) {
+        for (const epicId of updatedEpicIds) {
           if (data.epic_ids.includes(epicId)) {
-            modulesToRemove.push(epicId);
+            epicsToRemove.push(epicId);
           } else {
-            modulesToAdd.push(epicId);
+            epicsToAdd.push(epicId);
           }
         }
         await issues.changeEpicsInIssue(
           workspaceSlug.toString(),
           data.project_id,
           data.id,
-          modulesToAdd,
-          modulesToRemove
+          epicsToAdd,
+          epicsToRemove
         );
       }
 

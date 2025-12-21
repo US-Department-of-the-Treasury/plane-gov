@@ -1,9 +1,9 @@
 // plane imports
-import { CloseIcon, ModuleIcon, ChevronDownIcon } from "@plane/propel/icons";
+import { CloseIcon, EpicIcon, ChevronDownIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import { cn } from "@plane/utils";
 // hooks
-import { useEpic } from "@/hooks/store/use-module";
+import { useEpic } from "@/hooks/store/use-epic";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 
 type EpicButtonContentProps = {
@@ -43,7 +43,7 @@ export function EpicButtonContent(props: EpicButtonContentProps) {
       <>
         {showCount ? (
           <div className="relative flex items-center max-w-full gap-1">
-            {!hideIcon && <ModuleIcon className="h-3 w-3 flex-shrink-0" />}
+            {!hideIcon && <EpicIcon className="h-3 w-3 flex-shrink-0" />}
             {(value.length > 0 || !!placeholder) && (
               <div className="max-w-40 flex-grow truncate">
                 {value.length > 0
@@ -66,7 +66,7 @@ export function EpicButtonContent(props: EpicButtonContentProps) {
                     className
                   )}
                 >
-                  {!hideIcon && <ModuleIcon className="h-2.5 w-2.5 flex-shrink-0" />}
+                  {!hideIcon && <EpicIcon className="h-2.5 w-2.5 flex-shrink-0" />}
                   {!hideText && (
                     <Tooltip
                       tooltipHeading="Title"
@@ -89,8 +89,8 @@ export function EpicButtonContent(props: EpicButtonContentProps) {
                         type="button"
                         className="flex-shrink-0"
                         onClick={() => {
-                          const newModuleIds = value.filter((m) => m !== epicId);
-                          onChange(newModuleIds);
+                          const newEpicIds = value.filter((m) => m !== epicId);
+                          onChange(newEpicIds);
                         }}
                       >
                         <CloseIcon className="h-2.5 w-2.5 text-tertiary hover:text-red-500" />
@@ -103,7 +103,7 @@ export function EpicButtonContent(props: EpicButtonContentProps) {
           </div>
         ) : (
           <>
-            {!hideIcon && <ModuleIcon className="h-3 w-3 flex-shrink-0" />}
+            {!hideIcon && <EpicIcon className="h-3 w-3 flex-shrink-0" />}
             <span className="flex-grow truncate text-left">{placeholder}</span>
           </>
         )}
@@ -115,7 +115,7 @@ export function EpicButtonContent(props: EpicButtonContentProps) {
   else
     return (
       <>
-        {!hideIcon && <ModuleIcon className="h-3 w-3 flex-shrink-0" />}
+        {!hideIcon && <EpicIcon className="h-3 w-3 flex-shrink-0" />}
         {!hideText && (
           <span className="flex-grow truncate text-left">{value ? getEpicById(value)?.name : placeholder}</span>
         )}

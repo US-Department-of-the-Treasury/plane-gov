@@ -1,7 +1,7 @@
 import { observer } from "mobx-react";
 // hooks
-import { CloseIcon, ModuleIcon } from "@plane/propel/icons";
-import { useEpic } from "@/hooks/store/use-module";
+import { CloseIcon, EpicIcon } from "@plane/propel/icons";
+import { useEpic } from "@/hooks/store/use-epic";
 // ui
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
   editable: boolean | undefined;
 };
 
-export const AppliedModuleFilters = observer(function AppliedModuleFilters(props: Props) {
+export const AppliedEpicFilters = observer(function AppliedEpicFilters(props: Props) {
   const { handleRemove, values, editable } = props;
   // store hooks
   const { getEpicById } = useEpic();
@@ -24,7 +24,7 @@ export const AppliedModuleFilters = observer(function AppliedModuleFilters(props
 
         return (
           <div key={epicId} className="flex items-center gap-1 rounded-sm bg-layer-1 p-1 text-11 truncate">
-            <ModuleIcon className="h-3 w-3 flex-shrink-0" />
+            <EpicIcon className="h-3 w-3 flex-shrink-0" />
             <span className="normal-case truncate">{epicDetails.name}</span>
             {editable && (
               <button

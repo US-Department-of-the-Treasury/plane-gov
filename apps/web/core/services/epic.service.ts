@@ -1,15 +1,15 @@
 // types
 import { API_BASE_URL } from "@plane/constants";
-import type { IEpic, ILinkDetails, ModuleLink, TIssuesResponse } from "@plane/types";
+import type { IEpic, ILinkDetails, EpicLink, TIssuesResponse } from "@plane/types";
 // services
 import { APIService } from "@/services/api.service";
 
-export class ModuleService extends APIService {
+export class EpicService extends APIService {
   constructor() {
     super(API_BASE_URL);
   }
 
-  async getWorkspaceModules(workspaceSlug: string): Promise<IModule[]> {
+  async getWorkspaceModules(workspaceSlug: string): Promise<IEpic[]> {
     return this.get(`/api/workspaces/${workspaceSlug}/modules/`)
       .then((response) => response?.data)
       .catch((error) => {
@@ -17,7 +17,7 @@ export class ModuleService extends APIService {
       });
   }
 
-  async getModules(workspaceSlug: string, projectId: string): Promise<IModule[]> {
+  async getModules(workspaceSlug: string, projectId: string): Promise<IEpic[]> {
     return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/`)
       .then((response) => response?.data)
       .catch((error) => {
@@ -25,7 +25,7 @@ export class ModuleService extends APIService {
       });
   }
 
-  async createModule(workspaceSlug: string, projectId: string, data: any): Promise<IModule> {
+  async createEpic(workspaceSlug: string, projectId: string, data: any): Promise<IEpic> {
     return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/`, data)
       .then((response) => response?.data)
       .catch((error) => {
@@ -33,7 +33,7 @@ export class ModuleService extends APIService {
       });
   }
 
-  async updateModule(workspaceSlug: string, projectId: string, epicId: string, data: any): Promise<any> {
+  async updateEpic(workspaceSlug: string, projectId: string, epicId: string, data: any): Promise<any> {
     return this.put(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/`, data)
       .then((response) => response?.data)
       .catch((error) => {
@@ -41,7 +41,7 @@ export class ModuleService extends APIService {
       });
   }
 
-  async getModuleDetails(workspaceSlug: string, projectId: string, epicId: string): Promise<IModule> {
+  async getEpicDetails(workspaceSlug: string, projectId: string, epicId: string): Promise<IEpic> {
     return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/`)
       .then((response) => response?.data)
       .catch((error) => {
@@ -53,8 +53,8 @@ export class ModuleService extends APIService {
     workspaceSlug: string,
     projectId: string,
     epicId: string,
-    data: Partial<IModule>
-  ): Promise<IModule> {
+    data: Partial<IEpic>
+  ): Promise<IEpic> {
     return this.patch(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/`, data)
       .then((response) => response?.data)
       .catch((error) => {
@@ -62,7 +62,7 @@ export class ModuleService extends APIService {
       });
   }
 
-  async deleteModule(workspaceSlug: string, projectId: string, epicId: string): Promise<any> {
+  async deleteEpic(workspaceSlug: string, projectId: string, epicId: string): Promise<any> {
     return this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/`)
       .then((response) => response?.data)
       .catch((error) => {
@@ -70,7 +70,7 @@ export class ModuleService extends APIService {
       });
   }
 
-  async getModuleIssues(
+  async getEpicIssues(
     workspaceSlug: string,
     projectId: string,
     epicId: string,
@@ -154,11 +154,11 @@ export class ModuleService extends APIService {
       });
   }
 
-  async createModuleLink(
+  async createEpicLink(
     workspaceSlug: string,
     projectId: string,
     epicId: string,
-    data: Partial<ModuleLink>
+    data: Partial<EpicLink>
   ): Promise<ILinkDetails> {
     return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/module-links/`, data)
       .then((response) => response?.data)
@@ -167,12 +167,12 @@ export class ModuleService extends APIService {
       });
   }
 
-  async updateModuleLink(
+  async updateEpicLink(
     workspaceSlug: string,
     projectId: string,
     epicId: string,
     linkId: string,
-    data: Partial<ModuleLink>
+    data: Partial<EpicLink>
   ): Promise<ILinkDetails> {
     return this.patch(
       `/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/module-links/${linkId}/`,
@@ -184,7 +184,7 @@ export class ModuleService extends APIService {
       });
   }
 
-  async deleteModuleLink(workspaceSlug: string, projectId: string, epicId: string, linkId: string): Promise<any> {
+  async deleteEpicLink(workspaceSlug: string, projectId: string, epicId: string, linkId: string): Promise<any> {
     return this.delete(
       `/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${epicId}/module-links/${linkId}/`
     )
@@ -194,7 +194,7 @@ export class ModuleService extends APIService {
       });
   }
 
-  async addModuleToFavorites(
+  async addEpicToFavorites(
     workspaceSlug: string,
     projectId: string,
     data: {
@@ -208,7 +208,7 @@ export class ModuleService extends APIService {
       });
   }
 
-  async removeModuleFromFavorites(workspaceSlug: string, projectId: string, epicId: string): Promise<any> {
+  async removeEpicFromFavorites(workspaceSlug: string, projectId: string, epicId: string): Promise<any> {
     return this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/user-favorite-modules/${epicId}/`)
       .then((response) => response?.data)
       .catch((error) => {

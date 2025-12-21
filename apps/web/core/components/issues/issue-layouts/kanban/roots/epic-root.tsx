@@ -6,10 +6,10 @@ import { EIssuesStoreType } from "@plane/types";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
 // local imports
-import { ModuleIssueQuickActions } from "../../quick-action-dropdowns";
+import { EpicIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseKanBanRoot } from "../base-kanban-root";
 
-export const ModuleKanBanLayout = observer(function ModuleKanBanLayout() {
+export const EpicKanBanLayout = observer(function EpicKanBanLayout() {
   const { workspaceSlug, projectId, epicId } = useParams();
 
   // store
@@ -17,7 +17,7 @@ export const ModuleKanBanLayout = observer(function ModuleKanBanLayout() {
 
   return (
     <BaseKanBanRoot
-      QuickActions={ModuleIssueQuickActions}
+      QuickActions={EpicIssueQuickActions}
       addIssuesToView={(issueIds: string[]) => {
         if (!workspaceSlug || !projectId || !epicId) throw new Error();
         return issues.addIssuesToModule(workspaceSlug.toString(), projectId.toString(), epicId.toString(), issueIds);
