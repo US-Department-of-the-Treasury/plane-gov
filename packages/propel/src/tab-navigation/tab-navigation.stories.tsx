@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 // icons import
 import { OverviewIcon } from "../icons/overview-icon";
-import { CycleIcon } from "../icons/project/cycle-icon";
+import { SprintIcon } from "../icons/project/sprint-icon";
 import { IntakeIcon } from "../icons/project/intake-icon";
 import { ModuleIcon } from "../icons/project/module-icon";
 import { PageIcon } from "../icons/project/page-icon";
@@ -38,7 +38,7 @@ export const Default: Story = {
     const navItems = [
       { key: "overview", name: "Overview", href: "#overview", icon: OverviewIcon },
       { key: "work_items", name: "Work items", href: "#work_items", icon: WorkItemsIcon },
-      { key: "cycles", name: "Cycles", href: "#cycles", icon: CycleIcon },
+      { key: "sprints", name: "Sprints", href: "#sprints", icon: SprintIcon },
       { key: "modules", name: "Modules", href: "#modules", icon: ModuleIcon },
       { key: "views", name: "Views", href: "#views", icon: ViewsIcon },
       { key: "pages", name: "Pages", href: "#pages", icon: PageIcon },

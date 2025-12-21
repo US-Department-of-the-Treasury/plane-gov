@@ -38,8 +38,8 @@ def archive_old_issues():
                     updated_at__lte=(timezone.now() - timedelta(days=archive_in * 30)),
                     state__group__in=["completed", "cancelled"],
                 ),
-                Q(issue_cycle__isnull=True)
-                | (Q(issue_cycle__cycle__end_date__lt=timezone.now()) & Q(issue_cycle__isnull=False)),
+                Q(issue_sprint__isnull=True)
+                | (Q(issue_sprint__sprint__end_date__lt=timezone.now()) & Q(issue_sprint__isnull=False)),
                 Q(issue_module__isnull=True)
                 | (Q(issue_module__module__target_date__lt=timezone.now()) & Q(issue_module__isnull=False)),
             ).filter(
@@ -99,8 +99,8 @@ def close_old_issues():
                     updated_at__lte=(timezone.now() - timedelta(days=close_in * 30)),
                     state__group__in=["backlog", "unstarted", "started"],
                 ),
-                Q(issue_cycle__isnull=True)
-                | (Q(issue_cycle__cycle__end_date__lt=timezone.now()) & Q(issue_cycle__isnull=False)),
+                Q(issue_sprint__isnull=True)
+                | (Q(issue_sprint__sprint__end_date__lt=timezone.now()) & Q(issue_sprint__isnull=False)),
                 Q(issue_module__isnull=True)
                 | (Q(issue_module__module__target_date__lt=timezone.now()) & Q(issue_module__isnull=False)),
             ).filter(

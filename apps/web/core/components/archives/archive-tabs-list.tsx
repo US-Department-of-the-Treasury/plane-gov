@@ -18,9 +18,9 @@ const ARCHIVES_TAB_LIST: {
     shouldRender: () => true,
   },
   {
-    key: "cycles",
-    label: "Cycles",
-    shouldRender: (projectDetails) => projectDetails.cycle_view,
+    key: "sprints",
+    label: "Sprints",
+    shouldRender: (projectDetails) => projectDetails.sprint_view,
   },
   {
     key: "modules",

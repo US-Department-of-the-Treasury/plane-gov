@@ -1,4 +1,4 @@
-export * from "./cycle";
+export * from "./sprint";
 export * from "./date";
 export * from "./label";
 export * from "./module";

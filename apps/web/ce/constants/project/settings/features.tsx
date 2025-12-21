@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 // plane imports
-import { CycleIcon, IntakeIcon, ModuleIcon, PageIcon, ViewsIcon } from "@plane/propel/icons";
+import { SprintIcon, IntakeIcon, ModuleIcon, PageIcon, ViewsIcon } from "@plane/propel/icons";
 import type { IProject } from "@plane/types";
 
 export type TProperties = {
@@ -15,19 +15,19 @@ export type TProperties = {
   href?: string;
 };
 
-type TProjectBaseFeatureKeys = "cycles" | "modules" | "views" | "pages" | "inbox";
+type TProjectBaseFeatureKeys = "sprints" | "modules" | "views" | "pages" | "inbox";
 
 type TBaseFeatureList = {
   [key in TProjectBaseFeatureKeys]: TProperties;
 };
 
 export const PROJECT_BASE_FEATURES_LIST: TBaseFeatureList = {
-  cycles: {
-    key: "cycles",
-    property: "cycle_view",
-    title: "Cycles",
+  sprints: {
+    key: "sprints",
+    property: "sprint_view",
+    title: "Sprints",
     description: "Timebox work as you see fit per project and change frequency from one period to the next.",
-    icon: <CycleIcon className="h-5 w-5 flex-shrink-0 rotate-180 text-tertiary" />,
+    icon: <SprintIcon className="h-5 w-5 flex-shrink-0 rotate-180 text-tertiary" />,
     isPro: false,
     isEnabled: true,
   },

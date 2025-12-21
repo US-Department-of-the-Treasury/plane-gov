@@ -199,8 +199,8 @@ def notifications(
             json.loads(issue_activities_created) if issue_activities_created is not None else None
         )
         if type not in [
-            "cycle.activity.created",
-            "cycle.activity.deleted",
+            "sprint.activity.created",
+            "sprint.activity.deleted",
             "module.activity.created",
             "module.activity.deleted",
             "issue_reaction.activity.created",

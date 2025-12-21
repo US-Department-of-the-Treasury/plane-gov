@@ -10,7 +10,7 @@ export default {
     views: "Pohledy",
     analytics: "Analytika",
     work_items: "Pracovní položky",
-    cycles: "Cykly",
+    sprints: "Cykly",
     modules: "Moduly",
     intake: "Příjem",
     drafts: "Koncepty",
@@ -272,24 +272,24 @@ export default {
   general_settings: "Obecná nastavení",
   sign_out: "Odhlásit se",
   signing_out: "Odhlašování",
-  active_cycles: "Aktivní cykly",
-  active_cycles_description:
+  active_sprints: "Aktivní cykly",
+  active_sprints_description:
     "Sledujte cykly napříč projekty, monitorujte vysoce prioritní pracovní položky a zaměřte se na cykly vyžadující pozornost.",
-  on_demand_snapshots_of_all_your_cycles: "Snapshots všech vašich cyklů na vyžádání",
+  on_demand_snapshots_of_all_your_sprints: "Snapshots všech vašich cyklů na vyžádání",
   upgrade: "Upgradovat",
   "10000_feet_view": "Pohled z 10 000 stop na všechny aktivní cykly.",
   "10000_feet_view_description":
     "Přibližte si všechny běžící cykly napříč všemi projekty najednou, místo přepínání mezi cykly v každém projektu.",
-  get_snapshot_of_each_active_cycle: "Získejte snapshot každého aktivního cyklu.",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "Získejte snapshot každého aktivního cyklu.",
+  get_snapshot_of_each_active_sprint_description:
     "Sledujte klíčové metriky pro všechny aktivní cykly, zjistěte jejich průběh a porovnejte rozsah s termíny.",
   compare_burndowns: "Porovnejte burndowny.",
   compare_burndowns_description: "Sledujte výkonnost týmů prostřednictvím přehledu burndown reportů každého cyklu.",
   quickly_see_make_or_break_issues: "Rychle zjistěte kritické pracovní položky.",
   quickly_see_make_or_break_issues_description:
     "Prohlédněte si vysoce prioritní pracovní položky pro každý cyklus vzhledem k termínům. Zobrazte všechny na jedno kliknutí.",
-  zoom_into_cycles_that_need_attention: "Zaměřte se na cykly vyžadující pozornost.",
-  zoom_into_cycles_that_need_attention_description:
+  zoom_into_sprints_that_need_attention: "Zaměřte se na cykly vyžadující pozornost.",
+  zoom_into_sprints_that_need_attention_description:
     "Prozkoumejte stav jakéhokoli cyklu, který nesplňuje očekávání, na jedno kliknutí.",
   stay_ahead_of_blockers: "Předvídejte překážky.",
   stay_ahead_of_blockers_description:
@@ -371,7 +371,7 @@ export default {
   congrats: "Gratulujeme!",
   open_project: "Otevřít projekt",
   issues: "Pracovní položky",
-  cycles: "Cykly",
+  sprints: "Cykly",
   modules: "Moduly",
   pages: "Stránky",
   intake: "Příjem",
@@ -379,7 +379,7 @@ export default {
   work_management: "Správa práce",
   projects_and_issues: "Projekty a pracovní položky",
   projects_and_issues_description: "Aktivujte nebo deaktivujte tyto funkce v projektu.",
-  cycles_description:
+  sprints_description:
     "Časově vymezte práci podle projektu a podle potřeby upravte období. Jeden cyklus může trvat 2 týdny, další jen 1 týden.",
   modules_description: "Organizujte práci do podprojektů s vyhrazenými vedoucími a přiřazenými osobami.",
   views_description: "Uložte vlastní řazení, filtry a možnosti zobrazení nebo je sdílejte se svým týmem.",
@@ -649,8 +649,8 @@ export default {
     priority: "Priorita",
     team_project: "Týmový projekt",
     project: "Projekt",
-    cycle: "Cyklus",
-    cycles: "Cykly",
+    sprint: "Cyklus",
+    sprints: "Cykly",
     module: "Modul",
     modules: "Moduly",
     labels: "Štítky",
@@ -969,7 +969,7 @@ export default {
     add: {
       press_enter: "Stiskněte 'Enter' pro přidání další pracovní položky",
       label: "Přidat pracovní položku",
-      cycle: {
+      sprint: {
         failed: "Přidání pracovní položky do cyklu se nezdařilo. Zkuste to prosím znovu.",
         success:
           "{count, plural, one {Pracovní položka} few {Pracovní položky} other {Pracovních položek}} přidána do cyklu.",
@@ -987,7 +987,7 @@ export default {
     },
     remove: {
       label: "Odebrat pracovní položku",
-      cycle: {
+      sprint: {
         loading: "Odebírání pracovní položky z cyklu",
         success: "Pracovní položka odebrána z cyklu.",
         failed: "Odebrání pracovní položky z cyklu se nezdařilo. Zkuste to prosím znovu.",
@@ -1340,7 +1340,7 @@ export default {
     work_items_closed_in: "Pracovní položky uzavřené v",
     selected_projects: "Vybrané projekty",
     total_members: "Celkem členů",
-    total_cycles: "Celkem cyklů",
+    total_sprints: "Celkem cyklů",
     total_modules: "Celkem modulů",
     pending_work_items: {
       title: "Čekající pracovní položky",
@@ -1426,7 +1426,7 @@ export default {
     },
     error: {
       permission: "Nemáte oprávnění k této akci.",
-      cycle_delete: "Odstranění cyklu se nezdařilo",
+      sprint_delete: "Odstranění cyklu se nezdařilo",
       module_delete: "Odstranění modulu se nezdařilo",
       issue_delete: "Odstranění pracovní položky se nezdařilo",
     },
@@ -1967,23 +1967,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "Přidat cyklus",
+  project_sprints: {
+    add_sprint: "Přidat cyklus",
     more_details: "Více detailů",
-    cycle: "Cyklus",
-    update_cycle: "Aktualizovat cyklus",
-    create_cycle: "Vytvořit cyklus",
-    no_matching_cycles: "Žádné odpovídající cykly",
-    remove_filters_to_see_all_cycles: "Odeberte filtry pro zobrazení všech cyklů",
-    remove_search_criteria_to_see_all_cycles: "Odeberte kritéria pro zobrazení všech cyklů",
-    only_completed_cycles_can_be_archived: "Lze archivovat pouze dokončené cykly",
+    sprint: "Cyklus",
+    update_sprint: "Aktualizovat cyklus",
+    create_sprint: "Vytvořit cyklus",
+    no_matching_sprints: "Žádné odpovídající cykly",
+    remove_filters_to_see_all_sprints: "Odeberte filtry pro zobrazení všech cyklů",
+    remove_search_criteria_to_see_all_sprints: "Odeberte kritéria pro zobrazení všech cyklů",
+    only_completed_sprints_can_be_archived: "Lze archivovat pouze dokončené cykly",
     start_date: "Začátek data",
     end_date: "Konec data",
     in_your_timezone: "V časovém pásmu",
     transfer_work_items: "Převést {count} pracovních položek",
     date_range: "Období data",
     add_date: "Přidat datum",
-    active_cycle: {
+    active_sprint: {
       label: "Aktivní cyklus",
       progress: "Pokrok",
       chart: "Burndown graf",
@@ -1994,10 +1994,10 @@ export default {
       current: "Aktuální",
       labels: "Štítky",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "Nadcházející cyklus",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "Dokončený cyklus",
     },
     status: {
@@ -2308,7 +2308,7 @@ export default {
       custom: "Vlastní",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "Přidejte položky pro sledování pokroku",
@@ -2336,7 +2336,7 @@ export default {
           text: "Spravovat funkce",
         },
       },
-      cycle: {
+      sprint: {
         title: "Cykly nejsou povoleny",
         description: "Aktivujte cykly pro časové ohraničení práce.",
         primary_button: {
@@ -2555,9 +2555,9 @@ export default {
       manual: "Ručně",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {Cyklus} few {Cykly} other {Cyklů}}",
-    no_cycle: "Žádný cyklus",
+    no_sprint: "Žádný cyklus",
   },
   module: {
     label: "{count, plural, one {Modul} few {Moduly} other {Modulů}}",

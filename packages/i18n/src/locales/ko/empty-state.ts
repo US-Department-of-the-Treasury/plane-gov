@@ -41,13 +41,13 @@ export default {
         "작업 항목은 프로젝트의 구성 요소입니다. 소유자를 할당하고 우선순위를 설정하며 진행 상황을 쉽게 추적할 수 있습니다.",
       cta_primary: "첫 번째 작업 항목 생성",
     },
-    cycles: {
+    sprints: {
       title: "사이클로 작업을 그룹화하고 시간을 정하세요.",
       description:
         "시간 제한이 있는 단위로 작업을 나누고, 프로젝트 마감일로부터 역으로 날짜를 설정하며, 팀으로서 구체적인 진전을 이루세요.",
       cta_primary: "첫 번째 사이클 설정",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "이 사이클에 표시할 작업 항목이 없습니다",
       description: "작업 항목을 생성하여 이 사이클 동안 팀의 진행 상황을 모니터링하고 제시간에 목표를 달성하세요.",
       cta_primary: "작업 항목 생성",
@@ -107,7 +107,7 @@ export default {
         "수동으로 또는 자동화를 통해 완료되거나 취소된 작업 항목을 보관할 수 있습니다. 보관되면 여기에서 찾을 수 있습니다.",
       cta_primary: "자동화 설정",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "아직 보관된 사이클이 없습니다",
       description: "프로젝트를 정리하려면 완료된 사이클을 보관하세요. 보관되면 여기에서 찾을 수 있습니다.",
     },
@@ -151,7 +151,7 @@ export default {
       title:
         "작업 항목 및 담당자가 있는 프로젝트를 생성하여 여기에서 성과, 진행 상황 및 팀 영향을 추적하기 시작하세요.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title: "사이클을 생성하여 작업을 시간 제한 단계로 구성하고 스프린트 전반에 걸쳐 진행 상황을 추적하세요.",
     },
     analytics_no_module: {

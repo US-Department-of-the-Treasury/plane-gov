@@ -16,7 +16,7 @@ from .issue import (
 
 from .intake import IntakeIssuePublicViewSet
 
-from .cycle import ProjectCyclesEndpoint
+from .sprint import ProjectSprintsEndpoint
 
 from .module import ProjectModulesEndpoint
 

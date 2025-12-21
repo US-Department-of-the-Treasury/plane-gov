@@ -8,7 +8,7 @@ export const ISSUE_FORM_TAB_INDICES = [
   "label_ids",
   "start_date",
   "target_date",
-  "cycle_id",
+  "sprint_id",
   "module_ids",
   "estimate_point",
   "parent_id",
@@ -29,7 +29,7 @@ export const INTAKE_ISSUE_CREATE_FORM_TAB_INDICES = [
   "label_ids",
   "start_date",
   "target_date",
-  "cycle_id",
+  "sprint_id",
   "module_ids",
   "estimate_point",
   "parent_id",
@@ -53,7 +53,7 @@ export const PROJECT_CREATE_TAB_INDICES = [
   "logo_props",
 ];
 
-export const PROJECT_CYCLE_TAB_INDICES = ["name", "description", "date_range", "cancel", "submit", "project_id"];
+export const PROJECT_SPRINT_TAB_INDICES = ["name", "description", "date_range", "cancel", "submit", "project_id"];
 
 export const PROJECT_MODULE_TAB_INDICES = [
   "name",
@@ -75,7 +75,7 @@ export enum ETabIndices {
   INTAKE_ISSUE_FORM = "intake-issue-form",
   CREATE_LABEL = "create-label",
   PROJECT_CREATE = "project-create",
-  PROJECT_CYCLE = "project-cycle",
+  PROJECT_SPRINT = "project-sprint",
   PROJECT_MODULE = "project-module",
   PROJECT_VIEW = "project-view",
   PROJECT_PAGE = "project-page",
@@ -86,7 +86,7 @@ export const TAB_INDEX_MAP: Record<ETabIndices, string[]> = {
   [ETabIndices.INTAKE_ISSUE_FORM]: INTAKE_ISSUE_CREATE_FORM_TAB_INDICES,
   [ETabIndices.CREATE_LABEL]: CREATE_LABEL_TAB_INDICES,
   [ETabIndices.PROJECT_CREATE]: PROJECT_CREATE_TAB_INDICES,
-  [ETabIndices.PROJECT_CYCLE]: PROJECT_CYCLE_TAB_INDICES,
+  [ETabIndices.PROJECT_SPRINT]: PROJECT_SPRINT_TAB_INDICES,
   [ETabIndices.PROJECT_MODULE]: PROJECT_MODULE_TAB_INDICES,
   [ETabIndices.PROJECT_VIEW]: PROJECT_VIEW_TAB_INDICES,
   [ETabIndices.PROJECT_PAGE]: PROJECT_PAGE_TAB_INDICES,

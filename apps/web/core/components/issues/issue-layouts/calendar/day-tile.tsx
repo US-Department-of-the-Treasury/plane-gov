@@ -15,7 +15,7 @@ import { MONTHS_LIST } from "@/constants/calendar";
 // helpers
 // types
 import type { IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
-import type { ICycleIssuesFilter } from "@/store/issue/cycle";
+import type { ISprintIssuesFilter } from "@/store/issue/sprint";
 import type { IModuleIssuesFilter } from "@/store/issue/module";
 import type { IProjectIssuesFilter } from "@/store/issue/project";
 import type { IProjectViewIssuesFilter } from "@/store/issue/project-views";
@@ -23,7 +23,7 @@ import type { TRenderQuickActions } from "../list/list-view-types";
 import { CalendarIssueBlocks } from "./issue-blocks";
 
 type Props = {
-  issuesFilterStore: IProjectIssuesFilter | IModuleIssuesFilter | ICycleIssuesFilter | IProjectViewIssuesFilter;
+  issuesFilterStore: IProjectIssuesFilter | IModuleIssuesFilter | ISprintIssuesFilter | IProjectViewIssuesFilter;
   date: ICalendarDate;
   issues: TIssueMap | undefined;
   groupedIssueIds: TGroupedIssues;

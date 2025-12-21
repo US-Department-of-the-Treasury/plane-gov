@@ -18,7 +18,7 @@ from rest_framework import status
 from .. import BaseAPIView
 from plane.app.serializers import IssueSerializer
 from plane.app.permissions import ProjectEntityPermission
-from plane.db.models import Issue, IssueLink, FileAsset, CycleIssue
+from plane.db.models import Issue, IssueLink, FileAsset, SprintIssue
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.utils.timezone_converter import user_timezone_converter
 from collections import defaultdict
@@ -36,8 +36,8 @@ class SubIssuesEndpoint(BaseAPIView):
             .select_related("workspace", "project", "state", "parent")
             .prefetch_related("assignees", "labels", "issue_module__module")
             .annotate(
-                cycle_id=Subquery(
-                    CycleIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("cycle_id")[:1]
+                sprint_id=Subquery(
+                    SprintIssue.objects.filter(issue=OuterRef("id"), deleted_at__isnull=True).values("sprint_id")[:1]
                 )
             )
             .annotate(
@@ -124,7 +124,7 @@ class SubIssuesEndpoint(BaseAPIView):
             "sequence_id",
             "project_id",
             "parent_id",
-            "cycle_id",
+            "sprint_id",
             "module_ids",
             "label_ids",
             "assignee_ids",

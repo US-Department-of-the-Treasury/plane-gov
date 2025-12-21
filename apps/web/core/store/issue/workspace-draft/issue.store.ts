@@ -55,10 +55,10 @@ export interface IWorkspaceDraftIssues {
   ) => Promise<TWorkspaceDraftIssue | undefined>;
   deleteIssue: (workspaceSlug: string, issueId: string) => Promise<void>;
   moveIssue: (workspaceSlug: string, issueId: string, payload: Partial<TWorkspaceDraftIssue>) => Promise<TIssue>;
-  addCycleToIssue: (
+  addSprintToIssue: (
     workspaceSlug: string,
     issueId: string,
-    cycleId: string
+    sprintId: string
   ) => Promise<TWorkspaceDraftIssue | undefined>;
   addModulesToIssue: (
     workspaceSlug: string,
@@ -77,15 +77,15 @@ export interface IWorkspaceDraftIssues {
     subGroupId: string | undefined,
     isSubGroupCumulative: boolean
   ) => number | undefined;
-  removeCycleFromIssue: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>;
-  addIssueToCycle: (
+  removeSprintFromIssue: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>;
+  addIssueToSprint: (
     workspaceSlug: string,
     projectId: string,
-    cycleId: string,
+    sprintId: string,
     issueIds: string[],
     fetchAddedIssues?: boolean
   ) => Promise<void>;
-  removeIssueFromCycle: (workspaceSlug: string, projectId: string, cycleId: string, issueId: string) => Promise<void>;
+  removeIssueFromSprint: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
 
   removeIssuesFromModule: (
     workspaceSlug: string,
@@ -129,7 +129,7 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
       updateIssue: action,
       deleteIssue: action,
       moveIssue: action,
-      addCycleToIssue: action,
+      addSprintToIssue: action,
       addModulesToIssue: action,
     });
   }
@@ -360,10 +360,10 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
     }
   };
 
-  addCycleToIssue = async (workspaceSlug: string, issueId: string, cycleId: string) => {
+  addSprintToIssue = async (workspaceSlug: string, issueId: string, sprintId: string) => {
     try {
       this.loader = "update";
-      const response = await this.updateIssue(workspaceSlug, issueId, { cycle_id: cycleId });
+      const response = await this.updateIssue(workspaceSlug, issueId, { sprint_id: sprintId });
       return response;
     } catch (error) {
       this.loader = undefined;
@@ -390,15 +390,15 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
   getIssueLoader = (groupId?: string, subGroupId?: string) => "loaded" as TLoader;
   getGroupIssueCount = (groupId: string | undefined, subGroupId: string | undefined, isSubGroupCumulative: boolean) =>
     undefined;
-  removeCycleFromIssue = async (workspaceSlug: string, projectId: string, issueId: string) => {};
-  addIssueToCycle = async (
+  removeSprintFromIssue = async (workspaceSlug: string, projectId: string, issueId: string) => {};
+  addIssueToSprint = async (
     workspaceSlug: string,
     projectId: string,
-    cycleId: string,
+    sprintId: string,
     issueIds: string[],
     fetchAddedIssues?: boolean
   ) => {};
-  removeIssueFromCycle = async (workspaceSlug: string, projectId: string, cycleId: string, issueId: string) => {};
+  removeIssueFromSprint = async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => {};
 
   removeIssuesFromModule = async (workspaceSlug: string, projectId: string, moduleId: string, issueIds: string[]) => {};
   changeModulesInIssue = async (

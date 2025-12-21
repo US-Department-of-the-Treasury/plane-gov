@@ -23,16 +23,16 @@ export type TPowerKSearchResultGroupDetails = {
 };
 
 export const POWER_K_SEARCH_RESULTS_GROUPS_MAP: Record<TPowerKSearchResultsKeys, TPowerKSearchResultGroupDetails> = {
-  cycle: {
+  sprint: {
     icon: ContrastIcon,
-    itemName: (cycle: IWorkspaceDefaultSearchResult) => (
+    itemName: (sprint: IWorkspaceDefaultSearchResult) => (
       <p>
-        <span className="text-11 text-tertiary">{cycle.project__identifier}</span> {cycle.name}
+        <span className="text-11 text-tertiary">{sprint.project__identifier}</span> {sprint.name}
       </p>
     ),
-    path: (cycle: IWorkspaceDefaultSearchResult) =>
-      `/${cycle?.workspace__slug}/projects/${cycle?.project_id}/cycles/${cycle?.id}`,
-    title: "Cycles",
+    path: (sprint: IWorkspaceDefaultSearchResult) =>
+      `/${sprint?.workspace__slug}/projects/${sprint?.project_id}/sprints/${sprint?.id}`,
+    title: "Sprints",
   },
   issue: {
     itemName: (workItem: IWorkspaceIssueSearchResult) => (

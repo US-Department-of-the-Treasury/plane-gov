@@ -41,13 +41,13 @@ export default {
         "作業項目はプロジェクトの構成要素です — 担当者の割り当て、優先度の設定、進捗の追跡が簡単に行えます。",
       cta_primary: "最初の作業項目を作成",
     },
-    cycles: {
+    sprints: {
       title: "サイクルで作業をグループ化してタイムボックス化します。",
       description:
         "作業をタイムボックスで区切り、プロジェクトの締め切りから逆算して日付を設定し、チームとして具体的な進捗を達成します。",
       cta_primary: "最初のサイクルを設定",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "このサイクルに表示する作業項目はありません",
       description: "作業項目を作成して、このサイクルでチームの進捗を監視し、目標を時間内に達成しましょう。",
       cta_primary: "作業項目を作成",
@@ -107,7 +107,7 @@ export default {
         "手動または自動化により、完了またはキャンセルされた作業項目をアーカイブできます。アーカイブされると、ここで見つけられます。",
       cta_primary: "自動化を設定",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "アーカイブされたサイクルはまだありません",
       description:
         "プロジェクトを整理するために、完了したサイクルをアーカイブします。アーカイブされると、ここで見つけられます。",
@@ -152,7 +152,7 @@ export default {
     analytics_work_items: {
       title: "作業項目と担当者を含むプロジェクトを作成して、パフォーマンス、進捗、チームの影響をここで追跡開始します。",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title: "サイクルを作成して、作業を期限付きフェーズに整理し、スプリント全体の進捗を追跡します。",
     },
     analytics_no_module: {

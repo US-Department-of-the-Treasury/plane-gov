@@ -7,7 +7,7 @@ from plane.db.models import User, Workspace, WorkspaceMember
 
 
 class Command(BaseCommand):
-    help = "Create dump issues, cycles etc. for a project in a given workspace"
+    help = "Create dump issues, sprints etc. for a project in a given workspace"
 
     def handle(self, *args: Any, **options: Any) -> str | None:
         try:
@@ -45,7 +45,7 @@ class Command(BaseCommand):
             for i in range(project_count):
                 print(f"Please provide the following details for project {i + 1}:")
                 issue_count = int(input("Number of issues to be created: "))
-                cycle_count = int(input("Number of cycles to be created: "))
+                sprint_count = int(input("Number of sprints to be created: "))
                 module_count = int(input("Number of modules to be created: "))
                 pages_count = int(input("Number of pages to be created: "))
                 intake_issue_count = int(input("Number of intake issues to be created: "))
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                     email=creator,
                     members=members,
                     issue_count=issue_count,
-                    cycle_count=cycle_count,
+                    sprint_count=sprint_count,
                     module_count=module_count,
                     pages_count=pages_count,
                     intake_issue_count=intake_issue_count,

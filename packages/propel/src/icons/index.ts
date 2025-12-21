@@ -16,7 +16,7 @@ export * from "./calendar-before-icon";
 export * from "./center-panel-icon";
 export * from "./comment-fill-icon";
 export * from "./create-icon";
-export * from "./cycle";
+export * from "./sprint";
 export * from "./default-icon";
 export * from "./dice-icon";
 export * from "./discord-icon";

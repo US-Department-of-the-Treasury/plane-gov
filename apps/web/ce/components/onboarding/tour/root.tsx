@@ -5,7 +5,7 @@ import { PRODUCT_TOUR_TRACKER_ELEMENTS } from "@plane/constants";
 import { Button } from "@plane/propel/button";
 import { CloseIcon, PlaneLockup } from "@plane/propel/icons";
 // assets
-import CyclesTour from "@/app/assets/onboarding/cycles.webp?url";
+import SprintsTour from "@/app/assets/onboarding/sprints.webp?url";
 import IssuesTour from "@/app/assets/onboarding/issues.webp?url";
 import ModulesTour from "@/app/assets/onboarding/modules.webp?url";
 import PagesTour from "@/app/assets/onboarding/pages.webp?url";
@@ -22,7 +22,7 @@ export type TOnboardingTourProps = {
   onComplete: () => void;
 };
 
-export type TTourSteps = "welcome" | "work-items" | "cycles" | "modules" | "views" | "pages";
+export type TTourSteps = "welcome" | "work-items" | "sprints" | "modules" | "views" | "pages";
 
 const TOUR_STEPS: {
   key: TTourSteps;
@@ -38,14 +38,14 @@ const TOUR_STEPS: {
     description:
       "The work item is the building block of the Plane. Most concepts in Plane are either associated with work items and their properties.",
     image: IssuesTour,
-    nextStep: "cycles",
+    nextStep: "sprints",
   },
   {
-    key: "cycles",
-    title: "Move with cycles",
+    key: "sprints",
+    title: "Move with sprints",
     description:
-      "Cycles help you and your team to progress faster, similar to the sprints commonly used in agile development.",
-    image: CyclesTour,
+      "Sprints help you and your team to progress faster, similar to the sprints commonly used in agile development.",
+    image: SprintsTour,
     prevStep: "work-items",
     nextStep: "modules",
   },
@@ -54,7 +54,7 @@ const TOUR_STEPS: {
     title: "Break into modules",
     description: "Modules break your big thing into Projects or Features, to help you organize better.",
     image: ModulesTour,
-    prevStep: "cycles",
+    prevStep: "sprints",
     nextStep: "views",
   },
   {

@@ -4,7 +4,7 @@ export * from "./auth";
 export * from "./calendar";
 export * from "./color";
 export * from "./common";
-export * from "./cycle";
+export * from "./sprint";
 export * from "./datetime";
 export * from "./distribution-update";
 export * from "./editor";

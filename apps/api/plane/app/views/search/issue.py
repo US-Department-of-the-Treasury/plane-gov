@@ -71,11 +71,11 @@ class IssueSearchEndpoint(BaseAPIView):
             issues = issues.filter(~Q(pk=issue.parent_id))
         return issues
 
-    def exclude_issues_in_cycles(self, issues: QuerySet) -> QuerySet:
+    def exclude_issues_in_sprints(self, issues: QuerySet) -> QuerySet:
         """
-        Exclude issues in cycles
+        Exclude issues in sprints
         """
-        issues = issues.exclude(Q(issue_cycle__isnull=False) & Q(issue_cycle__deleted_at__isnull=True))
+        issues = issues.exclude(Q(issue_sprint__isnull=False) & Q(issue_sprint__deleted_at__isnull=True))
         return issues
 
     def exclude_issues_in_module(self, issues: QuerySet, module: str) -> QuerySet:
@@ -97,7 +97,7 @@ class IssueSearchEndpoint(BaseAPIView):
         workspace_search = request.query_params.get("workspace_search", "false")
         parent = request.query_params.get("parent", "false")
         issue_relation = request.query_params.get("issue_relation", "false")
-        cycle = request.query_params.get("cycle", "false")
+        sprint = request.query_params.get("sprint", "false")
         module = request.query_params.get("module", False)
         sub_issue = request.query_params.get("sub_issue", "false")
         target_date = request.query_params.get("target_date", True)
@@ -125,8 +125,8 @@ class IssueSearchEndpoint(BaseAPIView):
         if sub_issue == "true" and issue_id:
             issues = self.filter_root_issues_only(issue_id, issues)
 
-        if cycle == "true":
-            issues = self.exclude_issues_in_cycles(issues)
+        if sprint == "true":
+            issues = self.exclude_issues_in_sprints(issues)
 
         if module:
             issues = self.exclude_issues_in_module(issues, module)

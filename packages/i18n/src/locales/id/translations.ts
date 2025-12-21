@@ -10,7 +10,7 @@ export default {
     views: "Views",
     analytics: "Analitik",
     work_items: "Item kerja",
-    cycles: "Siklus",
+    sprints: "Siklus",
     modules: "Modul",
     intake: "Intake",
     drafts: "Draft",
@@ -273,16 +273,16 @@ export default {
   general_settings: "Pengaturan umum",
   sign_out: "Keluar",
   signing_out: "Keluar",
-  active_cycles: "Siklus aktif",
-  active_cycles_description:
+  active_sprints: "Siklus aktif",
+  active_sprints_description:
     "Pantau siklus di seluruh proyek, lacak item kerja prioritas tinggi, dan fokus pada siklus yang membutuhkan perhatian.",
-  on_demand_snapshots_of_all_your_cycles: "Snapshot sesuai permintaan dari semua siklus Anda",
+  on_demand_snapshots_of_all_your_sprints: "Snapshot sesuai permintaan dari semua siklus Anda",
   upgrade: "Tingkatkan",
   "10000_feet_view": "Tampilan 10.000 kaki dari semua siklus aktif.",
   "10000_feet_view_description":
     "Perbesar untuk melihat siklus yang berjalan di seluruh proyek Anda sekaligus, bukan berpindah dari Siklus ke Siklus di setiap proyek.",
-  get_snapshot_of_each_active_cycle: "Dapatkan snapshot dari setiap siklus aktif.",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "Dapatkan snapshot dari setiap siklus aktif.",
+  get_snapshot_of_each_active_sprint_description:
     "Lacak metrik tingkat tinggi untuk semua siklus aktif, lihat kemajuan mereka, dan dapatkan gambaran tentang ruang lingkup terhadap tenggat waktu.",
   compare_burndowns: "Bandingkan burndown.",
   compare_burndowns_description:
@@ -290,8 +290,8 @@ export default {
   quickly_see_make_or_break_issues: "Lihat dengan cepat item kerja yang krusial.",
   quickly_see_make_or_break_issues_description:
     "Prabaca item kerja prioritas tinggi untuk setiap siklus terhadap tanggal jatuh tempo. Lihat semuanya per siklus hanya dengan satu klik.",
-  zoom_into_cycles_that_need_attention: "Perbesar siklus yang membutuhkan perhatian.",
-  zoom_into_cycles_that_need_attention_description:
+  zoom_into_sprints_that_need_attention: "Perbesar siklus yang membutuhkan perhatian.",
+  zoom_into_sprints_that_need_attention_description:
     "Selidiki status siklus mana pun yang tidak sesuai dengan harapan dengan satu klik.",
   stay_ahead_of_blockers: "Tetap di depan penghambat.",
   stay_ahead_of_blockers_description:
@@ -374,7 +374,7 @@ export default {
   congrats: "Selamat!",
   open_project: "Buka proyek",
   issues: "Item kerja",
-  cycles: "Siklus",
+  sprints: "Siklus",
   modules: "Modul",
   pages: "Halaman",
   intake: "Penerimaan",
@@ -382,7 +382,7 @@ export default {
   work_management: "Manajemen kerja",
   projects_and_issues: "Proyek dan item kerja",
   projects_and_issues_description: "Aktifkan atau nonaktifkan ini untuk proyek ini.",
-  cycles_description:
+  sprints_description:
     "Tetapkan batas waktu kerja per proyek dan sesuaikan periode waktunya sesuai kebutuhan. Satu siklus bisa 2 minggu, berikutnya 1 minggu.",
   modules_description: "Atur pekerjaan ke dalam sub-proyek dengan pemimpin dan penanggung jawab khusus.",
   views_description: "Simpan pengurutan, filter, dan opsi tampilan khusus atau bagikan dengan tim Anda.",
@@ -654,8 +654,8 @@ export default {
     priority: "Prioritas",
     team_project: "Proyek tim",
     project: "Proyek",
-    cycle: "Siklus",
-    cycles: "Siklus",
+    sprint: "Siklus",
+    sprints: "Siklus",
     module: "Modul",
     modules: "Modul",
     labels: "Label",
@@ -974,7 +974,7 @@ export default {
     add: {
       press_enter: "Tekan 'Enter' untuk menambahkan item kerja lainnya",
       label: "Tambah item kerja",
-      cycle: {
+      sprint: {
         failed: "Item kerja tidak dapat ditambahkan ke siklus. Silakan coba lagi.",
         success: "{count, plural, one {Item Kerja} other {Item Kerja}} berhasil ditambahkan ke siklus.",
         loading: "Menambahkan {count, plural, one {item kerja} other {item kerja}} ke siklus",
@@ -990,7 +990,7 @@ export default {
     },
     remove: {
       label: "Hapus item kerja",
-      cycle: {
+      sprint: {
         loading: "Menghapus item kerja dari siklus",
         success: "Item kerja berhasil dihapus dari siklus.",
         failed: "Item kerja tidak dapat dihapus dari siklus. Silakan coba lagi.",
@@ -1345,7 +1345,7 @@ export default {
     work_items_closed_in: "Item kerja yang ditutup dalam",
     selected_projects: "Proyek yang dipilih",
     total_members: "Jumlah anggota total",
-    total_cycles: "Jumlah siklus total",
+    total_sprints: "Jumlah siklus total",
     total_modules: "Jumlah modul total",
     pending_work_items: {
       title: "Item kerja yang menunggu",
@@ -1431,7 +1431,7 @@ export default {
     },
     error: {
       permission: "Anda tidak memiliki izin untuk melakukan tindakan ini.",
-      cycle_delete: "Gagal menghapus siklus",
+      sprint_delete: "Gagal menghapus siklus",
       module_delete: "Gagal menghapus modul",
       issue_delete: "Gagal menghapus item kerja",
     },
@@ -1983,17 +1983,17 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "Tambah siklus",
+  project_sprints: {
+    add_sprint: "Tambah siklus",
     more_details: "Detail lebih lanjut",
-    cycle: "Siklus",
-    update_cycle: "Perbarui siklus",
-    create_cycle: "Buat siklus",
-    no_matching_cycles: "Tidak ada siklus yang cocok",
-    remove_filters_to_see_all_cycles: "Hapus filter untuk melihat semua siklus",
-    remove_search_criteria_to_see_all_cycles: "Hapus kriteria pencarian untuk melihat semua siklus",
-    only_completed_cycles_can_be_archived: "Hanya siklus yang diselesaikan yang dapat diarsipkan",
-    active_cycle: {
+    sprint: "Siklus",
+    update_sprint: "Perbarui siklus",
+    create_sprint: "Buat siklus",
+    no_matching_sprints: "Tidak ada siklus yang cocok",
+    remove_filters_to_see_all_sprints: "Hapus filter untuk melihat semua siklus",
+    remove_search_criteria_to_see_all_sprints: "Hapus kriteria pencarian untuk melihat semua siklus",
+    only_completed_sprints_can_be_archived: "Hanya siklus yang diselesaikan yang dapat diarsipkan",
+    active_sprint: {
       label: "Siklus aktif",
       progress: "Kemajuan",
       chart: "Grafik burndown",
@@ -2004,10 +2004,10 @@ export default {
       current: "Sekarang",
       labels: "Label",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "Siklus mendatang",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "Siklus selesai",
     },
     status: {
@@ -2333,7 +2333,7 @@ export default {
       custom: "Kustom",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "Tambahkan item kerja ke siklus untuk melihat kemajuannya",
@@ -2362,7 +2362,7 @@ export default {
           text: "Kelola fitur",
         },
       },
-      cycle: {
+      sprint: {
         title: "Siklus tidak diaktifkan untuk proyek ini.",
         description:
           "Pecah pekerjaan menjadi bagian yang dibatasi waktu, kerjakan mundur dari tenggat waktu proyek Anda untuk menetapkan tanggal, dan buat kemajuan nyata sebagai tim. Aktifkan fitur siklus untuk proyek Anda agar dapat mulai menggunakannya.",
@@ -2590,9 +2590,9 @@ export default {
       manual: "Manual",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {Siklus} other {Siklus}}",
-    no_cycle: "Tidak ada siklus",
+    no_sprint: "Tidak ada siklus",
   },
   module: {
     label: "{count, plural, one {Modul} other {Modul}}",

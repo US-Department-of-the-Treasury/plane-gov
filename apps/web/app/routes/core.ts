@@ -56,9 +56,9 @@ export const coreRoutes: RouteConfigEntry[] = [
         // Workspace Home
         route(":workspaceSlug", "./(all)/[workspaceSlug]/(projects)/page.tsx"),
 
-        // Active Cycles
-        layout("./(all)/[workspaceSlug]/(projects)/active-cycles/layout.tsx", [
-          route(":workspaceSlug/active-cycles", "./(all)/[workspaceSlug]/(projects)/active-cycles/page.tsx"),
+        // Active Sprints
+        layout("./(all)/[workspaceSlug]/(projects)/active-sprints/layout.tsx", [
+          route(":workspaceSlug/active-sprints", "./(all)/[workspaceSlug]/(projects)/active-sprints/page.tsx"),
         ]),
 
         // Analytics
@@ -140,19 +140,19 @@ export const coreRoutes: RouteConfigEntry[] = [
             "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/issues/(detail)/[issueId]/page.tsx"
           ),
 
-          // Cycle Detail
-          layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/cycles/(detail)/layout.tsx", [
+          // Sprint Detail
+          layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/sprints/(detail)/layout.tsx", [
             route(
-              ":workspaceSlug/projects/:projectId/cycles/:cycleId",
-              "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/cycles/(detail)/[cycleId]/page.tsx"
+              ":workspaceSlug/projects/:projectId/sprints/:sprintId",
+              "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/sprints/(detail)/[sprintId]/page.tsx"
             ),
           ]),
 
-          // Cycles List
-          layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/cycles/(list)/layout.tsx", [
+          // Sprints List
+          layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/sprints/(list)/layout.tsx", [
             route(
-              ":workspaceSlug/projects/:projectId/cycles",
-              "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/cycles/(list)/page.tsx"
+              ":workspaceSlug/projects/:projectId/sprints",
+              "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/sprints/(list)/page.tsx"
             ),
           ]),
 
@@ -212,7 +212,7 @@ export const coreRoutes: RouteConfigEntry[] = [
           ]),
         ]),
 
-        // Project Archives - Issues, Cycles, Modules
+        // Project Archives - Issues, Sprints, Modules
         // Project Archives - Issues - List
         layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/issues/(list)/layout.tsx", [
           route(
@@ -229,11 +229,11 @@ export const coreRoutes: RouteConfigEntry[] = [
           ),
         ]),
 
-        // Project Archives - Cycles
-        layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/cycles/layout.tsx", [
+        // Project Archives - Sprints
+        layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/sprints/layout.tsx", [
           route(
-            ":workspaceSlug/projects/:projectId/archives/cycles",
-            "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/cycles/page.tsx"
+            ":workspaceSlug/projects/:projectId/archives/sprints",
+            "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/sprints/page.tsx"
           ),
         ]),
 

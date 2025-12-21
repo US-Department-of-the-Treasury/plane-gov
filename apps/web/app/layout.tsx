@@ -34,7 +34,7 @@ export const meta = () => [
   { property: "og:title", content: "Plane | Simple, extensible, open-source project management tool." },
   {
     property: "og:description",
-    content: "Open-source project management tool to manage work items, cycles, and product roadmaps easily",
+    content: "Open-source project management tool to manage work items, sprints, and product roadmaps easily",
   },
 ];
 

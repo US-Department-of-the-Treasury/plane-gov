@@ -44,16 +44,16 @@ export default {
         "Les éléments de travail sont les éléments constitutifs de votre projet — attribuez des propriétaires, définissez des priorités et suivez facilement les progrès.",
       cta_primary: "Créer votre premier élément de travail",
     },
-    cycles: {
-      title: "Regroupez et définissez des délais pour votre travail dans les Cycles.",
+    sprints: {
+      title: "Regroupez et définissez des délais pour votre travail dans les Sprints.",
       description:
         "Décomposez le travail en morceaux délimités dans le temps, travaillez à rebours à partir de la date limite de votre projet pour définir des dates, et faites des progrès tangibles en équipe.",
-      cta_primary: "Définir votre premier cycle",
+      cta_primary: "Définir votre premier sprint",
     },
-    cycle_work_items: {
-      title: "Aucun élément de travail à afficher dans ce cycle",
+    sprint_work_items: {
+      title: "Aucun élément de travail à afficher dans ce sprint",
       description:
-        "Créez des éléments de travail pour commencer à suivre la progression de votre équipe dans ce cycle et atteindre vos objectifs à temps.",
+        "Créez des éléments de travail pour commencer à suivre la progression de votre équipe dans ce sprint et atteindre vos objectifs à temps.",
       cta_primary: "Créer un élément de travail",
       cta_secondary: "Ajouter un élément de travail existant",
     },
@@ -113,9 +113,9 @@ export default {
         "Manuellement ou par automatisation, vous pouvez archiver des éléments de travail qui sont terminés ou annulés. Retrouvez-les ici une fois archivés.",
       cta_primary: "Définir l’automatisation",
     },
-    archive_cycles: {
-      title: "Aucun cycle archivé pour le moment",
-      description: "Pour organiser votre projet, archivez les cycles terminés. Retrouvez-les ici une fois archivés.",
+    archive_sprints: {
+      title: "Aucun sprint archivé pour le moment",
+      description: "Pour organiser votre projet, archivez les sprints terminés. Retrouvez-les ici une fois archivés.",
     },
     archive_modules: {
       title: "Aucun Module archivé pour le moment",
@@ -160,9 +160,9 @@ export default {
       title:
         "Créez des projets avec des éléments de travail et des personnes assignées pour commencer à suivre les performances, les progrès et l’impact de l’équipe ici.",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title:
-        "Créez des cycles pour organiser le travail en phases délimitées dans le temps et suivre les progrès à travers les sprints.",
+        "Créez des sprints pour organiser le travail en phases délimitées dans le temps et suivre les progrès à travers les sprints.",
     },
     analytics_no_module: {
       title: "Créez des modules pour organiser votre travail et suivre les progrès à travers différentes étapes.",

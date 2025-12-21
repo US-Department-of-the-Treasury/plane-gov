@@ -10,7 +10,7 @@ export default {
     views: "ビュー",
     analytics: "アナリティクス",
     work_items: "作業項目",
-    cycles: "サイクル",
+    sprints: "サイクル",
     modules: "モジュール",
     intake: "インテーク",
     drafts: "下書き",
@@ -271,24 +271,24 @@ export default {
   general_settings: "一般設定",
   sign_out: "サインアウト",
   signing_out: "サインアウト中",
-  active_cycles: "アクティブサイクル",
-  active_cycles_description:
+  active_sprints: "アクティブサイクル",
+  active_sprints_description:
     "プロジェクト全体のサイクルを監視し、優先度の高い作業項目を追跡し、注意が必要なサイクルにズームインします。",
-  on_demand_snapshots_of_all_your_cycles: "すべてのサイクルのオンデマンドスナップショット",
+  on_demand_snapshots_of_all_your_sprints: "すべてのサイクルのオンデマンドスナップショット",
   upgrade: "アップグレード",
   "10000_feet_view": "すべてのアクティブサイクルの俯瞰図",
   "10000_feet_view_description":
     "各プロジェクトのサイクル間を移動する代わりに、すべてのプロジェクトの実行中のサイクルを一度に確認できます。",
-  get_snapshot_of_each_active_cycle: "各アクティブサイクルのスナップショットを取得",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "各アクティブサイクルのスナップショットを取得",
+  get_snapshot_of_each_active_sprint_description:
     "すべてのアクティブサイクルの主要な指標を追跡し、進捗状況を確認し、期限に対する範囲を把握します。",
   compare_burndowns: "バーンダウンを比較",
   compare_burndowns_description: "各サイクルのバーンダウンレポートを確認して、各チームのパフォーマンスを監視します。",
   quickly_see_make_or_break_issues: "重要な作業項目をすぐに確認",
   quickly_see_make_or_break_issues_description:
     "期限に対する各サイクルの優先度の高い作業項目をプレビューします。ワンクリックでサイクルごとにすべての項目を確認できます。",
-  zoom_into_cycles_that_need_attention: "注意が必要なサイクルにズームイン",
-  zoom_into_cycles_that_need_attention_description: "期待に沿わないサイクルの状態をワンクリックで調査します。",
+  zoom_into_sprints_that_need_attention: "注意が必要なサイクルにズームイン",
+  zoom_into_sprints_that_need_attention_description: "期待に沿わないサイクルの状態をワンクリックで調査します。",
   stay_ahead_of_blockers: "ブロッカーに先手を打つ",
   stay_ahead_of_blockers_description:
     "プロジェクト間の課題を特定し、他のビューでは明らかでないサイクル間の依存関係を確認します。",
@@ -370,7 +370,7 @@ export default {
   congrats: "おめでとうございます！",
   open_project: "プロジェクトを開く",
   issues: "作業項目",
-  cycles: "Cycles",
+  sprints: "Sprints",
   modules: "Modules",
   pages: "Pages",
   intake: "Intake",
@@ -378,7 +378,7 @@ export default {
   work_management: "作業管理",
   projects_and_issues: "プロジェクトと作業項目",
   projects_and_issues_description: "このプロジェクトでオン/オフを切り替えます。",
-  cycles_description:
+  sprints_description:
     "プロジェクトごとに作業の時間枠を設定し、必要に応じて期間を調整します。1サイクルは2週間、次は1週間でもかまいません。",
   modules_description: "専任のリーダーと担当者を持つサブプロジェクトに作業を整理します。",
   views_description: "カスタムの並び替え、フィルター、表示オプションを保存するか、チームと共有します。",
@@ -650,8 +650,8 @@ export default {
     priority: "優先度",
     team_project: "チームプロジェクト",
     project: "プロジェクト",
-    cycle: "サイクル",
-    cycles: "サイクル",
+    sprint: "サイクル",
+    sprints: "サイクル",
     module: "モジュール",
     modules: "モジュール",
     labels: "ラベル",
@@ -969,7 +969,7 @@ export default {
     add: {
       press_enter: "Enterを押して別の作業項目を追加",
       label: "作業項目を追加",
-      cycle: {
+      sprint: {
         failed: "作業項目をサイクルに追加できませんでした。もう一度お試しください。",
         success: "{count, plural, one {作業項目} other {作業項目}}をサイクルに追加しました。",
         loading: "{count, plural, one {作業項目} other {作業項目}}をサイクルに追加中",
@@ -985,7 +985,7 @@ export default {
     },
     remove: {
       label: "作業項目を削除",
-      cycle: {
+      sprint: {
         loading: "サイクルから作業項目を削除中",
         success: "作業項目をサイクルから削除しました。",
         failed: "作業項目をサイクルから削除できませんでした。もう一度お試しください。",
@@ -1339,7 +1339,7 @@ export default {
     work_items_closed_in: "クローズされた作業項目",
     selected_projects: "選択されたプロジェクト",
     total_members: "メンバー総数",
-    total_cycles: "サイクル総数",
+    total_sprints: "サイクル総数",
     total_modules: "モジュール総数",
     pending_work_items: {
       title: "保留中の作業項目",
@@ -1424,7 +1424,7 @@ export default {
     },
     error: {
       permission: "この操作を実行する権限がありません。",
-      cycle_delete: "サイクルの削除に失敗しました",
+      sprint_delete: "サイクルの削除に失敗しました",
       module_delete: "モジュールの削除に失敗しました",
       issue_delete: "作業項目の削除に失敗しました",
     },
@@ -1972,23 +1972,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "サイクルを追加",
+  project_sprints: {
+    add_sprint: "サイクルを追加",
     more_details: "詳細情報",
-    cycle: "サイクル",
-    update_cycle: "サイクルを更新",
-    create_cycle: "サイクルを作成",
-    no_matching_cycles: "一致するサイクルがありません",
-    remove_filters_to_see_all_cycles: "すべてのサイクルを表示するにはフィルターを解除してください",
-    remove_search_criteria_to_see_all_cycles: "すべてのサイクルを表示するには検索条件を解除してください",
-    only_completed_cycles_can_be_archived: "完了したサイクルのみアーカイブできます",
+    sprint: "サイクル",
+    update_sprint: "サイクルを更新",
+    create_sprint: "サイクルを作成",
+    no_matching_sprints: "一致するサイクルがありません",
+    remove_filters_to_see_all_sprints: "すべてのサイクルを表示するにはフィルターを解除してください",
+    remove_search_criteria_to_see_all_sprints: "すべてのサイクルを表示するには検索条件を解除してください",
+    only_completed_sprints_can_be_archived: "完了したサイクルのみアーカイブできます",
     start_date: "開始日",
     end_date: "終了日",
     in_your_timezone: "あなたのタイムゾーン",
     transfer_work_items: "作業項目を転送 {count}",
     date_range: "日付範囲",
     add_date: "日付を追加",
-    active_cycle: {
+    active_sprint: {
       label: "アクティブなサイクル",
       progress: "進捗",
       chart: "バーンダウンチャート",
@@ -1999,10 +1999,10 @@ export default {
       current: "現在",
       labels: "ラベル",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "今後のサイクル",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "完了したサイクル",
     },
     status: {
@@ -2326,7 +2326,7 @@ export default {
       custom: "カスタム",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "サイクルの進捗を表示するには作業項目を追加してください",
@@ -2355,7 +2355,7 @@ export default {
           text: "機能を管理",
         },
       },
-      cycle: {
+      sprint: {
         title: "サイクルがこのプロジェクトで有効になっていません。",
         description:
           "時間枠で作業を分割し、プロジェクトの期限から逆算して日付を設定し、チームとして具体的な進捗を作ります。サイクルを使用するには、プロジェクトでサイクル機能を有効にしてください。",
@@ -2580,9 +2580,9 @@ export default {
       manual: "手動",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {サイクル} other {サイクル}}",
-    no_cycle: "サイクルなし",
+    no_sprint: "サイクルなし",
   },
   module: {
     label: "{count, plural, one {モジュール} other {モジュール}}",

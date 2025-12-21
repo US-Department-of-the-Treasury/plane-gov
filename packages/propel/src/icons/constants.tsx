@@ -32,7 +32,7 @@ export const WorkspaceIconsMap = [
 ];
 
 export const ProjectIconsMap = [
-  { icon: <Icon name="project.cycle" />, title: "CycleIcon" },
+  { icon: <Icon name="project.sprint" />, title: "SprintIcon" },
   { icon: <Icon name="project.epic" />, title: "EpicIcon" },
   { icon: <Icon name="project.intake" />, title: "IntakeIcon" },
   { icon: <Icon name="project.module" />, title: "ModuleIcon" },

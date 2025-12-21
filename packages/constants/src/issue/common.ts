@@ -24,7 +24,7 @@ export enum EIssueGroupByToServerOptions {
   "labels" = "labels__id",
   "state_detail.group" = "state__group",
   "assignees" = "assignees__id",
-  "cycle" = "cycle_id",
+  "sprint" = "sprint_id",
   "module" = "issue_module__module_id",
   "target_date" = "target_date",
   "project" = "project_id",
@@ -39,7 +39,7 @@ export enum EIssueGroupBYServerToProperty {
   "labels__id" = "label_ids",
   "state__group" = "state__group",
   "assignees__id" = "assignee_ids",
-  "cycle_id" = "cycle_id",
+  "sprint_id" = "sprint_id",
   "issue_module__module_id" = "module_ids",
   "target_date" = "target_date",
   "project_id" = "project_id",
@@ -90,7 +90,7 @@ export const DRAG_ALLOWED_GROUPS: TIssueGroupByOptions[] = [
   "assignees",
   "labels",
   "module",
-  "cycle",
+  "sprint",
 ];
 
 export type TCreateModalStoreTypes =
@@ -99,7 +99,7 @@ export type TCreateModalStoreTypes =
   | EIssuesStoreType.TEAM_VIEW
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.PROFILE
-  | EIssuesStoreType.CYCLE
+  | EIssuesStoreType.SPRINT
   | EIssuesStoreType.MODULE
   | EIssuesStoreType.EPIC
   | EIssuesStoreType.TEAM_PROJECT_WORK_ITEMS;
@@ -113,7 +113,7 @@ export const ISSUE_GROUP_BY_OPTIONS: {
   { key: "priority", titleTranslationKey: "common.priority" },
   { key: "team_project", titleTranslationKey: "common.team_project" }, // required this on team issues
   { key: "project", titleTranslationKey: "common.project" }, // required this on my issues
-  { key: "cycle", titleTranslationKey: "common.cycle" }, // required this on my issues
+  { key: "sprint", titleTranslationKey: "common.sprint" }, // required this on my issues
   { key: "module", titleTranslationKey: "common.module" }, // required this on my issues
   { key: "labels", titleTranslationKey: "common.labels" },
   { key: "assignees", titleTranslationKey: "common.assignees" },
@@ -148,7 +148,7 @@ export const ISSUE_DISPLAY_PROPERTIES_KEYS: (keyof IIssueDisplayProperties)[] = 
   "created_on",
   "updated_on",
   "modules",
-  "cycle",
+  "sprint",
   "issue_type",
 ];
 
@@ -205,7 +205,7 @@ export const ISSUE_DISPLAY_PROPERTIES: {
     titleTranslationKey: "common.estimate",
   },
   { key: "modules", titleTranslationKey: "common.module" },
-  { key: "cycle", titleTranslationKey: "common.cycle" },
+  { key: "sprint", titleTranslationKey: "common.sprint" },
 ];
 
 export const SPREADSHEET_PROPERTY_LIST: (keyof IIssueDisplayProperties)[] = [
@@ -214,7 +214,7 @@ export const SPREADSHEET_PROPERTY_LIST: (keyof IIssueDisplayProperties)[] = [
   "assignee",
   "labels",
   "modules",
-  "cycle",
+  "sprint",
   "start_date",
   "due_date",
   "estimate",
@@ -283,11 +283,11 @@ export const SPREADSHEET_PROPERTY_DETAILS: {
     descendingOrderTitle: "Z",
     icon: "DiceIcon",
   },
-  cycle: {
-    i18n_title: "common.cycle",
-    ascendingOrderKey: "issue_cycle__cycle__name",
+  sprint: {
+    i18n_title: "common.sprint",
+    ascendingOrderKey: "issue_sprint__sprint__name",
     ascendingOrderTitle: "A",
-    descendingOrderKey: "-issue_cycle__cycle__name",
+    descendingOrderKey: "-issue_sprint__sprint__name",
     descendingOrderTitle: "Z",
     icon: "ContrastIcon",
   },
@@ -355,7 +355,7 @@ export const FILTER_TO_ISSUE_MAP: Partial<Record<keyof IIssueFilterOptions, keyo
   created_by: "created_by",
   labels: "label_ids",
   priority: "priority",
-  cycle: "cycle_id",
+  sprint: "sprint_id",
   module: "module_ids",
   project: "project_id",
   state: "state_id",

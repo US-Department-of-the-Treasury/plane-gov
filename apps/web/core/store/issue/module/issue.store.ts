@@ -264,10 +264,10 @@ export class ModuleIssues extends BaseIssuesStore implements IModuleIssues {
         this.rootIssueStore.issues.removeIssue(data.id);
       });
 
-      const currentCycleId = data.cycle_id !== "" && data.cycle_id === "None" ? undefined : data.cycle_id;
+      const currentSprintId = data.sprint_id !== "" && data.sprint_id === "None" ? undefined : data.sprint_id;
 
-      if (currentCycleId) {
-        await this.addCycleToIssue(workspaceSlug, projectId, currentCycleId, response.id);
+      if (currentSprintId) {
+        await this.addSprintToIssue(workspaceSlug, projectId, currentSprintId, response.id);
       }
 
       return response;

@@ -40,12 +40,12 @@ export default {
       description: "工作项是项目的构建块 — 分配负责人、设置优先级并轻松跟踪进度。",
       cta_primary: "创建您的第一个工作项",
     },
-    cycles: {
+    sprints: {
       title: "在周期中分组和限时您的工作。",
       description: "将工作分解为限时块,从项目截止日期倒推设置日期,并作为团队取得实质性进展。",
       cta_primary: "设置您的第一个周期",
     },
-    cycle_work_items: {
+    sprint_work_items: {
       title: "此周期中没有要显示的工作项",
       description: "创建工作项以开始监控团队在此周期中的进度并按时实现目标。",
       cta_primary: "创建工作项",
@@ -104,7 +104,7 @@ export default {
       description: "通过手动或自动化,您可以归档已完成或已取消的工作项。归档后在此处查找它们。",
       cta_primary: "设置自动化",
     },
-    archive_cycles: {
+    archive_sprints: {
       title: "暂无已归档周期",
       description: "为了整理项目,请归档已完成的周期。归档后在此处查找它们。",
     },
@@ -147,7 +147,7 @@ export default {
     analytics_work_items: {
       title: "创建包含工作项和受理人的项目,以开始在此处跟踪绩效、进度和团队影响。",
     },
-    analytics_no_cycle: {
+    analytics_no_sprint: {
       title: "创建周期以将工作组织成有时限的阶段并跟踪冲刺进度。",
     },
     analytics_no_module: {

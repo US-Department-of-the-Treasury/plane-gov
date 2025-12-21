@@ -164,7 +164,7 @@ class ProjectViewSet(BaseViewSet):
             "member_role",
             "archived_at",
             "workspace",
-            "cycle_view",
+            "sprint_view",
             "issue_views_view",
             "module_view",
             "page_view",

@@ -17,7 +17,7 @@ from plane.db.models import (
     Issue,
     IssueVersion,
     ProjectMember,
-    CycleIssue,
+    SprintIssue,
     ModuleIssue,
     IssueActivity,
     IssueAssignee,
@@ -81,7 +81,7 @@ def get_owner_id(issue: Issue) -> Optional[int]:
 def get_related_data(issue_ids: List[UUID]) -> Dict:
     """Get related data for the given issue IDs"""
 
-    cycle_issues = {ci.issue_id: ci.cycle_id for ci in CycleIssue.objects.filter(issue_id__in=issue_ids)}
+    sprint_issues = {ci.issue_id: ci.sprint_id for ci in SprintIssue.objects.filter(issue_id__in=issue_ids)}
 
     # Get assignees with proper grouping
     assignee_records = list(
@@ -116,7 +116,7 @@ def get_related_data(issue_ids: List[UUID]) -> Dict:
             latest_activities[issue_id] = first_activity.id
 
     return {
-        "cycle_issues": cycle_issues,
+        "sprint_issues": sprint_issues,
         "assignees": assignees,
         "labels": labels,
         "modules": modules,
@@ -165,7 +165,7 @@ def create_issue_version(issue: Issue, related_data: Dict) -> Optional[IssueVers
             external_source=issue.external_source,
             external_id=issue.external_id,
             type=issue.type_id,
-            cycle=related_data["cycle_issues"].get(issue.id),
+            sprint=related_data["sprint_issues"].get(issue.id),
             modules=related_data["modules"].get(issue.id, []),
         )
     except Exception as e:

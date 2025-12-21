@@ -56,7 +56,7 @@ export const WORKSPACE_MEMBERS = (workspaceSlug: string) => `WORKSPACE_MEMBERS_$
 
 export const WORKSPACE_MODULES = (workspaceSlug: string) => `WORKSPACE_MODULES_${workspaceSlug.toUpperCase()}`;
 
-export const WORKSPACE_CYCLES = (workspaceSlug: string) => `WORKSPACE_CYCLES_${workspaceSlug.toUpperCase()}`;
+export const WORKSPACE_SPRINTS = (workspaceSlug: string) => `WORKSPACE_SPRINTS_${workspaceSlug.toUpperCase()}`;
 
 export const WORKSPACE_LABELS = (workspaceSlug: string) => `WORKSPACE_LABELS_${workspaceSlug.toUpperCase()}`;
 
@@ -85,15 +85,15 @@ export const WORKSPACE_SIDEBAR_PREFERENCES = (workspaceSlug: string) =>
 
 export const PROJECT_GITHUB_REPOSITORY = (projectId: string) => `PROJECT_GITHUB_REPOSITORY_${projectId.toUpperCase()}`;
 
-// cycles
-export const WORKSPACE_ACTIVE_CYCLES_LIST = (workspaceSlug: string, cursor: string, per_page: string) =>
-  `WORKSPACE_ACTIVE_CYCLES_LIST_${workspaceSlug.toUpperCase()}_${cursor.toUpperCase()}_${per_page.toUpperCase()}`;
-export const CYCLE_ISSUES_WITH_PARAMS = (cycleId: string, params?: any) => {
-  if (!params) return `CYCLE_ISSUES_WITH_PARAMS_${cycleId.toUpperCase()}`;
+// sprints
+export const WORKSPACE_ACTIVE_SPRINTS_LIST = (workspaceSlug: string, cursor: string, per_page: string) =>
+  `WORKSPACE_ACTIVE_SPRINTS_LIST_${workspaceSlug.toUpperCase()}_${cursor.toUpperCase()}_${per_page.toUpperCase()}`;
+export const CYCLE_ISSUES_WITH_PARAMS = (sprintId: string, params?: any) => {
+  if (!params) return `CYCLE_ISSUES_WITH_PARAMS_${sprintId.toUpperCase()}`;
 
   const paramsKey = paramsToKey(params);
 
-  return `CYCLE_ISSUES_WITH_PARAMS_${cycleId.toUpperCase()}_${paramsKey.toUpperCase()}`;
+  return `CYCLE_ISSUES_WITH_PARAMS_${sprintId.toUpperCase()}_${paramsKey.toUpperCase()}`;
 };
 
 export const USER_ACTIVITY = (params: { cursor?: string }) => `USER_ACTIVITY_${params?.cursor}`;
@@ -172,8 +172,8 @@ export const PROJECT_INTAKE_STATE = (projectId: string, projectRole: EUserPermis
 export const PROJECT_ESTIMATES = (projectId: string, projectRole: EUserPermissions | undefined) =>
   `PROJECT_ESTIMATES_${projectId.toString().toUpperCase()}_${projectRole}`;
 
-export const PROJECT_ALL_CYCLES = (projectId: string, projectRole: EUserPermissions | undefined) =>
-  `PROJECT_ALL_CYCLES_${projectId.toString().toUpperCase()}_${projectRole}`;
+export const PROJECT_ALL_SPRINTS = (projectId: string, projectRole: EUserPermissions | undefined) =>
+  `PROJECT_ALL_SPRINTS_${projectId.toString().toUpperCase()}_${projectRole}`;
 
 export const PROJECT_MODULES = (projectId: string, projectRole: EUserPermissions | undefined) =>
   `PROJECT_MODULES_${projectId.toString().toUpperCase()}_${projectRole}`;

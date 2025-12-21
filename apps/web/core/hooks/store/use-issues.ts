@@ -11,7 +11,7 @@ import type { ITeamProjectWorkItemsFilter, ITeamProjectWorkItems } from "@/plane
 import type { ITeamViewIssues, ITeamViewIssuesFilter } from "@/plane-web/store/issue/team-views";
 import type { IWorkspaceIssues } from "@/plane-web/store/issue/workspace/issue.store";
 import type { IArchivedIssues, IArchivedIssuesFilter } from "@/store/issue/archived";
-import type { ICycleIssues, ICycleIssuesFilter } from "@/store/issue/cycle";
+import type { ISprintIssues, ISprintIssuesFilter } from "@/store/issue/sprint";
 import type { IModuleIssues, IModuleIssuesFilter } from "@/store/issue/module";
 import type { IProfileIssues, IProfileIssuesFilter } from "@/store/issue/profile";
 import type { IProjectIssues, IProjectIssuesFilter } from "@/store/issue/project";
@@ -45,9 +45,9 @@ export type TStoreIssues = {
     issues: IProjectIssues;
     issuesFilter: IProjectIssuesFilter;
   };
-  [EIssuesStoreType.CYCLE]: defaultIssueStore & {
-    issues: ICycleIssues;
-    issuesFilter: ICycleIssuesFilter;
+  [EIssuesStoreType.SPRINT]: defaultIssueStore & {
+    issues: ISprintIssues;
+    issuesFilter: ISprintIssuesFilter;
   };
   [EIssuesStoreType.MODULE]: defaultIssueStore & {
     issues: IModuleIssues;
@@ -113,10 +113,10 @@ export const useIssues = <T extends EIssuesStoreType>(storeType?: T): TStoreIssu
         issues: context.issue.projectIssues,
         issuesFilter: context.issue.projectIssuesFilter,
       }) as TStoreIssues[T];
-    case EIssuesStoreType.CYCLE:
+    case EIssuesStoreType.SPRINT:
       return merge(defaultStore, {
-        issues: context.issue.cycleIssues,
-        issuesFilter: context.issue.cycleIssuesFilter,
+        issues: context.issue.sprintIssues,
+        issuesFilter: context.issue.sprintIssuesFilter,
       }) as TStoreIssues[T];
     case EIssuesStoreType.MODULE:
       return merge(defaultStore, {

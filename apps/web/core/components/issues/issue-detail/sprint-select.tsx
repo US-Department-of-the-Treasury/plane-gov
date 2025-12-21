@@ -1,0 +1,62 @@
+import React, { useState } from "react";
+import { observer } from "mobx-react";
+import { useTranslation } from "@plane/i18n";
+// hooks
+// components
+import { cn } from "@plane/utils";
+import { SprintDropdown } from "@/components/dropdowns/sprint";
+// ui
+// helpers
+import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// types
+import type { TIssueOperations } from "./root";
+
+type TIssueSprintSelect = {
+  className?: string;
+  workspaceSlug: string;
+  projectId: string;
+  issueId: string;
+  issueOperations: TIssueOperations;
+  disabled?: boolean;
+};
+
+export const IssueSprintSelect = observer(function IssueSprintSelect(props: TIssueSprintSelect) {
+  const { className = "", workspaceSlug, projectId, issueId, issueOperations, disabled = false } = props;
+  const { t } = useTranslation();
+  // states
+  const [isUpdating, setIsUpdating] = useState(false);
+  // store hooks
+  const {
+    issue: { getIssueById },
+  } = useIssueDetail();
+  // derived values
+  const issue = getIssueById(issueId);
+  const disableSelect = disabled || isUpdating;
+
+  const handleIssueSprintChange = async (sprintId: string | null) => {
+    if (!issue || issue.sprint_id === sprintId) return;
+    setIsUpdating(true);
+    if (sprintId) await issueOperations.addSprintToIssue?.(workspaceSlug, projectId, sprintId, issueId);
+    else await issueOperations.removeIssueFromSprint?.(workspaceSlug, projectId, issue.sprint_id ?? "", issueId);
+    setIsUpdating(false);
+  };
+
+  return (
+    <div className={cn("flex h-full items-center gap-1", className)}>
+      <SprintDropdown
+        value={issue?.sprint_id ?? null}
+        onChange={handleIssueSprintChange}
+        projectId={projectId}
+        disabled={disableSelect}
+        buttonVariant="transparent-with-text"
+        className="group w-full"
+        buttonContainerClassName="w-full text-left h-7.5 rounded-sm"
+        buttonClassName={`text-body-xs-medium justify-between ${issue?.sprint_id ? "" : "text-placeholder"}`}
+        placeholder={t("sprint.no_sprint")}
+        hideIcon
+        dropdownArrow
+        dropdownArrowClassName="h-3.5 w-3.5 hidden group-hover:inline"
+      />
+    </div>
+  );
+});

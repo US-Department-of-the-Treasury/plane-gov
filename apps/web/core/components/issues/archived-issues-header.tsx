@@ -62,7 +62,7 @@ export const ArchivedIssuesHeader = observer(function ArchivedIssuesHeader() {
             layoutDisplayFiltersOptions={
               activeLayout ? ISSUE_DISPLAY_FILTERS_BY_PAGE.archived_issues.layoutOptions[activeLayout] : undefined
             }
-            cycleViewDisabled={!currentProjectDetails?.cycle_view}
+            sprintViewDisabled={!currentProjectDetails?.sprint_view}
             moduleViewDisabled={!currentProjectDetails?.module_view}
           />
         </FiltersDropdown>

@@ -33,14 +33,14 @@ row_mapping = {
     "issue_count": "Issue Count",
     "priority": "Priority",
     "estimate": "Estimate",
-    "issue_cycle__cycle_id": "Cycle",
+    "issue_sprint__sprint_id": "Sprint",
     "issue_module__module_id": "Module",
 }
 
 ASSIGNEE_ID = "assignees__id"
 LABEL_ID = "labels__id"
 STATE_ID = "state_id"
-CYCLE_ID = "issue_cycle__cycle_id"
+SPRINT_ID = "issue_sprint__sprint_id"
 MODULE_ID = "issue_module__module_id"
 
 
@@ -158,17 +158,17 @@ def get_module_details(slug, filters):
     )
 
 
-def get_cycle_details(slug, filters):
+def get_sprint_details(slug, filters):
     return (
         Issue.issue_objects.filter(
             workspace__slug=slug,
             **filters,
-            issue_cycle__cycle_id__isnull=False,
-            issue_cycle__deleted_at__isnull=True,
+            issue_sprint__sprint_id__isnull=False,
+            issue_sprint__deleted_at__isnull=True,
         )
-        .distinct("issue_cycle__cycle_id")
-        .order_by("issue_cycle__cycle_id")
-        .values("issue_cycle__cycle_id", "issue_cycle__cycle__name")
+        .distinct("issue_sprint__sprint_id")
+        .order_by("issue_sprint__sprint_id")
+        .values("issue_sprint__sprint_id", "issue_sprint__sprint__name")
     )
 
 
@@ -189,7 +189,7 @@ def generate_segmented_rows(
     assignee_details,
     label_details,
     state_details,
-    cycle_details,
+    sprint_details,
     module_details,
 ):
     segment_zero = list(set(item.get("segment") for sublist in distribution.values() for item in sublist))
@@ -232,11 +232,11 @@ def generate_segmented_rows(
             if state:
                 generated_row[0] = f"{state['state__name']}"
 
-        if x_axis == CYCLE_ID:
-            cycle = next((cyc for cyc in cycle_details if str(cyc[CYCLE_ID]) == str(item)), None)
+        if x_axis == SPRINT_ID:
+            sprint = next((cyc for cyc in sprint_details if str(cyc[SPRINT_ID]) == str(item)), None)
 
-            if cycle:
-                generated_row[0] = f"{cycle['issue_cycle__cycle__name']}"
+            if sprint:
+                generated_row[0] = f"{sprint['issue_sprint__sprint__name']}"
 
         if x_axis == MODULE_ID:
             module = next(
@@ -276,11 +276,11 @@ def generate_segmented_rows(
             if module:
                 row_zero[index + 2] = module["issue_module__module__name"]
 
-    if segmented == CYCLE_ID:
+    if segmented == SPRINT_ID:
         for index, segm in enumerate(row_zero[2:]):
-            cycle = next((cyc for cyc in cycle_details if str(cyc[CYCLE_ID]) == str(segm)), None)
-            if cycle:
-                row_zero[index + 2] = cycle["issue_cycle__cycle__name"]
+            sprint = next((cyc for cyc in sprint_details if str(cyc[SPRINT_ID]) == str(segm)), None)
+            if sprint:
+                row_zero[index + 2] = sprint["issue_sprint__sprint__name"]
 
     return [tuple(row_zero)] + rows
 
@@ -293,7 +293,7 @@ def generate_non_segmented_rows(
     assignee_details,
     label_details,
     state_details,
-    cycle_details,
+    sprint_details,
     module_details,
 ):
     rows = []
@@ -320,11 +320,11 @@ def generate_non_segmented_rows(
             if state:
                 row[0] = f"{state['state__name']}"
 
-        if x_axis == CYCLE_ID:
-            cycle = next((cyc for cyc in cycle_details if str(cyc[CYCLE_ID]) == str(item)), None)
+        if x_axis == SPRINT_ID:
+            sprint = next((cyc for cyc in sprint_details if str(cyc[SPRINT_ID]) == str(item)), None)
 
-            if cycle:
-                row[0] = f"{cycle['issue_cycle__cycle__name']}"
+            if sprint:
+                row[0] = f"{sprint['issue_sprint__sprint__name']}"
 
         if x_axis == MODULE_ID:
             module = next(
@@ -362,7 +362,7 @@ def analytic_export_task(email, data, slug):
 
         state_details = get_state_details(slug, filters) if x_axis == STATE_ID or segment == STATE_ID else {}
 
-        cycle_details = get_cycle_details(slug, filters) if x_axis == CYCLE_ID or segment == CYCLE_ID else {}
+        sprint_details = get_sprint_details(slug, filters) if x_axis == SPRINT_ID or segment == SPRINT_ID else {}
 
         module_details = get_module_details(slug, filters) if x_axis == MODULE_ID or segment == MODULE_ID else {}
 
@@ -376,7 +376,7 @@ def analytic_export_task(email, data, slug):
                 assignee_details,
                 label_details,
                 state_details,
-                cycle_details,
+                sprint_details,
                 module_details,
             )
         else:
@@ -388,7 +388,7 @@ def analytic_export_task(email, data, slug):
                 assignee_details,
                 label_details,
                 state_details,
-                cycle_details,
+                sprint_details,
                 module_details,
             )
 

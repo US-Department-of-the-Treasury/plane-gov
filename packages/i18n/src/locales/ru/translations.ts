@@ -10,7 +10,7 @@ export default {
     views: "Представления",
     analytics: "Аналитика",
     work_items: "Рабочие элементы",
-    cycles: "Циклы",
+    sprints: "Циклы",
     modules: "Модули",
     intake: "Предложения",
     drafts: "Черновики",
@@ -272,24 +272,24 @@ export default {
   general_settings: "Общие настройки",
   sign_out: "Выйти",
   signing_out: "Выход...",
-  active_cycles: "Активные циклы",
-  active_cycles_description:
+  active_sprints: "Активные циклы",
+  active_sprints_description:
     "Мониторинг циклов по проектам, отслеживание приоритетных рабочих элементов и фокусировка на проблемных циклах.",
-  on_demand_snapshots_of_all_your_cycles: "Моментальные снимки всех ваших циклов",
+  on_demand_snapshots_of_all_your_sprints: "Моментальные снимки всех ваших циклов",
   upgrade: "Обновить",
   "10000_feet_view": "Обзор всех активных циклов с высоты",
   "10000_feet_view_description":
     "Общий обзор выполняющихся циклов во всех проектах вместо переключения между циклами в каждом проекте.",
-  get_snapshot_of_each_active_cycle: "Получить снимок каждого активного цикла",
-  get_snapshot_of_each_active_cycle_description:
+  get_snapshot_of_each_active_sprint: "Получить снимок каждого активного цикла",
+  get_snapshot_of_each_active_sprint_description:
     "Отслеживайте ключевые метрики активных циклов, их прогресс и соответствие срокам.",
   compare_burndowns: "Сравнение графиков выгорания",
   compare_burndowns_description: "Мониторинг производительности команд через анализ графиков выполнения циклов.",
   quickly_see_make_or_break_issues: "Быстрый просмотр критических рабочих элементов",
   quickly_see_make_or_break_issues_description:
     "Просмотр высокоприоритетных рабочих элементов с указанием сроков для каждого цикла в один клик.",
-  zoom_into_cycles_that_need_attention: "Фокусировка на проблемных циклах",
-  zoom_into_cycles_that_need_attention_description:
+  zoom_into_sprints_that_need_attention: "Фокусировка на проблемных циклах",
+  zoom_into_sprints_that_need_attention_description:
     "Исследование состояния циклов, не соответствующих ожиданиям, в один клик.",
   stay_ahead_of_blockers: "Предупреждение блокирующих рабочих элементов",
   stay_ahead_of_blockers_description: "Выявление проблем между проектами и скрытых зависимостей между циклами.",
@@ -370,7 +370,7 @@ export default {
   congrats: "Поздравляем!",
   open_project: "Открыть проект",
   issues: "Рабочие элементы",
-  cycles: "Циклы",
+  sprints: "Циклы",
   modules: "Модули",
   pages: "Страницы",
   intake: "Предложения",
@@ -378,7 +378,7 @@ export default {
   work_management: "Управление рабочими элементами",
   projects_and_issues: "Проекты и рабочие элементы",
   projects_and_issues_description: "Включить/отключить для этого проекта",
-  cycles_description:
+  sprints_description:
     "Ограничьте работу по времени для каждого проекта и при необходимости изменяйте период. Один цикл может длиться 2 недели, следующий — 1 неделю.",
   modules_description: "Организуйте работу в подпроекты с назначенными руководителями и исполнителями.",
   views_description:
@@ -653,8 +653,8 @@ export default {
     priority: "Приоритет",
     team_project: "Командный проект",
     project: "Проект",
-    cycle: "Цикл",
-    cycles: "Циклы",
+    sprint: "Цикл",
+    sprints: "Циклы",
     module: "Модуль",
     modules: "Модули",
     labels: "Метки",
@@ -973,7 +973,7 @@ export default {
     add: {
       press_enter: "Нажмите 'Enter' чтобы добавить ещё рабочий элемент",
       label: "Добавить рабочий элемент",
-      cycle: {
+      sprint: {
         failed: "Не удалось добавить рабочий элемент в цикл. Попробуйте снова.",
         success:
           "{count, plural, one {Рабочий элемент} other {Рабочие элементы}} успешно {count, plural, one {добавлен} other {добавлены}} в цикл.",
@@ -990,7 +990,7 @@ export default {
     },
     remove: {
       label: "Удалить рабочий элемент",
-      cycle: {
+      sprint: {
         loading: "Удаление рабочего элемента из цикла",
         success: "Рабочий элемент успешно удален из цикла",
         failed: "Не удалось удалить рабочий элемент из цикла. Попробуйте снова.",
@@ -1342,7 +1342,7 @@ export default {
     work_items_closed_in: "Рабочие элементы закрыты в",
     selected_projects: "Выбранные проекты",
     total_members: "Всего участников",
-    total_cycles: "Всего циклов",
+    total_sprints: "Всего циклов",
     total_modules: "Всего модулей",
     pending_work_items: {
       title: "Ожидающие рабочие элементы",
@@ -1429,7 +1429,7 @@ export default {
     },
     error: {
       permission: "Недостаточно прав для выполнения действия",
-      cycle_delete: "Ошибка удаления цикла",
+      sprint_delete: "Ошибка удаления цикла",
       module_delete: "Ошибка удаления модуля",
       issue_delete: "Не удалось удалить рабочий элемент",
     },
@@ -1974,23 +1974,23 @@ export default {
       },
     },
   },
-  project_cycles: {
-    add_cycle: "Добавить цикл",
+  project_sprints: {
+    add_sprint: "Добавить цикл",
     more_details: "Подробнее",
-    cycle: "Цикл",
-    update_cycle: "Обновить цикл",
-    create_cycle: "Создать цикл",
-    no_matching_cycles: "Нет подходящих циклов",
-    remove_filters_to_see_all_cycles: "Снимите фильтры для просмотра всех циклов",
-    remove_search_criteria_to_see_all_cycles: "Очистите поиск для просмотра всех циклов",
-    only_completed_cycles_can_be_archived: "Только завершённые циклы можно архивировать",
+    sprint: "Цикл",
+    update_sprint: "Обновить цикл",
+    create_sprint: "Создать цикл",
+    no_matching_sprints: "Нет подходящих циклов",
+    remove_filters_to_see_all_sprints: "Снимите фильтры для просмотра всех циклов",
+    remove_search_criteria_to_see_all_sprints: "Очистите поиск для просмотра всех циклов",
+    only_completed_sprints_can_be_archived: "Только завершённые циклы можно архивировать",
     start_date: "Дата начала",
     end_date: "Дата окончания",
     in_your_timezone: "В вашем часовом поясе",
     transfer_work_items: "Перенести {count} рабочих элементов",
     date_range: "Диапазон дат",
     add_date: "Добавить дату",
-    active_cycle: {
+    active_sprint: {
       label: "Активный цикл",
       progress: "Прогресс",
       chart: "Диаграмма сгорания",
@@ -2001,10 +2001,10 @@ export default {
       current: "Текущий",
       labels: "Метки",
     },
-    upcoming_cycle: {
+    upcoming_sprint: {
       label: "Предстоящий цикл",
     },
-    completed_cycle: {
+    completed_sprint: {
       label: "Завершённый цикл",
     },
     status: {
@@ -2321,7 +2321,7 @@ export default {
       custom: "Другое",
     },
   },
-  active_cycle: {
+  active_sprint: {
     empty_state: {
       progress: {
         title: "Добавьте рабочие элементы в цикл, чтобы отслеживать прогресс",
@@ -2350,7 +2350,7 @@ export default {
           text: "Управление функциями",
         },
       },
-      cycle: {
+      sprint: {
         title: "Циклы отключены для этого проекта",
         description:
           "Разбивайте работу на временные интервалы, устанавливайте сроки и отслеживайте прогресс команды. Включите функцию циклов в настройках проекта.",
@@ -2572,9 +2572,9 @@ export default {
       manual: "Вручную",
     },
   },
-  cycle: {
+  sprint: {
     label: "{count, plural, one {Цикл} other {Циклы}}",
-    no_cycle: "Нет цикла",
+    no_sprint: "Нет цикла",
   },
   module: {
     label: "{count, plural, one {Модуль} other {Модули}}",

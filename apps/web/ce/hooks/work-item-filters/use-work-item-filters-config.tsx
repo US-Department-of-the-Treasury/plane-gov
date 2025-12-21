@@ -3,8 +3,8 @@ import { AtSign, Briefcase, Calendar } from "lucide-react";
 // plane imports
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import {
-  CycleGroupIcon,
-  CycleIcon,
+  SprintGroupIcon,
+  SprintIcon,
   ModuleIcon,
   StatePropertyIcon,
   PriorityIcon,
@@ -17,7 +17,7 @@ import {
   PriorityPropertyIcon,
 } from "@plane/propel/icons";
 import type {
-  ICycle,
+  ISprint,
   IState,
   IUserLite,
   TFilterConfig,
@@ -32,7 +32,7 @@ import {
   getAssigneeFilterConfig,
   getCreatedAtFilterConfig,
   getCreatedByFilterConfig,
-  getCycleFilterConfig,
+  getSprintFilterConfig,
   getFileURL,
   getLabelFilterConfig,
   getMentionFilterConfig,
@@ -48,7 +48,7 @@ import {
   isLoaderReady,
 } from "@plane/utils";
 // store hooks
-import { useCycle } from "@/hooks/store/use-cycle";
+import { useSprint } from "@/hooks/store/use-sprint";
 import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
 import { useModule } from "@/hooks/store/use-module";
@@ -59,7 +59,7 @@ import { useFiltersOperatorConfigs } from "@/plane-web/hooks/rich-filters/use-fi
 
 export type TWorkItemFiltersEntityProps = {
   workspaceSlug: string;
-  cycleIds?: string[];
+  sprintIds?: string[];
   labelIds?: string[];
   memberIds?: string[];
   moduleIds?: string[];
@@ -83,11 +83,11 @@ export type TWorkItemFiltersConfig = {
 };
 
 export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps): TWorkItemFiltersConfig => {
-  const { allowedFilters, cycleIds, labelIds, memberIds, moduleIds, projectId, projectIds, stateIds, workspaceSlug } =
+  const { allowedFilters, sprintIds, labelIds, memberIds, moduleIds, projectId, projectIds, stateIds, workspaceSlug } =
     props;
   // store hooks
   const { loader: projectLoader, getProjectById } = useProject();
-  const { getCycleById } = useCycle();
+  const { getSprintById } = useSprint();
   const { getLabelById } = useLabel();
   const { getModuleById } = useModule();
   const { getStateById } = useProjectState();
@@ -115,9 +115,9 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
         : undefined,
     [labelIds, getLabelById]
   );
-  const cycles = useMemo(
-    () => (cycleIds ? (cycleIds.map((cycleId) => getCycleById(cycleId)).filter((cycle) => cycle) as ICycle[]) : []),
-    [cycleIds, getCycleById]
+  const sprints = useMemo(
+    () => (sprintIds ? (sprintIds.map((sprintId) => getSprintById(sprintId)).filter((sprint) => sprint) as ISprint[]) : []),
+    [sprintIds, getSprintById]
   );
   const modules = useMemo(
     () =>
@@ -181,17 +181,17 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
     [isFilterEnabled, workItemLabels, operatorConfigs]
   );
 
-  // cycle filter config
-  const cycleFilterConfig = useMemo(
+  // sprint filter config
+  const sprintFilterConfig = useMemo(
     () =>
-      getCycleFilterConfig<TWorkItemFilterProperty>("cycle_id")({
-        isEnabled: isFilterEnabled("cycle_id") && project?.cycle_view === true && cycles !== undefined,
-        filterIcon: CycleIcon,
-        getOptionIcon: (cycleGroup) => <CycleGroupIcon cycleGroup={cycleGroup} className="h-3.5 w-3.5 flex-shrink-0" />,
-        cycles: cycles ?? [],
+      getSprintFilterConfig<TWorkItemFilterProperty>("sprint_id")({
+        isEnabled: isFilterEnabled("sprint_id") && project?.sprint_view === true && sprints !== undefined,
+        filterIcon: SprintIcon,
+        getOptionIcon: (sprintGroup) => <SprintGroupIcon sprintGroup={sprintGroup} className="h-3.5 w-3.5 flex-shrink-0" />,
+        sprints: sprints ?? [],
         ...operatorConfigs,
       }),
-    [isFilterEnabled, project?.cycle_view, cycles, operatorConfigs]
+    [isFilterEnabled, project?.sprint_view, sprints, operatorConfigs]
   );
 
   // module filter config
@@ -366,7 +366,7 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
       projectFilterConfig,
       mentionFilterConfig,
       labelFilterConfig,
-      cycleFilterConfig,
+      sprintFilterConfig,
       moduleFilterConfig,
       startDateFilterConfig,
       targetDateFilterConfig,
@@ -380,7 +380,7 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
       state_group: stateGroupFilterConfig,
       state_id: stateFilterConfig,
       label_id: labelFilterConfig,
-      cycle_id: cycleFilterConfig,
+      sprint_id: sprintFilterConfig,
       module_id: moduleFilterConfig,
       assignee_id: assigneeFilterConfig,
       mention_id: mentionFilterConfig,

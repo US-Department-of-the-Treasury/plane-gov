@@ -1,10 +1,10 @@
 import useSWR from "swr";
 // plane web imports
-import { WORKSPACE_ESTIMATES, WORKSPACE_CYCLES, WORKSPACE_LABELS, WORKSPACE_MODULES } from "@/constants/fetch-keys";
+import { WORKSPACE_ESTIMATES, WORKSPACE_SPRINTS, WORKSPACE_LABELS, WORKSPACE_MODULES } from "@/constants/fetch-keys";
 import { useWorkspaceIssuePropertiesExtended } from "@/plane-web/hooks/use-workspace-issue-properties-extended";
 // plane imports
 import { useProjectEstimates } from "./store/estimates";
-import { useCycle } from "./store/use-cycle";
+import { useSprint } from "./store/use-sprint";
 import { useLabel } from "./store/use-label";
 import { useModule } from "./store/use-module";
 
@@ -15,7 +15,7 @@ export const useWorkspaceIssueProperties = (workspaceSlug: string | string[] | u
 
   const { fetchWorkspaceModules } = useModule();
 
-  const { fetchWorkspaceCycles } = useCycle();
+  const { fetchWorkspaceSprints } = useSprint();
 
   // fetch workspace Modules
   useSWR(
@@ -24,10 +24,10 @@ export const useWorkspaceIssueProperties = (workspaceSlug: string | string[] | u
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 
-  // fetch workspace Cycles
+  // fetch workspace Sprints
   useSWR(
-    workspaceSlug ? WORKSPACE_CYCLES(workspaceSlug.toString()) : null,
-    workspaceSlug ? () => fetchWorkspaceCycles(workspaceSlug.toString()) : null,
+    workspaceSlug ? WORKSPACE_SPRINTS(workspaceSlug.toString()) : null,
+    workspaceSlug ? () => fetchWorkspaceSprints(workspaceSlug.toString()) : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 

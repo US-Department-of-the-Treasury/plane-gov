@@ -45,7 +45,7 @@ export interface IList {
   disableIssueCreation?: boolean;
   handleOnDrop: (source: GroupDropLocation, destination: GroupDropLocation) => Promise<void>;
   addIssuesToView?: (issueIds: string[]) => Promise<TIssue>;
-  isCompletedCycle?: boolean;
+  isCompletedSprint?: boolean;
   loadMoreIssues: (groupId?: string) => void;
   handleCollapsedGroups: (value: string) => void;
   collapsedGroups: TIssueKanbanFilters;
@@ -68,7 +68,7 @@ export const List = observer(function List(props: IList) {
     disableIssueCreation,
     handleOnDrop,
     addIssuesToView,
-    isCompletedCycle = false,
+    isCompletedSprint = false,
     loadMoreIssues,
     handleCollapsedGroups,
     collapsedGroups,
@@ -155,7 +155,7 @@ export const List = observer(function List(props: IList) {
                     quickAddCallback={quickAddCallback}
                     disableIssueCreation={disableIssueCreation}
                     addIssuesToView={addIssuesToView}
-                    isCompletedCycle={isCompletedCycle}
+                    isCompletedSprint={isCompletedSprint}
                     loadMoreIssues={loadMoreIssues}
                     containerRef={containerRef}
                     selectionHelpers={helpers}

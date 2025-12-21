@@ -1,5 +1,5 @@
 import type { TPaginationInfo } from "./common";
-import type { ICycle } from "./cycle";
+import type { ISprint } from "./sprint";
 import type { TUserPermissions } from "./enums";
 import type { TProjectMembership } from "./project";
 import type { IUser, IUserLite } from "./users";
@@ -151,7 +151,7 @@ export interface IWorkspaceSearchResults {
     workspace: IWorkspaceSearchResult[];
     project: IWorkspaceProjectSearchResult[];
     issue: IWorkspaceIssueSearchResult[];
-    cycle: IWorkspaceDefaultSearchResult[];
+    sprint: IWorkspaceDefaultSearchResult[];
     module: IWorkspaceDefaultSearchResult[];
     issue_view: IWorkspaceDefaultSearchResult[];
     page: IWorkspacePageSearchResult[];
@@ -210,14 +210,14 @@ export interface IProductUpdateResponse {
   };
 }
 
-export interface IWorkspaceActiveCyclesResponse {
+export interface IWorkspaceActiveSprintsResponse {
   count: number;
   extra_stats: null;
   next_cursor: string;
   next_page_results: boolean;
   prev_cursor: string;
   prev_page_results: boolean;
-  results: ICycle[];
+  results: ISprint[];
   total_pages: number;
 }
 

@@ -1,6 +1,6 @@
 export interface IWebhook {
   created_at: string;
-  cycle: boolean;
+  sprint: boolean;
   id: string;
   is_active: boolean;
   issue: boolean;

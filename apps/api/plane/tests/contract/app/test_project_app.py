@@ -204,7 +204,7 @@ class TestProjectAPIPost(TestProjectBase):
             "identifier": "FP",
             "description": "A comprehensive test project",
             "network": 2,
-            "cycle_view": True,
+            "sprint_view": True,
             "issue_views_view": False,
             "module_view": True,
             "page_view": False,
@@ -378,7 +378,7 @@ class TestProjectAPIPatchDelete(TestProjectBase):
         update_data = {
             "name": "Updated Project",
             "description": "Updated description",
-            "cycle_view": True,
+            "sprint_view": True,
             "module_view": False,
         }
 
@@ -390,7 +390,7 @@ class TestProjectAPIPatchDelete(TestProjectBase):
         project.refresh_from_db()
         assert project.name == "Updated Project"
         assert project.description == "Updated description"
-        assert project.cycle_view is True
+        assert project.sprint_view is True
         assert project.module_view is False
 
     @pytest.mark.django_db

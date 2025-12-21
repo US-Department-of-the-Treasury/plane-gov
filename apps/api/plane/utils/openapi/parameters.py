@@ -100,17 +100,17 @@ ASSET_ID_PARAMETER = OpenApiParameter(
     ],
 )
 
-CYCLE_ID_PARAMETER = OpenApiParameter(
-    name="cycle_id",
-    description="Cycle ID",
+SPRINT_ID_PARAMETER = OpenApiParameter(
+    name="sprint_id",
+    description="Sprint ID",
     required=True,
     type=OpenApiTypes.UUID,
     location=OpenApiParameter.PATH,
     examples=[
         OpenApiExample(
-            name="Example cycle ID",
+            name="Example sprint ID",
             value="550e8400-e29b-41d4-a716-446655440000",
-            description="A typical cycle UUID",
+            description="A typical sprint UUID",
         )
     ],
 )
@@ -434,20 +434,20 @@ PROJECT_ID_QUERY_PARAMETER = OpenApiParameter(
     ],
 )
 
-# Cycle View Parameter
-CYCLE_VIEW_PARAMETER = OpenApiParameter(
-    name="cycle_view",
+# Sprint View Parameter
+SPRINT_VIEW_PARAMETER = OpenApiParameter(
+    name="sprint_view",
     type=OpenApiTypes.STR,
     location=OpenApiParameter.QUERY,
-    description="Filter cycles by status",
+    description="Filter sprints by status",
     required=False,
     examples=[
-        OpenApiExample(name="All cycles", value="all"),
-        OpenApiExample(name="Current cycles", value="current"),
-        OpenApiExample(name="Upcoming cycles", value="upcoming"),
-        OpenApiExample(name="Completed cycles", value="completed"),
-        OpenApiExample(name="Draft cycles", value="draft"),
-        OpenApiExample(name="Incomplete cycles", value="incomplete"),
+        OpenApiExample(name="All sprints", value="all"),
+        OpenApiExample(name="Current sprints", value="current"),
+        OpenApiExample(name="Upcoming sprints", value="upcoming"),
+        OpenApiExample(name="Completed sprints", value="completed"),
+        OpenApiExample(name="Draft sprints", value="draft"),
+        OpenApiExample(name="Incomplete sprints", value="incomplete"),
     ],
 )
 
