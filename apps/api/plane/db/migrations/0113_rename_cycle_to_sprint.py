@@ -1,5 +1,5 @@
 # Generated migration to rename Cycle to Sprint
-from django.db import migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -145,24 +145,24 @@ class Migration(migrations.Migration):
         # ================================
         migrations.AddConstraint(
             model_name="sprintissue",
-            constraint=migrations.models.UniqueConstraint(
-                condition=migrations.models.Q(deleted_at__isnull=True),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(deleted_at__isnull=True),
                 fields=["sprint", "issue"],
                 name="sprint_issue_when_deleted_at_null",
             ),
         ),
         migrations.AddConstraint(
             model_name="sprintuserproperties",
-            constraint=migrations.models.UniqueConstraint(
-                condition=migrations.models.Q(deleted_at__isnull=True),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(deleted_at__isnull=True),
                 fields=["sprint", "user"],
                 name="sprint_user_properties_unique_sprint_user_when_deleted_at_null",
             ),
         ),
         migrations.AddConstraint(
             model_name="draftissuesprint",
-            constraint=migrations.models.UniqueConstraint(
-                condition=migrations.models.Q(deleted_at__isnull=True),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(deleted_at__isnull=True),
                 fields=["draft_issue", "sprint"],
                 name="draft_issue_sprint_when_deleted_at_null",
             ),
