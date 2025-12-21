@@ -32,6 +32,7 @@ from plane.app.views import (
     WorkspaceHomePreferenceViewSet,
     WorkspaceStickyViewSet,
     WorkspaceUserPreferenceViewSet,
+    GenerateFakeMembersEndpoint,
 )
 
 
@@ -252,5 +253,11 @@ urlpatterns = [
         "workspaces/<str:slug>/sidebar-preferences/",
         WorkspaceUserPreferenceViewSet.as_view(),
         name="workspace-user-preference",
+    ),
+    # Development-only endpoints
+    path(
+        "workspaces/<str:slug>/dev/generate-fake-members/",
+        GenerateFakeMembersEndpoint.as_view(),
+        name="workspace-generate-fake-members",
     ),
 ]

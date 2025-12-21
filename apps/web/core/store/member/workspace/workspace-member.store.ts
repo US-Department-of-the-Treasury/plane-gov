@@ -55,6 +55,11 @@ export interface IWorkspaceMemberStore {
   ) => Promise<void>;
   deleteMemberInvitation: (workspaceSlug: string, invitationId: string) => Promise<void>;
   isUserSuspended: (userId: string, workspaceSlug: string) => boolean;
+  // dev actions
+  generateFakeMembers: (
+    workspaceSlug: string,
+    count: number
+  ) => Promise<{ message: string; users: Array<{ id: string; email: string; display_name: string }> }>;
 }
 
 export class WorkspaceMemberStore implements IWorkspaceMemberStore {
@@ -88,6 +93,7 @@ export class WorkspaceMemberStore implements IWorkspaceMemberStore {
       fetchWorkspaceMemberInvitations: action,
       updateMemberInvitation: action,
       deleteMemberInvitation: action,
+      generateFakeMembers: action,
     });
     // initialize filters store
     this.filtersStore = new WorkspaceMemberFiltersStore();
@@ -356,4 +362,16 @@ export class WorkspaceMemberStore implements IWorkspaceMemberStore {
     const workspaceMember = this.workspaceMemberMap?.[workspaceSlug]?.[userId];
     return workspaceMember?.is_active === false;
   });
+
+  /**
+   * @description generate fake members for development/testing (only works in DEBUG mode)
+   * @param workspaceSlug
+   * @param count - number of fake members to generate (1-50)
+   */
+  generateFakeMembers = async (workspaceSlug: string, count: number) => {
+    const response = await this.workspaceService.generateFakeMembers(workspaceSlug, count);
+    // Refresh the members list after generating fake users
+    await this.fetchWorkspaceMembers(workspaceSlug);
+    return response;
+  };
 }
