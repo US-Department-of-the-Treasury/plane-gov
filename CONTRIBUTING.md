@@ -185,6 +185,37 @@ python manage.py runserver
 - Add type hints where practical
 - Write tests for new functionality
 
+### Testing Requirements
+
+**Before submitting a PR:**
+
+1. **Install Playwright browsers** (one-time):
+
+   ```bash
+   pnpm exec playwright install chromium
+   ```
+
+2. **Run smoke tests** to verify no regressions:
+
+   ```bash
+   pnpm test:smoke
+   ```
+
+3. **For significant changes, run full E2E tests:**
+   ```bash
+   pnpm test:e2e
+   ```
+
+**Expected result:** All tests should pass with zero console errors.
+
+If tests fail:
+
+- Fix the root cause (preferred)
+- Update tests if behavior intentionally changed
+- Document known issues in PR description
+
+See [apps/web/TESTING.md](./apps/web/TESTING.md) for detailed testing guide.
+
 ## Pull Requests
 
 1. Create a feature branch from `preview`:

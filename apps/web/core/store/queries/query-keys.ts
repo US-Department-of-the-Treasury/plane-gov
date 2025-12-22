@@ -104,7 +104,8 @@ export const queryKeys = {
   // Favorite queries
   favorites: {
     all: (workspaceSlug: string) => ["favorites", workspaceSlug] as const,
-    grouped: (workspaceSlug: string, favoriteId: string) => ["favorites", workspaceSlug, "grouped", favoriteId] as const,
+    grouped: (workspaceSlug: string, favoriteId: string) =>
+      ["favorites", workspaceSlug, "grouped", favoriteId] as const,
   },
 
   // Analytics queries
@@ -122,6 +123,8 @@ export const queryKeys = {
     all: (workspaceSlug: string) => ["workspace-drafts", workspaceSlug] as const,
     filtered: (workspaceSlug: string, filters: Record<string, unknown>) =>
       ["workspace-drafts", workspaceSlug, filters] as const,
+    infinite: (workspaceSlug: string, filters: Record<string, unknown>) =>
+      ["workspace-drafts", workspaceSlug, "infinite", filters] as const,
     detail: (issueId: string) => ["workspace-drafts", "detail", issueId] as const,
   },
 
@@ -145,8 +148,7 @@ export const queryKeys = {
 
   // Sticky queries
   stickies: {
-    all: (workspaceSlug: string, cursor: string, query?: string) =>
-      ["stickies", workspaceSlug, cursor, query] as const,
+    all: (workspaceSlug: string, cursor: string, query?: string) => ["stickies", workspaceSlug, cursor, query] as const,
     recent: (workspaceSlug: string) => ["stickies", workspaceSlug, "recent"] as const,
   },
 
@@ -174,8 +176,10 @@ export const queryKeys = {
   // Dashboard queries
   dashboard: {
     home: (workspaceSlug: string) => ["dashboard", workspaceSlug, "home"] as const,
-    widgets: (workspaceSlug: string, dashboardId: string) => ["dashboard", workspaceSlug, dashboardId, "widgets"] as const,
-    widgetStats: (workspaceSlug: string, dashboardId: string, widgetKey: string) => ["dashboard", workspaceSlug, dashboardId, "stats", widgetKey] as const,
+    widgets: (workspaceSlug: string, dashboardId: string) =>
+      ["dashboard", workspaceSlug, dashboardId, "widgets"] as const,
+    widgetStats: (workspaceSlug: string, dashboardId: string, widgetKey: string) =>
+      ["dashboard", workspaceSlug, dashboardId, "stats", widgetKey] as const,
   },
 
   // Home queries

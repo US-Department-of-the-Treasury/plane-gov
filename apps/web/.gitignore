@@ -1,4 +1,8 @@
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Playwright E2E
 test-results/
+playwright-report/
+e2e/.auth/
