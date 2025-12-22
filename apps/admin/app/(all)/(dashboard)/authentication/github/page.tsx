@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
-import useSWR from "swr";
 // plane internal packages
 import { setPromiseToast } from "@plane/propel/toast";
 import { Loader, ToggleSwitch } from "@plane/ui";
@@ -11,25 +9,22 @@ import githubLightModeImage from "@/app/assets/logos/github-black.png?url";
 import githubDarkModeImage from "@/app/assets/logos/github-white.png?url";
 import { AuthenticationMethodCard } from "@/components/authentication/authentication-method-card";
 // hooks
-import { useInstance } from "@/hooks/store";
-// icons
+import { useInstanceConfigurations, useUpdateInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 // local components
 import type { Route } from "./+types/page";
 import { InstanceGithubConfigForm } from "./form";
 
-const InstanceGithubAuthenticationPage = observer(function InstanceGithubAuthenticationPage(
-  _props: Route.ComponentProps
-) {
-  // store
-  const { fetchInstanceConfigurations, formattedConfig, updateInstanceConfigurations } = useInstance();
+function InstanceGithubAuthenticationPage(_props: Route.ComponentProps) {
+  // queries
+  const { data: configurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(configurations);
+  const updateConfigMutation = useUpdateInstanceConfigurations();
   // state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // theme
   const { resolvedTheme } = useTheme();
   // config
   const enableGithubConfig = formattedConfig?.IS_GITHUB_ENABLED ?? "";
-
-  useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
 
   const updateConfig = async (key: "IS_GITHUB_ENABLED", value: string) => {
     setIsSubmitting(true);
@@ -38,7 +33,7 @@ const InstanceGithubAuthenticationPage = observer(function InstanceGithubAuthent
       [key]: value,
     };
 
-    const updateConfigPromise = updateInstanceConfigurations(payload);
+    const updateConfigPromise = updateConfigMutation.mutateAsync(payload);
 
     setPromiseToast(updateConfigPromise, {
       loading: "Saving Configuration...",
@@ -109,7 +104,7 @@ const InstanceGithubAuthenticationPage = observer(function InstanceGithubAuthent
       </div>
     </>
   );
-});
+}
 
 export const meta: Route.MetaFunction = () => [{ title: "GitHub Authentication - God Mode" }];
 

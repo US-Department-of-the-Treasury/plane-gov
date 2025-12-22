@@ -1,6 +1,5 @@
 import type { MutableRefObject } from "react";
 import { forwardRef, useCallback, useRef, useState } from "react";
-import { observer } from "mobx-react";
 //types
 import type {
   TGroupedIssues,
@@ -17,6 +16,7 @@ import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { KanbanIssueBlocksList } from "./blocks-list";
 
 interface IKanbanGroup {
+  anchor: string;
   groupId: string;
   groupedIssueIds: TGroupedIssues | TSubGroupedIssues;
   displayProperties: IIssueDisplayProperties | undefined;
@@ -42,8 +42,9 @@ const KanbanIssueBlockLoader = forwardRef(function KanbanIssueBlockLoader(
 });
 KanbanIssueBlockLoader.displayName = "KanbanIssueBlockLoader";
 
-export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
+export function KanbanGroup(props: IKanbanGroup) {
   const {
+    anchor,
     groupId,
     subGroupId,
     subGroupBy,
@@ -106,6 +107,7 @@ export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
       ref={columnRef}
     >
       <KanbanIssueBlocksList
+        anchor={anchor}
         subGroupId={subGroupId}
         groupId={groupId}
         issueIds={issueIds || []}
@@ -116,4 +118,4 @@ export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
       {shouldLoadMore && (isSubGroup ? <>{loadMore}</> : <KanbanIssueBlockLoader ref={setIntersectionElement} />)}
     </div>
   );
-});
+}

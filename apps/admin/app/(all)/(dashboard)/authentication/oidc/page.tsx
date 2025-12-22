@@ -1,26 +1,24 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
-import useSWR from "swr";
 import { setPromiseToast } from "@plane/propel/toast";
 import { Loader, ToggleSwitch } from "@plane/ui";
 // components
 import OIDCLogo from "@/app/assets/logos/oidc-logo.svg?url";
 import { AuthenticationMethodCard } from "@/components/authentication/authentication-method-card";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useInstanceConfigurations, useUpdateInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 // local components
 import type { Route } from "./+types/page";
 import { InstanceOIDCConfigForm } from "./form";
 
-const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticationPage(_props: Route.ComponentProps) {
-  // store
-  const { fetchInstanceConfigurations, formattedConfig, updateInstanceConfigurations } = useInstance();
+function InstanceOIDCAuthenticationPage(_props: Route.ComponentProps) {
+  // queries
+  const { data: configurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(configurations);
+  const updateConfigMutation = useUpdateInstanceConfigurations();
   // state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // config
   const enableOIDCConfig = formattedConfig?.IS_OIDC_ENABLED ?? "";
-
-  useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
 
   const updateConfig = async (key: "IS_OIDC_ENABLED", value: string) => {
     setIsSubmitting(true);
@@ -29,7 +27,7 @@ const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticat
       [key]: value,
     };
 
-    const updateConfigPromise = updateInstanceConfigurations(payload);
+    const updateConfigPromise = updateConfigMutation.mutateAsync(payload);
 
     setPromiseToast(updateConfigPromise, {
       loading: "Saving Configuration...",
@@ -96,7 +94,7 @@ const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticat
       </div>
     </>
   );
-});
+}
 
 export const meta: Route.MetaFunction = () => [{ title: "OIDC Authentication - God Mode" }];
 

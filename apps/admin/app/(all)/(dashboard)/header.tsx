@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 import { Menu, Settings } from "lucide-react";
 // icons
@@ -6,10 +5,11 @@ import { Breadcrumbs } from "@plane/ui";
 // components
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 // hooks
-import { useTheme } from "@/hooks/store";
+import { useThemeStore } from "@/store/queries";
 
-export const HamburgerToggle = observer(function HamburgerToggle() {
-  const { isSidebarCollapsed, toggleSidebar } = useTheme();
+export function HamburgerToggle() {
+  const isSidebarCollapsed = useThemeStore((s) => s.isSidebarCollapsed);
+  const toggleSidebar = useThemeStore((s) => s.toggleSidebar);
   return (
     <div
       className="w-7 h-7 rounded-sm flex justify-center items-center bg-layer-1 transition-all hover:bg-layer-1-hover cursor-pointer group md:hidden"
@@ -18,9 +18,9 @@ export const HamburgerToggle = observer(function HamburgerToggle() {
       <Menu size={14} className="text-secondary group-hover:text-primary transition-all" />
     </div>
   );
-});
+}
 
-export const AdminHeader = observer(function AdminHeader() {
+export function AdminHeader() {
   const pathName = usePathname();
 
   const getHeaderTitle = (pathName: string) => {
@@ -101,4 +101,4 @@ export const AdminHeader = observer(function AdminHeader() {
       </div>
     </div>
   );
-});
+}

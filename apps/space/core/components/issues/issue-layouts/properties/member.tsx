@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // icons
 import type { LucideIcon } from "lucide-react";
 import { MembersPropertyIcon } from "@plane/propel/icons";
@@ -6,9 +5,10 @@ import { MembersPropertyIcon } from "@plane/propel/icons";
 import { Avatar, AvatarGroup } from "@plane/ui";
 // plane utils
 import { cn } from "@plane/utils";
-// hooks
-import { useMember } from "@/hooks/store/use-member";
-//
+// store
+import { useAnchor } from "@/store/anchor-context";
+import { useMembers } from "@/store/queries";
+// types
 import type { TPublicMember } from "@/types/member";
 
 type Props = {
@@ -22,7 +22,7 @@ type AvatarProps = {
   icon?: LucideIcon;
 };
 
-export const ButtonAvatars = observer(function ButtonAvatars(props: AvatarProps) {
+export function ButtonAvatars(props: AvatarProps) {
   const { showTooltip, members, icon: Icon } = props;
 
   if (Array.isArray(members)) {
@@ -52,10 +52,12 @@ export const ButtonAvatars = observer(function ButtonAvatars(props: AvatarProps)
   ) : (
     <MembersPropertyIcon className="h-3 w-3 mx-[4px] flex-shrink-0" />
   );
-});
+}
 
-export const IssueBlockMembers = observer(function IssueBlockMembers({ memberIds, shouldShowBorder = true }: Props) {
-  const { getMembersByIds } = useMember();
+export function IssueBlockMembers({ memberIds, shouldShowBorder = true }: Props) {
+  // hooks
+  const anchor = useAnchor();
+  const { getMembersByIds } = useMembers(anchor);
 
   const members = getMembersByIds(memberIds);
 
@@ -75,4 +77,4 @@ export const IssueBlockMembers = observer(function IssueBlockMembers({ memberIds
       </div>
     </div>
   );
-});
+}

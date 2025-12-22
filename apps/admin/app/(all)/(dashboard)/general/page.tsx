@@ -1,12 +1,12 @@
-import { observer } from "mobx-react";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useInstanceInfo, useInstanceAdmins } from "@/store/queries";
 // components
 import type { Route } from "./+types/page";
 import { GeneralConfigurationForm } from "./form";
 
 function GeneralPage() {
-  const { instance, instanceAdmins } = useInstance();
+  const { data: instance } = useInstanceInfo();
+  const { data: instanceAdmins } = useInstanceAdmins();
 
   return (
     <>
@@ -19,8 +19,8 @@ function GeneralPage() {
           </div>
         </div>
         <div className="flex-grow overflow-hidden overflow-y-scroll vertical-scrollbar scrollbar-md px-4">
-          {instance && instanceAdmins && (
-            <GeneralConfigurationForm instance={instance} instanceAdmins={instanceAdmins} />
+          {instance?.instance && instanceAdmins && (
+            <GeneralConfigurationForm instance={instance.instance} instanceAdmins={instanceAdmins} />
           )}
         </div>
       </div>
@@ -30,4 +30,4 @@ function GeneralPage() {
 
 export const meta: Route.MetaFunction = () => [{ title: "General Settings - God Mode" }];
 
-export default observer(GeneralPage);
+export default GeneralPage;

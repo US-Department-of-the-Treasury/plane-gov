@@ -1,8 +1,9 @@
-// store
-import { CoreRootStore } from "@/store/root.store";
+// This is a placeholder file for CE (Community Edition) store
+// The MobX stores have been migrated to TanStack Query + Zustand
+// This file exists for backwards compatibility with any code that may reference it
 
-export class RootStore extends CoreRootStore {
+export class RootStore {
   constructor() {
-    super();
+    // No-op - state is now managed by TanStack Query and Zustand
   }
 }

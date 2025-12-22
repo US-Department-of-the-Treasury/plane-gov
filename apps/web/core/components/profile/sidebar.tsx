@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 // icons
 import { Pencil } from "lucide-react";
 // headless ui
-import { Disclosure, Transition } from "@headlessui/react";
+import { Disclosure, Transition, TransitionChild } from "@headlessui/react";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
 // types
@@ -183,16 +183,17 @@ export function ProfileSidebar(props: TProfileSidebar) {
                             <ChevronDownIcon className="h-4 w-4" />
                           </div>
                         </Disclosure.Button>
-                        <Transition
-                          show={open}
-                          enter="transition duration-100 ease-out"
-                          enterFrom="transform opacity-0"
-                          enterTo="transform opacity-100"
-                          leave="transition duration-75 ease-out"
-                          leaveFrom="transform opacity-100"
-                          leaveTo="transform opacity-0"
-                        >
-                          <Disclosure.Panel className="mt-5 pl-9">
+                        <Transition show={open}>
+                          <TransitionChild
+                            as="div"
+                            enter="transition duration-100 ease-out"
+                            enterFrom="transform opacity-0"
+                            enterTo="transform opacity-100"
+                            leave="transition duration-75 ease-out"
+                            leaveFrom="transform opacity-100"
+                            leaveTo="transform opacity-0"
+                          >
+                            <Disclosure.Panel className="mt-5 pl-9">
                             {totalIssues > 0 && (
                               <div className="flex items-center gap-0.5">
                                 <div
@@ -264,6 +265,7 @@ export function ProfileSidebar(props: TProfileSidebar) {
                               </div>
                             </div>
                           </Disclosure.Panel>
+                          </TransitionChild>
                         </Transition>
                       </div>
                     )}

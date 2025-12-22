@@ -1,9 +1,8 @@
-import { observer } from "mobx-react";
 // components
 import type { Route } from "./+types/page";
 import { WorkspaceCreateForm } from "./form";
 
-const WorkspaceCreatePage = observer(function WorkspaceCreatePage(_props: Route.ComponentProps) {
+function WorkspaceCreatePage(_props: Route.ComponentProps) {
   return (
     <div className="relative container mx-auto w-full h-full p-4 py-4 space-y-6 flex flex-col">
       <div className="border-b border-subtle mx-4 py-4 space-y-1 flex-shrink-0">
@@ -17,7 +16,7 @@ const WorkspaceCreatePage = observer(function WorkspaceCreatePage(_props: Route.
       </div>
     </div>
   );
-});
+}
 
 export const meta: Route.MetaFunction = () => [{ title: "Create Workspace - God Mode" }];
 

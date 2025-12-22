@@ -191,13 +191,15 @@ export function BulkDeleteIssuesModal(props: Props) {
               <div className="w-full max-w-2xl transform divide-y divide-subtle-1 divide-opacity-10 rounded-lg bg-surface-1 shadow-raised-200 transition-all">
                 <form>
                   <Combobox
-                    onChange={(val: string) => {
-                      if (selectedIssueIds.includes(val))
-                        setValue(
-                          "delete_issue_ids",
-                          selectedIssueIds.filter((i) => i !== val)
-                        );
-                      else setValue("delete_issue_ids", [...selectedIssueIds, val]);
+                    onChange={(val: string | null) => {
+                      if (val !== null) {
+                        if (selectedIssueIds.includes(val))
+                          setValue(
+                            "delete_issue_ids",
+                            selectedIssueIds.filter((i) => i !== val)
+                          );
+                        else setValue("delete_issue_ids", [...selectedIssueIds, val]);
+                      }
                     }}
                   >
                     <div className="relative m-1">

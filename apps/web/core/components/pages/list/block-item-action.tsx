@@ -18,7 +18,7 @@ import { PageActions } from "../dropdowns";
 
 type Props = {
   page: TPageInstance;
-  parentRef: React.RefObject<HTMLElement>;
+  parentRef: React.RefObject<HTMLElement | null>;
   storeType: EPageStoreType;
 };
 

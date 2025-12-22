@@ -21,7 +21,7 @@ export const SidebarQuickActions = memo(function SidebarQuickActions() {
   const [_isDraftButtonOpen, setIsDraftButtonOpen] = useState(false);
   // refs
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const timeoutRef = useRef<any>();
+  const timeoutRef = useRef<any>(undefined);
   // router
   const { workspaceSlug: routerWorkspaceSlug } = useParams();
   const workspaceSlug = routerWorkspaceSlug?.toString();

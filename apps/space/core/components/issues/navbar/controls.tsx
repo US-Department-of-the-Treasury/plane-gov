@@ -1,15 +1,14 @@
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { useRouter, useSearchParams } from "next/navigation";
 // components
 import { IssueFiltersDropdown } from "@/components/issues/filters";
 // helpers
 import { queryParamGenerator } from "@/helpers/query-param-generator";
 // hooks
-import { useIssueDetails } from "@/hooks/store/use-issue-details";
-import { useIssueFilter } from "@/hooks/store/use-issue-filter";
 import useIsInIframe from "@/hooks/use-is-in-iframe";
 // store
+import { useIssueFiltersStore } from "@/store/issue-filters.store";
+import { usePeekStore } from "@/store/peek.store";
 import type { PublishStore } from "@/store/publish/publish.store";
 // types
 import type { TIssueLayout } from "@/types/issue";
@@ -22,7 +21,7 @@ export type NavbarControlsProps = {
   publishSettings: PublishStore;
 };
 
-export const NavbarControls = observer(function NavbarControls(props: NavbarControlsProps) {
+export function NavbarControls(props: NavbarControlsProps) {
   // props
   const { publishSettings } = props;
   // router
@@ -35,8 +34,8 @@ export const NavbarControls = observer(function NavbarControls(props: NavbarCont
   const priority = searchParams.get("priority") || undefined;
   const peekId = searchParams.get("peekId") || undefined;
   // hooks
-  const { getIssueFilters, isIssueFiltersUpdated, initIssueFilters } = useIssueFilter();
-  const { setPeekId } = useIssueDetails();
+  const { getIssueFilters, isIssueFiltersUpdated, initIssueFilters } = useIssueFiltersStore();
+  const { setPeekId } = usePeekStore();
   // derived values
   const { anchor, view_props, workspace_detail } = publishSettings;
   const issueFilters = anchor ? getIssueFilters(anchor) : undefined;
@@ -121,4 +120,4 @@ export const NavbarControls = observer(function NavbarControls(props: NavbarCont
       {!isInIframe && <UserAvatar />}
     </>
   );
-});
+}

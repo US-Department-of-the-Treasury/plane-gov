@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { Eye, EyeOff, XCircle } from "lucide-react";
 // plane imports
 import { API_BASE_URL, E_PASSWORD_STRENGTH } from "@plane/constants";
@@ -33,7 +32,7 @@ const defaultValues: TPasswordFormValues = {
 
 const authService = new AuthService();
 
-export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props) {
+export function AuthPasswordForm(props: Props) {
   const { email, nextPath, isSMTPConfigured, handleAuthStep, handleEmailClear, mode } = props;
   // ref
   const formRef = useRef<HTMLFormElement>(null);
@@ -237,4 +236,4 @@ export const AuthPasswordForm = observer(function AuthPasswordForm(props: Props)
       </div>
     </form>
   );
-});
+}

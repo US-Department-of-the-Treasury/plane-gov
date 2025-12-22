@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
 import { Button } from "@plane/propel/button";
 // assets
@@ -6,7 +5,7 @@ import { AuthHeader } from "@/app/(all)/(home)/auth-header";
 import InstanceFailureDarkImage from "@/app/assets/instance/instance-failure-dark.svg?url";
 import InstanceFailureImage from "@/app/assets/instance/instance-failure.svg?url";
 
-export const InstanceFailureView = observer(function InstanceFailureView() {
+export function InstanceFailureView() {
   const { resolvedTheme } = useTheme();
 
   const instanceImage = resolvedTheme === "dark" ? InstanceFailureDarkImage : InstanceFailureImage;
@@ -36,4 +35,4 @@ export const InstanceFailureView = observer(function InstanceFailureView() {
       </div>
     </>
   );
-});
+}

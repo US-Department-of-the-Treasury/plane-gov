@@ -1,24 +1,28 @@
 import React, { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 // plane imports
 import { stringToEmoji } from "@plane/propel/emoji-icon-picker";
 import { EmojiReactionGroup, EmojiReactionPicker } from "@plane/propel/emoji-reaction";
 import type { EmojiReactionType } from "@plane/propel/emoji-reaction";
+import type { TIssuePublicComment } from "@plane/types";
 // helpers
 import { groupReactions } from "@/helpers/emoji.helper";
 import { queryParamGenerator } from "@/helpers/query-param-generator";
+
+// Type for comment reactions from TIssuePublicComment
+type TPublicCommentReaction = TIssuePublicComment["comment_reactions"][number];
 // hooks
-import { useIssueDetails } from "@/hooks/store/use-issue-details";
-import { useUser } from "@/hooks/store/use-user";
 import useIsInIframe from "@/hooks/use-is-in-iframe";
+// store
+import { useCurrentUser, useIssueComments, useAddCommentReaction, useRemoveCommentReaction } from "@/store/queries";
+import { usePeekStore } from "@/store/peek.store";
 
 type Props = {
   anchor: string;
   commentId: string;
 };
 
-export const CommentReactions = observer(function CommentReactions(props: Props) {
+export function CommentReactions(props: Props) {
   const { anchor, commentId } = props;
   // state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
@@ -31,38 +35,39 @@ export const CommentReactions = observer(function CommentReactions(props: Props)
   const priority = searchParams.get("priority") || undefined;
   const labels = searchParams.get("labels") || undefined;
 
-  // hooks
-  const { addCommentReaction, removeCommentReaction, details, peekId } = useIssueDetails();
-  const { data: user } = useUser();
+  // store
+  const { peekId } = usePeekStore();
+  const { data: user } = useCurrentUser();
+  const { data: comments = [] } = useIssueComments(anchor, peekId ?? "");
+  const addReactionMutation = useAddCommentReaction();
+  const removeReactionMutation = useRemoveCommentReaction();
   const isInIframe = useIsInIframe();
 
   const commentReactions = useMemo(() => {
-    if (!peekId) return [];
-    const peekDetails = details[peekId];
-    if (!peekDetails) return [];
-    const comment = peekDetails.comments?.find((c) => c.id === commentId);
+    if (!peekId || !comments) return [];
+    const comment = comments.find((c: TIssuePublicComment) => c.id === commentId);
     return comment?.comment_reactions ?? [];
-  }, [peekId, details, commentId]);
+  }, [peekId, comments, commentId]);
 
-  const groupedReactions = useMemo(() => {
+  const groupedReactions = useMemo((): Record<string, TPublicCommentReaction[]> => {
     if (!peekId) return {};
     return groupReactions(commentReactions ?? [], "reaction");
   }, [peekId, commentReactions]);
 
-  const userReactions = commentReactions?.filter((r) => r?.actor_detail?.id === user?.id);
+  const userReactions = commentReactions?.filter((r: TPublicCommentReaction) => r?.actor_detail?.id === user?.id);
 
   const handleAddReaction = (reactionHex: string) => {
     if (!anchor || !peekId) return;
-    addCommentReaction(anchor, peekId, commentId, reactionHex);
+    addReactionMutation.mutate({ anchor, commentId, data: { reaction: reactionHex }, issueId: peekId });
   };
 
   const handleRemoveReaction = (reactionHex: string) => {
     if (!anchor || !peekId) return;
-    removeCommentReaction(anchor, peekId, commentId, reactionHex);
+    removeReactionMutation.mutate({ anchor, commentId, reactionHex, issueId: peekId });
   };
 
   const handleReactionClick = (reactionHex: string) => {
-    const userReaction = userReactions?.find((r) => r.actor_detail.id === user?.id && r.reaction === reactionHex);
+    const userReaction = userReactions?.find((r: TPublicCommentReaction) => r.actor_detail.id === user?.id && r.reaction === reactionHex);
 
     if (userReaction) handleRemoveReaction(reactionHex);
     else handleAddReaction(reactionHex);
@@ -80,14 +85,14 @@ export const CommentReactions = observer(function CommentReactions(props: Props)
       .map((reaction) => {
         const reactionList = groupedReactions?.[reaction] ?? [];
         const userNames = reactionList
-          .map((r) => r?.actor_detail?.display_name)
+          .map((r: TPublicCommentReaction) => r?.actor_detail?.display_name)
           .filter((name): name is string => !!name)
           .slice(0, REACTIONS_LIMIT);
 
         return {
           emoji: stringToEmoji(reaction),
           count: reactionList.length,
-          reacted: commentReactions?.some((r) => r?.actor_detail?.id === user?.id && r.reaction === reaction) || false,
+          reacted: commentReactions?.some((r: TPublicCommentReaction) => r?.actor_detail?.id === user?.id && r.reaction === reaction) || false,
           users: userNames,
         };
       });
@@ -135,4 +140,4 @@ export const CommentReactions = observer(function CommentReactions(props: Props)
       />
     </div>
   );
-});
+}

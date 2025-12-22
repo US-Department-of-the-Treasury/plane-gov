@@ -1,11 +1,11 @@
 import React, { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { Check, MessageSquare, MoreVertical } from "lucide-react";
-import { Menu, Transition } from "@headlessui/react";
+import { Menu, Transition, TransitionChild } from "@headlessui/react";
 // plane imports
 import type { EditorRefApi } from "@plane/editor";
 import { CloseIcon } from "@plane/propel/icons";
+import { SitesFileService } from "@plane/services";
 import type { TIssuePublicComment } from "@plane/types";
 import { getFileURL } from "@plane/utils";
 // components
@@ -14,22 +14,26 @@ import { CommentReactions } from "@/components/issues/peek-overview/comment/comm
 // helpers
 import { timeAgo } from "@/helpers/date-time.helper";
 // hooks
-import { usePublish } from "@/hooks/store/publish";
-import { useIssueDetails } from "@/hooks/store/use-issue-details";
-import { useUser } from "@/hooks/store/use-user";
 import useIsInIframe from "@/hooks/use-is-in-iframe";
+// store
+import { usePublishSettings, useCurrentUser, useUpdateComment, useRemoveComment } from "@/store/queries";
+import { usePeekStore } from "@/store/peek.store";
+
+const fileService = new SitesFileService();
 
 type Props = {
   anchor: string;
   comment: TIssuePublicComment;
 };
 
-export const CommentCard = observer(function CommentCard(props: Props) {
+export function CommentCard(props: Props) {
   const { anchor, comment } = props;
-  // store hooks
-  const { peekId, deleteIssueComment, updateIssueComment, uploadCommentAsset } = useIssueDetails();
-  const { data: currentUser } = useUser();
-  const { workspace: workspaceID } = usePublish(anchor);
+  // store
+  const { peekId } = usePeekStore();
+  const { data: currentUser } = useCurrentUser();
+  const { workspace: workspaceID } = usePublishSettings(anchor);
+  const updateCommentMutation = useUpdateComment();
+  const removeCommentMutation = useRemoveComment();
   const isInIframe = useIsInIframe();
 
   // states
@@ -48,12 +52,17 @@ export const CommentCard = observer(function CommentCard(props: Props) {
 
   const handleDelete = () => {
     if (!anchor || !peekId) return;
-    deleteIssueComment(anchor, peekId, comment.id);
+    removeCommentMutation.mutate({ anchor, issueId: peekId, commentId: comment.id });
   };
 
   const handleCommentUpdate = async (formData: TIssuePublicComment) => {
     if (!anchor || !peekId) return;
-    updateIssueComment(anchor, peekId, comment.id, formData);
+    updateCommentMutation.mutate({
+      anchor,
+      issueId: peekId,
+      commentId: comment.id,
+      data: { comment_html: formData.comment_html },
+    });
     setIsEditing(false);
     editorRef.current?.setEditorValue(formData.comment_html);
     showEditorRef.current?.setEditorValue(formData.comment_html);
@@ -118,8 +127,12 @@ export const CommentCard = observer(function CommentCard(props: Props) {
                     isSubmitting={isSubmitting}
                     showSubmitButton={false}
                     uploadFile={async (blockId, file) => {
-                      const { asset_id } = await uploadCommentAsset(file, anchor, comment.id);
-                      return asset_id;
+                      const res = await fileService.uploadAsset(
+                        anchor,
+                        { entity_identifier: comment.id, entity_type: "COMMENT_DESCRIPTION" as const },
+                        file
+                      );
+                      return res.asset_id;
                     }}
                     displayConfig={{
                       fontSize: "small-font",
@@ -171,52 +184,54 @@ export const CommentCard = observer(function CommentCard(props: Props) {
             <MoreVertical className="size-4" strokeWidth={2} />
           </Menu.Button>
 
-          <Transition
-            as={React.Fragment}
-            enter="transition ease-out duration-100"
-            enterFrom="transform opacity-0 scale-95"
-            enterTo="transform opacity-100 scale-100"
-            leave="transition ease-in duration-75"
-            leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95"
-          >
-            <Menu.Items className="absolute right-0 z-10 mt-1 max-h-36 min-w-[8rem] origin-top-right overflow-auto overflow-y-scroll whitespace-nowrap rounded-md border border-strong bg-surface-1 p-1 text-11 shadow-lg focus:outline-none">
-              <Menu.Item>
-                {({ active }) => (
-                  <div className="py-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsEditing(true);
-                      }}
-                      className={`w-full select-none truncate rounded-sm px-1 py-1.5 text-left text-secondary hover:bg-layer-transparent-hover ${
-                        active ? "bg-layer-transparent-hover" : ""
-                      }`}
-                    >
-                      Edit
-                    </button>
-                  </div>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <div className="py-1">
-                    <button
-                      type="button"
-                      onClick={handleDelete}
-                      className={`w-full select-none truncate rounded-sm px-1 py-1.5 text-left text-secondary hover:bg-layer-transparent-hover ${
-                        active ? "bg-layer-transparent-hover" : ""
-                      }`}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </Menu.Item>
-            </Menu.Items>
+          <Transition as={React.Fragment}>
+            <TransitionChild
+              as={React.Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <Menu.Items className="absolute right-0 z-10 mt-1 max-h-36 min-w-[8rem] origin-top-right overflow-auto overflow-y-scroll whitespace-nowrap rounded-md border border-strong bg-surface-1 p-1 text-11 shadow-lg focus:outline-none">
+                <Menu.Item>
+                  {({ active }) => (
+                    <div className="py-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsEditing(true);
+                        }}
+                        className={`w-full select-none truncate rounded-sm px-1 py-1.5 text-left text-secondary hover:bg-layer-transparent-hover ${
+                          active ? "bg-layer-transparent-hover" : ""
+                        }`}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div className="py-1">
+                      <button
+                        type="button"
+                        onClick={handleDelete}
+                        className={`w-full select-none truncate rounded-sm px-1 py-1.5 text-left text-secondary hover:bg-layer-transparent-hover ${
+                          active ? "bg-layer-transparent-hover" : ""
+                        }`}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </Menu.Item>
+              </Menu.Items>
+            </TransitionChild>
           </Transition>
         </Menu>
       )}
     </div>
   );
-});
+}

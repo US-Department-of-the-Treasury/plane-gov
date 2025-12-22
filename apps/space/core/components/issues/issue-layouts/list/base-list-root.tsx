@@ -1,19 +1,17 @@
 import { useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
 // types
 import type { IIssueDisplayProperties, TGroupedIssues } from "@plane/types";
-// constants
 // components
 import { IssueLayoutHOC } from "@/components/issues/issue-layouts/issue-layout-HOC";
-// hooks
-import { useIssue } from "@/hooks/store/use-issue";
+// store
+import { useIssueListStore } from "@/store/issue-list.store";
 import { List } from "./default";
 
 type Props = {
   anchor: string;
 };
 
-export const IssuesListLayoutRoot = observer(function IssuesListLayoutRoot(props: Props) {
+export function IssuesListLayoutRoot(props: Props) {
   const { anchor } = props;
   // store hooks
   const {
@@ -22,7 +20,7 @@ export const IssuesListLayoutRoot = observer(function IssuesListLayoutRoot(props
     getGroupIssueCount,
     getPaginationData,
     getIssueLoader,
-  } = useIssue();
+  } = useIssueListStore();
 
   const groupedIssueIds = storeGroupedIssueIds as TGroupedIssues | undefined;
   // auth
@@ -48,6 +46,7 @@ export const IssuesListLayoutRoot = observer(function IssuesListLayoutRoot(props
     <IssueLayoutHOC getGroupIssueCount={getGroupIssueCount} getIssueLoader={getIssueLoader}>
       <div className="relative size-full">
         <List
+          anchor={anchor}
           displayProperties={displayProperties}
           groupBy={"state"}
           groupedIssueIds={groupedIssueIds ?? {}}
@@ -60,4 +59,4 @@ export const IssuesListLayoutRoot = observer(function IssuesListLayoutRoot(props
       </div>
     </IssueLayoutHOC>
   );
-});
+}

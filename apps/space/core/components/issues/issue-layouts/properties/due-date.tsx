@@ -1,12 +1,12 @@
-import { observer } from "mobx-react";
 import { DueDatePropertyIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import { cn } from "@plane/utils";
 // helpers
 import { renderFormattedDate } from "@/helpers/date-time.helper";
 import { shouldHighlightIssueDueDate } from "@/helpers/issue.helper";
-// hooks
-import { useStates } from "@/hooks/store/use-state";
+// store
+import { useAnchor } from "@/store/anchor-context";
+import { useStates } from "@/store/queries";
 
 type Props = {
   due_date: string | undefined;
@@ -15,9 +15,11 @@ type Props = {
   shouldShowBorder?: boolean;
 };
 
-export const IssueBlockDate = observer(function IssueBlockDate(props: Props) {
+export function IssueBlockDate(props: Props) {
   const { due_date, stateId, shouldHighLight = true, shouldShowBorder = true } = props;
-  const { getStateById } = useStates();
+  // hooks
+  const anchor = useAnchor();
+  const { getStateById } = useStates(anchor);
 
   const state = getStateById(stateId);
 
@@ -36,4 +38,4 @@ export const IssueBlockDate = observer(function IssueBlockDate(props: Props) {
       </div>
     </Tooltip>
   );
-});
+}

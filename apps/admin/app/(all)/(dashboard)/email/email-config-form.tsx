@@ -9,8 +9,8 @@ import { CustomSelect } from "@plane/ui";
 // components
 import type { TControllerInputFormField } from "@/components/common/controller-input";
 import { ControllerInput } from "@/components/common/controller-input";
-// hooks
-import { useInstance } from "@/hooks/store";
+// store
+import { useUpdateInstanceConfigurations } from "@/store/queries";
 // local components
 import { SendTestEmailModal } from "./test-email-modal";
 
@@ -33,7 +33,7 @@ export function InstanceEmailForm(props: IInstanceEmailForm) {
   // states
   const [isSendTestEmailModalOpen, setIsSendTestEmailModalOpen] = useState(false);
   // store hooks
-  const { updateInstanceConfigurations } = useInstance();
+  const updateInstanceConfigurationsMutation = useUpdateInstanceConfigurations();
   // form data
   const {
     handleSubmit,
@@ -104,7 +104,7 @@ export function InstanceEmailForm(props: IInstanceEmailForm) {
   const onSubmit = async (formData: EmailFormValues) => {
     const payload: Partial<EmailFormValues> = { ...formData, ENABLE_SMTP: "1" };
 
-    await updateInstanceConfigurations(payload)
+    await updateInstanceConfigurationsMutation.mutateAsync(payload)
       .then(() =>
         setToast({
           type: TOAST_TYPE.SUCCESS,

@@ -4,6 +4,7 @@ import type { IIssueDisplayProperties } from "@plane/types";
 import { IssueBlock } from "./block";
 
 interface Props {
+  anchor: string;
   issueIds: string[] | undefined;
   groupId: string;
   displayProperties?: IIssueDisplayProperties;
@@ -11,12 +12,12 @@ interface Props {
 }
 
 export function IssueBlocksList(props: Props) {
-  const { issueIds = [], groupId, displayProperties } = props;
+  const { anchor, issueIds = [], groupId, displayProperties } = props;
 
   return (
     <div className="relative size-full">
       {issueIds?.map((issueId) => (
-        <IssueBlock key={issueId} issueId={issueId} displayProperties={displayProperties} groupId={groupId} />
+        <IssueBlock key={issueId} anchor={anchor} issueId={issueId} displayProperties={displayProperties} groupId={groupId} />
       ))}
     </div>
   );

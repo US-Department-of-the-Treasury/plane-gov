@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Image, BrainCog, Cog, Lock, Mail } from "lucide-react";
@@ -7,7 +6,7 @@ import { WorkspaceIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import { cn } from "@plane/utils";
 // hooks
-import { useTheme } from "@/hooks/store";
+import { useThemeStore } from "@/store/queries";
 
 const INSTANCE_ADMIN_LINKS = [
   {
@@ -48,9 +47,10 @@ const INSTANCE_ADMIN_LINKS = [
   },
 ];
 
-export const AdminSidebarMenu = observer(function AdminSidebarMenu() {
+export function AdminSidebarMenu() {
   // store hooks
-  const { isSidebarCollapsed, toggleSidebar } = useTheme();
+  const isSidebarCollapsed = useThemeStore((s) => s.isSidebarCollapsed);
+  const toggleSidebar = useThemeStore((s) => s.toggleSidebar);
   // router
   const pathName = usePathname();
 
@@ -106,4 +106,4 @@ export const AdminSidebarMenu = observer(function AdminSidebarMenu() {
       })}
     </div>
   );
-});
+}

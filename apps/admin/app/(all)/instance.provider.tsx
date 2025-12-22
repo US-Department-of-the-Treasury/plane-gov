@@ -1,18 +1,10 @@
-import { observer } from "mobx-react";
-import useSWR from "swr";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useInstanceInfo } from "@/store/queries";
 
-export const InstanceProvider = observer(function InstanceProvider(props: React.PropsWithChildren) {
+export function InstanceProvider(props: React.PropsWithChildren) {
   const { children } = props;
-  // store hooks
-  const { fetchInstanceInfo } = useInstance();
-  // fetching instance details
-  useSWR("INSTANCE_DETAILS", () => fetchInstanceInfo(), {
-    revalidateOnFocus: false,
-    revalidateIfStale: false,
-    errorRetryCount: 0,
-  });
+  // Trigger instance info fetch (TanStack Query handles caching and deduplication)
+  useInstanceInfo();
 
   return <>{children}</>;
-});
+}

@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import { cloneDeep } from "lodash-es";
-import { observer } from "mobx-react";
 import { useRouter } from "next/navigation";
 // constants
 import { ISSUE_DISPLAY_FILTERS_BY_LAYOUT } from "@plane/constants";
@@ -9,8 +8,8 @@ import { FiltersDropdown } from "@/components/issues/filters/helpers/dropdown";
 import { FilterSelection } from "@/components/issues/filters/selection";
 // helpers
 import { queryParamGenerator } from "@/helpers/query-param-generator";
-// hooks
-import { useIssueFilter } from "@/hooks/store/use-issue-filter";
+// store
+import { useIssueFiltersStore } from "@/store/issue-filters.store";
 // types
 import type { TIssueQueryFilters } from "@/types/issue";
 
@@ -18,12 +17,12 @@ type IssueFiltersDropdownProps = {
   anchor: string;
 };
 
-export const IssueFiltersDropdown = observer(function IssueFiltersDropdown(props: IssueFiltersDropdownProps) {
+export function IssueFiltersDropdown(props: IssueFiltersDropdownProps) {
   const { anchor } = props;
   // router
   const router = useRouter();
-  // hooks
-  const { getIssueFilters, updateIssueFilters } = useIssueFilter();
+  // store hooks
+  const { getIssueFilters, updateIssueFilters } = useIssueFiltersStore();
   // derived values
   const issueFilters = getIssueFilters(anchor);
   const activeLayout = issueFilters?.display_filters?.layout || undefined;
@@ -66,4 +65,4 @@ export const IssueFiltersDropdown = observer(function IssueFiltersDropdown(props
       </FiltersDropdown>
     </div>
   );
-});
+}

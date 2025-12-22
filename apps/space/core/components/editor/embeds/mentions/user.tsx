@@ -1,19 +1,19 @@
-import { observer } from "mobx-react";
 // helpers
 import { cn } from "@plane/utils";
-// hooks
-import { useMember } from "@/hooks/store/use-member";
-import { useUser } from "@/hooks/store/use-user";
+// store
+import { useAnchor } from "@/store/anchor-context";
+import { useCurrentUser, useMembers } from "@/store/queries";
 
 type Props = {
   id: string;
 };
 
-export const EditorUserMention = observer(function EditorUserMention(props: Props) {
+export function EditorUserMention(props: Props) {
   const { id } = props;
-  // store hooks
-  const { data: currentUser } = useUser();
-  const { getMemberById } = useMember();
+  // hooks
+  const anchor = useAnchor();
+  const { data: currentUser } = useCurrentUser();
+  const { getMemberById } = useMembers(anchor);
   // derived values
   const userDetails = getMemberById(id);
 
@@ -34,4 +34,4 @@ export const EditorUserMention = observer(function EditorUserMention(props: Prop
       @{userDetails?.member__display_name}
     </div>
   );
-});
+}

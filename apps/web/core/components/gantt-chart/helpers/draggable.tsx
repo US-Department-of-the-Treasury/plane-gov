@@ -19,7 +19,7 @@ type Props = {
   enableBlockRightResize: boolean;
   enableBlockMove: boolean;
   enableDependency: boolean | ((blockId: string) => boolean);
-  ganttContainerRef: RefObject<HTMLDivElement>;
+  ganttContainerRef: RefObject<HTMLDivElement | null>;
 };
 
 export function ChartDraggable(props: Props) {

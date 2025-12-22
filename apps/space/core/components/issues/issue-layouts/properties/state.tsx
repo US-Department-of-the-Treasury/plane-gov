@@ -1,12 +1,12 @@
-import { observer } from "mobx-react";
 // plane ui
 import { StateGroupIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import type { TStateGroups } from "@plane/types";
 // plane utils
 import { cn } from "@plane/utils";
-//hooks
-import { useStates } from "@/hooks/store/use-state";
+// store
+import { useAnchor } from "@/store/anchor-context";
+import { useStates } from "@/store/queries";
 
 type Props = {
   shouldShowBorder?: boolean;
@@ -22,10 +22,11 @@ type Props = {
     }
 );
 
-export const IssueBlockState = observer(function IssueBlockState(props: Props) {
+export function IssueBlockState(props: Props) {
   const { shouldShowBorder = true } = props;
-  // store hooks
-  const { getStateById } = useStates();
+  // hooks
+  const anchor = useAnchor();
+  const { getStateById } = useStates(anchor);
   // derived values
   const state = "stateId" in props ? getStateById(props.stateId) : props.stateDetails;
   if (!state) return null;
@@ -44,4 +45,4 @@ export const IssueBlockState = observer(function IssueBlockState(props: Props) {
       </div>
     </Tooltip>
   );
-});
+}

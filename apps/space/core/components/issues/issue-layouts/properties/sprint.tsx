@@ -1,19 +1,21 @@
-import { observer } from "mobx-react";
 // plane ui
 import { SprintIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 // plane utils
 import { cn } from "@plane/utils";
-//hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+// store
+import { useAnchor } from "@/store/anchor-context";
+import { useSprints } from "@/store/queries";
 
 type Props = {
   sprintId: string | undefined;
   shouldShowBorder?: boolean;
 };
 
-export const IssueBlockSprint = observer(function IssueBlockSprint({ sprintId, shouldShowBorder = true }: Props) {
-  const { getSprintById } = useSprint();
+export function IssueBlockSprint({ sprintId, shouldShowBorder = true }: Props) {
+  // hooks
+  const anchor = useAnchor();
+  const { getSprintById } = useSprints(anchor);
 
   const sprint = getSprintById(sprintId);
 
@@ -32,4 +34,4 @@ export const IssueBlockSprint = observer(function IssueBlockSprint({ sprintId, s
       </div>
     </Tooltip>
   );
-});
+}

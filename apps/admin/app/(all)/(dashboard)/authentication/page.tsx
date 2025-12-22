@@ -1,22 +1,20 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
-import useSWR from "swr";
 // plane internal packages
 import { setPromiseToast } from "@plane/propel/toast";
 import type { TInstanceConfigurationKeys } from "@plane/types";
 import { Loader, ToggleSwitch } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useInstanceConfigurations, useUpdateInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 // plane admin components
 import { AuthenticationModes } from "@/plane-admin/components/authentication";
 import type { Route } from "./+types/page";
 
-const InstanceAuthenticationPage = observer(function InstanceAuthenticationPage(_props: Route.ComponentProps) {
-  // store
-  const { fetchInstanceConfigurations, formattedConfig, updateInstanceConfigurations } = useInstance();
-
-  useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
+function InstanceAuthenticationPage(_props: Route.ComponentProps) {
+  // queries
+  const { data: configurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(configurations);
+  const updateConfigMutation = useUpdateInstanceConfigurations();
 
   // state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -30,7 +28,7 @@ const InstanceAuthenticationPage = observer(function InstanceAuthenticationPage(
       [key]: value,
     };
 
-    const updateConfigPromise = updateInstanceConfigurations(payload);
+    const updateConfigPromise = updateConfigMutation.mutateAsync(payload);
 
     setPromiseToast(updateConfigPromise, {
       loading: "Saving configuration",
@@ -108,7 +106,7 @@ const InstanceAuthenticationPage = observer(function InstanceAuthenticationPage(
       </div>
     </>
   );
-});
+}
 
 export const meta: Route.MetaFunction = () => [{ title: "Authentication Settings - Plane Web" }];
 

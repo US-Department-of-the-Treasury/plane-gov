@@ -1,14 +1,13 @@
 import { useState, useRef } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { ExternalLink, HelpCircle, MoveLeft } from "lucide-react";
-import { Transition } from "@headlessui/react";
+import { Transition, TransitionChild } from "@headlessui/react";
 // plane internal packages
 import { WEB_BASE_URL } from "@plane/constants";
 import { Tooltip } from "@plane/propel/tooltip";
 import { cn } from "@plane/utils";
 // hooks
-import { useTheme } from "@/hooks/store";
+import { useThemeStore } from "@/store/queries";
 // assets
 
 import packageJson from "package.json";
@@ -17,11 +16,12 @@ import packageJson from "package.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const helpOptions: { name: string; href?: string; Icon: React.ComponentType<any> }[] = [];
 
-export const AdminSidebarHelpSection = observer(function AdminSidebarHelpSection() {
+export function AdminSidebarHelpSection() {
   // states
   const [isNeedHelpOpen, setIsNeedHelpOpen] = useState(false);
   // store
-  const { isSidebarCollapsed, toggleSidebar } = useTheme();
+  const isSidebarCollapsed = useThemeStore((s) => s.isSidebarCollapsed);
+  const toggleSidebar = useThemeStore((s) => s.toggleSidebar);
   // refs
   const helpOptionsRef = useRef<HTMLDivElement | null>(null);
 
@@ -71,16 +71,15 @@ export const AdminSidebarHelpSection = observer(function AdminSidebarHelpSection
       </div>
 
       <div className="relative">
-        <Transition
-          show={isNeedHelpOpen}
-          enter="transition ease-out duration-100"
-          enterFrom="transform opacity-0 scale-95"
-          enterTo="transform opacity-100 scale-100"
-          leave="transition ease-in duration-75"
-          leaveFrom="transform opacity-100 scale-100"
-          leaveTo="transform opacity-0 scale-95"
-        >
-          <div
+        <Transition show={isNeedHelpOpen}>
+          <TransitionChild
+            as="div"
+            enter="transition ease-out duration-100"
+            enterFrom="transform opacity-0 scale-95"
+            enterTo="transform opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="transform opacity-100 scale-100"
+            leaveTo="transform opacity-0 scale-95"
             className={`absolute bottom-2 min-w-[10rem] z-[15] ${
               isSidebarCollapsed ? "left-full" : "-left-[75px]"
             } divide-y divide-subtle-1 whitespace-nowrap rounded-sm bg-surface-1 p-1 shadow-raised-100`}
@@ -115,9 +114,9 @@ export const AdminSidebarHelpSection = observer(function AdminSidebarHelpSection
               })}
             </div>
             <div className="px-2 pb-1 pt-2 text-10">Version: v{packageJson.version}</div>
-          </div>
+          </TransitionChild>
         </Transition>
       </div>
     </div>
   );
-});
+}

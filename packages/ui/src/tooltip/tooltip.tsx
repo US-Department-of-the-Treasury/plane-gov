@@ -1,5 +1,6 @@
 import { Tooltip2 } from "@blueprintjs/popover2";
-import React, { useEffect, useRef, useState } from "react";
+import { cloneElement, useEffect, useRef, useState } from "react";
+import type { ReactElement, ReactNode, Ref } from "react";
 // helpers
 import { cn } from "../utils";
 
@@ -22,9 +23,9 @@ export type TPosition =
 
 interface ITooltipProps {
   tooltipHeading?: string;
-  tooltipContent: string | React.ReactNode;
+  tooltipContent: string | ReactNode;
   position?: TPosition;
-  children: React.ReactElement;
+  children: ReactElement<{ ref?: Ref<unknown> } & Record<string, unknown>>;
   disabled?: boolean;
   className?: string;
   openDelay?: number;
@@ -56,14 +57,14 @@ export function Tooltip({
   };
 
   useEffect(() => {
-    const element = toolTipRef.current as any;
+    const element = toolTipRef.current;
 
     if (!element) return;
 
     element.addEventListener("mouseenter", onHover);
 
     return () => {
-      element?.removeEventListener("mouseenter", onHover);
+      element.removeEventListener("mouseenter", onHover);
     };
   }, [toolTipRef, shouldRender]);
 
@@ -96,10 +97,10 @@ export function Tooltip({
       }
       position={position}
       renderTarget={({ isOpen: isTooltipOpen, ref: eleReference, ...tooltipProps }) =>
-        React.cloneElement(children, {
+        cloneElement(children, {
           ref: eleReference,
           ...tooltipProps,
-          ...children.props,
+          ...(children.props as Record<string, unknown>),
         })
       }
     />

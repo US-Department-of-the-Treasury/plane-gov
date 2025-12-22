@@ -54,7 +54,7 @@ export function FavoriteRoot(props: Props) {
     return combine(
       draggable({
         element,
-        dragHandle: elementRef.current,
+        dragHandle: elementRef.current ?? undefined,
         getInitialData: () => initialData,
         onDragStart: () => {
           setIsDragging(true);

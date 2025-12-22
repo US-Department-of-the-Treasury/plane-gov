@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { observer } from "mobx-react";
 // types
 import type {
   GroupByColumnTypes,
@@ -9,17 +8,14 @@ import type {
   TPaginationData,
   TLoader,
 } from "@plane/types";
-// hooks
-import { useSprint } from "@/hooks/store/use-sprint";
-import { useLabel } from "@/hooks/store/use-label";
-import { useMember } from "@/hooks/store/use-member";
-import { useEpic } from "@/hooks/store/use-epic";
-import { useStates } from "@/hooks/store/use-state";
+// store
+import { useStates, useLabels, useMembers, useSprints, useEpics } from "@/store/queries";
 //
 import { getGroupByColumns } from "../utils";
 import { ListGroup } from "./list-group";
 
 export interface IList {
+  anchor: string;
   groupedIssueIds: TGroupedIssues;
   groupBy: TIssueGroupByOptions | undefined;
   displayProperties: IIssueDisplayProperties | undefined;
@@ -34,8 +30,9 @@ export interface IList {
   getIssueLoader: (groupId?: string, subGroupId?: string) => TLoader;
 }
 
-export const List = observer(function List(props: IList) {
+export function List(props: IList) {
   const {
+    anchor,
     groupedIssueIds,
     groupBy,
     displayProperties,
@@ -48,13 +45,13 @@ export const List = observer(function List(props: IList) {
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const member = useMember();
-  const label = useLabel();
-  const sprint = useSprint();
-  const epics = useEpic();
-  const state = useStates();
+  const { data: members } = useMembers(anchor);
+  const { data: labels } = useLabels(anchor);
+  const { data: sprints } = useSprints(anchor);
+  const { data: epics } = useEpics(anchor);
+  const { sortedStates } = useStates(anchor);
 
-  const groupList = getGroupByColumns(groupBy as GroupByColumnTypes, sprint, epics, label, state, member, true);
+  const groupList = getGroupByColumns(groupBy as GroupByColumnTypes, sprints, epics, labels, sortedStates, members, true);
 
   if (!groupList) return null;
 
@@ -69,6 +66,7 @@ export const List = observer(function List(props: IList) {
             {groupList.map((group) => (
               <ListGroup
                 key={group.id}
+                anchor={anchor}
                 groupIssueIds={groupedIssueIds?.[group.id]}
                 groupBy={groupBy}
                 group={group}
@@ -86,4 +84,4 @@ export const List = observer(function List(props: IList) {
       )}
     </div>
   );
-});
+}

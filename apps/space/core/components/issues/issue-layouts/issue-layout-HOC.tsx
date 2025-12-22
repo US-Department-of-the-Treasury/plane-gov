@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import type { TLoader } from "@plane/types";
 // components
@@ -14,7 +13,7 @@ interface Props {
   getIssueLoader: (groupId?: string, subGroupId?: string) => TLoader;
 }
 
-export const IssueLayoutHOC = observer(function IssueLayoutHOC(props: Props) {
+export function IssueLayoutHOC(props: Props) {
   const { getIssueLoader, getGroupIssueCount } = props;
 
   const issueCount = getGroupIssueCount(undefined, undefined, false);
@@ -32,4 +31,4 @@ export const IssueLayoutHOC = observer(function IssueLayoutHOC(props: Props) {
   }
 
   return <>{props.children}</>;
-});
+}

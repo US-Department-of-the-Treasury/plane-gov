@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { CircleDashed } from "lucide-react";
 
 interface IHeaderGroupByCard {
@@ -9,7 +8,7 @@ interface IHeaderGroupByCard {
   toggleListGroup: (id: string) => void;
 }
 
-export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHeaderGroupByCard) {
+export function HeaderGroupByCard(props: IHeaderGroupByCard) {
   const { groupID, icon, title, count, toggleListGroup } = props;
 
   return (
@@ -30,4 +29,4 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
       </div>
     </>
   );
-});
+}

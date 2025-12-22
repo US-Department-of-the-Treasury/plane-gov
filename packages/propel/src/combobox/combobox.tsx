@@ -147,8 +147,11 @@ function ComboboxOptions({
       const getTextContent = (node: React.ReactNode): string => {
         if (typeof node === "string") return node;
         if (typeof node === "number") return String(node);
-        if (React.isValidElement(node) && node.props.children) {
-          return getTextContent(node.props.children);
+        if (React.isValidElement(node)) {
+          const nodeProps = node.props as { children?: React.ReactNode };
+          if (nodeProps.children) {
+            return getTextContent(nodeProps.children);
+          }
         }
         if (Array.isArray(node)) {
           return node.map(getTextContent).join(" ");
@@ -156,8 +159,9 @@ function ComboboxOptions({
         return "";
       };
 
-      const textContent = getTextContent(child.props.children);
-      const value = child.props.value || "";
+      const childProps = child.props as { children?: React.ReactNode; value?: string };
+      const textContent = getTextContent(childProps.children);
+      const value = childProps.value || "";
 
       const searchLower = searchQuery.toLowerCase();
       return textContent.toLowerCase().includes(searchLower) || String(value).toLowerCase().includes(searchLower);

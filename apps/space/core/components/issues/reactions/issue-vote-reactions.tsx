@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { observer } from "mobx-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 // plane imports
 import { Tooltip } from "@plane/propel/tooltip";
@@ -8,9 +7,10 @@ import { cn } from "@plane/utils";
 // helpers
 import { queryParamGenerator } from "@/helpers/query-param-generator";
 // hooks
-import { useIssueDetails } from "@/hooks/store/use-issue-details";
-import { useUser } from "@/hooks/store/use-user";
 import useIsInIframe from "@/hooks/use-is-in-iframe";
+// store
+import { useCurrentUser, useIssue, useAddVote, useRemoveVote } from "@/store/queries";
+import { usePeekStore } from "@/store/peek.store";
 
 type TIssueVotes = {
   anchor: string;
@@ -18,7 +18,7 @@ type TIssueVotes = {
   size?: "md" | "sm";
 };
 
-export const IssueVotes = observer(function IssueVotes(props: TIssueVotes) {
+export function IssueVotes(props: TIssueVotes) {
   const { anchor, issueIdFromProps, size = "md" } = props;
   // states
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,20 +27,24 @@ export const IssueVotes = observer(function IssueVotes(props: TIssueVotes) {
   const pathName = usePathname();
   const searchParams = useSearchParams();
   // query params
-  const peekId = searchParams.get("peekId") || undefined;
+  const peekIdParam = searchParams.get("peekId") || undefined;
   const board = searchParams.get("board") || undefined;
   const state = searchParams.get("state") || undefined;
   const priority = searchParams.get("priority") || undefined;
   const labels = searchParams.get("labels") || undefined;
-  // store hooks
-  const issueDetailsStore = useIssueDetails();
-  const { data: user } = useUser();
+  // store
+  const { peekId: peekIdFromStore } = usePeekStore();
+  const { data: user } = useCurrentUser();
+  const addVoteMutation = useAddVote();
+  const removeVoteMutation = useRemoveVote();
 
   const isInIframe = useIsInIframe();
 
-  const issueId = issueIdFromProps ?? issueDetailsStore.peekId;
+  const issueId = issueIdFromProps ?? peekIdFromStore;
+  const { data: issueDetails } = useIssue(anchor, issueId ?? "");
+  const peekId = peekIdParam ?? peekIdFromStore;
 
-  const votes = issueDetailsStore.details[issueId ?? ""]?.vote_items ?? [];
+  const votes = issueDetails?.vote_items ?? [];
 
   const allUpVotes = votes.filter((vote) => vote.vote === 1);
   const allDownVotes = votes.filter((vote) => vote.vote === -1);
@@ -55,11 +59,10 @@ export const IssueVotes = observer(function IssueVotes(props: TIssueVotes) {
 
     const actionPerformed = votes?.find((vote) => vote.actor_details?.id === user?.id && vote.vote === voteValue);
 
-    if (actionPerformed) await issueDetailsStore.removeIssueVote(anchor, issueId);
-    else {
-      await issueDetailsStore.addIssueVote(anchor, issueId, {
-        vote: voteValue,
-      });
+    if (actionPerformed) {
+      await removeVoteMutation.mutateAsync({ anchor, issueId });
+    } else {
+      await addVoteMutation.mutateAsync({ anchor, issueId, data: { vote: voteValue } });
     }
 
     setIsSubmitting(false);
@@ -156,4 +159,4 @@ export const IssueVotes = observer(function IssueVotes(props: TIssueVotes) {
       </Tooltip>
     </div>
   );
-});
+}

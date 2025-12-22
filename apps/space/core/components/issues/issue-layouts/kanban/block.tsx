@@ -1,20 +1,19 @@
 import type { MutableRefObject } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 // plane types
 import { Tooltip } from "@plane/propel/tooltip";
 import type { IIssueDisplayProperties } from "@plane/types";
-// plane ui
 // plane utils
 import { cn } from "@plane/utils";
 // components
 import { WithDisplayPropertiesHOC } from "@/components/issues/issue-layouts/with-display-properties-HOC";
 // helpers
 import { queryParamGenerator } from "@/helpers/query-param-generator";
-// hooks
-import { usePublish } from "@/hooks/store/publish";
-import { useIssueDetails } from "@/hooks/store/use-issue-details";
+// store
+import { usePublishSettings } from "@/store/queries";
+import { useIssueListStore } from "@/store/issue-list.store";
+import { usePeekStore } from "@/store/peek.store";
 //
 import type { IIssue } from "@/types/issue";
 import { IssueProperties } from "../properties/all-properties";
@@ -22,6 +21,7 @@ import { getIssueBlockId } from "../utils";
 import { BlockReactions } from "./block-reactions";
 
 interface IssueBlockProps {
+  anchor: string;
   issueId: string;
   groupId: string;
   subGroupId: string;
@@ -30,15 +30,15 @@ interface IssueBlockProps {
 }
 
 interface IssueDetailsBlockProps {
+  anchor: string;
   issue: IIssue;
   displayProperties: IIssueDisplayProperties | undefined;
 }
 
-const KanbanIssueDetailsBlock = observer(function KanbanIssueDetailsBlock(props: IssueDetailsBlockProps) {
-  const { issue, displayProperties } = props;
-  const { anchor } = useParams();
+function KanbanIssueDetailsBlock(props: IssueDetailsBlockProps) {
+  const { anchor, issue, displayProperties } = props;
   // hooks
-  const { project_details } = usePublish(anchor.toString());
+  const { project_details } = usePublishSettings(anchor);
 
   return (
     <div className="space-y-2 px-3 py-2">
@@ -63,15 +63,16 @@ const KanbanIssueDetailsBlock = observer(function KanbanIssueDetailsBlock(props:
       />
     </div>
   );
-});
+}
 
-export const KanbanIssueBlock = observer(function KanbanIssueBlock(props: IssueBlockProps) {
-  const { issueId, groupId, subGroupId, displayProperties } = props;
+export function KanbanIssueBlock(props: IssueBlockProps) {
+  const { anchor, issueId, groupId, subGroupId, displayProperties } = props;
   const searchParams = useSearchParams();
   // query params
   const board = searchParams.get("board");
   // hooks
-  const { setPeekId, getIsIssuePeeked, getIssueById } = useIssueDetails();
+  const { setPeekId, getIsIssuePeeked } = usePeekStore();
+  const { getIssueById } = useIssueListStore();
 
   const handleIssuePeekOverview = () => {
     setPeekId(issueId);
@@ -99,10 +100,10 @@ export const KanbanIssueBlock = observer(function KanbanIssueBlock(props: IssueB
           href={`?${queryParam}`}
           onClick={handleIssuePeekOverview}
         >
-          <KanbanIssueDetailsBlock issue={issue} displayProperties={displayProperties} />
+          <KanbanIssueDetailsBlock anchor={anchor} issue={issue} displayProperties={displayProperties} />
         </Link>
-        <BlockReactions issueId={issueId} />
+        <BlockReactions anchor={anchor} issueId={issueId} />
       </div>
     </div>
   );
-});
+}

@@ -6,7 +6,7 @@ import { useTimeLineChartStore } from "@/hooks/use-timeline-chart";
 import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "../constants";
 
 type Props = {
-  ganttContainerRef: RefObject<HTMLDivElement>;
+  ganttContainerRef: RefObject<HTMLDivElement | null>;
 };
 export function TimelineDragHelper(props: Props) {
   const { ganttContainerRef } = props;

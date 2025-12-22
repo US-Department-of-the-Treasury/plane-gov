@@ -67,12 +67,14 @@ export function SelectDuplicateInboxIssueModal(props: Props) {
     onClose();
   };
 
-  const handleSubmit = (selectedItem: string) => {
-    if (!selectedItem || selectedItem.length === 0)
-      return setToast({
+  const handleSubmit = (selectedItem: string | null) => {
+    if (!selectedItem || selectedItem.length === 0) {
+      setToast({
         title: "Error",
         type: TOAST_TYPE.ERROR,
       });
+      return;
+    }
     onSubmit(selectedItem);
     handleClose();
   };

@@ -1,14 +1,18 @@
 import { useRef, useEffect } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { UserService } from "@plane/services";
 import type { IUser } from "@plane/types";
 
-export const useMention = () => {
-  const userService = new UserService();
-  const { data: user, isLoading: userDataLoading } = useSWR("currentUser", async () => userService.me());
+const userService = new UserService();
 
-  const userRef = useRef<IUser | undefined>();
+export const useMention = () => {
+  const { data: user, isLoading: userDataLoading } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => userService.me(),
+  });
+
+  const userRef = useRef<IUser | undefined>(undefined);
 
   useEffect(() => {
     if (userRef) {

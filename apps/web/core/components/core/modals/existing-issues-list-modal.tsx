@@ -159,10 +159,12 @@ export function ExistingIssuesListModal(props: Props) {
               <Dialog.Panel className="relative mx-auto max-w-2xl transform rounded-lg bg-surface-1 shadow-raised-200 transition-all">
                 <Combobox
                   as="div"
-                  onChange={(val: ISearchIssueResponse) => {
-                    if (selectedIssues.some((i) => i.id === val.id))
-                      setSelectedIssues((prevData) => prevData.filter((i) => i.id !== val.id));
-                    else setSelectedIssues((prevData) => [...prevData, val]);
+                  onChange={(val: ISearchIssueResponse | null) => {
+                    if (val !== null) {
+                      if (selectedIssues.some((i) => i.id === val.id))
+                        setSelectedIssues((prevData) => prevData.filter((i) => i.id !== val.id));
+                      else setSelectedIssues((prevData) => [...prevData, val]);
+                    }
                   }}
                 >
                   <div className="relative m-1">

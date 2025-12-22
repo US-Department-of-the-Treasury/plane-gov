@@ -21,7 +21,7 @@ type Props = {
 export function EpicListItem(props: Props) {
   const { epicId } = props;
   // refs
-  const parentRef = useRef(null);
+  const parentRef = useRef<HTMLDivElement>(null);
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId } = useParams();

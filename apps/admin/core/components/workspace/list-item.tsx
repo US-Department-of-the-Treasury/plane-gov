@@ -1,21 +1,20 @@
-import { observer } from "mobx-react";
 import { ExternalLink } from "lucide-react";
 // plane internal packages
 import { WEB_BASE_URL } from "@plane/constants";
 import { Tooltip } from "@plane/propel/tooltip";
 import { getFileURL } from "@plane/utils";
 // hooks
-import { useWorkspace } from "@/hooks/store";
+import { useWorkspaces, getWorkspaceById } from "@/store/queries";
 
 type TWorkspaceListItemProps = {
   workspaceId: string;
 };
 
-export const WorkspaceListItem = observer(function WorkspaceListItem({ workspaceId }: TWorkspaceListItemProps) {
+export function WorkspaceListItem({ workspaceId }: TWorkspaceListItemProps) {
   // store hooks
-  const { getWorkspaceById } = useWorkspace();
+  const { data } = useWorkspaces();
   // derived values
-  const workspace = getWorkspaceById(workspaceId);
+  const workspace = getWorkspaceById(data, workspaceId);
 
   if (!workspace) return null;
   return (
@@ -79,4 +78,4 @@ export const WorkspaceListItem = observer(function WorkspaceListItem({ workspace
       </div>
     </a>
   );
-});
+}

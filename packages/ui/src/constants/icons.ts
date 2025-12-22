@@ -152,7 +152,11 @@ import {
   User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { ISvgIcons } from "@plane/propel/icons";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon } from "@plane/propel/icons";
+
+// Type for icon elements - supports both Lucide icons (ForwardRef) and Propel icons (function components)
+type IconElement = LucideIcon | React.FC<ISvgIcons>;
 
 export const MATERIAL_ICONS_LIST = [
   {
@@ -760,7 +764,7 @@ export const MATERIAL_ICONS_LIST = [
   },
 ];
 
-export const LUCIDE_ICONS_LIST: { name: string; element: LucideIcon }[] = [
+export const LUCIDE_ICONS_LIST: { name: string; element: IconElement }[] = [
   { name: "Activity", element: Activity },
   { name: "Airplay", element: Airplay },
   { name: "AlertCircle", element: AlertCircle },

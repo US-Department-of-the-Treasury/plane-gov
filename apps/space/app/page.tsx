@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { useSearchParams, useRouter } from "next/navigation";
 // plane imports
 import { isValidNextPath } from "@plane/utils";
@@ -7,19 +6,21 @@ import { isValidNextPath } from "@plane/utils";
 import { UserLoggedIn } from "@/components/account/user-logged-in";
 import { LogoSpinner } from "@/components/common/logo-spinner";
 import { AuthView } from "@/components/views";
-// hooks
-import { useUser } from "@/hooks/store/use-user";
+// store hooks
+import { useCurrentUser } from "@/store/queries";
 import type { Route } from "./+types/page";
 
 export const headers: Route.HeadersFunction = () => ({
   "X-Frame-Options": "SAMEORIGIN",
 });
 
-const HomePage = observer(function HomePage() {
-  const { data: currentUser, isAuthenticated, isInitializing } = useUser();
+export default function HomePage() {
+  const { data: currentUser, isLoading } = useCurrentUser();
   const searchParams = useSearchParams();
   const router = useRouter();
   const nextPath = searchParams.get("next_path");
+
+  const isAuthenticated = !!currentUser;
 
   useEffect(() => {
     if (currentUser && isAuthenticated && nextPath && isValidNextPath(nextPath)) {
@@ -27,7 +28,7 @@ const HomePage = observer(function HomePage() {
     }
   }, [currentUser, isAuthenticated, nextPath, router]);
 
-  if (isInitializing)
+  if (isLoading)
     return (
       <div className="bg-surface-1 flex h-screen min-h-[500px] w-full justify-center items-center">
         <LogoSpinner />
@@ -46,6 +47,4 @@ const HomePage = observer(function HomePage() {
   }
 
   return <AuthView />;
-});
-
-export default HomePage;
+}

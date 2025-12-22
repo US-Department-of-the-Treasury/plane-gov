@@ -35,7 +35,7 @@ import { ButtonAvatars } from "../dropdowns/member/avatar";
 type Props = {
   epicId: string;
   epicDetails: IEpic;
-  parentRef: React.RefObject<HTMLDivElement>;
+  parentRef: React.RefObject<HTMLDivElement | null>;
 };
 
 export function EpicListItemAction(props: Props) {

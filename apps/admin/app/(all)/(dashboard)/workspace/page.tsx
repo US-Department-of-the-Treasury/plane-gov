@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
-import useSWR from "swr";
 import { Loader as LoaderIcon } from "lucide-react";
 // types
 import { Button, getButtonStyling } from "@plane/propel/button";
@@ -13,28 +11,21 @@ import { cn } from "@plane/utils";
 // components
 import { WorkspaceListItem } from "@/components/workspace/list-item";
 // hooks
-import { useInstance, useWorkspace } from "@/hooks/store";
+import { useInstanceConfigurations, useUpdateInstanceConfigurations, computeFormattedConfig, useWorkspaces, getAllWorkspaces } from "@/store/queries";
 import type { Route } from "./+types/page";
 
-const WorkspaceManagementPage = observer(function WorkspaceManagementPage(_props: Route.ComponentProps) {
+function WorkspaceManagementPage(_props: Route.ComponentProps) {
   // states
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // store
-  const { formattedConfig, fetchInstanceConfigurations, updateInstanceConfigurations } = useInstance();
-  const {
-    workspaceIds,
-    loader: workspaceLoader,
-    paginationInfo,
-    fetchWorkspaces,
-    fetchNextWorkspaces,
-  } = useWorkspace();
+  const { data: instanceConfigurations } = useInstanceConfigurations();
+  const updateInstanceConfigurations = useUpdateInstanceConfigurations();
+  const { data: workspacesData, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useWorkspaces();
   // derived values
+  const formattedConfig = computeFormattedConfig(instanceConfigurations);
   const disableWorkspaceCreation = formattedConfig?.DISABLE_WORKSPACE_CREATION ?? "";
-  const hasNextPage = paginationInfo?.next_page_results && paginationInfo?.next_cursor !== undefined;
-
-  // fetch data
-  useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
-  useSWR("INSTANCE_WORKSPACES", () => fetchWorkspaces());
+  const workspaces = getAllWorkspaces(workspacesData);
+  const workspaceIds = workspaces.map(w => w.id);
 
   const updateConfig = async (key: TInstanceConfigurationKeys, value: string) => {
     setIsSubmitting(true);
@@ -43,7 +34,7 @@ const WorkspaceManagementPage = observer(function WorkspaceManagementPage(_props
       [key]: value,
     };
 
-    const updateConfigPromise = updateInstanceConfigurations(payload);
+    const updateConfigPromise = updateInstanceConfigurations.mutateAsync(payload);
 
     setPromiseToast(updateConfigPromise, {
       loading: "Saving configuration",
@@ -110,13 +101,13 @@ const WorkspaceManagementPage = observer(function WorkspaceManagementPage(_props
               <Loader.Item height="50px" width="100%" />
             </Loader>
           )}
-          {workspaceLoader !== "init-loader" ? (
+          {!isLoading ? (
             <>
               <div className="pt-6 flex items-center justify-between gap-2">
                 <div className="flex flex-col items-start gap-x-2">
                   <div className="flex items-center gap-2 text-16 font-medium">
                     All workspaces on this instance <span className="text-tertiary">• {workspaceIds.length}</span>
-                    {workspaceLoader && ["mutation", "pagination"].includes(workspaceLoader) && (
+                    {isFetchingNextPage && (
                       <LoaderIcon className="w-4 h-4 animate-spin" />
                     )}
                   </div>
@@ -141,11 +132,11 @@ const WorkspaceManagementPage = observer(function WorkspaceManagementPage(_props
                   <Button
                     variant="link"
                     size="lg"
-                    onClick={() => fetchNextWorkspaces()}
-                    disabled={workspaceLoader === "pagination"}
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
                   >
                     Load more
-                    {workspaceLoader === "pagination" && <LoaderIcon className="w-3 h-3 animate-spin" />}
+                    {isFetchingNextPage && <LoaderIcon className="w-3 h-3 animate-spin" />}
                   </Button>
                 </div>
               )}
@@ -162,7 +153,7 @@ const WorkspaceManagementPage = observer(function WorkspaceManagementPage(_props
       </div>
     </div>
   );
-});
+}
 
 export const meta: Route.MetaFunction = () => [{ title: "Workspace Management - God Mode" }];
 
