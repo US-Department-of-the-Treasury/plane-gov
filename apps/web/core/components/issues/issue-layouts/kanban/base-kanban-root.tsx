@@ -68,6 +68,10 @@ export const BaseKanBanRoot = observer(function BaseKanBanRoot(props: IBaseKanBa
     issue: { getIssueById },
   } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
 
+  // states - declare before use in hooks below
+  const [draggedIssueId, setDraggedIssueId] = useState<string | undefined>(undefined);
+  const [deleteIssueModal, setDeleteIssueModal] = useState(false);
+
   // Try TanStack Query for draggedIssue (fallback to MobX if not available)
   const draggedIssueFromMobX = getIssueById(draggedIssueId ?? "");
   const { data: draggedIssueFromQuery } = useIssue(
@@ -122,10 +126,6 @@ export const BaseKanBanRoot = observer(function BaseKanBanRoot(props: IBaseKanBa
   const { enableInlineEditing, enableQuickAdd, enableIssueCreation } = issues?.viewFlags || {};
 
   const scrollableContainerRef = useRef<HTMLDivElement | null>(null);
-
-  // states
-  const [draggedIssueId, setDraggedIssueId] = useState<string | undefined>(undefined);
-  const [deleteIssueModal, setDeleteIssueModal] = useState(false);
 
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],

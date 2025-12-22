@@ -33,7 +33,7 @@ export const ProjectIssuesMobileHeader = observer(function ProjectIssuesMobileHe
   const {
     issuesFilter: { issueFilters, updateFilters },
   } = useIssues(EIssuesStoreType.PROJECT);
-  const activeLayout = issueFilters?.displayFilters?.layout;
+  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const handleLayoutChange = useCallback(
     (layout: EIssueLayoutTypes) => {

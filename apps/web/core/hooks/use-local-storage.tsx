@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 export const getValueFromLocalStorage = (key: string, defaultValue: any) => {
   if (typeof window === undefined || typeof window === "undefined") return defaultValue;
@@ -23,7 +23,19 @@ export const setValueIntoLocalStorage = (key: string, value: any) => {
 
 // TODO: Remove this once we migrate to the new hooks from plane/helpers
 const useLocalStorage = <T,>(key: string, initialValue: T) => {
-  const [storedValue, setStoredValue] = useState<T | null>(() => getValueFromLocalStorage(key, initialValue));
+  // Initialize with initialValue for SSR/hydration consistency
+  // localStorage is read in useEffect after mount to prevent hydration mismatch
+  const [storedValue, setStoredValue] = useState<T | null>(initialValue);
+  const [isHydrated, setIsHydrated] = useState(false);
+  // Use ref to avoid initialValue causing infinite loops (object references change each render)
+  const initialValueRef = useRef(initialValue);
+
+  // Hydrate from localStorage after mount (client-side only)
+  useEffect(() => {
+    const value = getValueFromLocalStorage(key, initialValueRef.current);
+    setStoredValue(value);
+    setIsHydrated(true);
+  }, [key]);
 
   const setValue = useCallback(
     (value: T) => {
@@ -52,7 +64,7 @@ const useLocalStorage = <T,>(key: string, initialValue: T) => {
     };
   }, [key, reHydrate]);
 
-  return { storedValue, setValue, clearValue } as const;
+  return { storedValue, setValue, clearValue, isHydrated } as const;
 };
 
 export default useLocalStorage;

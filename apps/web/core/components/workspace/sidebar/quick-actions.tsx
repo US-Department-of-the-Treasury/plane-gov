@@ -1,5 +1,4 @@
-import { useRef, useState } from "react";
-import { observer } from "mobx-react";
+import { memo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, SIDEBAR_TRACKER_ELEMENTS } from "@plane/constants";
@@ -15,7 +14,7 @@ import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import useLocalStorage from "@/hooks/use-local-storage";
 
-export const SidebarQuickActions = observer(function SidebarQuickActions() {
+export const SidebarQuickActions = memo(function SidebarQuickActions() {
   const { t } = useTranslation();
   // states
   const [isDraftIssueModalOpen, setIsDraftIssueModalOpen] = useState(false);

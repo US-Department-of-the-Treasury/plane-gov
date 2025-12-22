@@ -52,9 +52,18 @@ export function BreadcrumbNavigationSearchDropdown(props: TBreadcrumbNavigationS
       customButton={
         <>
           <Tooltip tooltipContent={title} position="bottom">
-            <button
+            <div
+              role="button"
+              tabIndex={0}
               onClick={(e) => {
                 if (!isLast) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleOnClick?.();
+                }
+              }}
+              onKeyDown={(e) => {
+                if (!isLast && (e.key === "Enter" || e.key === " ")) {
                   e.preventDefault();
                   e.stopPropagation();
                   handleOnClick?.();
@@ -76,7 +85,7 @@ export function BreadcrumbNavigationSearchDropdown(props: TBreadcrumbNavigationS
                 {icon && <Breadcrumbs.Icon>{icon}</Breadcrumbs.Icon>}
                 <Breadcrumbs.Label>{title}</Breadcrumbs.Label>
               </div>
-            </button>
+            </div>
           </Tooltip>
           <Breadcrumbs.Separator
             className={cn("rounded-r-sm", {

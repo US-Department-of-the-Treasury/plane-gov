@@ -52,7 +52,7 @@ export const ProjectViewIssuesHeader = observer(function ProjectViewIssuesHeader
   );
   const { projectViewIds, getViewById } = useProjectView();
 
-  const activeLayout = issueFilters?.displayFilters?.layout;
+  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const handleLayoutChange = useCallback(
     (layout: EIssueLayoutTypes) => {

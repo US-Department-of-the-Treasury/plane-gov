@@ -12,9 +12,8 @@ import type {
   IIssueDisplayFilterOptions,
   IIssueDisplayProperties,
   TIssueLayouts,
-  EIssueLayoutTypes,
 } from "@plane/types";
-import { EIssuesStoreType } from "@plane/types";
+import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
 // ui
 import { CustomMenu } from "@plane/ui";
 // components
@@ -33,7 +32,7 @@ export const ProfileIssuesMobileHeader = observer(function ProfileIssuesMobileHe
     issuesFilter: { issueFilters, updateFilters },
   } = useIssues(EIssuesStoreType.PROFILE);
   // derived values
-  const activeLayout = issueFilters?.displayFilters?.layout;
+  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const handleLayoutChange = useCallback(
     (layout: TIssueLayouts) => {

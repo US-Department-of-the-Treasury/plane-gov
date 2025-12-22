@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { memo, useState, useRef, useEffect } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
-import { observer } from "mobx-react";
 import { useParams, usePathname } from "next/navigation";
 import { Plus, Ellipsis } from "lucide-react";
 import { Disclosure, Transition } from "@headlessui/react";
@@ -28,7 +27,7 @@ import type { TProject } from "@/plane-web/types";
 // local imports
 import { SidebarProjectsListItem } from "./projects-list-item";
 
-export const SidebarProjectsList = observer(function SidebarProjectsList() {
+export const SidebarProjectsList = memo(function SidebarProjectsList() {
   // states
   const [isAllProjectsListOpen, setIsAllProjectsListOpen] = useState(true);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
@@ -41,12 +40,12 @@ export const SidebarProjectsList = observer(function SidebarProjectsList() {
   const { allowPermissions } = useUserPermissions();
   const { preferences: projectPreferences } = useProjectNavigationPreferences();
   const { isExtendedProjectSidebarOpened, toggleExtendedProjectSidebar } = useAppTheme();
-
-  const { data: projects = [], isLoading } = useProjects(workspaceSlug?.toString());
-  const joinedProjects = getJoinedProjectIds(projects);
   // router params
   const { workspaceSlug } = useParams();
   const pathname = usePathname();
+
+  const { data: projects = [], isLoading } = useProjects(workspaceSlug?.toString());
+  const joinedProjects = getJoinedProjectIds(projects);
 
   // loader state for compatibility
   const loader = isLoading ? "init-loader" : undefined;
@@ -166,7 +165,7 @@ export const SidebarProjectsList = observer(function SidebarProjectsList() {
       )}
       <div
         ref={containerRef}
-        className={cn({
+        className={cn("overflow-y-auto", {
           "border-t border-strong": isScrolled,
         })}
       >

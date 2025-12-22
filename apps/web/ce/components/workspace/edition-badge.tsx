@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // ui
 import { useTranslation } from "@plane/i18n";
 import { Tooltip } from "@plane/propel/tooltip";
@@ -6,7 +5,7 @@ import { Tooltip } from "@plane/propel/tooltip";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 import packageJson from "package.json";
 
-export const WorkspaceEditionBadge = observer(function WorkspaceEditionBadge() {
+export function WorkspaceEditionBadge() {
   // translation
   const { t } = useTranslation();
   // platform
@@ -22,4 +21,4 @@ export const WorkspaceEditionBadge = observer(function WorkspaceEditionBadge() {
       </span>
     </Tooltip>
   );
-});
+}

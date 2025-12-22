@@ -71,7 +71,7 @@ export const SprintIssuesHeader = observer(function SprintIssuesHeader() {
   );
   const loader = isLoading ? "init-loader" : undefined;
 
-  const activeLayout = issueFilters?.displayFilters?.layout;
+  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const { setValue, storedValue } = useLocalStorage("sprint_sidebar_collapsed", false);
 
