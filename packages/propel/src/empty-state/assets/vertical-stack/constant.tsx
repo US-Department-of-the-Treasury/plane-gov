@@ -11,7 +11,6 @@ import {
   Error404VerticalStackIllustration,
   InitiativeVerticalStackIllustration,
   InvalidLinkVerticalStackIllustration,
-  EpicVerticalStackIllustration,
   NoAccessVerticalStackIllustration,
   PageVerticalStackIllustration,
   ProjectVerticalStackIllustration,

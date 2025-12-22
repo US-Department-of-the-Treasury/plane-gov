@@ -1,6 +1,5 @@
 import type { MutableRefObject } from "react";
 import { isNil } from "lodash-es";
-import { observer } from "mobx-react";
 // types
 import type {
   GroupByColumnTypes,
@@ -12,12 +11,8 @@ import type {
   TPaginationData,
   TLoader,
 } from "@plane/types";
-// hooks
-import { useSprint } from "@/hooks/store/use-sprint";
-import { useLabel } from "@/hooks/store/use-label";
-import { useMember } from "@/hooks/store/use-member";
-import { useEpic } from "@/hooks/store/use-epic";
-import { useStates } from "@/hooks/store/use-state";
+// store
+import { useStates, useLabels, useMembers, useSprints, useEpics } from "@/store/queries";
 //
 import { getGroupByColumns } from "../utils";
 // components
@@ -25,6 +20,7 @@ import { HeaderGroupByCard } from "./headers/group-by-card";
 import { KanbanGroup } from "./kanban-group";
 
 export interface IKanBan {
+  anchor: string;
   groupedIssueIds: TGroupedIssues | TSubGroupedIssues;
   displayProperties: IIssueDisplayProperties | undefined;
   subGroupBy: TIssueGroupByOptions | undefined;
@@ -42,8 +38,9 @@ export interface IKanBan {
   showEmptyGroup?: boolean;
 }
 
-export const KanBan = observer(function KanBan(props: IKanBan) {
+export function KanBan(props: IKanBan) {
   const {
+    anchor,
     groupedIssueIds,
     displayProperties,
     subGroupBy,
@@ -57,13 +54,13 @@ export const KanBan = observer(function KanBan(props: IKanBan) {
     showEmptyGroup = true,
   } = props;
 
-  const member = useMember();
-  const label = useLabel();
-  const sprint = useSprint();
-  const epics = useEpic();
-  const state = useStates();
+  const { data: members } = useMembers(anchor);
+  const { data: labels } = useLabels(anchor);
+  const { data: sprints } = useSprints(anchor);
+  const { data: epics } = useEpics(anchor);
+  const { sortedStates } = useStates(anchor);
 
-  const groupList = getGroupByColumns(groupBy as GroupByColumnTypes, sprint, epics, label, state, member);
+  const groupList = getGroupByColumns(groupBy as GroupByColumnTypes, sprints, epics, labels, sortedStates, members);
 
   if (!groupList) return null;
 
@@ -105,6 +102,7 @@ export const KanBan = observer(function KanBan(props: IKanBan) {
 
             {groupByVisibilityToggle.showIssues && (
               <KanbanGroup
+                anchor={anchor}
                 groupId={subList.id}
                 groupedIssueIds={groupedIssueIds}
                 displayProperties={displayProperties}
@@ -122,4 +120,4 @@ export const KanBan = observer(function KanBan(props: IKanBan) {
       })}
     </div>
   );
-});
+}

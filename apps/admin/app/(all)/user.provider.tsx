@@ -1,20 +1,15 @@
 import { useEffect } from "react";
-import { observer } from "mobx-react";
-import useSWR from "swr";
 // hooks
-import { useInstance, useTheme, useUser } from "@/hooks/store";
+import { useCurrentUser, useInstanceAdmins, useThemeStore } from "@/store/queries";
 
-export const UserProvider = observer(function UserProvider({ children }: React.PropsWithChildren) {
-  // hooks
-  const { isSidebarCollapsed, toggleSidebar } = useTheme();
-  const { currentUser, fetchCurrentUser } = useUser();
-  const { fetchInstanceAdmins } = useInstance();
+export function UserProvider({ children }: React.PropsWithChildren) {
+  // Trigger fetches (TanStack Query handles caching and deduplication)
+  const { data: currentUser } = useCurrentUser();
+  useInstanceAdmins();
 
-  useSWR("CURRENT_USER", () => fetchCurrentUser(), {
-    shouldRetryOnError: false,
-  });
-
-  useSWR("INSTANCE_ADMINS", () => fetchInstanceAdmins());
+  // Theme store
+  const isSidebarCollapsed = useThemeStore((s) => s.isSidebarCollapsed);
+  const toggleSidebar = useThemeStore((s) => s.toggleSidebar);
 
   useEffect(() => {
     const localValue = localStorage && localStorage.getItem("god_mode_sidebar_collapsed");
@@ -23,4 +18,4 @@ export const UserProvider = observer(function UserProvider({ children }: React.P
   }, [isSidebarCollapsed, currentUser, toggleSidebar]);
 
   return <>{children}</>;
-});
+}

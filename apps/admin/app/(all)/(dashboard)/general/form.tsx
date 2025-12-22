@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { Telescope } from "lucide-react";
 // types
@@ -9,7 +8,7 @@ import type { IInstance, IInstanceAdmin } from "@plane/types";
 import { Input, ToggleSwitch } from "@plane/ui";
 // components
 import { ControllerInput } from "@/components/common/controller-input";
-import { useInstance } from "@/hooks/store";
+import { useInstanceConfigurations, useUpdateInstance, useUpdateInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 import { IntercomConfig } from "./intercom";
 // hooks
 
@@ -18,10 +17,12 @@ export interface IGeneralConfigurationForm {
   instanceAdmins: IInstanceAdmin[];
 }
 
-export const GeneralConfigurationForm = observer(function GeneralConfigurationForm(props: IGeneralConfigurationForm) {
+export function GeneralConfigurationForm(props: IGeneralConfigurationForm) {
   const { instance, instanceAdmins } = props;
   // hooks
-  const { instanceConfigurations, updateInstanceInfo, updateInstanceConfigurations } = useInstance();
+  const { data: instanceConfigurations } = useInstanceConfigurations();
+  const updateInstanceInfo = useUpdateInstance();
+  const updateInstanceConfigurations = useUpdateInstanceConfigurations();
 
   // form data
   const {
@@ -44,13 +45,13 @@ export const GeneralConfigurationForm = observer(function GeneralConfigurationFo
       instanceConfigurations?.find((config) => config.key === "IS_INTERCOM_ENABLED")?.value === "1";
     if (!payload.is_telemetry_enabled && isIntercomEnabled) {
       try {
-        await updateInstanceConfigurations({ IS_INTERCOM_ENABLED: "0" });
+        await updateInstanceConfigurations.mutateAsync({ IS_INTERCOM_ENABLED: "0" });
       } catch (error) {
         console.error(error);
       }
     }
 
-    await updateInstanceInfo(payload)
+    await updateInstanceInfo.mutateAsync(payload)
       .then(() =>
         setToast({
           type: TOAST_TYPE.SUCCESS,
@@ -142,4 +143,4 @@ export const GeneralConfigurationForm = observer(function GeneralConfigurationFo
       </div>
     </div>
   );
-});
+}

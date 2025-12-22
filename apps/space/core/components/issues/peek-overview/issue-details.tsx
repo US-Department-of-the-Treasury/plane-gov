@@ -1,7 +1,7 @@
-import { observer } from "mobx-react";
 // plane imports
 import { RichTextEditor } from "@/components/editor/rich-text-editor";
-import { usePublish } from "@/hooks/store/publish";
+// store
+import { usePublishSettings } from "@/store/queries";
 // types
 import type { IIssue } from "@/types/issue";
 // local imports
@@ -12,10 +12,10 @@ type Props = {
   issueDetails: IIssue;
 };
 
-export const PeekOverviewIssueDetails = observer(function PeekOverviewIssueDetails(props: Props) {
+export function PeekOverviewIssueDetails(props: Props) {
   const { anchor, issueDetails } = props;
-  // store hooks
-  const { project_details, workspace: workspaceID } = usePublish(anchor);
+  // store
+  const { project_details, workspace: workspaceID } = usePublishSettings(anchor);
   // derived values
   const description = issueDetails.description_html;
 
@@ -37,4 +37,4 @@ export const PeekOverviewIssueDetails = observer(function PeekOverviewIssueDetai
       <IssueReactions anchor={anchor} />
     </div>
   );
-});
+}

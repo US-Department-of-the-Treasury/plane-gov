@@ -1,15 +1,17 @@
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { useRouter } from "next/navigation";
 import { Outlet } from "react-router";
 // hooks
-import { useUser } from "@/hooks/store/use-user";
+import { useCurrentUser } from "@/store/queries";
 
-function RootLayout() {
+export default function RootLayout() {
   // router
   const { replace } = useRouter();
-  // store hooks
-  const { isUserLoggedIn } = useUser();
+  // query hooks
+  const { data: currentUser, isSuccess, isError } = useCurrentUser();
+
+  // Determine if user is logged in based on query state
+  const isUserLoggedIn = isSuccess ? !!currentUser : isError ? false : undefined;
 
   useEffect(() => {
     if (isUserLoggedIn === true) replace("/general");
@@ -21,5 +23,3 @@ function RootLayout() {
     </div>
   );
 }
-
-export default observer(RootLayout);

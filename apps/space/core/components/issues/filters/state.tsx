@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 // ui
 import { EIconSize } from "@plane/constants";
 import { StateGroupIcon } from "@plane/propel/icons";
 import { Loader } from "@plane/ui";
-// hooks
-import { useStates } from "@/hooks/store/use-state";
+// store
+import { useAnchor } from "@/store/anchor-context";
+import { useStates } from "@/store/queries";
 // local imports
 import { FilterHeader } from "./helpers/filter-header";
 import { FilterOption } from "./helpers/filter-option";
@@ -16,10 +16,12 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterState = observer(function FilterState(props: Props) {
+export function FilterState(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
 
-  const { sortedStates: states } = useStates();
+  // hooks
+  const anchor = useAnchor();
+  const { sortedStates: states } = useStates(anchor);
 
   const [itemsToRender, setItemsToRender] = useState(5);
   const [previewEnabled, setPreviewEnabled] = useState(true);
@@ -80,4 +82,4 @@ export const FilterState = observer(function FilterState(props: Props) {
       )}
     </>
   );
-});
+}

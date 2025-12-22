@@ -1,9 +1,9 @@
-import { Fragment, useEffect } from "react";
-import { observer } from "mobx-react";
+import { Fragment } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
-// hooks
-import { useIssueDetails } from "@/hooks/store/use-issue-details";
+// store
+import { useIssue } from "@/store/queries";
+import { usePeekStore } from "@/store/peek.store";
 // local imports
 import { FullScreenPeekView } from "./full-screen-peek-view";
 import { SidePeekView } from "./side-peek-view";
@@ -14,7 +14,7 @@ type TIssuePeekOverview = {
   handlePeekClose?: () => void;
 };
 
-export const IssuePeekOverview = observer(function IssuePeekOverview(props: TIssuePeekOverview) {
+export function IssuePeekOverview(props: TIssuePeekOverview) {
   const { anchor, peekId, handlePeekClose } = props;
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,18 +24,11 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: TIss
   const priority = searchParams.get("priority") || undefined;
   const labels = searchParams.get("labels") || undefined;
   // store
-  const { peekMode, setPeekId, getIssueById, fetchIssueDetails } = useIssueDetails();
-  // derived values
-  const issueDetails = peekId ? getIssueById(peekId.toString()) : undefined;
+  const { peekMode, setPeekId } = usePeekStore();
+  const { data: issueDetails } = useIssue(anchor, peekId?.toString() ?? "");
   // state
   const isSidePeekOpen = !!peekId && peekMode === "side";
   const isModalPeekOpen = !!peekId && (peekMode === "modal" || peekMode === "full");
-
-  useEffect(() => {
-    if (anchor && peekId) {
-      fetchIssueDetails(anchor, peekId.toString());
-    }
-  }, [anchor, fetchIssueDetails, peekId]);
 
   const handleClose = () => {
     // if close logic is passed down, call that instead of the below logic
@@ -115,4 +108,4 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: TIss
       </Transition.Root>
     </>
   );
-});
+}

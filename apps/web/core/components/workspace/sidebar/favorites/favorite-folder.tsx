@@ -14,7 +14,7 @@ import { orderBy } from "lodash-es";
 import { useParams } from "next/navigation";
 import { createRoot } from "react-dom/client";
 import { Star, MoreHorizontal, GripVertical } from "lucide-react";
-import { Disclosure, Transition } from "@headlessui/react";
+import { Disclosure, Transition, TransitionChild } from "@headlessui/react";
 // plane imports
 import { useOutsideClickDetector } from "@plane/hooks";
 import { useTranslation } from "@plane/i18n";
@@ -254,27 +254,30 @@ export function FavoriteFolder(props: Props) {
               </>
             </div>
             {favorite.children && favorite.children.length > 0 && (
-              <Transition
-                enter="transition duration-100 ease-out"
-                enterFrom="transform scale-95 opacity-0"
-                enterTo="transform scale-100 opacity-100"
-                leave="transition duration-75 ease-out"
-                leaveFrom="transform scale-100 opacity-100"
-                leaveTo="transform scale-95 opacity-0"
-              >
-                <Disclosure.Panel as="div" className="flex flex-col gap-0.5 mt-1 px-2">
-                  {orderBy(favorite.children, "sequence", "desc").map((child, index) => (
-                    <FavoriteRoot
-                      key={child.id}
-                      workspaceSlug={workspaceSlug.toString()}
-                      favorite={child}
-                      isLastChild={index === favorite.children.length - 1}
-                      parentId={favorite.id}
-                      handleRemoveFromFavorites={handleRemoveFromFavorites}
-                      handleDrop={handleDrop}
-                    />
-                  ))}
-                </Disclosure.Panel>
+              <Transition>
+                <TransitionChild
+                  as="div"
+                  enter="transition duration-100 ease-out"
+                  enterFrom="transform scale-95 opacity-0"
+                  enterTo="transform scale-100 opacity-100"
+                  leave="transition duration-75 ease-out"
+                  leaveFrom="transform scale-100 opacity-100"
+                  leaveTo="transform scale-95 opacity-0"
+                >
+                  <Disclosure.Panel as="div" className="flex flex-col gap-0.5 mt-1 px-2">
+                    {orderBy(favorite.children, "sequence", "desc").map((child, index) => (
+                      <FavoriteRoot
+                        key={child.id}
+                        workspaceSlug={workspaceSlug.toString()}
+                        favorite={child}
+                        isLastChild={index === favorite.children.length - 1}
+                        parentId={favorite.id}
+                        handleRemoveFromFavorites={handleRemoveFromFavorites}
+                        handleDrop={handleDrop}
+                      />
+                    ))}
+                  </Disclosure.Panel>
+                </TransitionChild>
               </Transition>
             )}
             {/* draggable drop bottom indicator */}

@@ -4,8 +4,8 @@ import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IFormattedInstanceConfiguration, TInstanceImageConfigurationKeys } from "@plane/types";
 // components
 import { ControllerInput } from "@/components/common/controller-input";
-// hooks
-import { useInstance } from "@/hooks/store";
+// store
+import { useUpdateInstanceConfigurations } from "@/store/queries";
 
 type IInstanceImageConfigForm = {
   config: IFormattedInstanceConfiguration;
@@ -16,7 +16,7 @@ type ImageConfigFormValues = Record<TInstanceImageConfigurationKeys, string>;
 export function InstanceImageConfigForm(props: IInstanceImageConfigForm) {
   const { config } = props;
   // store hooks
-  const { updateInstanceConfigurations } = useInstance();
+  const updateInstanceConfigurationsMutation = useUpdateInstanceConfigurations();
   // form data
   const {
     handleSubmit,
@@ -31,7 +31,7 @@ export function InstanceImageConfigForm(props: IInstanceImageConfigForm) {
   const onSubmit = async (formData: ImageConfigFormValues) => {
     const payload: Partial<ImageConfigFormValues> = { ...formData };
 
-    await updateInstanceConfigurations(payload)
+    await updateInstanceConfigurationsMutation.mutateAsync(payload)
       .then(() =>
         setToast({
           type: TOAST_TYPE.SUCCESS,

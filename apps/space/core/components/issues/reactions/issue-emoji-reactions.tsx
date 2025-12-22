@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 // lib
 import { stringToEmoji } from "@plane/propel/emoji-icon-picker";
@@ -8,16 +7,16 @@ import type { EmojiReactionType } from "@plane/propel/emoji-reaction";
 // helpers
 import { groupReactions } from "@/helpers/emoji.helper";
 import { queryParamGenerator } from "@/helpers/query-param-generator";
-// hooks
-import { useIssueDetails } from "@/hooks/store/use-issue-details";
-import { useUser } from "@/hooks/store/use-user";
+// store
+import { useCurrentUser, useIssue, useAddReaction, useRemoveReaction } from "@/store/queries";
+import { usePeekStore } from "@/store/peek.store";
 
 type IssueEmojiReactionsProps = {
   anchor: string;
   issueIdFromProps?: string;
 };
 
-export const IssueEmojiReactions = observer(function IssueEmojiReactions(props: IssueEmojiReactionsProps) {
+export function IssueEmojiReactions(props: IssueEmojiReactionsProps) {
   const { anchor, issueIdFromProps } = props;
   // state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
@@ -26,29 +25,33 @@ export const IssueEmojiReactions = observer(function IssueEmojiReactions(props: 
   const pathName = usePathname();
   const searchParams = useSearchParams();
   // query params
-  const peekId = searchParams.get("peekId") || undefined;
+  const peekIdParam = searchParams.get("peekId") || undefined;
   const board = searchParams.get("board") || undefined;
   const state = searchParams.get("state") || undefined;
   const priority = searchParams.get("priority") || undefined;
   const labels = searchParams.get("labels") || undefined;
-  // store hooks
-  const issueDetailsStore = useIssueDetails();
-  const { data: user } = useUser();
+  // store
+  const { peekId: peekIdFromStore } = usePeekStore();
+  const { data: user } = useCurrentUser();
+  const addReactionMutation = useAddReaction();
+  const removeReactionMutation = useRemoveReaction();
 
-  const issueId = issueIdFromProps ?? issueDetailsStore.peekId;
-  const reactions = issueDetailsStore.details[issueId ?? ""]?.reaction_items ?? [];
+  const issueId = issueIdFromProps ?? peekIdFromStore;
+  const { data: issueDetails } = useIssue(anchor, issueId ?? "");
+  const reactions = issueDetails?.reaction_items ?? [];
   const groupedReactions = groupReactions(reactions, "reaction");
+  const peekId = peekIdParam ?? peekIdFromStore;
 
   const userReactions = reactions.filter((r) => r.actor_details?.id === user?.id);
 
   const handleAddReaction = (reactionHex: string) => {
     if (!issueId) return;
-    issueDetailsStore.addIssueReaction(anchor, issueId, reactionHex);
+    addReactionMutation.mutate({ anchor, issueId, data: { reaction: reactionHex } });
   };
 
   const handleRemoveReaction = (reactionHex: string) => {
     if (!issueId) return;
-    issueDetailsStore.removeIssueReaction(anchor, issueId, reactionHex);
+    removeReactionMutation.mutate({ anchor, issueId, reactionId: reactionHex });
   };
 
   const handleReactionClick = (reactionHex: string) => {
@@ -118,4 +121,4 @@ export const IssueEmojiReactions = observer(function IssueEmojiReactions(props: 
       placement="bottom-start"
     />
   );
-});
+}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Transition } from "@headlessui/react";
+import { Transition, TransitionChild } from "@headlessui/react";
 // plane imports
 import type { SingleOrArray, IFilterOption, TFilterValue } from "@plane/types";
 import { cn, toFilterArray } from "@plane/utils";
@@ -44,15 +44,16 @@ export function SelectedOptionsDisplay<V extends TFilterValue>(props: TSelectedO
         </React.Fragment>
       ))}
       {remainingCount > 0 && (
-        <Transition
-          show
-          appear
-          enter="transition-opacity duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          className="text-tertiary whitespace-nowrap ml-1"
-        >
-          +{remainingCount} more
+        <Transition show appear>
+          <TransitionChild
+            as="span"
+            enter="transition-opacity duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            className="text-tertiary whitespace-nowrap ml-1"
+          >
+            +{remainingCount} more
+          </TransitionChild>
         </Transition>
       )}
     </div>

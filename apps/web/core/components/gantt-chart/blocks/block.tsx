@@ -21,7 +21,7 @@ type Props = {
   enableBlockRightResize: boolean;
   enableBlockMove: boolean;
   enableDependency: boolean;
-  ganttContainerRef: RefObject<HTMLDivElement>;
+  ganttContainerRef: RefObject<HTMLDivElement | null>;
   updateBlockDates?: (updates: IBlockUpdateDependencyData[]) => Promise<void>;
 };
 

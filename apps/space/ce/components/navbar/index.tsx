@@ -1,7 +1,7 @@
-import type { PublishStore } from "@/store/publish/publish.store";
+import type { TProjectPublishSettings } from "@plane/types";
 
 type Props = {
-  publishSettings: PublishStore;
+  publishSettings: TProjectPublishSettings | undefined;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

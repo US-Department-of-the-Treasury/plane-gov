@@ -1,22 +1,23 @@
 import { useCallback, useMemo, useRef } from "react";
 import { debounce } from "lodash-es";
-import { observer } from "mobx-react";
 // types
 import type { IIssueDisplayProperties } from "@plane/types";
 // components
 import { IssueLayoutHOC } from "@/components/issues/issue-layouts/issue-layout-HOC";
-// hooks
-import { useIssue } from "@/hooks/store/use-issue";
+// store
+import { useIssueListStore } from "@/store/issue-list.store";
 
 import { KanBan } from "./default";
 
 type Props = {
   anchor: string;
 };
-export const IssueKanbanLayoutRoot = observer(function IssueKanbanLayoutRoot(props: Props) {
+
+export function IssueKanbanLayoutRoot(props: Props) {
   const { anchor } = props;
   // store hooks
-  const { groupedIssueIds, getIssueLoader, fetchNextPublicIssues, getGroupIssueCount, getPaginationData } = useIssue();
+  const { groupedIssueIds, getIssueLoader, fetchNextPublicIssues, getGroupIssueCount, getPaginationData } =
+    useIssueListStore();
 
   const displayProperties: IIssueDisplayProperties = useMemo(
     () => ({
@@ -55,6 +56,7 @@ export const IssueKanbanLayoutRoot = observer(function IssueKanbanLayoutRoot(pro
         <div className="relative h-full w-max min-w-full">
           <div className="h-full w-max">
             <KanBan
+              anchor={anchor}
               groupedIssueIds={groupedIssueIds ?? {}}
               displayProperties={displayProperties}
               subGroupBy={null}
@@ -71,4 +73,4 @@ export const IssueKanbanLayoutRoot = observer(function IssueKanbanLayoutRoot(pro
       </div>
     </IssueLayoutHOC>
   );
-});
+}

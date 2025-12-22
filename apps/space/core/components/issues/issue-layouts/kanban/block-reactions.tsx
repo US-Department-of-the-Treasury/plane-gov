@@ -1,20 +1,19 @@
-import { observer } from "mobx-react";
-import { useParams } from "next/navigation";
 // plane utils
 import { cn } from "@plane/utils";
 // components
 import { IssueEmojiReactions } from "@/components/issues/reactions/issue-emoji-reactions";
 import { IssueVotes } from "@/components/issues/reactions/issue-vote-reactions";
-// hooks
-import { usePublish } from "@/hooks/store/publish";
+// store
+import { usePublishSettings } from "@/store/queries";
 
 type Props = {
+  anchor: string;
   issueId: string;
 };
-export const BlockReactions = observer(function BlockReactions(props: Props) {
-  const { issueId } = props;
-  const { anchor } = useParams();
-  const { canVote, canReact } = usePublish(anchor.toString());
+
+export function BlockReactions(props: Props) {
+  const { anchor, issueId } = props;
+  const { canVote, canReact } = usePublishSettings(anchor);
 
   // if the user cannot vote or react then return empty
   if (!canVote && !canReact) return <></>;
@@ -28,15 +27,15 @@ export const BlockReactions = observer(function BlockReactions(props: Props) {
               "after:h-6 after:ml-1 after:w-[1px] after:bg-layer-3": canReact,
             })}
           >
-            <IssueVotes anchor={anchor.toString()} issueIdFromProps={issueId} size="sm" />
+            <IssueVotes anchor={anchor} issueIdFromProps={issueId} size="sm" />
           </div>
         )}
         {canReact && (
           <div className="flex flex-wrap items-center gap-2">
-            <IssueEmojiReactions anchor={anchor.toString()} issueIdFromProps={issueId} />
+            <IssueEmojiReactions anchor={anchor} issueIdFromProps={issueId} />
           </div>
         )}
       </div>
     </div>
   );
-});
+}

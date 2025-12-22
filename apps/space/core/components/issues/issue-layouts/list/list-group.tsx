@@ -1,6 +1,5 @@
 import type { MutableRefObject } from "react";
 import { Fragment, forwardRef, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 // plane types
 import type {
@@ -19,6 +18,7 @@ import { IssueBlocksList } from "./blocks-list";
 import { HeaderGroupByCard } from "./headers/group-by-card";
 
 interface Props {
+  anchor: string;
   groupIssueIds: string[] | undefined;
   group: IGroupByColumn;
   groupBy: TIssueGroupByOptions | undefined;
@@ -58,8 +58,9 @@ const ListLoaderItemRow = forwardRef(function ListLoaderItemRow(
 });
 ListLoaderItemRow.displayName = "ListLoaderItemRow";
 
-export const ListGroup = observer(function ListGroup(props: Props) {
+export function ListGroup(props: Props) {
   const {
+    anchor,
     groupIssueIds = [],
     group,
     groupBy,
@@ -129,6 +130,7 @@ export const ListGroup = observer(function ListGroup(props: Props) {
         <div className="relative">
           {groupIssueIds && (
             <IssueBlocksList
+              anchor={anchor}
               issueIds={groupIssueIds}
               groupId={group.id}
               displayProperties={displayProperties}
@@ -141,4 +143,4 @@ export const ListGroup = observer(function ListGroup(props: Props) {
       )}
     </div>
   ) : null;
-});
+}

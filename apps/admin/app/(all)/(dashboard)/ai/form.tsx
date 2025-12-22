@@ -6,8 +6,8 @@ import type { IFormattedInstanceConfiguration, TInstanceAIConfigurationKeys } fr
 // components
 import type { TControllerInputFormField } from "@/components/common/controller-input";
 import { ControllerInput } from "@/components/common/controller-input";
-// hooks
-import { useInstance } from "@/hooks/store";
+// store
+import { useUpdateInstanceConfigurations } from "@/store/queries";
 
 type IInstanceAIForm = {
   config: IFormattedInstanceConfiguration;
@@ -18,7 +18,7 @@ type AIFormValues = Record<TInstanceAIConfigurationKeys, string>;
 export function InstanceAIForm(props: IInstanceAIForm) {
   const { config } = props;
   // store
-  const { updateInstanceConfigurations } = useInstance();
+  const updateInstanceConfigurationsMutation = useUpdateInstanceConfigurations();
   // form data
   const {
     handleSubmit,
@@ -79,7 +79,7 @@ export function InstanceAIForm(props: IInstanceAIForm) {
   const onSubmit = async (formData: AIFormValues) => {
     const payload: Partial<AIFormValues> = { ...formData };
 
-    await updateInstanceConfigurations(payload)
+    await updateInstanceConfigurationsMutation.mutateAsync(payload)
       .then(() =>
         setToast({
           type: TOAST_TYPE.SUCCESS,

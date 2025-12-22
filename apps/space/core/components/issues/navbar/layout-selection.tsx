@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useRouter, useSearchParams } from "next/navigation";
 // ui
 import { SITES_ISSUE_LAYOUTS } from "@plane/constants";
@@ -7,9 +6,9 @@ import { useTranslation } from "@plane/i18n";
 import { Tooltip } from "@plane/propel/tooltip";
 // helpers
 import { queryParamGenerator } from "@/helpers/query-param-generator";
-// hooks
-import { useIssueFilter } from "@/hooks/store/use-issue-filter";
-// mobx
+// store
+import { useIssueFiltersStore } from "@/store/issue-filters.store";
+// types
 import type { TIssueLayout } from "@/types/issue";
 import { IssueLayoutIcon } from "./layout-icon";
 
@@ -17,7 +16,7 @@ type Props = {
   anchor: string;
 };
 
-export const IssuesLayoutSelection = observer(function IssuesLayoutSelection(props: Props) {
+export function IssuesLayoutSelection(props: Props) {
   const { anchor } = props;
   // hooks
   const { t } = useTranslation();
@@ -29,8 +28,8 @@ export const IssuesLayoutSelection = observer(function IssuesLayoutSelection(pro
   const state = searchParams.get("state");
   const priority = searchParams.get("priority");
   const peekId = searchParams.get("peekId");
-  // hooks
-  const { layoutOptions, getIssueFilters, updateIssueFilters } = useIssueFilter();
+  // store
+  const { layoutOptions, getIssueFilters, updateIssueFilters } = useIssueFiltersStore();
   // derived values
   const issueFilters = getIssueFilters(anchor);
   const activeLayout = issueFilters?.display_filters?.layout || undefined;
@@ -65,4 +64,4 @@ export const IssuesLayoutSelection = observer(function IssuesLayoutSelection(pro
       })}
     </div>
   );
-});
+}

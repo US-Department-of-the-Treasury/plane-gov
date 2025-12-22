@@ -1,21 +1,20 @@
 import React from "react";
-import { observer } from "mobx-react";
-// hooks
+// plane internal packages
 import type { TInstanceAuthenticationMethodKeys } from "@plane/types";
 import { ToggleSwitch } from "@plane/ui";
-import { useInstance } from "@/hooks/store";
-// ui
-// types
+// hooks
+import { useInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 
 type Props = {
   disabled: boolean;
   updateConfig: (key: TInstanceAuthenticationMethodKeys, value: string) => void;
 };
 
-export const PasswordLoginConfiguration = observer(function PasswordLoginConfiguration(props: Props) {
+export function PasswordLoginConfiguration(props: Props) {
   const { disabled, updateConfig } = props;
-  // store
-  const { formattedConfig } = useInstance();
+  // queries
+  const { data: configurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(configurations);
   // derived values
   const enableEmailPassword = formattedConfig?.ENABLE_EMAIL_PASSWORD ?? "";
 
@@ -30,4 +29,4 @@ export const PasswordLoginConfiguration = observer(function PasswordLoginConfigu
       disabled={disabled}
     />
   );
-});
+}

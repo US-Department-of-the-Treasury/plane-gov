@@ -1,4 +1,4 @@
-import { Disclosure, Transition } from "@headlessui/react";
+import { Disclosure, Transition, TransitionChild } from "@headlessui/react";
 import React, { useState, useEffect, useCallback } from "react";
 
 export type TCollapsibleProps = {
@@ -37,19 +37,21 @@ export function Collapsible(props: TCollapsibleProps) {
       <Disclosure.Button ref={buttonRef} className={buttonClassName} onClick={handleOnClick}>
         {title}
       </Disclosure.Button>
-      <Transition
-        show={localIsOpen}
-        enter="transition-all duration-300 ease-in-out"
-        enterFrom="grid-rows-[0fr] opacity-0"
-        enterTo="grid-rows-[1fr] opacity-100"
-        leave="transition-all duration-300 ease-in-out"
-        leaveFrom="grid-rows-[1fr] opacity-100"
-        leaveTo="grid-rows-[0fr] opacity-0"
-        className="grid overflow-hidden"
-      >
-        <Disclosure.Panel static className="min-h-0">
-          {children}
-        </Disclosure.Panel>
+      <Transition show={localIsOpen}>
+        <TransitionChild
+          as="div"
+          enter="transition-all duration-300 ease-in-out"
+          enterFrom="grid-rows-[0fr] opacity-0"
+          enterTo="grid-rows-[1fr] opacity-100"
+          leave="transition-all duration-300 ease-in-out"
+          leaveFrom="grid-rows-[1fr] opacity-100"
+          leaveTo="grid-rows-[0fr] opacity-0"
+          className="grid overflow-hidden"
+        >
+          <Disclosure.Panel static className="min-h-0">
+            {children}
+          </Disclosure.Panel>
+        </TransitionChild>
       </Transition>
     </Disclosure>
   );

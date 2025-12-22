@@ -1,7 +1,5 @@
-import { observer } from "mobx-react";
 import { Circle } from "lucide-react";
 import { ChevronDownIcon, ChevronUpIcon } from "@plane/propel/icons";
-// mobx
 
 interface IHeaderSubGroupByCard {
   icon?: React.ReactNode;
@@ -11,7 +9,7 @@ interface IHeaderSubGroupByCard {
   toggleExpanded: () => void;
 }
 
-export const HeaderSubGroupByCard = observer(function HeaderSubGroupByCard(props: IHeaderSubGroupByCard) {
+export function HeaderSubGroupByCard(props: IHeaderSubGroupByCard) {
   const { icon, title, count, isExpanded, toggleExpanded } = props;
   return (
     <div
@@ -32,4 +30,4 @@ export const HeaderSubGroupByCard = observer(function HeaderSubGroupByCard(props
       </div>
     </div>
   );
-});
+}

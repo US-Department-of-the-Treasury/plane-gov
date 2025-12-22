@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Link, Paperclip } from "lucide-react";
 import { ViewsIcon } from "@plane/propel/icons";
 // plane imports
@@ -9,7 +8,7 @@ import { cn } from "@plane/utils";
 import { WithDisplayPropertiesHOC } from "@/components/issues/issue-layouts/with-display-properties-HOC";
 // helpers
 import { getDate } from "@/helpers/date-time.helper";
-//// hooks
+// types
 import type { IIssue } from "@/types/issue";
 import { IssueBlockSprint } from "./sprint";
 import { IssueBlockDate } from "./due-date";
@@ -25,7 +24,7 @@ export interface IIssueProperties {
   className: string;
 }
 
-export const IssueProperties = observer(function IssueProperties(props: IIssueProperties) {
+export function IssueProperties(props: IIssueProperties) {
   const { issue, displayProperties, className } = props;
 
   if (!displayProperties || !issue.project_id) return null;
@@ -176,4 +175,4 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
       </WithDisplayPropertiesHOC>
     </div>
   );
-});
+}

@@ -30,7 +30,7 @@ type TSprintsListItem = {
 export function SprintsListItem(props: TSprintsListItem) {
   const { sprintId, workspaceSlug, projectId, className = "" } = props;
   // refs
-  const parentRef = useRef(null);
+  const parentRef = useRef<HTMLDivElement>(null);
   // router
   const router = useAppRouter();
   const searchParams = useSearchParams();

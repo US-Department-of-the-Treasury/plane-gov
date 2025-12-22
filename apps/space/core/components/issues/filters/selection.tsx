@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { Search } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
 // types
@@ -14,7 +13,7 @@ type Props = {
   layoutDisplayFiltersOptions: TIssueFilterKeys[];
 };
 
-export const FilterSelection = observer(function FilterSelection(props: Props) {
+export function FilterSelection(props: Props) {
   const { filters, handleFilters, layoutDisplayFiltersOptions } = props;
 
   const [filtersSearchQuery, setFiltersSearchQuery] = useState("");
@@ -78,4 +77,4 @@ export const FilterSelection = observer(function FilterSelection(props: Props) {
       </div>
     </div>
   );
-});
+}

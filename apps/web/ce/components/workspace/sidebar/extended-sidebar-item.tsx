@@ -42,7 +42,7 @@ export const ExtendedSidebarItem = memo(function ExtendedSidebarItem(props: TExt
   const [instruction, setInstruction] = useState<"DRAG_OVER" | "DRAG_BELOW" | undefined>(undefined);
   // refs
   const navigationIemRef = useRef<HTMLDivElement | null>(null);
-  const dragHandleRef = useRef<HTMLButtonElement | null>(null);
+  const dragHandleRef = useRef<HTMLDivElement | null>(null);
 
   // nextjs hooks
   const pathname = usePathname();
@@ -179,7 +179,7 @@ export const ExtendedSidebarItem = memo(function ExtendedSidebarItem(props: TExt
                   "opacity-100": isDragging,
                 }
               )}
-              ref={dragHandleRef as React.RefObject<HTMLDivElement>}
+              ref={dragHandleRef}
             >
               <DragHandle className="bg-transparent" />
             </div>

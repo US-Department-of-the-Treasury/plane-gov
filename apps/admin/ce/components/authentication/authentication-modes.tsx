@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
 import { KeyRound, Mails } from "lucide-react";
 // types
@@ -106,7 +105,7 @@ export const getAuthenticationModes: (props: TGetBaseAuthenticationModeProps) =>
   },
 ];
 
-export const AuthenticationModes = observer(function AuthenticationModes(props: TAuthenticationModeProps) {
+export function AuthenticationModes(props: TAuthenticationModeProps) {
   const { disabled, updateConfig } = props;
   // next-themes
   const { resolvedTheme } = useTheme();
@@ -126,4 +125,4 @@ export const AuthenticationModes = observer(function AuthenticationModes(props: 
       ))}
     </div>
   );
-});
+}

@@ -2,7 +2,7 @@ import type React from "react";
 import { useEffect, useCallback } from "react";
 
 const useExtendedSidebarOutsideClickDetector = (
-  ref: React.RefObject<HTMLElement>,
+  ref: React.RefObject<HTMLElement | null>,
   callback: () => void,
   targetId: string
 ) => {

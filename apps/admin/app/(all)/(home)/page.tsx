@@ -1,20 +1,19 @@
-import { observer } from "mobx-react";
 // components
 import { LogoSpinner } from "@/components/common/logo-spinner";
 import { InstanceFailureView } from "@/components/instance/failure";
 import { InstanceSetupForm } from "@/components/instance/setup-form";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useInstanceInfo } from "@/store/queries";
 // components
 import type { Route } from "./+types/page";
 import { InstanceSignInForm } from "./sign-in-form";
 
 function HomePage() {
   // store hooks
-  const { instance, error } = useInstance();
+  const { data: instance, error, isLoading } = useInstanceInfo();
 
   // if instance is not fetched, show loading
-  if (!instance && !error) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
         <LogoSpinner />
@@ -28,7 +27,7 @@ function HomePage() {
   }
 
   // if instance is fetched and setup is not done, show setup form
-  if (instance && !instance?.is_setup_done) {
+  if (instance && !instance.instance?.is_setup_done) {
     return <InstanceSetupForm />;
   }
 
@@ -36,7 +35,7 @@ function HomePage() {
   return <InstanceSignInForm />;
 }
 
-export default observer(HomePage);
+export default HomePage;
 
 export const meta: Route.MetaFunction = () => [
   { title: "Admin – Instance Setup & Sign-In" },

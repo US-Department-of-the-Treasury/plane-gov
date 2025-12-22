@@ -1,17 +1,19 @@
-import { observer } from "mobx-react";
 import { LabelPropertyIcon } from "@plane/propel/icons";
 // plane imports
 import { Tooltip } from "@plane/propel/tooltip";
-// hooks
-import { useLabel } from "@/hooks/store/use-label";
+// store
+import { useAnchor } from "@/store/anchor-context";
+import { useLabels } from "@/store/queries";
 
 type Props = {
   labelIds: string[];
   shouldShowLabel?: boolean;
 };
 
-export const IssueBlockLabels = observer(function IssueBlockLabels({ labelIds, shouldShowLabel = false }: Props) {
-  const { getLabelsByIds } = useLabel();
+export function IssueBlockLabels({ labelIds, shouldShowLabel = false }: Props) {
+  // hooks
+  const anchor = useAnchor();
+  const { getLabelsByIds } = useLabels(anchor);
 
   const labels = getLabelsByIds(labelIds);
 
@@ -67,4 +69,4 @@ export const IssueBlockLabels = observer(function IssueBlockLabels({ labelIds, s
       )}
     </div>
   );
-});
+}

@@ -6,8 +6,9 @@ import type { MakeOptional } from "@plane/types";
 // helpers
 import { getEditorFileHandlers } from "@/helpers/editor.helper";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useParseEditorContent } from "@/hooks/use-parse-editor-content";
+// store
+import { useMembers } from "@/store/queries";
 // plane web imports
 import { useEditorFlagging } from "@/plane-web/hooks/use-editor-flagging";
 // local imports
@@ -42,7 +43,7 @@ export const RichTextEditor = forwardRef(function RichTextEditor(
     ...rest
   } = props;
   // store hooks
-  const { getMemberById } = useMember();
+  const { getMemberById } = useMembers(anchor);
   // parse content
   const { getEditorMetaData } = useParseEditorContent({
     anchor,

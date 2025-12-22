@@ -1,17 +1,17 @@
 import { useEffect, useRef } from "react";
-import { observer } from "mobx-react";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
 // hooks
-import { useTheme } from "@/hooks/store";
+import { useThemeStore } from "@/store/queries";
 // components
 import { AdminSidebarDropdown } from "./sidebar-dropdown";
 import { AdminSidebarHelpSection } from "./sidebar-help-section";
 import { AdminSidebarMenu } from "./sidebar-menu";
 
-export const AdminSidebar = observer(function AdminSidebar() {
+export function AdminSidebar() {
   // store
-  const { isSidebarCollapsed, toggleSidebar } = useTheme();
+  const isSidebarCollapsed = useThemeStore((s) => s.isSidebarCollapsed);
+  const toggleSidebar = useThemeStore((s) => s.toggleSidebar);
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -53,4 +53,4 @@ export const AdminSidebar = observer(function AdminSidebar() {
       </div>
     </div>
   );
-});
+}

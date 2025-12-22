@@ -1,17 +1,14 @@
-import { observer } from "mobx-react";
-import useSWR from "swr";
 import { Loader } from "@plane/ui";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 // components
 import type { Route } from "./+types/page";
 import { InstanceAIForm } from "./form";
 
-const InstanceAIPage = observer(function InstanceAIPage(_props: Route.ComponentProps) {
+function InstanceAIPage(_props: Route.ComponentProps) {
   // store
-  const { fetchInstanceConfigurations, formattedConfig } = useInstance();
-
-  useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
+  const { data: instanceConfigurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(instanceConfigurations);
 
   return (
     <>
@@ -39,7 +36,7 @@ const InstanceAIPage = observer(function InstanceAIPage(_props: Route.ComponentP
       </div>
     </>
   );
-});
+}
 
 export const meta: Route.MetaFunction = () => [{ title: "Artificial Intelligence Settings - God Mode" }];
 

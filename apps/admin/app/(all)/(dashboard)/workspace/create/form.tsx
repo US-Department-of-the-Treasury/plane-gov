@@ -10,8 +10,8 @@ import { InstanceWorkspaceService } from "@plane/services";
 import type { IWorkspace } from "@plane/types";
 // components
 import { CustomSelect, Input } from "@plane/ui";
-// hooks
-import { useWorkspace } from "@/hooks/store";
+// store
+import { useCreateWorkspace } from "@/store/queries";
 
 const instanceWorkspaceService = new InstanceWorkspaceService();
 
@@ -27,7 +27,7 @@ export function WorkspaceCreateForm() {
     organization_size: "",
   });
   // store hooks
-  const { createWorkspace } = useWorkspace();
+  const createWorkspaceMutation = useCreateWorkspace();
   // form info
   const {
     handleSubmit,
@@ -45,7 +45,7 @@ export function WorkspaceCreateForm() {
       .then(async (res) => {
         if (res.status === true && !RESTRICTED_URLS.includes(formData.slug)) {
           setSlugError(false);
-          await createWorkspace(formData)
+          await createWorkspaceMutation.mutateAsync(formData)
             .then(async () => {
               setToast({
                 type: TOAST_TYPE.SUCCESS,
