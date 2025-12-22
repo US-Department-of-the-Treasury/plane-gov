@@ -130,3 +130,9 @@ terraform/tfplan
 # Deployment artifacts
 backend-deploy.zip
 *.zip
+
+# Local planning docs
+plans/
+
+# Git worktrees
+.worktrees/
