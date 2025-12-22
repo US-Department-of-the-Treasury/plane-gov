@@ -1,7 +1,5 @@
-import type { FC } from "react";
 import { useMemo } from "react";
 import { isEmpty } from "lodash-es";
-import { observer } from "mobx-react";
 import { useSearchParams } from "next/navigation";
 import { Disclosure, Transition } from "@headlessui/react";
 // plane imports
@@ -53,7 +51,7 @@ export const validateSprintSnapshot = (sprintDetails: ISprint | null): ISprint |
   return updatedSprintDetails;
 };
 
-export const SprintAnalyticsProgress = observer(function SprintAnalyticsProgress(props: TSprintAnalyticsProgress) {
+export function SprintAnalyticsProgress(props: TSprintAnalyticsProgress) {
   // props
   const { workspaceSlug, projectId, sprintId } = props;
   // router
@@ -169,4 +167,4 @@ export const SprintAnalyticsProgress = observer(function SprintAnalyticsProgress
       </Disclosure>
     </div>
   );
-});
+}

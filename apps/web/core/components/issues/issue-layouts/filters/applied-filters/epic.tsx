@@ -1,7 +1,7 @@
-import { observer } from "mobx-react";
 // hooks
 import { CloseIcon, EpicIcon } from "@plane/propel/icons";
-import { useEpic } from "@/hooks/store/use-epic";
+import { useParams } from "next/navigation";
+import { useProjectEpics, getEpicById } from "@/store/queries";
 // ui
 
 type Props = {
@@ -10,15 +10,16 @@ type Props = {
   editable: boolean | undefined;
 };
 
-export const AppliedEpicFilters = observer(function AppliedEpicFilters(props: Props) {
+export function AppliedEpicFilters(props: Props) {
   const { handleRemove, values, editable } = props;
-  // store hooks
-  const { getEpicById } = useEpic();
+  // hooks
+  const { workspaceSlug, projectId } = useParams();
+  const { data: epics } = useProjectEpics(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
 
   return (
     <>
       {values.map((epicId) => {
-        const epicDetails = getEpicById(epicId) ?? null;
+        const epicDetails = getEpicById(epics, epicId) ?? null;
 
         if (!epicDetails) return null;
 
@@ -40,4 +41,4 @@ export const AppliedEpicFilters = observer(function AppliedEpicFilters(props: Pr
       })}
     </>
   );
-});
+}

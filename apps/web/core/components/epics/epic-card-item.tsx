@@ -1,6 +1,5 @@
 import type { SyntheticEvent } from "react";
 import React, { useRef } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { Info, SquareUser } from "lucide-react";
@@ -29,19 +28,17 @@ import { EpicStatusDropdown } from "@/components/epics/epic-status-dropdown";
 // helpers
 import { captureElementAndEvent } from "@/helpers/event-tracker.helper";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
-import { useEpic } from "@/hooks/store/use-epic";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
-import { useProjectEpics, getEpicById, useUpdateEpic } from "@/store/queries/epic";
+import { useProjectEpics, getEpicById, useUpdateEpic, useAddEpicToFavorites, useRemoveEpicFromFavorites } from "@/store/queries/epic";
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 
 type Props = {
   epicId: string;
 };
 
-export const EpicCardItem = observer(function EpicCardItem(props: Props) {
+export function EpicCardItem(props: Props) {
   const { epicId } = props;
   // refs
   const parentRef = useRef(null);
@@ -52,8 +49,6 @@ export const EpicCardItem = observer(function EpicCardItem(props: Props) {
   const pathname = usePathname();
   // store hooks
   const { allowPermissions } = useUserPermissions();
-  const { addEpicToFavorites, removeEpicFromFavorites, updateEpicDetails } = useEpic();
-  const { getUserDetails } = useMember();
   // query hooks
   const { data: epics } = useProjectEpics(
     workspaceSlug?.toString() ?? "",
@@ -62,6 +57,8 @@ export const EpicCardItem = observer(function EpicCardItem(props: Props) {
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
   // mutation hooks
   const { mutate: updateEpic } = useUpdateEpic();
+  const { mutate: addToFavorites } = useAddEpicToFavorites();
+  const { mutate: removeFromFavorites } = useRemoveEpicFromFavorites();
   // local storage
   const { setValue: toggleFavoriteMenu, storedValue } = useLocalStorage<boolean>(IS_FAVORITE_MENU_OPEN, false);
   // derived values
@@ -79,21 +76,34 @@ export const EpicCardItem = observer(function EpicCardItem(props: Props) {
     e.preventDefault();
     if (!workspaceSlug || !projectId) return;
 
-    const addToFavoritePromise = addEpicToFavorites(workspaceSlug.toString(), projectId.toString(), epicId).then(
-      () => {
-        if (!storedValue) toggleFavoriteMenu(true);
-        captureElementAndEvent({
-          element: {
-            elementName: EPIC_TRACKER_ELEMENTS.CARD_ITEM,
+    const addToFavoritePromise = new Promise<void>((resolve, reject) => {
+      addToFavorites(
+        {
+          workspaceSlug: workspaceSlug.toString(),
+          projectId: projectId.toString(),
+          epicId,
+        },
+        {
+          onSuccess: () => {
+            if (!storedValue) toggleFavoriteMenu(true);
+            captureElementAndEvent({
+              element: {
+                elementName: EPIC_TRACKER_ELEMENTS.CARD_ITEM,
+              },
+              event: {
+                eventName: EPIC_TRACKER_EVENTS.favorite,
+                payload: { id: epicId },
+                state: "SUCCESS",
+              },
+            });
+            resolve();
           },
-          event: {
-            eventName: EPIC_TRACKER_EVENTS.favorite,
-            payload: { id: epicId },
-            state: "SUCCESS",
+          onError: (error) => {
+            reject(error);
           },
-        });
-      }
-    );
+        }
+      );
+    });
 
     setPromiseToast(addToFavoritePromise, {
       loading: "Adding epic to favorites...",
@@ -113,21 +123,32 @@ export const EpicCardItem = observer(function EpicCardItem(props: Props) {
     e.preventDefault();
     if (!workspaceSlug || !projectId) return;
 
-    const removeFromFavoritePromise = removeEpicFromFavorites(
-      workspaceSlug.toString(),
-      projectId.toString(),
-      epicId
-    ).then(() => {
-      captureElementAndEvent({
-        element: {
-          elementName: EPIC_TRACKER_ELEMENTS.CARD_ITEM,
+    const removeFromFavoritePromise = new Promise<void>((resolve, reject) => {
+      removeFromFavorites(
+        {
+          workspaceSlug: workspaceSlug.toString(),
+          projectId: projectId.toString(),
+          epicId,
         },
-        event: {
-          eventName: EPIC_TRACKER_EVENTS.unfavorite,
-          payload: { id: epicId },
-          state: "SUCCESS",
-        },
-      });
+        {
+          onSuccess: () => {
+            captureElementAndEvent({
+              element: {
+                elementName: EPIC_TRACKER_ELEMENTS.CARD_ITEM,
+              },
+              event: {
+                eventName: EPIC_TRACKER_EVENTS.unfavorite,
+                payload: { id: epicId },
+                state: "SUCCESS",
+              },
+            });
+            resolve();
+          },
+          onError: (error) => {
+            reject(error);
+          },
+        }
+      );
     });
 
     setPromiseToast(removeFromFavoritePromise, {
@@ -308,4 +329,4 @@ export const EpicCardItem = observer(function EpicCardItem(props: Props) {
       </div>
     </div>
   );
-});
+}

@@ -1,12 +1,11 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane types
 import type { ILinkDetails } from "@plane/types";
 // components
 import { EpicLinksListItem } from "@/components/epics";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
+import { useEpicDetails } from "@/store/queries";
 
 type Props = {
   disabled?: boolean;
@@ -15,12 +14,17 @@ type Props = {
   epicId: string;
 };
 
-export const EpicLinksList = observer(function EpicLinksList(props: Props) {
+export function EpicLinksList(props: Props) {
   const { epicId, handleDeleteLink, handleEditLink, disabled } = props;
+  // router
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { getEpicById } = useEpic();
+  const { data: currentEpic } = useEpicDetails(
+    workspaceSlug as string,
+    projectId as string,
+    epicId
+  );
   // derived values
-  const currentEpic = getEpicById(epicId);
   const epicLinks = currentEpic?.link_epic;
   // memoized link handlers
   const memoizedDeleteLink = useCallback((id: string) => handleDeleteLink(id), [handleDeleteLink]);
@@ -41,4 +45,4 @@ export const EpicLinksList = observer(function EpicLinksList(props: Props) {
       ))}
     </>
   );
-});
+}

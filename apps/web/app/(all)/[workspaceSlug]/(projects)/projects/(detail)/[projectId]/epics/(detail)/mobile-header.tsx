@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EIssueFilterType, ISSUE_LAYOUTS, ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
@@ -14,10 +13,9 @@ import { DisplayFiltersSelection, FiltersDropdown } from "@/components/issues/is
 import { IssueLayoutIcon } from "@/components/issues/issue-layouts/layout-icon";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useEpic } from "@/hooks/store/use-epic";
-import { useProject } from "@/hooks/store/use-project";
 // tanstack query
 import { useProjectDetails } from "@/store/queries/project";
+import { useEpicDetails } from "@/store/queries/epic";
 
 const SUPPORTED_LAYOUTS = [
   { key: "list", i18n_title: "issue.layouts.list", icon: ListLayoutIcon },
@@ -25,22 +23,26 @@ const SUPPORTED_LAYOUTS = [
   { key: "calendar", i18n_title: "issue.layouts.calendar", icon: CalendarLayoutIcon },
 ];
 
-export const EpicIssuesMobileHeader = observer(function EpicIssuesMobileHeader() {
+export function EpicIssuesMobileHeader() {
   // router
   const { workspaceSlug, projectId, epicId } = useParams();
   // states
   const [analyticsModal, setAnalyticsModal] = useState(false);
   // plane hooks
   const { t } = useTranslation();
-  // store hooks
+  // queries
   const { data: currentProjectDetails } = useProjectDetails(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
-  const { getEpicById } = useEpic();
+  const { data: epicDetails } = useEpicDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? "",
+    epicId?.toString() ?? ""
+  );
+  // store hooks
   const {
     issuesFilter: { issueFilters, updateFilters },
   } = useIssues(EIssuesStoreType.EPIC);
   // derived values
   const activeLayout = issueFilters?.displayFilters?.layout;
-  const epicDetails = epicId ? getEpicById(epicId.toString()) : undefined;
 
   const handleLayoutChange = useCallback(
     (layout: EIssueLayoutTypes) => {
@@ -131,4 +133,4 @@ export const EpicIssuesMobileHeader = observer(function EpicIssuesMobileHeader()
       </div>
     </div>
   );
-});
+}

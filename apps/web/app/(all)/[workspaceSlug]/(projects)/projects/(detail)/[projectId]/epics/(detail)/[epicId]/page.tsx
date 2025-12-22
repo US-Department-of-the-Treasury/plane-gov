@@ -1,5 +1,3 @@
-import { observer } from "mobx-react";
-import useSWR from "swr";
 // plane imports
 import { cn } from "@plane/utils";
 // assets
@@ -10,33 +8,25 @@ import { PageHead } from "@/components/core/page-title";
 import { EpicLayoutRoot } from "@/components/issues/issue-layouts/roots/epic-layout-root";
 import { EpicAnalyticsSidebar } from "@/components/epics";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
-import { useProject } from "@/hooks/store/use-project";
 import { useAppRouter } from "@/hooks/use-app-router";
 import useLocalStorage from "@/hooks/use-local-storage";
 // tanstack query
 import { useProjectDetails } from "@/store/queries/project";
+import { useEpicDetails } from "@/store/queries/epic";
 import type { Route } from "./+types/page";
 
 function EpicIssuesPage({ params }: Route.ComponentProps) {
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId, epicId } = params;
-  // store hooks
-  const { fetchEpicDetails, getEpicById } = useEpic();
-  const { getProjectById } = useProject();
-  // const { issuesFilter } = useIssues(EIssuesStoreType.EPIC);
+  // queries
   const { data: project } = useProjectDetails(workspaceSlug, projectId);
+  const { data: epicDetails, error } = useEpicDetails(workspaceSlug, projectId, epicId);
   // local storage
   const { setValue, storedValue } = useLocalStorage("epic_sidebar_collapsed", "false");
   const isSidebarCollapsed = storedValue ? (storedValue === "true" ? true : false) : false;
-  // fetching epic details
-  const { error } = useSWR(`CURRENT_EPIC_DETAILS_${epicId}`, () =>
-    fetchEpicDetails(workspaceSlug, projectId, epicId)
-  );
   // derived values
-  const projectEpic = getEpicById(epicId);
-  const pageTitle = project?.name && projectEpic?.name ? `${project?.name} - ${projectEpic?.name}` : undefined;
+  const pageTitle = project?.name && epicDetails?.name ? `${project?.name} - ${epicDetails?.name}` : undefined;
 
   const toggleSidebar = () => {
     setValue(`${!isSidebarCollapsed}`);
@@ -76,4 +66,4 @@ function EpicIssuesPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(EpicIssuesPage);
+export default EpicIssuesPage;

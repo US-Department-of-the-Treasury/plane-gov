@@ -1,12 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // components
 import { EpicIcon } from "@plane/propel/icons";
 import { Loader } from "@plane/ui";
 import { FilterHeader, FilterOption } from "@/components/issues/issue-layouts/filters";
-import { useEpic } from "@/hooks/store/use-epic";
+import { useProjectEpics } from "@/store/queries";
 // ui
 
 type Props = {
@@ -15,17 +14,14 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterEpic = observer(function FilterEpic(props: Props) {
+export function FilterEpic(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
   // hooks
-  const { projectId } = useParams();
-  const { getEpicById, getProjectEpicIds } = useEpic();
+  const { workspaceSlug, projectId } = useParams();
+  const { data: epics } = useProjectEpics(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   // states
   const [itemsToRender, setItemsToRender] = useState(5);
   const [previewEnabled, setPreviewEnabled] = useState(true);
-
-  const epicIds = projectId ? getProjectEpicIds(projectId.toString()) : undefined;
-  const epics = epicIds?.map((epicId) => getEpicById(epicId)!) ?? null;
   const appliedFiltersCount = appliedFilters?.length ?? 0;
 
   const sortedOptions = useMemo(() => {
@@ -94,4 +90,4 @@ export const FilterEpic = observer(function FilterEpic(props: Props) {
       )}
     </>
   );
-});
+}

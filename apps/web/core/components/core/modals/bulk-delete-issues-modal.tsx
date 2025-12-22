@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import type { SubmitHandler } from "react-hook-form";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Search } from "lucide-react";
 import { Combobox, Dialog, Transition } from "@headlessui/react";
 // plane imports
@@ -40,7 +39,8 @@ type Props = {
 
 const projectService = new ProjectService();
 
-export const BulkDeleteIssuesModal = observer(function BulkDeleteIssuesModal(props: Props) {
+// Note: observer() removed - this component uses TanStack Query, not MobX observables
+export function BulkDeleteIssuesModal(props: Props) {
   const { isOpen, onClose } = props;
   // router params
   const { workspaceSlug, projectId } = useParams();
@@ -62,19 +62,39 @@ export const BulkDeleteIssuesModal = observer(function BulkDeleteIssuesModal(pro
   useEffect(() => {
     if (!isOpen || !workspaceSlug || !projectId) return;
 
+    let cancelled = false;
+     
     setIsSearching(true);
-    projectService
-      .projectIssuesSearch(workspaceSlug.toString(), projectId.toString(), {
-        search: debouncedSearchTerm,
-        workspace_search: false,
-      })
-      .then((res: ISearchIssueResponse[]) => setIssues(res))
-      .finally(() => setIsSearching(false));
+
+    void (async () => {
+      try {
+        const res = await projectService.projectIssuesSearch(workspaceSlug.toString(), projectId.toString(), {
+          search: debouncedSearchTerm,
+          workspace_search: false,
+        });
+        if (!cancelled) {
+          setIssues(res);
+        }
+      } catch {
+        // Search failed - show empty state
+        if (!cancelled) {
+          setIssues([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsSearching(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedSearchTerm, isOpen, projectId, workspaceSlug]);
 
   const {
     handleSubmit,
-    watch,
+    control,
     reset,
     setValue,
     formState: { isSubmitting },
@@ -83,6 +103,9 @@ export const BulkDeleteIssuesModal = observer(function BulkDeleteIssuesModal(pro
       delete_issue_ids: [],
     },
   });
+
+  // Use useWatch hook for React Compiler compatibility
+  const selectedIssueIds = useWatch({ control, name: "delete_issue_ids" }) ?? [];
 
   const handleClose = () => {
     setQuery("");
@@ -104,26 +127,25 @@ export const BulkDeleteIssuesModal = observer(function BulkDeleteIssuesModal(pro
 
     if (!Array.isArray(data.delete_issue_ids)) data.delete_issue_ids = [data.delete_issue_ids];
 
-    await bulkDeleteIssues({
-      workspaceSlug: workspaceSlug.toString(),
-      projectId: projectId.toString(),
-      issueIds: data.delete_issue_ids,
-    })
-      .then(() => {
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Success!",
-          message: "Work items deleted successfully!",
-        });
-        handleClose();
-      })
-      .catch(() =>
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: "Something went wrong. Please try again.",
-        })
-      );
+    try {
+      await bulkDeleteIssues({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        issueIds: data.delete_issue_ids,
+      });
+      setToast({
+        type: TOAST_TYPE.SUCCESS,
+        title: "Success!",
+        message: "Work items deleted successfully!",
+      });
+      handleClose();
+    } catch {
+      setToast({
+        type: TOAST_TYPE.ERROR,
+        title: "Error!",
+        message: "Something went wrong. Please try again.",
+      });
+    }
   };
 
   const issueList =
@@ -136,7 +158,7 @@ export const BulkDeleteIssuesModal = observer(function BulkDeleteIssuesModal(pro
           {issues.map((issue) => (
             <BulkDeleteIssuesModalItem
               issue={issue}
-              canDeleteIssueIds={watch("delete_issue_ids").includes(issue.id)}
+              canDeleteIssueIds={selectedIssueIds.includes(issue.id)}
               key={issue.id}
             />
           ))}
@@ -170,13 +192,12 @@ export const BulkDeleteIssuesModal = observer(function BulkDeleteIssuesModal(pro
                 <form>
                   <Combobox
                     onChange={(val: string) => {
-                      const selectedIssues = watch("delete_issue_ids");
-                      if (selectedIssues.includes(val))
+                      if (selectedIssueIds.includes(val))
                         setValue(
                           "delete_issue_ids",
-                          selectedIssues.filter((i) => i !== val)
+                          selectedIssueIds.filter((i) => i !== val)
                         );
-                      else setValue("delete_issue_ids", [...selectedIssues, val]);
+                      else setValue("delete_issue_ids", [...selectedIssueIds, val]);
                     }}
                   >
                     <div className="relative m-1">
@@ -214,7 +235,7 @@ export const BulkDeleteIssuesModal = observer(function BulkDeleteIssuesModal(pro
                       <Button
                         variant="error-fill"
                         size="lg"
-                        onClick={handleSubmit(handleDelete)}
+                        onClick={() => void handleSubmit(handleDelete)()}
                         loading={isSubmitting}
                       >
                         {isSubmitting ? "Deleting..." : "Delete selected work items"}
@@ -229,4 +250,4 @@ export const BulkDeleteIssuesModal = observer(function BulkDeleteIssuesModal(pro
       </Dialog>
     </Transition.Root>
   );
-});
+}

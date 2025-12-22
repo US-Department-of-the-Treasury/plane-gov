@@ -1,9 +1,7 @@
-import React, { useEffect } from "react";
-import { observer } from "mobx-react";
+import React from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 // hooks
 import { generateQueryParams } from "@plane/utils";
-import { useEpic } from "@/hooks/store/use-epic";
 import { useAppRouter } from "@/hooks/use-app-router";
 // components
 import { EpicAnalyticsSidebar } from "./";
@@ -14,7 +12,7 @@ type Props = {
   isArchived?: boolean;
 };
 
-export const EpicPeekOverview = observer(function EpicPeekOverview({
+export function EpicPeekOverview({
   projectId,
   workspaceSlug,
   isArchived = false,
@@ -26,19 +24,11 @@ export const EpicPeekOverview = observer(function EpicPeekOverview({
   const peekEpic = searchParams.get("peekEpic");
   // refs
   const ref = React.useRef(null);
-  // store hooks
-  const { fetchEpicDetails, fetchArchivedEpicDetails } = useEpic();
 
   const handleClose = () => {
     const query = generateQueryParams(searchParams, ["peekEpic"]);
     router.push(`${pathname}?${query}`);
   };
-
-  useEffect(() => {
-    if (!peekEpic) return;
-    if (isArchived) fetchArchivedEpicDetails(workspaceSlug, projectId, peekEpic.toString());
-    else fetchEpicDetails(workspaceSlug, projectId, peekEpic.toString());
-  }, [fetchArchivedEpicDetails, fetchEpicDetails, isArchived, peekEpic, projectId, workspaceSlug]);
 
 
   return (
@@ -61,4 +51,4 @@ export const EpicPeekOverview = observer(function EpicPeekOverview({
       )}
     </>
   );
-});
+}

@@ -11,7 +11,6 @@ import { AlertModalCore } from "@plane/ui";
 // helpers
 import { captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useDeleteEpic } from "@/store/queries/epic";
 
