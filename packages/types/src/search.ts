@@ -36,7 +36,7 @@ export type TIssueSearchResponse = {
 export type TSprintSearchResponse = {
   name: ISprint["name"];
   id: ISprint["id"];
-  project_id: ISprint["project_id"];
+  project_id: string;
   project__identifier: IProject["identifier"];
   status: ISprint["status"];
   workspace__slug: IWorkspace["slug"];

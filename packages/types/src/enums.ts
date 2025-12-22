@@ -83,3 +83,28 @@ export enum EUpdateStatus {
   ON_TRACK = "ON-TRACK",
   AT_RISK = "AT-RISK",
 }
+
+// wiki pages
+export enum EWikiPageAccess {
+  PUBLIC = 0, // Disabled for government compliance
+  PRIVATE = 1,
+  SHARED = 2,
+}
+
+export enum EWikiSharePermission {
+  VIEW = 0,
+  EDIT = 1,
+  ADMIN = 2,
+}
+
+export enum EWikiAccessLogType {
+  VIEW = "view",
+  EDIT = "edit",
+  ADMIN_VIEW = "admin_view",
+  SHARE = "share",
+  UNSHARE = "unshare",
+  LOCK = "lock",
+  UNLOCK = "unlock",
+  ARCHIVE = "archive",
+  RESTORE = "restore",
+}

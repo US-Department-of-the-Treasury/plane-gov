@@ -182,6 +182,33 @@ export const queryKeys = {
   home: {
     widgets: (workspaceSlug: string) => ["home", workspaceSlug, "widgets"] as const,
   },
+
+  // Wiki queries
+  wiki: {
+    // Pages
+    pages: {
+      all: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug] as const,
+      detail: (pageId: string) => ["wiki", "pages", "detail", pageId] as const,
+      archived: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug, "archived"] as const,
+      shared: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug, "shared"] as const,
+      private: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug, "private"] as const,
+      search: (workspaceSlug: string, query: string) => ["wiki", "pages", workspaceSlug, "search", query] as const,
+    },
+    // Collections
+    collections: {
+      all: (workspaceSlug: string) => ["wiki", "collections", workspaceSlug] as const,
+      detail: (collectionId: string) => ["wiki", "collections", "detail", collectionId] as const,
+    },
+    // Shares
+    shares: {
+      all: (pageId: string) => ["wiki", "shares", pageId] as const,
+    },
+    // Versions
+    versions: {
+      all: (pageId: string) => ["wiki", "versions", pageId] as const,
+      detail: (versionId: string) => ["wiki", "versions", "detail", versionId] as const,
+    },
+  },
 } as const;
 
 // Type helpers for query keys

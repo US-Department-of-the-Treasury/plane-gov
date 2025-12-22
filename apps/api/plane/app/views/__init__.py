@@ -241,3 +241,11 @@ from .notification.base import MarkAllReadNotificationViewSet
 from .user.base import AccountEndpoint, ProfileEndpoint, UserSessionEndpoint
 
 from .timezone.base import TimezoneEndpoint
+
+from .wiki import (
+    WikiCollectionViewSet,
+    WikiPageViewSet,
+    WikiPageDescriptionViewSet,
+    WikiPageShareViewSet,
+    WikiPageVersionViewSet,
+)
