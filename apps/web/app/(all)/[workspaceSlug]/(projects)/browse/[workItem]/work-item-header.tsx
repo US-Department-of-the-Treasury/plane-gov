@@ -8,9 +8,10 @@ import { Breadcrumbs, Header } from "@plane/ui";
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { IssueDetailQuickActions } from "@/components/issues/issue-detail/issue-detail-quick-actions";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
 import { useAppRouter } from "@/hooks/use-app-router";
+// tanstack query
+import { useIssueByIdentifier } from "@/store/queries/issue";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
@@ -18,22 +19,27 @@ export const WorkItemDetailsHeader = observer(function WorkItemDetailsHeader() {
   // router
   const router = useAppRouter();
   const { workspaceSlug, workItem } = useParams();
-  // store hooks
-  const { getProjectById, loader } = useProject();
-  const {
-    issue: { getIssueById, getIssueIdByIdentifier },
-  } = useIssueDetail();
+  // queries
+  const { data: projects, isLoading } = useProjects(workspaceSlug?.toString() ?? "");
+  // parse work item identifier
+  const workItemStr = workItem?.toString() || "";
+  const [projectIdentifier, sequenceId] = workItemStr.split("-");
+  // tanstack query
+  const { data: issueDetails } = useIssueByIdentifier(
+    workspaceSlug?.toString() || "",
+    projectIdentifier || "",
+    sequenceId || ""
+  );
   // derived values
-  const issueId = getIssueIdByIdentifier(workItem?.toString());
-  const issueDetails = issueId ? getIssueById(issueId.toString()) : undefined;
+  const issueId = issueDetails?.id;
   const projectId = issueDetails ? issueDetails?.project_id : undefined;
-  const projectDetails = projectId ? getProjectById(projectId?.toString()) : undefined;
+  const projectDetails = projectId ? getProjectById(projects, projectId?.toString()) : undefined;
 
   if (!workspaceSlug || !projectId || !issueId) return null;
   return (
     <Header>
       <Header.LeftItem>
-        <Breadcrumbs onBack={router.back} isLoading={loader === "init-loader"}>
+        <Breadcrumbs onBack={router.back} isLoading={isLoading}>
           <CommonProjectBreadcrumbs workspaceSlug={workspaceSlug?.toString()} projectId={projectId?.toString()} />
           <Breadcrumbs.Item
             component={

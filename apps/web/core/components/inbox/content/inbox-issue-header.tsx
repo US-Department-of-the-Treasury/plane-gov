@@ -16,7 +16,7 @@ import { copyUrlToClipboard, findHowManyDaysLeft, generateWorkItemLink } from "@
 import { CreateUpdateIssueModal } from "@/components/issues/issue-modal/modal";
 import { NameDescriptionUpdateStatus } from "@/components/issues/issue-update-status";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, useProjectDetails, getProjectById } from "@/store/queries/project";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
@@ -62,11 +62,11 @@ export const InboxIssueActionsHeader = observer(function InboxIssueActionsHeader
   const { currentTab, deleteInboxIssue, filteredInboxIssueIds } = useProjectInbox();
   const { data: currentUser } = useUser();
   const { allowPermissions } = useUserPermissions();
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   const { t } = useTranslation();
 
   const router = useAppRouter();
-  const { getProjectById } = useProject();
+  const { data: projects = [] } = useProjects(workspaceSlug);
 
   const issue = inboxIssue?.issue;
   // derived values
@@ -279,7 +279,7 @@ export const InboxIssueActionsHeader = observer(function InboxIssueActionsHeader
           )}
           {issue?.project_id && issue.sequence_id && (
             <h3 className="text-14 font-medium text-tertiary flex-shrink-0">
-              {getProjectById(issue.project_id)?.identifier}-{issue.sequence_id}
+              {getProjectById(projects, issue.project_id)?.identifier}-{issue.sequence_id}
             </h3>
           )}
           <InboxIssueStatus inboxIssue={inboxIssue} iconSize={12} />

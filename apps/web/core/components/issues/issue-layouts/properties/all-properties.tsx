@@ -1,7 +1,6 @@
 import type { SyntheticEvent } from "react";
 import { useCallback, useMemo } from "react";
 import { xor } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // icons
 import { Link, Paperclip } from "lucide-react";
@@ -34,9 +33,9 @@ import { captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useLabel } from "@/hooks/store/use-label";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjectLabels } from "@/store/queries/label";
+import { useProjectDetails } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -56,13 +55,15 @@ export interface IIssueProperties {
   isEpic?: boolean;
 }
 
-export const IssueProperties = observer(function IssueProperties(props: IIssueProperties) {
+export function IssueProperties(props: IIssueProperties) {
   const { issue, updateIssue, displayProperties, isReadOnly, className, isEpic = false } = props;
   // i18n
   const { t } = useTranslation();
+  // router
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { getProjectById } = useProject();
-  const { labelMap } = useLabel();
+  const { data: projectDetails } = useProjectDetails(workspaceSlug?.toString() ?? "", issue.project_id ?? "");
+  const { data: labels } = useProjectLabels(workspaceSlug?.toString() ?? "", issue.project_id ?? "");
   const storeType = useIssueStoreType();
   const {
     issues: { changeEpicsInIssue },
@@ -71,16 +72,22 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
     issues: { addSprintToIssue, removeSprintFromIssue },
   } = useIssues(storeType);
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
-  const { getStateById } = useProjectState();
+  const { data: states } = useProjectStates(workspaceSlug?.toString() ?? "", issue.project_id ?? "");
   const { isMobile } = usePlatformOS();
-  const projectDetails = getProjectById(issue.project_id);
 
   // router
   const router = useAppRouter();
-  const { workspaceSlug, projectId } = useParams();
+
+  const labelMap = useMemo(() => {
+    if (!labels) return {};
+    return labels.reduce((acc, label) => {
+      acc[label.id] = label;
+      return acc;
+    }, {} as Record<string, typeof labels[0]>);
+  }, [labels]);
 
   // derived values
-  const stateDetails = getStateById(issue.state_id);
+  const stateDetails = getStateById(states ?? [], issue.state_id);
   const subIssueCount = issue?.sub_issues_count ?? 0;
 
   const issueOperations = useMemo(
@@ -535,4 +542,4 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
       </WithDisplayPropertiesHOC>
     </div>
   );
-});
+}

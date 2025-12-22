@@ -12,9 +12,10 @@ import { ControlLink, CustomMenu } from "@plane/ui";
 import { generateWorkItemLink } from "@plane/utils";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useIssue } from "@/store/queries/issue";
 // plane web imports
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 import type { TIssueRelationTypes } from "@/plane-web/types";
@@ -53,21 +54,24 @@ export const RelationIssueListItem = observer(function RelationIssueListItem(pro
 
   // store hooks
   const {
-    issue: { getIssueById },
     removeRelation,
     toggleCreateIssueModal,
     toggleDeleteIssueModal,
   } = useIssueDetail(issueServiceType);
-  const project = useProject();
+  const { data: projects } = useProjects(workspaceSlug);
   const { isMobile } = usePlatformOS();
+
+  // Get issue data from first available project (we need project_id to fetch)
+  // Note: This assumes relationIssueId is in one of the projects
+  const projectId = projects?.find(p => p.id)?.id || "";
+  const { data: issue } = useIssue(workspaceSlug, projectId, relationIssueId);
+
   // derived values
-  const issue = getIssueById(relationIssueId);
   const { handleRedirection } = useIssuePeekOverviewRedirection(!!issue?.is_epic);
   const issueOperations = useRelationOperations(issue?.is_epic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
-  const projectDetail = (issue && issue.project_id && project.getProjectById(issue.project_id)) || undefined;
-  const projectId = issue?.project_id;
+  const projectDetail = (issue && issue.project_id && getProjectById(projects, issue.project_id)) || undefined;
 
-  if (!issue || !projectId) return <></>;
+  if (!issue || !issue.project_id) return <></>;
 
   const workItemLink = generateWorkItemLink({
     workspaceSlug: workspaceSlug.toString(),
@@ -112,7 +116,8 @@ export const RelationIssueListItem = observer(function RelationIssueListItem(pro
   const handleRemoveRelation = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
     e.stopPropagation();
-    removeRelation(workspaceSlug, projectId, issueId, relationKey, relationIssueId);
+    if (!issue.project_id) return;
+    removeRelation(workspaceSlug, issue.project_id, issueId, relationKey, relationIssueId);
   };
 
   return (
@@ -153,6 +158,7 @@ export const RelationIssueListItem = observer(function RelationIssueListItem(pro
             >
               <RelationIssueProperty
                 workspaceSlug={workspaceSlug}
+                projectId={issue.project_id}
                 issueId={relationIssueId}
                 disabled={disabled}
                 issueOperations={issueOperations}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { History } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -6,7 +5,7 @@ import type { TDescriptionVersion } from "@plane/types";
 import { CustomMenu } from "@plane/ui";
 import { calculateTimeAgo } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
 // local imports
 import { DescriptionVersionsDropdownItem } from "./dropdown-item";
 import type { TDescriptionVersionEntityInformation } from "./root";
@@ -16,17 +15,19 @@ type Props = {
   entityInformation: TDescriptionVersionEntityInformation;
   onVersionClick: (versionId: string) => void;
   versions: TDescriptionVersion[] | undefined;
+  workspaceSlug: string;
 };
 
-export const DescriptionVersionsDropdown = observer(function DescriptionVersionsDropdown(props: Props) {
-  const { disabled, entityInformation, onVersionClick, versions } = props;
+export function DescriptionVersionsDropdown(props: Props) {
+  const { disabled, entityInformation, onVersionClick, versions, workspaceSlug } = props;
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: members } = useWorkspaceMembers(workspaceSlug);
   // derived values
   const latestVersion = versions?.[0];
   const lastUpdatedAt = latestVersion?.created_at ?? entityInformation.createdAt;
-  const lastUpdatedByUserDisplayName = latestVersion?.owned_by
-    ? getUserDetails(latestVersion?.owned_by)?.display_name
+  const lastUpdatedByUser = latestVersion?.owned_by ? getWorkspaceMemberByUserId(members, latestVersion.owned_by) : null;
+  const lastUpdatedByUserDisplayName = lastUpdatedByUser
+    ? getMemberDisplayName(lastUpdatedByUser)
     : entityInformation.createdByDisplayName;
   // translation
   const { t } = useTranslation();
@@ -54,8 +55,8 @@ export const DescriptionVersionsDropdown = observer(function DescriptionVersions
     >
       <p className="text-11 text-tertiary font-medium mb-1">{t("description_versions.previously_edited_by")}</p>
       {versions?.map((version) => (
-        <DescriptionVersionsDropdownItem key={version.id} onClick={onVersionClick} version={version} />
+        <DescriptionVersionsDropdownItem key={version.id} onClick={onVersionClick} version={version} workspaceSlug={workspaceSlug} />
       ))}
     </CustomMenu>
   );
-});
+}

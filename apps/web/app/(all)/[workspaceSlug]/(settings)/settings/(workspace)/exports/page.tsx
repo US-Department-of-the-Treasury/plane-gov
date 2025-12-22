@@ -10,13 +10,16 @@ import ExportGuide from "@/components/exporter/guide";
 // hooks
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 import SettingsHeading from "@/components/settings/heading";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 import { useUserPermissions } from "@/hooks/store/user";
+import type { Route } from "./+types/page";
 
-function ExportsPage() {
+function ExportsPage({ params }: Route.ComponentProps) {
+  // router
+  const { workspaceSlug } = params;
   // store hooks
   const { workspaceUserInfo, allowPermissions } = useUserPermissions();
-  const { currentWorkspace } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   const { t } = useTranslation();
 
   // derived values

@@ -10,7 +10,7 @@ import { cn, isCommentEmpty } from "@plane/utils";
 // components
 import { LiteTextEditor } from "@/components/editor/lite-text";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // services
 import { FileService } from "@/services/file.service";
 
@@ -40,9 +40,9 @@ export const CommentCreate = observer(function CommentCreate(props: TCommentCrea
   // refs
   const editorRef = useRef<EditorRefApi>(null);
   // store hooks
-  const workspaceStore = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   // derived values
-  const workspaceId = workspaceStore.getWorkspaceBySlug(workspaceSlug)?.id as string;
+  const workspaceId = currentWorkspace?.id as string;
   // form info
   const {
     handleSubmit,

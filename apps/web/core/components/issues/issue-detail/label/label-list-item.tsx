@@ -1,8 +1,7 @@
-import { observer } from "mobx-react";
 import { Button } from "@plane/propel/button";
 import { CloseIcon, LabelFilledIcon } from "@plane/propel/icons";
 // types
-import { useLabel } from "@/hooks/store/use-label";
+import { useProjectLabels } from "@/store/queries/label";
 import type { TLabelOperations } from "./root";
 
 type TLabelListItem = {
@@ -15,12 +14,12 @@ type TLabelListItem = {
   disabled: boolean;
 };
 
-export const LabelListItem = observer(function LabelListItem(props: TLabelListItem) {
+export function LabelListItem(props: TLabelListItem) {
   const { workspaceSlug, projectId, issueId, labelId, values, labelOperations, disabled } = props;
   // hooks
-  const { getLabelById } = useLabel();
+  const { data: labels } = useProjectLabels(workspaceSlug, projectId);
 
-  const label = getLabelById(labelId);
+  const label = labels?.find((l) => l.id === labelId);
 
   const handleLabel = async () => {
     if (values && !disabled) {
@@ -37,4 +36,4 @@ export const LabelListItem = observer(function LabelListItem(props: TLabelListIt
       {!disabled && <CloseIcon className="transition-all h-2.5 w-2.5 group-hover:text-danger" />}
     </Button>
   );
-});
+}

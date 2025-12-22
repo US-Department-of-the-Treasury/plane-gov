@@ -37,6 +37,13 @@ import { captureElementAndEvent, captureSuccess, captureError } from "@/helpers/
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useEpic } from "@/hooks/store/use-epic";
 import { useUserPermissions } from "@/hooks/store/user";
+import {
+  useEpicDetails,
+  useUpdateEpic,
+  useCreateEpicLink,
+  useUpdateEpicLink,
+  useDeleteEpicLink,
+} from "@/store/queries/epic";
 // plane web constants
 const defaultValues: Partial<IEpic> = {
   lead_id: "",
@@ -65,11 +72,18 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
   const { t } = useTranslation();
   const { allowPermissions } = useUserPermissions();
 
-  const { getEpicById, updateEpicDetails, createEpicLink, updateEpicLink, deleteEpicLink } = useEpic();
+  const { data: epicDetails } = useEpicDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? "",
+    epicId
+  );
+  const { mutateAsync: updateEpic } = useUpdateEpic();
+  const { mutateAsync: createLink } = useCreateEpicLink();
+  const { mutateAsync: updateLink } = useUpdateEpicLink();
+  const { mutateAsync: deleteLink } = useDeleteEpicLink();
   const { areEstimateEnabledByProjectId, currentActiveEstimateId, estimateById } = useProjectEstimates();
 
   // derived values
-  const epicDetails = getEpicById(epicId);
   const areEstimateEnabled = projectId && areEstimateEnabledByProjectId(projectId.toString());
   const estimateType = areEstimateEnabled && currentActiveEstimateId && estimateById(currentActiveEstimateId);
   const isEstimatePointValid = estimateType && estimateType?.type == EEstimateSystem.POINTS ? true : false;
@@ -80,7 +94,12 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
 
   const submitChanges = (data: Partial<IEpic>) => {
     if (!workspaceSlug || !projectId || !epicId) return;
-    updateEpicDetails(workspaceSlug.toString(), projectId.toString(), epicId.toString(), data)
+    updateEpic({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      epicId: epicId.toString(),
+      data,
+    })
       .then((res) => {
         captureElementAndEvent({
           element: {
@@ -107,7 +126,12 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
 
     const payload = { metadata: {}, ...formData };
 
-    await createEpicLink(workspaceSlug.toString(), projectId.toString(), epicId.toString(), payload)
+    await createLink({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      epicId: epicId.toString(),
+      data: payload,
+    })
       .then(() =>
         captureSuccess({
           eventName: EPIC_TRACKER_EVENTS.link.create,
@@ -128,7 +152,13 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
 
     const payload = { metadata: {}, ...formData };
 
-    await updateEpicLink(workspaceSlug.toString(), projectId.toString(), epicId.toString(), linkId, payload)
+    await updateLink({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      epicId: epicId.toString(),
+      linkId,
+      data: payload,
+    })
       .then(() =>
         captureSuccess({
           eventName: EPIC_TRACKER_EVENTS.link.update,
@@ -147,7 +177,12 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
   const handleDeleteLink = async (linkId: string) => {
     if (!workspaceSlug || !projectId) return;
 
-    deleteEpicLink(workspaceSlug.toString(), projectId.toString(), epicId.toString(), linkId)
+    deleteLink({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      epicId: epicId.toString(),
+      linkId,
+    })
       .then(() => {
         captureSuccess({
           eventName: EPIC_TRACKER_EVENTS.link.delete,

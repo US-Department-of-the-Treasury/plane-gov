@@ -3,7 +3,8 @@ import { CloseIcon, EpicIcon, ChevronDownIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import { cn } from "@plane/utils";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
+import { useParams } from "next/navigation";
+import { useWorkspaceEpics, getEpicById } from "@/store/queries/epic";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 
 type EpicButtonContentProps = {
@@ -34,8 +35,10 @@ export function EpicButtonContent(props: EpicButtonContentProps) {
     value,
     className,
   } = props;
-  // store hooks
-  const { getEpicById } = useEpic();
+  // router
+  const { workspaceSlug } = useParams();
+  // fetch workspace epics using TanStack Query
+  const { data: epics } = useWorkspaceEpics(workspaceSlug?.toString() ?? "");
   const { isMobile } = usePlatformOS();
 
   if (Array.isArray(value))
@@ -48,7 +51,7 @@ export function EpicButtonContent(props: EpicButtonContentProps) {
               <div className="max-w-40 flex-grow truncate">
                 {value.length > 0
                   ? value.length === 1
-                    ? `${getEpicById(value[0])?.name || "epic"}`
+                    ? `${getEpicById(epics, value[0])?.name || "epic"}`
                     : `${value.length} Epic${value.length === 1 ? "" : "s"}`
                   : placeholder}
               </div>
@@ -57,7 +60,7 @@ export function EpicButtonContent(props: EpicButtonContentProps) {
         ) : value.length > 0 ? (
           <div className="flex max-w-full flex-grow flex-wrap items-center gap-2 truncate py-0.5 ">
             {value.map((epicId) => {
-              const epicDetails = getEpicById(epicId);
+              const epicDetails = getEpicById(epics, epicId);
               return (
                 <div
                   key={epicId}
@@ -117,7 +120,7 @@ export function EpicButtonContent(props: EpicButtonContentProps) {
       <>
         {!hideIcon && <EpicIcon className="h-3 w-3 flex-shrink-0" />}
         {!hideText && (
-          <span className="flex-grow truncate text-left">{value ? getEpicById(value)?.name : placeholder}</span>
+          <span className="flex-grow truncate text-left">{value ? getEpicById(epics, value)?.name : placeholder}</span>
         )}
         {dropdownArrow && (
           <ChevronDownIcon className={cn("h-2.5 w-2.5 flex-shrink-0", dropdownArrowClassName)} aria-hidden="true" />

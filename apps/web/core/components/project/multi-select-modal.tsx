@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { xor } from "lodash-es";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Search } from "lucide-react";
 import { Combobox } from "@headlessui/react";
@@ -16,8 +17,8 @@ import darkProjectAsset from "@/app/assets/empty-state/search/project-dark.webp?
 import lightProjectAsset from "@/app/assets/empty-state/search/project-light.webp?url";
 // components
 import { SimpleEmptyState } from "@/components/empty-state/simple-empty-state-root";
-// hooks
-import { useProject } from "@/hooks/store/use-project";
+// store queries
+import { useProjects, getProjectById } from "@/store/queries/project";
 
 type Props = {
   isOpen: boolean;
@@ -29,6 +30,8 @@ type Props = {
 
 export const ProjectMultiSelectModal = observer(function ProjectMultiSelectModal(props: Props) {
   const { isOpen, onClose, selectedProjectIds: selectedProjectIdsProp, projectIds, onSubmit } = props;
+  // router
+  const { workspaceSlug } = useParams();
   // states
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
@@ -40,11 +43,11 @@ export const ProjectMultiSelectModal = observer(function ProjectMultiSelectModal
   // plane hooks
   const { t } = useTranslation();
   // store hooks
-  const { getProjectById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug as string);
   // derived values
   const projectDetailsMap = useMemo(
-    () => new Map(projectIds.map((id) => [id, getProjectById(id)])),
-    [projectIds, getProjectById]
+    () => new Map(projectIds.map((id) => [id, getProjectById(projects, id)])),
+    [projectIds, projects]
   );
   const areSelectedProjectsChanged = xor(selectedProjectIds, selectedProjectIdsProp).length > 0;
   const filteredProjectIds = projectIds.filter((id) => {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
+import { useParams } from "next/navigation";
 import { Pencil } from "lucide-react";
 // constants
 import {
@@ -21,8 +22,8 @@ import { WorkspaceImageUploadModal } from "@/components/core/modals/workspace-im
 // helpers
 import { TimezoneSelect } from "@/components/global/timezone-select";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useWorkspaceDetails, useUpdateWorkspace } from "@/store/queries/workspace";
 // plane web components
 import { DeleteWorkspaceSection } from "@/plane-web/components/workspace/delete-workspace-section";
 
@@ -38,8 +39,11 @@ export const WorkspaceDetails = observer(function WorkspaceDetails() {
   // states
   const [isLoading, setIsLoading] = useState(false);
   const [isImageUploadModalOpen, setIsImageUploadModalOpen] = useState(false);
+  // router
+  const { workspaceSlug } = useParams();
   // store hooks
-  const { currentWorkspace, updateWorkspace } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug?.toString() ?? "");
+  const { mutate: updateWorkspace } = useUpdateWorkspace();
   const { allowPermissions } = useUserPermissions();
   const { t } = useTranslation();
 
@@ -67,50 +71,60 @@ export const WorkspaceDetails = observer(function WorkspaceDetails() {
       timezone: formData.timezone,
     };
 
-    try {
-      await updateWorkspace(currentWorkspace.slug, payload);
-      captureSuccess({
-        eventName: WORKSPACE_TRACKER_EVENTS.update,
-        payload: { slug: currentWorkspace.slug },
-      });
-      setToast({
-        title: "Success!",
-        type: TOAST_TYPE.SUCCESS,
-        message: "Workspace updated successfully",
-      });
-    } catch (err: unknown) {
-      captureError({
-        eventName: WORKSPACE_TRACKER_EVENTS.update,
-        payload: { slug: currentWorkspace.slug },
-        error: err instanceof Error ? err : new Error(String(err)),
-      });
-      console.error(err);
-    } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 300);
-    }
+    updateWorkspace(
+      { workspaceSlug: currentWorkspace.slug, data: payload },
+      {
+        onSuccess: () => {
+          captureSuccess({
+            eventName: WORKSPACE_TRACKER_EVENTS.update,
+            payload: { slug: currentWorkspace.slug },
+          });
+          setToast({
+            title: "Success!",
+            type: TOAST_TYPE.SUCCESS,
+            message: "Workspace updated successfully",
+          });
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 300);
+        },
+        onError: (err: unknown) => {
+          captureError({
+            eventName: WORKSPACE_TRACKER_EVENTS.update,
+            payload: { slug: currentWorkspace.slug },
+            error: err instanceof Error ? err : new Error(String(err)),
+          });
+          console.error(err);
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 300);
+        },
+      }
+    );
   };
 
   const handleRemoveLogo = async () => {
     if (!currentWorkspace) return;
 
-    try {
-      await updateWorkspace(currentWorkspace.slug, {
-        logo_url: "",
-      });
-      setToast({
-        type: TOAST_TYPE.SUCCESS,
-        title: "Success!",
-        message: "Workspace picture removed successfully.",
-      });
-    } catch {
-      setToast({
-        type: TOAST_TYPE.ERROR,
-        title: "Error!",
-        message: "There was some error in deleting your profile picture. Please try again.",
-      });
-    }
+    updateWorkspace(
+      { workspaceSlug: currentWorkspace.slug, data: { logo_url: "" } },
+      {
+        onSuccess: () => {
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: "Workspace picture removed successfully.",
+          });
+        },
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: "There was some error in deleting your profile picture. Please try again.",
+          });
+        },
+      }
+    );
   };
 
   const handleCopyUrl = () => {

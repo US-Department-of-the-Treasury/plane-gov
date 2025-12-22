@@ -8,10 +8,11 @@ import { isJSONContentEmpty } from "@plane/utils";
 // components
 import { DocumentEditor } from "@/components/editor/document/editor";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { usePageFilters } from "@/hooks/use-page-filters";
 // plane web hooks
 import type { EPageStoreType } from "@/plane-web/hooks/store";
+// store
+import { useWorkspaces, getWorkspaceBySlug } from "@/store/queries/workspace";
 
 export type TVersionEditorProps = {
   activeVersion: string | null;
@@ -24,9 +25,9 @@ export const PagesVersionEditor = observer(function PagesVersionEditor(props: TV
   // params
   const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { getWorkspaceBySlug } = useWorkspace();
+  const { data: workspaces } = useWorkspaces();
   // derived values
-  const workspaceDetails = getWorkspaceBySlug(workspaceSlug?.toString() ?? "");
+  const workspaceDetails = getWorkspaceBySlug(workspaces ?? [], workspaceSlug?.toString() ?? "");
   // page filters
   const { fontSize, fontStyle } = usePageFilters();
 

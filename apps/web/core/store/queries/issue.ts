@@ -3,10 +3,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { TIssue, TIssueLink, TIssueParams, TBulkOperationsPayload } from "@plane/types";
 import { IssueService } from "@/services/issue/issue.service";
+import { IssueArchiveService } from "@/services/issue/issue_archive.service";
 import { queryKeys } from "./query-keys";
 
-// Service instance
+// Service instances
 const issueService = new IssueService();
+const issueArchiveService = new IssueArchiveService();
 
 /**
  * Hook to fetch a single issue by ID.
@@ -188,6 +190,32 @@ export function useDeleteIssue() {
     onSettled: (_data, _error, { workspaceSlug, projectId, issueId }) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.issues.all(workspaceSlug, projectId) });
       void queryClient.removeQueries({ queryKey: queryKeys.issues.detail(issueId) });
+    },
+  });
+}
+
+interface ArchiveIssueParams {
+  workspaceSlug: string;
+  projectId: string;
+  issueId: string;
+}
+
+/**
+ * Hook to archive an issue.
+ *
+ * @example
+ * const { mutate: archiveIssue, isPending } = useArchiveIssue();
+ * archiveIssue({ workspaceSlug, projectId, issueId });
+ */
+export function useArchiveIssue() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, projectId, issueId }: ArchiveIssueParams) =>
+      issueArchiveService.archiveIssue(workspaceSlug, projectId, issueId),
+    onSettled: (_data, _error, { workspaceSlug, projectId, issueId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.issues.all(workspaceSlug, projectId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.issues.detail(issueId) });
     },
   });
 }

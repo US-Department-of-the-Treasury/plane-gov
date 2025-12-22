@@ -10,7 +10,7 @@ import { IssueDetailQuickActions } from "@/components/issues/issue-detail/issue-
 // constants
 import { ISSUE_DETAILS } from "@/constants/fetch-keys";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 // plane web
 import { ProjectBreadcrumb } from "@/plane-web/components/breadcrumbs/project";
 // services
@@ -21,8 +21,11 @@ const issueService = new IssueService();
 export const ProjectArchivedIssueDetailsHeader = observer(function ProjectArchivedIssueDetailsHeader() {
   // router
   const { workspaceSlug, projectId, archivedIssueId } = useParams();
-  // store hooks
-  const { currentProjectDetails, loader } = useProject();
+  // queries
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
 
   const { data: issueDetails } = useSWR(
     workspaceSlug && projectId && archivedIssueId ? ISSUE_DETAILS(archivedIssueId.toString()) : null,
@@ -34,7 +37,7 @@ export const ProjectArchivedIssueDetailsHeader = observer(function ProjectArchiv
   return (
     <Header>
       <Header.LeftItem>
-        <Breadcrumbs isLoading={loader === "init-loader"}>
+        <Breadcrumbs isLoading={isLoading}>
           <ProjectBreadcrumb workspaceSlug={workspaceSlug?.toString()} projectId={projectId?.toString()} />
           <Breadcrumbs.Item
             component={

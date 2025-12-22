@@ -29,9 +29,10 @@ import { Input, Spinner } from "@plane/ui";
 
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 // services
 import { WorkspaceService } from "@/plane-web/services";
+// store
+import { useWorkspaces } from "@/store/queries/workspace";
 // components
 import { CommonOnboardingHeader } from "../common";
 
@@ -263,8 +264,8 @@ export const InviteTeamStep = observer(function InviteTeamStep(props: Props) {
 
   const [isInvitationDisabled, setIsInvitationDisabled] = useState(true);
 
-  const { workspaces } = useWorkspace();
-  const workspacesList = Object.values(workspaces ?? {});
+  const { data: workspaces } = useWorkspaces();
+  const workspacesList = workspaces ?? [];
   const workspace = workspacesList[0];
 
   const {

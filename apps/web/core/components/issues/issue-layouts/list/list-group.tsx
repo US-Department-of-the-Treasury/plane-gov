@@ -22,10 +22,11 @@ import { cn } from "@plane/utils";
 // components
 import { ListLoaderItemRow } from "@/components/ui/loader/layouts/list-layout-loader";
 // hooks
-import { useProjectState } from "@/hooks/store/use-project-state";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useIssuesStore } from "@/hooks/use-issue-layout-store";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
+// queries
+import { useProjectStates, getDefaultStateId } from "@/store/queries/state";
 // Plane-web
 import { useWorkFlowFDragNDrop } from "@/plane-web/components/workflow";
 //
@@ -100,7 +101,17 @@ export const ListGroup = observer(function ListGroup(props: Props) {
   const isExpanded = !collapsedGroups?.group_by.includes(group.id);
   const groupRef = useRef<HTMLDivElement | null>(null);
   const { t } = useTranslation();
-  const projectState = useProjectState();
+
+  // Get project ID from first issue in the group (assuming all issues belong to same project)
+  const firstIssueId = groupIssueIds?.[0];
+  const projectId = firstIssueId ? issuesMap?.[firstIssueId]?.project_id : undefined;
+
+  // Extract workspaceSlug from window location or router context
+  const workspaceSlug = typeof window !== 'undefined'
+    ? window.location.pathname.split('/')[1]
+    : undefined;
+
+  const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
 
   const {
     issues: { getGroupIssueCount, getPaginationData, getIssueLoader },
@@ -142,8 +153,8 @@ export const ListGroup = observer(function ListGroup(props: Props) {
   };
 
   const prePopulateQuickAddData = (groupByKey: string | null, value: any) => {
-    const defaultState = projectState.projectStates?.find((state) => state.default);
-    let preloadedData: object = { state_id: defaultState?.id };
+    const defaultStateId = projectStates ? getDefaultStateId(projectStates) : undefined;
+    let preloadedData: object = { state_id: defaultStateId };
 
     if (groupByKey === null) {
       preloadedData = { ...preloadedData };

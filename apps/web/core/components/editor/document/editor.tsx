@@ -6,8 +6,8 @@ import type { MakeOptional, TSearchEntityRequestPayload, TSearchResponse } from 
 import { cn } from "@plane/utils";
 // hooks
 import { useEditorConfig, useEditorMention } from "@/hooks/editor";
-import { useMember } from "@/hooks/store/use-member";
 import { useParseEditorContent } from "@/hooks/use-parse-editor-content";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
 // plane web hooks
 import { useEditorFlagging } from "@/plane-web/hooks/use-editor-flagging";
 // local imports
@@ -48,7 +48,7 @@ export const DocumentEditor = forwardRef(function DocumentEditor(
     ...rest
   } = props;
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   // parse content
   const { getEditorMetaData } = useParseEditorContent({
     projectId,
@@ -88,7 +88,7 @@ export const DocumentEditor = forwardRef(function DocumentEditor(
           return res;
         },
         renderComponent: EditorMentionsRoot,
-        getMentionedEntityDetails: (id: string) => ({ display_name: getUserDetails(id)?.display_name ?? "" }),
+        getMentionedEntityDetails: (id: string) => ({ display_name: getMemberDisplayName(getWorkspaceMemberByUserId(workspaceMembers || [], id)) ?? "" }),
       }}
       extendedEditorProps={extendedEditorProps}
       {...rest}

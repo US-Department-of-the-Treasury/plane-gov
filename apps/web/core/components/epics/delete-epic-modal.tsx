@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // types
 import { EPIC_TRACKER_EVENTS, PROJECT_ERROR_MESSAGES } from "@plane/constants";
@@ -14,6 +13,7 @@ import { captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
 import { useEpic } from "@/hooks/store/use-epic";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useDeleteEpic } from "@/store/queries/epic";
 
 type Props = {
   data: IEpic;
@@ -21,7 +21,7 @@ type Props = {
   onClose: () => void;
 };
 
-export const DeleteEpicModal = observer(function DeleteEpicModal(props: Props) {
+export function DeleteEpicModal(props: Props) {
   const { data, isOpen, onClose } = props;
   // states
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
@@ -29,7 +29,7 @@ export const DeleteEpicModal = observer(function DeleteEpicModal(props: Props) {
   const router = useAppRouter();
   const { workspaceSlug, projectId, epicId, peekEpic } = useParams();
   // store hooks
-  const { deleteEpic } = useEpic();
+  const deleteEpicMutation = useDeleteEpic();
   const { t } = useTranslation();
 
   const handleClose = () => {
@@ -42,7 +42,12 @@ export const DeleteEpicModal = observer(function DeleteEpicModal(props: Props) {
 
     setIsDeleteLoading(true);
 
-    await deleteEpic(workspaceSlug.toString(), projectId.toString(), data.id)
+    await deleteEpicMutation
+      .mutateAsync({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        epicId: data.id,
+      })
       .then(() => {
         if (epicId || peekEpic) router.push(`/${workspaceSlug}/projects/${data.project_id}/epics`);
         handleClose();
@@ -91,4 +96,4 @@ export const DeleteEpicModal = observer(function DeleteEpicModal(props: Props) {
       }
     />
   );
-});
+}

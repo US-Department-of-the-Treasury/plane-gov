@@ -16,8 +16,9 @@ import { EUserProjectRoles } from "@plane/types";
 // components
 import { PageLoader } from "@/components/pages/loaders/page-loader";
 import { captureClick, captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 // plane web hooks
 import { EPageStoreType, usePageStore } from "@/plane-web/hooks/store";
 
@@ -31,17 +32,18 @@ export const PagesListMainContent = observer(function PagesListMainContent(props
   const { children, pageType, storeType } = props;
   // plane hooks
   const { t } = useTranslation();
+  // router
+  const router = useRouter();
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { currentProjectDetails } = useProject();
   const { isAnyPageAvailable, getCurrentProjectFilteredPageIdsByTab, getCurrentProjectPageIdsByTab, loader } =
     usePageStore(storeType);
   const { allowPermissions } = useUserPermissions();
   const { createPage } = usePageStore(EPageStoreType.PROJECT);
+  // queries
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug?.toString(), projectId?.toString());
   // states
   const [isCreatingPage, setIsCreatingPage] = useState(false);
-  // router
-  const router = useRouter();
-  const { workspaceSlug } = useParams();
   // derived values
   const pageIds = getCurrentProjectPageIdsByTab(pageType);
   const filteredPageIds = getCurrentProjectFilteredPageIdsByTab(pageType);

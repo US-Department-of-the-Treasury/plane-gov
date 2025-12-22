@@ -1,11 +1,12 @@
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import { CloseIcon } from "@plane/propel/icons";
 // plane ui
 import { Avatar } from "@plane/ui";
 // helpers
 import { getFileURL } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberById } from "@/store/queries/member";
 
 type Props = {
   handleRemove: (val: string) => void;
@@ -15,15 +16,16 @@ type Props = {
 
 export const AppliedMembersFilters = observer(function AppliedMembersFilters(props: Props) {
   const { handleRemove, values, editable } = props;
-
-  const {
-    workspace: { getWorkspaceMemberDetails },
-  } = useMember();
+  // params
+  const { workspaceSlug } = useParams();
+  // hooks
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
 
   return (
     <>
       {values.map((memberId) => {
-        const memberDetails = getWorkspaceMemberDetails(memberId)?.member;
+        const workspaceMember = getWorkspaceMemberById(workspaceMembers, memberId);
+        const memberDetails = workspaceMember?.member;
 
         if (!memberDetails) return null;
 

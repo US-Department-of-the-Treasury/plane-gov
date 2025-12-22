@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 // types
 import type { IProject } from "@plane/types";
-// hooks
-import { useProject } from "@/hooks/store/use-project";
+// store hooks
+import { useProjects, getProjectById } from "@/store/queries/project";
 
 const ARCHIVES_TAB_LIST: {
   key: string;
@@ -34,11 +34,11 @@ export const ArchiveTabsList = observer(function ArchiveTabsList() {
   const { workspaceSlug, projectId } = useParams();
   const pathname = usePathname();
   // store hooks
-  const { getProjectById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug?.toString());
 
   // derived values
   if (!projectId) return null;
-  const projectDetails = getProjectById(projectId?.toString());
+  const projectDetails = getProjectById(projects || [], projectId?.toString());
   if (!projectDetails) return null;
 
   return (

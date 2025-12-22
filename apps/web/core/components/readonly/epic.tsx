@@ -1,11 +1,9 @@
-import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { Layers } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { cn } from "@plane/utils";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
+import { useProjectEpics, getEpicById } from "@/store/queries/epic";
 
 export type TReadonlyEpicProps = {
   className?: string;
@@ -18,7 +16,7 @@ export type TReadonlyEpicProps = {
   workspaceSlug: string;
 };
 
-export const ReadonlyEpic = observer(function ReadonlyEpic(props: TReadonlyEpicProps) {
+export function ReadonlyEpic(props: TReadonlyEpicProps) {
   const {
     className,
     hideIcon = false,
@@ -31,16 +29,10 @@ export const ReadonlyEpic = observer(function ReadonlyEpic(props: TReadonlyEpicP
   } = props;
 
   const { t } = useTranslation();
-  const { getEpicById, fetchEpics } = useEpic();
+  const { data: projectEpics } = useProjectEpics(workspaceSlug, projectId ?? "");
 
   const epicIds = Array.isArray(value) ? value : value ? [value] : [];
-  const epics = epicIds.map((id) => getEpicById(id)).filter(Boolean);
-
-  useEffect(() => {
-    if (epicIds.length > 0 && projectId) {
-      fetchEpics(workspaceSlug, projectId);
-    }
-  }, [value, projectId, workspaceSlug]);
+  const epics = epicIds.map((id) => getEpicById(projectEpics, id)).filter(Boolean);
 
   if (epics.length === 0) {
     return (
@@ -70,4 +62,4 @@ export const ReadonlyEpic = observer(function ReadonlyEpic(props: TReadonlyEpicP
       <span className="flex-grow truncate">{epicItem?.name}</span>
     </div>
   );
-});
+}

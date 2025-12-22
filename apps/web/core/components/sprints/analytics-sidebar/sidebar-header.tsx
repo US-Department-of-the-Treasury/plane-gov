@@ -20,7 +20,7 @@ import { getDate, renderFormattedPayloadDate } from "@plane/utils";
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
 // hooks
 import { captureElementAndEvent } from "@/helpers/event-tracker.helper";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useUpdateSprint } from "@/store/queries/sprint";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useTimeZoneConverter } from "@/hooks/use-timezone-converter";
 // services
@@ -45,7 +45,7 @@ export const SprintSidebarHeader = observer(function SprintSidebarHeader(props: 
   const { workspaceSlug, projectId, sprintDetails, handleClose, isArchived = false } = props;
   // hooks
   const { allowPermissions } = useUserPermissions();
-  const { updateSprintDetails } = useSprint();
+  const { mutateAsync: updateSprint } = useUpdateSprint();
   const { t } = useTranslation();
   const { renderFormattedDateInUserTimezone, getProjectUTCOffset } = useTimeZoneConverter(projectId);
 
@@ -65,7 +65,12 @@ export const SprintSidebarHeader = observer(function SprintSidebarHeader(props: 
   const submitChanges = async (data: Partial<ISprint>) => {
     if (!workspaceSlug || !projectId || !sprintDetails.id) return;
 
-    await updateSprintDetails(workspaceSlug.toString(), projectId.toString(), sprintDetails.id.toString(), data)
+    await updateSprint({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      sprintId: sprintDetails.id.toString(),
+      data,
+    })
       .then(() => {
         captureElementAndEvent({
           element: {

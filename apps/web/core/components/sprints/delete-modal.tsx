@@ -11,7 +11,7 @@ import { AlertModalCore } from "@plane/ui";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useDeleteSprint } from "@/store/queries/sprint";
 import { useAppRouter } from "@/hooks/use-app-router";
 
 interface ISprintDelete {
@@ -27,7 +27,7 @@ export const SprintDeleteModal = observer(function SprintDeleteModal(props: ISpr
   // states
   const [loader, setLoader] = useState(false);
   // store hooks
-  const { deleteSprint } = useSprint();
+  const { mutate: deleteSprintMutation } = useDeleteSprint();
   const { t } = useTranslation();
   // router
   const router = useAppRouter();
@@ -39,9 +39,15 @@ export const SprintDeleteModal = observer(function SprintDeleteModal(props: ISpr
     if (!sprint) return;
 
     setLoader(true);
-    try {
-      await deleteSprint(workspaceSlug, projectId, sprint.id)
-        .then(() => {
+
+    deleteSprintMutation(
+      {
+        workspaceSlug,
+        projectId,
+        sprintId: sprint.id,
+      },
+      {
+        onSuccess: () => {
           if (sprintId || peekSprint) router.push(`/${workspaceSlug}/projects/${projectId}/sprints`);
           setToast({
             type: TOAST_TYPE.SUCCESS,
@@ -54,8 +60,10 @@ export const SprintDeleteModal = observer(function SprintDeleteModal(props: ISpr
               id: sprint.id,
             },
           });
-        })
-        .catch((errors) => {
+          handleClose();
+          setLoader(false);
+        },
+        onError: (errors: any) => {
           const isPermissionError = errors?.error === "You don't have the required permissions.";
           const currentError = isPermissionError
             ? PROJECT_ERROR_MESSAGES.permissionError
@@ -72,17 +80,11 @@ export const SprintDeleteModal = observer(function SprintDeleteModal(props: ISpr
             },
             error: errors,
           });
-        })
-        .finally(() => handleClose());
-    } catch {
-      setToast({
-        type: TOAST_TYPE.ERROR,
-        title: "Warning!",
-        message: "Something went wrong please try again later.",
-      });
-    }
-
-    setLoader(false);
+          handleClose();
+          setLoader(false);
+        },
+      }
+    );
   };
 
   return (

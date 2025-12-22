@@ -8,9 +8,9 @@ import {
 } from "@/components/workspace/sidebar/favorites/favorite-items/common";
 // helpers
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
-import { useEpic } from "@/hooks/store/use-epic";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectEpics, getEpicById } from "@/store/queries/epic";
+import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
+import { useProjects, getProjectById } from "@/store/queries/project";
 import { useProjectView } from "@/hooks/store/use-project-view";
 // plane web hooks
 import { EPageStoreType, usePage } from "@/plane-web/hooks/store";
@@ -25,9 +25,9 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
   const favoriteItemName = favorite?.entity_data?.name || favorite?.name;
   // store hooks
   const { getViewById } = useProjectView();
-  const { getProjectById } = useProject();
-  const { getSprintById } = useSprint();
-  const { getEpicById } = useEpic();
+  const { data: sprints } = useProjectSprints(workspaceSlug, favorite.project_id ?? "");
+  const { data: projectEpics } = useProjectEpics(workspaceSlug, favorite.project_id ?? "");
+  const { data: projects } = useProjects(workspaceSlug);
   // additional details
   const { getAdditionalFavoriteItemDetails } = useAdditionalFavoriteItemDetails();
   // derived values
@@ -36,9 +36,9 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
     storeType: EPageStoreType.PROJECT,
   });
   const viewDetails = getViewById(favoriteItemId ?? "");
-  const sprintDetail = getSprintById(favoriteItemId ?? "");
-  const epicDetail = getEpicById(favoriteItemId ?? "");
-  const currentProjectDetails = getProjectById(favorite.project_id ?? "");
+  const sprintDetail = getSprintById(sprints, favoriteItemId ?? "");
+  const epicDetail = getEpicById(projectEpics, favoriteItemId ?? "");
+  const currentProjectDetails = getProjectById(projects, favorite.project_id ?? "");
 
   let itemIcon;
   let itemTitle;

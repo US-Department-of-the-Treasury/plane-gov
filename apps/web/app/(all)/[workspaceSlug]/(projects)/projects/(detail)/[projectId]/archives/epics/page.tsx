@@ -3,16 +3,15 @@ import { observer } from "mobx-react";
 import { PageHead } from "@/components/core/page-title";
 import { ArchivedEpicLayoutRoot, ArchivedEpicsHeader } from "@/components/epics";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import type { Route } from "./+types/page";
 
 function ProjectArchivedEpicsPage({ params }: Route.ComponentProps) {
   // router
-  const { projectId } = params;
-  // store hooks
-  const { getProjectById } = useProject();
+  const { workspaceSlug, projectId } = params;
+  // queries
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
   // derived values
-  const project = getProjectById(projectId);
   const pageTitle = project?.name && `${project?.name} - Archived epics`;
 
   return (

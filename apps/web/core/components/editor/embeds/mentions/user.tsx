@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Link } from "react-router";
@@ -7,8 +8,8 @@ import { Popover } from "@plane/propel/popover";
 import { Avatar } from "@plane/ui";
 import { cn, getFileURL } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useUser } from "@/hooks/store/user";
+import { useWorkspaceMembers, useProjectMembers, getWorkspaceMemberByUserId, getProjectMemberByUserId } from "@/store/queries/member";
 
 type Props = {
   id: string;
@@ -17,18 +18,22 @@ type Props = {
 export const EditorUserMention = observer(function EditorUserMention(props: Props) {
   const { id } = props;
   // router
-  const { projectId } = useParams();
-  // params
-  const { workspaceSlug } = useParams();
+  const { projectId, workspaceSlug } = useParams();
   // store hooks
   const { data: currentUser } = useUser();
-  const {
-    getUserDetails,
-    project: { getProjectMemberDetails },
-  } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString());
+  const { data: projectMembers } = useProjectMembers(workspaceSlug?.toString(), projectId?.toString());
   // derived values
-  const userDetails = getUserDetails(id);
-  const roleDetails = projectId ? getProjectMemberDetails(id, projectId.toString())?.role : null;
+  const workspaceMember = useMemo(
+    () => getWorkspaceMemberByUserId(workspaceMembers || [], id),
+    [workspaceMembers, id]
+  );
+  const userDetails = workspaceMember?.member;
+  const projectMember = useMemo(
+    () => (projectId ? getProjectMemberByUserId(projectMembers || [], id) : null),
+    [projectMembers, projectId, id]
+  );
+  const roleDetails = projectMember?.role || null;
   const profileLink = `/${workspaceSlug}/profile/${id}`;
 
   if (!userDetails) {

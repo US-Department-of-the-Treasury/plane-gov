@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // components
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { NotAuthorizedView } from "@/components/auth-screens/not-authorized-view";
@@ -9,12 +10,17 @@ import { PageHead } from "@/components/core/page-title";
 import { ProjectSettingsLabelList } from "@/components/labels";
 // hooks
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 
 function LabelsSettingsPage() {
+  // router
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   const { workspaceUserInfo, allowPermissions } = useUserPermissions();
 
   const pageTitle = currentProjectDetails?.name ? `${currentProjectDetails?.name} - Labels` : undefined;

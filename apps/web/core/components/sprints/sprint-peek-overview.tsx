@@ -3,7 +3,7 @@ import { observer } from "mobx-react";
 import { usePathname, useSearchParams } from "next/navigation";
 // hooks
 import { generateQueryParams } from "@plane/utils";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useSprintDetails } from "@/store/queries/sprint";
 import { useAppRouter } from "@/hooks/use-app-router";
 // components
 import { SprintDetailsSidebar } from "./analytics-sidebar";
@@ -23,22 +23,22 @@ export const SprintPeekOverview = observer(function SprintPeekOverview(props: Pr
   const peekSprint = searchParams.get("peekSprint");
   // refs
   const ref = React.useRef(null);
-  // store hooks
-  const { getSprintById, fetchSprintDetails, fetchArchivedSprintDetails } = useSprint();
-  // derived values
-  const sprintDetails = peekSprint ? getSprintById(peekSprint.toString()) : undefined;
+
+  // Fetch sprint details using TanStack Query
+  // Note: The hook will be disabled if projectId or peekSprint is not available
+  const { data: sprintDetails } = useSprintDetails(
+    workspaceSlug,
+    propsProjectId ?? "",
+    peekSprint?.toString() ?? ""
+  );
+
+  // Determine projectId from props or fetched sprint details
   const projectId = propsProjectId || sprintDetails?.project_id;
 
   const handleClose = () => {
     const query = generateQueryParams(searchParams, ["peekSprint"]);
     router.push(`${pathname}?${query}`);
   };
-
-  useEffect(() => {
-    if (!peekSprint || !projectId) return;
-    if (isArchived) fetchArchivedSprintDetails(workspaceSlug, projectId, peekSprint.toString());
-    else fetchSprintDetails(workspaceSlug, projectId, peekSprint.toString());
-  }, [fetchArchivedSprintDetails, fetchSprintDetails, isArchived, peekSprint, projectId, workspaceSlug]);
 
   return (
     <>

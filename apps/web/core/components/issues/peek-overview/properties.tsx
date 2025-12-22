@@ -25,10 +25,10 @@ import { PriorityDropdown } from "@/components/dropdowns/priority";
 import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 import { SidebarPropertyListItem } from "@/components/common/layout/sidebar/property-list-item";
 // helpers
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
+import { useProjectDetails } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
+import { useIssue } from "@/store/queries/issue";
 // plane web components
 import { WorkItemAdditionalSidebarProperties } from "@/plane-web/components/issues/issue-details/additional-properties";
 import { IssueParentSelectRoot } from "@/plane-web/components/issues/issue-details/parent-select-root";
@@ -51,20 +51,16 @@ interface IPeekOverviewProperties {
 export const PeekOverviewProperties = observer(function PeekOverviewProperties(props: IPeekOverviewProperties) {
   const { workspaceSlug, projectId, issueId, issueOperations, disabled } = props;
   const { t } = useTranslation();
-  // store hooks
-  const { getProjectById } = useProject();
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
-  const { getStateById } = useProjectState();
-  const { getUserDetails } = useMember();
+  // hooks
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
+  const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId);
+  const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
   // derived values
-  const issue = getIssueById(issueId);
   if (!issue) return <></>;
-  const createdByDetails = getUserDetails(issue?.created_by);
-  const projectDetails = getProjectById(issue.project_id);
+  const createdByDetails = getWorkspaceMemberByUserId(workspaceMembers, issue?.created_by)?.member;
   const isEstimateEnabled = projectDetails?.estimate;
-  const stateDetails = getStateById(issue.state_id);
+  const stateDetails = getStateById(projectStates, issue.state_id);
 
   const minDate = getDate(issue.start_date);
   minDate?.setDate(minDate.getDate());

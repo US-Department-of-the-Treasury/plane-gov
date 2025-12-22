@@ -14,20 +14,23 @@ import { Avatar, AvatarGroup, TextArea } from "@plane/ui";
 import { getFileURL } from "@plane/utils";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
-import { useMember } from "@/hooks/store/use-member";
+// queries
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // plane web constants
 
 type Props = {
   projectId: string;
+  workspaceSlug: string;
   sprintDetails: ISprint;
 };
 
 export const SprintSidebarDetails = observer(function SprintSidebarDetails(props: Props) {
-  const { projectId, sprintDetails } = props;
+  const { projectId, workspaceSlug, sprintDetails } = props;
   // hooks
-  const { getUserDetails } = useMember();
   const { areEstimateEnabledByProjectId, currentActiveEstimateId, estimateById } = useProjectEstimates();
   const { t } = useTranslation();
+  // queries
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug);
 
   const areEstimateEnabled = projectId && areEstimateEnabledByProjectId(projectId.toString());
   const sprintStatus = sprintDetails?.status?.toLocaleLowerCase();
@@ -42,7 +45,9 @@ export const SprintSidebarDetails = observer(function SprintSidebarDetails(props
         ? `0 ${t("common.work_item")}`
         : `${sprintDetails?.completed_issues}/${sprintDetails?.total_issues}`;
   const estimateType = areEstimateEnabled && currentActiveEstimateId && estimateById(currentActiveEstimateId);
-  const sprintOwnerDetails = sprintDetails ? getUserDetails(sprintDetails.owned_by_id) : undefined;
+  const sprintOwnerDetails = sprintDetails
+    ? getWorkspaceMemberByUserId(workspaceMembers, sprintDetails.owned_by_id)?.member
+    : undefined;
 
   const isEstimatePointValid = isEmpty(sprintDetails?.progress_snapshot || {})
     ? estimateType && estimateType?.type == EEstimateSystem.POINTS
@@ -94,8 +99,9 @@ export const SprintSidebarDetails = observer(function SprintSidebarDetails(props
               {sprintDetails?.assignee_ids && sprintDetails.assignee_ids.length > 0 ? (
                 <>
                   <AvatarGroup showTooltip>
-                    {sprintDetails.assignee_ids.map((member) => {
-                      const memberDetails = getUserDetails(member);
+                    {sprintDetails.assignee_ids.map((memberId) => {
+                      const memberData = getWorkspaceMemberByUserId(workspaceMembers, memberId);
+                      const memberDetails = memberData?.member;
                       return (
                         <Avatar
                           key={memberDetails?.id}

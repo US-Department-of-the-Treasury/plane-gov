@@ -1,8 +1,7 @@
-import { observer } from "mobx-react";
 // plane imports
 import type { TIssueServiceType } from "@plane/types";
-// computed
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// hooks
+import { useIssueLinks } from "@/store/queries/issue";
 // local imports
 import { IssueLinkItem } from "./link-item";
 import type { TLinkOperations } from "./root";
@@ -10,30 +9,28 @@ import type { TLinkOperations } from "./root";
 type TLinkOperationsModal = Exclude<TLinkOperations, "create">;
 
 type TLinkList = {
+  workspaceSlug: string;
+  projectId: string;
   issueId: string;
   linkOperations: TLinkOperationsModal;
   disabled?: boolean;
   issueServiceType: TIssueServiceType;
 };
 
-export const LinkList = observer(function LinkList(props: TLinkList) {
+export function LinkList(props: TLinkList) {
   // props
-  const { issueId, linkOperations, disabled = false, issueServiceType } = props;
-  // hooks
-  const {
-    link: { getLinksByIssueId },
-  } = useIssueDetail(issueServiceType);
+  const { workspaceSlug, projectId, issueId, linkOperations, disabled = false, issueServiceType } = props;
+  // tanstack query
+  const { data: issueLinks } = useIssueLinks(workspaceSlug, projectId, issueId);
 
-  const issueLinks = getLinksByIssueId(issueId);
-
-  if (!issueLinks) return null;
+  if (!issueLinks || issueLinks.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-2 pt-4">
-      {issueLinks.map((linkId) => (
+      {issueLinks.map((link) => (
         <IssueLinkItem
-          key={linkId}
-          linkId={linkId}
+          key={link.id}
+          link={link}
           linkOperations={linkOperations}
           isNotAllowed={disabled}
           issueServiceType={issueServiceType}
@@ -41,4 +38,4 @@ export const LinkList = observer(function LinkList(props: TLinkList) {
       ))}
     </div>
   );
-});
+}

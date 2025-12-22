@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { xor } from "lodash-es";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
 // Plane imports
 import { useTranslation } from "@plane/i18n";
@@ -12,13 +13,15 @@ import { EModalPosition, EModalWidth, ModalCore } from "@plane/ui";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssueModal } from "@/hooks/context/use-issue-modal";
-import { useSprint } from "@/hooks/store/use-sprint";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
+import { queryKeys } from "@/store/queries";
+import { useProjects } from "@/store/queries/project";
+import { useIssue } from "@/store/queries/issue";
 // services
 import { FileService } from "@/services/file.service";
 const fileService = new FileService();
@@ -66,66 +69,67 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   // store hooks
   const { t } = useTranslation();
   const { workspaceSlug, projectId: routerProjectId, sprintId, epicId, workItem } = useParams();
-  const { fetchSprintDetails } = useSprint();
+  const queryClient = useQueryClient();
   const { fetchEpicDetails } = useEpic();
   const { issues } = useIssues(storeType);
   const { issues: projectIssues } = useIssues(EIssuesStoreType.PROJECT);
   const { issues: draftIssues } = useIssues(EIssuesStoreType.WORKSPACE_DRAFT);
-  const { fetchIssue } = useIssueDetail();
   const { allowedProjectIds, handleCreateUpdatePropertyValues, handleCreateSubWorkItem } = useIssueModal();
-  const { getProjectByIdentifier } = useProject();
   // current store details
   const { createIssue, updateIssue } = useIssuesActions(storeType);
+  // query hooks
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
   // derived values
   const routerProjectIdentifier = workItem?.toString().split("-")[0];
-  const projectIdFromRouter = getProjectByIdentifier(routerProjectIdentifier)?.id;
+  const projectIdFromRouter = projects?.find((p) => p.identifier === routerProjectIdentifier)?.id;
   const projectId = data?.project_id ?? routerProjectId?.toString() ?? projectIdFromRouter;
 
-  const fetchIssueDetail = async (issueId: string | undefined) => {
-    setDescription(undefined);
-    if (!workspaceSlug) return;
-
-    if (!projectId || issueId === undefined || !fetchIssueDetails) {
-      // Set description to the issue description from the props if available
-      setDescription(data?.description_html || "<p></p>");
-      return;
-    }
-    const response = await fetchIssue(workspaceSlug.toString(), projectId.toString(), issueId);
-    if (response) setDescription(response?.description_html || "<p></p>");
-  };
+  // Fetch issue details using TanStack Query if we're editing
+  const issueIdToFetch = data?.id ?? data?.sourceIssueId;
+  const { data: fetchedIssue } = useIssue(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? "",
+    issueIdToFetch ?? "",
+  );
 
   useEffect(() => {
-    // fetching issue details
-    if (isOpen) fetchIssueDetail(data?.id ?? data?.sourceIssueId);
+    // Set description from fetched issue or data prop
+    if (fetchedIssue && fetchIssueDetails) {
+      setDescription(fetchedIssue.description_html || "<p></p>");
+    } else if (data?.description_html) {
+      setDescription(data.description_html);
+    } else {
+      setDescription("<p></p>");
+    }
 
     // if modal is closed, reset active project to null
     // and return to avoid activeProjectId being set to some other project
     if (!isOpen) {
       setActiveProjectId(null);
-      return;
+    } else {
+
+      // if data is present, set active project to the project of the
+      // issue. This has more priority than the project in the url.
+      if (data && data.project_id) {
+        setActiveProjectId(data.project_id);
+      }
+      // if data is not present, set active project to the first project in the allowedProjectIds array
+      else if (allowedProjectIds && allowedProjectIds.length > 0 && !activeProjectId) {
+        setActiveProjectId(projectId?.toString() ?? allowedProjectIds?.[0]);
+      }
     }
-
-    // if data is present, set active project to the project of the
-    // issue. This has more priority than the project in the url.
-    if (data && data.project_id) {
-      setActiveProjectId(data.project_id);
-      return;
-    }
-
-    // if data is not present, set active project to the first project in the allowedProjectIds array
-    if (allowedProjectIds && allowedProjectIds.length > 0 && !activeProjectId)
-      setActiveProjectId(projectId?.toString() ?? allowedProjectIds?.[0]);
-
-    // clearing up the description state when we leave the component
-    return () => setDescription(undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.project_id, data?.id, data?.sourceIssueId, projectId, isOpen, activeProjectId]);
+  }, [data?.project_id, data?.id, data?.sourceIssueId, data?.description_html, projectId, isOpen, activeProjectId, fetchedIssue, fetchIssueDetails]);
 
   const addIssueToSprint = async (issue: TIssue, sprintId: string) => {
     if (!workspaceSlug || !issue.project_id) return;
 
     await issues.addIssueToSprint(workspaceSlug.toString(), issue.project_id, sprintId, [issue.id]);
-    fetchSprintDetails(workspaceSlug.toString(), issue.project_id, sprintId);
+    // Invalidate sprint queries to refetch updated data
+    void queryClient.invalidateQueries({ queryKey: queryKeys.sprints.detail(sprintId) });
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.sprints.all(workspaceSlug.toString(), issue.project_id),
+    });
   };
 
   const addIssueToEpic = async (issue: TIssue, epicIds: string[]) => {
@@ -283,7 +287,11 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
       }
       if (data.sprint_id && !payload.sprint_id && data.project_id) {
         await issues.removeIssueFromSprint(workspaceSlug.toString(), data.project_id, data.sprint_id, data.id);
-        fetchSprintDetails(workspaceSlug.toString(), data.project_id, data.sprint_id);
+        // Invalidate sprint queries to refetch updated data
+        void queryClient.invalidateQueries({ queryKey: queryKeys.sprints.detail(data.sprint_id) });
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.sprints.all(workspaceSlug.toString(), data.project_id),
+        });
       }
 
       if (data.epic_ids && payload.epic_ids && data.project_id) {

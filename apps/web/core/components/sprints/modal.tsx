@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { observer } from "mobx-react";
 import { mutate } from "swr";
 // types
 import { SPRINT_TRACKER_EVENTS } from "@plane/constants";
@@ -9,8 +10,8 @@ import { EModalPosition, EModalWidth, ModalCore } from "@plane/ui";
 // hooks
 import { renderFormattedPayloadDate } from "@plane/utils";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useSprint } from "@/hooks/store/use-sprint";
-import { useProject } from "@/hooks/store/use-project";
+import { useCreateSprint, useUpdateSprint } from "@/store/queries/sprint";
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 import useKeypress from "@/hooks/use-keypress";
 import useLocalStorage from "@/hooks/use-local-storage";
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -30,14 +31,18 @@ type SprintModalProps = {
 // services
 const sprintService = new SprintService();
 
-export function SprintCreateUpdateModal(props: SprintModalProps) {
+export const SprintCreateUpdateModal = observer(function SprintCreateUpdateModal(props: SprintModalProps) {
   const { isOpen, handleClose, data, workspaceSlug, projectId } = props;
   // states
   const [activeProject, setActiveProject] = useState<string | null>(null);
   // store hooks
-  const { workspaceProjectIds } = useProject();
-  const { createSprint, updateSprintDetails } = useSprint();
+  const { mutate: createSprintMutation } = useCreateSprint();
+  const { mutate: updateSprintMutation } = useUpdateSprint();
   const { isMobile } = usePlatformOS();
+  // query hooks
+  const { data: projects } = useProjects(workspaceSlug);
+  // derived values
+  const workspaceProjectIds = getJoinedProjectIds(projects);
 
   const { setValue: setSprintTab } = useLocalStorage<TSprintTabOptions>("sprint_tab", "active");
 
@@ -45,72 +50,91 @@ export function SprintCreateUpdateModal(props: SprintModalProps) {
     if (!workspaceSlug || !projectId) return;
 
     const selectedProjectId = payload.project_id ?? projectId.toString();
-    await createSprint(workspaceSlug, selectedProjectId, payload)
-      .then((res) => {
-        // mutate when the current sprint creation is active
-        if (payload.start_date && payload.end_date) {
-          const currentDate = new Date();
-          const sprintStartDate = new Date(payload.start_date);
-          const sprintEndDate = new Date(payload.end_date);
-          if (currentDate >= sprintStartDate && currentDate <= sprintEndDate) {
-            mutate(`PROJECT_ACTIVE_SPRINT_${selectedProjectId}`);
-          }
-        }
 
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Success!",
-          message: "Sprint created successfully.",
-        });
-        captureSuccess({
-          eventName: SPRINT_TRACKER_EVENTS.create,
-          payload: {
-            id: res.id,
-          },
-        });
-      })
-      .catch((err) => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: err?.detail ?? "Error in creating sprint. Please try again.",
-        });
-        captureError({
-          eventName: SPRINT_TRACKER_EVENTS.create,
-          error: err,
-        });
-      });
+    createSprintMutation(
+      {
+        workspaceSlug,
+        projectId: selectedProjectId,
+        data: payload,
+      },
+      {
+        onSuccess: (res) => {
+          // mutate when the current sprint creation is active
+          if (payload.start_date && payload.end_date) {
+            const currentDate = new Date();
+            const sprintStartDate = new Date(payload.start_date);
+            const sprintEndDate = new Date(payload.end_date);
+            if (currentDate >= sprintStartDate && currentDate <= sprintEndDate) {
+              mutate(`PROJECT_ACTIVE_SPRINT_${selectedProjectId}`);
+            }
+          }
+
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: "Sprint created successfully.",
+          });
+          captureSuccess({
+            eventName: SPRINT_TRACKER_EVENTS.create,
+            payload: {
+              id: res.id,
+            },
+          });
+        },
+        onError: (err: any) => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: err?.detail ?? "Error in creating sprint. Please try again.",
+          });
+          captureError({
+            eventName: SPRINT_TRACKER_EVENTS.create,
+            error: err,
+          });
+        },
+      }
+    );
   };
 
   const handleUpdateSprint = async (sprintId: string, payload: Partial<ISprint>) => {
     if (!workspaceSlug || !projectId) return;
 
     const selectedProjectId = payload.project_id ?? projectId.toString();
-    await updateSprintDetails(workspaceSlug, selectedProjectId, sprintId, payload)
-      .then((res) => {
-        captureSuccess({
-          eventName: SPRINT_TRACKER_EVENTS.update,
-          payload: {
-            id: res.id,
-          },
-        });
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Success!",
-          message: "Sprint updated successfully.",
-        });
-      })
-      .catch((err) => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: err?.detail ?? "Error in updating sprint. Please try again.",
-        });
-        captureError({
-          eventName: SPRINT_TRACKER_EVENTS.update,
-          error: err,
-        });
-      });
+
+    updateSprintMutation(
+      {
+        workspaceSlug,
+        projectId: selectedProjectId,
+        sprintId,
+        data: payload,
+      },
+      {
+        onSuccess: (res) => {
+          captureSuccess({
+            eventName: SPRINT_TRACKER_EVENTS.update,
+            payload: {
+              id: res.id,
+            },
+          });
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: "Sprint updated successfully.",
+          });
+        },
+        onError: (err: any) => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: err?.detail ?? "Error in updating sprint. Please try again.",
+          });
+          captureError({
+            eventName: SPRINT_TRACKER_EVENTS.update,
+            error: err,
+          });
+        },
+      }
+    );
   };
 
   const dateChecker = async (projectId: string, payload: SprintDateCheckData) => {
@@ -211,4 +235,4 @@ export function SprintCreateUpdateModal(props: SprintModalProps) {
       />
     </ModalCore>
   );
-}
+});

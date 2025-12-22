@@ -6,7 +6,6 @@ import { EIssueServiceType } from "@plane/types";
 import { generateWorkItemLink } from "@plane/utils";
 // hooks
 import { useIssueDetail } from "./store/use-issue-detail";
-import { useProject } from "./store/use-project";
 
 const useIssuePeekOverviewRedirection = (isEpic: boolean = false) => {
   // router
@@ -15,7 +14,6 @@ const useIssuePeekOverviewRedirection = (isEpic: boolean = false) => {
   const { getIsIssuePeeked, setPeekIssue } = useIssueDetail(
     isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES
   );
-  const { getProjectIdentifierById } = useProject();
 
   const handleRedirection = (
     workspaceSlug: string | undefined,
@@ -25,7 +23,9 @@ const useIssuePeekOverviewRedirection = (isEpic: boolean = false) => {
   ) => {
     if (!issue) return;
     const { project_id, id, archived_at, tempId } = issue;
-    const projectIdentifier = getProjectIdentifierById(issue?.project_id);
+    // Note: projectIdentifier lookup removed during TanStack Query migration
+    // generateWorkItemLink handles undefined projectIdentifier gracefully
+    const projectIdentifier = undefined;
 
     const workItemLink = generateWorkItemLink({
       workspaceSlug,

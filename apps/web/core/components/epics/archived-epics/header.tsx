@@ -16,12 +16,12 @@ import { FiltersDropdown } from "@/components/issues/issue-layouts/filters";
 import { EpicFiltersSelection, EpicOrderByDropdown } from "@/components/epics";
 // helpers
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useEpicFilter } from "@/hooks/store/use-epic-filter";
+import { useWorkspaceMembers, getWorkspaceUserIds } from "@/store/queries/member";
 
 export const ArchivedEpicsHeader = observer(function ArchivedEpicsHeader() {
   // router
-  const { projectId } = useParams();
+  const { workspaceSlug, projectId } = useParams();
   // refs
   const inputRef = useRef<HTMLInputElement>(null);
   // hooks
@@ -33,9 +33,9 @@ export const ArchivedEpicsHeader = observer(function ArchivedEpicsHeader() {
     updateDisplayFilters,
     updateArchivedEpicsSearchQuery,
   } = useEpicFilter();
-  const {
-    workspace: { workspaceMemberIds },
-  } = useMember();
+  // query hooks
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
+  const workspaceMemberIds = getWorkspaceUserIds(workspaceMembers);
   // states
   const [isSearchOpen, setIsSearchOpen] = useState(archivedEpicsSearchQuery !== "" ? true : false);
   // outside click detector hook

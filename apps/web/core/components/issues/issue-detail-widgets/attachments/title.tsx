@@ -1,12 +1,12 @@
 import type { FC } from "react";
 import React, { useMemo } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import type { TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 import { CollapsibleButton } from "@plane/ui";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// queries
+import { useIssue } from "@/store/queries/issue";
 // local imports
 import { IssueAttachmentActionButton } from "./quick-action-button";
 
@@ -19,16 +19,13 @@ type Props = {
   issueServiceType?: TIssueServiceType;
 };
 
-export const IssueAttachmentsCollapsibleTitle = observer(function IssueAttachmentsCollapsibleTitle(props: Props) {
+export function IssueAttachmentsCollapsibleTitle(props: Props) {
   const { isOpen, workspaceSlug, projectId, issueId, disabled, issueServiceType = EIssueServiceType.ISSUES } = props;
   const { t } = useTranslation();
-  // store hooks
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail(issueServiceType);
+  // queries
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
 
   // derived values
-  const issue = getIssueById(issueId);
   const attachmentCount = issue?.attachment_count ?? 0;
 
   // indicator element
@@ -59,4 +56,4 @@ export const IssueAttachmentsCollapsibleTitle = observer(function IssueAttachmen
       }
     />
   );
-});
+}

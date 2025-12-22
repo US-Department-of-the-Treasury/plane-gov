@@ -19,6 +19,8 @@ import { useEpicFilter } from "@/hooks/store/use-epic-filter";
 import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 import type { Route } from "./+types/page";
 
 function ProjectEpicsPage({ params }: Route.ComponentProps) {
@@ -29,8 +31,9 @@ function ProjectEpicsPage({ params }: Route.ComponentProps) {
   const { resolvedTheme } = useTheme();
   // plane hooks
   const { t } = useTranslation();
+  // queries
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   // store
-  const { getProjectById, currentProjectDetails } = useProject();
   const {
     currentProjectFilters = {},
     currentProjectDisplayFilters,
@@ -40,8 +43,7 @@ function ProjectEpicsPage({ params }: Route.ComponentProps) {
   } = useEpicFilter();
   const { allowPermissions } = useUserPermissions();
   // derived values
-  const project = getProjectById(projectId);
-  const pageTitle = project?.name ? `${project?.name} - Epics` : undefined;
+  const pageTitle = currentProjectDetails?.name ? `${currentProjectDetails?.name} - Epics` : undefined;
   const canPerformEmptyStateActions = allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT);
   const resolvedPath = resolvedTheme === "light" ? lightEpicsAsset : darkEpicsAsset;
 

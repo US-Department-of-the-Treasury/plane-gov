@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 // plane imports
 import { MEMBER_TRACKER_ELEMENTS, MEMBER_TRACKER_EVENTS, ROLE } from "@plane/constants";
 import { Button } from "@plane/propel/button";
@@ -10,7 +11,6 @@ import { WorkspaceLogo } from "@/components/workspace/logo";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserSettings } from "@/hooks/store/user";
 // services
 import { WorkspaceService } from "@/plane-web/services";
@@ -29,8 +29,8 @@ export function WorkspaceJoinInvitesStep(props: Props) {
   // states
   const [isJoiningWorkspaces, setIsJoiningWorkspaces] = useState(false);
   const [invitationsRespond, setInvitationsRespond] = useState<string[]>([]);
-  // store hooks
-  const { fetchWorkspaces } = useWorkspace();
+  // hooks
+  const queryClient = useQueryClient();
   const { fetchCurrentUserSettings } = useUserSettings();
 
   // handle invitation
@@ -58,7 +58,7 @@ export function WorkspaceJoinInvitesStep(props: Props) {
           member_id: invitation?.id,
         },
       });
-      await fetchWorkspaces();
+      await queryClient.invalidateQueries({ queryKey: ["WORKSPACES"] });
       await fetchCurrentUserSettings();
       await handleNextStep();
     } catch (error: any) {

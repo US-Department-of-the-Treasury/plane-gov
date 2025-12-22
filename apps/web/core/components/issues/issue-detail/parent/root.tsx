@@ -9,9 +9,9 @@ import { ControlLink, CustomMenu } from "@plane/ui";
 // helpers
 import { generateWorkItemLink } from "@plane/utils";
 // hooks
-import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useIssue } from "@/store/queries/issue";
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web components
@@ -34,20 +34,29 @@ export const IssueParentDetail = observer(function IssueParentDetail(props: TIss
   const router = useRouter();
   const { t } = useTranslation();
   // hooks
-  const { issueMap } = useIssues();
-  const { getProjectStates } = useProjectState();
   const { handleRedirection } = useIssuePeekOverviewRedirection();
   const { isMobile } = usePlatformOS();
-  const { getProjectIdentifierById } = useProject();
+
+  // Fetch parent issue if exists
+  const { data: parentIssue } = useIssue(
+    workspaceSlug,
+    issue.parent_id ? projectId : "",
+    issue.parent_id ?? ""
+  );
 
   // derived values
-  const parentIssue = issueMap?.[issue.parent_id || ""] || undefined;
   const isParentEpic = parentIssue?.is_epic;
-  const projectIdentifier = getProjectIdentifierById(parentIssue?.project_id);
 
-  const issueParentState = getProjectStates(parentIssue?.project_id)?.find(
-    (state) => state?.id === parentIssue?.state_id
+  // queries
+  const { data: projects } = useProjects(workspaceSlug);
+  const { data: parentStates } = useProjectStates(
+    workspaceSlug,
+    parentIssue?.project_id ?? ""
   );
+
+  const projectDetails = getProjectById(projects, parentIssue?.project_id);
+  const projectIdentifier = projectDetails?.identifier;
+  const issueParentState = getStateById(parentStates ?? [], parentIssue?.state_id ?? "");
   const stateColor = issueParentState?.color || undefined;
 
   if (!parentIssue) return <></>;

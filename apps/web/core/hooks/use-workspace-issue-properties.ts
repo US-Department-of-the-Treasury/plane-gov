@@ -1,35 +1,23 @@
 import useSWR from "swr";
 // plane web imports
-import { WORKSPACE_ESTIMATES, WORKSPACE_SPRINTS, WORKSPACE_LABELS, WORKSPACE_EPICS } from "@/constants/fetch-keys";
+import { WORKSPACE_ESTIMATES, WORKSPACE_LABELS } from "@/constants/fetch-keys";
 import { useWorkspaceIssuePropertiesExtended } from "@/plane-web/hooks/use-workspace-issue-properties-extended";
 // plane imports
 import { useProjectEstimates } from "./store/estimates";
-import { useSprint } from "./store/use-sprint";
 import { useLabel } from "./store/use-label";
-import { useEpic } from "./store/use-epic";
+import { useWorkspaceEpics } from "@/store/queries/epic";
+import { useWorkspaceSprints } from "@/store/queries/sprint";
 
 export const useWorkspaceIssueProperties = (workspaceSlug: string | string[] | undefined) => {
   const { fetchWorkspaceLabels } = useLabel();
 
   const { getWorkspaceEstimates } = useProjectEstimates();
 
-  const { fetchWorkspaceEpics } = useEpic();
+  // fetch workspace Epics - handled by TanStack Query useWorkspaceEpics hook
+  useWorkspaceEpics(workspaceSlug ? workspaceSlug.toString() : "");
 
-  const { fetchWorkspaceSprints } = useSprint();
-
-  // fetch workspace Epics
-  useSWR(
-    workspaceSlug ? WORKSPACE_EPICS(workspaceSlug.toString()) : null,
-    workspaceSlug ? () => fetchWorkspaceEpics(workspaceSlug.toString()) : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
-
-  // fetch workspace Sprints
-  useSWR(
-    workspaceSlug ? WORKSPACE_SPRINTS(workspaceSlug.toString()) : null,
-    workspaceSlug ? () => fetchWorkspaceSprints(workspaceSlug.toString()) : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
+  // fetch workspace Sprints - handled by TanStack Query useWorkspaceSprints hook
+  useWorkspaceSprints(workspaceSlug ? workspaceSlug.toString() : "");
 
   // fetch workspace labels
   useSWR(

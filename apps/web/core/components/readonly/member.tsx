@@ -1,4 +1,5 @@
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -6,7 +7,7 @@ import { cn } from "@plane/utils";
 // components
 import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 
 export type TReadonlyMemberProps = {
   className?: string;
@@ -22,9 +23,10 @@ export const ReadonlyMember = observer(function ReadonlyMember(props: TReadonlyM
   const { className, icon: Icon, hideIcon = false, value, placeholder, multiple = false } = props;
 
   const { t } = useTranslation();
-  const { getUserDetails } = useMember();
+  const { workspaceSlug } = useParams();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug as string);
   const memberIds = Array.isArray(value) ? value : value ? [value] : [];
-  const members = memberIds.map((id) => getUserDetails(id)).filter(Boolean);
+  const members = memberIds.map((id) => getWorkspaceMemberByUserId(workspaceMembers, id)?.member).filter(Boolean);
 
   if (members.length === 0) {
     return (

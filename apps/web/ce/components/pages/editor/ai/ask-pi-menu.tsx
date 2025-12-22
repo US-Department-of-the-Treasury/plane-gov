@@ -7,7 +7,7 @@ import { cn } from "@plane/utils";
 import { RichTextEditor } from "@/components/editor/rich-text";
 // helpers
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaces, getWorkspaceBySlug } from "@/store/queries/workspace";
 
 type Props = {
   handleInsertText: (insertOnNextLine: boolean) => void;
@@ -22,9 +22,9 @@ export function AskPiMenu(props: Props) {
   // states
   const [query, setQuery] = useState("");
   // store hooks
-  const { getWorkspaceBySlug } = useWorkspace();
+  const { data: workspaces } = useWorkspaces();
   // derived values
-  const workspaceId = getWorkspaceBySlug(workspaceSlug)?.id ?? "";
+  const workspaceId = getWorkspaceBySlug(workspaces ?? [], workspaceSlug)?.id ?? "";
 
   return (
     <>

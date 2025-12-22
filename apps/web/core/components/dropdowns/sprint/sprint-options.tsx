@@ -13,7 +13,7 @@ import { SprintGroupIcon, SprintIcon } from "@plane/propel/icons";
 import type { TSprintGroups } from "@plane/types";
 // ui
 // store hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useWorkspaceSprints, getSprintById, getSprintIds } from "@/store/queries/sprint";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // types
 
@@ -44,12 +44,13 @@ export const SprintOptions = observer(function SprintOptions(props: SprintOption
   const inputRef = useRef<HTMLInputElement | null>(null);
   // store hooks
   const { workspaceSlug } = useParams();
-  const { currentWorkspaceSprintIds, fetchWorkspaceSprints, getSprintById } = useSprint();
   const { isMobile } = usePlatformOS();
+
+  // TanStack Query
+  const { data: sprints } = useWorkspaceSprints(workspaceSlug?.toString() ?? "");
 
   useEffect(() => {
     if (isOpen) {
-      onOpen();
       if (!isMobile) {
         inputRef.current && inputRef.current.focus();
       }
@@ -69,15 +70,12 @@ export const SprintOptions = observer(function SprintOptions(props: SprintOption
     ],
   });
 
-  const sprintIds = (currentWorkspaceSprintIds ?? [])?.filter((sprintId) => {
-    const sprintDetails = getSprintById(sprintId);
+  const allSprintIds = getSprintIds(sprints);
+  const sprintIds = allSprintIds?.filter((sprintId) => {
+    const sprintDetails = getSprintById(sprints, sprintId);
     if (currentSprintId && currentSprintId === sprintId) return false;
     return sprintDetails?.status ? (sprintDetails?.status.toLowerCase() != "completed" ? true : false) : true;
   });
-
-  const onOpen = () => {
-    if (workspaceSlug && !sprintIds) fetchWorkspaceSprints(workspaceSlug.toString());
-  };
 
   const searchInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (query !== "" && e.key === "Escape") {
@@ -87,7 +85,7 @@ export const SprintOptions = observer(function SprintOptions(props: SprintOption
   };
 
   const options: DropdownOptions = sprintIds?.map((sprintId) => {
-    const sprintDetails = getSprintById(sprintId);
+    const sprintDetails = getSprintById(sprints, sprintId);
     const sprintStatus = sprintDetails?.status ? (sprintDetails.status.toLocaleLowerCase() as TSprintGroups) : "draft";
 
     return {

@@ -1,4 +1,6 @@
 import type { FC } from "react";
+import { useMemo } from "react";
+import { useParams } from "next/navigation";
 import { observer } from "mobx-react";
 
 // plane types
@@ -9,8 +11,8 @@ import { Avatar, Tag } from "@plane/ui";
 // helpers
 import { getFileURL } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
+import { useWorkspaceMembers, getWorkspaceMembersMap } from "@/store/queries/member";
 
 type InboxIssueAppliedFiltersMember = {
   filterKey: TInboxIssueFilterMemberKeys;
@@ -21,12 +23,20 @@ export const InboxIssueAppliedFiltersMember = observer(function InboxIssueApplie
   props: InboxIssueAppliedFiltersMember
 ) {
   const { filterKey, label } = props;
+  // router
+  const { workspaceSlug } = useParams();
   // hooks
   const { inboxFilters, handleInboxIssueFilters } = useProjectInbox();
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString());
   // derived values
   const filteredValues = inboxFilters?.[filterKey] || [];
-  const currentOptionDetail = (memberId: string) => getUserDetails(memberId) || undefined;
+
+  const membersMap = useMemo(() => {
+    if (!workspaceMembers) return new Map();
+    return getWorkspaceMembersMap(workspaceMembers);
+  }, [workspaceMembers]);
+
+  const currentOptionDetail = (memberId: string) => membersMap.get(memberId)?.member || undefined;
 
   const handleFilterValue = (value: string): string[] =>
     filteredValues?.includes(value) ? filteredValues.filter((v) => v !== value) : [...filteredValues, value];

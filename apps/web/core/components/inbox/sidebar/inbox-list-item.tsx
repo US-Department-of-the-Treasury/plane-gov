@@ -1,5 +1,4 @@
 import type { FC, MouseEvent } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 // plane imports
@@ -10,10 +9,10 @@ import { cn, renderFormattedDate, getFileURL } from "@plane/utils";
 // components
 import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
 // hooks
-import { useLabel } from "@/hooks/store/use-label";
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useProjectLabels } from "@/store/queries/label";
 // plane web imports
 import { InboxSourcePill } from "@/plane-web/components/inbox/source-pill";
 // local imports
@@ -27,18 +26,20 @@ type InboxIssueListItemProps = {
   setIsMobileSidebar: (value: boolean) => void;
 };
 
-export const InboxIssueListItem = observer(function InboxIssueListItem(props: InboxIssueListItemProps) {
+export function InboxIssueListItem(props: InboxIssueListItemProps) {
   const { workspaceSlug, projectId, inboxIssueId, projectIdentifier, setIsMobileSidebar } = props;
   // router
   const searchParams = useSearchParams();
   const selectedInboxIssueId = searchParams.get("inboxIssueId");
   // store
   const { currentTab, getIssueInboxByIssueId } = useProjectInbox();
-  const { projectLabels } = useLabel();
   const { isMobile } = usePlatformOS();
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const inboxIssue = getIssueInboxByIssueId(inboxIssueId);
   const issue = inboxIssue?.issue;
+
+  // queries
+  const { data: projectLabels } = useProjectLabels(workspaceSlug, projectId);
 
   const handleIssueRedirection = (event: MouseEvent, currentIssueId: string | undefined) => {
     if (selectedInboxIssueId === currentIssueId) event.preventDefault();
@@ -47,7 +48,9 @@ export const InboxIssueListItem = observer(function InboxIssueListItem(props: In
 
   if (!issue) return <></>;
 
-  const createdByDetails = issue?.created_by ? getUserDetails(issue?.created_by) : undefined;
+  const createdByDetails = issue?.created_by
+    ? getWorkspaceMemberByUserId(workspaceMembers, issue.created_by)?.member
+    : undefined;
 
   return (
     <>
@@ -133,4 +136,4 @@ export const InboxIssueListItem = observer(function InboxIssueListItem(props: In
       </Link>
     </>
   );
-});
+}

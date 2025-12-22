@@ -1,12 +1,12 @@
 import type { SetStateAction } from "react";
-import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import { GripVertical, Pencil } from "lucide-react";
 // plane imports
 import { EIconSize, STATE_TRACKER_ELEMENTS } from "@plane/constants";
 import { StateGroupIcon } from "@plane/propel/icons";
 import type { IState, TStateOperationsCallbacks } from "@plane/types";
-// local imports
-import { useProjectState } from "@/hooks/store/use-project-state";
+// tanstack query hooks
+import { useGroupedProjectStates, getStatePercentageInGroup } from "@/store/queries/state";
 import { StateDelete, StateMarksAsDefault } from "./options";
 
 type TBaseStateItemTitleProps = {
@@ -28,12 +28,17 @@ type TDisabledStateItemTitleProps = TBaseStateItemTitleProps & {
 
 export type TStateItemTitleProps = TEnabledStateItemTitleProps | TDisabledStateItemTitleProps;
 
-export const StateItemTitle = observer(function StateItemTitle(props: TStateItemTitleProps) {
+export const StateItemTitle = function StateItemTitle(props: TStateItemTitleProps) {
   const { stateCount, setUpdateStateModal, disabled, state, shouldShowDescription = true } = props;
-  // store hooks
-  const { getStatePercentageInGroup } = useProjectState();
+  // router params
+  const { workspaceSlug, projectId } = useParams();
+  // tanstack query hooks
+  const { data: groupedStates } = useGroupedProjectStates(
+    workspaceSlug as string,
+    projectId as string
+  );
   // derived values
-  const statePercentage = getStatePercentageInGroup(state.id);
+  const statePercentage = getStatePercentageInGroup(groupedStates, state.id);
   const percentage = statePercentage ? statePercentage / 100 : undefined;
 
   return (
@@ -85,4 +90,4 @@ export const StateItemTitle = observer(function StateItemTitle(props: TStateItem
       )}
     </div>
   );
-});
+};

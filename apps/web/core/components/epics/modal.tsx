@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { useForm } from "react-hook-form";
 // types
 import { EPIC_TRACKER_EVENTS } from "@plane/constants";
@@ -13,10 +12,10 @@ import { EpicForm } from "@/components/epics";
 // helpers
 import { captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
-import { useProject } from "@/hooks/store/use-project";
 import useKeypress from "@/hooks/use-keypress";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
+import { useCreateEpic, useUpdateEpic } from "@/store/queries/epic";
 
 type Props = {
   isOpen: boolean;
@@ -34,14 +33,19 @@ const defaultValues: Partial<IEpic> = {
   member_ids: [],
 };
 
-export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(props: Props) {
+export function CreateUpdateEpicModal(props: Props) {
   const { isOpen, onClose, data, workspaceSlug, projectId } = props;
   // states
   const [activeProject, setActiveProject] = useState<string | null>(null);
   // store hooks
-  const { workspaceProjectIds } = useProject();
-  const { createEpic, updateEpicDetails } = useEpic();
   const { isMobile } = usePlatformOS();
+  // query hooks
+  const { data: projects } = useProjects(workspaceSlug);
+  // mutation hooks
+  const { mutateAsync: createEpicMutation } = useCreateEpic();
+  const { mutateAsync: updateEpicMutation } = useUpdateEpic();
+  // derived values
+  const workspaceProjectIds = getJoinedProjectIds(projects);
 
   const handleClose = () => {
     reset(defaultValues);
@@ -56,7 +60,11 @@ export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(pro
     if (!workspaceSlug || !projectId) return;
 
     const selectedProjectId = payload.project_id ?? projectId.toString();
-    await createEpic(workspaceSlug.toString(), selectedProjectId, payload)
+    await createEpicMutation({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: selectedProjectId,
+      data: payload,
+    })
       .then((res) => {
         handleClose();
         setToast({
@@ -87,7 +95,12 @@ export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(pro
     if (!workspaceSlug || !projectId || !data) return;
 
     const selectedProjectId = payload.project_id ?? projectId.toString();
-    await updateEpicDetails(workspaceSlug.toString(), selectedProjectId, data.id, payload)
+    await updateEpicMutation({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: selectedProjectId,
+      epicId: data.id,
+      data: payload,
+    })
       .then((res) => {
         handleClose();
 
@@ -163,4 +176,4 @@ export const CreateUpdateEpicModal = observer(function CreateUpdateEpicModal(pro
       />
     </ModalCore>
   );
-});
+}

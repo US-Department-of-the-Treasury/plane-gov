@@ -17,8 +17,8 @@ import { cn } from "@plane/utils";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjectDetails } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useUserPermissions } from "@/hooks/store/user";
 // plane-web components
 import { DuplicateWorkItemModal } from "@/plane-web/components/issues/issue-layouts/quick-action-dropdowns/duplicate-modal";
@@ -54,11 +54,11 @@ export const EpicIssueQuickActions = observer(function EpicIssueQuickActions(pro
   // store hooks
   const { issuesFilter } = useIssues(EIssuesStoreType.EPIC);
   const { allowPermissions } = useUserPermissions();
-  const { getStateById } = useProjectState();
-  const { getProjectIdentifierById } = useProject();
+  const { data: projectStates } = useProjectStates(workspaceSlug?.toString(), issue.project_id);
+  const { data: projectDetails } = useProjectDetails(workspaceSlug?.toString(), issue.project_id);
   // derived values
-  const stateDetails = getStateById(issue.state_id);
-  const projectIdentifier = getProjectIdentifierById(issue?.project_id);
+  const stateDetails = getStateById(projectStates, issue.state_id);
+  const projectIdentifier = projectDetails?.identifier;
   // auth
   const isEditingAllowed =
     allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT) && !readOnly;

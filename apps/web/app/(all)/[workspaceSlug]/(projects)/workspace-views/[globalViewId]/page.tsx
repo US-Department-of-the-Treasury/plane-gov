@@ -1,19 +1,18 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { DEFAULT_GLOBAL_VIEWS_LIST } from "@plane/constants";
 // components
 import { PageHead } from "@/components/core/page-title";
 import { AllIssueLayoutRoot } from "@/components/issues/issue-layouts/roots/all-issue-layout-root";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 import type { Route } from "./+types/page";
 
 function GlobalViewIssuesPage({ params }: Route.ComponentProps) {
   // router
-  const { globalViewId } = params;
+  const { workspaceSlug, globalViewId } = params;
   // store hooks
-  const { currentWorkspace } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   // states
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,4 +30,4 @@ function GlobalViewIssuesPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(GlobalViewIssuesPage);
+export default GlobalViewIssuesPage;

@@ -1,7 +1,6 @@
 import React from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
@@ -10,7 +9,7 @@ import { calculateTotalFilters } from "@plane/utils";
 // components
 import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useArchivedSprints, getSprintIds } from "@/store/queries/sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
 // local imports
 import { SprintAppliedFiltersList } from "../applied-filters";
@@ -21,22 +20,16 @@ export const ArchivedSprintLayoutRoot = observer(function ArchivedSprintLayoutRo
   const { workspaceSlug, projectId } = useParams();
   // plane hooks
   const { t } = useTranslation();
-  // hooks
-  const { fetchArchivedSprints, currentProjectArchivedSprintIds, loader } = useSprint();
+  // query hooks
+  const { data: archivedSprints, isLoading } = useArchivedSprints(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   // sprint filters hook
   const { clearAllFilters, currentProjectArchivedFilters, updateFilters } = useSprintFilter();
   // derived values
+  const currentProjectArchivedSprintIds = getSprintIds(archivedSprints);
   const totalArchivedSprints = currentProjectArchivedSprintIds?.length ?? 0;
-
-  useSWR(
-    workspaceSlug && projectId ? `ARCHIVED_SPRINTS_${workspaceSlug.toString()}_${projectId.toString()}` : null,
-    async () => {
-      if (workspaceSlug && projectId) {
-        await fetchArchivedSprints(workspaceSlug.toString(), projectId.toString());
-      }
-    },
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
 
   const handleRemoveFilter = (key: keyof TSprintFilters, value: string | null) => {
     if (!projectId) return;
@@ -50,7 +43,7 @@ export const ArchivedSprintLayoutRoot = observer(function ArchivedSprintLayoutRo
 
   if (!workspaceSlug || !projectId) return <></>;
 
-  if (loader || !currentProjectArchivedSprintIds) {
+  if (isLoading || !archivedSprints) {
     return <SprintEpicListLayoutLoader />;
   }
 

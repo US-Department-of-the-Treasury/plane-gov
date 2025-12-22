@@ -55,6 +55,12 @@ export const queryKeys = {
     detail: (moduleId: string) => ["modules", "detail", moduleId] as const,
   },
 
+  // Epic queries
+  epics: {
+    all: (workspaceSlug: string, projectId: string) => ["epics", workspaceSlug, projectId] as const,
+    detail: (epicId: string) => ["epics", "detail", epicId] as const,
+  },
+
   // User queries
   users: {
     me: () => ["users", "me"] as const,

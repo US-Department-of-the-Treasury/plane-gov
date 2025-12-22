@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
@@ -12,8 +11,9 @@ import { ArchivedEpicsView, EpicAppliedFiltersList } from "@/components/epics";
 import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 // helpers
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
 import { useEpicFilter } from "@/hooks/store/use-epic-filter";
+// queries
+import { useArchivedEpics } from "@/store/queries/epic";
 
 export const ArchivedEpicLayoutRoot = observer(function ArchivedEpicLayoutRoot() {
   // router
@@ -21,20 +21,14 @@ export const ArchivedEpicLayoutRoot = observer(function ArchivedEpicLayoutRoot()
   // plane hooks
   const { t } = useTranslation();
   // hooks
-  const { fetchArchivedEpics, projectArchivedEpicIds, loader } = useEpic();
   const { clearAllFilters, currentProjectArchivedFilters, updateFilters } = useEpicFilter();
-  // derived values
-  const totalArchivedEpics = projectArchivedEpicIds?.length ?? 0;
-
-  useSWR(
-    workspaceSlug && projectId ? `ARCHIVED_EPICS_${workspaceSlug.toString()}_${projectId.toString()}` : null,
-    async () => {
-      if (workspaceSlug && projectId) {
-        await fetchArchivedEpics(workspaceSlug.toString(), projectId.toString());
-      }
-    },
-    { revalidateIfStale: false, revalidateOnFocus: false }
+  // queries
+  const { data: archivedEpics, isLoading } = useArchivedEpics(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
   );
+  // derived values
+  const totalArchivedEpics = archivedEpics?.length ?? 0;
 
   const handleRemoveFilter = useCallback(
     (key: keyof TEpicFilters, value: string | null) => {
@@ -51,7 +45,7 @@ export const ArchivedEpicLayoutRoot = observer(function ArchivedEpicLayoutRoot()
 
   if (!workspaceSlug || !projectId) return <></>;
 
-  if (loader || !projectArchivedEpicIds) {
+  if (isLoading) {
     return <SprintEpicListLayoutLoader />;
   }
 

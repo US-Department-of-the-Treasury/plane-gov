@@ -14,9 +14,8 @@ import { CustomSelect, PopoverMenu } from "@plane/ui";
 // helpers
 import { getFileURL } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useUpdateWorkspaceMember } from "@/store/queries/member";
 // plane web constants
 
 export interface RowData {
@@ -117,12 +116,8 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
   } = useForm();
   // store hooks
   const { allowPermissions } = useUserPermissions();
-
-  const {
-    workspace: { updateMember },
-  } = useMember();
-  const { mutateWorkspaceMembersActivity } = useWorkspace();
   const { data: currentUser } = useUser();
+  const { mutate: updateWorkspaceMember } = useUpdateWorkspaceMember();
 
   // derived values
   const isCurrentUser = currentUser?.id === rowData.member.id;
@@ -150,13 +145,16 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
           render={({ field: { value } }) => (
             <CustomSelect
               value={value as EUserPermissions}
-              onChange={async (value: EUserPermissions) => {
+              onChange={(value: EUserPermissions) => {
                 if (!workspaceSlug) return;
                 try {
-                  await updateMember(workspaceSlug.toString(), rowData.member.id, {
-                    role: value as unknown as EUserPermissions,
+                  updateWorkspaceMember({
+                    workspaceSlug: workspaceSlug.toString(),
+                    memberId: rowData.member.id,
+                    data: {
+                      role: value as unknown as EUserPermissions,
+                    },
                   });
-                  void mutateWorkspaceMembersActivity(workspaceSlug);
                 } catch (err: unknown) {
                   const error = err as { error?: string | string[] };
                   const errorString = Array.isArray(error?.error) ? error.error[0] : error?.error;

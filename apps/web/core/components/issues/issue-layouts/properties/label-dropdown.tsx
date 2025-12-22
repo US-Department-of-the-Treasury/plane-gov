@@ -15,7 +15,7 @@ import { EUserProjectRoles } from "@plane/types";
 // components
 import { ComboDropDown } from "@plane/ui";
 // hooks
-import { useLabel } from "@/hooks/store/use-label";
+import { useProjectLabels, useCreateLabel } from "@/store/queries/label";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useDropdownKeyDown } from "@/hooks/use-dropdown-key-down";
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -66,9 +66,7 @@ export function LabelDropdown(props: ILabelDropdownProps) {
 
   //states
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [query, setQuery] = useState<string>("");
-  const [submitting, setSubmitting] = useState<boolean>(false);
 
   //refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -79,9 +77,9 @@ export function LabelDropdown(props: ILabelDropdownProps) {
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
 
   //hooks
-  const { fetchProjectLabels, getProjectLabels, createLabel } = useLabel();
+  const { data: storeLabels, isLoading } = useProjectLabels(workspaceSlug ?? "", projectId ?? "");
+  const { mutateAsync: createLabelMutation, isPending: submitting } = useCreateLabel();
   const { isMobile } = usePlatformOS();
-  const storeLabels = getProjectLabels(projectId);
   const { allowPermissions } = useUserPermissions();
 
   const canCreateLabel =
@@ -128,20 +126,10 @@ export function LabelDropdown(props: ILabelDropdownProps) {
     ],
   });
 
-  const onOpen = useCallback(() => {
-    if (!storeLabels && workspaceSlug && projectId)
-      fetchProjectLabels(workspaceSlug, projectId)
-        .then(() => setIsLoading(false))
-        .catch(() => {
-          setIsLoading(false);
-        });
-  }, [storeLabels, workspaceSlug, projectId, fetchProjectLabels, setIsLoading]);
-
   const toggleDropdown = useCallback(() => {
-    if (!isOpen) onOpen();
     setIsOpen((prevIsOpen) => !prevIsOpen);
     if (isOpen && onClose) onClose();
-  }, [onOpen, onClose, isOpen, setIsOpen]);
+  }, [onClose, isOpen, setIsOpen]);
 
   const handleClose = () => {
     if (!isOpen) return;
@@ -151,12 +139,14 @@ export function LabelDropdown(props: ILabelDropdownProps) {
   };
 
   const handleAddLabel = async (labelName: string) => {
-    if (!projectId) return;
-    setSubmitting(true);
-    const label = await createLabel(workspaceSlug, projectId, { name: labelName, color: getRandomLabelColor() });
+    if (!projectId || !workspaceSlug) return;
+    const label = await createLabelMutation({
+      workspaceSlug,
+      projectId,
+      data: { name: labelName, color: getRandomLabelColor() },
+    });
     onChange([...value, label.id]);
     setQuery("");
-    setSubmitting(false);
   };
 
   const searchInputKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {

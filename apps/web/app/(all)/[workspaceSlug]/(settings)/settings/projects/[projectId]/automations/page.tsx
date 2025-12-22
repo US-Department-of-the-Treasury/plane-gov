@@ -11,7 +11,7 @@ import { PageHead } from "@/components/core/page-title";
 // hooks
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 import { SettingsHeading } from "@/components/settings/heading";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails, useUpdateProject } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 // plane web imports
 import { CustomAutomationsRoot } from "@/plane-web/components/automations/root";
@@ -22,7 +22,8 @@ function AutomationSettingsPage({ params }: Route.ComponentProps) {
   const { workspaceSlug, projectId } = params;
   // store hooks
   const { workspaceUserInfo, allowPermissions } = useUserPermissions();
-  const { currentProjectDetails: projectDetails, updateProject } = useProject();
+  const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId);
+  const { mutate: updateProject } = useUpdateProject();
 
   const { t } = useTranslation();
 
@@ -33,7 +34,7 @@ function AutomationSettingsPage({ params }: Route.ComponentProps) {
     if (!projectDetails) return;
 
     try {
-      await updateProject(workspaceSlug, projectId, formData);
+      updateProject({ workspaceSlug, projectId, data: formData });
     } catch {
       setToast({
         type: TOAST_TYPE.ERROR,

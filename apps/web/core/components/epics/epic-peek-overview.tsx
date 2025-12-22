@@ -40,6 +40,7 @@ export const EpicPeekOverview = observer(function EpicPeekOverview({
     else fetchEpicDetails(workspaceSlug, projectId, peekEpic.toString());
   }, [fetchArchivedEpicDetails, fetchEpicDetails, isArchived, peekEpic, projectId, workspaceSlug]);
 
+
   return (
     <>
       {peekEpic && (

@@ -27,12 +27,12 @@ import {
 } from "@/constants/fetch-keys";
 // hooks
 import { useFavorite } from "@/hooks/store/use-favorite";
-import { useMember } from "@/hooks/store/use-member";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useWorkspaceStates } from "@/store/queries/state";
+import { useWorkspaces, useSidebarNavigationPreferences, getWorkspaceBySlug } from "@/store/queries/workspace";
+import { useWorkspaceMembers } from "@/store/queries/member";
+import { usePartialProjects } from "@/store/queries/project";
 
 interface IWorkspaceAuthWrapper {
   children: ReactNode;
@@ -45,24 +45,26 @@ export const WorkspaceAuthWrapper = observer(function WorkspaceAuthWrapper(props
   const { workspaceSlug } = useParams();
   // store hooks
   const { signOut, data: currentUser } = useUser();
-  const { fetchPartialProjects } = useProject();
   const { fetchFavorite } = useFavorite();
-  const {
-    workspace: { fetchWorkspaceMembers },
-  } = useMember();
-  const { workspaces, fetchSidebarNavigationPreferences } = useWorkspace();
   const { isMobile } = usePlatformOS();
   const { loader, workspaceInfoBySlug, fetchUserWorkspaceInfo, fetchUserProjectPermissions, allowPermissions } =
     useUserPermissions();
-  const { fetchWorkspaceStates } = useProjectState();
+  // TanStack Query - fetch workspaces and workspace states
+  const { data: workspaces } = useWorkspaces();
+  useWorkspaceStates(workspaceSlug?.toString() || "");
+  // Fetch sidebar preferences
+  useSidebarNavigationPreferences(workspaceSlug?.toString() || "");
+  // Fetch workspace members
+  useWorkspaceMembers(workspaceSlug?.toString() || "");
+  // Fetch workspace projects
+  usePartialProjects(workspaceSlug?.toString() || "");
   // derived values
   const canPerformWorkspaceMemberActions = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.WORKSPACE
   );
-  const allWorkspaces = workspaces ? Object.values(workspaces) : undefined;
-  const currentWorkspace =
-    (allWorkspaces && allWorkspaces.find((workspace) => workspace?.slug === workspaceSlug)) || undefined;
+  const allWorkspaces = workspaces;
+  const currentWorkspace = workspaceSlug ? getWorkspaceBySlug(workspaces, workspaceSlug.toString()) : undefined;
   const currentWorkspaceInfo = workspaceSlug && workspaceInfoBySlug(workspaceSlug.toString());
 
   // fetching user workspace information
@@ -77,18 +79,6 @@ export const WorkspaceAuthWrapper = observer(function WorkspaceAuthWrapper(props
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 
-  // fetching workspace projects
-  useSWR(
-    workspaceSlug && currentWorkspace ? WORKSPACE_PARTIAL_PROJECTS(workspaceSlug.toString()) : null,
-    workspaceSlug && currentWorkspace ? () => fetchPartialProjects(workspaceSlug.toString()) : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
-  // fetch workspace members
-  useSWR(
-    workspaceSlug && currentWorkspace ? WORKSPACE_MEMBERS(workspaceSlug.toString()) : null,
-    workspaceSlug && currentWorkspace ? () => fetchWorkspaceMembers(workspaceSlug.toString()) : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
   // fetch workspace favorite
   useSWR(
     workspaceSlug && currentWorkspace && canPerformWorkspaceMemberActions
@@ -97,19 +87,6 @@ export const WorkspaceAuthWrapper = observer(function WorkspaceAuthWrapper(props
     workspaceSlug && currentWorkspace && canPerformWorkspaceMemberActions
       ? () => fetchFavorite(workspaceSlug.toString())
       : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
-  // fetch workspace states
-  useSWR(
-    workspaceSlug ? WORKSPACE_STATES(workspaceSlug.toString()) : null,
-    workspaceSlug ? () => fetchWorkspaceStates(workspaceSlug.toString()) : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
-
-  // fetch workspace sidebar preferences
-  useSWR(
-    workspaceSlug ? WORKSPACE_SIDEBAR_PREFERENCES(workspaceSlug.toString()) : null,
-    workspaceSlug ? () => fetchSidebarNavigationPreferences(workspaceSlug.toString()) : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 

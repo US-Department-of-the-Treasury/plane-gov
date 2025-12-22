@@ -1,6 +1,5 @@
 import type { MouseEvent } from "react";
 import { useRef } from "react";
-import { observer } from "mobx-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Check } from "lucide-react";
 // plane imports
@@ -10,7 +9,7 @@ import { CircularProgressIndicator } from "@plane/ui";
 import { generateQueryParams, calculateSprintProgress } from "@plane/utils";
 import { ListItem } from "@/components/core/list";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // local imports
@@ -28,7 +27,7 @@ type TSprintsListItem = {
   className?: string;
 };
 
-export const SprintsListItem = observer(function SprintsListItem(props: TSprintsListItem) {
+export function SprintsListItem(props: TSprintsListItem) {
   const { sprintId, workspaceSlug, projectId, className = "" } = props;
   // refs
   const parentRef = useRef(null);
@@ -38,11 +37,11 @@ export const SprintsListItem = observer(function SprintsListItem(props: TSprints
   const pathname = usePathname();
   // hooks
   const { isMobile } = usePlatformOS();
-  // store hooks
-  const { getSprintById } = useSprint();
+  // query hooks
+  const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
 
   // derived values
-  const sprintDetails = getSprintById(sprintId);
+  const sprintDetails = getSprintById(sprints, sprintId);
 
   if (!sprintDetails) return null;
 
@@ -113,4 +112,4 @@ export const SprintsListItem = observer(function SprintsListItem(props: TSprints
       isSidebarOpen={searchParams.has("peekSprint")}
     />
   );
-});
+}

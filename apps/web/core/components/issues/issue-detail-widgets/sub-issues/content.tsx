@@ -7,6 +7,7 @@ import { EIssueServiceType, EIssuesStoreType } from "@plane/types";
 import { DeleteIssueModal } from "@/components/issues/delete-issue-modal";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useSubIssues } from "@/store/queries/issue";
 // local imports
 import { CreateUpdateIssueModal } from "../../issue-modal/modal";
 import { useSubIssueOperations } from "./helper";
@@ -58,6 +59,8 @@ export const SubIssuesCollapsibleContent = observer(function SubIssuesCollapsibl
     toggleDeleteIssueModal,
     subIssues: { subIssueHelpersByIssueId, setSubIssueHelpers },
   } = useIssueDetail(issueServiceType);
+  // queries
+  const { data: subIssuesData, isLoading } = useSubIssues(workspaceSlug, projectId, parentIssueId);
 
   // helpers
   const subIssueOperations = useSubIssueOperations(issueServiceType);
@@ -78,25 +81,12 @@ export const SubIssuesCollapsibleContent = observer(function SubIssuesCollapsibl
     [issueCrudState]
   );
 
-  const handleFetchSubIssues = useCallback(async () => {
-    const currentSubIssueHelpers = subIssueHelpersByIssueId(`${parentIssueId}_root`);
-    if (!currentSubIssueHelpers.issue_visibility.includes(parentIssueId)) {
-      try {
-        setSubIssueHelpers(`${parentIssueId}_root`, "preview_loader", parentIssueId);
-        await subIssueOperations.fetchSubIssues(workspaceSlug, projectId, parentIssueId);
-        setSubIssueHelpers(`${parentIssueId}_root`, "issue_visibility", parentIssueId);
-      } catch (error) {
-        console.error("Error fetching sub-work items:", error);
-      } finally {
-        setSubIssueHelpers(`${parentIssueId}_root`, "preview_loader", "");
-      }
-    }
-  }, [parentIssueId, projectId, setSubIssueHelpers, subIssueHelpersByIssueId, subIssueOperations, workspaceSlug]);
-
+  // Mark as visible when data is loaded
   useEffect(() => {
-    handleFetchSubIssues();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [parentIssueId]);
+    if (subIssuesData && !subIssueHelpers.issue_visibility.includes(parentIssueId)) {
+      setSubIssueHelpers(`${parentIssueId}_root`, "issue_visibility", parentIssueId);
+    }
+  }, [subIssuesData, parentIssueId, subIssueHelpers.issue_visibility, setSubIssueHelpers]);
 
   // render conditions
   const shouldRenderDeleteIssueModal =

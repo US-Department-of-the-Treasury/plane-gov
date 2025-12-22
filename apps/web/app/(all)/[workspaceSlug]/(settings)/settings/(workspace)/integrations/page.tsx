@@ -11,16 +11,19 @@ import { IntegrationsSettingsLoader } from "@/components/ui/loader/settings/inte
 // constants
 import { APP_INTEGRATIONS } from "@/constants/fetch-keys";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 import { useUserPermissions } from "@/hooks/store/user";
 // services
 import { IntegrationService } from "@/services/integrations";
+import type { Route } from "./+types/page";
 
 const integrationService = new IntegrationService();
 
-function WorkspaceIntegrationsPage() {
+function WorkspaceIntegrationsPage({ params }: Route.ComponentProps) {
+  // router
+  const { workspaceSlug } = params;
   // store hooks
-  const { currentWorkspace } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   const { allowPermissions } = useUserPermissions();
 
   // derived values

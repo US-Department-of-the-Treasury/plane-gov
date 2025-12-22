@@ -8,7 +8,7 @@ import { CloseIcon } from "@plane/propel/icons";
 import type { IIssueLabel } from "@plane/types";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { useLabel } from "@/hooks/store/use-label";
+import { useUpdateLabel } from "@/store/queries/label";
 // components
 import type { TLabelOperationsCallbacks } from "./create-update-label-inline";
 import { CreateUpdateLabelInline } from "./create-update-label-inline";
@@ -50,13 +50,18 @@ export function ProjectSettingLabelItem(props: Props) {
   // router
   const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { updateLabel } = useLabel();
+  const { mutate: updateLabel } = useUpdateLabel();
 
   const removeFromGroup = (label: IIssueLabel) => {
     if (!workspaceSlug || !projectId) return;
 
-    updateLabel(workspaceSlug.toString(), projectId.toString(), label.id, {
-      parent: null,
+    updateLabel({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      labelId: label.id,
+      data: {
+        parent: null,
+      },
     });
   };
 

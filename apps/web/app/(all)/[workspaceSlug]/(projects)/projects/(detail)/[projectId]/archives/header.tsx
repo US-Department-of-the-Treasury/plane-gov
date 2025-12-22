@@ -9,7 +9,7 @@ import { Breadcrumbs, Header } from "@plane/ui";
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects } from "@/store/queries/project";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web imports
@@ -48,11 +48,12 @@ export const ProjectArchivesHeader = observer(function ProjectArchivesHeader(pro
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId } = useParams();
+  // queries
+  const { isLoading } = useProjects(workspaceSlug?.toString() ?? "");
   // store hooks
   const {
     issues: { getGroupIssueCount },
   } = useIssues(EIssuesStoreType.ARCHIVED);
-  const { loader } = useProject();
   // hooks
   const { isMobile } = usePlatformOS();
 
@@ -65,7 +66,7 @@ export const ProjectArchivesHeader = observer(function ProjectArchivesHeader(pro
     <Header>
       <Header.LeftItem>
         <div className="flex items-center gap-2.5">
-          <Breadcrumbs onBack={router.back} isLoading={loader === "init-loader"}>
+          <Breadcrumbs onBack={router.back} isLoading={isLoading}>
             <CommonProjectBreadcrumbs workspaceSlug={workspaceSlug?.toString()} projectId={projectId?.toString()} />
             <Breadcrumbs.Item
               component={

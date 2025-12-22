@@ -7,9 +7,10 @@ import { EmptyState } from "@/components/common/empty-state";
 import { PageHead } from "@/components/core/page-title";
 import { ProjectViewLayoutRoot } from "@/components/issues/issue-layouts/roots/project-view-layout-root";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { useProjectView } from "@/hooks/store/use-project-view";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 import type { Route } from "./+types/page";
 
 function ProjectViewIssuesPage({ params }: Route.ComponentProps) {
@@ -18,10 +19,10 @@ function ProjectViewIssuesPage({ params }: Route.ComponentProps) {
   const { workspaceSlug, projectId, viewId } = params;
   // store hooks
   const { fetchViewDetails, getViewById } = useProjectView();
-  const { getProjectById } = useProject();
+  // queries
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
   // derived values
   const projectView = getViewById(viewId);
-  const project = getProjectById(projectId);
   const pageTitle = project?.name && projectView?.name ? `${project?.name} - ${projectView?.name}` : undefined;
 
   const { error } = useSWR(`VIEW_DETAILS_${viewId}`, () => fetchViewDetails(workspaceSlug, projectId, viewId));

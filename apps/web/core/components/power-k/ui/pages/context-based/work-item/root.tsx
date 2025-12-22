@@ -6,7 +6,7 @@ import { EIssueServiceType } from "@plane/types";
 import type { TPowerKPageType } from "@/components/power-k/core/types";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
+import { useProjectMembers } from "@/store/queries/member";
 // local imports
 import { PowerKMembersMenu } from "../../../../menus/members";
 import { PowerKWorkItemSprintsMenu } from "./sprints-menu";
@@ -24,18 +24,19 @@ type Props = {
 export const PowerKWorkItemContextBasedPages = observer(function PowerKWorkItemContextBasedPages(props: Props) {
   const { activePage, handleSelection } = props;
   // navigation
-  const { workItem: entityIdentifier } = useParams();
+  const { workItem: entityIdentifier, workspaceSlug, projectId } = useParams();
   // store hooks
   const {
     issue: { getIssueById, getIssueIdByIdentifier },
   } = useIssueDetail(EIssueServiceType.ISSUES);
-  const {
-    project: { getProjectMemberIds },
-  } = useMember();
   // derived values
   const entityId = entityIdentifier ? getIssueIdByIdentifier(entityIdentifier.toString()) : null;
   const entityDetails = entityId ? getIssueById(entityId) : null;
-  const projectMemberIds = entityDetails?.project_id ? getProjectMemberIds(entityDetails.project_id, false) : [];
+  // queries
+  const { data: projectMembers = [] } = useProjectMembers(
+    workspaceSlug?.toString() ?? "",
+    entityDetails?.project_id ?? ""
+  );
 
   if (!entityDetails) return null;
 
@@ -53,7 +54,11 @@ export const PowerKWorkItemContextBasedPages = observer(function PowerKWorkItemC
       {activePage === "update-work-item-assignee" && (
         <PowerKMembersMenu
           handleSelect={handleSelection}
-          userIds={projectMemberIds ?? undefined}
+          members={projectMembers.map((m) => ({
+            id: m.member,
+            display_name: m.member_display_name || m.member_email || "",
+            avatar_url: m.member_avatar_url,
+          }))}
           value={entityDetails.assignee_ids}
         />
       )}

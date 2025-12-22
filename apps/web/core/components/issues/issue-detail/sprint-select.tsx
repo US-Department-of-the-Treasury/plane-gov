@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 // hooks
@@ -8,6 +8,8 @@ import { SprintDropdown } from "@/components/dropdowns/sprint";
 // ui
 // helpers
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// queries
+import { useAddIssueToSprint, useRemoveIssueFromSprint } from "@/store/queries/issue";
 // types
 import type { TIssueOperations } from "./root";
 
@@ -23,22 +25,30 @@ type TIssueSprintSelect = {
 export const IssueSprintSelect = observer(function IssueSprintSelect(props: TIssueSprintSelect) {
   const { className = "", workspaceSlug, projectId, issueId, issueOperations, disabled = false } = props;
   const { t } = useTranslation();
-  // states
-  const [isUpdating, setIsUpdating] = useState(false);
-  // store hooks
+
+  // store hooks (for issue data)
   const {
     issue: { getIssueById },
   } = useIssueDetail();
+
+  // queries
+  const { mutate: addToSprint, isPending: isAdding } = useAddIssueToSprint();
+  const { mutate: removeFromSprint, isPending: isRemoving } = useRemoveIssueFromSprint();
+
   // derived values
   const issue = getIssueById(issueId);
+  const isUpdating = isAdding || isRemoving;
   const disableSelect = disabled || isUpdating;
 
   const handleIssueSprintChange = async (sprintId: string | null) => {
     if (!issue || issue.sprint_id === sprintId) return;
-    setIsUpdating(true);
-    if (sprintId) await issueOperations.addSprintToIssue?.(workspaceSlug, projectId, sprintId, issueId);
-    else await issueOperations.removeIssueFromSprint?.(workspaceSlug, projectId, issue.sprint_id ?? "", issueId);
-    setIsUpdating(false);
+
+    if (sprintId) {
+      addToSprint({ workspaceSlug, projectId, sprintId, issueIds: [issueId] });
+    } else if (issue.sprint_id) {
+      // Need bridgeId for removal - use issueOperations fallback for now
+      await issueOperations.removeIssueFromSprint?.(workspaceSlug, projectId, issue.sprint_id, issueId);
+    }
   };
 
   return (

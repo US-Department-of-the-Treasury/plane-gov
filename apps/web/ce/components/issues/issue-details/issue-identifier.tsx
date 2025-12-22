@@ -1,23 +1,31 @@
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane imports
 import type { TIssueIdentifierProps, TIssueTypeIdentifier } from "@plane/types";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useIssue } from "@/store/queries/issue";
 import { IdentifierText } from "@/components/issues/issue-detail/identifier-text";
 
 export const IssueIdentifier = observer(function IssueIdentifier(props: TIssueIdentifierProps) {
   const { projectId, variant, size, displayProperties, enableClickToCopyIdentifier = false } = props;
   // store hooks
-  const { getProjectIdentifierById } = useProject();
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  const { workspaceSlug } = useParams();
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
+
   // Determine if the component is using store data or not
   const isUsingStoreData = "issueId" in props;
+
+  // TanStack Query - fetch issue if using store data
+  const { data: issue } = useIssue(
+    workspaceSlug?.toString() ?? "",
+    projectId ?? "",
+    isUsingStoreData ? props.issueId : ""
+  );
+
   // derived values
-  const issue = isUsingStoreData ? getIssueById(props.issueId) : null;
-  const projectIdentifier = isUsingStoreData ? getProjectIdentifierById(projectId) : props.projectIdentifier;
+  const project = getProjectById(projects, projectId);
+  const projectIdentifier = isUsingStoreData ? project?.identifier : props.projectIdentifier;
   const issueSequenceId = isUsingStoreData ? issue?.sequence_id : props.issueSequenceId;
   const shouldRenderIssueID = displayProperties ? displayProperties.key : true;
 

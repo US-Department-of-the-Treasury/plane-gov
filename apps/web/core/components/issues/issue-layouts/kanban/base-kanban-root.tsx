@@ -18,6 +18,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { useGroupIssuesDragNDrop } from "@/hooks/use-group-dragndrop";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
+import { useIssue } from "@/store/queries/issue";
 // store
 // ui
 // types
@@ -66,6 +67,14 @@ export const BaseKanBanRoot = observer(function BaseKanBanRoot(props: IBaseKanBa
   const {
     issue: { getIssueById },
   } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
+
+  // Try TanStack Query for draggedIssue (fallback to MobX if not available)
+  const draggedIssueFromMobX = getIssueById(draggedIssueId ?? "");
+  const { data: draggedIssueFromQuery } = useIssue(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? draggedIssueFromMobX?.project_id ?? "",
+    draggedIssueId ?? "",
+  );
   const {
     fetchIssues,
     fetchNextIssues,
@@ -196,7 +205,7 @@ export const BaseKanBanRoot = observer(function BaseKanBanRoot(props: IBaseKanBa
   );
 
   const handleDeleteIssue = async () => {
-    const draggedIssue = getIssueById(draggedIssueId ?? "");
+    const draggedIssue = draggedIssueFromQuery ?? draggedIssueFromMobX;
 
     if (!draggedIssueId || !draggedIssue) return;
 

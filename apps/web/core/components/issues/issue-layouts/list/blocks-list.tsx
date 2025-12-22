@@ -46,7 +46,6 @@ export function IssueBlocksList(props: Props) {
           <IssueBlockRoot
             key={issueId}
             issueId={issueId}
-            issuesMap={issuesMap}
             updateIssue={updateIssue}
             quickActions={quickActions}
             canEditProperties={canEditProperties}

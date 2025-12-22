@@ -1,5 +1,4 @@
 import { useCallback, useRef } from "react";
-import { observer } from "mobx-react";
 import { Copy } from "lucide-react";
 // plane imports
 import type { EditorRefApi } from "@plane/editor";
@@ -14,8 +13,8 @@ import { calculateTimeAgo, cn, getFileURL } from "@plane/utils";
 // components
 import { RichTextEditor } from "@/components/editor/rich-text";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 import { IconButton } from "@plane/propel/icon-button";
 
 type Props = {
@@ -32,7 +31,7 @@ type Props = {
   workspaceSlug: string;
 };
 
-export const DescriptionVersionsModal = observer(function DescriptionVersionsModal(props: Props) {
+export function DescriptionVersionsModal(props: Props) {
   const {
     activeVersionDescription,
     activeVersionDetails,
@@ -49,12 +48,12 @@ export const DescriptionVersionsModal = observer(function DescriptionVersionsMod
   // refs
   const editorRef = useRef<EditorRefApi>(null);
   // store hooks
-  const { getUserDetails } = useMember();
-  const { getWorkspaceBySlug } = useWorkspace();
+  const { data: members } = useWorkspaceMembers(workspaceSlug);
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   // derived values
   const activeVersionId = activeVersionDetails?.id;
-  const workspaceId = getWorkspaceBySlug(workspaceSlug)?.id;
-  const versionCreator = activeVersionDetails?.owned_by ? getUserDetails(activeVersionDetails.owned_by) : null;
+  const workspaceId = currentWorkspace?.id;
+  const versionCreator = activeVersionDetails?.owned_by ? getWorkspaceMemberByUserId(members, activeVersionDetails.owned_by) : null;
   // translation
   const { t } = useTranslation();
 
@@ -176,4 +175,4 @@ export const DescriptionVersionsModal = observer(function DescriptionVersionsMod
       </div>
     </ModalCore>
   );
-});
+}

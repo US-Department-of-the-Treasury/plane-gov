@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
 import { isEqual, cloneDeep } from "lodash-es";
-import { observer } from "mobx-react";
 // plane imports
 import { DEFAULT_GLOBAL_VIEWS_LIST, EUserPermissionsLevel, GLOBAL_VIEW_TRACKER_EVENTS } from "@plane/constants";
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
@@ -12,10 +11,10 @@ import { CreateUpdateWorkspaceViewModal } from "@/components/workspace/views/mod
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useGlobalView } from "@/hooks/store/use-global-view";
-import { useLabel } from "@/hooks/store/use-label";
-import { useMember } from "@/hooks/store/use-member";
-import { useProject } from "@/hooks/store/use-project";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
+import { useWorkspaceLabels } from "@/store/queries/label";
+import { useWorkspaceMembers } from "@/store/queries/member";
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 // local imports
 import { WorkItemFiltersHOC } from "./base";
 import type { TEnableSaveViewProps, TEnableUpdateViewProps, TSharedWorkItemFiltersHOCProps } from "./shared";
@@ -25,9 +24,7 @@ type TWorkspaceLevelWorkItemFiltersHOCProps = TSharedWorkItemFiltersHOCProps & {
 } & TEnableSaveViewProps &
   TEnableUpdateViewProps;
 
-export const WorkspaceLevelWorkItemFiltersHOC = observer(function WorkspaceLevelWorkItemFiltersHOC(
-  props: TWorkspaceLevelWorkItemFiltersHOCProps
-) {
+export function WorkspaceLevelWorkItemFiltersHOC(props: TWorkspaceLevelWorkItemFiltersHOCProps) {
   const { children, enableSaveView, enableUpdateView, entityId, initialWorkItemFilters, workspaceSlug } = props;
   // states
   const [isCreateViewModalOpen, setIsCreateViewModalOpen] = useState(false);
@@ -36,11 +33,12 @@ export const WorkspaceLevelWorkItemFiltersHOC = observer(function WorkspaceLevel
   const { getViewDetailsById, updateGlobalView } = useGlobalView();
   const { data: currentUser } = useUser();
   const { allowPermissions } = useUserPermissions();
-  const { joinedProjectIds } = useProject();
-  const {
-    workspace: { getWorkspaceMemberIds },
-  } = useMember();
-  const { getWorkspaceLabelIds } = useLabel();
+
+  // queries
+  const { data: workspaceLabels } = useWorkspaceLabels(workspaceSlug);
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug);
+  const { data: projects } = useProjects(workspaceSlug);
+  const joinedProjectIds = getJoinedProjectIds(projects);
   // derived values
   const hasWorkspaceMemberLevelPermissions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
@@ -195,8 +193,8 @@ export const WorkspaceLevelWorkItemFiltersHOC = observer(function WorkspaceLevel
       />
       <WorkItemFiltersHOC
         {...props}
-        memberIds={getWorkspaceMemberIds(workspaceSlug)}
-        labelIds={getWorkspaceLabelIds(workspaceSlug)}
+        memberIds={workspaceMembers.map((member) => member.member)}
+        labelIds={workspaceLabels?.map((label) => label.id) ?? []}
         projectIds={joinedProjectIds}
         saveViewOptions={saveViewOptions}
         updateViewOptions={updateViewOptions}
@@ -205,4 +203,4 @@ export const WorkspaceLevelWorkItemFiltersHOC = observer(function WorkspaceLevel
       </WorkItemFiltersHOC>
     </>
   );
-});
+}

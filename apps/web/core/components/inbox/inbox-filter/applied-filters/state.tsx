@@ -1,19 +1,24 @@
 import type { FC } from "react";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import { EIconSize } from "@plane/constants";
 import { StateGroupIcon, CloseIcon } from "@plane/propel/icons";
 import { Tag } from "@plane/ui";
 // hooks
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 
 export const InboxIssueAppliedFiltersState = observer(function InboxIssueAppliedFiltersState() {
   // hooks
+  const { workspaceSlug, projectId } = useParams();
   const { inboxFilters, handleInboxIssueFilters } = useProjectInbox();
-  const { getStateById } = useProjectState();
+  const { data: projectStates } = useProjectStates(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   // derived values
   const filteredValues = inboxFilters?.state || [];
-  const currentOptionDetail = (stateId: string) => getStateById(stateId) || undefined;
+  const currentOptionDetail = (stateId: string) => getStateById(projectStates ?? [], stateId) || undefined;
 
   const handleFilterValue = (value: string): string[] =>
     filteredValues?.includes(value) ? filteredValues.filter((v) => v !== value) : [...filteredValues, value];

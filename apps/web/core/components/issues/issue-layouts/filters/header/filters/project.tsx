@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // ui
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { Loader } from "@plane/ui";
 // components
 import { FilterHeader, FilterOption } from "@/components/issues/issue-layouts/filters";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getJoinedProjects } from "@/store/queries/project";
 
 type Props = {
   appliedFilters: string[] | null;
@@ -20,10 +21,12 @@ export const FilterProjects = observer(function FilterProjects(props: Props) {
   // states
   const [itemsToRender, setItemsToRender] = useState(5);
   const [previewEnabled, setPreviewEnabled] = useState(true);
+  // router
+  const { workspaceSlug } = useParams();
   // store
-  const { getProjectById, joinedProjectIds } = useProject();
+  const { data: allProjects } = useProjects(workspaceSlug?.toString() ?? "");
   // derived values
-  const projects = joinedProjectIds?.map((projectId) => getProjectById(projectId)!) ?? null;
+  const projects = getJoinedProjects(allProjects);
   const appliedFiltersCount = appliedFilters?.length ?? 0;
 
   const sortedOptions = useMemo(() => {

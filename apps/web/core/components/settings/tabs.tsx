@@ -2,7 +2,8 @@ import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { cn } from "@plane/utils";
-import { useProject } from "@/hooks/store/use-project";
+// store queries
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 
 const TABS = {
   account: {
@@ -27,7 +28,10 @@ const SettingsTabs = observer(function SettingsTabs() {
   const pathname = usePathname();
   const { workspaceSlug } = useParams();
   // store hooks
-  const { joinedProjectIds } = useProject();
+  const { data: projects } = useProjects(workspaceSlug as string);
+
+  // derived values
+  const joinedProjectIds = getJoinedProjectIds(projects);
 
   const currentTab = pathname.includes(TABS.projects.href)
     ? TABS.projects

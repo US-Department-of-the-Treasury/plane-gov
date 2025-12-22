@@ -11,7 +11,7 @@ import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { EFileAssetType } from "@plane/types";
 import { getAssetIdFromUrl, getFileURL, checkURLValidity } from "@plane/utils";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails, useUpdateWorkspace } from "@/store/queries/workspace";
 // services
 import { FileService } from "@/services/file.service";
 
@@ -35,7 +35,8 @@ export const WorkspaceImageUploadModal = observer(function WorkspaceImageUploadM
   // router
   const { workspaceSlug } = useParams();
   // store hooks
-  const { currentWorkspace, updateWorkspaceLogo } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug as string);
+  const { mutate: updateWorkspace } = useUpdateWorkspace();
 
   const onDrop = (acceptedFiles: File[]) => setImage(acceptedFiles[0]);
 
@@ -67,7 +68,10 @@ export const WorkspaceImageUploadModal = observer(function WorkspaceImageUploadM
         },
         image
       );
-      updateWorkspaceLogo(workspaceSlug.toString(), asset_url);
+      updateWorkspace({
+        workspaceSlug: workspaceSlug.toString(),
+        data: { logo_url: asset_url },
+      });
       onSuccess(asset_url);
     } catch (error: any) {
       console.log("error", error);

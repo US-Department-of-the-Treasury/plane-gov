@@ -4,7 +4,7 @@ import type { TSprintEstimateType } from "@plane/types";
 import { EEstimateSystem } from "@plane/types";
 import { CustomSelect } from "@plane/ui";
 import { useProjectEstimates } from "@/hooks/store/estimates";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useSprintDetails } from "@/store/queries/sprint";
 // local imports
 import { sprintEstimateOptions } from "../analytics-sidebar/issue-progress";
 
@@ -14,14 +14,16 @@ type TProps = {
   showDefault?: boolean;
   projectId: string;
   sprintId: string;
+  workspaceSlug?: string;
 };
 
 export const EstimateTypeDropdown = observer(function EstimateTypeDropdown(props: TProps) {
-  const { value, onChange, projectId, sprintId, showDefault = false } = props;
-  const { getIsPointsDataAvailable } = useSprint();
+  const { value, onChange, projectId, sprintId, showDefault = false, workspaceSlug = "" } = props;
+  const { data: sprintData } = useSprintDetails(workspaceSlug, projectId, sprintId);
+  const isPointsDataAvailable = !!(sprintData?.estimate_distribution || sprintData?.total_estimate_points);
   const { areEstimateEnabledByProjectId, currentProjectEstimateType } = useProjectEstimates();
   const isCurrentProjectEstimateEnabled = projectId && areEstimateEnabledByProjectId(projectId) ? true : false;
-  return (getIsPointsDataAvailable(sprintId) || isCurrentProjectEstimateEnabled) &&
+  return (isPointsDataAvailable || isCurrentProjectEstimateEnabled) &&
     currentProjectEstimateType !== EEstimateSystem.CATEGORIES ? (
     <div className="relative flex items-center gap-2">
       <CustomSelect

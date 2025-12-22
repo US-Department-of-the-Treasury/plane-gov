@@ -43,6 +43,8 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 import { IconButton } from "@plane/propel/icon-button";
+// tanstack query
+import { useProjectDetails } from "@/store/queries/project";
 
 export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
   // refs
@@ -64,7 +66,11 @@ export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
   const { projectEpicIds, getEpicById } = useEpic();
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
-  const { currentProjectDetails, loader } = useProject();
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+  const loader = isLoading ? "init-loader" : undefined;
   // local storage
   const { setValue, storedValue } = useLocalStorage("epic_sidebar_collapsed", "false");
   // derived values

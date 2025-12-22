@@ -5,18 +5,17 @@ import { useTranslation } from "@plane/i18n";
 import { PageHead } from "@/components/core/page-title";
 import { ProjectLayoutRoot } from "@/components/issues/issue-layouts/roots/project-layout-root";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import type { Route } from "./+types/page";
 
 function ProjectIssuesPage({ params }: Route.ComponentProps) {
-  const { projectId } = params;
+  const { workspaceSlug, projectId } = params;
   // i18n
   const { t } = useTranslation();
-  // store
-  const { getProjectById } = useProject();
+  // queries
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
 
   // derived values
-  const project = getProjectById(projectId);
   const pageTitle = project?.name ? `${project?.name} - ${t("issue.label", { count: 2 })}` : undefined; // Count is for pluralization
 
   return (

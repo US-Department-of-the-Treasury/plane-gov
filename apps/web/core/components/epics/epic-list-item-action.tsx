@@ -29,9 +29,9 @@ import { EpicStatusDropdown } from "@/components/epics/epic-status-dropdown";
 // helpers
 import { captureElementAndEvent, captureError } from "@/helpers/event-tracker.helper";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useEpic } from "@/hooks/store/use-epic";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { ButtonAvatars } from "../dropdowns/member/avatar";
 
 type Props = {
@@ -47,7 +47,8 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
   //   store hooks
   const { allowPermissions } = useUserPermissions();
   const { addEpicToFavorites, removeEpicFromFavorites, updateEpicDetails } = useEpic();
-  const { getUserDetails } = useMember();
+  // query hooks
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
 
   const { t } = useTranslation();
 
@@ -168,7 +169,7 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
       });
   };
 
-  const epicLeadDetails = epicDetails.lead_id ? getUserDetails(epicDetails.lead_id) : undefined;
+  const epicLeadDetails = epicDetails.lead_id ? getWorkspaceMemberByUserId(workspaceMembers, epicDetails.lead_id) : undefined;
 
   return (
     <>

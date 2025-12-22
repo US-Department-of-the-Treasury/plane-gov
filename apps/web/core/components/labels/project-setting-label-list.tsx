@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, PROJECT_SETTINGS_TRACKER_ELEMENTS } from "@plane/constants";
@@ -16,12 +15,18 @@ import {
 } from "@/components/labels";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { useLabel } from "@/hooks/store/use-label";
 import { useUserPermissions } from "@/hooks/store/user";
+import {
+  useProjectLabels,
+  useProjectLabelTree,
+  useCreateLabel,
+  useUpdateLabel,
+  useUpdateLabelPosition,
+} from "@/store/queries/label";
 // local imports
 import { SettingsHeading } from "../settings/heading";
 
-export const ProjectSettingsLabelList = observer(function ProjectSettingsLabelList() {
+export function ProjectSettingsLabelList() {
   // router
   const { workspaceSlug, projectId } = useParams();
   // refs
@@ -33,14 +38,19 @@ export const ProjectSettingsLabelList = observer(function ProjectSettingsLabelLi
   // plane hooks
   const { t } = useTranslation();
   // store hooks
-  const { projectLabels, updateLabelPosition, projectLabelsTree, createLabel, updateLabel } = useLabel();
+  const { data: projectLabels } = useProjectLabels(workspaceSlug?.toString(), projectId?.toString());
+  const { data: projectLabelsTree } = useProjectLabelTree(workspaceSlug?.toString(), projectId?.toString());
+  const { mutateAsync: createLabel } = useCreateLabel();
+  const { mutateAsync: updateLabel } = useUpdateLabel();
+  const { mutate: updateLabelPosition } = useUpdateLabelPosition();
   const { allowPermissions } = useUserPermissions();
   // derived values
   const isEditable = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT);
   const labelOperationsCallbacks: TLabelOperationsCallbacks = {
-    createLabel: (data: Partial<IIssueLabel>) => createLabel(workspaceSlug?.toString(), projectId?.toString(), data),
+    createLabel: (data: Partial<IIssueLabel>) =>
+      createLabel({ workspaceSlug: workspaceSlug?.toString(), projectId: projectId?.toString(), data }),
     updateLabel: (labelId: string, data: Partial<IIssueLabel>) =>
-      updateLabel(workspaceSlug?.toString(), projectId?.toString(), labelId, data),
+      updateLabel({ workspaceSlug: workspaceSlug?.toString(), projectId: projectId?.toString(), labelId, data }),
   };
 
   const newLabel = () => {
@@ -55,14 +65,14 @@ export const ProjectSettingsLabelList = observer(function ProjectSettingsLabelLi
     dropAtEndOfList: boolean
   ) => {
     if (workspaceSlug && projectId) {
-      updateLabelPosition(
-        workspaceSlug?.toString(),
-        projectId?.toString(),
+      updateLabelPosition({
+        workspaceSlug: workspaceSlug?.toString(),
+        projectId: projectId?.toString(),
         draggingLabelId,
         droppedParentId,
         droppedLabelId,
-        dropAtEndOfList
-      );
+        dropAtEndOfList,
+      });
       return;
     }
   };
@@ -176,4 +186,4 @@ export const ProjectSettingsLabelList = observer(function ProjectSettingsLabelLi
       </div>
     </>
   );
-});
+}

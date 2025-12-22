@@ -17,7 +17,7 @@ import { Button } from "@plane/propel/button";
 import { IconButton } from "@plane/propel/icon-button";
 import { SprintIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
-import type { ICustomSearchSelectOption, IIssueDisplayFilterOptions, IIssueDisplayProperties } from "@plane/types";
+import type { ICustomSearchSelectOption, IIssueDisplayFilterOptions, IIssueDisplayProperties, ISprint } from "@plane/types";
 import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
 import { Breadcrumbs, BreadcrumbNavigationSearchDropdown, Header } from "@plane/ui";
 import { cn } from "@plane/utils";
@@ -35,9 +35,9 @@ import {
 import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-toggle";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import useLocalStorage from "@/hooks/use-local-storage";
@@ -59,11 +59,17 @@ export const SprintIssuesHeader = observer(function SprintIssuesHeader() {
     issuesFilter: { issueFilters, updateFilters },
     issues: { getGroupIssueCount },
   } = useIssues(EIssuesStoreType.SPRINT);
-  const { currentProjectSprintIds, getSprintById } = useSprint();
   const { toggleCreateIssueModal } = useCommandPalette();
-  const { currentProjectDetails, loader } = useProject();
   const { isMobile } = usePlatformOS();
   const { allowPermissions } = useUserPermissions();
+
+  // TanStack Query
+  const { data: sprints } = useProjectSprints(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+  const loader = isLoading ? "init-loader" : undefined;
 
   const activeLayout = issueFilters?.displayFilters?.layout;
 
@@ -99,24 +105,21 @@ export const SprintIssuesHeader = observer(function SprintIssuesHeader() {
   );
 
   // derived values
-  const sprintDetails = sprintId ? getSprintById(sprintId.toString()) : undefined;
+  const sprintDetails = sprintId ? getSprintById(sprints, sprintId.toString()) : undefined;
   const isCompletedSprint = sprintDetails?.status?.toLocaleLowerCase() === "completed";
   const canUserCreateIssue = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT
   );
 
-  const switcherOptions = currentProjectSprintIds
-    ?.map((id) => {
-      const _sprint = id === sprintId ? sprintDetails : getSprintById(id);
-      if (!_sprint) return;
+  const switcherOptions = (sprints
+    ?.map((sprint: ISprint): ICustomSearchSelectOption => {
       return {
-        value: _sprint.id,
-        query: _sprint.name,
-        content: <SwitcherLabel name={_sprint.name} LabelIcon={SprintIcon} />,
+        value: sprint.id,
+        query: sprint.name,
+        content: <SwitcherLabel name={sprint.name} LabelIcon={SprintIcon} />,
       };
-    })
-    .filter((option) => option !== undefined) as ICustomSearchSelectOption[];
+    }) ?? []) as ICustomSearchSelectOption[];
 
   const workItemsCount = getGroupIssueCount(undefined, undefined, false);
 

@@ -16,14 +16,18 @@ import {
 } from "@/components/issues/issue-layouts/filters";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 
 export const ProjectIssuesMobileHeader = observer(function ProjectIssuesMobileHeader() {
   // i18n
   const { t } = useTranslation();
   const [analyticsModal, setAnalyticsModal] = useState(false);
   const { workspaceSlug, projectId } = useParams();
-  const { currentProjectDetails } = useProject();
+  // queries
+  const { data: currentProjectDetails } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
 
   // store hooks
   const {

@@ -18,8 +18,9 @@ import { TimezoneSelect } from "@/components/global";
 import { DEFAULT_COVER_IMAGE_URL, getCoverImageDisplayURL, handleCoverImageChange } from "@/helpers/cover-image.helper";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// store queries
+import { useUpdateProject } from "@/store/queries/project";
 // services
 import { ProjectService } from "@/services/project";
 // local imports
@@ -40,7 +41,7 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   // store hooks
-  const { updateProject } = useProject();
+  const { mutate: updateProjectMutation } = useUpdateProject();
   const { isMobile } = usePlatformOS();
 
   // form info
@@ -83,68 +84,77 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
 
   const handleUpdateChange = async (payload: Partial<IProject>) => {
     if (!workspaceSlug || !project) return;
-    return updateProject(workspaceSlug.toString(), project.id, payload)
-      .then(() => {
-        captureSuccess({
-          eventName: PROJECT_TRACKER_EVENTS.update,
-          payload: {
-            id: projectId,
-          },
-        });
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: t("toast.success"),
-          message: t("project_settings.general.toast.success"),
-        });
-      })
-      .catch((err) => {
-        try {
-          captureError({
-            eventName: PROJECT_TRACKER_EVENTS.update,
-            payload: {
-              id: projectId,
-            },
-          });
 
-          // Handle the new error format where codes are nested in arrays under field names
-          const errorData = err ?? {};
-
-          const nameError = errorData.name?.includes("PROJECT_NAME_ALREADY_EXIST");
-          const identifierError = errorData?.identifier?.includes("PROJECT_IDENTIFIER_ALREADY_EXIST");
-
-          if (nameError || identifierError) {
-            if (nameError) {
-              setToast({
-                type: TOAST_TYPE.ERROR,
-                title: t("toast.error"),
-                message: t("project_name_already_taken"),
-              });
-            }
-
-            if (identifierError) {
-              setToast({
-                type: TOAST_TYPE.ERROR,
-                title: t("toast.error"),
-                message: t("project_identifier_already_taken"),
-              });
-            }
-          } else {
-            setToast({
-              type: TOAST_TYPE.ERROR,
-              title: t("toast.error"),
-              message: t("something_went_wrong"),
+    return new Promise((resolve, reject) => {
+      updateProjectMutation(
+        { workspaceSlug: workspaceSlug.toString(), projectId: project.id, data: payload },
+        {
+          onSuccess: () => {
+            captureSuccess({
+              eventName: PROJECT_TRACKER_EVENTS.update,
+              payload: {
+                id: projectId,
+              },
             });
-          }
-        } catch (error) {
-          // Fallback error handling if the error processing fails
-          console.error("Error processing API error:", error);
-          setToast({
-            type: TOAST_TYPE.ERROR,
-            title: t("toast.error"),
-            message: t("something_went_wrong"),
-          });
+            setToast({
+              type: TOAST_TYPE.SUCCESS,
+              title: t("toast.success"),
+              message: t("project_settings.general.toast.success"),
+            });
+            resolve(undefined);
+          },
+          onError: (err: any) => {
+            try {
+              captureError({
+                eventName: PROJECT_TRACKER_EVENTS.update,
+                payload: {
+                  id: projectId,
+                },
+              });
+
+              // Handle the new error format where codes are nested in arrays under field names
+              const errorData = err ?? {};
+
+              const nameError = errorData.name?.includes("PROJECT_NAME_ALREADY_EXIST");
+              const identifierError = errorData?.identifier?.includes("PROJECT_IDENTIFIER_ALREADY_EXIST");
+
+              if (nameError || identifierError) {
+                if (nameError) {
+                  setToast({
+                    type: TOAST_TYPE.ERROR,
+                    title: t("toast.error"),
+                    message: t("project_name_already_taken"),
+                  });
+                }
+
+                if (identifierError) {
+                  setToast({
+                    type: TOAST_TYPE.ERROR,
+                    title: t("toast.error"),
+                    message: t("project_identifier_already_taken"),
+                  });
+                }
+              } else {
+                setToast({
+                  type: TOAST_TYPE.ERROR,
+                  title: t("toast.error"),
+                  message: t("something_went_wrong"),
+                });
+              }
+            } catch (error) {
+              // Fallback error handling if the error processing fails
+              console.error("Error processing API error:", error);
+              setToast({
+                type: TOAST_TYPE.ERROR,
+                title: t("toast.error"),
+                message: t("something_went_wrong"),
+              });
+            }
+            reject(err);
+          },
         }
-      });
+      );
+    });
   };
 
   const onSubmit = async (formData: IProject) => {

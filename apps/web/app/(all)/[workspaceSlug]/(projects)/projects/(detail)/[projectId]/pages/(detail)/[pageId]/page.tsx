@@ -18,8 +18,8 @@ import { PageRoot } from "@/components/pages/editor/page-root";
 // hooks
 import { useEditorConfig } from "@/hooks/editor";
 import { useEditorAsset } from "@/hooks/store/use-editor-asset";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // plane web hooks
 import { EPageStoreType, usePage, usePageStore } from "@/plane-web/hooks/store";
 // plane web services
@@ -43,10 +43,10 @@ function PageDetailsPage({ params }: Route.ComponentProps) {
     pageId,
     storeType,
   });
-  const { getWorkspaceBySlug } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   const { uploadEditorAsset, duplicateEditorAsset } = useEditorAsset();
   // derived values
-  const workspaceId = workspaceSlug ? (getWorkspaceBySlug(workspaceSlug)?.id ?? "") : "";
+  const workspaceId = currentWorkspace?.id ?? "";
   const { canCurrentUserAccessPage, id, name, updateDescription } = page ?? {};
   // entity search handler
   const fetchEntityCallback = useCallback(

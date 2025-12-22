@@ -11,7 +11,7 @@ import { CreateUpdateIssueModal } from "@/components/issues/issue-modal/modal";
 import { SidebarAddButton } from "@/components/sidebar/add-button";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import useLocalStorage from "@/hooks/use-local-storage";
 
@@ -28,7 +28,8 @@ export const SidebarQuickActions = observer(function SidebarQuickActions() {
   const workspaceSlug = routerWorkspaceSlug?.toString();
   // store hooks
   const { toggleCreateIssueModal } = useCommandPalette();
-  const { joinedProjectIds } = useProject();
+  const { data: projects = [] } = useProjects(workspaceSlug);
+  const joinedProjectIds = getJoinedProjectIds(projects);
   const { allowPermissions } = useUserPermissions();
   // local storage
   const { storedValue, setValue } = useLocalStorage<Record<string, Partial<TIssue>>>("draftedIssue", {});

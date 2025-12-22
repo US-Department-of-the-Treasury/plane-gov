@@ -13,10 +13,10 @@ import type { RowData } from "@/components/workspace/settings/member-columns";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUser, useUserPermissions, useUserSettings } from "@/hooks/store/user";
+import { useRemoveWorkspaceMember } from "@/store/queries/member";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useWorkspaces } from "@/store/queries/workspace";
 // plane web imports
 import { useMemberColumns } from "@/plane-web/components/workspace/settings/useMemberColumns";
 
@@ -31,12 +31,10 @@ export const WorkspaceMembersListItem = observer(function WorkspaceMembersListIt
   const router = useAppRouter();
   // store hooks
   const { data: currentUser } = useUser();
-  const {
-    workspace: { removeMemberFromWorkspace },
-  } = useMember();
   const { leaveWorkspace } = useUserPermissions();
-  const { getWorkspaceRedirectionUrl, mutateWorkspaceMembersActivity } = useWorkspace();
-  const { fetchCurrentUserSettings } = useUserSettings();
+  const { data: workspaces } = useWorkspaces();
+  const { fetchCurrentUserSettings, data: currentUserSettings } = useUserSettings();
+  const { mutate: removeWorkspaceMember } = useRemoveWorkspaceMember();
   const { t } = useTranslation();
   // derived values
 
@@ -46,7 +44,20 @@ export const WorkspaceMembersListItem = observer(function WorkspaceMembersListIt
     try {
       await leaveWorkspace(workspaceSlug.toString());
       await fetchCurrentUserSettings();
-      router.push(getWorkspaceRedirectionUrl());
+
+      // Get workspace redirection URL
+      let redirectionRoute = "/create-workspace";
+      const currentWorkspaceSlug =
+        currentUserSettings?.workspace?.last_workspace_slug ||
+        currentUserSettings?.workspace?.fallback_workspace_slug;
+      const isCurrentWorkspaceValid = workspaces?.findIndex(
+        (workspace) => workspace.slug === currentWorkspaceSlug
+      );
+      if (isCurrentWorkspaceValid !== undefined && isCurrentWorkspaceValid >= 0) {
+        redirectionRoute = `/${currentWorkspaceSlug}`;
+      }
+
+      router.push(redirectionRoute);
       captureSuccess({
         eventName: MEMBER_TRACKER_EVENTS.workspace.leave,
         payload: {
@@ -75,8 +86,10 @@ export const WorkspaceMembersListItem = observer(function WorkspaceMembersListIt
     if (!workspaceSlug || !memberId) return;
 
     try {
-      await removeMemberFromWorkspace(workspaceSlug.toString(), memberId);
-      void mutateWorkspaceMembersActivity(workspaceSlug);
+      removeWorkspaceMember({
+        workspaceSlug: workspaceSlug.toString(),
+        memberId,
+      });
     } catch (err: unknown) {
       const error = err as { error?: string };
       setToast({

@@ -1,7 +1,4 @@
 import type { FC } from "react";
-import { useState } from "react";
-import { isNil } from "lodash-es";
-import { observer } from "mobx-react";
 import { Bell, BellOff } from "lucide-react";
 // plane-i18n
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -12,8 +9,9 @@ import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { EIssueServiceType } from "@plane/types";
 import { Loader } from "@plane/ui";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useUserPermissions } from "@/hooks/store/user";
+// queries
+import { useIssueSubscription, useToggleIssueSubscription } from "@/store/queries/issue";
 
 export type TIssueSubscription = {
   workspaceSlug: string;
@@ -22,21 +20,18 @@ export type TIssueSubscription = {
   serviceType?: EIssueServiceType;
 };
 
-export const IssueSubscription = observer(function IssueSubscription(props: TIssueSubscription) {
+export function IssueSubscription(props: TIssueSubscription) {
   const { workspaceSlug, projectId, issueId, serviceType = EIssueServiceType.ISSUES } = props;
   const { t } = useTranslation();
-  // hooks
-  const {
-    subscription: { getSubscriptionByIssueId },
-    createSubscription,
-    removeSubscription,
-  } = useIssueDetail(serviceType);
-  // state
-  const [loading, setLoading] = useState(false);
+
+  // queries
+  const { data: subscriptionData, isLoading } = useIssueSubscription(workspaceSlug, projectId, issueId);
+  const { mutate: toggleSubscription, isPending } = useToggleIssueSubscription();
+
   // hooks
   const { allowPermissions } = useUserPermissions();
 
-  const isSubscribed = getSubscriptionByIssueId(issueId);
+  const isSubscribed = subscriptionData?.subscribed;
   const isEditable = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT,
@@ -44,30 +39,36 @@ export const IssueSubscription = observer(function IssueSubscription(props: TIss
     projectId
   );
 
-  const handleSubscription = async () => {
-    setLoading(true);
-    try {
-      if (isSubscribed) await removeSubscription(workspaceSlug, projectId, issueId);
-      else await createSubscription(workspaceSlug, projectId, issueId);
-      setToast({
-        type: TOAST_TYPE.SUCCESS,
-        title: t("toast.success"),
-        message: isSubscribed
-          ? t("issue.subscription.actions.unsubscribed")
-          : t("issue.subscription.actions.subscribed"),
-      });
-      setLoading(false);
-    } catch {
-      setLoading(false);
-      setToast({
-        type: TOAST_TYPE.ERROR,
-        title: t("toast.error"),
-        message: t("common.error.message"),
-      });
-    }
+  const handleSubscription = () => {
+    toggleSubscription(
+      {
+        workspaceSlug,
+        projectId,
+        issueId,
+        subscribed: !isSubscribed
+      },
+      {
+        onSuccess: () => {
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: t("toast.success"),
+            message: isSubscribed
+              ? t("issue.subscription.actions.unsubscribed")
+              : t("issue.subscription.actions.subscribed"),
+          });
+        },
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: t("toast.error"),
+            message: t("common.error.message"),
+          });
+        },
+      }
+    );
   };
 
-  if (isNil(isSubscribed))
+  if (isLoading)
     return (
       <Loader>
         <Loader.Item width="106px" height="28px" />
@@ -81,10 +82,10 @@ export const IssueSubscription = observer(function IssueSubscription(props: TIss
         variant="secondary"
         className="hover:!bg-accent-primary/20"
         onClick={handleSubscription}
-        disabled={!isEditable || loading}
+        disabled={!isEditable || isPending}
         size="lg"
       >
-        {loading ? (
+        {isPending ? (
           <span>
             <span className="hidden sm:block">{t("common.loading")}</span>
           </span>
@@ -96,4 +97,4 @@ export const IssueSubscription = observer(function IssueSubscription(props: TIss
       </Button>
     </div>
   );
-});
+}

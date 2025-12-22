@@ -14,6 +14,8 @@ import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useAppRouter } from "@/hooks/use-app-router";
 import useLocalStorage from "@/hooks/use-local-storage";
+// tanstack query
+import { useProjectDetails } from "@/store/queries/project";
 import type { Route } from "./+types/page";
 
 function EpicIssuesPage({ params }: Route.ComponentProps) {
@@ -24,6 +26,7 @@ function EpicIssuesPage({ params }: Route.ComponentProps) {
   const { fetchEpicDetails, getEpicById } = useEpic();
   const { getProjectById } = useProject();
   // const { issuesFilter } = useIssues(EIssuesStoreType.EPIC);
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
   // local storage
   const { setValue, storedValue } = useLocalStorage("epic_sidebar_collapsed", "false");
   const isSidebarCollapsed = storedValue ? (storedValue === "true" ? true : false) : false;
@@ -33,7 +36,6 @@ function EpicIssuesPage({ params }: Route.ComponentProps) {
   );
   // derived values
   const projectEpic = getEpicById(epicId);
-  const project = getProjectById(projectId);
   const pageTitle = project?.name && projectEpic?.name ? `${project?.name} - ${projectEpic?.name}` : undefined;
 
   const toggleSidebar = () => {

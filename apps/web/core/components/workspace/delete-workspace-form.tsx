@@ -13,9 +13,9 @@ import { Input } from "@plane/ui";
 // hooks
 import { cn } from "@plane/utils";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserSettings } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useDeleteWorkspace, useWorkspaces } from "@/store/queries/workspace";
 
 type Props = {
   data: IWorkspace | null;
@@ -32,10 +32,10 @@ export const DeleteWorkspaceForm = observer(function DeleteWorkspaceForm(props: 
   // router
   const router = useAppRouter();
   // store hooks
-  const { deleteWorkspace } = useWorkspace();
+  const { mutate: deleteWorkspace } = useDeleteWorkspace();
+  const { data: workspaces } = useWorkspaces();
+  const { fetchCurrentUserSettings, data: currentUserSettings } = useUserSettings();
   const { t } = useTranslation();
-  const { getWorkspaceRedirectionUrl } = useWorkspace();
-  const { fetchCurrentUserSettings } = useUserSettings();
   // form info
   const {
     control,
@@ -59,33 +59,50 @@ export const DeleteWorkspaceForm = observer(function DeleteWorkspaceForm(props: 
   const onSubmit = async () => {
     if (!data || !canDelete) return;
 
-    await deleteWorkspace(data.slug)
-      .then(async () => {
-        await fetchCurrentUserSettings();
-        handleClose();
-        router.push(getWorkspaceRedirectionUrl());
-        captureSuccess({
-          eventName: WORKSPACE_TRACKER_EVENTS.delete,
-          payload: { slug: data.slug },
-        });
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: t("workspace_settings.settings.general.delete_modal.success_title"),
-          message: t("workspace_settings.settings.general.delete_modal.success_message"),
-        });
-      })
-      .catch(() => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: t("workspace_settings.settings.general.delete_modal.error_title"),
-          message: t("workspace_settings.settings.general.delete_modal.error_message"),
-        });
-        captureError({
-          eventName: WORKSPACE_TRACKER_EVENTS.delete,
-          payload: { slug: data.slug },
-          error: new Error("Error deleting workspace"),
-        });
-      });
+    deleteWorkspace(
+      { workspaceSlug: data.slug },
+      {
+        onSuccess: async () => {
+          await fetchCurrentUserSettings();
+          handleClose();
+
+          // Get workspace redirection URL
+          let redirectionRoute = "/create-workspace";
+          const currentWorkspaceSlug =
+            currentUserSettings?.workspace?.last_workspace_slug ||
+            currentUserSettings?.workspace?.fallback_workspace_slug;
+          const isCurrentWorkspaceValid = workspaces?.findIndex(
+            (workspace) => workspace.slug === currentWorkspaceSlug
+          );
+          if (isCurrentWorkspaceValid !== undefined && isCurrentWorkspaceValid >= 0) {
+            redirectionRoute = `/${currentWorkspaceSlug}`;
+          }
+
+          router.push(redirectionRoute);
+          captureSuccess({
+            eventName: WORKSPACE_TRACKER_EVENTS.delete,
+            payload: { slug: data.slug },
+          });
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: t("workspace_settings.settings.general.delete_modal.success_title"),
+            message: t("workspace_settings.settings.general.delete_modal.success_message"),
+          });
+        },
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: t("workspace_settings.settings.general.delete_modal.error_title"),
+            message: t("workspace_settings.settings.general.delete_modal.error_message"),
+          });
+          captureError({
+            eventName: WORKSPACE_TRACKER_EVENTS.delete,
+            payload: { slug: data.slug },
+            error: new Error("Error deleting workspace"),
+          });
+        },
+      }
+    );
   };
 
   return (

@@ -2,7 +2,7 @@ import { useParams } from "next/navigation";
 // plane imports
 import { getPageName } from "@plane/utils";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useWorkspaceSprints, getSprintById } from "@/store/queries/sprint";
 import { useEpic } from "@/hooks/store/use-epic";
 // plane web imports
 import { useExtendedContextIndicator } from "@/plane-web/components/command-palette/power-k/hooks/use-extended-context-indicator";
@@ -17,9 +17,10 @@ type TArgs = {
 export const useContextIndicator = (args: TArgs): string | null => {
   const { activeContext } = args;
   // navigation
-  const { workItem: workItemIdentifier, sprintId, epicId, pageId } = useParams();
-  // store hooks
-  const { getSprintById } = useSprint();
+  const { workspaceSlug, workItem: workItemIdentifier, sprintId, epicId, pageId } = useParams();
+  // queries - TanStack Query for sprints
+  const { data: sprints } = useWorkspaceSprints(workspaceSlug?.toString() ?? "");
+  // store hooks - MobX for epics (not migrated yet)
   const { getEpicById } = useEpic();
   const { getPageById } = usePageStore(EPageStoreType.PROJECT);
   // extended context indicator
@@ -34,7 +35,7 @@ export const useContextIndicator = (args: TArgs): string | null => {
       break;
     }
     case "sprint": {
-      const sprintDetails = sprintId ? getSprintById(sprintId.toString()) : null;
+      const sprintDetails = sprintId ? getSprintById(sprints, sprintId.toString()) : null;
       indicator = sprintDetails?.name;
       break;
     }

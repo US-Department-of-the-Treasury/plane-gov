@@ -3,7 +3,7 @@ import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // hooks
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getCompletedSprints } from "@/store/queries/sprint";
 import { useUserPermissions } from "@/hooks/store/user";
 // components
 import { SprintIssueQuickActions } from "../../quick-action-dropdowns";
@@ -11,13 +11,13 @@ import { BaseSpreadsheetRoot } from "../base-spreadsheet-root";
 
 export const SprintSpreadsheetLayout = observer(function SprintSpreadsheetLayout() {
   // router
-  const { sprintId } = useParams();
+  const { workspaceSlug, projectId, sprintId } = useParams();
   // store hooks
-  const { currentProjectCompletedSprintIds } = useSprint();
+  const { data: sprints } = useProjectSprints(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   const { allowPermissions } = useUserPermissions();
   // auth
-  const isCompletedSprint =
-    sprintId && currentProjectCompletedSprintIds ? currentProjectCompletedSprintIds.includes(sprintId.toString()) : false;
+  const completedSprintIds = getCompletedSprints(sprints).map((sprint) => sprint.id);
+  const isCompletedSprint = sprintId ? completedSprintIds.includes(sprintId.toString()) : false;
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT

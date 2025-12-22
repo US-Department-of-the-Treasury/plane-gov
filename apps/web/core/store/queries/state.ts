@@ -360,3 +360,65 @@ export function groupStatesByGroup(states: IState[]): Record<string, IState[]> {
     {} as Record<string, IState[]>
   );
 }
+
+// Utility functions for derived data (used inline by components)
+
+/**
+ * Get state by ID from a states array.
+ * Use inline in components: states?.find(s => s.id === stateId)
+ *
+ * @example
+ * const { data: states } = useProjectStates(workspaceSlug, projectId);
+ * const state = getStateById(states, stateId);
+ */
+export function getStateById(states: IState[] | undefined, stateId: string | null | undefined): IState | undefined {
+  if (!states || !stateId) return undefined;
+  return states.find((state) => state.id === stateId);
+}
+
+/**
+ * Get state IDs from states array.
+ *
+ * @example
+ * const { data: states } = useProjectStates(workspaceSlug, projectId);
+ * const stateIds = getStateIds(states);
+ */
+export function getStateIds(states: IState[] | undefined): string[] {
+  if (!states) return [];
+  return states.map((state) => state.id);
+}
+
+/**
+ * Get default state ID from states array.
+ *
+ * @example
+ * const { data: states } = useProjectStates(workspaceSlug, projectId);
+ * const defaultStateId = getDefaultStateId(states);
+ */
+export function getDefaultStateId(states: IState[] | undefined): string | undefined {
+  if (!states) return undefined;
+  return states.find((state) => state.default)?.id;
+}
+
+/**
+ * Get percentage position of a state within its group.
+ *
+ * @example
+ * const { data: groupedStates } = useGroupedProjectStates(workspaceSlug, projectId);
+ * const percentage = getStatePercentageInGroup(groupedStates, stateId);
+ */
+export function getStatePercentageInGroup(
+  groupedStates: Record<string, IState[]> | undefined,
+  stateId: string | null | undefined
+): number | undefined {
+  if (!groupedStates || !stateId) return undefined;
+
+  // Find the state and its group
+  for (const [_group, states] of Object.entries(groupedStates)) {
+    const stateIndex = states.findIndex((s) => s.id === stateId);
+    if (stateIndex !== -1) {
+      return ((stateIndex + 1) / states.length) * 100;
+    }
+  }
+  return undefined;
+}

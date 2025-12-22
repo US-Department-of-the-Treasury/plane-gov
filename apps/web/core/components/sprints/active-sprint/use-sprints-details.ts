@@ -7,7 +7,7 @@ import { EIssuesStoreType } from "@plane/types";
 // constants
 import { SPRINT_ISSUES_WITH_PARAMS } from "@/constants/fetch-keys";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useSprintDetails, useSprintProgress } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useWorkItemFilters } from "@/hooks/store/work-item-filters/use-work-item-filters";
 
@@ -29,32 +29,11 @@ const useSprintsDetails = (props: IActiveSprintDetails) => {
   } = useIssues(EIssuesStoreType.SPRINT);
   const { updateFilterExpressionFromConditions } = useWorkItemFilters();
 
-  const { fetchActiveSprintProgress, getSprintById, fetchActiveSprintAnalytics } = useSprint();
-  // derived values
-  const sprint = sprintId ? getSprintById(sprintId) : null;
+  // TanStack Query hooks
+  const { data: sprint } = useSprintDetails(workspaceSlug, projectId, sprintId || "");
+  useSprintProgress(workspaceSlug, projectId, sprintId || "");
 
-  // fetch sprint details
-  useSWR(
-    workspaceSlug && projectId && sprint?.id ? `PROJECT_ACTIVE_SPRINT_${projectId}_PROGRESS_${sprint.id}` : null,
-    workspaceSlug && projectId && sprint?.id ? () => fetchActiveSprintProgress(workspaceSlug, projectId, sprint.id) : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
-  useSWR(
-    workspaceSlug && projectId && sprint?.id && !sprint?.distribution
-      ? `PROJECT_ACTIVE_SPRINT_${projectId}_DURATION_${sprint.id}`
-      : null,
-    workspaceSlug && projectId && sprint?.id && !sprint?.distribution
-      ? () => fetchActiveSprintAnalytics(workspaceSlug, projectId, sprint.id, "issues")
-      : null
-  );
-  useSWR(
-    workspaceSlug && projectId && sprint?.id && !sprint?.estimate_distribution
-      ? `PROJECT_ACTIVE_SPRINT_${projectId}_ESTIMATE_DURATION_${sprint.id}`
-      : null,
-    workspaceSlug && projectId && sprint?.id && !sprint?.estimate_distribution
-      ? () => fetchActiveSprintAnalytics(workspaceSlug, projectId, sprint.id, "points")
-      : null
-  );
+  // fetch active sprint issues
   useSWR(
     workspaceSlug && projectId && sprint?.id ? SPRINT_ISSUES_WITH_PARAMS(sprint?.id, { priority: "urgent,high" }) : null,
     workspaceSlug && projectId && sprint?.id
@@ -81,7 +60,7 @@ const useSprintsDetails = (props: IActiveSprintDetails) => {
     [workspaceSlug, projectId, sprintId, updateFilterExpressionFromConditions, updateFilterExpression, router]
   );
   return {
-    sprint,
+    sprint: sprint || null,
     sprintId,
     router,
     handleFiltersUpdate,

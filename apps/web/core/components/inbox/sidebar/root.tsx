@@ -10,7 +10,7 @@ import { cn } from "@plane/utils";
 // components
 import { InboxSidebarLoader } from "@/components/ui/loader/layouts/project-inbox/inbox-sidebar-loader";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
@@ -47,7 +47,7 @@ export const InboxSidebar = observer(function InboxSidebar(props: IInboxSidebarP
   // plane hooks
   const { t } = useTranslation();
   // store
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   const {
     currentTab,
     handleCurrentTab,

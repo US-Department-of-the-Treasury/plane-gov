@@ -27,11 +27,12 @@ import { MergedDateDisplay } from "@/components/dropdowns/merged-date";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useSprint } from "@/hooks/store/use-sprint";
-import { useMember } from "@/hooks/store/use-member";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 import { useTimeZoneConverter } from "@/hooks/use-timezone-converter";
+// queries
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // plane web components
 import { SprintAdditionalActions } from "@/plane-web/components/sprints";
 // local imports
@@ -70,14 +71,14 @@ export const SprintListItemAction = observer(function SprintListItemAction(props
   // store hooks
   const { addSprintToFavorites, removeSprintFromFavorites } = useSprint();
   const { allowPermissions } = useUserPermissions();
+  // queries
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug);
 
   // local storage
   const { setValue: toggleFavoriteMenu, storedValue: isFavoriteMenuOpen } = useLocalStorage<boolean>(
     IS_FAVORITE_MENU_OPEN,
     false
   );
-
-  const { getUserDetails } = useMember();
 
   // form
   const { reset } = useForm({
@@ -178,7 +179,9 @@ export const SprintListItemAction = observer(function SprintListItemAction(props
     });
   };
 
-  const createdByDetails = sprintDetails.created_by ? getUserDetails(sprintDetails.created_by) : undefined;
+  const createdByDetails = sprintDetails.created_by
+    ? getWorkspaceMemberByUserId(workspaceMembers, sprintDetails.created_by)?.member
+    : undefined;
 
   useEffect(() => {
     if (sprintDetails)
@@ -305,7 +308,8 @@ export const SprintListItemAction = observer(function SprintListItemAction(props
             {sprintDetails.assignee_ids && sprintDetails.assignee_ids?.length > 0 ? (
               <AvatarGroup showTooltip={false}>
                 {sprintDetails.assignee_ids?.map((assignee_id) => {
-                  const member = getUserDetails(assignee_id);
+                  const memberData = getWorkspaceMemberByUserId(workspaceMembers, assignee_id);
+                  const member = memberData?.member;
                   return (
                     <Avatar key={member?.id} name={member?.display_name} src={getFileURL(member?.avatar_url ?? "")} />
                   );

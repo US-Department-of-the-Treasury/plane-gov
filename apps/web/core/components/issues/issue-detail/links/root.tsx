@@ -6,6 +6,7 @@ import type { TIssueLink } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useCreateIssueLink, useUpdateIssueLink, useDeleteIssueLink } from "@/store/queries/issue";
 // local imports
 import { IssueLinkCreateUpdateModal } from "./create-update-link-modal";
 import { IssueLinkList } from "./links";
@@ -26,8 +27,12 @@ export type TIssueLinkRoot = {
 export function IssueLinkRoot(props: TIssueLinkRoot) {
   // props
   const { workspaceSlug, projectId, issueId, disabled = false } = props;
-  // hooks
-  const { toggleIssueLinkModal: toggleIssueLinkModalStore, createLink, updateLink, removeLink } = useIssueDetail();
+  // hooks - keep modal state from useIssueDetail
+  const { toggleIssueLinkModal: toggleIssueLinkModalStore } = useIssueDetail();
+  // tanstack query mutations
+  const { mutateAsync: createLinkMutation } = useCreateIssueLink();
+  const { mutateAsync: updateLinkMutation } = useUpdateIssueLink();
+  const { mutateAsync: deleteLinkMutation } = useDeleteIssueLink();
   // state
   const [isIssueLinkModal, setIsIssueLinkModal] = useState(false);
   const toggleIssueLinkModal = useCallback(
@@ -43,7 +48,7 @@ export function IssueLinkRoot(props: TIssueLinkRoot) {
       create: async (data: Partial<TIssueLink>) => {
         try {
           if (!workspaceSlug || !projectId || !issueId) throw new Error("Missing required fields");
-          await createLink(workspaceSlug, projectId, issueId, data);
+          await createLinkMutation({ workspaceSlug, projectId, issueId, data });
           setToast({
             message: "The link has been successfully created",
             type: TOAST_TYPE.SUCCESS,
@@ -62,7 +67,7 @@ export function IssueLinkRoot(props: TIssueLinkRoot) {
       update: async (linkId: string, data: Partial<TIssueLink>) => {
         try {
           if (!workspaceSlug || !projectId || !issueId) throw new Error("Missing required fields");
-          await updateLink(workspaceSlug, projectId, issueId, linkId, data);
+          await updateLinkMutation({ workspaceSlug, projectId, issueId, linkId, data });
           setToast({
             message: "The link has been successfully updated",
             type: TOAST_TYPE.SUCCESS,
@@ -81,7 +86,7 @@ export function IssueLinkRoot(props: TIssueLinkRoot) {
       remove: async (linkId: string) => {
         try {
           if (!workspaceSlug || !projectId || !issueId) throw new Error("Missing required fields");
-          await removeLink(workspaceSlug, projectId, issueId, linkId);
+          await deleteLinkMutation({ workspaceSlug, projectId, issueId, linkId });
           setToast({
             message: "The link has been successfully removed",
             type: TOAST_TYPE.SUCCESS,
@@ -97,7 +102,7 @@ export function IssueLinkRoot(props: TIssueLinkRoot) {
         }
       },
     }),
-    [workspaceSlug, projectId, issueId, createLink, updateLink, removeLink, toggleIssueLinkModal]
+    [workspaceSlug, projectId, issueId, createLinkMutation, updateLinkMutation, deleteLinkMutation, toggleIssueLinkModal]
   );
 
   const handleOnClose = () => {
@@ -131,7 +136,13 @@ export function IssueLinkRoot(props: TIssueLinkRoot) {
         </div>
 
         <div>
-          <IssueLinkList issueId={issueId} linkOperations={handleLinkOperations} disabled={disabled} />
+          <IssueLinkList
+            workspaceSlug={workspaceSlug}
+            projectId={projectId}
+            issueId={issueId}
+            linkOperations={handleLinkOperations}
+            disabled={disabled}
+          />
         </div>
       </div>
     </>

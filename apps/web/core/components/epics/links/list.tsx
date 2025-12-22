@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane types
 import type { ILinkDetails } from "@plane/types";
 // components

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Copy, Pencil, Trash2 } from "lucide-react";
 // plane types
 import { EPIC_TRACKER_ELEMENTS } from "@plane/constants";
@@ -10,8 +9,9 @@ import { getIconForLink, copyTextToClipboard, calculateTimeAgo } from "@plane/ut
 // helpers
 //
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
+import { useParams } from "next/navigation";
 
 type Props = {
   handleDeleteLink: () => void;
@@ -20,14 +20,16 @@ type Props = {
   link: ILinkDetails;
 };
 
-export const EpicLinksListItem = observer(function EpicLinksListItem(props: Props) {
+export function EpicLinksListItem(props: Props) {
   const { handleDeleteLink, handleEditLink, isEditingAllowed, link } = props;
-  // store hooks
-  const { getUserDetails } = useMember();
-  // derived values
-  const createdByDetails = getUserDetails(link.created_by);
-  // platform os
+  // router
+  const { workspaceSlug } = useParams();
+  // hooks
   const { isMobile } = usePlatformOS();
+  // query hooks
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
+  // derived values
+  const createdByDetails = getWorkspaceMemberByUserId(workspaceMembers, link.created_by);
 
   const Icon = getIconForLink(link.url);
 
@@ -103,4 +105,4 @@ export const EpicLinksListItem = observer(function EpicLinksListItem(props: Prop
       </div>
     </div>
   );
-});
+}

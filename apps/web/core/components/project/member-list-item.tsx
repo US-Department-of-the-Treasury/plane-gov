@@ -6,9 +6,10 @@ import { Table } from "@plane/ui";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useRemoveProjectMember } from "@/store/queries/member";
 // plane web imports
 import { useProjectColumns } from "@/plane-web/components/projects/settings/useProjectColumns";
 // store
@@ -29,9 +30,8 @@ export const ProjectMemberListItem = observer(function ProjectMemberListItem(pro
   // store hooks
   const { leaveProject } = useUserPermissions();
   const { data: currentUser } = useUser();
-  const {
-    project: { removeMemberFromProject },
-  } = useMember();
+  // queries
+  const { mutateAsync: removeMemberFromProject } = useRemoveProjectMember();
   // helper hooks
   const { columns, removeMemberModal, setRemoveMemberModal } = useProjectColumns({
     projectId,
@@ -67,7 +67,11 @@ export const ProjectMemberListItem = observer(function ProjectMemberListItem(pro
           });
         });
     } else
-      await removeMemberFromProject(workspaceSlug.toString(), projectId.toString(), memberId).catch((err) =>
+      await removeMemberFromProject({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        memberId,
+      }).catch((err) =>
         setToast({
           type: TOAST_TYPE.ERROR,
           title: "You can't remove the member from this project yet.",

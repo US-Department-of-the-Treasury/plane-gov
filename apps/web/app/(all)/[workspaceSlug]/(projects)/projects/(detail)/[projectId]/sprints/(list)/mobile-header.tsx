@@ -1,5 +1,6 @@
 import type React from "react";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // ui
 import type { ISvgIcons } from "@plane/propel/icons";
 import { TimelineLayoutIcon, GridLayoutIcon, ListLayoutIcon } from "@plane/propel/icons";
@@ -8,7 +9,7 @@ import type { TSprintLayoutOptions } from "@plane/types";
 import { CustomMenu } from "@plane/ui";
 // hooks
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 
 const SPRINT_VIEW_LAYOUTS: {
   key: TSprintLayoutOptions;
@@ -33,8 +34,13 @@ const SPRINT_VIEW_LAYOUTS: {
 ];
 
 export const SprintsListMobileHeader = observer(function SprintsListMobileHeader() {
-  const { currentProjectDetails } = useProject();
+  // router
+  const { workspaceSlug, projectId } = useParams();
   // hooks
+  const { data: currentProjectDetails } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   const { updateDisplayFilters } = useSprintFilter();
   return (
     <div className="flex justify-center sm:hidden">
@@ -57,9 +63,11 @@ export const SprintsListMobileHeader = observer(function SprintsListMobileHeader
             <CustomMenu.MenuItem
               key={layout.key}
               onClick={() => {
-                updateDisplayFilters(currentProjectDetails!.id, {
-                  layout: layout.key,
-                });
+                if (currentProjectDetails) {
+                  updateDisplayFilters(currentProjectDetails.id, {
+                    layout: layout.key,
+                  });
+                }
               }}
               className="flex items-center gap-2"
             >

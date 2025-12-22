@@ -8,6 +8,8 @@ import type { TIssueOperations } from "@/components/issues/issue-detail";
 import { IssueParentSelect } from "@/components/issues/issue-detail/parent-select";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// queries
+import { useIssue } from "@/store/queries/issue";
 
 type TIssueParentSelect = {
   className?: string;
@@ -21,19 +23,23 @@ type TIssueParentSelect = {
 export const IssueParentSelectRoot = observer(function IssueParentSelectRoot(props: TIssueParentSelect) {
   const { issueId, issueOperations, projectId, workspaceSlug } = props;
   const { t } = useTranslation();
-  // store hooks
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+
+  // TanStack Query - fetch current issue
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
+
+  // TanStack Query - fetch parent issue if it exists
+  const { data: parentIssue } = useIssue(
+    workspaceSlug,
+    issue?.parent_id ? projectId : "",
+    issue?.parent_id ?? ""
+  );
+
+  // store hooks - keep UI state operations
   const {
     toggleParentIssueModal,
     removeSubIssue,
     subIssues: { setSubIssueHelpers, fetchSubIssues },
   } = useIssueDetail();
-
-  // derived values
-  const issue = getIssueById(issueId);
-  const parentIssue = issue?.parent_id ? getIssueById(issue.parent_id) : undefined;
 
   const handleParentIssue = async (_issueId: string | null = null) => {
     try {

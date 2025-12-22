@@ -14,10 +14,11 @@ import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 // local imports
 import { WorkItemDetailQuickActions } from "../issue-layouts/quick-action-dropdowns";
 import { IssueSubscription } from "./subscription";
@@ -41,7 +42,6 @@ export const IssueDetailQuickActions = observer(function IssueDetailQuickActions
   // hooks
   const { data: currentUser } = useUser();
   const { isMobile } = usePlatformOS();
-  const { getProjectIdentifierById } = useProject();
   const {
     issue: { getIssueById },
     removeIssue,
@@ -53,12 +53,14 @@ export const IssueDetailQuickActions = observer(function IssueDetailQuickActions
   const {
     issues: { removeIssue: removeArchivedIssue },
   } = useIssues(EIssuesStoreType.ARCHIVED);
+  // queries
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
 
   // derived values
   const issue = getIssueById(issueId);
   if (!issue) return <></>;
 
-  const projectIdentifier = getProjectIdentifierById(projectId);
+  const projectIdentifier = project?.identifier;
 
   const workItemLink = generateWorkItemLink({
     workspaceSlug: workspaceSlug,
