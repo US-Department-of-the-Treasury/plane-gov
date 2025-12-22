@@ -3,7 +3,7 @@
 import { memo, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { Plus, Search, ChevronRight, File, FolderClosed, Lock } from "lucide-react";
-import { Disclosure, Transition } from "@headlessui/react";
+import { Disclosure, Transition, TransitionChild } from "@headlessui/react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { cn } from "@plane/utils";
@@ -82,26 +82,28 @@ const WikiPageItem = memo(function WikiPageItem({
             )}
           </div>
           {hasChildren && (
-            <Transition
-              show={open}
-              enter="transition duration-100 ease-out"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="transition duration-75 ease-out"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Disclosure.Panel static>
-                {page.children.map((child) => (
-                  <WikiPageItem
-                    key={child.id}
-                    page={child}
-                    workspaceSlug={workspaceSlug}
-                    activePageId={activePageId}
-                    depth={depth + 1}
-                  />
-                ))}
-              </Disclosure.Panel>
+            <Transition show={open}>
+              <TransitionChild
+                as="div"
+                enter="transition duration-100 ease-out"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition duration-75 ease-out"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Disclosure.Panel static>
+                  {page.children.map((child) => (
+                    <WikiPageItem
+                      key={child.id}
+                      page={child}
+                      workspaceSlug={workspaceSlug}
+                      activePageId={activePageId}
+                      depth={depth + 1}
+                    />
+                  ))}
+                </Disclosure.Panel>
+              </TransitionChild>
             </Transition>
           )}
         </div>
@@ -147,36 +149,38 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
             </span>
           </Disclosure.Button>
           {hasContent && (
-            <Transition
-              show={open}
-              enter="transition duration-100 ease-out"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="transition duration-75 ease-out"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Disclosure.Panel static>
-                {collection.children.map((child) => (
-                  <WikiCollectionItem
-                    key={child.id}
-                    collection={child}
-                    pages={pages}
-                    workspaceSlug={workspaceSlug}
-                    activePageId={activePageId}
-                    depth={depth + 1}
-                  />
-                ))}
-                {collectionPages.map((page) => (
-                  <WikiPageItem
-                    key={page.id}
-                    page={page}
-                    workspaceSlug={workspaceSlug}
-                    activePageId={activePageId}
-                    depth={depth + 1}
-                  />
-                ))}
-              </Disclosure.Panel>
+            <Transition show={open}>
+              <TransitionChild
+                as="div"
+                enter="transition duration-100 ease-out"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="transition duration-75 ease-out"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Disclosure.Panel static>
+                  {collection.children.map((child) => (
+                    <WikiCollectionItem
+                      key={child.id}
+                      collection={child}
+                      pages={pages}
+                      workspaceSlug={workspaceSlug}
+                      activePageId={activePageId}
+                      depth={depth + 1}
+                    />
+                  ))}
+                  {collectionPages.map((page) => (
+                    <WikiPageItem
+                      key={page.id}
+                      page={page}
+                      workspaceSlug={workspaceSlug}
+                      activePageId={activePageId}
+                      depth={depth + 1}
+                    />
+                  ))}
+                </Disclosure.Panel>
+              </TransitionChild>
             </Transition>
           )}
         </div>

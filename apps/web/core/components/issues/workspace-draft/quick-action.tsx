@@ -6,7 +6,7 @@ import { ContextMenu, CustomMenu } from "@plane/ui";
 import { cn } from "@plane/utils";
 
 export interface Props {
-  parentRef: React.RefObject<HTMLElement>;
+  parentRef: React.RefObject<HTMLElement | null>;
   MENU_ITEMS: TContextMenuItem[];
 }
 

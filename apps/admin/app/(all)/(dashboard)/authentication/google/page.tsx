@@ -1,29 +1,24 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
-import useSWR from "swr";
 import { setPromiseToast } from "@plane/propel/toast";
 import { Loader, ToggleSwitch } from "@plane/ui";
 // components
 import GoogleLogo from "@/app/assets/logos/google-logo.svg?url";
 import { AuthenticationMethodCard } from "@/components/authentication/authentication-method-card";
 // hooks
-import { useInstance } from "@/hooks/store";
-// icons
+import { useInstanceConfigurations, useUpdateInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 // local components
 import type { Route } from "./+types/page";
 import { InstanceGoogleConfigForm } from "./form";
 
-const InstanceGoogleAuthenticationPage = observer(function InstanceGoogleAuthenticationPage(
-  _props: Route.ComponentProps
-) {
-  // store
-  const { fetchInstanceConfigurations, formattedConfig, updateInstanceConfigurations } = useInstance();
+function InstanceGoogleAuthenticationPage(_props: Route.ComponentProps) {
+  // queries
+  const { data: configurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(configurations);
+  const updateConfigMutation = useUpdateInstanceConfigurations();
   // state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // config
   const enableGoogleConfig = formattedConfig?.IS_GOOGLE_ENABLED ?? "";
-
-  useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
 
   const updateConfig = async (key: "IS_GOOGLE_ENABLED", value: string) => {
     setIsSubmitting(true);
@@ -32,7 +27,7 @@ const InstanceGoogleAuthenticationPage = observer(function InstanceGoogleAuthent
       [key]: value,
     };
 
-    const updateConfigPromise = updateInstanceConfigurations(payload);
+    const updateConfigPromise = updateConfigMutation.mutateAsync(payload);
 
     setPromiseToast(updateConfigPromise, {
       loading: "Saving Configuration...",
@@ -98,7 +93,7 @@ const InstanceGoogleAuthenticationPage = observer(function InstanceGoogleAuthent
       </div>
     </>
   );
-});
+}
 
 export const meta: Route.MetaFunction = () => [{ title: "Google Authentication - God Mode" }];
 

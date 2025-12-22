@@ -1,4 +1,5 @@
 // types
+import type { JSX } from "react";
 import type { ISprint, IEpic, IProjectView, IWorkspaceView } from "@plane/types";
 import type { TContextMenuItem } from "@plane/ui";
 // hooks

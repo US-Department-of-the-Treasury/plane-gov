@@ -17,7 +17,7 @@ import { ControllerInput } from "@/components/common/controller-input";
 import type { TCopyField } from "@/components/common/copy-field";
 import { CopyField } from "@/components/common/copy-field";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useUpdateInstanceConfigurations } from "@/store/queries";
 
 type Props = {
   config: IFormattedInstanceConfiguration;
@@ -29,8 +29,8 @@ export function InstanceGoogleConfigForm(props: Props) {
   const { config } = props;
   // states
   const [isDiscardChangesModalOpen, setIsDiscardChangesModalOpen] = useState(false);
-  // store hooks
-  const { updateInstanceConfigurations } = useInstance();
+  // queries
+  const updateConfigMutation = useUpdateInstanceConfigurations();
   // form data
   const {
     handleSubmit,
@@ -140,7 +140,7 @@ export function InstanceGoogleConfigForm(props: Props) {
   const onSubmit = async (formData: GoogleConfigFormValues) => {
     const payload: Partial<GoogleConfigFormValues> = { ...formData };
 
-    await updateInstanceConfigurations(payload)
+    await updateConfigMutation.mutateAsync(payload)
       .then((response = []) => {
         setToast({
           type: TOAST_TYPE.SUCCESS,

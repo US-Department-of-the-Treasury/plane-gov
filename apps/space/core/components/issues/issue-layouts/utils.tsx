@@ -8,53 +8,62 @@ import type {
   TSprintGroups,
   IIssueDisplayProperties,
   TGroupedIssues,
+  IState,
+  IIssueLabel,
 } from "@plane/types";
 // ui
 import { Avatar } from "@plane/ui";
-// components
-// constants
-// stores
-import type { ISprintStore } from "@/store/sprint.store";
-import type { IIssueLabelStore } from "@/store/label.store";
-import type { IIssueMemberStore } from "@/store/members.store";
-import type { IIssueEpicStore } from "@/store/epic.store";
-import type { IStateStore } from "@/store/state.store";
 
 export const HIGHLIGHT_CLASS = "highlight";
 export const HIGHLIGHT_WITH_LINE = "highlight-with-line";
 
+// Type definitions for data inputs
+interface SprintData {
+  id: string;
+  name: string;
+  status?: string;
+}
+
+interface EpicData {
+  id: string;
+  name: string;
+}
+
+interface MemberData {
+  id: string;
+  member__display_name?: string;
+}
+
 export const getGroupByColumns = (
   groupBy: GroupByColumnTypes | null,
-  sprint: ISprintStore,
-  epic: IIssueEpicStore,
-  label: IIssueLabelStore,
-  projectState: IStateStore,
-  member: IIssueMemberStore,
+  sprints: SprintData[] | undefined,
+  epics: EpicData[] | undefined,
+  labels: IIssueLabel[] | undefined,
+  states: IState[] | undefined,
+  members: MemberData[] | undefined,
   includeNone?: boolean
 ): IGroupByColumn[] | undefined => {
   switch (groupBy) {
     case "sprint":
-      return getSprintColumns(sprint);
+      return getSprintColumns(sprints);
     case "epic":
-      return getEpicColumns(epic);
+      return getEpicColumns(epics);
     case "state":
-      return getStateColumns(projectState);
+      return getStateColumns(states);
     case "priority":
       return getPriorityColumns();
     case "labels":
-      return getLabelsColumns(label) as any;
+      return getLabelsColumns(labels) as any;
     case "assignees":
-      return getAssigneeColumns(member);
+      return getAssigneeColumns(members);
     case "created_by":
-      return getCreatedByColumns(member) as any;
+      return getCreatedByColumns(members) as any;
     default:
       if (includeNone) return [{ id: `All Issues`, name: `All work items`, payload: {}, icon: undefined }];
   }
 };
 
-const getSprintColumns = (sprintStore: ISprintStore): IGroupByColumn[] | undefined => {
-  const { sprints } = sprintStore;
-
+const getSprintColumns = (sprints: SprintData[] | undefined): IGroupByColumn[] | undefined => {
   if (!sprints) return;
 
   const sprintGroups: IGroupByColumn[] = [];
@@ -80,9 +89,7 @@ const getSprintColumns = (sprintStore: ISprintStore): IGroupByColumn[] | undefin
   return sprintGroups;
 };
 
-const getEpicColumns = (epicStore: IIssueEpicStore): IGroupByColumn[] | undefined => {
-  const { epics } = epicStore;
-
+const getEpicColumns = (epics: EpicData[] | undefined): IGroupByColumn[] | undefined => {
   if (!epics) return;
 
   const epicGroups: IGroupByColumn[] = [];
@@ -106,8 +113,7 @@ const getEpicColumns = (epicStore: IIssueEpicStore): IGroupByColumn[] | undefine
   return epicGroups as any;
 };
 
-const getStateColumns = (projectState: IStateStore): IGroupByColumn[] | undefined => {
-  const { sortedStates } = projectState;
+const getStateColumns = (sortedStates: IState[] | undefined): IGroupByColumn[] | undefined => {
   if (!sortedStates) return;
 
   return sortedStates.map((state) => ({
@@ -133,14 +139,12 @@ const getPriorityColumns = () => {
   }));
 };
 
-const getLabelsColumns = (label: IIssueLabelStore) => {
-  const { labels: storeLabels } = label;
+const getLabelsColumns = (labels: IIssueLabel[] | undefined) => {
+  if (!labels) return;
 
-  if (!storeLabels) return;
+  const labelsWithNone = [...labels, { id: "None", name: "None", color: "#666" }];
 
-  const labels = [...storeLabels, { id: "None", name: "None", color: "#666" }];
-
-  return labels.map((label) => ({
+  return labelsWithNone.map((label) => ({
     id: label.id,
     name: label.name,
     icon: (
@@ -150,9 +154,7 @@ const getLabelsColumns = (label: IIssueLabelStore) => {
   }));
 };
 
-const getAssigneeColumns = (member: IIssueMemberStore) => {
-  const { members } = member;
-
+const getAssigneeColumns = (members: MemberData[] | undefined) => {
   if (!members) return;
 
   const assigneeColumns: any = members.map((member) => ({
@@ -167,9 +169,7 @@ const getAssigneeColumns = (member: IIssueMemberStore) => {
   return assigneeColumns;
 };
 
-const getCreatedByColumns = (member: IIssueMemberStore) => {
-  const { members } = member;
-
+const getCreatedByColumns = (members: MemberData[] | undefined) => {
   if (!members) return;
 
   return members.map((member) => ({

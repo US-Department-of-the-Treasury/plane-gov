@@ -11,7 +11,7 @@ import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries
 
 type BlockProps = {
   activity: TActivityEntityData;
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLDivElement | null>;
   workspaceSlug: string;
 };
 

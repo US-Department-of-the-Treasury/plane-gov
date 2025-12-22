@@ -5,18 +5,21 @@ import { AppProgressBar } from "@/lib/b-progress";
 import { InstanceProvider } from "@/lib/instance-provider";
 import { StoreProvider } from "@/lib/store-provider";
 import { ToastProvider } from "@/lib/toast-provider";
+import { QueryProvider } from "@/store/queries";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider themes={["light", "dark"]} defaultTheme="system" enableSystem>
-      <StoreProvider>
-        <AppProgressBar />
-        <TranslationProvider>
-          <ToastProvider>
-            <InstanceProvider>{children}</InstanceProvider>
-          </ToastProvider>
-        </TranslationProvider>
-      </StoreProvider>
+      <QueryProvider>
+        <StoreProvider>
+          <AppProgressBar />
+          <TranslationProvider>
+            <ToastProvider>
+              <InstanceProvider>{children}</InstanceProvider>
+            </ToastProvider>
+          </TranslationProvider>
+        </StoreProvider>
+      </QueryProvider>
     </ThemeProvider>
   );
 }

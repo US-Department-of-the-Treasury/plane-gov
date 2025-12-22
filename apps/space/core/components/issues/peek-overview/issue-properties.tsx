@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { LinkIcon } from "lucide-react";
 // plane imports
@@ -16,9 +15,8 @@ import { cn, getIssuePriorityFilters } from "@plane/utils";
 import { renderFormattedDate } from "@/helpers/date-time.helper";
 import { shouldHighlightIssueDueDate } from "@/helpers/issue.helper";
 import { copyTextToClipboard, addSpaceIfCamelCase } from "@/helpers/string.helper";
-// hooks
-import { usePublish } from "@/hooks/store/publish";
-import { useStates } from "@/hooks/store/use-state";
+// store
+import { useStates, usePublishSettings } from "@/store/queries";
 // types
 import type { IIssue, IPeekMode } from "@/types/issue";
 
@@ -27,18 +25,14 @@ type Props = {
   mode?: IPeekMode;
 };
 
-export const PeekOverviewIssueProperties = observer(function PeekOverviewIssueProperties({
-  issueDetails,
-  mode,
-}: Props) {
+export function PeekOverviewIssueProperties({ issueDetails, mode }: Props) {
   // hooks
   const { t } = useTranslation();
-  const { getStateById } = useStates();
+  const { anchor } = useParams();
+  const { getStateById } = useStates(anchor?.toString() ?? "");
   const state = getStateById(issueDetails?.state_id ?? undefined);
 
-  const { anchor } = useParams();
-
-  const { project_details } = usePublish(anchor?.toString());
+  const { project_details } = usePublishSettings(anchor?.toString() ?? "");
 
   const priority = issueDetails.priority ? getIssuePriorityFilters(issueDetails.priority) : null;
 
@@ -128,4 +122,4 @@ export const PeekOverviewIssueProperties = observer(function PeekOverviewIssuePr
       </div>
     </div>
   );
-});
+}

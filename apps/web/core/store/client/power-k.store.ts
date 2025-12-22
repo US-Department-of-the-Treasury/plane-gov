@@ -15,15 +15,15 @@ interface PowerKState {
   commandRegistry: IPowerKCommandRegistry;
   activeContext: TPowerKContextType | null;
   activePage: TPowerKPageType | null;
-  topNavInputRef: React.RefObject<HTMLInputElement> | null;
-  topNavSearchInputRef: React.RefObject<HTMLInputElement> | null;
+  topNavInputRef: React.RefObject<HTMLInputElement | null> | null;
+  topNavSearchInputRef: React.RefObject<HTMLInputElement | null> | null;
 }
 
 interface PowerKActions {
   setActiveContext: (entity: TPowerKContextType | null) => void;
   setActivePage: (page: TPowerKPageType | null) => void;
-  setTopNavInputRef: (ref: React.RefObject<HTMLInputElement> | null) => void;
-  setTopNavSearchInputRef: (ref: React.RefObject<HTMLInputElement> | null) => void;
+  setTopNavInputRef: (ref: React.RefObject<HTMLInputElement | null> | null) => void;
+  setTopNavSearchInputRef: (ref: React.RefObject<HTMLInputElement | null> | null) => void;
   togglePowerKModal: (value?: boolean) => void;
   toggleShortcutsListModal: (value?: boolean) => void;
 }

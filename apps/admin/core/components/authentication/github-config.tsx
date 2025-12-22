@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 // icons
 import { Settings2 } from "lucide-react";
@@ -9,17 +8,18 @@ import type { TInstanceAuthenticationMethodKeys } from "@plane/types";
 import { ToggleSwitch } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 
 type Props = {
   disabled: boolean;
   updateConfig: (key: TInstanceAuthenticationMethodKeys, value: string) => void;
 };
 
-export const GithubConfiguration = observer(function GithubConfiguration(props: Props) {
+export function GithubConfiguration(props: Props) {
   const { disabled, updateConfig } = props;
-  // store
-  const { formattedConfig } = useInstance();
+  // queries
+  const { data: configurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(configurations);
   // derived values
   const enableGithubConfig = formattedConfig?.IS_GITHUB_ENABLED ?? "";
   const isGithubConfigured = !!formattedConfig?.GITHUB_CLIENT_ID && !!formattedConfig?.GITHUB_CLIENT_SECRET;
@@ -49,4 +49,4 @@ export const GithubConfiguration = observer(function GithubConfiguration(props: 
       )}
     </>
   );
-});
+}

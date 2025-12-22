@@ -51,8 +51,8 @@ export const ContextMenuContext = React.createContext<{
   portalContainer?: Element | null;
 } | null>(null);
 
-type ContextMenuProps = {
-  parentRef: React.RefObject<HTMLElement>;
+export type ContextMenuProps = {
+  parentRef: React.RefObject<HTMLElement | null>;
   items: TContextMenuItem[];
   portalContainer?: Element | null;
 };

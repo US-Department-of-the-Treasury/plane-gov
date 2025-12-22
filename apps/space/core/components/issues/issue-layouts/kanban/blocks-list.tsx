@@ -1,11 +1,11 @@
 import type { MutableRefObject } from "react";
-import { observer } from "mobx-react";
 //types
 import type { IIssueDisplayProperties } from "@plane/types";
 // components
 import { KanbanIssueBlock } from "./block";
 
 interface IssueBlocksListProps {
+  anchor: string;
   subGroupId: string;
   groupId: string;
   issueIds: string[];
@@ -13,8 +13,8 @@ interface IssueBlocksListProps {
   scrollableContainerRef?: MutableRefObject<HTMLDivElement | null>;
 }
 
-export const KanbanIssueBlocksList = observer(function KanbanIssueBlocksList(props: IssueBlocksListProps) {
-  const { subGroupId, groupId, issueIds, displayProperties, scrollableContainerRef } = props;
+export function KanbanIssueBlocksList(props: IssueBlocksListProps) {
+  const { anchor, subGroupId, groupId, issueIds, displayProperties, scrollableContainerRef } = props;
 
   return (
     <>
@@ -29,6 +29,7 @@ export const KanbanIssueBlocksList = observer(function KanbanIssueBlocksList(pro
             return (
               <KanbanIssueBlock
                 key={draggableId}
+                anchor={anchor}
                 issueId={issueId}
                 groupId={groupId}
                 subGroupId={subGroupId}
@@ -40,4 +41,4 @@ export const KanbanIssueBlocksList = observer(function KanbanIssueBlocksList(pro
         : null}
     </>
   );
-});
+}

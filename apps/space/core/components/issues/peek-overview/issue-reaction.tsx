@@ -1,19 +1,19 @@
-import { observer } from "mobx-react";
 // components
 import { IssueEmojiReactions } from "@/components/issues/reactions/issue-emoji-reactions";
 import { IssueVotes } from "@/components/issues/reactions/issue-vote-reactions";
 // hooks
-import { usePublish } from "@/hooks/store/publish";
 import useIsInIframe from "@/hooks/use-is-in-iframe";
+// store
+import { usePublishSettings } from "@/store/queries";
 
 type Props = {
   anchor: string;
 };
 
-export const IssueReactions = observer(function IssueReactions(props: Props) {
+export function IssueReactions(props: Props) {
   const { anchor } = props;
-  // store hooks
-  const { canVote, canReact } = usePublish(anchor);
+  // store
+  const { canVote, canReact } = usePublishSettings(anchor);
   const isInIframe = useIsInIframe();
 
   return (
@@ -30,4 +30,4 @@ export const IssueReactions = observer(function IssueReactions(props: Props) {
       )}
     </div>
   );
-});
+}

@@ -1,7 +1,5 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import useSWR from "swr";
 // plane imports
 import { SPACE_BASE_PATH } from "@plane/constants";
 import { PlaneLockup } from "@plane/propel/icons";
@@ -11,29 +9,17 @@ import PlaneBackgroundPattern from "@/app/assets/auth/background-pattern.svg?url
 // components
 import { LogoSpinner } from "@/components/common/logo-spinner";
 import { InstanceFailureView } from "@/components/instance/instance-failure-view";
-// hooks
-import { useInstance } from "@/hooks/store/use-instance";
-import { useUser } from "@/hooks/store/use-user";
+// store
+import { useInstance, useCurrentUser } from "@/store/queries";
 
-export const InstanceProvider = observer(function InstanceProvider({ children }: { children: React.ReactNode }) {
-  const { fetchInstanceInfo, instance, error } = useInstance();
-  const { fetchCurrentUser } = useUser();
+export function InstanceProvider({ children }: { children: React.ReactNode }) {
+  const { data: instance, error, isLoading: isInstanceLoading } = useInstance();
+  const { isLoading: isUserLoading } = useCurrentUser();
   const { resolvedTheme } = useTheme();
 
   const patternBackground = resolvedTheme === "dark" ? PlaneBackgroundPatternDark : PlaneBackgroundPattern;
 
-  useSWR("INSTANCE_INFO", () => fetchInstanceInfo(), {
-    revalidateOnFocus: false,
-    revalidateIfStale: false,
-    errorRetryCount: 0,
-  });
-  useSWR("CURRENT_USER", () => fetchCurrentUser(), {
-    shouldRetryOnError: false,
-    revalidateOnFocus: true,
-    revalidateIfStale: true,
-  });
-
-  if (!instance && !error)
+  if (isInstanceLoading || isUserLoading)
     return (
       <div className="flex items-center justify-center h-screen w-full">
         <LogoSpinner />
@@ -64,5 +50,7 @@ export const InstanceProvider = observer(function InstanceProvider({ children }:
     );
   }
 
+  if (!instance) return null;
+
   return children;
-});
+}

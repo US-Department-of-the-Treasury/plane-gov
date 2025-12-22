@@ -1,23 +1,23 @@
 import { Fragment, useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { useTheme as useNextTheme } from "next-themes";
 import { LogOut, UserCog2, Palette } from "lucide-react";
-import { Menu, Transition } from "@headlessui/react";
+import { Menu, Transition, TransitionChild } from "@headlessui/react";
 // plane internal packages
 import { API_BASE_URL } from "@plane/constants";
 import { AuthService } from "@plane/services";
 import { Avatar } from "@plane/ui";
 import { getFileURL, cn } from "@plane/utils";
 // hooks
-import { useTheme, useUser } from "@/hooks/store";
+import { useThemeStore, useCurrentUser, useSignOut } from "@/store/queries";
 
 // service initialization
 const authService = new AuthService();
 
-export const AdminSidebarDropdown = observer(function AdminSidebarDropdown() {
+export function AdminSidebarDropdown() {
   // store hooks
-  const { isSidebarCollapsed } = useTheme();
-  const { currentUser, signOut } = useUser();
+  const isSidebarCollapsed = useThemeStore((s) => s.isSidebarCollapsed);
+  const { data: currentUser } = useCurrentUser();
+  const signOut = useSignOut();
   // hooks
   const { resolvedTheme, setTheme } = useNextTheme();
   // state
@@ -93,16 +93,18 @@ export const AdminSidebarDropdown = observer(function AdminSidebarDropdown() {
               </div>
             </Menu.Button>
             {isSidebarCollapsed && (
-              <Transition
-                as={Fragment}
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
-                {getSidebarMenuItems()}
+              <Transition as={Fragment}>
+                <TransitionChild
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  {getSidebarMenuItems()}
+                </TransitionChild>
               </Transition>
             )}
           </Menu>
@@ -127,19 +129,21 @@ export const AdminSidebarDropdown = observer(function AdminSidebarDropdown() {
             />
           </Menu.Button>
 
-          <Transition
-            as={Fragment}
-            enter="transition ease-out duration-100"
-            enterFrom="transform opacity-0 scale-95"
-            enterTo="transform opacity-100 scale-100"
-            leave="transition ease-in duration-75"
-            leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95"
-          >
-            {getSidebarMenuItems()}
+          <Transition as={Fragment}>
+            <TransitionChild
+              as={Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              {getSidebarMenuItems()}
+            </TransitionChild>
           </Transition>
         </Menu>
       )}
     </div>
   );
-});
+}

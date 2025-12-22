@@ -1,17 +1,17 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Lock } from "lucide-react";
 // plane imports
 import { Button } from "@plane/propel/button";
+import type { TIssuePublicComment } from "@plane/types";
 // components
 import { AddComment } from "@/components/issues/peek-overview/comment/add-comment";
 import { CommentCard } from "@/components/issues/peek-overview/comment/comment-detail-card";
 // hooks
-import { usePublish } from "@/hooks/store/publish";
-import { useIssueDetails } from "@/hooks/store/use-issue-details";
-import { useUser } from "@/hooks/store/use-user";
 import useIsInIframe from "@/hooks/use-is-in-iframe";
+// store
+import { usePublishSettings, useIssueComments, useCurrentUser } from "@/store/queries";
+import { usePeekStore } from "@/store/peek.store";
 // types
 import type { IIssue } from "@/types/issue";
 
@@ -20,16 +20,16 @@ type Props = {
   issueDetails: IIssue;
 };
 
-export const PeekOverviewIssueActivity = observer(function PeekOverviewIssueActivity(props: Props) {
+export function PeekOverviewIssueActivity(props: Props) {
   const { anchor } = props;
   // router
   const pathname = usePathname();
-  // store hooks
-  const { details, peekId } = useIssueDetails();
-  const { data: currentUser } = useUser();
-  const { canComment } = usePublish(anchor);
+  // store
+  const { peekId } = usePeekStore();
+  const { data: currentUser } = useCurrentUser();
+  const { canComment } = usePublishSettings(anchor);
+  const { data: comments = [] } = useIssueComments(anchor, peekId ?? "");
   // derived values
-  const comments = details[peekId || ""]?.comments || [];
   const isInIframe = useIsInIframe();
 
   return (
@@ -37,7 +37,7 @@ export const PeekOverviewIssueActivity = observer(function PeekOverviewIssueActi
       <h4 className="font-medium">Comments</h4>
       <div className="mt-4">
         <div className="space-y-4">
-          {comments.map((comment) => (
+          {comments.map((comment: TIssuePublicComment) => (
             <CommentCard key={comment.id} anchor={anchor} comment={comment} />
           ))}
         </div>
@@ -64,4 +64,4 @@ export const PeekOverviewIssueActivity = observer(function PeekOverviewIssueActi
       </div>
     </div>
   );
-});
+}

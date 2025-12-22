@@ -1,8 +1,7 @@
-import { observer } from "mobx-react";
 // plane imports
 import { Loader } from "@plane/ui";
-// store hooks
-import { usePublish } from "@/hooks/store/publish";
+// store
+import { usePublishSettings } from "@/store/queries";
 // types
 import type { IIssue } from "@/types/issue";
 // local imports
@@ -17,10 +16,10 @@ type Props = {
   issueDetails: IIssue | undefined;
 };
 
-export const SidePeekView = observer(function SidePeekView(props: Props) {
+export function SidePeekView(props: Props) {
   const { anchor, handleClose, issueDetails } = props;
-  // store hooks
-  const { canComment } = usePublish(anchor);
+  // store
+  const { canComment } = usePublishSettings(anchor);
 
   return (
     <div className="flex size-full flex-col overflow-hidden">
@@ -58,4 +57,4 @@ export const SidePeekView = observer(function SidePeekView(props: Props) {
       )}
     </div>
   );
-});
+}

@@ -20,7 +20,7 @@ import { useAppRouter } from "@/hooks/use-app-router";
 import { useProjectEpics, getEpicById, useRestoreEpic } from "@/store/queries/epic";
 
 type Props = {
-  parentRef: React.RefObject<HTMLDivElement>;
+  parentRef: React.RefObject<HTMLDivElement | null>;
   epicId: string;
   projectId: string;
   workspaceSlug: string;

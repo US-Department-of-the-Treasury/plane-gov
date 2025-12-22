@@ -1,21 +1,20 @@
 import React from "react";
-import { observer } from "mobx-react";
-// hooks
+// plane internal packages
 import type { TInstanceAuthenticationMethodKeys } from "@plane/types";
 import { ToggleSwitch } from "@plane/ui";
-import { useInstance } from "@/hooks/store";
-// ui
-// types
+// hooks
+import { useInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 
 type Props = {
   disabled: boolean;
   updateConfig: (key: TInstanceAuthenticationMethodKeys, value: string) => void;
 };
 
-export const EmailCodesConfiguration = observer(function EmailCodesConfiguration(props: Props) {
+export function EmailCodesConfiguration(props: Props) {
   const { disabled, updateConfig } = props;
-  // store
-  const { formattedConfig } = useInstance();
+  // queries
+  const { data: configurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(configurations);
   // derived values
   const enableMagicLogin = formattedConfig?.ENABLE_MAGIC_LINK_LOGIN ?? "";
 
@@ -30,4 +29,4 @@ export const EmailCodesConfiguration = observer(function EmailCodesConfiguration
       disabled={disabled}
     />
   );
-});
+}

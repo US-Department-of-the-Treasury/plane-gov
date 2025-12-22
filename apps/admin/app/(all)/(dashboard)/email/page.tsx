@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
-import useSWR from "swr";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { Loader, ToggleSwitch } from "@plane/ui";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useInstanceConfigurations, useDisableEmail, computeFormattedConfig } from "@/store/queries";
 // components
 import type { Route } from "./+types/page";
 import { InstanceEmailForm } from "./email-config-form";
 
-const InstanceEmailPage = observer(function InstanceEmailPage(_props: Route.ComponentProps) {
+function InstanceEmailPage(_props: Route.ComponentProps) {
   // store
-  const { fetchInstanceConfigurations, formattedConfig, disableEmail } = useInstance();
-
-  const { isLoading } = useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
+  const { data: instanceConfigurations, isLoading } = useInstanceConfigurations();
+  const disableEmail = useDisableEmail();
+  const formattedConfig = computeFormattedConfig(instanceConfigurations);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSMTPEnabled, setIsSMTPEnabled] = useState(false);
@@ -22,7 +20,7 @@ const InstanceEmailPage = observer(function InstanceEmailPage(_props: Route.Comp
     if (isSMTPEnabled) {
       setIsSubmitting(true);
       try {
-        await disableEmail();
+        await disableEmail.mutateAsync();
         setIsSMTPEnabled(false);
         setToast({
           title: "Email feature disabled",
@@ -88,7 +86,7 @@ const InstanceEmailPage = observer(function InstanceEmailPage(_props: Route.Comp
       </div>
     </>
   );
-});
+}
 
 export const meta: Route.MetaFunction = () => [{ title: "Email Settings - God Mode" }];
 

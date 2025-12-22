@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 // icons
 import { Settings2 } from "lucide-react";
@@ -8,17 +7,18 @@ import type { TInstanceAuthenticationMethodKeys } from "@plane/types";
 import { ToggleSwitch } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 
 type Props = {
   disabled: boolean;
   updateConfig: (key: TInstanceAuthenticationMethodKeys, value: string) => void;
 };
 
-export const GiteaConfiguration = observer(function GiteaConfiguration(props: Props) {
+export function GiteaConfiguration(props: Props) {
   const { disabled, updateConfig } = props;
-  // store
-  const { formattedConfig } = useInstance();
+  // queries
+  const { data: configurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(configurations);
   // derived values
   const GiteaConfig = formattedConfig?.IS_GITEA_ENABLED ?? "";
   const GiteaConfigured =
@@ -50,4 +50,4 @@ export const GiteaConfiguration = observer(function GiteaConfiguration(props: Pr
       )}
     </>
   );
-});
+}

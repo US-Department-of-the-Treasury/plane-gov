@@ -1,29 +1,24 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
-import useSWR from "swr";
 import { setPromiseToast } from "@plane/propel/toast";
 import { Loader, ToggleSwitch } from "@plane/ui";
 // components
 import GitlabLogo from "@/app/assets/logos/gitlab-logo.svg?url";
 import { AuthenticationMethodCard } from "@/components/authentication/authentication-method-card";
 // hooks
-import { useInstance } from "@/hooks/store";
-// icons
+import { useInstanceConfigurations, useUpdateInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 // local components
 import type { Route } from "./+types/page";
 import { InstanceGitlabConfigForm } from "./form";
 
-const InstanceGitlabAuthenticationPage = observer(function InstanceGitlabAuthenticationPage(
-  _props: Route.ComponentProps
-) {
-  // store
-  const { fetchInstanceConfigurations, formattedConfig, updateInstanceConfigurations } = useInstance();
+function InstanceGitlabAuthenticationPage(_props: Route.ComponentProps) {
+  // queries
+  const { data: configurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(configurations);
+  const updateConfigMutation = useUpdateInstanceConfigurations();
   // state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // config
   const enableGitlabConfig = formattedConfig?.IS_GITLAB_ENABLED ?? "";
-
-  useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
 
   const updateConfig = async (key: "IS_GITLAB_ENABLED", value: string) => {
     setIsSubmitting(true);
@@ -32,7 +27,7 @@ const InstanceGitlabAuthenticationPage = observer(function InstanceGitlabAuthent
       [key]: value,
     };
 
-    const updateConfigPromise = updateInstanceConfigurations(payload);
+    const updateConfigPromise = updateConfigMutation.mutateAsync(payload);
 
     setPromiseToast(updateConfigPromise, {
       loading: "Saving Configuration...",
@@ -97,7 +92,7 @@ const InstanceGitlabAuthenticationPage = observer(function InstanceGitlabAuthent
       </div>
     </>
   );
-});
+}
 
 export const meta: Route.MetaFunction = () => [{ title: "GitLab Authentication - God Mode" }];
 

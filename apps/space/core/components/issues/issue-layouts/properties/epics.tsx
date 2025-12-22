@@ -1,19 +1,21 @@
-import { observer } from "mobx-react";
 // plane ui
 import { EpicIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 // plane utils
 import { cn } from "@plane/utils";
-// hooks
-import { useEpic } from "@/hooks/store/use-epic";
+// store
+import { useAnchor } from "@/store/anchor-context";
+import { useEpics } from "@/store/queries";
 
 type Props = {
   epicIds: string[] | undefined;
   shouldShowBorder?: boolean;
 };
 
-export const IssueBlockEpics = observer(function IssueBlockEpics({ epicIds, shouldShowBorder = true }: Props) {
-  const { getEpicsByIds } = useEpic();
+export function IssueBlockEpics({ epicIds, shouldShowBorder = true }: Props) {
+  // hooks
+  const anchor = useAnchor();
+  const { getEpicsByIds } = useEpics(anchor);
 
   const epics = getEpicsByIds(epicIds ?? []);
 
@@ -44,4 +46,4 @@ export const IssueBlockEpics = observer(function IssueBlockEpics({ epicIds, shou
       </Tooltip>
     </div>
   );
-});
+}

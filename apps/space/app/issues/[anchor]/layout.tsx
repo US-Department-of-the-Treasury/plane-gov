@@ -1,7 +1,6 @@
-import { observer } from "mobx-react";
+import { useEffect } from "react";
 import { Outlet } from "react-router";
 import type { ShouldRevalidateFunctionArgs } from "react-router";
-import useSWR from "swr";
 // components
 import { LogoSpinner } from "@/components/common/logo-spinner";
 import { PoweredBy } from "@/components/common/powered-by";
@@ -9,8 +8,9 @@ import { SomethingWentWrongError } from "@/components/issues/issue-layouts/error
 import { IssuesNavbarRoot } from "@/components/issues/navbar";
 // hooks
 import { PageNotFound } from "@/components/ui/not-found";
-import { usePublish, usePublishList } from "@/hooks/store/publish";
-import { useIssueFilter } from "@/hooks/store/use-issue-filter";
+// store
+import { usePublishSettings } from "@/store/queries";
+import { useIssueFiltersStore } from "@/store/issue-filters.store";
 import type { Route } from "./+types/layout";
 
 const DEFAULT_TITLE = "Plane";
@@ -87,32 +87,26 @@ export function shouldRevalidate({ currentParams, nextParams }: ShouldRevalidate
   return currentParams.anchor !== nextParams.anchor;
 }
 
-function IssuesLayout(props: Route.ComponentProps) {
+export default function IssuesLayout(props: Route.ComponentProps) {
   const { anchor } = props.params;
   // store hooks
-  const { fetchPublishSettings } = usePublishList();
-  const publishSettings = usePublish(anchor);
-  const { updateLayoutOptions } = useIssueFilter();
-  // fetch publish settings
-  const { error } = useSWR(
-    anchor ? `PUBLISH_SETTINGS_${anchor}` : null,
-    anchor
-      ? async () => {
-          const response = await fetchPublishSettings(anchor);
-          if (response.view_props) {
-            updateLayoutOptions({
-              list: !!response.view_props.list,
-              kanban: !!response.view_props.kanban,
-              calendar: !!response.view_props.calendar,
-              gantt: !!response.view_props.gantt,
-              spreadsheet: !!response.view_props.spreadsheet,
-            });
-          }
-        }
-      : null
-  );
+  const { data: publishSettings, error, isLoading } = usePublishSettings(anchor);
+  const updateLayoutOptions = useIssueFiltersStore((state) => state.updateLayoutOptions);
 
-  if (!publishSettings && !error) {
+  // Update layout options when publish settings load
+  useEffect(() => {
+    if (publishSettings?.view_props) {
+      updateLayoutOptions({
+        list: !!publishSettings.view_props.list,
+        kanban: !!publishSettings.view_props.kanban,
+        calendar: !!publishSettings.view_props.calendar,
+        gantt: !!publishSettings.view_props.gantt,
+        spreadsheet: !!publishSettings.view_props.spreadsheet,
+      });
+    }
+  }, [publishSettings, updateLayoutOptions]);
+
+  if (isLoading || (!publishSettings && !error)) {
     return (
       <div className="bg-surface-1 flex items-center justify-center h-screen w-full">
         <LogoSpinner />
@@ -120,7 +114,7 @@ function IssuesLayout(props: Route.ComponentProps) {
     );
   }
 
-  if (error?.status === 404) return <PageNotFound />;
+  if ((error as any)?.status === 404) return <PageNotFound />;
 
   if (error) return <SomethingWentWrongError />;
 
@@ -138,5 +132,3 @@ function IssuesLayout(props: Route.ComponentProps) {
     </>
   );
 }
-
-export default observer(IssuesLayout);

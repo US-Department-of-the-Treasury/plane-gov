@@ -1,19 +1,21 @@
-import { observer } from "mobx-react";
 // plane imports
 import { EIconSize } from "@plane/constants";
 import { CloseIcon, StateGroupIcon } from "@plane/propel/icons";
-// hooks
-import { useStates } from "@/hooks/store/use-state";
+// store
+import { useAnchor } from "@/store/anchor-context";
+import { useStates } from "@/store/queries";
 
 type Props = {
   handleRemove: (val: string) => void;
   values: string[];
 };
 
-export const AppliedStateFilters = observer(function AppliedStateFilters(props: Props) {
+export function AppliedStateFilters(props: Props) {
   const { handleRemove, values } = props;
 
-  const { sortedStates: states } = useStates();
+  // hooks
+  const anchor = useAnchor();
+  const { sortedStates: states } = useStates(anchor);
 
   return (
     <>
@@ -38,4 +40,4 @@ export const AppliedStateFilters = observer(function AppliedStateFilters(props: 
       })}
     </>
   );
-});
+}

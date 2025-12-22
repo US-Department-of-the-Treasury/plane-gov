@@ -3,8 +3,8 @@ import { useCallback } from "react";
 import type { TCustomComponentsMetaData } from "@plane/utils";
 // helpers
 import { getEditorAssetSrc } from "@/helpers/editor.helper";
-// hooks
-import { useMember } from "@/hooks/store/use-member";
+// store hooks
+import { useMembers } from "@/store/queries";
 
 type TArgs = {
   anchor: string;
@@ -13,7 +13,7 @@ type TArgs = {
 export const useParseEditorContent = (args: TArgs) => {
   const { anchor } = args;
   // store hooks
-  const { getMemberById } = useMember();
+  const { getMemberById } = useMembers(anchor);
 
   const getEditorMetaData = useCallback(
     (htmlContent: string): TCustomComponentsMetaData => {

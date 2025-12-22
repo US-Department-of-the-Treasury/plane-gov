@@ -27,7 +27,7 @@ import { SprintDeleteModal } from "./delete-modal";
 import { SprintCreateUpdateModal } from "./modal";
 
 type Props = {
-  parentRef: React.RefObject<HTMLElement>;
+  parentRef: React.RefObject<HTMLElement | null>;
   sprintId: string;
   projectId: string;
   workspaceSlug: string;

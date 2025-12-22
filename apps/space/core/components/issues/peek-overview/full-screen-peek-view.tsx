@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { Loader } from "@plane/ui";
 // types
@@ -15,7 +14,7 @@ type Props = {
   issueDetails: IIssue | undefined;
 };
 
-export const FullScreenPeekView = observer(function FullScreenPeekView(props: Props) {
+export function FullScreenPeekView(props: Props) {
   const { anchor, handleClose, issueDetails } = props;
 
   return (
@@ -65,4 +64,4 @@ export const FullScreenPeekView = observer(function FullScreenPeekView(props: Pr
       </div>
     </div>
   );
-});
+}

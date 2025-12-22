@@ -43,7 +43,7 @@ type Props = {
   projectId: string;
   sprintId: string;
   sprintDetails: ISprint;
-  parentRef: React.RefObject<HTMLDivElement>;
+  parentRef: React.RefObject<HTMLDivElement | null>;
   isActive?: boolean;
 };
 

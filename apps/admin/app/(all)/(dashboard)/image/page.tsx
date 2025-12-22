@@ -1,17 +1,14 @@
-import { observer } from "mobx-react";
-import useSWR from "swr";
 import { Loader } from "@plane/ui";
 // hooks
-import { useInstance } from "@/hooks/store";
+import { useInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
 // local
 import type { Route } from "./+types/page";
 import { InstanceImageConfigForm } from "./form";
 
-const InstanceImagePage = observer(function InstanceImagePage(_props: Route.ComponentProps) {
+function InstanceImagePage(_props: Route.ComponentProps) {
   // store
-  const { formattedConfig, fetchInstanceConfigurations } = useInstance();
-
-  useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
+  const { data: instanceConfigurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(instanceConfigurations);
 
   return (
     <>
@@ -35,7 +32,7 @@ const InstanceImagePage = observer(function InstanceImagePage(_props: Route.Comp
       </div>
     </>
   );
-});
+}
 
 export const meta: Route.MetaFunction = () => [{ title: "Images Settings - God Mode" }];
 

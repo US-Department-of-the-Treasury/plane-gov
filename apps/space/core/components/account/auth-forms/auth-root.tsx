@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
 // plane imports
@@ -16,8 +15,8 @@ import GoogleLogo from "@/app/assets/logos/google-logo.svg?url";
 // helpers
 import type { TAuthErrorInfo } from "@/helpers/authentication.helper";
 import { EErrorAlertType, authErrorHandler, EAuthenticationErrorCodes } from "@/helpers/authentication.helper";
-// hooks
-import { useInstance } from "@/hooks/store/use-instance";
+// store
+import { useInstance } from "@/store/queries";
 // types
 import { EAuthModes, EAuthSteps } from "@/types/auth";
 // local imports
@@ -30,7 +29,7 @@ import { AuthUniqueCodeForm } from "./unique-code";
 
 const authService = new SitesAuthService();
 
-export const AuthRoot = observer(function AuthRoot() {
+export function AuthRoot() {
   // router params
   const searchParams = useSearchParams();
   const emailParam = searchParams.get("email") || undefined;
@@ -45,7 +44,7 @@ export const AuthRoot = observer(function AuthRoot() {
   const [isPasswordAutoset, setIsPasswordAutoset] = useState(true);
   // hooks
   const { resolvedTheme } = useTheme();
-  const { config } = useInstance();
+  const { data: config } = useInstance();
 
   useEffect(() => {
     if (error_code) {
@@ -244,4 +243,4 @@ export const AuthRoot = observer(function AuthRoot() {
       </div>
     </div>
   );
-});
+}

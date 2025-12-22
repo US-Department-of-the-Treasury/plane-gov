@@ -1,38 +1,38 @@
 import { useRef } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 // plane types
 import { Tooltip } from "@plane/propel/tooltip";
 import type { IIssueDisplayProperties } from "@plane/types";
-// plane ui
 // plane utils
 import { cn } from "@plane/utils";
 // helpers
 import { queryParamGenerator } from "@/helpers/query-param-generator";
-// hooks
-import { usePublish } from "@/hooks/store/publish";
-import { useIssueDetails } from "@/hooks/store/use-issue-details";
+// store
+import { usePublishSettings } from "@/store/queries";
+import { useIssueListStore } from "@/store/issue-list.store";
+import { usePeekStore } from "@/store/peek.store";
 //
 import { IssueProperties } from "../properties/all-properties";
 
 interface IssueBlockProps {
+  anchor: string;
   issueId: string;
   groupId: string;
   displayProperties: IIssueDisplayProperties | undefined;
 }
 
-export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
-  const { anchor } = useParams();
-  const { issueId, displayProperties } = props;
+export function IssueBlock(props: IssueBlockProps) {
+  const { anchor, issueId, displayProperties } = props;
   const searchParams = useSearchParams();
   // query params
   const board = searchParams.get("board");
   // ref
   const issueRef = useRef<HTMLDivElement | null>(null);
   // hooks
-  const { project_details } = usePublish(anchor.toString());
-  const { getIsIssuePeeked, setPeekId, getIssueById } = useIssueDetails();
+  const { project_details } = usePublishSettings(anchor);
+  const { getIsIssuePeeked, setPeekId } = usePeekStore();
+  const { getIssueById } = useIssueListStore();
 
   const handleIssuePeekOverview = () => {
     setPeekId(issueId);
@@ -88,4 +88,4 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
       </div>
     </div>
   );
-});
+}

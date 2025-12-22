@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { ProjectIcon } from "@plane/propel/icons";
 // components
 import { ProjectLogo } from "@/components/common/project-logo";
@@ -11,7 +10,7 @@ type Props = {
   publishSettings: PublishStore;
 };
 
-export const IssuesNavbarRoot = observer(function IssuesNavbarRoot(props: Props) {
+export function IssuesNavbarRoot(props: Props) {
   const { publishSettings } = props;
   // hooks
   const { project_details } = publishSettings;
@@ -38,4 +37,4 @@ export const IssuesNavbarRoot = observer(function IssuesNavbarRoot(props: Props)
       </div>
     </div>
   );
-});
+}

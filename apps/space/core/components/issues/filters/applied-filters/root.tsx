@@ -1,10 +1,9 @@
 import { useCallback } from "react";
 import { cloneDeep } from "lodash-es";
-import { observer } from "mobx-react";
 import { useRouter } from "next/navigation";
-// hooks
-import { useIssueFilter } from "@/hooks/store/use-issue-filter";
 // store
+import { useIssueFiltersStore } from "@/store/issue-filters.store";
+// types
 import type { TIssueLayout, TIssueQueryFilters } from "@/types/issue";
 // components
 import { AppliedFiltersList } from "./filters-list";
@@ -13,12 +12,12 @@ type TIssueAppliedFilters = {
   anchor: string;
 };
 
-export const IssueAppliedFilters = observer(function IssueAppliedFilters(props: TIssueAppliedFilters) {
+export function IssueAppliedFilters(props: TIssueAppliedFilters) {
   const { anchor } = props;
   // router
   const router = useRouter();
   // store hooks
-  const { getIssueFilters, initIssueFilters, updateIssueFilters } = useIssueFilter();
+  const { getIssueFilters, initIssueFilters, updateIssueFilters } = useIssueFiltersStore();
   // derived values
   const issueFilters = getIssueFilters(anchor);
   const activeLayout = issueFilters?.display_filters?.layout || undefined;
@@ -70,18 +69,14 @@ export const IssueAppliedFilters = observer(function IssueAppliedFilters(props: 
   );
 
   const handleRemoveAllFilters = () => {
-    initIssueFilters(
-      anchor,
-      {
-        display_filters: { layout: activeLayout || "list" },
-        filters: {
-          state: [],
-          priority: [],
-          labels: [],
-        },
+    initIssueFilters(anchor, {
+      display_filters: { layout: activeLayout || "list" },
+      filters: {
+        state: [],
+        priority: [],
+        labels: [],
       },
-      true
-    );
+    });
 
     router.push(`/issues/${anchor}?${`board=${activeLayout || "list"}`}`);
   };
@@ -97,4 +92,4 @@ export const IssueAppliedFilters = observer(function IssueAppliedFilters(props: 
       />
     </div>
   );
-});
+}

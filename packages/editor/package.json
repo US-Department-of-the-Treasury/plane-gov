@@ -32,7 +32,7 @@
   "dependencies": {
     "@floating-ui/dom": "^1.7.1",
     "@floating-ui/react": "^0.26.4",
-    "@headlessui/react": "^1.7.3",
+    "@headlessui/react": "^2.2.0",
     "@hocuspocus/provider": "2.15.2",
     "@plane/constants": "workspace:*",
     "@plane/hooks": "workspace:*",

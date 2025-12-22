@@ -1,16 +1,15 @@
-import { observer } from "mobx-react";
 import { PlaneLockup } from "@plane/propel/icons";
 // assets
 import UserLoggedInImage from "@/app/assets/user-logged-in.svg?url";
 // components
 import { PoweredBy } from "@/components/common/powered-by";
 import { UserAvatar } from "@/components/issues/navbar/user-avatar";
-// hooks
-import { useUser } from "@/hooks/store/use-user";
+// store
+import { useCurrentUser } from "@/store/queries";
 
-export const UserLoggedIn = observer(function UserLoggedIn() {
+export function UserLoggedIn() {
   // store hooks
-  const { data: user } = useUser();
+  const { data: user } = useCurrentUser();
 
   if (!user) return null;
 
@@ -38,4 +37,4 @@ export const UserLoggedIn = observer(function UserLoggedIn() {
       <PoweredBy />
     </div>
   );
-});
+}

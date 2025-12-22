@@ -18,7 +18,7 @@ import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/iss
 
 type BlockProps = {
   activity: TActivityEntityData;
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLDivElement | null>;
   workspaceSlug: string;
 };
 export function RecentIssue(props: BlockProps) {

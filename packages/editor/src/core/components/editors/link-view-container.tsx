@@ -10,7 +10,7 @@ import { LinkView } from "@/components/links";
 
 type Props = {
   editor: Editor;
-  containerRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 };
 
 export function LinkViewContainer({ editor, containerRef }: Props) {

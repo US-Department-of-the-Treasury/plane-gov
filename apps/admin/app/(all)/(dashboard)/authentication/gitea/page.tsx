@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
-import useSWR from "swr";
 // plane internal packages
 import { setPromiseToast } from "@plane/propel/toast";
 import { Loader, ToggleSwitch } from "@plane/ui";
@@ -8,19 +6,20 @@ import { Loader, ToggleSwitch } from "@plane/ui";
 import giteaLogo from "@/app/assets/logos/gitea-logo.svg?url";
 import { AuthenticationMethodCard } from "@/components/authentication/authentication-method-card";
 // hooks
-import { useInstance } from "@/hooks/store";
-//local components
+import { useInstanceConfigurations, useUpdateInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
+// local components
 import type { Route } from "./+types/page";
 import { InstanceGiteaConfigForm } from "./form";
 
-const InstanceGiteaAuthenticationPage = observer(function InstanceGiteaAuthenticationPage() {
-  // store
-  const { fetchInstanceConfigurations, formattedConfig, updateInstanceConfigurations } = useInstance();
+function InstanceGiteaAuthenticationPage() {
+  // queries
+  const { data: configurations } = useInstanceConfigurations();
+  const formattedConfig = computeFormattedConfig(configurations);
+  const updateConfigMutation = useUpdateInstanceConfigurations();
   // state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // config
   const enableGiteaConfig = formattedConfig?.IS_GITEA_ENABLED ?? "";
-  useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
 
   const updateConfig = async (key: "IS_GITEA_ENABLED", value: string) => {
     setIsSubmitting(true);
@@ -29,7 +28,7 @@ const InstanceGiteaAuthenticationPage = observer(function InstanceGiteaAuthentic
       [key]: value,
     };
 
-    const updateConfigPromise = updateInstanceConfigurations(payload);
+    const updateConfigPromise = updateConfigMutation.mutateAsync(payload);
 
     setPromiseToast(updateConfigPromise, {
       loading: "Saving Configuration...",
@@ -93,7 +92,8 @@ const InstanceGiteaAuthenticationPage = observer(function InstanceGiteaAuthentic
       </div>
     </>
   );
-});
+}
+
 export const meta: Route.MetaFunction = () => [{ title: "Gitea Authentication - God Mode" }];
 
 export default InstanceGiteaAuthenticationPage;

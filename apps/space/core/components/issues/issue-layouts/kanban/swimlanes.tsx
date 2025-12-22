@@ -1,6 +1,5 @@
 import type { MutableRefObject } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 // types
 import type {
   GroupByColumnTypes,
@@ -13,13 +12,10 @@ import type {
   TPaginationData,
   TLoader,
 } from "@plane/types";
-// hooks
-import { useSprint } from "@/hooks/store/use-sprint";
-import { useLabel } from "@/hooks/store/use-label";
-import { useMember } from "@/hooks/store/use-member";
-import { useEpic } from "@/hooks/store/use-epic";
-import { useStates } from "@/hooks/store/use-state";
-//
+// store
+import { useAnchor } from "@/store/anchor-context";
+import { useStates, useLabels, useMembers, useSprints, useEpics } from "@/store/queries";
+// local
 import { getGroupByColumns } from "../utils";
 import { KanBan } from "./default";
 import { HeaderGroupByCard } from "./headers/group-by-card";
@@ -43,7 +39,7 @@ export interface IKanBanSwimLanes {
   orderBy: TIssueOrderByOptions | undefined;
 }
 
-export const KanBanSwimLanes = observer(function KanBanSwimLanes(props: IKanBanSwimLanes) {
+export function KanBanSwimLanes(props: IKanBanSwimLanes) {
   const {
     groupedIssueIds,
     displayProperties,
@@ -58,14 +54,16 @@ export const KanBanSwimLanes = observer(function KanBanSwimLanes(props: IKanBanS
     scrollableContainerRef,
   } = props;
 
-  const member = useMember();
-  const label = useLabel();
-  const sprint = useSprint();
-  const epics = useEpic();
-  const state = useStates();
+  // hooks
+  const anchor = useAnchor();
+  const { data: members } = useMembers(anchor);
+  const { data: labels } = useLabels(anchor);
+  const { data: sprints } = useSprints(anchor);
+  const { data: epics } = useEpics(anchor);
+  const { sortedStates } = useStates(anchor);
 
-  const groupByList = getGroupByColumns(groupBy as GroupByColumnTypes, sprint, epics, label, state, member);
-  const subGroupByList = getGroupByColumns(subGroupBy as GroupByColumnTypes, sprint, epics, label, state, member);
+  const groupByList = getGroupByColumns(groupBy as GroupByColumnTypes, sprints, epics, labels, sortedStates, members);
+  const subGroupByList = getGroupByColumns(subGroupBy as GroupByColumnTypes, sprints, epics, labels, sortedStates, members);
 
   if (!groupByList || !subGroupByList) return null;
 
@@ -99,7 +97,7 @@ export const KanBanSwimLanes = observer(function KanBanSwimLanes(props: IKanBanS
       )}
     </div>
   );
-});
+}
 
 interface ISubGroupSwimlaneHeader {
   subGroupBy: TIssueGroupByOptions | undefined;
@@ -125,7 +123,7 @@ const visibilitySubGroupByGroupCount = (subGroupIssueCount: number, showEmptyGro
   return subGroupHeaderVisibility;
 };
 
-const SubGroupSwimlaneHeader = observer(function SubGroupSwimlaneHeader({
+function SubGroupSwimlaneHeader({
   subGroupBy,
   groupBy,
   groupList,
@@ -150,7 +148,7 @@ const SubGroupSwimlaneHeader = observer(function SubGroupSwimlaneHeader({
         })}
     </div>
   );
-});
+}
 
 interface ISubGroupSwimlane extends ISubGroupSwimlaneHeader {
   groupedIssueIds: TGroupedIssues | TSubGroupedIssues;
@@ -168,7 +166,7 @@ interface ISubGroupSwimlane extends ISubGroupSwimlaneHeader {
   loadMoreIssues: (groupId?: string, subGroupId?: string) => void;
 }
 
-const SubGroupSwimlane = observer(function SubGroupSwimlane(props: ISubGroupSwimlane) {
+function SubGroupSwimlane(props: ISubGroupSwimlane) {
   const {
     groupedIssueIds,
     subGroupBy,
@@ -205,7 +203,7 @@ const SubGroupSwimlane = observer(function SubGroupSwimlane(props: ISubGroupSwim
         ))}
     </div>
   );
-});
+}
 
 interface ISubGroup {
   groupedIssueIds: TGroupedIssues | TSubGroupedIssues;
@@ -225,7 +223,7 @@ interface ISubGroup {
   loadMoreIssues: (groupId?: string, subGroupId?: string) => void;
 }
 
-const SubGroup = observer(function SubGroup(props: ISubGroup) {
+function SubGroup(props: ISubGroup) {
   const {
     groupedIssueIds,
     subGroupBy,
@@ -301,4 +299,4 @@ const SubGroup = observer(function SubGroup(props: ISubGroup) {
       </div>
     </>
   );
-});
+}
