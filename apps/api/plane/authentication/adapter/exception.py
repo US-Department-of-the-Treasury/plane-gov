@@ -3,7 +3,7 @@ from rest_framework.views import exception_handler
 from rest_framework.exceptions import NotAuthenticated
 from rest_framework.exceptions import Throttled
 
-# Module imports
+# Package imports
 from plane.authentication.adapter.error import (
     AuthenticationException,
     AUTHENTICATION_ERROR_CODES,

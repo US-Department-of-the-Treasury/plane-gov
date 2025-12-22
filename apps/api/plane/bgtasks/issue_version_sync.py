@@ -12,13 +12,13 @@ from django.db import transaction
 # Third party imports
 from celery import shared_task
 
-# Module imports
+# Package imports
 from plane.db.models import (
     Issue,
     IssueVersion,
     ProjectMember,
     SprintIssue,
-    ModuleIssue,
+    EpicIssue,
     IssueActivity,
     IssueAssignee,
     IssueLabel,
@@ -99,13 +99,13 @@ def get_related_data(issue_ids: List[UUID]) -> Dict:
     for issue_id, group in groupby(label_records, key=lambda x: x[0]):
         labels[issue_id] = [str(g[1]) for g in group]
 
-    # Get modules with proper grouping
-    module_records = list(
-        ModuleIssue.objects.filter(issue_id__in=issue_ids).values_list("issue_id", "module_id").order_by("issue_id")
+    # Get epics with proper grouping
+    epic_records = list(
+        EpicIssue.objects.filter(issue_id__in=issue_ids).values_list("issue_id", "epic_id").order_by("issue_id")
     )
-    modules = {}
-    for issue_id, group in groupby(module_records, key=lambda x: x[0]):
-        modules[issue_id] = [str(g[1]) for g in group]
+    epics = {}
+    for issue_id, group in groupby(epic_records, key=lambda x: x[0]):
+        epics[issue_id] = [str(g[1]) for g in group]
 
     # Get latest activities
     latest_activities = {}
@@ -119,7 +119,7 @@ def get_related_data(issue_ids: List[UUID]) -> Dict:
         "sprint_issues": sprint_issues,
         "assignees": assignees,
         "labels": labels,
-        "modules": modules,
+        "epics": epics,
         "activities": latest_activities,
     }
 
@@ -166,7 +166,7 @@ def create_issue_version(issue: Issue, related_data: Dict) -> Optional[IssueVers
             external_id=issue.external_id,
             type=issue.type_id,
             sprint=related_data["sprint_issues"].get(issue.id),
-            modules=related_data["modules"].get(issue.id, []),
+            epics=related_data["epics"].get(issue.id, []),
         )
     except Exception as e:
         log_exception(e)

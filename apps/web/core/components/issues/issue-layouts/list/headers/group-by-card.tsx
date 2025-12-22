@@ -56,11 +56,11 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
   const [isOpen, setIsOpen] = useState(false);
   const [openExistingIssueListModal, setOpenExistingIssueListModal] = useState(false);
   // router
-  const { workspaceSlug, projectId, moduleId, sprintId } = useParams();
+  const { workspaceSlug, projectId, epicId, sprintId } = useParams();
   const storeType = useIssueStoreType();
   // derived values
-  const renderExistingIssueModal = moduleId || sprintId;
-  const existingIssuesListModalPayload = moduleId ? { module: moduleId.toString() } : { sprint: true };
+  const renderExistingIssueModal = epicId || sprintId;
+  const existingIssuesListModalPayload = epicId ? { epic: epicId.toString() } : { sprint: true };
   const isGroupSelectionEmpty = selectionHelpers.isGroupSelected(groupID) === "empty";
   // auth
   const canSelectIssues = canEditProperties(projectId?.toString()) && !selectionHelpers.isSelectionDisabled;

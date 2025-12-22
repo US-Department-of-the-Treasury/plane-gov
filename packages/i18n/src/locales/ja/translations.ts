@@ -11,7 +11,7 @@ export default {
     analytics: "アナリティクス",
     work_items: "作業項目",
     sprints: "サイクル",
-    modules: "モジュール",
+    epics: "エピック",
     intake: "インテーク",
     drafts: "下書き",
     favorites: "お気に入り",
@@ -371,7 +371,7 @@ export default {
   open_project: "プロジェクトを開く",
   issues: "作業項目",
   sprints: "Sprints",
-  modules: "Modules",
+  epics: "Epics",
   pages: "Pages",
   intake: "Intake",
   time_tracking: "時間トラッキング",
@@ -380,7 +380,7 @@ export default {
   projects_and_issues_description: "このプロジェクトでオン/オフを切り替えます。",
   sprints_description:
     "プロジェクトごとに作業の時間枠を設定し、必要に応じて期間を調整します。1サイクルは2週間、次は1週間でもかまいません。",
-  modules_description: "専任のリーダーと担当者を持つサブプロジェクトに作業を整理します。",
+  epics_description: "専任のリーダーと担当者を持つサブプロジェクトに作業を整理します。",
   views_description: "カスタムの並び替え、フィルター、表示オプションを保存するか、チームと共有します。",
   pages_description: "自由形式のコンテンツを作成・編集できます。メモ、ドキュメント、何でもOKです。",
   intake_description:
@@ -652,8 +652,8 @@ export default {
     project: "プロジェクト",
     sprint: "サイクル",
     sprints: "サイクル",
-    module: "モジュール",
-    modules: "モジュール",
+    epic: "エピック",
+    epics: "エピック",
     labels: "ラベル",
     label: "ラベル",
     assignees: "担当者",
@@ -990,10 +990,10 @@ export default {
         success: "作業項目をサイクルから削除しました。",
         failed: "作業項目をサイクルから削除できませんでした。もう一度お試しください。",
       },
-      module: {
-        loading: "モジュールから作業項目を削除中",
-        success: "作業項目をモジュールから削除しました。",
-        failed: "作業項目をモジュールから削除できませんでした。もう一度お試しください。",
+      epic: {
+        loading: "エピックから作業項目を削除中",
+        success: "作業項目をエピックから削除しました。",
+        failed: "作業項目をエピックから削除できませんでした。もう一度お試しください。",
       },
       parent: {
         label: "親作業項目を削除",
@@ -1340,7 +1340,7 @@ export default {
     selected_projects: "選択されたプロジェクト",
     total_members: "メンバー総数",
     total_sprints: "サイクル総数",
-    total_modules: "モジュール総数",
+    total_epics: "エピック総数",
     pending_work_items: {
       title: "保留中の作業項目",
       empty_state: "同僚による保留中の作業項目の分析がここに表示されます。",
@@ -1381,9 +1381,9 @@ export default {
         primary_button: {
           text: "最初のプロジェクトを開始",
           comic: {
-            title: "アナリティクスはサイクル + モジュールで最もよく機能します",
+            title: "アナリティクスはサイクル + エピックで最もよく機能します",
             description:
-              "まず、作業項目をサイクルに時間枠を設定し、可能であれば、複数のサイクルにまたがる作業項目をモジュールにグループ化してください。左側のナビゲーションで両方をチェックしてください。",
+              "まず、作業項目をサイクルに時間枠を設定し、可能であれば、複数のサイクルにまたがる作業項目をエピックにグループ化してください。左側のナビゲーションで両方をチェックしてください。",
           },
         },
       },
@@ -1425,7 +1425,7 @@ export default {
     error: {
       permission: "この操作を実行する権限がありません。",
       sprint_delete: "サイクルの削除に失敗しました",
-      module_delete: "モジュールの削除に失敗しました",
+      epic_delete: "エピックの削除に失敗しました",
       issue_delete: "作業項目の削除に失敗しました",
     },
     state: {
@@ -1452,7 +1452,7 @@ export default {
       general: {
         title: "アクティブなプロジェクトがありません",
         description:
-          "各プロジェクトは目標指向の作業の親として考えてください。プロジェクトには作業、サイクル、モジュールが含まれ、同僚と共にその目標の達成を支援します。新しいプロジェクトを作成するか、アーカイブされたプロジェクトをフィルタリングしてください。",
+          "各プロジェクトは目標指向の作業の親として考えてください。プロジェクトには作業、サイクル、エピックが含まれ、同僚と共にその目標の達成を支援します。新しいプロジェクトを作成するか、アーカイブされたプロジェクトをフィルタリングしてください。",
         primary_button: {
           text: "最初のプロジェクトを開始",
           comic: {
@@ -2133,29 +2133,29 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "モジュールを追加",
-    update_module: "モジュールを更新",
-    create_module: "モジュールを作成",
-    archive_module: "モジュールをアーカイブ",
-    restore_module: "モジュールを復元",
-    delete_module: "モジュールを削除",
+  project_epic: {
+    add_epic: "エピックを追加",
+    update_epic: "エピックを更新",
+    create_epic: "エピックを作成",
+    archive_epic: "エピックをアーカイブ",
+    restore_epic: "エピックを復元",
+    delete_epic: "エピックを削除",
     empty_state: {
       general: {
-        title: "プロジェクトのマイルストーンをモジュールにマッピングし、集計された作業を簡単に追跡できます。",
+        title: "プロジェクトのマイルストーンをエピックにマッピングし、集計された作業を簡単に追跡できます。",
         description:
-          "論理的で階層的な親に属する作業項目のグループがモジュールを形成します。プロジェクトのマイルストーンで作業を追跡する方法として考えてください。期間や期限があり、マイルストーンまでの進捗状況を確認できる分析機能も備えています。",
+          "論理的で階層的な親に属する作業項目のグループがエピックを形成します。プロジェクトのマイルストーンで作業を追跡する方法として考えてください。期間や期限があり、マイルストーンまでの進捗状況を確認できる分析機能も備えています。",
         primary_button: {
-          text: "最初のモジュールを作成",
+          text: "最初のエピックを作成",
           comic: {
-            title: "モジュールは階層的に作業をグループ化するのに役立ちます。",
-            description: "カートモジュール、シャーシモジュール、倉庫モジュールは、このグループ化の良い例です。",
+            title: "エピックは階層的に作業をグループ化するのに役立ちます。",
+            description: "カートエピック、シャーシエピック、倉庫エピックは、このグループ化の良い例です。",
           },
         },
       },
       no_issues: {
-        title: "モジュールに作業項目がありません",
-        description: "このモジュールの一部として達成したい作業項目を作成または追加してください",
+        title: "エピックに作業項目がありません",
+        description: "このエピックの一部として達成したい作業項目を作成または追加してください",
         primary_button: {
           text: "新しい作業項目を作成",
         },
@@ -2164,27 +2164,27 @@ export default {
         },
       },
       archived: {
-        title: "アーカイブされたモジュールがまだありません",
+        title: "アーカイブされたエピックがまだありません",
         description:
-          "プロジェクトを整理するために、完了またはキャンセルされたモジュールをアーカイブします。アーカイブ後はここで確認できます。",
+          "プロジェクトを整理するために、完了またはキャンセルされたエピックをアーカイブします。アーカイブ後はここで確認できます。",
       },
       sidebar: {
-        in_active: "このモジュールはまだアクティブではありません。",
+        in_active: "このエピックはまだアクティブではありません。",
         invalid_date: "無効な日付です。有効な日付を入力してください。",
       },
     },
     quick_actions: {
-      archive_module: "モジュールをアーカイブ",
-      archive_module_description: "完了またはキャンセルされた\nモジュールのみアーカイブできます。",
-      delete_module: "モジュールを削除",
+      archive_epic: "エピックをアーカイブ",
+      archive_epic_description: "完了またはキャンセルされた\nエピックのみアーカイブできます。",
+      delete_epic: "エピックを削除",
     },
     toast: {
       copy: {
-        success: "モジュールのリンクがクリップボードにコピーされました",
+        success: "エピックのリンクがクリップボードにコピーされました",
       },
       delete: {
-        success: "モジュールが正常に削除されました",
-        error: "モジュールを削除できませんでした",
+        success: "エピックが正常に削除されました",
+        error: "エピックを削除できませんでした",
       },
     },
   },
@@ -2363,10 +2363,10 @@ export default {
           text: "機能を管理",
         },
       },
-      module: {
-        title: "モジュールがプロジェクトで有効になっていません。",
+      epic: {
+        title: "エピックがプロジェクトで有効になっていません。",
         description:
-          "モジュールはプロジェクトの構成要素です。モジュールを使用するには、プロジェクト設定でモジュールを有効にしてください。",
+          "エピックはプロジェクトの構成要素です。エピックを使用するには、プロジェクト設定でエピックを有効にしてください。",
         primary_button: {
           text: "機能を管理",
         },
@@ -2478,7 +2478,7 @@ export default {
     },
     member: {
       title: "メンバー",
-      description: "プロジェクト、サイクル、モジュール内のエンティティの読み取り、書き込み、編集、削除が可能",
+      description: "プロジェクト、サイクル、エピック内のエンティティの読み取り、書き込み、編集、削除が可能",
     },
     admin: {
       title: "管理者",
@@ -2557,7 +2557,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "バックログ",
       planned: "計画済み",
@@ -2584,9 +2584,9 @@ export default {
     label: "{count, plural, one {サイクル} other {サイクル}}",
     no_sprint: "サイクルなし",
   },
-  module: {
-    label: "{count, plural, one {モジュール} other {モジュール}}",
-    no_module: "モジュールなし",
+  epic: {
+    label: "{count, plural, one {エピック} other {エピック}}",
+    no_epic: "エピックなし",
   },
   description_versions: {
     last_edited_by: "最終編集者",

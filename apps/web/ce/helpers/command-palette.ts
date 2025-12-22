@@ -1,7 +1,7 @@
 // types
 import {
   SPRINT_TRACKER_ELEMENTS,
-  MODULE_TRACKER_ELEMENTS,
+  EPIC_TRACKER_ELEMENTS,
   PROJECT_PAGE_TRACKER_ELEMENTS,
   PROJECT_TRACKER_ELEMENTS,
   PROJECT_VIEW_TRACKER_ELEMENTS,
@@ -45,7 +45,7 @@ export const getWorkspaceShortcutsList: () => TCommandPaletteActionList = () => 
 export const getProjectShortcutsList: () => TCommandPaletteActionList = () => {
   const {
     toggleCreatePageModal,
-    toggleCreateModuleModal,
+    toggleCreateEpicModal,
     toggleCreateSprintModal,
     toggleCreateViewModal,
     toggleBulkDeleteIssueModal,
@@ -61,11 +61,11 @@ export const getProjectShortcutsList: () => TCommandPaletteActionList = () => {
       },
     },
     m: {
-      title: "Create a new module",
-      description: "Create a new module in the current project",
+      title: "Create a new epic",
+      description: "Create a new epic in the current project",
       action: () => {
-        toggleCreateModuleModal(true);
-        captureClick({ elementName: MODULE_TRACKER_ELEMENTS.COMMAND_PALETTE_ADD_ITEM });
+        toggleCreateEpicModal(true);
+        captureClick({ elementName: EPIC_TRACKER_ELEMENTS.COMMAND_PALETTE_ADD_ITEM });
       },
     },
     q: {
@@ -108,7 +108,7 @@ export const getCommonShortcutsList = (platform: string): TCommandPaletteShortcu
   { keys: "P", description: "Create project" },
   { keys: "C", description: "Create work item" },
   { keys: "Q", description: "Create sprint" },
-  { keys: "M", description: "Create module" },
+  { keys: "M", description: "Create epic" },
   { keys: "V", description: "Create view" },
   { keys: "D", description: "Create page" },
   { keys: "Delete", description: "Bulk delete work items" },

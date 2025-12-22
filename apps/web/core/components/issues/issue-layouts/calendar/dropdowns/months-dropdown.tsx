@@ -11,13 +11,13 @@ import { MONTHS_LIST } from "@/constants/calendar";
 import { useCalendarView } from "@/hooks/store/use-calendar-view";
 import type { IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
 import type { ISprintIssuesFilter } from "@/store/issue/sprint";
-import type { IModuleIssuesFilter } from "@/store/issue/module";
+import type { IEpicIssuesFilter } from "@/store/issue/epic";
 import type { IProjectIssuesFilter } from "@/store/issue/project";
 import type { IProjectViewIssuesFilter } from "@/store/issue/project-views";
 // helpers
 
 interface Props {
-  issuesFilterStore: IProjectIssuesFilter | IModuleIssuesFilter | ISprintIssuesFilter | IProjectViewIssuesFilter;
+  issuesFilterStore: IProjectIssuesFilter | IEpicIssuesFilter | ISprintIssuesFilter | IProjectViewIssuesFilter;
 }
 export const CalendarMonthsDropdown = observer(function CalendarMonthsDropdown(props: Props) {
   const { issuesFilterStore } = props;

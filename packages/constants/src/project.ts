@@ -105,9 +105,9 @@ export const PROJECT_ERROR_MESSAGES = {
     i18n_title: "error",
     i18n_message: "workspace_projects.error.sprint_delete",
   },
-  moduleDeleteError: {
+  epicDeleteError: {
     i18n_title: "error",
-    i18n_message: "workspace_projects.error.module_delete",
+    i18n_message: "workspace_projects.error.epic_delete",
   },
   issueDeleteError: {
     i18n_title: "error",
@@ -118,7 +118,7 @@ export const PROJECT_ERROR_MESSAGES = {
 export enum EProjectFeatureKey {
   WORK_ITEMS = "work_items",
   SPRINTS = "sprints",
-  MODULES = "modules",
+  EPICS = "epics",
   VIEWS = "views",
   PAGES = "pages",
   INTAKE = "intake",

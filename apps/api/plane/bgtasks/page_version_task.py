@@ -4,7 +4,7 @@ import json
 # Third party imports
 from celery import shared_task
 
-# Module imports
+# Package imports
 from plane.db.models import Page, PageVersion
 from plane.utils.exception_logger import log_exception
 

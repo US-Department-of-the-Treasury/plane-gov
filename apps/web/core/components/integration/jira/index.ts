@@ -25,14 +25,14 @@ export const jiraFormDefaultValues: IJiraImporterForm = {
     email: "",
   },
   config: {
-    epics_to_modules: false,
+    import_jira_epics: false,
   },
   data: {
     users: [],
     invite_users: true,
     total_issues: 0,
     total_labels: 0,
-    total_modules: 0,
+    total_epics: 0,
     total_states: 0,
   },
   project_id: "",

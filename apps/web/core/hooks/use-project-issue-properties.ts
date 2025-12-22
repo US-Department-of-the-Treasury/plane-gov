@@ -46,14 +46,14 @@ export const useProjectIssueProperties = () => {
   ) => {
     // No-op: TanStack Query handles fetching automatically via useProjectSprints hook
   };
-  // fetching project modules - handled by TanStack Query useProjectModules hook
+  // fetching project epics - handled by TanStack Query useProjectEpics hook
   // This function is kept for backward compatibility but is a no-op
-  // Components should use useProjectModules(workspaceSlug, projectId) directly
-  const fetchModules = async (
+  // Components should use useProjectEpics(workspaceSlug, projectId) directly
+  const fetchEpics = async (
     _workspaceSlug: string | string[] | undefined,
     _projectId: string | string[] | undefined
   ) => {
-    // No-op: TanStack Query handles fetching automatically via useProjectModules hook
+    // No-op: TanStack Query handles fetching automatically via useProjectEpics hook
   };
   // fetching project estimates
   const fetchEstimates = async (
@@ -71,7 +71,7 @@ export const useProjectIssueProperties = () => {
       await fetchMembers(workspaceSlug, projectId);
       await fetchLabels(workspaceSlug, projectId);
       await fetchSprints(workspaceSlug, projectId);
-      await fetchModules(workspaceSlug, projectId);
+      await fetchEpics(workspaceSlug, projectId);
       await fetchEstimates(workspaceSlug, projectId);
     }
   };
@@ -82,7 +82,7 @@ export const useProjectIssueProperties = () => {
     fetchMembers,
     fetchLabels,
     fetchSprints,
-    fetchModules,
+    fetchEpics,
     fetchEstimates,
   };
 };

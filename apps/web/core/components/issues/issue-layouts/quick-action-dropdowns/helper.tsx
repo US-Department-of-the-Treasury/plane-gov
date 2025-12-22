@@ -70,7 +70,7 @@ export interface MenuItemFactoryProps {
   handleArchive?: () => Promise<void>;
   // Context-specific data
   sprintId?: string;
-  moduleId?: string;
+  epicId?: string;
   storeType?: EIssuesStoreType;
 }
 
@@ -338,7 +338,7 @@ export const useEpicIssueMenuItems = (props: MenuItemFactoryProps): TContextMenu
   const customEditAction = () => {
     props.setIssueToEdit({
       ...props.issue,
-      module_ids: props.moduleId ? [props.moduleId] : [],
+      epic_ids: props.epicId ? [props.epicId] : [],
     });
     props.setCreateUpdateIssueModal(true);
   };
@@ -353,7 +353,7 @@ export const useEpicIssueMenuItems = (props: MenuItemFactoryProps): TContextMenu
       factory.createArchiveMenuItem(),
       factory.createDeleteMenuItem(),
     ],
-    [factory, props.moduleId]
+    [factory, props.epicId]
   );
 };
 

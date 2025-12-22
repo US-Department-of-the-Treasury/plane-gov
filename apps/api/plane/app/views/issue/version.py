@@ -2,7 +2,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from plane.db.models import (
     IssueVersion,
     IssueDescriptionVersion,

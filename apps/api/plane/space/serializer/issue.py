@@ -4,13 +4,13 @@ from django.utils import timezone
 # Third Party imports
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from .base import BaseSerializer
 from .user import UserLiteSerializer
 from .state import StateSerializer, StateLiteSerializer
 from .project import ProjectLiteSerializer
 from .sprint import SprintBaseSerializer
-from .module import ModuleBaseSerializer
+from .epic import EpicBaseSerializer
 from .workspace import WorkspaceLiteSerializer
 from plane.db.models import (
     User,
@@ -20,7 +20,7 @@ from plane.db.models import (
     IssueLabel,
     Label,
     SprintIssue,
-    ModuleIssue,
+    EpicIssue,
     IssueLink,
     FileAsset,
     IssueReaction,
@@ -96,11 +96,11 @@ class IssueSprintDetailSerializer(BaseSerializer):
         ]
 
 
-class IssueModuleDetailSerializer(BaseSerializer):
-    module_detail = ModuleBaseSerializer(read_only=True, source="module")
+class IssueEpicDetailSerializer(BaseSerializer):
+    epic_detail = EpicBaseSerializer(read_only=True, source="epic")
 
     class Meta:
-        model = ModuleIssue
+        model = EpicIssue
         fields = "__all__"
         read_only_fields = [
             "workspace",
@@ -166,7 +166,7 @@ class IssueSerializer(BaseSerializer):
     related_issues = IssueRelationSerializer(read_only=True, source="issue_relation", many=True)
     issue_relations = RelatedIssueSerializer(read_only=True, source="issue_related", many=True)
     issue_sprint = IssueSprintDetailSerializer(read_only=True)
-    issue_module = IssueModuleDetailSerializer(read_only=True)
+    issue_epic = IssueEpicDetailSerializer(read_only=True)
     issue_link = IssueLinkSerializer(read_only=True, many=True)
     issue_attachment = IssueAttachmentSerializer(read_only=True, many=True)
     sub_issues_count = serializers.IntegerField(read_only=True)
@@ -421,7 +421,7 @@ class IssueVoteSerializer(BaseSerializer):
 class IssuePublicSerializer(BaseSerializer):
     reactions = IssueReactionSerializer(read_only=True, many=True, source="issue_reactions")
     votes = IssueVoteSerializer(read_only=True, many=True)
-    module_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
+    epic_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
     label_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
     assignee_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
 
@@ -438,7 +438,7 @@ class IssuePublicSerializer(BaseSerializer):
             "target_date",
             "reactions",
             "votes",
-            "module_ids",
+            "epic_ids",
             "created_by",
             "label_ids",
             "assignee_ids",

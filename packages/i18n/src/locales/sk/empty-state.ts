@@ -54,15 +54,15 @@ export default {
       cta_primary: "Vytvoriť pracovnú položku",
       cta_secondary: "Pridať existujúcu pracovnú položku",
     },
-    modules: {
-      title: "Namapujte ciele vášho projektu na moduly a jednoducho sledujte.",
+    epics: {
+      title: "Namapujte ciele vášho projektu na epicy a jednoducho sledujte.",
       description:
-        "Moduly sa skladajú z prepojených pracovných položiek. Pomáhajú sledovať pokrok prostredníctvom fáz projektu, z ktorých každá má špecifické termíny a analytiku, ktorá ukazuje, ako blízko ste dosiahnutiu týchto fáz.",
-      cta_primary: "Nastavte svoj prvý modul",
+        "Epicy sa skladajú z prepojených pracovných položiek. Pomáhajú sledovať pokrok prostredníctvom fáz projektu, z ktorých každá má špecifické termíny a analytiku, ktorá ukazuje, ako blízko ste dosiahnutiu týchto fáz.",
+      cta_primary: "Nastavte svoj prvý epic",
     },
-    module_work_items: {
-      title: "V tomto module nie sú žiadne pracovné položky na zobrazenie",
-      description: "Vytvorte pracovné položky na začatie sledovania tohto modulu.",
+    epic_work_items: {
+      title: "V tomto epicu nie sú žiadne pracovné položky na zobrazenie",
+      description: "Vytvorte pracovné položky na začatie sledovania tohto epicu.",
       cta_primary: "Vytvoriť pracovnú položku",
       cta_secondary: "Pridať existujúcu pracovnú položku",
     },
@@ -115,10 +115,10 @@ export default {
       description:
         "Pre upratanie vášho projektu archivujte dokončené cykly. Nájdete ich tu, akonáhle budú archivované.",
     },
-    archive_modules: {
-      title: "Zatiaľ žiadne archivované moduly",
+    archive_epics: {
+      title: "Zatiaľ žiadne archivované epicy",
       description:
-        "Pre upratanie vášho projektu archivujte dokončené alebo zrušené moduly. Nájdete ich tu, akonáhle budú archivované.",
+        "Pre upratanie vášho projektu archivujte dokončené alebo zrušené epicy. Nájdete ich tu, akonáhle budú archivované.",
     },
     home_widget_quick_links: {
       title: "Majte po ruke dôležité odkazy, zdroje alebo dokumenty pre vašu prácu",
@@ -161,8 +161,8 @@ export default {
     analytics_no_sprint: {
       title: "Vytvorte cykly na organizáciu práce do časovo obmedzených fáz a sledovanie pokroku naprieč šprintmi.",
     },
-    analytics_no_module: {
-      title: "Vytvorte moduly na organizáciu svojej práce a sledovanie pokroku naprieč rôznymi fázami.",
+    analytics_no_epic: {
+      title: "Vytvorte epicy na organizáciu svojej práce a sledovanie pokroku naprieč rôznymi fázami.",
     },
     analytics_no_intake: {
       title: "Nastavte príjem na správu prichádzajúcich požiadaviek a sledovanie, ako sú prijímané a odmietané",

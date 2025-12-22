@@ -10,7 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from .base import BaseViewSet
 from plane.db.models import IntakeIssue, Issue, IssueLink, FileAsset, DeployBoard, State, StateGroup
 from plane.app.serializers import (

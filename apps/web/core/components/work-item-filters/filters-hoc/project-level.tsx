@@ -14,7 +14,7 @@ import { useProjectView } from "@/hooks/store/use-project-view";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { useProjectLabels } from "@/store/queries/label";
 import { useProjectMembers } from "@/store/queries/member";
-import { useProjectModules, getModuleIds } from "@/store/queries/module";
+import { useProjectEpics, getEpicIds } from "@/store/queries/epic";
 import { useProjectDetails } from "@/store/queries/project";
 import { useProjectStates, getStateIds } from "@/store/queries/state";
 import { useProjectSprints, getSprintIds } from "@/store/queries/sprint";
@@ -45,7 +45,7 @@ export function ProjectLevelWorkItemFiltersHOC(props: TProjectLevelWorkItemFilte
   const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId);
   const { data: projectLabels } = useProjectLabels(workspaceSlug, projectId);
   const { data: projectMembers = [] } = useProjectMembers(workspaceSlug, projectId);
-  const { data: projectModules } = useProjectModules(workspaceSlug, projectId);
+  const { data: projectEpics } = useProjectEpics(workspaceSlug, projectId);
   const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
   const { data: projectSprints } = useProjectSprints(workspaceSlug, projectId);
   // derived values
@@ -214,7 +214,7 @@ export function ProjectLevelWorkItemFiltersHOC(props: TProjectLevelWorkItemFilte
         sprintIds={getSprintIds(projectSprints)}
         labelIds={projectLabels?.map((label) => label.id) ?? []}
         memberIds={projectMembers.map((member) => member.member)}
-        moduleIds={getModuleIds(projectModules)}
+        epicIds={getEpicIds(projectEpics)}
         stateIds={getStateIds(projectStates)}
         saveViewOptions={saveViewOptions}
         updateViewOptions={updateViewOptions}

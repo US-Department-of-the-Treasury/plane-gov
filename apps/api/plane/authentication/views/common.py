@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from zxcvbn import zxcvbn
 
-## Module imports
+## Package imports
 from plane.app.serializers import UserSerializer
 from plane.authentication.utils.login import user_login
 from plane.db.models import User

@@ -18,7 +18,7 @@ from .intake import IntakeIssuePublicViewSet
 
 from .sprint import ProjectSprintsEndpoint
 
-from .module import ProjectModulesEndpoint
+from .epic import ProjectEpicsEndpoint
 
 from .state import ProjectStatesEndpoint
 

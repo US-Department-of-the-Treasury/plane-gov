@@ -11,7 +11,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-## Module imports
+## Package imports
 from plane.db.models import User
 from plane.license.models import Instance
 from plane.authentication.adapter.error import (

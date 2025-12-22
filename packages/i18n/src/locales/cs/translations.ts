@@ -11,7 +11,7 @@ export default {
     analytics: "Analytika",
     work_items: "Pracovní položky",
     sprints: "Cykly",
-    modules: "Moduly",
+    epices: "Moduly",
     intake: "Příjem",
     drafts: "Koncepty",
     favorites: "Oblíbené",
@@ -372,7 +372,7 @@ export default {
   open_project: "Otevřít projekt",
   issues: "Pracovní položky",
   sprints: "Cykly",
-  modules: "Moduly",
+  epices: "Moduly",
   pages: "Stránky",
   intake: "Příjem",
   time_tracking: "Sledování času",
@@ -381,7 +381,7 @@ export default {
   projects_and_issues_description: "Aktivujte nebo deaktivujte tyto funkce v projektu.",
   sprints_description:
     "Časově vymezte práci podle projektu a podle potřeby upravte období. Jeden cyklus může trvat 2 týdny, další jen 1 týden.",
-  modules_description: "Organizujte práci do podprojektů s vyhrazenými vedoucími a přiřazenými osobami.",
+  epices_description: "Organizujte práci do podprojektů s vyhrazenými vedoucími a přiřazenými osobami.",
   views_description: "Uložte vlastní řazení, filtry a možnosti zobrazení nebo je sdílejte se svým týmem.",
   pages_description: "Vytvářejte a upravujte volně strukturovaný obsah – poznámky, dokumenty, cokoli.",
   intake_description: "Umožněte nečlenům sdílet chyby, zpětnou vazbu a návrhy, aniž by narušili váš pracovní postup.",
@@ -651,8 +651,8 @@ export default {
     project: "Projekt",
     sprint: "Cyklus",
     sprints: "Cykly",
-    module: "Modul",
-    modules: "Moduly",
+    epice: "Epic",
+    epices: "Moduly",
     labels: "Štítky",
     label: "Štítek",
     assignees: "Přiřazení",
@@ -992,10 +992,10 @@ export default {
         success: "Pracovní položka odebrána z cyklu.",
         failed: "Odebrání pracovní položky z cyklu se nezdařilo. Zkuste to prosím znovu.",
       },
-      module: {
-        loading: "Odebírání pracovní položky z modulu",
-        success: "Pracovní položka odebrána z modulu.",
-        failed: "Odebrání pracovní položky z modulu se nezdařilo. Zkuste to prosím znovu.",
+      epice: {
+        loading: "Odebírání pracovní položky z epicu",
+        success: "Pracovní položka odebrána z epicu.",
+        failed: "Odebrání pracovní položky z epicu se nezdařilo. Zkuste to prosím znovu.",
       },
       parent: {
         label: "Odebrat nadřazenou pracovní položku",
@@ -1341,7 +1341,7 @@ export default {
     selected_projects: "Vybrané projekty",
     total_members: "Celkem členů",
     total_sprints: "Celkem cyklů",
-    total_modules: "Celkem modulů",
+    total_epics: "Celkem epiců",
     pending_work_items: {
       title: "Čekající pracovní položky",
       empty_state: "Zde se zobrazí analýza čekajících položek podle spolupracovníků.",
@@ -1427,7 +1427,7 @@ export default {
     error: {
       permission: "Nemáte oprávnění k této akci.",
       sprint_delete: "Odstranění cyklu se nezdařilo",
-      module_delete: "Odstranění modulu se nezdařilo",
+      epic_delete: "Odstranění epicu se nezdařilo",
       issue_delete: "Odstranění pracovní položky se nezdařilo",
     },
     state: {
@@ -2120,19 +2120,19 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Přidat modul",
-    update_module: "Aktualizovat modul",
-    create_module: "Vytvořit modul",
-    archive_module: "Archivovat modul",
-    restore_module: "Obnovit modul",
-    delete_module: "Smazat modul",
+  project_epic: {
+    add_epic: "Přidat epic",
+    update_epic: "Aktualizovat epic",
+    create_epic: "Vytvořit epic",
+    archive_epic: "Archivovat epic",
+    restore_epic: "Obnovit epic",
+    delete_epic: "Smazat epic",
     empty_state: {
       general: {
-        title: "Seskupujte milníky do modulů.",
+        title: "Seskupujte milníky do epiců.",
         description: "Moduly seskupují položky pod logického nadřazeného. Sledujte termíny a pokrok.",
         primary_button: {
-          text: "Vytvořte první modul",
+          text: "Vytvořte první epic",
           comic: {
             title: "Moduly skupinují hierarchicky.",
             description: "Příklady: Modul košíku, podvozku, skladu.",
@@ -2140,8 +2140,8 @@ export default {
         },
       },
       no_issues: {
-        title: "Žádné položky v modulu",
-        description: "Přidejte položky do modulu.",
+        title: "Žádné položky v epicu",
+        description: "Přidejte položky do epicu.",
         primary_button: {
           text: "Vytvořit položky",
         },
@@ -2150,8 +2150,8 @@ export default {
         },
       },
       archived: {
-        title: "Žádné archivované moduly",
-        description: "Archivujte dokončené nebo zrušené moduly.",
+        title: "Žádné archivované epicy",
+        description: "Archivujte dokončené nebo zrušené epicy.",
       },
       sidebar: {
         in_active: "Modul není aktivní.",
@@ -2159,13 +2159,13 @@ export default {
       },
     },
     quick_actions: {
-      archive_module: "Archivovat modul",
-      archive_module_description: "Lze archivovat pouze dokončené/zrušené moduly.",
-      delete_module: "Smazat modul",
+      archive_epic: "Archivovat epic",
+      archive_epic_description: "Lze archivovat pouze dokončené/zrušené epicy.",
+      delete_epic: "Smazat epic",
     },
     toast: {
       copy: {
-        success: "Odkaz na modul zkopírován",
+        success: "Odkaz na epic zkopírován",
       },
       delete: {
         success: "Modul smazán",
@@ -2343,9 +2343,9 @@ export default {
           text: "Spravovat funkce",
         },
       },
-      module: {
+      epice: {
         title: "Moduly nejsou povoleny",
-        description: "Aktivujte moduly v nastavení projektu.",
+        description: "Aktivujte epicy v nastavení projektu.",
         primary_button: {
           text: "Spravovat funkce",
         },
@@ -2532,7 +2532,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Backlog",
       planned: "Plánováno",
@@ -2559,9 +2559,9 @@ export default {
     label: "{count, plural, one {Cyklus} few {Cykly} other {Cyklů}}",
     no_sprint: "Žádný cyklus",
   },
-  module: {
+  epice: {
     label: "{count, plural, one {Modul} few {Moduly} other {Modulů}}",
-    no_module: "Žádný modul",
+    no_epic: "Žádný epic",
   },
   description_versions: {
     last_edited_by: "Naposledy upraveno uživatelem",

@@ -141,7 +141,7 @@ export class WorkItemFilterStore implements IWorkItemFilterStore {
    * This method processes filter conditions from the sidebar UI and applies them to the
    * appropriate filter instance, handling both positive and negative operators correctly.
    *
-   * @param entityType - The entity type (e.g., project, sprint, module)
+   * @param entityType - The entity type (e.g., project, sprint, epic)
    * @param entityId - The unique identifier for the entity
    * @param condition - The filter condition containing property, operator, and value
    */

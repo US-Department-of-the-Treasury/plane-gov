@@ -237,7 +237,7 @@ export const ProjectViewForm = observer(function ProjectViewForm(props: Props) {
                             });
                           }}
                           sprintViewDisabled={!projectDetails?.sprint_view}
-                          moduleViewDisabled={!projectDetails?.module_view}
+                          epicViewDisabled={!projectDetails?.epic_view}
                         />
                       </FiltersDropdown>
                     )}

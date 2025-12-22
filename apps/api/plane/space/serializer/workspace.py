@@ -1,4 +1,4 @@
-# Module imports
+# Package imports
 from .base import BaseSerializer
 from plane.db.models import Workspace
 

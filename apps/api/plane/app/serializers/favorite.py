@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from plane.db.models import UserFavorite, Sprint, Module, Issue, IssueView, Page, Project
+from plane.db.models import UserFavorite, Sprint, Epic, Issue, IssueView, Page, Project
 
 
 class ProjectFavoriteLiteSerializer(serializers.ModelSerializer):
@@ -27,9 +27,9 @@ class SprintFavoriteLiteSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "logo_props", "project_id"]
 
 
-class ModuleFavoriteLiteSerializer(serializers.ModelSerializer):
+class EpicFavoriteLiteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Module
+        model = Epic
         fields = ["id", "name", "logo_props", "project_id"]
 
 
@@ -43,7 +43,7 @@ def get_entity_model_and_serializer(entity_type):
     entity_map = {
         "sprint": (Sprint, SprintFavoriteLiteSerializer),
         "issue": (Issue, None),
-        "module": (Module, ModuleFavoriteLiteSerializer),
+        "epic": (Epic, EpicFavoriteLiteSerializer),
         "view": (IssueView, ViewFavoriteSerializer),
         "page": (Page, PageFavoriteLiteSerializer),
         "project": (Project, ProjectFavoriteLiteSerializer),

@@ -5,7 +5,7 @@ export * from "./sprint";
 export * from "./dashboard";
 export * from "./instance";
 export * from "./intake";
-export * from "./module";
+export * from "./epic";
 export * from "./user";
 export * from "./project";
 export * from "./workspace";

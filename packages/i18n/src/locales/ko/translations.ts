@@ -11,7 +11,7 @@ export default {
     analytics: "분석",
     work_items: "작업 항목",
     sprints: "주기",
-    modules: "모듈",
+    epics: "에픽",
     intake: "접수",
     drafts: "초안",
     favorites: "즐겨찾기",
@@ -367,7 +367,7 @@ export default {
   open_project: "프로젝트 열기",
   issues: "작업 항목",
   sprints: "주기",
-  modules: "모듈",
+  epics: "에픽",
   pages: "페이지",
   intake: "접수",
   time_tracking: "시간 추적",
@@ -376,7 +376,7 @@ export default {
   projects_and_issues_description: "이 프로젝트에서 이들을 켜거나 끕니다.",
   sprints_description:
     "프로젝트별로 작업 시간을 설정하고 필요에 따라 기간을 조정하세요. 한 주기는 2주일일 수 있고, 다음은 1주일일 수 있습니다.",
-  modules_description: "작업을 전담 리더와 담당자가 있는 하위 프로젝트로 구성하세요.",
+  epics_description: "작업을 전담 리더와 담당자가 있는 하위 프로젝트로 구성하세요.",
   views_description: "사용자 정의 정렬, 필터 및 표시 옵션을 저장하거나 팀과 공유하세요.",
   pages_description: "자유 형식의 콘텐츠를 작성하고 편집하세요. 메모, 문서, 무엇이든 가능합니다.",
   intake_description: "비회원이 버그, 피드백, 제안을 공유할 수 있도록 하되, 워크플로우를 방해하지 않도록 합니다.",
@@ -646,8 +646,8 @@ export default {
     project: "프로젝트",
     sprint: "주기",
     sprints: "주기",
-    module: "모듈",
-    modules: "모듈",
+    epic: "에픽",
+    epics: "에픽",
     labels: "레이블",
     label: "레이블",
     assignees: "담당자",
@@ -985,7 +985,7 @@ export default {
         success: "작업 항목이 주기에서 성공적으로 제거되었습니다.",
         failed: "작업 항목을 주기에서 제거할 수 없습니다. 다시 시도해주세요.",
       },
-      module: {
+      epic: {
         loading: "작업 항목을 모듈에서 제거 중",
         success: "작업 항목이 모듈에서 성공적으로 제거되었습니다.",
         failed: "작업 항목을 모듈에서 제거할 수 없습니다. 다시 시도해주세요.",
@@ -1333,7 +1333,7 @@ export default {
     selected_projects: "선택된 프로젝트",
     total_members: "총 멤버",
     total_sprints: "총 주기",
-    total_modules: "총 모듈",
+    total_epics: "총 모듈",
     pending_work_items: {
       title: "보류 중인 작업 항목",
       empty_state: "동료의 보류 중인 작업 항목 분석이 여기에 표시됩니다.",
@@ -1419,7 +1419,7 @@ export default {
     error: {
       permission: "이 작업을 수행할 권한이 없습니다.",
       sprint_delete: "주기 삭제 실패",
-      module_delete: "모듈 삭제 실패",
+      epic_delete: "모듈 삭제 실패",
       issue_delete: "작업 항목 삭제 실패",
     },
     state: {
@@ -2125,13 +2125,13 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "모듈 추가",
-    update_module: "모듈 업데이트",
-    create_module: "모듈 생성",
-    archive_module: "모듈 아카이브",
-    restore_module: "모듈 복원",
-    delete_module: "모듈 삭제",
+  project_epic: {
+    add_epic: "모듈 추가",
+    update_epic: "모듈 업데이트",
+    create_epic: "모듈 생성",
+    archive_epic: "모듈 아카이브",
+    restore_epic: "모듈 복원",
+    delete_epic: "모듈 삭제",
     empty_state: {
       general: {
         title: "프로젝트 마일스톤을 모듈로 매핑하고 집계된 작업을 쉽게 추적하세요.",
@@ -2166,9 +2166,9 @@ export default {
       },
     },
     quick_actions: {
-      archive_module: "모듈 아카이브",
-      archive_module_description: "완료되거나 취소된 모듈만 아카이브할 수 있습니다.",
-      delete_module: "모듈 삭제",
+      archive_epic: "모듈 아카이브",
+      archive_epic_description: "완료되거나 취소된 모듈만 아카이브할 수 있습니다.",
+      delete_epic: "모듈 삭제",
     },
     toast: {
       copy: {
@@ -2353,7 +2353,7 @@ export default {
           text: "기능 관리",
         },
       },
-      module: {
+      epic: {
         title: "프로젝트에 모듈이 활성화되지 않았습니다.",
         description: "모듈은 프로젝트의 구성 요소입니다. 프로젝트 설정에서 모듈을 활성화하여 사용하세요.",
         primary_button: {
@@ -2543,7 +2543,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "백로그",
       planned: "계획됨",
@@ -2570,9 +2570,9 @@ export default {
     label: "{count, plural, one {주기} other {주기}}",
     no_sprint: "주기 없음",
   },
-  module: {
+  epic: {
     label: "{count, plural, one {모듈} other {모듈}}",
-    no_module: "모듈 없음",
+    no_epic: "모듈 없음",
   },
   description_versions: {
     last_edited_by: "마지막 편집자",

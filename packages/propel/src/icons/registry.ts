@@ -24,7 +24,6 @@ import { TimelineLayoutIcon } from "./layouts/timeline-icon";
 import { SprintIcon } from "./project/sprint-icon";
 import { EpicIcon } from "./project/epic-icon";
 import { IntakeIcon } from "./project/intake-icon";
-import { ModuleIcon } from "./project/module-icon";
 import { PageIcon } from "./project/page-icon";
 import { ViewsIcon } from "./project/view-icon";
 import { WorkItemsIcon } from "./project/work-items-icon";
@@ -87,7 +86,6 @@ export const ICON_REGISTRY = {
   "project.sprint": SprintIcon,
   "project.epic": EpicIcon,
   "project.intake": IntakeIcon,
-  "project.module": ModuleIcon,
   "project.page": PageIcon,
   "project.view": ViewsIcon,
   "project.work-items": WorkItemsIcon,

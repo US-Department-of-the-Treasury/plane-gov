@@ -9,7 +9,7 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status
 
-# Module imports
+# Package imports
 from ..base import BaseViewSet, BaseAPIView
 from plane.app.permissions import ProjectEntityPermission, allow_permission, ROLE
 from plane.db.models import Project, Estimate, EstimatePoint, Issue

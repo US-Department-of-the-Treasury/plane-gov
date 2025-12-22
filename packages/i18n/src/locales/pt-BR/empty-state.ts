@@ -57,15 +57,15 @@ export default {
       cta_primary: "Criar item de trabalho",
       cta_secondary: "Adicionar item de trabalho existente",
     },
-    modules: {
-      title: "Mapeie as metas do seu projeto para Módulos e acompanhe facilmente.",
+    epics: {
+      title: "Mapeie as metas do seu projeto para Epics e acompanhe facilmente.",
       description:
-        "Os módulos são compostos por itens de trabalho interconectados. Eles auxiliam no monitoramento do progresso através das fases do projeto, cada uma com prazos e análises específicas para indicar o quão perto você está de alcançar essas fases.",
-      cta_primary: "Definir seu primeiro módulo",
+        "Os epics são compostos por itens de trabalho interconectados. Eles auxiliam no monitoramento do progresso através das fases do projeto, cada uma com prazos e análises específicas para indicar o quão perto você está de alcançar essas fases.",
+      cta_primary: "Definir seu primeiro epic",
     },
-    module_work_items: {
-      title: "Nenhum item de trabalho para mostrar neste Módulo",
-      description: "Crie itens de trabalho para começar a monitorar este módulo.",
+    epic_work_items: {
+      title: "Nenhum item de trabalho para mostrar neste Epic",
+      description: "Crie itens de trabalho para começar a monitorar este epic.",
       cta_primary: "Criar item de trabalho",
       cta_secondary: "Adicionar item de trabalho existente",
     },
@@ -117,10 +117,10 @@ export default {
       title: "Ainda não há ciclos arquivados",
       description: "Para organizar seu projeto, arquive ciclos concluídos. Encontre-os aqui uma vez arquivados.",
     },
-    archive_modules: {
-      title: "Ainda não há Módulos arquivados",
+    archive_epics: {
+      title: "Ainda não há Epics arquivados",
       description:
-        "Para organizar seu projeto, arquive módulos concluídos ou cancelados. Encontre-os aqui uma vez arquivados.",
+        "Para organizar seu projeto, arquive epics concluídos ou cancelados. Encontre-os aqui uma vez arquivados.",
     },
     home_widget_quick_links: {
       title: "Mantenha referências, recursos ou documentos importantes à mão para o seu trabalho",
@@ -163,8 +163,8 @@ export default {
     analytics_no_sprint: {
       title: "Crie ciclos para organizar o trabalho em fases com prazo definido e acompanhar o progresso em sprints.",
     },
-    analytics_no_module: {
-      title: "Crie módulos para organizar seu trabalho e acompanhar o progresso em diferentes estágios.",
+    analytics_no_epic: {
+      title: "Crie epics para organizar seu trabalho e acompanhar o progresso em diferentes estágios.",
     },
     analytics_no_intake: {
       title: "Configure a entrada para gerenciar solicitações recebidas e rastrear como elas são aceitas e rejeitadas",

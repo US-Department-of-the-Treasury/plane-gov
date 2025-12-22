@@ -26,7 +26,6 @@ export enum EIssuesStoreType {
   TEAM = "TEAM",
   PROJECT = "PROJECT",
   SPRINT = "SPRINT",
-  MODULE = "MODULE",
   TEAM_VIEW = "TEAM_VIEW",
   PROJECT_VIEW = "PROJECT_VIEW",
   ARCHIVED = "ARCHIVED",
@@ -55,7 +54,7 @@ export type TBaseIssue = {
   project_id: string | null;
   parent_id: string | null;
   sprint_id: string | null;
-  module_ids: string[] | null;
+  epic_ids: string[] | null;
   type_id: string | null;
 
   created_at: string;
@@ -139,7 +138,7 @@ export type TBulkIssueProperties = Pick<
   | "assignee_ids"
   | "start_date"
   | "target_date"
-  | "module_ids"
+  | "epic_ids"
   | "sprint_id"
   | "estimate_point"
 >;
@@ -169,7 +168,7 @@ export interface IPublicIssue extends Pick<
   | "start_date"
   | "target_date"
   | "sprint_id"
-  | "module_ids"
+  | "epic_ids"
   | "label_ids"
   | "assignee_ids"
   | "attachment_count"

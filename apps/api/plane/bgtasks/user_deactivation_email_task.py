@@ -9,7 +9,7 @@ from django.utils.html import strip_tags
 # Third party imports
 from celery import shared_task
 
-# Module imports
+# Package imports
 from plane.db.models import User
 from plane.license.utils.instance_value import get_email_configuration
 from plane.utils.exception_logger import log_exception

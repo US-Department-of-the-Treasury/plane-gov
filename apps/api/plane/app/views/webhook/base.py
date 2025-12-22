@@ -5,7 +5,7 @@ from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from plane.db.models import Webhook, WebhookLog, Workspace
 from plane.db.models.webhook import generate_token
 from ..base import BaseAPIView
@@ -46,7 +46,7 @@ class WebhookEndpoint(BaseAPIView):
                     "project",
                     "issue",
                     "sprint",
-                    "module",
+                    "epic",
                     "issue_comment",
                 ),
                 many=True,
@@ -65,7 +65,7 @@ class WebhookEndpoint(BaseAPIView):
                     "project",
                     "issue",
                     "sprint",
-                    "module",
+                    "epic",
                     "issue_comment",
                 ),
             )
@@ -88,7 +88,7 @@ class WebhookEndpoint(BaseAPIView):
                 "project",
                 "issue",
                 "sprint",
-                "module",
+                "epic",
                 "issue_comment",
             ),
         )

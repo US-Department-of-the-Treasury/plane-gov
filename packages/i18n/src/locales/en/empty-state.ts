@@ -54,15 +54,15 @@ export default {
       cta_primary: "Create work item",
       cta_secondary: "Add existing work item",
     },
-    modules: {
-      title: "Map your project goals to Modules and track easily.",
+    epics: {
+      title: "Map your project goals to Epics and track easily.",
       description:
-        "Modules are made up of interconnected work items. They assist in monitoring progress through project phases, each with specific deadlines and analytics to indicate how close you are to achieving those phases.",
-      cta_primary: "Set your first module",
+        "Epics are made up of interconnected work items. They assist in monitoring progress through project phases, each with specific deadlines and analytics to indicate how close you are to achieving those phases.",
+      cta_primary: "Set your first epic",
     },
-    module_work_items: {
-      title: "No work items to show in this Module",
-      description: "Create work items to begin monitoring this module.",
+    epic_work_items: {
+      title: "No work items to show in this Epic",
+      description: "Create work items to begin monitoring this epic.",
       cta_primary: "Create work item",
       cta_secondary: "Add existing work item",
     },
@@ -112,9 +112,9 @@ export default {
       title: "No archived sprints yet",
       description: "To tidy up your project, archive completed sprints. Find them here once archived.",
     },
-    archive_modules: {
-      title: "No archived Modules yet",
-      description: "To tidy up your project, archive completed or cancelled modules. Find them here once archived.",
+    archive_epics: {
+      title: "No archived Epics yet",
+      description: "To tidy up your project, archive completed or cancelled epics. Find them here once archived.",
     },
     home_widget_quick_links: {
       title: "Keep important references, resources, or docs handy for your work",
@@ -156,8 +156,8 @@ export default {
     analytics_no_sprint: {
       title: "Create sprints to organise work into time-bound phases and track progress across sprints.",
     },
-    analytics_no_module: {
-      title: "Create modules to organize your work and track progress across different stages.",
+    analytics_no_epic: {
+      title: "Create epics to organize your work and track progress across different stages.",
     },
     analytics_no_intake: {
       title: "Set up intake to manage incoming requests and track how they're accepted and rejected",

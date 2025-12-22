@@ -15,6 +15,8 @@ import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssueModal } from "@/hooks/context/use-issue-modal";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useEpic } from "@/hooks/store/use-epic";
+import { useProject } from "@/hooks/store/use-project";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
 import { queryKeys } from "@/store/queries";
@@ -50,7 +52,8 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   } = props;
   const issueStoreType = useIssueStoreType();
 
-  let storeType = issueStoreFromProps ?? issueStoreType;
+  const originalStoreType = issueStoreFromProps ?? issueStoreType;
+  let storeType = originalStoreType;
   // Fallback to project store if epic store is used in issue modal.
   if (storeType === EIssuesStoreType.EPIC) {
     storeType = EIssuesStoreType.PROJECT;
@@ -66,8 +69,9 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
   // store hooks
   const { t } = useTranslation();
-  const { workspaceSlug, projectId: routerProjectId, sprintId, moduleId, workItem } = useParams();
+  const { workspaceSlug, projectId: routerProjectId, sprintId, epicId, workItem } = useParams();
   const queryClient = useQueryClient();
+  const { fetchEpicDetails } = useEpic();
   const { issues } = useIssues(storeType);
   const { issues: projectIssues } = useIssues(EIssuesStoreType.PROJECT);
   const { issues: draftIssues } = useIssues(EIssuesStoreType.WORKSPACE_DRAFT);
@@ -129,18 +133,15 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
     });
   };
 
-  const addIssueToModule = async (issue: TIssue, moduleIds: string[]) => {
+  const addIssueToEpic = async (issue: TIssue, epicIds: string[]) => {
     if (!workspaceSlug || !issue.project_id) return;
 
-    await issues.changeModulesInIssue(workspaceSlug.toString(), issue.project_id, issue.id, moduleIds, []);
-
-    // Invalidate module queries to refetch updated data
-    moduleIds.forEach((moduleId) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.modules.detail(moduleId) });
-    });
-    void queryClient.invalidateQueries({
-      queryKey: queryKeys.modules.all(workspaceSlug.toString(), issue.project_id),
-    });
+    await Promise.all([
+      issues.changeEpicsInIssue(workspaceSlug.toString(), issue.project_id, issue.id, epicIds, []),
+      ...epicIds.map(
+        (epicId) => issue.project_id && fetchEpicDetails(workspaceSlug.toString(), issue.project_id, epicId)
+      ),
+    ]);
   };
 
   const handleCreateMoreToggleChange = (value: boolean) => {
@@ -171,11 +172,11 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
         response = (await draftIssues.createIssue(workspaceSlug.toString(), payload)) as TIssue;
       }
       // if sprint id in payload does not match the sprintId in url
-      // or if the moduleIds in Payload does not match the moduleId in url
+      // or if the epicIds in Payload does not match the epicId in url
       // use the project issue store to create issues
       else if (
         (payload.sprint_id !== sprintId && storeType === EIssuesStoreType.SPRINT) ||
-        (!payload.module_ids?.includes(moduleId?.toString()) && storeType === EIssuesStoreType.MODULE)
+        (!payload.epic_ids?.includes(epicId?.toString()) && originalStoreType === EIssuesStoreType.EPIC)
       ) {
         response = await projectIssues.createIssue(workspaceSlug.toString(), payload.project_id, payload);
       } // else just use the existing store type's create method
@@ -198,7 +199,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
 
       if (!response) throw new Error();
 
-      // check if we should add issue to sprint/module
+      // check if we should add issue to sprint/epic
       if (!is_draft_issue) {
         if (
           payload.sprint_id &&
@@ -208,11 +209,11 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
           await addIssueToSprint(response, payload.sprint_id);
         }
         if (
-          payload.module_ids &&
-          payload.module_ids.length > 0 &&
-          (!payload.module_ids.includes(moduleId?.toString()) || storeType !== EIssuesStoreType.MODULE)
+          payload.epic_ids &&
+          payload.epic_ids.length > 0 &&
+          (!payload.epic_ids.includes(epicId?.toString()) || originalStoreType !== EIssuesStoreType.EPIC)
         ) {
-          await addIssueToModule(response, payload.module_ids);
+          await addIssueToEpic(response, payload.epic_ids);
         }
       }
 
@@ -294,24 +295,24 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
         });
       }
 
-      if (data.module_ids && payload.module_ids && data.project_id) {
-        const updatedModuleIds = xor(data.module_ids, payload.module_ids);
-        const modulesToAdd: string[] = [];
-        const modulesToRemove: string[] = [];
+      if (data.epic_ids && payload.epic_ids && data.project_id) {
+        const updatedEpicIds = xor(data.epic_ids, payload.epic_ids);
+        const epicsToAdd: string[] = [];
+        const epicsToRemove: string[] = [];
 
-        for (const moduleId of updatedModuleIds) {
-          if (data.module_ids.includes(moduleId)) {
-            modulesToRemove.push(moduleId);
+        for (const epicId of updatedEpicIds) {
+          if (data.epic_ids.includes(epicId)) {
+            epicsToRemove.push(epicId);
           } else {
-            modulesToAdd.push(moduleId);
+            epicsToAdd.push(epicId);
           }
         }
-        await issues.changeModulesInIssue(
+        await issues.changeEpicsInIssue(
           workspaceSlug.toString(),
           data.project_id,
           data.id,
-          modulesToAdd,
-          modulesToRemove
+          epicsToAdd,
+          epicsToRemove
         );
       }
 
@@ -388,7 +389,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
       ...data,
       description_html: description,
       sprint_id: data?.sprint_id ? data?.sprint_id : sprintId ? sprintId.toString() : null,
-      module_ids: data?.module_ids ? data?.module_ids : moduleId ? [moduleId.toString()] : null,
+      epic_ids: data?.epic_ids ? data?.epic_ids : epicId ? [epicId.toString()] : null,
     },
     onAssetUpload: handleUpdateUploadedAssetIds,
     onClose: handleClose,

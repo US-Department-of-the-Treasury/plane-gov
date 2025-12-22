@@ -2,7 +2,7 @@
 from django.contrib.auth import login
 from django.conf import settings
 
-# Module imports
+# Package imports
 from plane.utils.host import base_host
 from plane.utils.ip_address import get_client_ip
 

@@ -3,7 +3,7 @@ import { useParams } from "next/navigation";
 import { getPageName } from "@plane/utils";
 // hooks
 import { useWorkspaceSprints, getSprintById } from "@/store/queries/sprint";
-import { useProjectModules, getModuleById } from "@/store/queries/module";
+import { useEpic } from "@/hooks/store/use-epic";
 // plane web imports
 import { useExtendedContextIndicator } from "@/plane-web/components/command-palette/power-k/hooks/use-extended-context-indicator";
 import { EPageStoreType, usePageStore } from "@/plane-web/hooks/store";
@@ -17,11 +17,11 @@ type TArgs = {
 export const useContextIndicator = (args: TArgs): string | null => {
   const { activeContext } = args;
   // navigation
-  const { workspaceSlug, projectId, workItem: workItemIdentifier, sprintId, moduleId, pageId } = useParams();
-  // queries
+  const { workspaceSlug, workItem: workItemIdentifier, sprintId, epicId, pageId } = useParams();
+  // queries - TanStack Query for sprints
   const { data: sprints } = useWorkspaceSprints(workspaceSlug?.toString() ?? "");
-  const { data: modules } = useProjectModules(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
-  // store hooks
+  // store hooks - MobX for epics (not migrated yet)
+  const { getEpicById } = useEpic();
   const { getPageById } = usePageStore(EPageStoreType.PROJECT);
   // extended context indicator
   const extendedIndicator = useExtendedContextIndicator({
@@ -39,9 +39,9 @@ export const useContextIndicator = (args: TArgs): string | null => {
       indicator = sprintDetails?.name;
       break;
     }
-    case "module": {
-      const moduleDetails = moduleId ? getModuleById(modules, moduleId.toString()) : null;
-      indicator = moduleDetails?.name;
+    case "epic": {
+      const epicDetails = epicId ? getEpicById(epicId.toString()) : null;
+      indicator = epicDetails?.name;
       break;
     }
     case "page": {

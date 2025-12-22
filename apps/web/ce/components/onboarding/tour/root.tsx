@@ -7,7 +7,7 @@ import { CloseIcon, PlaneLockup } from "@plane/propel/icons";
 // assets
 import SprintsTour from "@/app/assets/onboarding/sprints.webp?url";
 import IssuesTour from "@/app/assets/onboarding/issues.webp?url";
-import ModulesTour from "@/app/assets/onboarding/modules.webp?url";
+import EpicsTour from "@/app/assets/onboarding/epics.webp?url";
 import PagesTour from "@/app/assets/onboarding/pages.webp?url";
 import ViewsTour from "@/app/assets/onboarding/views.webp?url";
 // helpers
@@ -22,7 +22,7 @@ export type TOnboardingTourProps = {
   onComplete: () => void;
 };
 
-export type TTourSteps = "welcome" | "work-items" | "sprints" | "modules" | "views" | "pages";
+export type TTourSteps = "welcome" | "work-items" | "sprints" | "epics" | "views" | "pages";
 
 const TOUR_STEPS: {
   key: TTourSteps;
@@ -47,13 +47,13 @@ const TOUR_STEPS: {
       "Sprints help you and your team to progress faster, similar to the sprints commonly used in agile development.",
     image: SprintsTour,
     prevStep: "work-items",
-    nextStep: "modules",
+    nextStep: "epics",
   },
   {
-    key: "modules",
-    title: "Break into modules",
-    description: "Modules break your big thing into Projects or Features, to help you organize better.",
-    image: ModulesTour,
+    key: "epics",
+    title: "Break into epics",
+    description: "Epics break your big thing into Projects or Features, to help you organize better.",
+    image: EpicsTour,
     prevStep: "sprints",
     nextStep: "views",
   },
@@ -63,7 +63,7 @@ const TOUR_STEPS: {
     description:
       "Create custom filters to display only the work items that matter to you. Save and share your filters in just a few clicks.",
     image: ViewsTour,
-    prevStep: "modules",
+    prevStep: "epics",
     nextStep: "pages",
   },
   {

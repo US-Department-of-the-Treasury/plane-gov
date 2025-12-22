@@ -11,7 +11,7 @@ export default {
     analytics: "Statistici",
     work_items: "Activități",
     sprints: "Cicluri",
-    modules: "Module",
+    epics: "Epics",
     intake: "Cereri",
     drafts: "Schițe",
     favorites: "Favorite",
@@ -298,7 +298,7 @@ export default {
     "Identifică provocările între proiecte și vezi dependențele între cicluri care altfel nu sunt evidente.",
   analytics: "Statistici",
   workspace_invites: "Invitațiile din spațiul de lucru",
-  enter_god_mode: "Activează modul Dumnezeu",
+  enter_god_mode: "Activează epic Dumnezeu",
   workspace_logo: "Sigla spațiului de lucru",
   new_issue: "Activitate nouă",
   your_work: "Munca ta",
@@ -374,7 +374,7 @@ export default {
   open_project: "Deschide proiectul",
   issues: "Activități",
   sprints: "Cicluri",
-  modules: "Module",
+  epics: "Epics",
   pages: "Documentație",
   intake: "Cereri",
   time_tracking: "Monitorizare timp",
@@ -383,7 +383,7 @@ export default {
   projects_and_issues_description: "Activează sau dezactivează aceste opțiuni pentru proiect.",
   sprints_description:
     "Stabilește perioade de timp pentru fiecare proiect și ajustează-le după cum este necesar. Un ciclu poate dura 2 săptămâni, următorul 1 săptămână.",
-  modules_description: "Organizează munca în sub-proiecte cu lideri și responsabili dedicați.",
+  epices_description: "Organizează munca în sub-proiecte cu lideri și responsabili dedicați.",
   views_description:
     "Salvează sortările, filtrele și opțiunile de afișare personalizate sau distribuie-le echipei tale.",
   pages_description: "Creează și editează conținut liber: note, documente, orice.",
@@ -658,8 +658,8 @@ export default {
     project: "Proiect",
     sprint: "Ciclu",
     sprints: "Cicluri",
-    module: "Modul",
-    modules: "Module",
+    epice: "Epic",
+    epics: "Epics",
     labels: "Etichete",
     label: "Etichetă",
     assignees: "Responsabili",
@@ -997,10 +997,10 @@ export default {
         success: "Activitatea a fost eliminată din ciclu cu succes.",
         failed: "Activitatea nu a putut fi eliminată din ciclu. Te rugăm să încerci din nou.",
       },
-      module: {
-        loading: "Se elimină activitatea din modul",
-        success: "Activitatea a fost eliminată din modul cu succes.",
-        failed: "Activitatea nu a putut fi eliminată din modul. Te rugăm să încerci din nou.",
+      epice: {
+        loading: "Se elimină activitatea din epic",
+        success: "Activitatea a fost eliminată din epic cu succes.",
+        failed: "Activitatea nu a putut fi eliminată din epic. Te rugăm să încerci din nou.",
       },
       parent: {
         label: "Elimină activitatea părinte",
@@ -1348,7 +1348,7 @@ export default {
     selected_projects: "Proiecte selectate",
     total_members: "Total membri",
     total_sprints: "Total cicluri",
-    total_modules: "Total module",
+    total_epics: "Total epice",
     pending_work_items: {
       title: "Activități în așteptare",
       empty_state: "Aici apare analiza activităților în așteptare atribuite colegilor.",
@@ -1390,9 +1390,9 @@ export default {
         primary_button: {
           text: "Începe primul tău proiect",
           comic: {
-            title: "Analitica funcționează cel mai bine cu Cicluri + Module",
+            title: "Analitica funcționează cel mai bine cu Cicluri + Epics",
             description:
-              "Întâi, limitează-ți problemele în Cicluri și, dacă poți, grupează problemele care durează mai mult de un ciclu în Module. Verifică ambele în navigarea din stânga.",
+              "Întâi, limitează-ți problemele în Cicluri și, dacă poți, grupează problemele care durează mai mult de un ciclu în Epics. Verifică ambele în navigarea din stânga.",
           },
         },
       },
@@ -1435,7 +1435,7 @@ export default {
     error: {
       permission: "Nu ai permisiunea să efectuezi această acțiune.",
       sprint_delete: "Ștergerea ciclului a eșuat",
-      module_delete: "Ștergerea modulului a eșuat",
+      epic_delete: "Ștergerea epicului a eșuat",
       issue_delete: "Ștergerea activității a eșuat",
     },
     state: {
@@ -1462,7 +1462,7 @@ export default {
       general: {
         title: "Niciun proiect activ",
         description:
-          "Gândește-te la fiecare proiect ca la părintele muncii orientate pe obiectiv. Proiectele sunt locul unde trăiesc Activitățile, Ciclurile și Modulele și, împreună cu colegii tăi, te ajută să îți atingi obiectivul. Creează un proiect nou sau filtrează pentru a vedea proiectele arhivate.",
+          "Gândește-te la fiecare proiect ca la părintele muncii orientate pe obiectiv. Proiectele sunt locul unde trăiesc Activitățile, Ciclurile și Epics și, împreună cu colegii tăi, te ajută să îți atingi obiectivul. Creează un proiect nou sau filtrează pentru a vedea proiectele arhivate.",
         primary_button: {
           text: "Începe primul tău proiect",
           comic: {
@@ -2144,30 +2144,30 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Adaugă Modul",
-    update_module: "Actualizează Modul",
-    create_module: "Creează Modul",
-    archive_module: "Arhivează Modul",
-    restore_module: "Restaurează Modul",
-    delete_module: "Șterge modulul",
+  project_epic: {
+    add_epic: "Adaugă Modul",
+    update_epic: "Actualizează Modul",
+    create_epic: "Creează Modul",
+    archive_epic: "Arhivează Modul",
+    restore_epic: "Restaurează Modul",
+    delete_epic: "Șterge epicul",
     empty_state: {
       general: {
-        title: "Mapează etapele proiectului în Module și urmărește munca agregată cu ușurință.",
+        title: "Mapează etapele proiectului în Epics și urmărește munca agregată cu ușurință.",
         description:
-          "Un grup de activități care aparțin unui părinte logic și ierarhic formează un modul. Gândește-te la module ca la un mod de a urmări munca în funcție de etapele proiectului. Au propriile perioade, termene limită și statistici pentru a-ți arăta cât de aproape sau departe ești de un reper.",
+          "Un grup de activități care aparțin unui părinte logic și ierarhic formează un epic. Gândește-te la epice ca la un mod de a urmări munca în funcție de etapele proiectului. Au propriile perioade, termene limită și statistici pentru a-ți arăta cât de aproape sau departe ești de un reper.",
         primary_button: {
-          text: "Construiește primul tău modul",
+          text: "Construiește primul tău epic",
           comic: {
-            title: "Modulele ajută la organizarea muncii pe niveluri ierarhice.",
+            title: "Epics ajută la organizarea muncii pe niveluri ierarhice.",
             description:
-              "Un modul pentru caroserie, un modul pentru șasiu sau un modul pentru depozit sunt exemple bune de astfel de grupare.",
+              "Un epic pentru caroserie, un epic pentru șasiu sau un epic pentru depozit sunt exemple bune de astfel de grupare.",
           },
         },
       },
       no_issues: {
-        title: "Nicio activitate în modul",
-        description: "Creează sau adaugă activități pe care vrei să le finalizezi ca parte a acestui modul",
+        title: "Nicio activitate în epic",
+        description: "Creează sau adaugă activități pe care vrei să le finalizezi ca parte a acestui epic",
         primary_button: {
           text: "Creează activități noi",
         },
@@ -2176,27 +2176,27 @@ export default {
         },
       },
       archived: {
-        title: "Niciun modul arhivat încă",
+        title: "Niciun epic arhivat încă",
         description:
-          "Pentru a păstra proiectul ordonat, arhivează modulele finalizate sau anulate. Le vei găsi aici după arhivare.",
+          "Pentru a păstra proiectul ordonat, arhivează epicele finalizate sau anulate. Le vei găsi aici după arhivare.",
       },
       sidebar: {
-        in_active: "Acest modul nu este încă activ.",
+        in_active: "Acest epic nu este încă activ.",
         invalid_date: "Dată invalidă. Te rugăm să introduci o dată validă.",
       },
     },
     quick_actions: {
-      archive_module: "Arhivează modulul",
-      archive_module_description: "Doar modulele finalizate sau anulate pot fi arhivate.",
-      delete_module: "Șterge modulul",
+      archive_epic: "Arhivează epicul",
+      archive_epic_description: "Doar epicele finalizate sau anulate pot fi arhivate.",
+      delete_epic: "Șterge epicul",
     },
     toast: {
       copy: {
-        success: "Link-ul modulului a fost copiat în memoria temporară",
+        success: "Link-ul epicului a fost copiat în memoria temporară",
       },
       delete: {
         success: "Modulul a fost șters cu succes",
-        error: "Ștergerea modulului a eșuat",
+        error: "Ștergerea epicului a eșuat",
       },
     },
   },
@@ -2376,10 +2376,10 @@ export default {
           text: "Gestionează funcțiile",
         },
       },
-      module: {
-        title: "Funcția Module nu este activată pentru proiect.",
+      epice: {
+        title: "Funcția Epics nu este activată pentru proiect.",
         description:
-          "Modulele sunt componentele de bază ale proiectului tău. Activează modulele din setările proiectului pentru a începe să le folosești.",
+          "Epics sunt componentele de bază ale proiectului tău. Activează epicele din setările proiectului pentru a începe să le folosești.",
         primary_button: {
           text: "Gestionează funcțiile",
         },
@@ -2493,7 +2493,7 @@ export default {
     },
     member: {
       title: "Membru",
-      description: "Poate citi, scrie, edita și șterge entități în proiecte, cicluri și module",
+      description: "Poate citi, scrie, edita și șterge entități în proiecte, cicluri și epice",
     },
     admin: {
       title: "Administrator",
@@ -2572,7 +2572,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Restante",
       planned: "Planificate",
@@ -2599,9 +2599,9 @@ export default {
     label: "{count, plural, one {Ciclu} other {Cicluri}}",
     no_sprint: "Niciun ciclu",
   },
-  module: {
-    label: "{count, plural, one {Modul} other {Module}}",
-    no_module: "Niciun modul",
+  epice: {
+    label: "{count, plural, one {Epic} other {Epics}}",
+    no_epic: "Niciun epic",
   },
   description_versions: {
     last_edited_by: "Ultima editare de către",

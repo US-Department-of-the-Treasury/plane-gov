@@ -12,7 +12,7 @@ export interface IRouterStore {
   teamspaceId: string | undefined;
   projectId: string | undefined;
   sprintId: string | undefined;
-  moduleId: string | undefined;
+  epicId: string | undefined;
   viewId: string | undefined;
   globalViewId: string | undefined;
   profileViewId: TProfileViews | undefined;
@@ -21,7 +21,6 @@ export interface IRouterStore {
   issueId: string | undefined;
   inboxId: string | undefined;
   webhookId: string | undefined;
-  epicId: string | undefined;
 }
 
 export class RouterStore implements IRouterStore {
@@ -39,7 +38,7 @@ export class RouterStore implements IRouterStore {
       teamspaceId: computed,
       projectId: computed,
       sprintId: computed,
-      moduleId: computed,
+      epicId: computed,
       viewId: computed,
       globalViewId: computed,
       profileViewId: computed,
@@ -48,7 +47,6 @@ export class RouterStore implements IRouterStore {
       issueId: computed,
       inboxId: computed,
       webhookId: computed,
-      epicId: computed,
     });
   }
 
@@ -87,11 +85,11 @@ export class RouterStore implements IRouterStore {
   }
 
   /**
-   * Returns the module id from the query
+   * Returns the epic id from the query
    * @returns string|undefined
    */
-  get moduleId() {
-    return this.query?.moduleId?.toString();
+  get epicId() {
+    return this.query?.epicId?.toString();
   }
 
   /**
@@ -164,13 +162,5 @@ export class RouterStore implements IRouterStore {
    */
   get webhookId() {
     return this.query?.webhookId?.toString();
-  }
-
-  /**
-   * Returns the epic id from the query
-   * @returns string|undefined
-   */
-  get epicId() {
-    return this.query?.epicId?.toString();
   }
 }

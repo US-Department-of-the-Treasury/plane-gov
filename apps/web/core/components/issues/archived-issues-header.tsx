@@ -63,7 +63,7 @@ export const ArchivedIssuesHeader = observer(function ArchivedIssuesHeader() {
               activeLayout ? ISSUE_DISPLAY_FILTERS_BY_PAGE.archived_issues.layoutOptions[activeLayout] : undefined
             }
             sprintViewDisabled={!currentProjectDetails?.sprint_view}
-            moduleViewDisabled={!currentProjectDetails?.module_view}
+            epicViewDisabled={!currentProjectDetails?.epic_view}
           />
         </FiltersDropdown>
       </Header.RightItem>

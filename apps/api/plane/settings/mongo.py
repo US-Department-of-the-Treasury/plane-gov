@@ -1,10 +1,10 @@
 """
-MongoDB Connection Module (DEPRECATED)
+MongoDB Connection Epic (DEPRECATED)
 
 MongoDB has been removed from the Treasury fork to simplify infrastructure.
 Log archival now uses PostgreSQL partitioned tables instead.
 
-This module is kept as a stub for backward compatibility - all methods return None
+This epic is kept as a stub for backward compatibility - all methods return None
 or False, causing callers to gracefully skip MongoDB operations.
 """
 import logging

@@ -57,15 +57,15 @@ export default {
       cta_primary: "Crea elemento di lavoro",
       cta_secondary: "Aggiungi elemento di lavoro esistente",
     },
-    modules: {
-      title: "Mappa gli obiettivi del tuo progetto ai Moduli e traccia facilmente.",
+    epics: {
+      title: "Mappa gli obiettivi del tuo progetto agli Epic e traccia facilmente.",
       description:
-        "I moduli sono costituiti da elementi di lavoro interconnessi. Aiutano a monitorare i progressi attraverso le fasi del progetto, ciascuna con scadenze specifiche e analitiche per indicare quanto sei vicino al raggiungimento di quelle fasi.",
-      cta_primary: "Imposta il tuo primo modulo",
+        "Gli epic sono costituiti da elementi di lavoro interconnessi. Aiutano a monitorare i progressi attraverso le fasi del progetto, ciascuna con scadenze specifiche e analitiche per indicare quanto sei vicino al raggiungimento di quelle fasi.",
+      cta_primary: "Imposta il tuo primo epic",
     },
-    module_work_items: {
-      title: "Nessun elemento di lavoro da mostrare in questo Modulo",
-      description: "Crea elementi di lavoro per iniziare a monitorare questo modulo.",
+    epic_work_items: {
+      title: "Nessun elemento di lavoro da mostrare in questo Epic",
+      description: "Crea elementi di lavoro per iniziare a monitorare questo epic.",
       cta_primary: "Crea elemento di lavoro",
       cta_secondary: "Aggiungi elemento di lavoro esistente",
     },
@@ -117,10 +117,10 @@ export default {
       title: "Nessun ciclo archiviato ancora",
       description: "Per riordinare il tuo progetto, archivia i cicli completati. Trovali qui una volta archiviati.",
     },
-    archive_modules: {
-      title: "Nessun Modulo archiviato ancora",
+    archive_epics: {
+      title: "Nessun Epic archiviato ancora",
       description:
-        "Per riordinare il tuo progetto, archivia i moduli completati o annullati. Trovali qui una volta archiviati.",
+        "Per riordinare il tuo progetto, archivia gli epic completati o annullati. Trovali qui una volta archiviati.",
     },
     home_widget_quick_links: {
       title: "Mantieni a portata di mano riferimenti importanti, risorse o documenti per il tuo lavoro",
@@ -163,8 +163,8 @@ export default {
     analytics_no_sprint: {
       title: "Crea cicli per organizzare il lavoro in fasi temporali e tracciare i progressi attraverso gli sprint.",
     },
-    analytics_no_module: {
-      title: "Crea moduli per organizzare il tuo lavoro e tracciare i progressi attraverso diverse fasi.",
+    analytics_no_epic: {
+      title: "Crea epic per organizzare il tuo lavoro e tracciare i progressi attraverso diverse fasi.",
     },
     analytics_no_intake: {
       title: "Imposta intake per gestire le richieste in arrivo e tracciare come vengono accettate e rifiutate",

@@ -1,7 +1,7 @@
 """
 OpenAPI authentication extensions for drf-spectacular.
 
-This module provides authentication extensions that automatically register
+This epic provides authentication extensions that automatically register
 custom authentication classes with the OpenAPI schema generator.
 """
 

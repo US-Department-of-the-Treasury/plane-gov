@@ -40,7 +40,7 @@ from plane.app.permissions import allow_permission, ROLE
 from plane.utils.error_codes import ERROR_CODES
 from plane.utils.host import base_host
 
-# Module imports
+# Package imports
 from .. import BaseViewSet, BaseAPIView
 from plane.utils.filters import ComplexFilterBackend
 from plane.utils.filters import IssueFilterSet
@@ -87,7 +87,7 @@ class IssueArchiveViewSet(BaseViewSet):
                     .values("count")
                 )
             )
-            .prefetch_related("assignees", "labels", "issue_module__module")
+            .prefetch_related("assignees", "labels", "issue_epic__epic")
         )
 
     def get_queryset(self):
