@@ -85,4 +85,4 @@ export const EpicGanttSidebarBlock = observer(function EpicGanttSidebarBlock(pro
       <h6 className="flex-grow truncate text-13 font-medium">{epicDetails?.name}</h6>
     </Link>
   );
-}
+});

@@ -41,4 +41,4 @@ export const EpicLinksList = observer(function EpicLinksList(props: Props) {
       ))}
     </>
   );
-}
+});

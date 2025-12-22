@@ -20,7 +20,6 @@ import { useProject } from "@/hooks/store/use-project";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
 import { queryKeys } from "@/store/queries";
-import { useModuleDetails } from "@/store/queries/module";
 import { useProjects } from "@/store/queries/project";
 import { useIssue } from "@/store/queries/issue";
 // services
