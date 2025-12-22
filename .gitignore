@@ -131,6 +131,9 @@ terraform/tfplan
 backend-deploy.zip
 *.zip
 
+# Local development certificates
+certs/
+
 # Local planning docs
 plans/
 

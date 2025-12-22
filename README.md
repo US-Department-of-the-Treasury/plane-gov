@@ -81,6 +81,37 @@ See `docs/solutions/security/ssm-secrets-management.md` for detailed documentati
 - **Backend**: Django, Python
 - **Database**: PostgreSQL
 
+## Testing
+
+This project includes comprehensive E2E tests using Playwright.
+
+### Quick Test Commands
+
+```bash
+# Run quick smoke tests (~2 minutes)
+pnpm test:smoke
+
+# Run full E2E tests (~10 minutes)
+pnpm test:e2e
+
+# Run all tests including interactions
+pnpm test:comprehensive
+```
+
+**Prerequisites:** Playwright browsers must be installed once:
+
+```bash
+pnpm exec playwright install chromium
+```
+
+See [apps/web/TESTING.md](./apps/web/TESTING.md) for the complete testing guide including:
+
+- Test structure and organization
+- Writing new tests
+- Debugging techniques
+- CI integration
+- Troubleshooting
+
 ## Documentation
 
 - [Treasury Deployment Guide](./TREASURY.md)
