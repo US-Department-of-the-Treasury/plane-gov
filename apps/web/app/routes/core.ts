@@ -1,6 +1,28 @@
 import { index, layout, route } from "@react-router/dev/routes";
 import type { RouteConfig, RouteConfigEntry } from "@react-router/dev/routes";
 
+/**
+ * ROUTE REGISTRATION - IMPORTANT!
+ *
+ * This project uses React Router with @react-router/dev (NOT standard Next.js App Router).
+ * Every page must be explicitly registered here to be accessible.
+ *
+ * If you add a new feature with pages:
+ * 1. Create the page files in app/(all)/[workspaceSlug]/(projects)/your-feature/
+ * 2. Register routes HERE - pages won't work without registration!
+ *
+ * Route Pattern Examples:
+ * - Simple page:    route(":workspaceSlug/feature", "./(all)/[workspaceSlug]/(projects)/feature/page.tsx")
+ * - With layout:    layout("./(all)/[workspaceSlug]/(projects)/feature/layout.tsx", [
+ *                     route(":workspaceSlug/feature", "./(all)/[workspaceSlug]/(projects)/feature/page.tsx"),
+ *                   ])
+ * - With params:    route(":workspaceSlug/feature/:id", "./(all)/[workspaceSlug]/(projects)/feature/[id]/page.tsx")
+ *
+ * Note: Route groups with () like (list) or (detail) organize files but don't affect URLs.
+ *       The URL comes from the first argument to route().
+ *
+ * Symptom if you forget: 404 error when navigating to the new feature.
+ */
 export const coreRoutes: RouteConfigEntry[] = [
   // ========================================================================
   // USER MANAGEMENT ROUTES
@@ -102,6 +124,16 @@ export const coreRoutes: RouteConfigEntry[] = [
         // Stickies
         layout("./(all)/[workspaceSlug]/(projects)/stickies/layout.tsx", [
           route(":workspaceSlug/stickies", "./(all)/[workspaceSlug]/(projects)/stickies/page.tsx"),
+        ]),
+
+        // Wiki List
+        layout("./(all)/[workspaceSlug]/(projects)/wiki/(list)/layout.tsx", [
+          route(":workspaceSlug/wiki", "./(all)/[workspaceSlug]/(projects)/wiki/(list)/page.tsx"),
+        ]),
+
+        // Wiki Detail
+        layout("./(all)/[workspaceSlug]/(projects)/wiki/(detail)/[pageId]/layout.tsx", [
+          route(":workspaceSlug/wiki/:pageId", "./(all)/[workspaceSlug]/(projects)/wiki/(detail)/[pageId]/page.tsx"),
         ]),
 
         // Workspace Views

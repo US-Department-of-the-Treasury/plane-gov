@@ -129,3 +129,16 @@ from .draft import (
     DraftIssueSerializer,
     DraftIssueDetailSerializer,
 )
+
+from .wiki import (
+    WikiCollectionSerializer,
+    WikiCollectionLiteSerializer,
+    WikiPageSerializer,
+    WikiPageDetailSerializer,
+    WikiPageLiteSerializer,
+    WikiPageShareSerializer,
+    WikiPageVersionSerializer,
+    WikiPageVersionDetailSerializer,
+    WikiPageAccessLogSerializer,
+    WikiPageBinaryUpdateSerializer,
+)

@@ -330,3 +330,47 @@ export {
   getAllStickiesFromCache,
   getSortedStickyIds,
 } from "./sticky";
+
+// Wiki hooks (TanStack Query)
+export {
+  // Wiki pages
+  useWikiPages,
+  useArchivedWikiPages,
+  useSharedWikiPages,
+  usePrivateWikiPages,
+  useWikiPageDetails,
+  useSearchWikiPages,
+  useCreateWikiPage,
+  useUpdateWikiPage,
+  useDeleteWikiPage,
+  useArchiveWikiPage,
+  useUnarchiveWikiPage,
+  useLockWikiPage,
+  useUnlockWikiPage,
+  useDuplicateWikiPage,
+  useUpdateWikiPageDescription,
+  // Wiki collections
+  useWikiCollections,
+  useWikiCollectionDetails,
+  useCreateWikiCollection,
+  useUpdateWikiCollection,
+  useDeleteWikiCollection,
+  // Wiki shares
+  useWikiPageShares,
+  useCreateWikiPageShare,
+  useUpdateWikiPageShare,
+  useDeleteWikiPageShare,
+  // Wiki versions
+  useWikiPageVersions,
+  useWikiPageVersionDetails,
+  useRestoreWikiPageVersion,
+  // Utility functions
+  getWikiPageById,
+  getWikiCollectionById,
+  getWikiPagesByCollection,
+  getRootWikiPages,
+  getChildWikiPages,
+  buildWikiPageTree,
+  buildWikiCollectionTree,
+} from "./wiki";
+export type { TWikiPageTreeNode, TWikiCollectionTreeNode } from "./wiki";
