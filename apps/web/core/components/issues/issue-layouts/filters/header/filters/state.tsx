@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
-import { observer } from "mobx-react";
 import { EIconSize } from "@plane/constants";
 import { StateGroupIcon } from "@plane/propel/icons";
 import type { IState } from "@plane/types";
@@ -17,7 +16,7 @@ type Props = {
   states: IState[] | undefined;
 };
 
-export const FilterState = observer(function FilterState(props: Props) {
+export function FilterState(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery, states } = props;
 
   const [itemsToRender, setItemsToRender] = useState(5);
@@ -91,4 +90,4 @@ export const FilterState = observer(function FilterState(props: Props) {
       )}
     </>
   );
-});
+}

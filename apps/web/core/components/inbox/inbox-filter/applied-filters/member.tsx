@@ -1,8 +1,6 @@
 import type { FC } from "react";
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
-import { observer } from "mobx-react";
-
 // plane types
 import { CloseIcon } from "@plane/propel/icons";
 import type { TInboxIssueFilterMemberKeys } from "@plane/types";
@@ -19,9 +17,7 @@ type InboxIssueAppliedFiltersMember = {
   label: string;
 };
 
-export const InboxIssueAppliedFiltersMember = observer(function InboxIssueAppliedFiltersMember(
-  props: InboxIssueAppliedFiltersMember
-) {
+export function InboxIssueAppliedFiltersMember(props: InboxIssueAppliedFiltersMember) {
   const { filterKey, label } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -79,4 +75,4 @@ export const InboxIssueAppliedFiltersMember = observer(function InboxIssueApplie
       </div>
     </Tag>
   );
-});
+}

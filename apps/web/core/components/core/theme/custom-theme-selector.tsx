@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -13,7 +12,7 @@ import { useUserProfile } from "@/hooks/store/user";
 // local imports
 import { CustomThemeConfigHandler } from "./config-handler";
 
-export const CustomThemeSelector = observer(function CustomThemeSelector() {
+export function CustomThemeSelector() {
   // store hooks
   const { data: userProfile, updateUserTheme } = useUserProfile();
   // translation
@@ -192,4 +191,4 @@ export const CustomThemeSelector = observer(function CustomThemeSelector() {
       </div>
     </form>
   );
-});
+}

@@ -62,12 +62,7 @@ export class SprintService extends APIService {
   /**
    * Get issues for a sprint.
    */
-  async getSprintIssues(
-    workspaceSlug: string,
-    sprintId: string,
-    queries?: any,
-    config = {}
-  ): Promise<TIssuesResponse> {
+  async getSprintIssues(workspaceSlug: string, sprintId: string, queries?: any, config = {}): Promise<TIssuesResponse> {
     return this.get(
       `/api/workspaces/${workspaceSlug}/sprints/${sprintId}/issues/`,
       {
@@ -141,7 +136,38 @@ export class SprintService extends APIService {
       });
   }
 
+  /**
+   * Transfer issues from one sprint to another.
+   * Used when moving incomplete issues from a completed sprint to a new sprint.
+   */
+  async transferIssues(
+    workspaceSlug: string,
+    projectId: string,
+    sprintId: string,
+    data: { new_sprint_id: string }
+  ): Promise<any> {
+    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/sprints/${sprintId}/transfer-issues/`, data)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
+
   // Legacy methods for backward compatibility - will be removed in future
+
+  /**
+   * @deprecated Sprint dates are now auto-calculated. This method always returns success.
+   * Remove calls to this method from components.
+   */
+  async sprintDateCheck(
+    workspaceSlug: string,
+    projectId: string,
+    params: any
+  ): Promise<{ status: boolean }> {
+    // Sprint dates are auto-calculated, so date validation is no longer needed
+    // Return success to maintain backward compatibility
+    return Promise.resolve({ status: true });
+  }
 
   /**
    * @deprecated Use getWorkspaceSprints instead

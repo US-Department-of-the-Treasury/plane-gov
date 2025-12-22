@@ -1,5 +1,4 @@
 import React, { Fragment, useState, useEffect } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 // icons
@@ -29,7 +28,7 @@ type WorkspaceMenuRootProps = {
   variant: "sidebar" | "top-navigation";
 };
 
-export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: WorkspaceMenuRootProps) {
+export function WorkspaceMenuRoot(props: WorkspaceMenuRootProps) {
   const { variant } = props;
   // router params
   const { workspaceSlug } = useParams();
@@ -168,7 +167,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                           <SidebarDropdownItem
                             key={workspace.id}
                             workspace={workspace}
-                            activeWorkspace={activeWorkspace}
+                            activeWorkspace={activeWorkspace ?? null}
                             handleItemClick={handleItemClick}
                             handleWorkspaceNavigation={handleWorkspaceNavigation}
                             handleClose={close}
@@ -227,4 +226,4 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
       }}
     </Menu>
   );
-});
+}

@@ -20,10 +20,7 @@ export function IssueLabelSelect(props: TWorkItemLabelSelectProps) {
   const { workspaceSlug } = useParams();
   // store hooks
   const { allowPermissions } = useUserPermissions();
-  const { data: projectLabels } = useProjectLabels(
-    workspaceSlug?.toString() ?? "",
-    projectId ?? ""
-  );
+  const { data: projectLabels } = useProjectLabels(workspaceSlug?.toString() ?? "", projectId ?? "");
   const { mutateAsync: createLabelMutation } = useCreateLabel();
 
   // derived values
@@ -31,7 +28,7 @@ export function IssueLabelSelect(props: TWorkItemLabelSelectProps) {
     projectId &&
     allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), projectId);
 
-  const getLabelById = (labelId: string) => projectLabels?.find(l => l.id === labelId);
+  const getLabelById = (labelId: string) => projectLabels?.find((l) => l.id === labelId) ?? null;
 
   const onDropdownOpen = () => {
     // TanStack Query handles fetching automatically - no manual fetch needed
@@ -44,7 +41,7 @@ export function IssueLabelSelect(props: TWorkItemLabelSelectProps) {
     return createLabelMutation({
       workspaceSlug: workspaceSlug.toString(),
       projectId,
-      data
+      data,
     });
   };
 
@@ -52,7 +49,7 @@ export function IssueLabelSelect(props: TWorkItemLabelSelectProps) {
     <WorkItemLabelSelectBase
       {...props}
       getLabelById={getLabelById}
-      labelIds={projectLabels?.map(l => l.id) ?? []}
+      labelIds={projectLabels?.map((l) => l.id) ?? []}
       onDropdownOpen={onDropdownOpen}
       createLabel={handleCreateLabel}
       createLabelEnabled={!!canCreateLabel}

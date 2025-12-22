@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { PageHead } from "@/components/core/page-title";
 // hooks
@@ -21,4 +20,4 @@ function WorkspaceActiveSprintsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(WorkspaceActiveSprintsPage);
+export default WorkspaceActiveSprintsPage;

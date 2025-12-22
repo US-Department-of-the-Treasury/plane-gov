@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 import { Plus } from "lucide-react";
 // plane imports
 import { WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
@@ -22,17 +21,13 @@ type Props = {
   issueServiceType: TIssueServiceType;
 };
 
-export const SubIssuesActionButton = observer(function SubIssuesActionButton(props: Props) {
+export function SubIssuesActionButton(props: Props) {
   const { workspaceSlug, projectId, issueId, customButton, disabled = false, issueServiceType } = props;
   // translation
   const { t } = useTranslation();
   // store hooks
-  const {
-    toggleCreateIssueModal,
-    toggleSubIssuesModal,
-    setIssueCrudOperationState,
-    issueCrudOperationState,
-  } = useIssueDetail(issueServiceType);
+  const { toggleCreateIssueModal, toggleSubIssuesModal, setIssueCrudOperationState, issueCrudOperationState } =
+    useIssueDetail(issueServiceType);
   // queries
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
 
@@ -100,4 +95,4 @@ export const SubIssuesActionButton = observer(function SubIssuesActionButton(pro
       ))}
     </CustomMenu>
   );
-});
+}

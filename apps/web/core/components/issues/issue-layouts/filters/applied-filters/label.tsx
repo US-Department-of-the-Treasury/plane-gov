@@ -1,5 +1,3 @@
-import { observer } from "mobx-react";
-
 // icons
 import { CloseIcon } from "@plane/propel/icons";
 import type { IIssueLabel } from "@plane/types";
@@ -12,7 +10,7 @@ type Props = {
   editable: boolean | undefined;
 };
 
-export const AppliedLabelsFilters = observer(function AppliedLabelsFilters(props: Props) {
+export function AppliedLabelsFilters(props: Props) {
   const { handleRemove, labels, values, editable } = props;
 
   return (
@@ -45,4 +43,4 @@ export const AppliedLabelsFilters = observer(function AppliedLabelsFilters(props
       })}
     </>
   );
-});
+}

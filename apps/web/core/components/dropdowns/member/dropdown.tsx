@@ -1,9 +1,13 @@
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 // hooks
-import { useWorkspaceMembers, useProjectMembers, getWorkspaceMembersMap, getProjectMembersMap } from "@/store/queries/member";
+import {
+  useWorkspaceMembers,
+  useProjectMembers,
+  getWorkspaceMembersMap,
+  getProjectMembersMap,
+} from "@/store/queries/member";
 // local imports
 import { MemberDropdownBase } from "./base";
 import type { MemberDropdownProps } from "./types";
@@ -17,16 +21,15 @@ type TMemberDropdownProps = {
   renderByDefault?: boolean;
 } & MemberDropdownProps;
 
-export const MemberDropdown = observer(function MemberDropdown(props: TMemberDropdownProps) {
+export function MemberDropdown(props: TMemberDropdownProps) {
   const { memberIds: propsMemberIds, projectId } = props;
   // router params
   const { workspaceSlug } = useParams();
   // store hooks
-  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString());
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
   const { data: projectMembers } = useProjectMembers(
-    workspaceSlug?.toString(),
-    projectId,
-    { enabled: !!projectId }
+    workspaceSlug?.toString() ?? "",
+    projectId ?? ""
   );
 
   // Create member maps for lookup
@@ -44,10 +47,14 @@ export const MemberDropdown = observer(function MemberDropdown(props: TMemberDro
   const memberIds = useMemo(() => {
     if (propsMemberIds) return propsMemberIds;
     if (projectId && projectMembers) {
-      return projectMembers.map((m) => m.member.id);
+      return projectMembers
+        .map((m) => (typeof m.member === 'string' ? m.member : (m.member as any)?.id))
+        .filter((id): id is string => Boolean(id));
     }
     if (workspaceMembers) {
-      return workspaceMembers.map((m) => m.member.id);
+      return workspaceMembers
+        .map((m) => (typeof m.member === 'string' ? m.member : (m.member as any)?.id))
+        .filter((id): id is string => Boolean(id));
     }
     return [];
   }, [propsMemberIds, projectId, projectMembers, workspaceMembers]);
@@ -72,4 +79,4 @@ export const MemberDropdown = observer(function MemberDropdown(props: TMemberDro
       onDropdownOpen={onDropdownOpen}
     />
   );
-});
+}

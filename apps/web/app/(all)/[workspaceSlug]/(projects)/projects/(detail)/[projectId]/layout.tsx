@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Outlet } from "react-router";
 // plane imports
 import { Header, Row } from "@plane/ui";
@@ -50,4 +49,4 @@ function ProjectLayout({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ProjectLayout);
+export default ProjectLayout;

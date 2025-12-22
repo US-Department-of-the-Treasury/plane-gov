@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // types
 import { Button } from "@plane/propel/button";
 import type { IWorkspaceIntegration } from "@plane/types";
@@ -12,7 +11,7 @@ type Props = {
   provider: string | undefined;
 };
 
-export const GithubAuth = observer(function GithubAuth({ workspaceIntegration, provider }: Props) {
+export function GithubAuth({ workspaceIntegration, provider }: Props) {
   // store hooks
   const { config } = useInstance();
   // hooks
@@ -35,4 +34,4 @@ export const GithubAuth = observer(function GithubAuth({ workspaceIntegration, p
       )}
     </div>
   );
-});
+}

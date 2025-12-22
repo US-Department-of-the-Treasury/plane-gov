@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { useMemo } from "react";
 // assets
 import AllFiltersImage from "@/app/assets/empty-state/sprint/all-filters.svg?url";
@@ -17,7 +16,7 @@ export interface IArchivedSprintsView {
   projectId: string;
 }
 
-export const ArchivedSprintsView = observer(function ArchivedSprintsView(props: IArchivedSprintsView) {
+export function ArchivedSprintsView(props: IArchivedSprintsView) {
   const { workspaceSlug, projectId } = props;
   // query hooks
   const { data: archivedSprints, isLoading } = useArchivedSprints(workspaceSlug, projectId);
@@ -66,4 +65,4 @@ export const ArchivedSprintsView = observer(function ArchivedSprintsView(props: 
       isArchived
     />
   );
-});
+}

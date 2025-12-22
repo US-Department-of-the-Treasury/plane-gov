@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
 import { Pencil, ExternalLink, Link, Trash2 } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -17,7 +16,7 @@ export type TProjectLinkDetail = {
   linkOperations: TLinkOperations;
 };
 
-export const ProjectLinkDetail = observer(function ProjectLinkDetail(props: TProjectLinkDetail) {
+export function ProjectLinkDetail(props: TProjectLinkDetail) {
   // props
   const { linkId, linkOperations } = props;
   // hooks
@@ -99,4 +98,4 @@ export const ProjectLinkDetail = observer(function ProjectLinkDetail(props: TPro
       onClick={handleOpenInNewTab}
     />
   );
-});
+}

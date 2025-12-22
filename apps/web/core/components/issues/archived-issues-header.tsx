@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EIssueFilterType, ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
@@ -15,7 +14,7 @@ import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-to
 import { useIssues } from "@/hooks/store/use-issues";
 import { useProjectDetails } from "@/store/queries/project";
 
-export const ArchivedIssuesHeader = observer(function ArchivedIssuesHeader() {
+export function ArchivedIssuesHeader() {
   // router
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
   const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
@@ -69,4 +68,4 @@ export const ArchivedIssuesHeader = observer(function ArchivedIssuesHeader() {
       </Header.RightItem>
     </Header>
   );
-});
+}

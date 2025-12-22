@@ -2021,8 +2021,7 @@ export default {
           text: "Build your first epic",
           comic: {
             title: "Epics help group work by hierarchy.",
-            description:
-              "A cart epic, a chassis epic, and a warehouse epic are all good example of this grouping.",
+            description: "A cart epic, a chassis epic, and a warehouse epic are all good example of this grouping.",
           },
         },
       },

@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { AlertCircle } from "lucide-react";
@@ -36,7 +35,7 @@ type TIssueAttachmentsDetail = {
   disabled?: boolean;
 };
 
-export const IssueAttachmentsDetail = observer(function IssueAttachmentsDetail(props: TIssueAttachmentsDetail) {
+export function IssueAttachmentsDetail(props: TIssueAttachmentsDetail) {
   // props
   const { attachmentId, attachmentHelpers, disabled } = props;
   // params
@@ -106,4 +105,4 @@ export const IssueAttachmentsDetail = observer(function IssueAttachmentsDetail(p
       </div>
     </>
   );
-});
+}

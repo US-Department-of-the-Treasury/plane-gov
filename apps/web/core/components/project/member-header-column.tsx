@@ -1,5 +1,4 @@
 // ui
-import { observer } from "mobx-react";
 import { ArrowDownWideNarrow, ArrowUpNarrowWide, CheckIcon, ChevronDownIcon, Eraser, MoveRight } from "lucide-react";
 // constants
 import type { IProjectMemberDisplayProperties, TMemberOrderByOptions } from "@plane/constants";
@@ -16,7 +15,7 @@ interface Props {
   handleDisplayFilterUpdate: (data: Partial<IMemberFilters>) => void;
 }
 
-export const MemberHeaderColumn = observer(function MemberHeaderColumn(props: Props) {
+export function MemberHeaderColumn(props: Props) {
   const { displayFilters, handleDisplayFilterUpdate, property } = props;
   // i18n
   const { t } = useTranslation();
@@ -112,4 +111,4 @@ export const MemberHeaderColumn = observer(function MemberHeaderColumn(props: Pr
       )}
     </CustomMenu>
   );
-});
+}

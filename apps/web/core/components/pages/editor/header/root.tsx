@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { SmilePlus } from "lucide-react";
 // plane imports
 import { EmojiPicker, EmojiIconPickerTypes } from "@plane/propel/emoji-icon-picker";
@@ -14,7 +13,7 @@ type Props = {
   projectId?: string;
 };
 
-export const PageEditorHeaderRoot = observer(function PageEditorHeaderRoot(props: Props) {
+export function PageEditorHeaderRoot(props: Props) {
   const { page } = props;
   // states
   const [isLogoPickerOpen, setIsLogoPickerOpen] = useState(false);
@@ -68,4 +67,4 @@ export const PageEditorHeaderRoot = observer(function PageEditorHeaderRoot(props
       <PageEditorHeaderLogoPicker className="flex-shrink-0 w-full mt-2 flex" page={page} />
     </>
   );
-});
+}

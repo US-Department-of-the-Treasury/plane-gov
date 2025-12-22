@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useEffect, useRef } from "react";
-import { observer } from "mobx-react";
 import type { UseFormRegister, UseFormSetFocus } from "react-hook-form";
 import { useParams } from "next/navigation";
 // plane constants
@@ -35,7 +34,7 @@ export type TQuickAddIssueFormRoot = {
   isEpic: boolean;
 };
 
-export const QuickAddIssueFormRoot = observer(function QuickAddIssueFormRoot(props: TQuickAddIssueFormRoot) {
+export function QuickAddIssueFormRoot(props: TQuickAddIssueFormRoot) {
   const { isOpen, layout, projectId, hasError = false, setFocus, register, onSubmit, onClose, isEpic } = props;
   // store hooks
   const { workspaceSlug } = useParams();
@@ -77,4 +76,4 @@ export const QuickAddIssueFormRoot = observer(function QuickAddIssueFormRoot(pro
       isEpic={isEpic}
     />
   );
-});
+}

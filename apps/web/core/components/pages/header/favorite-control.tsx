@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Star } from "lucide-react";
 // constants
 import { PROJECT_PAGE_TRACKER_ELEMENTS } from "@plane/constants";
@@ -15,7 +14,7 @@ type Props = {
   page: TPageInstance;
 };
 
-export const PageFavoriteControl = observer(function PageFavoriteControl({ page }: Props) {
+export function PageFavoriteControl({ page }: Props) {
   // derived values
   const { is_favorite, canCurrentUserFavoritePage } = page;
   // page operations
@@ -40,4 +39,4 @@ export const PageFavoriteControl = observer(function PageFavoriteControl({ page 
       className={is_favorite ? "*:fill-(--color-label-yellow-icon) *:stroke-(--color-label-yellow-icon)" : ""}
     />
   );
-});
+}

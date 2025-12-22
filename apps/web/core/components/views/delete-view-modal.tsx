@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams, useRouter } from "next/navigation";
 // types
 import { PROJECT_VIEW_TRACKER_EVENTS } from "@plane/constants";
@@ -11,7 +10,7 @@ import { AlertModalCore } from "@plane/ui";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useProjectView } from "@/hooks/store/use-project-view";
+import { useDeleteView } from "@/store/queries/view";
 
 type Props = {
   data: IProjectView;
@@ -19,15 +18,15 @@ type Props = {
   onClose: () => void;
 };
 
-export const DeleteProjectViewModal = observer(function DeleteProjectViewModal(props: Props) {
+export function DeleteProjectViewModal(props: Props) {
   const { data, isOpen, onClose } = props;
   // states
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   // router
   const { workspaceSlug, projectId } = useParams();
   const router = useRouter();
-  // store hooks
-  const { deleteView } = useProjectView();
+  // query hooks
+  const { mutate: deleteView } = useDeleteView();
   const { t } = useTranslation();
   const handleClose = () => {
     onClose();
@@ -39,38 +38,46 @@ export const DeleteProjectViewModal = observer(function DeleteProjectViewModal(p
 
     setIsDeleteLoading(true);
 
-    await deleteView(workspaceSlug.toString(), projectId.toString(), data.id)
-      .then(() => {
-        handleClose();
-        router.push(`/${workspaceSlug}/projects/${projectId}/views`);
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Success!",
-          message: "View deleted successfully.",
-        });
-        captureSuccess({
-          eventName: PROJECT_VIEW_TRACKER_EVENTS.delete,
-          payload: {
-            view_id: data.id,
-          },
-        });
-      })
-      .catch(() => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: "View could not be deleted. Please try again.",
-        });
-        captureError({
-          eventName: PROJECT_VIEW_TRACKER_EVENTS.delete,
-          payload: {
-            view_id: data.id,
-          },
-        });
-      })
-      .finally(() => {
-        setIsDeleteLoading(false);
-      });
+    deleteView(
+      {
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        viewId: data.id,
+      },
+      {
+        onSuccess: () => {
+          handleClose();
+          router.push(`/${workspaceSlug}/projects/${projectId}/views`);
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: "View deleted successfully.",
+          });
+          captureSuccess({
+            eventName: PROJECT_VIEW_TRACKER_EVENTS.delete,
+            payload: {
+              view_id: data.id,
+            },
+          });
+        },
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: "View could not be deleted. Please try again.",
+          });
+          captureError({
+            eventName: PROJECT_VIEW_TRACKER_EVENTS.delete,
+            payload: {
+              view_id: data.id,
+            },
+          });
+        },
+        onSettled: () => {
+          setIsDeleteLoading(false);
+        },
+      }
+    );
   };
 
   return (
@@ -83,4 +90,4 @@ export const DeleteProjectViewModal = observer(function DeleteProjectViewModal(p
       content={<>{t("project_views.delete_view.content")}</>}
     />
   );
-});
+}

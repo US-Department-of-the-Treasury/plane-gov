@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { Popover } from "@plane/propel/popover";
@@ -30,7 +29,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const IssueGanttBlock = observer(function IssueGanttBlock(props: Props) {
+export function IssueGanttBlock(props: Props) {
   const { issueId, isEpic } = props;
   // router
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
@@ -46,18 +45,13 @@ export const IssueGanttBlock = observer(function IssueGanttBlock(props: Props) {
 
   // Try TanStack Query first (for single-project views), fallback to MobX
   const issueFromMobX = getIssueById(issueId);
-  const { data: issueFromQuery } = useIssue(
-    workspaceSlug ?? "",
-    projectId ?? issueFromMobX?.project_id ?? "",
-    issueId
-  );
+  const { data: issueFromQuery } = useIssue(workspaceSlug ?? "", projectId ?? issueFromMobX?.project_id ?? "", issueId);
 
   // derived values
   const issueDetails = issueFromQuery ?? issueFromMobX;
   const { data: projectStates } = useProjectStates(workspaceSlug, issueDetails?.project_id);
-  const stateDetails = projectStates && issueDetails?.state_id
-    ? getStateById(projectStates, issueDetails.state_id)
-    : undefined;
+  const stateDetails =
+    projectStates && issueDetails?.state_id ? getStateById(projectStates, issueDetails.state_id) : undefined;
 
   const { blockStyle } = getBlockViewDetails(issueDetails, stateDetails?.color ?? "");
 
@@ -108,10 +102,10 @@ export const IssueGanttBlock = observer(function IssueGanttBlock(props: Props) {
       </Popover.Panel>
     </Popover>
   );
-});
+}
 
 // rendering issues on gantt sidebar
-export const IssueGanttSidebarBlock = observer(function IssueGanttSidebarBlock(props: Props) {
+export function IssueGanttSidebarBlock(props: Props) {
   const { issueId, isEpic = false } = props;
   // router
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
@@ -130,11 +124,7 @@ export const IssueGanttSidebarBlock = observer(function IssueGanttSidebarBlock(p
 
   // Try TanStack Query first (for single-project views), fallback to MobX
   const issueFromMobX = getIssueById(issueId);
-  const { data: issueFromQuery } = useIssue(
-    workspaceSlug ?? "",
-    projectId ?? issueFromMobX?.project_id ?? "",
-    issueId
-  );
+  const { data: issueFromQuery } = useIssue(workspaceSlug ?? "", projectId ?? issueFromMobX?.project_id ?? "", issueId);
 
   // queries
   const { data: projects } = useProjects(workspaceSlug);
@@ -183,4 +173,4 @@ export const IssueGanttSidebarBlock = observer(function IssueGanttSidebarBlock(p
       </div>
     </ControlLink>
   );
-});
+}

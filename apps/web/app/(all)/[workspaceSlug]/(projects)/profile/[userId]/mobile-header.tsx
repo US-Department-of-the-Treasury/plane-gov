@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
+
 import { useParams } from "next/navigation";
 // plane constants
 import { EIssueFilterType, ISSUE_LAYOUTS, ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
@@ -8,11 +8,7 @@ import { useTranslation } from "@plane/i18n";
 // icons
 import { ChevronDownIcon } from "@plane/propel/icons";
 // types
-import type {
-  IIssueDisplayFilterOptions,
-  IIssueDisplayProperties,
-  TIssueLayouts,
-} from "@plane/types";
+import type { IIssueDisplayFilterOptions, IIssueDisplayProperties, TIssueLayouts } from "@plane/types";
 import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
 // ui
 import { CustomMenu } from "@plane/ui";
@@ -22,7 +18,7 @@ import { IssueLayoutIcon } from "@/components/issues/issue-layouts/layout-icon";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
 
-export const ProfileIssuesMobileHeader = observer(function ProfileIssuesMobileHeader() {
+export function ProfileIssuesMobileHeader() {
   // plane i18n
   const { t } = useTranslation();
   // router
@@ -131,4 +127,4 @@ export const ProfileIssuesMobileHeader = observer(function ProfileIssuesMobileHe
       </div>
     </div>
   );
-});
+}

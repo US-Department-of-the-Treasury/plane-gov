@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { xor } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Search } from "lucide-react";
@@ -28,7 +27,7 @@ type Props = {
   onSubmit: (projectIds: string[]) => Promise<void>;
 };
 
-export const ProjectMultiSelectModal = observer(function ProjectMultiSelectModal(props: Props) {
+export function ProjectMultiSelectModal(props: Props) {
   const { isOpen, onClose, selectedProjectIds: selectedProjectIdsProp, projectIds, onSubmit } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -188,4 +187,4 @@ export const ProjectMultiSelectModal = observer(function ProjectMultiSelectModal
       </div>
     </ModalCore>
   );
-});
+}

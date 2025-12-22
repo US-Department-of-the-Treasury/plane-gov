@@ -1,7 +1,7 @@
 import React from "react";
-import { observer } from "mobx-react";
 import type { Control } from "react-hook-form";
 import { Controller } from "react-hook-form";
+import { useParams } from "next/navigation";
 // plane imports
 import { ETabIndices } from "@plane/constants";
 // types
@@ -19,14 +19,18 @@ type TIssueProjectSelectProps = {
   handleFormChange: () => void;
 };
 
-export const IssueProjectSelect = observer(function IssueProjectSelect(props: TIssueProjectSelectProps) {
+export function IssueProjectSelect(props: TIssueProjectSelectProps) {
   const { control, disabled = false, handleFormChange } = props;
+  // router
+  const { workspaceSlug } = useParams();
   // store hooks
   const { isMobile } = usePlatformOS();
   // context hooks
   const { allowedProjectIds } = useIssueModal();
 
   const { getIndex } = getTabIndex(ETabIndices.ISSUE_FORM, isMobile);
+
+  if (!workspaceSlug) return null;
 
   return (
     <Controller
@@ -38,6 +42,7 @@ export const IssueProjectSelect = observer(function IssueProjectSelect(props: TI
       render={({ field: { value, onChange } }) => (
         <div className="h-7">
           <ProjectDropdown
+            workspaceSlug={workspaceSlug.toString()}
             value={value}
             onChange={(projectId) => {
               onChange(projectId);
@@ -53,4 +58,4 @@ export const IssueProjectSelect = observer(function IssueProjectSelect(props: TI
       )}
     />
   );
-});
+}

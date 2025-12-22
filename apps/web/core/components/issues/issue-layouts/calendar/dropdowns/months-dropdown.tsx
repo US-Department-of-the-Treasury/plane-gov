@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { usePopper } from "react-popper";
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@plane/propel/icons";
@@ -19,7 +18,7 @@ import type { IProjectViewIssuesFilter } from "@/store/issue/project-views";
 interface Props {
   issuesFilterStore: IProjectIssuesFilter | IEpicIssuesFilter | ISprintIssuesFilter | IProjectViewIssuesFilter;
 }
-export const CalendarMonthsDropdown = observer(function CalendarMonthsDropdown(props: Props) {
+export function CalendarMonthsDropdown(props: Props) {
   const { issuesFilterStore } = props;
 
   const issueCalendarView = useCalendarView();
@@ -147,4 +146,4 @@ export const CalendarMonthsDropdown = observer(function CalendarMonthsDropdown(p
       </Transition>
     </Popover>
   );
-});
+}

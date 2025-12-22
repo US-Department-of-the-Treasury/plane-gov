@@ -128,9 +128,7 @@ export function WorkspaceLevelWorkItemFiltersHOC(props: TWorkspaceLevelWorkItemF
         viewDetails.id,
         {
           ...getViewFilterPayload(filterExpression),
-        },
-        /* No need to sync filters here as updateFilters already handles it */
-        false
+        }
       )
         .then(() => {
           setToast({
@@ -193,7 +191,7 @@ export function WorkspaceLevelWorkItemFiltersHOC(props: TWorkspaceLevelWorkItemF
       />
       <WorkItemFiltersHOC
         {...props}
-        memberIds={workspaceMembers.map((member) => member.member)}
+        memberIds={workspaceMembers.map((member) => member.member.id).filter((id): id is string => !!id)}
         labelIds={workspaceLabels?.map((label) => label.id) ?? []}
         projectIds={joinedProjectIds}
         saveViewOptions={saveViewOptions}

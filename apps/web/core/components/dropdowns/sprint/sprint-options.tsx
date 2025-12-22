@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import type { Placement } from "@popperjs/core";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { usePopper } from "react-popper";
 // components
@@ -34,7 +33,7 @@ type SprintOptionsProps = {
   currentSprintId?: string;
 };
 
-export const SprintOptions = observer(function SprintOptions(props: SprintOptionsProps) {
+export function SprintOptions(props: SprintOptionsProps) {
   const { projectId: _projectId, isOpen, referenceElement, placement, canRemoveSprint, currentSprintId } = props;
   // i18n
   const { t } = useTranslation();
@@ -168,4 +167,4 @@ export const SprintOptions = observer(function SprintOptions(props: SprintOption
       </div>
     </Combobox.Options>
   );
-});
+}

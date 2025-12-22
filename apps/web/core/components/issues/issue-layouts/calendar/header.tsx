@@ -1,5 +1,3 @@
-import { observer } from "mobx-react";
-
 // components
 import type { TSupportedFilterTypeForUpdate } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -25,7 +23,7 @@ interface ICalendarHeader {
   setSelectedDate: (date: Date) => void;
 }
 
-export const CalendarHeader = observer(function CalendarHeader(props: ICalendarHeader) {
+export function CalendarHeader(props: ICalendarHeader) {
   const { issuesFilterStore, updateFilters, setSelectedDate } = props;
 
   const { t } = useTranslation();
@@ -118,4 +116,4 @@ export const CalendarHeader = observer(function CalendarHeader(props: ICalendarH
       </div>
     </Row>
   );
-});
+}

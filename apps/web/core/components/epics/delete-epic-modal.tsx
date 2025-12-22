@@ -88,9 +88,8 @@ export function DeleteEpicModal(props: Props) {
       title="Delete epic"
       content={
         <>
-          Are you sure you want to delete epic-{" "}
-          <span className="break-all font-medium text-primary">{data?.name}</span>? All of the data related to the
-          epic will be permanently removed. This action cannot be undone.
+          Are you sure you want to delete epic- <span className="break-all font-medium text-primary">{data?.name}</span>
+          ? All of the data related to the epic will be permanently removed. This action cannot be undone.
         </>
       }
     />

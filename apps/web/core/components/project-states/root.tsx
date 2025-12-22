@@ -25,11 +25,11 @@ export const ProjectStateRoot = function ProjectStateRoot(props: TProjectState) 
   const { workspaceSlug, projectId } = props;
   // hooks
   const { data: groupedProjectStates, isLoading } = useGroupedProjectStates(workspaceSlug, projectId);
-  const { mutate: createState } = useCreateState();
-  const { mutate: updateState } = useUpdateState();
-  const { mutate: deleteState } = useDeleteState();
-  const { mutate: moveStatePosition } = useMoveStatePosition();
-  const { mutate: markStateAsDefault } = useMarkStateAsDefault();
+  const { mutateAsync: createState } = useCreateState();
+  const { mutateAsync: updateState } = useUpdateState();
+  const { mutateAsync: deleteState } = useDeleteState();
+  const { mutateAsync: moveStatePosition } = useMoveStatePosition();
+  const { mutateAsync: markStateAsDefault } = useMarkStateAsDefault();
   const { allowPermissions } = useUserPermissions();
   // derived values
   const isEditable = allowPermissions(

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import type { TGroupedIssues, TIssue, TIssueMap, TPaginationData, ICalendarDate, ICalendarWeek } from "@plane/types";
 import { cn, getOrderedDays, renderFormattedPayloadDate } from "@plane/utils";
@@ -39,7 +38,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const CalendarWeekDays = observer(function CalendarWeekDays(props: Props) {
+export function CalendarWeekDays(props: Props) {
   const {
     issuesFilterStore,
     issues,
@@ -114,4 +113,4 @@ export const CalendarWeekDays = observer(function CalendarWeekDays(props: Props)
       })}
     </div>
   );
-});
+}

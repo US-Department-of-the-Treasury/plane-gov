@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -18,7 +17,7 @@ import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceDraftIssues } from "@/hooks/store/workspace-draft";
 
-export const WorkspaceDraftHeader = observer(function WorkspaceDraftHeader() {
+export function WorkspaceDraftHeader() {
   // state
   const [isDraftIssueModalOpen, setIsDraftIssueModalOpen] = useState(false);
   // router
@@ -79,4 +78,4 @@ export const WorkspaceDraftHeader = observer(function WorkspaceDraftHeader() {
       </Header>
     </>
   );
-});
+}

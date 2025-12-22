@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import type { TIssue, TPaginationData } from "@plane/types";
 // components
@@ -28,7 +27,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const CalendarIssueBlocks = observer(function CalendarIssueBlocks(props: Props) {
+export function CalendarIssueBlocks(props: Props) {
   const {
     date,
     issueIdList,
@@ -108,4 +107,4 @@ export const CalendarIssueBlocks = observer(function CalendarIssueBlocks(props: 
       )}
     </>
   );
-});
+}

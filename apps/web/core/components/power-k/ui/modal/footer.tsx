@@ -1,5 +1,4 @@
 import type React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { ToggleSwitch } from "@plane/ui";
@@ -10,7 +9,7 @@ type Props = {
   onWorkspaceLevelChange: (value: boolean) => void;
 };
 
-export const PowerKModalFooter = observer(function PowerKModalFooter(props: Props) {
+export function PowerKModalFooter(props: Props) {
   const { isWorkspaceLevel, projectId, onWorkspaceLevelChange } = props;
   // translation
   const { t } = useTranslation();
@@ -29,4 +28,4 @@ export const PowerKModalFooter = observer(function PowerKModalFooter(props: Prop
       </div>
     </div>
   );
-});
+}

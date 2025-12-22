@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
 // plane imports
@@ -82,4 +81,4 @@ function ProjectPagesPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ProjectPagesPage);
+export default ProjectPagesPage;

@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { ArrowUpToLine, Clipboard, History } from "lucide-react";
 // plane imports
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -24,7 +23,7 @@ type Props = {
   storeType: EPageStoreType;
 };
 
-export const PageOptionsDropdown = observer(function PageOptionsDropdown(props: Props) {
+export function PageOptionsDropdown(props: Props) {
   const { page, storeType } = props;
   // states
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -145,4 +144,4 @@ export const PageOptionsDropdown = observer(function PageOptionsDropdown(props: 
       />
     </>
   );
-});
+}

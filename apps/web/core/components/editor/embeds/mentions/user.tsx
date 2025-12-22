@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Link } from "react-router";
 // plane imports
@@ -9,13 +8,18 @@ import { Avatar } from "@plane/ui";
 import { cn, getFileURL } from "@plane/utils";
 // hooks
 import { useUser } from "@/hooks/store/user";
-import { useWorkspaceMembers, useProjectMembers, getWorkspaceMemberByUserId, getProjectMemberByUserId } from "@/store/queries/member";
+import {
+  useWorkspaceMembers,
+  useProjectMembers,
+  getWorkspaceMemberByUserId,
+  getProjectMemberByUserId,
+} from "@/store/queries/member";
 
 type Props = {
   id: string;
 };
 
-export const EditorUserMention = observer(function EditorUserMention(props: Props) {
+export function EditorUserMention(props: Props) {
   const { id } = props;
   // router
   const { projectId, workspaceSlug } = useParams();
@@ -24,10 +28,7 @@ export const EditorUserMention = observer(function EditorUserMention(props: Prop
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString());
   const { data: projectMembers } = useProjectMembers(workspaceSlug?.toString(), projectId?.toString());
   // derived values
-  const workspaceMember = useMemo(
-    () => getWorkspaceMemberByUserId(workspaceMembers || [], id),
-    [workspaceMembers, id]
-  );
+  const workspaceMember = useMemo(() => getWorkspaceMemberByUserId(workspaceMembers || [], id), [workspaceMembers, id]);
   const userDetails = workspaceMember?.member;
   const projectMember = useMemo(
     () => (projectId ? getProjectMemberByUserId(projectMembers || [], id) : null),
@@ -81,4 +82,4 @@ export const EditorUserMention = observer(function EditorUserMention(props: Prop
       </Popover>
     </div>
   );
-});
+}

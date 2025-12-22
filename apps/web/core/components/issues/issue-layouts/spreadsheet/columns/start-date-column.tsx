@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { StartDatePropertyIcon } from "@plane/propel/icons";
 // types
 import type { TIssue } from "@plane/types";
@@ -15,7 +14,7 @@ type Props = {
   disabled: boolean;
 };
 
-export const SpreadsheetStartDateColumn = observer(function SpreadsheetStartDateColumn(props: Props) {
+export function SpreadsheetStartDateColumn(props: Props) {
   const { issue, onChange, disabled, onClose } = props;
 
   return (
@@ -45,4 +44,4 @@ export const SpreadsheetStartDateColumn = observer(function SpreadsheetStartDate
       />
     </div>
   );
-});
+}

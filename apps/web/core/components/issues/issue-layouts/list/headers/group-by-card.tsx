@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { CircleDashed, Plus } from "lucide-react";
 // types
@@ -37,7 +36,7 @@ interface IHeaderGroupByCard {
   isEpic?: boolean;
 }
 
-export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHeaderGroupByCard) {
+export function HeaderGroupByCard(props: IHeaderGroupByCard) {
   const {
     groupID,
     groupBy,
@@ -60,7 +59,7 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
   const storeType = useIssueStoreType();
   // derived values
   const renderExistingIssueModal = epicId || sprintId;
-  const existingIssuesListModalPayload = epicId ? { epic: epicId.toString() } : { sprint: true };
+  const existingIssuesListModalPayload = epicId ? { epic_id: epicId.toString() } : { sprint: true };
   const isGroupSelectionEmpty = selectionHelpers.isGroupSelected(groupID) === "empty";
   // auth
   const canSelectIssues = canEditProperties(projectId?.toString()) && !selectionHelpers.isSelectionDisabled;
@@ -182,4 +181,4 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
       </div>
     </>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 // plane imports
 import { ETabIndices, ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
@@ -47,7 +46,7 @@ const DEFAULT_VALUES: Partial<IProjectView> = {
   display_filters: { ...getComputedDisplayFilters(), group_by: "state" },
 };
 
-export const ProjectViewForm = observer(function ProjectViewForm(props: Props) {
+export function ProjectViewForm(props: Props) {
   const { handleFormSubmit, handleClose, data, preLoadedData, projectId, workspaceSlug } = props;
   // i18n
   const { t } = useTranslation();
@@ -290,4 +289,4 @@ export const ProjectViewForm = observer(function ProjectViewForm(props: Props) {
       </div>
     </form>
   );
-});
+}

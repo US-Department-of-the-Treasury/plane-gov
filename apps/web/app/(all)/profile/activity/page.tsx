@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
+
 import { useTheme } from "next-themes";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -80,4 +80,4 @@ function ProfileActivityPage() {
   );
 }
 
-export default observer(ProfileActivityPage);
+export default ProfileActivityPage;

@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // hooks
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -9,7 +8,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { SprintIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseSpreadsheetRoot } from "../base-spreadsheet-root";
 
-export const SprintSpreadsheetLayout = observer(function SprintSpreadsheetLayout() {
+export function SprintSpreadsheetLayout() {
   // router
   const { workspaceSlug, projectId, sprintId } = useParams();
   // store hooks
@@ -38,4 +37,4 @@ export const SprintSpreadsheetLayout = observer(function SprintSpreadsheetLayout
       viewId={sprintId.toString()}
     />
   );
-});
+}

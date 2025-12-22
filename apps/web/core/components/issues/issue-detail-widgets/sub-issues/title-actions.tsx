@@ -2,7 +2,6 @@ import type { FC } from "react";
 import { useCallback } from "react";
 import { useParams } from "next/navigation";
 import { cloneDeep } from "lodash-es";
-import { observer } from "mobx-react";
 import {
   EIssueFilterType,
   ISSUE_DISPLAY_FILTERS_BY_PAGE,
@@ -29,7 +28,7 @@ type TSubWorkItemTitleActionsProps = {
   projectId: string;
 };
 
-export const SubWorkItemTitleActions = observer(function SubWorkItemTitleActions(props: TSubWorkItemTitleActionsProps) {
+export function SubWorkItemTitleActions(props: TSubWorkItemTitleActionsProps) {
   const { disabled, issueServiceType = EIssueServiceType.ISSUES, parentId, projectId } = props;
 
   // router
@@ -41,8 +40,8 @@ export const SubWorkItemTitleActions = observer(function SubWorkItemTitleActions
       filters: { getSubIssueFilters, updateSubWorkItemFilters },
     },
   } = useIssueDetail(issueServiceType);
-  const { data: projectMembers } = useProjectMembers(workspaceSlug as string, projectId);
-  const { data: projectStates } = useProjectStates(workspaceSlug as string, projectId);
+  const { data: projectMembers } = useProjectMembers(workspaceSlug, projectId);
+  const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
 
   // derived values
   const projectMemberIds = getProjectMemberIds(projectMembers);
@@ -108,7 +107,7 @@ export const SubWorkItemTitleActions = observer(function SubWorkItemTitleActions
       />
       {!disabled && (
         <SubIssuesActionButton
-          workspaceSlug={workspaceSlug as string}
+          workspaceSlug={workspaceSlug}
           projectId={projectId}
           issueId={parentId}
           disabled={disabled}
@@ -117,4 +116,4 @@ export const SubWorkItemTitleActions = observer(function SubWorkItemTitleActions
       )}
     </div>
   );
-});
+}

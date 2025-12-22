@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // constants
 import { SPREADSHEET_SELECT_GROUP } from "@plane/constants";
@@ -22,7 +21,7 @@ interface Props {
   isEpic?: boolean;
 }
 
-export const SpreadsheetHeader = observer(function SpreadsheetHeader(props: Props) {
+export function SpreadsheetHeader(props: Props) {
   const {
     displayProperties,
     displayFilters,
@@ -84,4 +83,4 @@ export const SpreadsheetHeader = observer(function SpreadsheetHeader(props: Prop
       </tr>
     </thead>
   );
-});
+}

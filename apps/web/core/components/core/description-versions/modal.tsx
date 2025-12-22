@@ -53,7 +53,9 @@ export function DescriptionVersionsModal(props: Props) {
   // derived values
   const activeVersionId = activeVersionDetails?.id;
   const workspaceId = currentWorkspace?.id;
-  const versionCreator = activeVersionDetails?.owned_by ? getWorkspaceMemberByUserId(members, activeVersionDetails.owned_by) : null;
+  const versionCreator = activeVersionDetails?.owned_by
+    ? getWorkspaceMemberByUserId(members, activeVersionDetails.owned_by)
+    : null;
   // translation
   const { t } = useTranslation();
 

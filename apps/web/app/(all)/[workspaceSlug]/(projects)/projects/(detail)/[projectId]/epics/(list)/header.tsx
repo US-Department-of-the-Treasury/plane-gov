@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, EPIC_TRACKER_ELEMENTS } from "@plane/constants";
@@ -19,7 +18,7 @@ import { useProjects } from "@/store/queries/project";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
-export const EpicsListHeader = observer(function EpicsListHeader() {
+export function EpicsListHeader() {
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId } = useParams();
@@ -77,4 +76,4 @@ export const EpicsListHeader = observer(function EpicsListHeader() {
       </Header.RightItem>
     </Header>
   );
-});
+}

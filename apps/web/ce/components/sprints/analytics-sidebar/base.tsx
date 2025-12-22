@@ -49,7 +49,13 @@ export function SidebarChart(props: ProgressChartProps) {
   return (
     <div>
       <div className="relative flex items-center justify-between gap-2 pt-4">
-        <EstimateTypeDropdown value={estimateType} onChange={onChange} sprintId={sprintId} projectId={projectId} workspaceSlug={workspaceSlug} />
+        <EstimateTypeDropdown
+          value={estimateType}
+          onChange={onChange}
+          sprintId={sprintId}
+          projectId={projectId}
+          workspaceSlug={workspaceSlug}
+        />
       </div>
       <div className="py-4">
         <div>

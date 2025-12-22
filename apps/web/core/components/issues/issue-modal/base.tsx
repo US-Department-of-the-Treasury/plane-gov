@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { xor } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
@@ -31,7 +30,7 @@ import { IssueFormRoot } from "./form";
 import type { IssueFormProps } from "./form";
 import type { IssuesModalProps } from "./modal";
 
-export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueModalBase(props: IssuesModalProps) {
+export function CreateUpdateIssueModalBase(props: IssuesModalProps) {
   const {
     data,
     isOpen,
@@ -87,7 +86,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   const { data: fetchedIssue } = useIssue(
     workspaceSlug?.toString() ?? "",
     projectId?.toString() ?? "",
-    issueIdToFetch ?? "",
+    issueIdToFetch ?? ""
   );
 
   useEffect(() => {
@@ -105,7 +104,6 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
     if (!isOpen) {
       setActiveProjectId(null);
     } else {
-
       // if data is present, set active project to the project of the
       // issue. This has more priority than the project in the url.
       if (data && data.project_id) {
@@ -117,7 +115,17 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.project_id, data?.id, data?.sourceIssueId, data?.description_html, projectId, isOpen, activeProjectId, fetchedIssue, fetchIssueDetails]);
+  }, [
+    data?.project_id,
+    data?.id,
+    data?.sourceIssueId,
+    data?.description_html,
+    projectId,
+    isOpen,
+    activeProjectId,
+    fetchedIssue,
+    fetchIssueDetails,
+  ]);
 
   const addIssueToSprint = async (issue: TIssue, sprintId: string) => {
     if (!workspaceSlug || !issue.project_id) return;
@@ -306,13 +314,7 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
             epicsToAdd.push(epicId);
           }
         }
-        await issues.changeEpicsInIssue(
-          workspaceSlug.toString(),
-          data.project_id,
-          data.id,
-          epicsToAdd,
-          epicsToRemove
-        );
+        await issues.changeEpicsInIssue(workspaceSlug.toString(), data.project_id, data.id, epicsToAdd, epicsToRemove);
       }
 
       // add other property values
@@ -419,4 +421,4 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
       )}
     </ModalCore>
   );
-});
+}

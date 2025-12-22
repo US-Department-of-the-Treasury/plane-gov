@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { intersection } from "lodash-es";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 // import { Info } from "lucide-react";
 import {
@@ -50,7 +49,7 @@ type FormData = {
 
 const projectExportService = new ProjectExportService();
 
-export const ExportForm = observer(function ExportForm(props: Props) {
+export function ExportForm(props: Props) {
   // props
   const { workspaceSlug, mutateServices } = props;
   // states
@@ -272,4 +271,4 @@ export const ExportForm = observer(function ExportForm(props: Props) {
       </div>
     </form>
   );
-});
+}

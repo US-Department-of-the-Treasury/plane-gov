@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import { xor } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // types
 import { WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
@@ -18,7 +17,7 @@ type Props = {
   disabled: boolean;
 };
 
-export const SpreadsheetEpicColumn = observer(function SpreadsheetEpicColumn(props: Props) {
+export function SpreadsheetEpicColumn(props: Props) {
   const { issue, disabled, onClose } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -68,4 +67,4 @@ export const SpreadsheetEpicColumn = observer(function SpreadsheetEpicColumn(pro
       />
     </div>
   );
-});
+}

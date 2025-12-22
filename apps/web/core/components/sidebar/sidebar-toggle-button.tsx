@@ -1,11 +1,10 @@
-import { observer } from "mobx-react";
 import { PanelLeft } from "lucide-react";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { isSidebarToggleVisible } from "@/plane-web/components/desktop";
 import { IconButton } from "@plane/propel/icon-button";
 
-export const AppSidebarToggleButton = observer(function AppSidebarToggleButton() {
+export function AppSidebarToggleButton() {
   // store hooks
   const { toggleSidebar, sidebarPeek, toggleSidebarPeek } = useAppTheme();
 
@@ -21,4 +20,4 @@ export const AppSidebarToggleButton = observer(function AppSidebarToggleButton()
       }}
     />
   );
-});
+}

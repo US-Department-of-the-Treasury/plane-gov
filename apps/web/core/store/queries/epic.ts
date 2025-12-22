@@ -78,7 +78,7 @@ export function useArchivedEpics(workspaceSlug: string, projectId: string) {
   });
 }
 
-interface CreateEpicParams {
+export interface CreateEpicParams {
   workspaceSlug: string;
   projectId: string;
   data: Partial<IEpic>;
@@ -149,10 +149,7 @@ export function useCreateEpic() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousEpics && context.workspaceSlug && context.projectId) {
-        queryClient.setQueryData(
-          queryKeys.epics.all(context.workspaceSlug, context.projectId),
-          context.previousEpics
-        );
+        queryClient.setQueryData(queryKeys.epics.all(context.workspaceSlug, context.projectId), context.previousEpics);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, projectId }) => {
@@ -161,7 +158,7 @@ export function useCreateEpic() {
   });
 }
 
-interface UpdateEpicParams {
+export interface UpdateEpicParams {
   workspaceSlug: string;
   projectId: string;
   epicId: string;
@@ -225,7 +222,7 @@ export function useUpdateEpic() {
   });
 }
 
-interface DeleteEpicParams {
+export interface DeleteEpicParams {
   workspaceSlug: string;
   projectId: string;
   epicId: string;
@@ -261,10 +258,7 @@ export function useDeleteEpic() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousEpics && context.workspaceSlug && context.projectId) {
-        queryClient.setQueryData(
-          queryKeys.epics.all(context.workspaceSlug, context.projectId),
-          context.previousEpics
-        );
+        queryClient.setQueryData(queryKeys.epics.all(context.workspaceSlug, context.projectId), context.previousEpics);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, projectId, epicId }) => {
@@ -274,7 +268,7 @@ export function useDeleteEpic() {
   });
 }
 
-interface ArchiveEpicParams {
+export interface ArchiveEpicParams {
   workspaceSlug: string;
   projectId: string;
   epicId: string;
@@ -310,10 +304,7 @@ export function useArchiveEpic() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousEpics && context.workspaceSlug && context.projectId) {
-        queryClient.setQueryData(
-          queryKeys.epics.all(context.workspaceSlug, context.projectId),
-          context.previousEpics
-        );
+        queryClient.setQueryData(queryKeys.epics.all(context.workspaceSlug, context.projectId), context.previousEpics);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, projectId }) => {
@@ -369,7 +360,7 @@ export function useRestoreEpic() {
   });
 }
 
-interface CreateEpicLinkParams {
+export interface CreateEpicLinkParams {
   workspaceSlug: string;
   projectId: string;
   epicId: string;
@@ -396,7 +387,7 @@ export function useCreateEpicLink() {
   });
 }
 
-interface UpdateEpicLinkParams {
+export interface UpdateEpicLinkParams {
   workspaceSlug: string;
   projectId: string;
   epicId: string;
@@ -443,7 +434,7 @@ export function useUpdateEpicLink() {
   });
 }
 
-interface AddEpicToFavoritesParams {
+export interface AddEpicToFavoritesParams {
   workspaceSlug: string;
   projectId: string;
   epicId: string;
@@ -479,10 +470,7 @@ export function useAddEpicToFavorites() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousEpics && context.workspaceSlug && context.projectId) {
-        queryClient.setQueryData(
-          queryKeys.epics.all(context.workspaceSlug, context.projectId),
-          context.previousEpics
-        );
+        queryClient.setQueryData(queryKeys.epics.all(context.workspaceSlug, context.projectId), context.previousEpics);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, projectId }) => {
@@ -491,7 +479,7 @@ export function useAddEpicToFavorites() {
   });
 }
 
-interface RemoveEpicFromFavoritesParams {
+export interface RemoveEpicFromFavoritesParams {
   workspaceSlug: string;
   projectId: string;
   epicId: string;
@@ -527,10 +515,7 @@ export function useRemoveEpicFromFavorites() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousEpics && context.workspaceSlug && context.projectId) {
-        queryClient.setQueryData(
-          queryKeys.epics.all(context.workspaceSlug, context.projectId),
-          context.previousEpics
-        );
+        queryClient.setQueryData(queryKeys.epics.all(context.workspaceSlug, context.projectId), context.previousEpics);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, projectId }) => {
@@ -539,7 +524,7 @@ export function useRemoveEpicFromFavorites() {
   });
 }
 
-interface DeleteEpicLinkParams {
+export interface DeleteEpicLinkParams {
   workspaceSlug: string;
   projectId: string;
   epicId: string;

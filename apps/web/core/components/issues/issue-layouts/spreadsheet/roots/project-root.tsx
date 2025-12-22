@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -9,7 +8,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { ProjectIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseSpreadsheetRoot } from "../base-spreadsheet-root";
 
-export const ProjectSpreadsheetLayout = observer(function ProjectSpreadsheetLayout() {
+export function ProjectSpreadsheetLayout() {
   // router
   const { workspaceSlug } = useParams();
   // hooks
@@ -29,4 +28,4 @@ export const ProjectSpreadsheetLayout = observer(function ProjectSpreadsheetLayo
       canEditPropertiesBasedOnProject={canEditPropertiesBasedOnProject}
     />
   );
-});
+}

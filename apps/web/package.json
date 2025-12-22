@@ -14,7 +14,10 @@
     "check:types": "react-router typegen && tsc --noEmit",
     "check:format": "prettier . --cache --check",
     "fix:lint": "eslint . --cache --cache-location node_modules/.cache/eslint/ --fix --max-warnings=14367",
-    "fix:format": "prettier . --cache --write"
+    "fix:format": "prettier . --cache --write",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "catalog:",
@@ -83,6 +86,7 @@
     "@dotenvx/dotenvx": "catalog:",
     "@plane/tailwind-config": "workspace:*",
     "@plane/typescript-config": "workspace:*",
+    "@playwright/test": "^1.57.0",
     "@react-router/dev": "catalog:",
     "@tailwindcss/typography": "0.5.19",
     "@tanstack/react-query-devtools": "^5.91.1",

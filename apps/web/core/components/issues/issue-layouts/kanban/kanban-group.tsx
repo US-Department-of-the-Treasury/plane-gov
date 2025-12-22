@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
-import { observer } from "mobx-react";
 // plane constants
 import { DRAG_ALLOWED_GROUPS } from "@plane/constants";
 // i18n
@@ -67,7 +66,7 @@ interface IKanbanGroup {
   isEpic?: boolean;
 }
 
-export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
+export function KanbanGroup(props: IKanbanGroup) {
   const {
     groupId,
     sub_group_id,
@@ -102,9 +101,7 @@ export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
   const projectId = firstIssueId ? issuesMap?.[firstIssueId]?.project_id : undefined;
 
   // Extract workspaceSlug from window location
-  const workspaceSlug = typeof window !== 'undefined'
-    ? window.location.pathname.split('/')[1]
-    : undefined;
+  const workspaceSlug = typeof window !== "undefined" ? window.location.pathname.split("/")[1] : undefined;
 
   const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
 
@@ -332,4 +329,4 @@ export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
         )}
     </div>
   );
-});
+}

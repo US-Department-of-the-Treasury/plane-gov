@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Loader } from "lucide-react";
 import { STATE_TRACKER_EVENTS, STATE_TRACKER_ELEMENTS } from "@plane/constants";
 import { CloseIcon } from "@plane/propel/icons";
@@ -20,7 +19,7 @@ type TStateDelete = {
   shouldTrackEvents: boolean;
 };
 
-export const StateDelete = observer(function StateDelete(props: TStateDelete) {
+export function StateDelete(props: TStateDelete) {
   const { totalStates, state, deleteStateCallback, shouldTrackEvents } = props;
   // hooks
   const { isMobile } = usePlatformOS();
@@ -114,4 +113,4 @@ export const StateDelete = observer(function StateDelete(props: TStateDelete) {
       </button>
     </>
   );
-});
+}

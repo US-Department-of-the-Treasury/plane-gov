@@ -102,7 +102,15 @@ export function IssueLinkRoot(props: TIssueLinkRoot) {
         }
       },
     }),
-    [workspaceSlug, projectId, issueId, createLinkMutation, updateLinkMutation, deleteLinkMutation, toggleIssueLinkModal]
+    [
+      workspaceSlug,
+      projectId,
+      issueId,
+      createLinkMutation,
+      updateLinkMutation,
+      deleteLinkMutation,
+      toggleIssueLinkModal,
+    ]
   );
 
   const handleOnClose = () => {

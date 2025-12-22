@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { observer } from "mobx-react";
 import { useForm } from "react-hook-form";
 import { Check } from "lucide-react";
 import type { EditorRefApi } from "@plane/editor";
@@ -21,7 +20,7 @@ type Props = {
   workspaceSlug: string;
 };
 
-export const CommentCardEditForm = observer(function CommentCardEditForm(props: Props) {
+export function CommentCardEditForm(props: Props) {
   const {
     activityOperations,
     comment,
@@ -150,4 +149,4 @@ export const CommentCardEditForm = observer(function CommentCardEditForm(props: 
       </div>
     </form>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // Plane
 import { Row } from "@plane/ui";
 // components
@@ -14,7 +13,7 @@ type Props = {
   isDragging: boolean;
 };
 
-export const EpicsSidebarBlock = observer(function EpicsSidebarBlock(props: Props) {
+export function EpicsSidebarBlock(props: Props) {
   const { blockId, isDragging } = props;
   // store hooks
   const { getBlockById, updateActiveBlockId, isBlockActive, getNumberOfDaysFromPosition } = useTimeLineChartStore();
@@ -58,4 +57,4 @@ export const EpicsSidebarBlock = observer(function EpicsSidebarBlock(props: Prop
       </Row>
     </div>
   );
-});
+}

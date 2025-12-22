@@ -1,12 +1,20 @@
-import { useContext } from "react";
-// mobx store
-import { StoreContext } from "@/lib/store-context";
-// types
-import type { IWorkspaceDraftIssues } from "@/store/issue/workspace-draft";
+/**
+ * Re-export Zustand filter store for workspace draft issues.
+ * Components should use the filter store directly for better performance and type safety.
+ *
+ * This file maintains backward compatibility while the codebase migrates away from MobX.
+ */
 
-export const useWorkspaceDraftIssueFilters = (): IWorkspaceDraftIssues => {
-  const context = useContext(StoreContext);
-  if (context === undefined) throw new Error("useWorkspaceDraftIssueFilters must be used within StoreProvider");
+// Re-export Zustand filter store
+export { useWorkspaceDraftFilterStore } from "@/store/client";
 
-  return context.issue.workspaceDraftIssues;
-};
+// Re-export TanStack Query hooks for convenience
+// Note: useWorkspaceDraftIssues is exported from use-workspace-draft-issue.ts as compatibility layer
+export {
+  useInfiniteWorkspaceDraftIssues,
+  useWorkspaceDraftIssue,
+  useCreateWorkspaceDraftIssue,
+  useUpdateWorkspaceDraftIssue,
+  useDeleteWorkspaceDraftIssue,
+  useMoveWorkspaceDraftIssue,
+} from "@/store/queries";

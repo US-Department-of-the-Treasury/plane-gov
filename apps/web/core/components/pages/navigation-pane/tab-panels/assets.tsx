@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Download } from "lucide-react";
 // plane imports
@@ -22,7 +21,7 @@ type AssetItemProps = {
   page: TPageInstance;
 };
 
-const AssetItem = observer(function AssetItem(props: AssetItemProps) {
+function AssetItem(props: AssetItemProps) {
   const { asset, page } = props;
   // navigation
   const { workspaceSlug } = useParams();
@@ -99,9 +98,9 @@ const AssetItem = observer(function AssetItem(props: AssetItemProps) {
       page={page}
     />
   );
-});
+}
 
-export const PageNavigationPaneAssetsTabPanel = observer(function PageNavigationPaneAssetsTabPanel(props: Props) {
+export function PageNavigationPaneAssetsTabPanel(props: Props) {
   const { page } = props;
   // derived values
   const {
@@ -117,4 +116,4 @@ export const PageNavigationPaneAssetsTabPanel = observer(function PageNavigation
       ))}
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { CheckCircle } from "lucide-react";
 import { Tab } from "@headlessui/react";
 // plane imports
@@ -18,7 +17,7 @@ export type TBasePaidPlanCardProps = {
   renderActionButton: (price: TSubscriptionPrice) => React.ReactNode;
 };
 
-export const BasePaidPlanCard = observer(function BasePaidPlanCard(props: TBasePaidPlanCardProps) {
+export function BasePaidPlanCard(props: TBasePaidPlanCardProps) {
   const {
     planVariant,
     features,
@@ -89,4 +88,4 @@ export const BasePaidPlanCard = observer(function BasePaidPlanCard(props: TBaseP
       </Tab.Group>
     </div>
   );
-});
+}

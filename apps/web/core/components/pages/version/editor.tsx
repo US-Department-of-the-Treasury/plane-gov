@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import type { TDisplayConfig } from "@plane/editor";
@@ -20,7 +19,7 @@ export type TVersionEditorProps = {
   storeType: EPageStoreType;
 };
 
-export const PagesVersionEditor = observer(function PagesVersionEditor(props: TVersionEditorProps) {
+export function PagesVersionEditor(props: TVersionEditorProps) {
   const { activeVersion, versionDetails } = props;
   // params
   const { workspaceSlug, projectId } = useParams();
@@ -99,4 +98,4 @@ export const PagesVersionEditor = observer(function PagesVersionEditor(props: TV
       workspaceSlug={workspaceSlug?.toString() ?? ""}
     />
   );
-});
+}

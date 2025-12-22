@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { isEmpty } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -25,7 +24,7 @@ export interface DraftIssueProps extends IssueFormProps {
   onChange: (formData: Partial<TIssue> | null) => void;
 }
 
-export const DraftIssueLayout = observer(function DraftIssueLayout(props: DraftIssueProps) {
+export function DraftIssueLayout(props: DraftIssueProps) {
   const { changesMade, data, onChange, onClose, projectId } = props;
   // states
   const [issueDiscardModal, setIssueDiscardModal] = useState(false);
@@ -146,4 +145,4 @@ export const DraftIssueLayout = observer(function DraftIssueLayout(props: DraftI
       <IssueFormRoot {...props} onClose={handleClose} handleDraftAndClose={handleDraftAndClose} />
     </>
   );
-});
+}

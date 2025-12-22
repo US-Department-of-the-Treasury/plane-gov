@@ -268,8 +268,7 @@ export class FavoriteStore implements IFavoriteStore {
         );
       case "epic":
         return (
-          this.epicStore.epicMap[entity_identifier] &&
-          (this.epicStore.epicMap[entity_identifier].is_favorite = false)
+          this.epicStore.epicMap[entity_identifier] && (this.epicStore.epicMap[entity_identifier].is_favorite = false)
         );
       case "page":
         return this.pageStore.data[entity_identifier] && (this.pageStore.data[entity_identifier].is_favorite = false);

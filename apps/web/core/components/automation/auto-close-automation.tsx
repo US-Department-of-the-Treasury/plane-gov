@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // icons
 import { ArchiveX } from "lucide-react";
@@ -30,7 +29,7 @@ type Props = {
   handleChange: (formData: Partial<IProject>) => Promise<void>;
 };
 
-export const AutoCloseAutomation = observer(function AutoCloseAutomation(props: Props) {
+export function AutoCloseAutomation(props: Props) {
   const { handleChange } = props;
   // router
   const { workspaceSlug, projectId } = useParams();
@@ -42,10 +41,7 @@ export const AutoCloseAutomation = observer(function AutoCloseAutomation(props: 
     workspaceSlug?.toString() ?? "",
     projectId?.toString() ?? ""
   );
-  const { data: projectStates } = useProjectStates(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? ""
-  );
+  const { data: projectStates } = useProjectStates(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
 
   // store hooks
   const { allowPermissions } = useUserPermissions();
@@ -222,4 +218,4 @@ export const AutoCloseAutomation = observer(function AutoCloseAutomation(props: 
       </div>
     </>
   );
-});
+}

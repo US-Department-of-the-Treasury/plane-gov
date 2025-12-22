@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { isEmpty } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane constants
@@ -44,7 +43,7 @@ function SprintIssueLayout(props: {
   }
 }
 
-export const SprintLayoutRoot = observer(function SprintLayoutRoot() {
+export function SprintLayoutRoot() {
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, sprintId: routerSprintId } = useParams();
   const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
   const projectId = routerProjectId ? routerProjectId.toString() : undefined;
@@ -114,7 +113,11 @@ export const SprintLayoutRoot = observer(function SprintLayoutRoot() {
                 />
               )}
               <div className="h-full w-full overflow-auto">
-                <SprintIssueLayout activeLayout={activeLayout} sprintId={sprintId} isCompletedSprint={isCompletedSprint} />
+                <SprintIssueLayout
+                  activeLayout={activeLayout}
+                  sprintId={sprintId}
+                  isCompletedSprint={isCompletedSprint}
+                />
               </div>
               {/* peek overview */}
               <IssuePeekOverview />
@@ -124,4 +127,4 @@ export const SprintLayoutRoot = observer(function SprintLayoutRoot() {
       </ProjectLevelWorkItemFiltersHOC>
     </IssuesStoreContext.Provider>
   );
-});
+}

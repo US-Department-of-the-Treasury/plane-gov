@@ -1,5 +1,4 @@
 import type { FC, RefObject } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { ETabIndices } from "@plane/constants";
 import type { EditorRefApi } from "@plane/editor";
@@ -32,7 +31,7 @@ type TInboxIssueDescription = {
 };
 
 // TODO: have to implement GPT Assistance
-export const InboxIssueDescription = observer(function InboxIssueDescription(props: TInboxIssueDescription) {
+export function InboxIssueDescription(props: TInboxIssueDescription) {
   const {
     containerClassName,
     workspaceSlug,
@@ -116,4 +115,4 @@ export const InboxIssueDescription = observer(function InboxIssueDescription(pro
       }}
     />
   );
-});
+}

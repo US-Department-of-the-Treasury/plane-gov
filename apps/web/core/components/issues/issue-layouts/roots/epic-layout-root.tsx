@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane imports
@@ -36,7 +35,7 @@ function EpicIssueLayout(props: { activeLayout: EIssueLayoutTypes | undefined; e
   }
 }
 
-export const EpicLayoutRoot = observer(function EpicLayoutRoot() {
+export function EpicLayoutRoot() {
   // router
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, epicId: routerEpicId } = useParams();
   const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
@@ -93,4 +92,4 @@ export const EpicLayoutRoot = observer(function EpicLayoutRoot() {
       </ProjectLevelWorkItemFiltersHOC>
     </IssuesStoreContext.Provider>
   );
-});
+}

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
@@ -46,7 +45,7 @@ export type TProfileFormProps = {
   profile: TUserProfile;
 };
 
-export const ProfileForm = observer(function ProfileForm(props: TProfileFormProps) {
+export function ProfileForm(props: TProfileFormProps) {
   const { user, profile } = props;
   const { workspaceSlug } = useParams();
   // states
@@ -440,4 +439,4 @@ export const ProfileForm = observer(function ProfileForm(props: TProfileFormProp
       </Disclosure>
     </>
   );
-});
+}

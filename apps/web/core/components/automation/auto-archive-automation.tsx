@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { ArchiveRestore } from "lucide-react";
 // types
@@ -29,7 +28,7 @@ type Props = {
 
 const initialValues: Partial<IProject> = { archive_in: 1 };
 
-export const AutoArchiveAutomation = observer(function AutoArchiveAutomation(props: Props) {
+export function AutoArchiveAutomation(props: Props) {
   const { handleChange } = props;
   // router
   const { workspaceSlug, projectId } = useParams();
@@ -144,4 +143,4 @@ export const AutoArchiveAutomation = observer(function AutoArchiveAutomation(pro
       </div>
     </>
   );
-});
+}

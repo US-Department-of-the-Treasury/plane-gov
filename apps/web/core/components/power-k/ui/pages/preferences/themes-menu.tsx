@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Command } from "cmdk";
-import { observer } from "mobx-react";
 // plane imports
 import { THEME_OPTIONS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -11,7 +10,7 @@ type Props = {
   onSelect: (theme: string) => void;
 };
 
-export const PowerKPreferencesThemesMenu = observer(function PowerKPreferencesThemesMenu(props: Props) {
+export function PowerKPreferencesThemesMenu(props: Props) {
   const { onSelect } = props;
   // hooks
   const { t } = useTranslation();
@@ -32,4 +31,4 @@ export const PowerKPreferencesThemesMenu = observer(function PowerKPreferencesTh
       ))}
     </Command.Group>
   );
-});
+}

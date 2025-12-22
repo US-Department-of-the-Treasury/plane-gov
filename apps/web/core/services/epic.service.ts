@@ -49,12 +49,7 @@ export class EpicService extends APIService {
       });
   }
 
-  async patchEpic(
-    workspaceSlug: string,
-    projectId: string,
-    epicId: string,
-    data: Partial<IEpic>
-  ): Promise<IEpic> {
+  async patchEpic(workspaceSlug: string, projectId: string, epicId: string, data: Partial<IEpic>): Promise<IEpic> {
     return this.patch(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/`, data)
       .then((response) => response?.data)
       .catch((error) => {
@@ -185,9 +180,7 @@ export class EpicService extends APIService {
   }
 
   async deleteEpicLink(workspaceSlug: string, projectId: string, epicId: string, linkId: string): Promise<any> {
-    return this.delete(
-      `/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/epic-links/${linkId}/`
-    )
+    return this.delete(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/epic-links/${linkId}/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;

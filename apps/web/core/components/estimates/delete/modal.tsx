@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 // ui
 import { PROJECT_SETTINGS_TRACKER_EVENTS } from "@plane/constants";
 import { Button } from "@plane/propel/button";
@@ -21,7 +20,7 @@ type TDeleteEstimateModal = {
   handleClose: () => void;
 };
 
-export const DeleteEstimateModal = observer(function DeleteEstimateModal(props: TDeleteEstimateModal) {
+export function DeleteEstimateModal(props: TDeleteEstimateModal) {
   // props
   const { workspaceSlug, projectId, estimateId, isOpen, handleClose } = props;
   // hooks
@@ -38,7 +37,7 @@ export const DeleteEstimateModal = observer(function DeleteEstimateModal(props: 
 
       await deleteEstimate(workspaceSlug, projectId, estimateId);
       if (areEstimateEnabledByProjectId(projectId)) {
-        await updateProject(workspaceSlug, projectId, { estimate: null });
+        await updateProject({ workspaceSlug, projectId, data: { estimate: null } });
       }
       setButtonLoader(false);
       captureSuccess({
@@ -97,4 +96,4 @@ export const DeleteEstimateModal = observer(function DeleteEstimateModal(props: 
       </div>
     </ModalCore>
   );
-});
+}

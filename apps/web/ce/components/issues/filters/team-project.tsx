@@ -1,5 +1,4 @@
 import type React from "react";
-import { observer } from "mobx-react";
 
 type Props = {
   appliedFilters: string[] | null;
@@ -7,6 +6,6 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterTeamProjects = observer(function FilterTeamProjects(_props: Props) {
+export function FilterTeamProjects(_props: Props) {
   return null;
-});
+}

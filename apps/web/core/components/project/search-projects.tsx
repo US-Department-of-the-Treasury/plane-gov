@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { Search } from "lucide-react";
 // plane hooks
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -12,7 +11,7 @@ import { cn } from "@plane/utils";
 import { useProjectFilter } from "@/hooks/store/use-project-filter";
 import { IconButton } from "@plane/propel/icon-button";
 
-export const ProjectSearch = observer(function ProjectSearch() {
+export function ProjectSearch() {
   // i18n
   const { t } = useTranslation();
   // hooks
@@ -79,4 +78,4 @@ export const ProjectSearch = observer(function ProjectSearch() {
       </div>
     </div>
   );
-});
+}

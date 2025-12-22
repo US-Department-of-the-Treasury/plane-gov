@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useRouter } from "next/navigation";
 // ui
 import { Banner } from "@plane/propel/banner";
@@ -81,4 +80,4 @@ function ArchivedIssueDetailsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ArchivedIssueDetailsPage);
+export default ArchivedIssueDetailsPage;

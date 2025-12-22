@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { ListFilter, Search } from "lucide-react";
 // plane helpers
@@ -27,7 +26,7 @@ import { EpicLayoutIcon } from "./epic-layout-icon";
 import { IconButton } from "@plane/propel/icon-button";
 // i18n
 
-export const EpicViewHeader = observer(function EpicViewHeader() {
+export function EpicViewHeader() {
   // refs
   const inputRef = useRef<HTMLInputElement>(null);
   // router
@@ -189,4 +188,4 @@ export const EpicViewHeader = observer(function EpicViewHeader() {
       </div>
     </div>
   );
-});
+}

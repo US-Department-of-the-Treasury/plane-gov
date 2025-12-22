@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -18,7 +17,7 @@ import { AuthenticationWrapper } from "@/lib/wrappers/authentication-wrapper";
 // plane web helpers
 import { getIsWorkspaceCreationDisabled } from "@/plane-web/helpers/instance.helper";
 
-const CreateWorkspacePage = observer(function CreateWorkspacePage() {
+function CreateWorkspacePage() {
   const { t } = useTranslation();
   // router
   const router = useAppRouter();
@@ -104,6 +103,6 @@ const CreateWorkspacePage = observer(function CreateWorkspacePage() {
       </div>
     </AuthenticationWrapper>
   );
-});
+}
 
 export default CreateWorkspacePage;

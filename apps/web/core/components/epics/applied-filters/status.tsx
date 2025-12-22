@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // ui
 import { EPIC_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -11,7 +10,7 @@ type Props = {
   editable: boolean | undefined;
 };
 
-export const AppliedStatusFilters = observer(function AppliedStatusFilters(props: Props) {
+export function AppliedStatusFilters(props: Props) {
   const { handleRemove, values, editable } = props;
   const { t } = useTranslation();
 
@@ -39,4 +38,4 @@ export const AppliedStatusFilters = observer(function AppliedStatusFilters(props
       })}
     </>
   );
-});
+}

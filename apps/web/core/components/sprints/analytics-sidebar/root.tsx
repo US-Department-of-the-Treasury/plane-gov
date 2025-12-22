@@ -50,7 +50,7 @@ export function SprintDetailsSidebar(props: Props) {
           isArchived={isArchived}
           handleClose={handleClose}
         />
-        <SprintSidebarDetails projectId={projectId} sprintDetails={sprintDetails} />
+        <SprintSidebarDetails projectId={projectId} sprintDetails={sprintDetails} workspaceSlug={workspaceSlug} />
       </div>
 
       {workspaceSlug && projectId && sprintDetails?.id && (

@@ -63,7 +63,7 @@ export function BulkDeleteIssuesModal(props: Props) {
     if (!isOpen || !workspaceSlug || !projectId) return;
 
     let cancelled = false;
-     
+
     setIsSearching(true);
 
     void (async () => {

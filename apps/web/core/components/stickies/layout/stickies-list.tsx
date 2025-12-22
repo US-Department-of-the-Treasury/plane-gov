@@ -4,7 +4,6 @@ import type {
   DragLocationHistory,
 } from "@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types";
 import type { ElementDragPayload } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import Masonry from "react-masonry-component";
@@ -40,7 +39,7 @@ type TProps = TStickiesLayout & {
   columnCount: number;
 };
 
-export const StickiesList = observer(function StickiesList(props: TProps) {
+export function StickiesList(props: TProps) {
   const { workspaceSlug, intersectionElement, columnCount } = props;
   // navigation
   const pathname = usePathname();
@@ -144,7 +143,7 @@ export const StickiesList = observer(function StickiesList(props: TProps) {
     <div className="transition-opacity duration-300 ease-in-out">
       {/* @ts-expect-error type mismatch here */}
       <Masonry elementType="div" ref={masonryRef}>
-        {workspaceStickyIds.map((stickyId, index) => {
+        {workspaceStickyIds.map((stickyId: string, index: number) => {
           const { isInFirstRow, isInLastRow } = getRowPositions(index);
           return (
             <StickyDNDWrapper
@@ -164,7 +163,7 @@ export const StickiesList = observer(function StickiesList(props: TProps) {
       </Masonry>
     </div>
   );
-});
+}
 
 export function StickiesLayout(props: TStickiesLayout) {
   // states

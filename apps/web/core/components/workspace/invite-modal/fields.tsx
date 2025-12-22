@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import type { Control, FieldArrayWithId, FormState } from "react-hook-form";
 import { Controller } from "react-hook-form";
 // plane imports
@@ -20,7 +19,7 @@ type TInvitationFieldsProps = {
   className?: string;
 };
 
-export const InvitationFields = observer(function InvitationFields(props: TInvitationFieldsProps) {
+export function InvitationFields(props: TInvitationFieldsProps) {
   const {
     workspaceSlug,
     fields,
@@ -118,4 +117,4 @@ export const InvitationFields = observer(function InvitationFields(props: TInvit
       ))}
     </div>
   );
-});
+}

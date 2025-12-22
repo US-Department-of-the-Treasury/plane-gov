@@ -1,7 +1,6 @@
 import type { FC } from "react";
 import React from "react";
 import { isEmpty } from "lodash-es";
-import { observer } from "mobx-react";
 import { SquareUser } from "lucide-react";
 // plane types
 import { EEstimateSystem } from "@plane/constants";
@@ -24,7 +23,7 @@ type Props = {
   sprintDetails: ISprint;
 };
 
-export const SprintSidebarDetails = observer(function SprintSidebarDetails(props: Props) {
+export function SprintSidebarDetails(props: Props) {
   const { projectId, workspaceSlug, sprintDetails } = props;
   // hooks
   const { areEstimateEnabledByProjectId, currentActiveEstimateId, estimateById } = useProjectEstimates();
@@ -147,4 +146,4 @@ export const SprintSidebarDetails = observer(function SprintSidebarDetails(props
       </div>
     </div>
   );
-});
+}

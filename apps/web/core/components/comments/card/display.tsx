@@ -58,7 +58,9 @@ export function CommentCardDisplay(props: TCommentCardDisplayProps) {
   const userDetails = getWorkspaceMemberByUserId(members, comment?.actor);
   const displayName = comment?.actor_detail?.is_bot
     ? comment?.actor_detail?.first_name + `Bot`
-    : (userDetails ? getMemberDisplayName(userDetails) : comment?.actor_detail?.display_name);
+    : userDetails
+      ? getMemberDisplayName(userDetails)
+      : comment?.actor_detail?.display_name;
   const avatarUrl = userDetails?.avatar_url ?? comment?.actor_detail?.avatar_url;
 
   const userReactions = activityOperations.userReactions(comment.id);

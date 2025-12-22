@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // hooks
 import { EpicIcon } from "@plane/propel/icons";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -8,7 +7,7 @@ import { IssueActivityBlockComponent } from "./";
 
 type TIssueEpicActivity = { activityId: string; ends: "top" | "bottom" | undefined };
 
-export const IssueEpicActivity = observer(function IssueEpicActivity(props: TIssueEpicActivity) {
+export function IssueEpicActivity(props: TIssueEpicActivity) {
   const { activityId, ends } = props;
   // hooks
   const {
@@ -65,4 +64,4 @@ export const IssueEpicActivity = observer(function IssueEpicActivity(props: TIss
       </>
     </IssueActivityBlockComponent>
   );
-});
+}

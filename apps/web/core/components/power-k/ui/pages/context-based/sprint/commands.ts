@@ -35,10 +35,10 @@ export const usePowerKSprintContextBasedActions = (): TPowerKCommandConfig[] => 
   const { t } = useTranslation();
 
   const toggleFavorite = useCallback(() => {
-    if (!workspaceSlug || !sprintDetails || !sprintDetails.project_id) return;
+    if (!workspaceSlug || !sprintDetails) return;
     try {
-      if (isFavorite) removeSprintFromFavorites(workspaceSlug.toString(), sprintDetails.project_id, sprintDetails.id);
-      else addSprintToFavorites(workspaceSlug.toString(), sprintDetails.project_id, sprintDetails.id);
+      if (isFavorite) removeSprintFromFavorites(workspaceSlug.toString(), sprintDetails.id);
+      else addSprintToFavorites(workspaceSlug.toString(), sprintDetails.id);
     } catch {
       setToast({
         type: TOAST_TYPE.ERROR,

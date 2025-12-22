@@ -43,11 +43,11 @@ export function DraftIssueProperties(props: IIssueProperties) {
   const { isMobile } = usePlatformOS();
 
   // queries
-  const { data: projectDetails } = useProjectDetails(workspaceSlug as string, issue.project_id);
+  const { data: projectDetails } = useProjectDetails(workspaceSlug, issue.project_id);
 
   // queries
-  const { data: projectLabels } = useProjectLabels(workspaceSlug as string, issue.project_id);
-  const { data: projectStates } = useProjectStates(workspaceSlug as string, issue.project_id);
+  const { data: projectLabels } = useProjectLabels(workspaceSlug, issue.project_id);
+  const { data: projectStates } = useProjectStates(workspaceSlug, issue.project_id);
 
   // derived values
   const stateDetails = getStateById(projectStates, issue.state_id);
@@ -119,9 +119,8 @@ export function DraftIssueProperties(props: IIssueProperties) {
 
   if (!issue.project_id) return null;
 
-  const defaultLabelOptions = issue?.label_ids
-    ?.map((id) => projectLabels?.find((label) => label.id === id))
-    .filter(Boolean) || [];
+  const defaultLabelOptions =
+    issue?.label_ids?.map((id) => projectLabels?.find((label) => label.id === id)).filter(Boolean) || [];
 
   const minDate = getDate(issue.start_date);
   minDate?.setDate(minDate.getDate());

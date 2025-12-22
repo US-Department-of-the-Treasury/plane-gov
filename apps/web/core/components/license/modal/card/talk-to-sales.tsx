@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // types
 // plane imports
 import { getButtonStyling } from "@plane/propel/button";
@@ -23,7 +22,7 @@ export type TalkToSalesCardProps = {
   renderTrialButton?: (props: { productId: string | undefined; priceId: string | undefined }) => React.ReactNode;
 };
 
-export const TalkToSalesCard = observer(function TalkToSalesCard(props: TalkToSalesCardProps) {
+export function TalkToSalesCard(props: TalkToSalesCardProps) {
   const {
     planVariant,
     href,
@@ -95,4 +94,4 @@ export const TalkToSalesCard = observer(function TalkToSalesCard(props: TalkToSa
       renderActionButton={renderActionButton}
     />
   );
-});
+}

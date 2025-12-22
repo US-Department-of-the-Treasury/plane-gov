@@ -34,17 +34,14 @@ export function EpicDropdown(props: TEpicDropdownProps) {
   // router
   const { workspaceSlug } = useParams();
   // fetch epics using TanStack Query
-  const { data: epics } = useProjectEpics(
-    workspaceSlug?.toString() ?? "",
-    projectId ?? ""
-  );
+  const { data: epics } = useProjectEpics(workspaceSlug?.toString() ?? "", projectId ?? "");
   // derived values
   const epicIds = epics ? getEpicIds(epics) : [];
 
   return (
     <EpicDropdownBase
       {...props}
-      getEpicById={(epicId: string) => getEpicById(epics, epicId)}
+      getEpicById={(epicId: string) => getEpicById(epics, epicId) ?? null}
       epicIds={epicIds}
       onDropdownOpen={() => {}} // TanStack Query handles fetching automatically
     />

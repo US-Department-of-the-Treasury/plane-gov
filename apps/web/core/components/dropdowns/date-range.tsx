@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { Placement } from "@popperjs/core";
-import { observer } from "mobx-react";
 import { createPortal } from "react-dom";
 import { usePopper } from "react-popper";
 import { ArrowRight, CalendarDays } from "lucide-react";
@@ -64,7 +63,7 @@ type Props = {
   renderInPortal?: boolean;
 };
 
-export const DateRangeDropdown = observer(function DateRangeDropdown(props: Props) {
+export function DateRangeDropdown(props: Props) {
   const { t } = useTranslation();
   const {
     buttonClassName,
@@ -300,4 +299,4 @@ export const DateRangeDropdown = observer(function DateRangeDropdown(props: Prop
       {isOpen && Options}
     </ComboDropDown>
   );
-});
+}

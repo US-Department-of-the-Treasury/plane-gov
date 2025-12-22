@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -20,7 +19,7 @@ type TIssueParentSelect = {
   workspaceSlug: string;
 };
 
-export const IssueParentSelectRoot = observer(function IssueParentSelectRoot(props: TIssueParentSelect) {
+export function IssueParentSelectRoot(props: TIssueParentSelect) {
   const { issueId, issueOperations, projectId, workspaceSlug } = props;
   const { t } = useTranslation();
 
@@ -28,11 +27,7 @@ export const IssueParentSelectRoot = observer(function IssueParentSelectRoot(pro
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
 
   // TanStack Query - fetch parent issue if it exists
-  const { data: parentIssue } = useIssue(
-    workspaceSlug,
-    issue?.parent_id ? projectId : "",
-    issue?.parent_id ?? ""
-  );
+  const { data: parentIssue } = useIssue(workspaceSlug, issue?.parent_id ? projectId : "", issue?.parent_id ?? "");
 
   // store hooks - keep UI state operations
   const {
@@ -84,4 +79,4 @@ export const IssueParentSelectRoot = observer(function IssueParentSelectRoot(pro
       workItemLink={workItemLink}
     />
   );
-});
+}

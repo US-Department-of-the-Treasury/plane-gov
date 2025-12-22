@@ -4,7 +4,7 @@ import type { TPowerKPageType } from "@/components/power-k/core/types";
 import { PowerKMembersMenu } from "@/components/power-k/menus/members";
 // hooks
 import { useEpicDetails } from "@/store/queries/epic";
-import { useProjectMembers } from "@/store/queries/member";
+import { useProjectMembers, useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // local imports
 import { PowerKEpicStatusMenu } from "./status-menu";
 
@@ -27,6 +27,7 @@ export function PowerKEpicContextBasedPages(props: Props) {
     workspaceSlug?.toString() ?? "",
     epicDetails?.project_id ?? ""
   );
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
 
   if (!epicDetails) return null;
 
@@ -36,11 +37,17 @@ export function PowerKEpicContextBasedPages(props: Props) {
       {activePage === "update-epic-member" && epicDetails && (
         <PowerKMembersMenu
           handleSelect={handleSelection}
-          members={projectMembers.map((m) => ({
-            id: m.member,
-            display_name: m.member_display_name || m.member_email || "",
-            avatar_url: m.member_avatar_url,
-          }))}
+          members={projectMembers
+            .map((m) => {
+              const workspaceMember = getWorkspaceMemberByUserId(workspaceMembers, m.member);
+              if (!workspaceMember?.member) return null;
+              return {
+                id: workspaceMember.member.id,
+                display_name: workspaceMember.member.display_name || workspaceMember.member.email || "",
+                avatar_url: workspaceMember.member.avatar_url,
+              };
+            })
+            .filter((member) => member !== null)}
           value={epicDetails.member_ids}
         />
       )}

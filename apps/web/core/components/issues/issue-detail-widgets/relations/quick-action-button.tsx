@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 import { Plus } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -19,7 +18,7 @@ type Props = {
   issueServiceType: TIssueServiceType;
 };
 
-export const RelationActionButton = observer(function RelationActionButton(props: Props) {
+export function RelationActionButton(props: Props) {
   const { customButton, issueId, disabled = false, issueServiceType } = props;
   const { t } = useTranslation();
   // store hooks
@@ -63,4 +62,4 @@ export const RelationActionButton = observer(function RelationActionButton(props
       })}
     </CustomMenu>
   );
-});
+}

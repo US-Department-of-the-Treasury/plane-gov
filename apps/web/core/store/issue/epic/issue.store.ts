@@ -87,9 +87,7 @@ export class EpicIssues extends BaseIssuesStore implements IEpicIssues {
    */
   fetchParentStats = (workspaceSlug: string, projectId?: string, id?: string) => {
     const epicId = id ?? this.epicId;
-    projectId &&
-      epicId &&
-      this.rootIssueStore.rootStore.epic.fetchEpicDetails(workspaceSlug, projectId, epicId);
+    projectId && epicId && this.rootIssueStore.rootStore.epic.fetchEpicDetails(workspaceSlug, projectId, epicId);
   };
 
   /**

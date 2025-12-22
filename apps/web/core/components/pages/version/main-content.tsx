@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 import { EyeIcon, TriangleAlert } from "lucide-react";
 // plane imports
@@ -23,7 +22,7 @@ type Props = {
   storeType: EPageStoreType;
 };
 
-export const PageVersionsMainContent = observer(function PageVersionsMainContent(props: Props) {
+export function PageVersionsMainContent(props: Props) {
   const {
     activeVersion,
     editorComponent,
@@ -119,4 +118,4 @@ export const PageVersionsMainContent = observer(function PageVersionsMainContent
       )}
     </div>
   );
-});
+}

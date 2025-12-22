@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // types
 import type { TIssue } from "@plane/types";
 // helpers
@@ -10,7 +9,7 @@ type Props = {
   issue: TIssue;
 };
 
-export const SpreadsheetUpdatedOnColumn = observer(function SpreadsheetUpdatedOnColumn(props: Props) {
+export function SpreadsheetUpdatedOnColumn(props: Props) {
   const { issue } = props;
 
   return (
@@ -18,4 +17,4 @@ export const SpreadsheetUpdatedOnColumn = observer(function SpreadsheetUpdatedOn
       {renderFormattedDate(issue.updated_at)}
     </Row>
   );
-});
+}

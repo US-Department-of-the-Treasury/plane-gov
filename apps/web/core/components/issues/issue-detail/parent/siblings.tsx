@@ -14,11 +14,9 @@ export type TIssueParentSiblings = {
 export function IssueParentSiblings(props: TIssueParentSiblings) {
   const { workspaceSlug, currentIssue, parentIssue } = props;
   // hooks
-  const { data: subIssues, isLoading } = useSubIssues(
-    workspaceSlug,
-    parentIssue.project_id ?? "",
-    parentIssue.id
-  );
+  const { data: subIssuesData, isLoading } = useSubIssues(workspaceSlug, parentIssue.project_id ?? "", parentIssue.id);
+
+  const subIssues = Array.isArray(subIssuesData?.sub_issues) ? subIssuesData.sub_issues : [];
 
   return (
     <div className="my-1">
@@ -29,12 +27,12 @@ export function IssueParentSiblings(props: TIssueParentSiblings) {
       ) : subIssues && subIssues.length > 0 ? (
         subIssues.map(
           (subIssue) =>
-            currentIssue.id !== subIssue && (
+            currentIssue.id !== subIssue.id && (
               <IssueParentSiblingItem
-                key={subIssue}
+                key={subIssue.id}
                 workspaceSlug={workspaceSlug}
                 projectId={parentIssue.project_id ?? ""}
-                issueId={subIssue}
+                issueId={subIssue.id}
               />
             )
         )

@@ -1,10 +1,12 @@
-import { useContext } from "react";
 // store
-import { StoreContext } from "@/lib/store-context";
-import type { IEditorAssetStore } from "@/store/editor/asset.store";
+import { useEditorAssetStore, selectAssetsUploadPercentage } from "@/store/client/editor-asset.store";
 
-export const useEditorAsset = (): IEditorAssetStore => {
-  const context = useContext(StoreContext);
-  if (context === undefined) throw new Error("useEditorAsset must be used within StoreProvider");
-  return context.editorAssetStore;
+export const useEditorAsset = () => {
+  const store = useEditorAssetStore();
+  const assetsUploadPercentage = useEditorAssetStore(selectAssetsUploadPercentage);
+
+  return {
+    ...store,
+    assetsUploadPercentage,
+  };
 };

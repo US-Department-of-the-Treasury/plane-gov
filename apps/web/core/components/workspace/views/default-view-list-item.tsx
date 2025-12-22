@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslation } from "@plane/i18n";
@@ -7,7 +6,7 @@ import { truncateText } from "@plane/utils";
 
 type Props = { view: { key: string; i18n_label: string } };
 
-export const GlobalDefaultViewListItem = observer(function GlobalDefaultViewListItem(props: Props) {
+export function GlobalDefaultViewListItem(props: Props) {
   const { view } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -28,4 +27,4 @@ export const GlobalDefaultViewListItem = observer(function GlobalDefaultViewList
       </Link>
     </div>
   );
-});
+}

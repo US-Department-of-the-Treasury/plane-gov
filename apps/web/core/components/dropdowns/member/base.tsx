@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import type { LucideIcon } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { ChevronDownIcon } from "@plane/propel/icons";
@@ -27,7 +26,7 @@ type TMemberDropdownBaseProps = {
   renderByDefault?: boolean;
 } & MemberDropdownProps;
 
-export const MemberDropdownBase = observer(function MemberDropdownBase(props: TMemberDropdownBaseProps) {
+export function MemberDropdownBase(props: TMemberDropdownBaseProps) {
   const { t } = useTranslation();
   const {
     button,
@@ -181,4 +180,4 @@ export const MemberDropdownBase = observer(function MemberDropdownBase(props: TM
       )}
     </ComboDropDown>
   );
-});
+}

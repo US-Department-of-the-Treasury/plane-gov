@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // lucide icons
 import { Minimize2, Maximize2, Circle, Plus } from "lucide-react";
@@ -35,7 +34,7 @@ interface IHeaderGroupByCard {
   isEpic?: boolean;
 }
 
-export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHeaderGroupByCard) {
+export function HeaderGroupByCard(props: IHeaderGroupByCard) {
   const {
     group_by,
     sub_group_by,
@@ -60,7 +59,7 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
   const { workspaceSlug, projectId, epicId, sprintId } = useParams();
 
   const renderExistingIssueModal = epicId || sprintId;
-  const ExistingIssuesListModalPayload = epicId ? { epic: epicId.toString() } : { sprint: true };
+  const ExistingIssuesListModalPayload = epicId ? { epic_id: epicId.toString() } : { sprint: true };
 
   const handleAddIssuesToView = async (data: ISearchIssueResponse[]) => {
     if (!workspaceSlug || !projectId) return;
@@ -191,4 +190,4 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
       </div>
     </>
   );
-});
+}

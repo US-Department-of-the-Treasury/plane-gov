@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { cn } from "@plane/utils";
@@ -23,12 +22,12 @@ const TABS = {
   },
 };
 
-const SettingsTabs = observer(function SettingsTabs() {
+function SettingsTabs() {
   // router
   const pathname = usePathname();
   const { workspaceSlug } = useParams();
   // store hooks
-  const { data: projects } = useProjects(workspaceSlug as string);
+  const { data: projects } = useProjects(workspaceSlug);
 
   // derived values
   const joinedProjectIds = getJoinedProjectIds(projects);
@@ -62,6 +61,6 @@ const SettingsTabs = observer(function SettingsTabs() {
       })}
     </div>
   );
-});
+}
 
 export default SettingsTabs;

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Plus } from "lucide-react";
 // plane imports
@@ -22,7 +21,7 @@ import { DefaultWorkspaceViewQuickActions } from "./default-view-quick-action";
 import { CreateUpdateWorkspaceViewModal } from "./modal";
 import { WorkspaceViewQuickActions } from "./quick-action";
 
-const ViewTab = observer(function ViewTab(props: { viewId: string }) {
+function ViewTab(props: { viewId: string }) {
   const { viewId } = props;
   // refs
   const parentRef = useRef<HTMLDivElement>(null);
@@ -40,7 +39,7 @@ const ViewTab = observer(function ViewTab(props: { viewId: string }) {
       <WorkspaceViewQuickActions workspaceSlug={workspaceSlug?.toString()} view={view} />
     </div>
   );
-});
+}
 
 function DefaultViewTab(props: {
   tab: {
@@ -62,7 +61,7 @@ function DefaultViewTab(props: {
   );
 }
 
-export const GlobalViewsHeader = observer(function GlobalViewsHeader() {
+export function GlobalViewsHeader() {
   // states
   const [createViewModal, setCreateViewModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -129,4 +128,4 @@ export const GlobalViewsHeader = observer(function GlobalViewsHeader() {
       )}
     </Header>
   );
-});
+}

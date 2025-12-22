@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import { observer } from "mobx-react";
 import { ListFilterPlus } from "lucide-react";
 import { Transition } from "@headlessui/react";
 // plane imports
@@ -24,9 +23,7 @@ export type TFiltersRowProps<K extends TFilterProperty, E extends TExternalFilte
   };
 };
 
-export const FiltersRow = observer(function FiltersRow<K extends TFilterProperty, E extends TExternalFilter>(
-  props: TFiltersRowProps<K, E>
-) {
+export function FiltersRow<K extends TFilterProperty, E extends TExternalFilter>(props: TFiltersRowProps<K, E>) {
   const {
     buttonConfig,
     disabledAllOperations: disabledAllOperationsProp = false,
@@ -152,7 +149,7 @@ export const FiltersRow = observer(function FiltersRow<K extends TFilterProperty
   }
 
   return <RowTransition show={filter.isVisible}>{variant === "modal" ? ModalVariant : HeaderVariant}</RowTransition>;
-});
+}
 
 const COMMON_OPERATION_BUTTON_CLASSNAME = "py-1";
 
@@ -161,7 +158,7 @@ type TElementTransitionProps = {
   show: boolean;
 };
 
-const ElementTransition = observer(function ElementTransition(props: TElementTransitionProps) {
+function ElementTransition(props: TElementTransitionProps) {
   return (
     <Transition
       show={props.show}
@@ -175,14 +172,14 @@ const ElementTransition = observer(function ElementTransition(props: TElementTra
       {props.children}
     </Transition>
   );
-});
+}
 
 type TRowTransitionProps = {
   children: React.ReactNode;
   show: boolean;
 };
 
-const RowTransition = observer(function RowTransition(props: TRowTransitionProps) {
+function RowTransition(props: TRowTransitionProps) {
   return (
     <Transition
       show={props.show}
@@ -196,4 +193,4 @@ const RowTransition = observer(function RowTransition(props: TRowTransitionProps
       {props.children}
     </Transition>
   );
-});
+}

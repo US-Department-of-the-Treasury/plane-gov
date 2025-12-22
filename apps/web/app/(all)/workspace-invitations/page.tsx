@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { Boxes, Check, User2 } from "lucide-react";
@@ -117,4 +116,4 @@ function WorkspaceInvitationPage() {
   );
 }
 
-export default observer(WorkspaceInvitationPage);
+export default WorkspaceInvitationPage;

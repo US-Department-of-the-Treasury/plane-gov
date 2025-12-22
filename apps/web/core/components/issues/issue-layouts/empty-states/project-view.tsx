@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { EUserPermissions, EUserPermissionsLevel, WORK_ITEM_TRACKER_ELEMENTS } from "@plane/constants";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
@@ -9,7 +8,7 @@ import { captureClick } from "@/helpers/event-tracker.helper";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useUserPermissions } from "@/hooks/store/user";
 
-export const ProjectViewEmptyState = observer(function ProjectViewEmptyState() {
+export function ProjectViewEmptyState() {
   // store hooks
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
@@ -39,4 +38,4 @@ export const ProjectViewEmptyState = observer(function ProjectViewEmptyState() {
       ]}
     />
   );
-});
+}

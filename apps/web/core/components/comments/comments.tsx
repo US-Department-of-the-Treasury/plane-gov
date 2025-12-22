@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import type { E_SORT_ORDER } from "@plane/constants";
@@ -21,7 +20,7 @@ type TCommentsWrapper = {
   enableReplies?: boolean;
 };
 
-export const CommentsWrapper = observer(function CommentsWrapper(props: TCommentsWrapper) {
+export function CommentsWrapper(props: TCommentsWrapper) {
   const {
     entityId,
     activityOperations,
@@ -81,4 +80,4 @@ export const CommentsWrapper = observer(function CommentsWrapper(props: TComment
       </div>
     </div>
   );
-});
+}

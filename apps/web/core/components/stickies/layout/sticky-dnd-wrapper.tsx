@@ -9,7 +9,6 @@ import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-d
 import { pointerOutsideOfPreview } from "@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview";
 import { setCustomNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview";
 import { attachInstruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 import { createRoot } from "react-dom/client";
 // plane types
@@ -30,7 +29,7 @@ type Props = {
   handleLayout: () => void;
 };
 
-export const StickyDNDWrapper = observer(function StickyDNDWrapper(props: Props) {
+export function StickyDNDWrapper(props: Props) {
   const { stickyId, workspaceSlug, itemWidth, isLastChild, handleDrop, handleLayout } = props;
   // states
   const [isDragging, setIsDragging] = useState(false);
@@ -131,4 +130,4 @@ export const StickyDNDWrapper = observer(function StickyDNDWrapper(props: Props)
       {/* {!isInLastRow && <DropIndicator isVisible={instruction === "reorder-below"} />} */}
     </div>
   );
-});
+}

@@ -1,6 +1,5 @@
 import type { Dispatch, FC, SetStateAction } from "react";
 import { useCallback, useState } from "react";
-import { observer } from "mobx-react";
 import { Plus } from "lucide-react";
 // plane imports
 import { estimateCount } from "@plane/constants";
@@ -28,7 +27,7 @@ type TEstimatePointCreateRoot = {
   ) => void;
 };
 
-export const EstimatePointCreateRoot = observer(function EstimatePointCreateRoot(props: TEstimatePointCreateRoot) {
+export function EstimatePointCreateRoot(props: TEstimatePointCreateRoot) {
   // props
   const {
     workspaceSlug,
@@ -171,4 +170,4 @@ export const EstimatePointCreateRoot = observer(function EstimatePointCreateRoot
       )}
     </div>
   );
-});
+}

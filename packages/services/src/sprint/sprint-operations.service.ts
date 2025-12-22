@@ -53,11 +53,7 @@ export class SprintOperationsService extends APIService {
    * @throws {Error} If the request fails
    * @deprecated Issue assignment is now done directly on the issue
    */
-  async transferIssues(
-    workspaceSlug: string,
-    fromSprintId: string,
-    toSprintId: string
-  ): Promise<any> {
+  async transferIssues(workspaceSlug: string, fromSprintId: string, toSprintId: string): Promise<any> {
     // This functionality should be handled by updating issues directly
     throw new Error("transferIssues is deprecated. Update issue sprint_id directly.");
   }

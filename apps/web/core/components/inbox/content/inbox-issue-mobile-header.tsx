@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { CircleCheck, CircleX, Clock, ExternalLink, FileStack, Link, Trash2, PanelLeft, MoveRight } from "lucide-react";
 import { ChevronDownIcon, ChevronUpIcon } from "@plane/propel/icons";
 import type { TNameDescriptionLoader } from "@plane/types";
@@ -39,7 +38,7 @@ type Props = {
   handleActionWithPermission: (isAdmin: boolean, action: () => void, errorMessage: string) => void;
 };
 
-export const InboxIssueActionsMobileHeader = observer(function InboxIssueActionsMobileHeader(props: Props) {
+export function InboxIssueActionsMobileHeader(props: Props) {
   const {
     inboxIssue,
     isSubmitting,
@@ -212,4 +211,4 @@ export const InboxIssueActionsMobileHeader = observer(function InboxIssueActions
       </div>
     </Header>
   );
-});
+}

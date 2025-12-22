@@ -12,11 +12,7 @@ type Props = {
   isArchived?: boolean;
 };
 
-export function EpicPeekOverview({
-  projectId,
-  workspaceSlug,
-  isArchived = false,
-}: Props) {
+export function EpicPeekOverview({ projectId, workspaceSlug, isArchived = false }: Props) {
   // router
   const router = useAppRouter();
   const pathname = usePathname();
@@ -30,7 +26,6 @@ export function EpicPeekOverview({
     router.push(`${pathname}?${query}`);
   };
 
-
   return (
     <>
       {peekEpic && (
@@ -42,11 +37,7 @@ export function EpicPeekOverview({
               "0px 1px 4px 0px rgba(0, 0, 0, 0.06), 0px 2px 4px 0px rgba(16, 24, 40, 0.06), 0px 1px 8px -1px rgba(16, 24, 40, 0.06)",
           }}
         >
-          <EpicAnalyticsSidebar
-            epicId={peekEpic?.toString() ?? ""}
-            handleClose={handleClose}
-            isArchived={isArchived}
-          />
+          <EpicAnalyticsSidebar epicId={peekEpic?.toString() ?? ""} handleClose={handleClose} isArchived={isArchived} />
         </div>
       )}
     </>

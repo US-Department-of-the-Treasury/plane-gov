@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { attachInstruction, extractInstruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -44,7 +43,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
+export function IssueBlockRoot(props: Props) {
   const {
     issueId,
     groupId,
@@ -195,4 +194,4 @@ export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
       {isLastChild && <DropIndicator classNames={"absolute z-[2]"} isVisible={instruction === "DRAG_BELOW"} />}
     </div>
   );
-});
+}

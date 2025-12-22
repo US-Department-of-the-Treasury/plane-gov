@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { WORKSPACE_SETTINGS_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -33,7 +32,7 @@ const initialWebhookPayload: Partial<IWebhook> = {
   url: "",
 };
 
-export const WebhookForm = observer(function WebhookForm(props: Props) {
+export function WebhookForm(props: Props) {
   const { data, onSubmit, handleClose } = props;
   // states
   const [webhookEventType, setWebhookEventType] = useState<TWebhookEventTypes>("all");
@@ -115,4 +114,4 @@ export const WebhookForm = observer(function WebhookForm(props: Props) {
       )}
     </form>
   );
-});
+}

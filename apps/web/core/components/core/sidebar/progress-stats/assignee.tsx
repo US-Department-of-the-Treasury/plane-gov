@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { Avatar } from "@plane/ui";
@@ -24,7 +23,7 @@ type TAssigneeStatComponent = {
   isEditable?: boolean;
 };
 
-export const AssigneeStatComponent = observer(function AssigneeStatComponent(props: TAssigneeStatComponent) {
+export function AssigneeStatComponent(props: TAssigneeStatComponent) {
   const { distribution, isEditable, selectedAssigneeIds, handleAssigneeFiltersUpdate } = props;
   const { t } = useTranslation();
   return (
@@ -76,4 +75,4 @@ export const AssigneeStatComponent = observer(function AssigneeStatComponent(pro
       )}
     </div>
   );
-});
+}

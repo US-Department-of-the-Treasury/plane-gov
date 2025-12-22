@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { USER_TRACKER_ELEMENTS } from "@plane/constants";
 // ui
 import { EModalPosition, EModalWidth, ModalCore } from "@plane/ui";
@@ -16,7 +15,7 @@ export type ProductUpdatesModalProps = {
   handleClose: () => void;
 };
 
-export const ProductUpdatesModal = observer(function ProductUpdatesModal(props: ProductUpdatesModalProps) {
+export function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   const { isOpen, handleClose } = props;
 
   useEffect(() => {
@@ -32,4 +31,4 @@ export const ProductUpdatesModal = observer(function ProductUpdatesModal(props: 
       <ProductUpdatesFooter />
     </ModalCore>
   );
-});
+}

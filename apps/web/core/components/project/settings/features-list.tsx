@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { PROJECT_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -24,7 +23,7 @@ type Props = {
   isAdmin: boolean;
 };
 
-export const ProjectFeaturesList = observer(function ProjectFeaturesList(props: Props) {
+export function ProjectFeaturesList(props: Props) {
   const { workspaceSlug, projectId, isAdmin } = props;
   // store hooks
   const { t } = useTranslation();
@@ -114,4 +113,4 @@ export const ProjectFeaturesList = observer(function ProjectFeaturesList(props: 
       ))}
     </div>
   );
-});
+}

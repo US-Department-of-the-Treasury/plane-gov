@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { Breadcrumbs } from "@plane/ui";
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -52,7 +51,7 @@ const ItemWrapper = React.memo(function ItemWrapper({
 
 ItemWrapper.displayName = "ItemWrapper";
 
-export const BreadcrumbLink = observer(function BreadcrumbLink(props: Props) {
+export function BreadcrumbLink(props: Props) {
   const { href, label, icon, disableTooltip = false, isLast = false } = props;
   const { isMobile } = usePlatformOS();
 
@@ -77,4 +76,4 @@ export const BreadcrumbLink = observer(function BreadcrumbLink(props: Props) {
   }
 
   return <ItemWrapper {...itemWrapperProps}>{content}</ItemWrapper>;
-});
+}

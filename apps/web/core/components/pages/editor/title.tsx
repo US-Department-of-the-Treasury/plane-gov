@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 // editor
 import type { EditorRefApi } from "@plane/editor";
 // ui
@@ -16,7 +15,7 @@ type Props = {
   updateTitle: (title: string) => void;
 };
 
-export const PageEditorTitle = observer(function PageEditorTitle(props: Props) {
+export function PageEditorTitle(props: Props) {
   const { editorRef, readOnly, title, updateTitle } = props;
   // states
   const [isLengthVisible, setIsLengthVisible] = useState(false);
@@ -81,4 +80,4 @@ export const PageEditorTitle = observer(function PageEditorTitle(props: Props) {
       )}
     </div>
   );
-});
+}

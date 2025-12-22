@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { AUTH_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -27,7 +26,7 @@ type AuthHeaderProps = {
   type: EAuthModes;
 };
 
-export const AuthHeader = observer(function AuthHeader({ type }: AuthHeaderProps) {
+export function AuthHeader({ type }: AuthHeaderProps) {
   const { t } = useTranslation();
   // store
   const { config } = useInstance();
@@ -55,4 +54,4 @@ export const AuthHeader = observer(function AuthHeader({ type }: AuthHeaderProps
       </div>
     </>
   );
-});
+}

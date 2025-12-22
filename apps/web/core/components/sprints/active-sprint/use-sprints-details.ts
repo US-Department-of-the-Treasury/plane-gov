@@ -35,7 +35,9 @@ const useSprintsDetails = (props: IActiveSprintDetails) => {
 
   // fetch active sprint issues
   useSWR(
-    workspaceSlug && projectId && sprint?.id ? SPRINT_ISSUES_WITH_PARAMS(sprint?.id, { priority: "urgent,high" }) : null,
+    workspaceSlug && projectId && sprint?.id
+      ? SPRINT_ISSUES_WITH_PARAMS(sprint?.id, { priority: "urgent,high" })
+      : null,
     workspaceSlug && projectId && sprint?.id
       ? () => fetchActiveSprintIssues(workspaceSlug, projectId, 30, sprint?.id)
       : null,

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { Placement } from "@popperjs/core";
-import { observer } from "mobx-react";
 import { usePopper } from "react-popper";
 import { Check, Component, Loader, Search } from "lucide-react";
 import { Combobox } from "@headlessui/react";
@@ -33,7 +32,7 @@ export type TWorkItemLabelSelectBaseProps = {
   value: string[];
 };
 
-export const WorkItemLabelSelectBase = observer(function WorkItemLabelSelectBase(props: TWorkItemLabelSelectBaseProps) {
+export function WorkItemLabelSelectBase(props: TWorkItemLabelSelectBaseProps) {
   const {
     buttonClassName,
     buttonContainerClassName,
@@ -311,4 +310,4 @@ export const WorkItemLabelSelectBase = observer(function WorkItemLabelSelectBase
       )}
     </Combobox>
   );
-});
+}

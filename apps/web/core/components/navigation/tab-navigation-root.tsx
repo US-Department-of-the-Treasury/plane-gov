@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React, { useEffect } from "react";
-import { observer } from "mobx-react";
 import { useParams, useLocation, Link, useNavigate } from "react-router";
 import { EUserPermissionsLevel, EUserPermissions } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -43,7 +42,7 @@ type TTabNavigationRootProps = {
   projectId: string;
 };
 
-export const TabNavigationRoot = observer(function TabNavigationRoot(props: TTabNavigationRootProps) {
+export function TabNavigationRoot(props: TTabNavigationRootProps) {
   const { workspaceSlug, projectId } = props;
   const { workItem: workItemIdentifierFromRoute } = useParams();
   const location = useLocation();
@@ -246,4 +245,4 @@ export const TabNavigationRoot = observer(function TabNavigationRoot(props: TTab
       </div>
     </>
   );
-});
+}

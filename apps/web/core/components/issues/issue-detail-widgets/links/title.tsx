@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React, { useMemo } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import type { TIssueServiceType } from "@plane/types";
@@ -19,7 +18,7 @@ type Props = {
   issueServiceType: TIssueServiceType;
 };
 
-export const IssueLinksCollapsibleTitle = observer(function IssueLinksCollapsibleTitle(props: Props) {
+export function IssueLinksCollapsibleTitle(props: Props) {
   const { isOpen, workspaceSlug, projectId, issueId, disabled, issueServiceType } = props;
   // translation
   const { t } = useTranslation();
@@ -49,4 +48,4 @@ export const IssueLinksCollapsibleTitle = observer(function IssueLinksCollapsibl
       }
     />
   );
-});
+}

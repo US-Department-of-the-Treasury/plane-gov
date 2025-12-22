@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
-import { observer } from "mobx-react";
 // plane ui
 import { Avatar, Loader } from "@plane/ui";
 // components
@@ -19,7 +18,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterLead = observer(function FilterLead(props: Props) {
+export function FilterLead(props: Props) {
   const { appliedFilters, handleUpdate, memberIds, searchQuery } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -36,13 +35,13 @@ export const FilterLead = observer(function FilterLead(props: Props) {
   const sortedOptions = useMemo(() => {
     const filteredOptions = (memberIds || []).filter((memberId) => {
       const member = getWorkspaceMemberByUserId(workspaceMembers, memberId);
-      return member?.display_name.toLowerCase().includes(searchQuery.toLowerCase());
+      return member?.member?.display_name.toLowerCase().includes(searchQuery.toLowerCase());
     });
 
     return sortBy(filteredOptions, [
       (memberId) => !(appliedFilters ?? []).includes(memberId),
       (memberId) => memberId !== currentUser?.id,
-      (memberId) => getWorkspaceMemberByUserId(workspaceMembers, memberId)?.display_name.toLowerCase(),
+      (memberId) => getWorkspaceMemberByUserId(workspaceMembers, memberId)?.member?.display_name.toLowerCase(),
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, workspaceMembers]);
@@ -67,9 +66,10 @@ export const FilterLead = observer(function FilterLead(props: Props) {
             sortedOptions.length > 0 ? (
               <>
                 {sortedOptions.slice(0, itemsToRender).map((memberId) => {
-                  const member = getWorkspaceMemberByUserId(workspaceMembers, memberId);
+                  const workspaceMember = getWorkspaceMemberByUserId(workspaceMembers, memberId);
 
-                  if (!member) return null;
+                  if (!workspaceMember?.member) return null;
+                  const member = workspaceMember.member;
                   return (
                     <FilterOption
                       key={`lead-${member.id}`}
@@ -83,7 +83,7 @@ export const FilterLead = observer(function FilterLead(props: Props) {
                           size="md"
                         />
                       }
-                      title={currentUser?.id === member.id ? "You" : member?.display_name}
+                      title={currentUser?.id === member.id ? "You" : member.display_name}
                     />
                   );
                 })}
@@ -111,4 +111,4 @@ export const FilterLead = observer(function FilterLead(props: Props) {
       )}
     </>
   );
-});
+}

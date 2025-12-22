@@ -25,14 +25,9 @@ export function FilterEpic(props: Props) {
   const appliedFiltersCount = appliedFilters?.length ?? 0;
 
   const sortedOptions = useMemo(() => {
-    const filteredOptions = (epics || []).filter((epic) =>
-      epic.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredOptions = (epics || []).filter((epic) => epic.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    return sortBy(filteredOptions, [
-      (epic) => !appliedFilters?.includes(epic.id),
-      (epic) => epic.name.toLowerCase(),
-    ]);
+    return sortBy(filteredOptions, [(epic) => !appliedFilters?.includes(epic.id), (epic) => epic.name.toLowerCase()]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 

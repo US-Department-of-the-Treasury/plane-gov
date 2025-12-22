@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane web components
 import { PageLockControl } from "@/plane-web/components/pages/header/lock-control";
 import { PageMoveControl } from "@/plane-web/components/pages/header/move-control";
@@ -19,7 +18,7 @@ type Props = {
   storeType: EPageStoreType;
 };
 
-export const PageHeaderActions = observer(function PageHeaderActions(props: Props) {
+export function PageHeaderActions(props: Props) {
   const { page, storeType } = props;
 
   return (
@@ -34,4 +33,4 @@ export const PageHeaderActions = observer(function PageHeaderActions(props: Prop
       <PageOptionsDropdown page={page} storeType={storeType} />
     </div>
   );
-});
+}

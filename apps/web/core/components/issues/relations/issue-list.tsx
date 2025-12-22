@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { TIssue, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
@@ -25,7 +24,7 @@ type Props = {
   issueServiceType?: TIssueServiceType;
 };
 
-export const RelationIssueList = observer(function RelationIssueList(props: Props) {
+export function RelationIssueList(props: Props) {
   const {
     workspaceSlug,
     issueId,
@@ -54,4 +53,4 @@ export const RelationIssueList = observer(function RelationIssueList(props: Prop
         ))}
     </div>
   );
-});
+}

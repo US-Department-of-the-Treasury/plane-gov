@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { CircleCheck } from "lucide-react";
 // plane imports
@@ -36,12 +35,7 @@ type Props = {
 
 const workspaceService = new WorkspaceService();
 
-export const WorkspaceCreateStep = observer(function WorkspaceCreateStep({
-  user,
-  onComplete,
-  handleCurrentViewChange,
-  hasInvitations = false,
-}: Props) {
+export function WorkspaceCreateStep({ user, onComplete, handleCurrentViewChange, hasInvitations = false }: Props) {
   // states
   const [slugError, setSlugError] = useState(false);
   const [invalidSlug, setInvalidSlug] = useState(false);
@@ -315,4 +309,4 @@ export const WorkspaceCreateStep = observer(function WorkspaceCreateStep({
       </div>
     </form>
   );
-});
+}

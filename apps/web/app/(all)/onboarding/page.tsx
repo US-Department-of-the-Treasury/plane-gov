@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import useSWR from "swr";
 
 // components
@@ -51,4 +50,4 @@ function OnboardingPage() {
   );
 }
 
-export default observer(OnboardingPage);
+export default OnboardingPage;

@@ -21,10 +21,10 @@ const projectMemberService = new ProjectMemberService();
  * @example
  * const { data: members, isLoading } = useWorkspaceMembers(workspaceSlug);
  */
-export function useWorkspaceMembers(workspaceSlug: string) {
+export function useWorkspaceMembers(workspaceSlug: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.members.workspace(workspaceSlug),
-    queryFn: () => workspaceService.fetchWorkspaceMembers(workspaceSlug),
+    queryKey: queryKeys.members.workspace(workspaceSlug ?? ""),
+    queryFn: () => workspaceService.fetchWorkspaceMembers(workspaceSlug!),
     enabled: !!workspaceSlug,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
@@ -456,7 +456,7 @@ export function getWorkspaceMemberIds(members: IWorkspaceMember[] | undefined): 
  */
 export function getWorkspaceUserIds(members: IWorkspaceMember[] | undefined): string[] {
   if (!members) return [];
-  return members.filter((m) => m.member?.id).map((m) => m.member!.id);
+  return members.map((m) => m.member?.id).filter((id): id is string => !!id);
 }
 
 /**
@@ -486,7 +486,8 @@ export function getProjectMemberByUserId(
   userId: string | null | undefined
 ): TProjectMembership | undefined {
   if (!members || !userId) return undefined;
-  return members.find((m) => m.member?.id === userId);
+  // TProjectMembership.member is a string (user ID)
+  return members.find((m) => m.member === userId);
 }
 
 /**
@@ -498,7 +499,7 @@ export function getProjectMemberByUserId(
  */
 export function getProjectMemberIds(members: TProjectMembership[] | undefined): string[] {
   if (!members) return [];
-  return members.map((m) => m.id);
+  return members.map((m) => m.id).filter((id): id is string => id !== null);
 }
 
 /**
@@ -510,7 +511,8 @@ export function getProjectMemberIds(members: TProjectMembership[] | undefined): 
  */
 export function getProjectUserIds(members: TProjectMembership[] | undefined): string[] {
   if (!members) return [];
-  return members.filter((m) => m.member?.id).map((m) => m.member!.id);
+  // TProjectMembership.member is a string (user ID), not an object
+  return members.filter((m) => m.member && typeof m.member === "string").map((m) => m.member as string);
 }
 
 /**
@@ -519,10 +521,10 @@ export function getProjectUserIds(members: TProjectMembership[] | undefined): st
  * @example
  * const displayName = getMemberDisplayName(member);
  */
-export function getMemberDisplayName(
-  member: IWorkspaceMember | TProjectMembership | undefined
-): string {
+export function getMemberDisplayName(member: IWorkspaceMember | TProjectMembership | undefined): string {
   if (!member?.member) return "";
+  // TProjectMembership has member as string (user ID), IWorkspaceMember has member as IUserLite
+  if (typeof member.member === "string") return member.member;
   return member.member.display_name || member.member.email || "";
 }
 
@@ -534,9 +536,7 @@ export function getMemberDisplayName(
  * const memberMap = getWorkspaceMembersMap(members);
  * const user = memberMap.get(userId);
  */
-export function getWorkspaceMembersMap(
-  members: IWorkspaceMember[] | undefined
-): Map<string, IWorkspaceMember> {
+export function getWorkspaceMembersMap(members: IWorkspaceMember[] | undefined): Map<string, IWorkspaceMember> {
   const map = new Map<string, IWorkspaceMember>();
   if (!members) return map;
   members.forEach((m) => {
@@ -555,15 +555,48 @@ export function getWorkspaceMembersMap(
  * const memberMap = getProjectMembersMap(members);
  * const user = memberMap.get(userId);
  */
-export function getProjectMembersMap(
-  members: TProjectMembership[] | undefined
-): Map<string, TProjectMembership> {
+export function getProjectMembersMap(members: TProjectMembership[] | undefined): Map<string, TProjectMembership> {
   const map = new Map<string, TProjectMembership>();
   if (!members) return map;
   members.forEach((m) => {
-    if (m.member?.id) {
-      map.set(m.member.id, m);
+    // TProjectMembership.member is a string (user ID)
+    if (m.member && typeof m.member === "string") {
+      map.set(m.member, m);
     }
   });
   return map;
+}
+
+// ===========================
+// DEV/TESTING HOOKS
+// ===========================
+
+interface GenerateFakeMembersParams {
+  workspaceSlug: string;
+  count: number;
+}
+
+interface GenerateFakeMembersResponse {
+  message: string;
+  users: { id: string; email: string; display_name: string; }[];
+}
+
+/**
+ * Hook to generate fake workspace members for development/testing.
+ * Only works when DEBUG mode is enabled on the backend.
+ *
+ * @example
+ * const { mutate: generateFakeMembers, isPending } = useGenerateFakeMembers();
+ * generateFakeMembers({ workspaceSlug, count: 5 });
+ */
+export function useGenerateFakeMembers() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, count }: GenerateFakeMembersParams) =>
+      workspaceService.generateFakeMembers(workspaceSlug, count),
+    onSettled: (_data, _error, { workspaceSlug }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.members.workspace(workspaceSlug) });
+    },
+  });
 }

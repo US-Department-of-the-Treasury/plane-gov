@@ -49,7 +49,7 @@ import {
 } from "@plane/utils";
 // store hooks
 import { useProjectLabels } from "@/store/queries/label";
-import { useProjectMembers } from "@/store/queries/member";
+import { useProjectMembers, useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
@@ -91,34 +91,33 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
   const { data: allStates } = useProjectStates(workspaceSlug, projectId || "");
   const { data: projectSprints } = useProjectSprints(workspaceSlug, projectId || "");
   const { data: projectMembers = [] } = useProjectMembers(workspaceSlug, projectId || "");
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const { data: projectEpics } = useProjectEpics(workspaceSlug, projectId || "");
   // derived values
   const operatorConfigs = useFiltersOperatorConfigs({ workspaceSlug });
   const filtersToShow = useMemo(() => new Set(allowedFilters), [allowedFilters]);
-  const project = useMemo(() => projectId ? getProjectById(allProjects, projectId) : undefined, [projectId, allProjects]);
+  const project = useMemo(
+    () => (projectId ? getProjectById(allProjects, projectId) : undefined),
+    [projectId, allProjects]
+  );
   const members: IUserLite[] | undefined = useMemo(
     () =>
       memberIds
         ? (memberIds
             .map((memberId) => {
-              const projectMember = projectMembers.find((m) => m.member === memberId);
-              if (!projectMember) return undefined;
-              return {
-                id: projectMember.member,
-                display_name: projectMember.member_display_name || projectMember.member_email || "",
-                email: projectMember.member_email,
-                avatar_url: projectMember.member_avatar_url,
-                first_name: projectMember.member_first_name || "",
-                last_name: projectMember.member_last_name || "",
-              } as IUserLite;
+              const workspaceMember = getWorkspaceMemberByUserId(workspaceMembers, memberId);
+              if (!workspaceMember?.member) return undefined;
+              return workspaceMember.member;
             })
             .filter((member) => member) as IUserLite[])
         : undefined,
-    [memberIds, projectMembers]
+    [memberIds, workspaceMembers]
   );
   const workItemStates: IState[] | undefined = useMemo(
     () =>
-      stateIds ? (stateIds.map((stateId) => getStateById(allStates, stateId)).filter((state) => state) as IState[]) : undefined,
+      stateIds
+        ? (stateIds.map((stateId) => getStateById(allStates, stateId)).filter((state) => state) as IState[])
+        : undefined,
     [stateIds, allStates]
   );
   const workItemLabels: IIssueLabel[] | undefined = useMemo(
@@ -145,7 +144,9 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
   const projects = useMemo(
     () =>
       projectIds && allProjects
-        ? (projectIds.map((projectId) => getProjectById(allProjects, projectId)).filter((project) => project) as IProject[])
+        ? (projectIds
+            .map((projectId) => getProjectById(allProjects, projectId))
+            .filter((project) => project) as IProject[])
         : [],
     [projectIds, allProjects]
   );
@@ -205,7 +206,9 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
       getSprintFilterConfig<TWorkItemFilterProperty>("sprint_id")({
         isEnabled: isFilterEnabled("sprint_id") && project?.sprint_view === true && sprints !== undefined,
         filterIcon: SprintIcon,
-        getOptionIcon: (sprintGroup) => <SprintGroupIcon sprintGroup={sprintGroup} className="h-3.5 w-3.5 flex-shrink-0" />,
+        getOptionIcon: (sprintGroup) => (
+          <SprintGroupIcon sprintGroup={sprintGroup} className="h-3.5 w-3.5 flex-shrink-0" />
+        ),
         sprints: sprints ?? [],
         ...operatorConfigs,
       }),

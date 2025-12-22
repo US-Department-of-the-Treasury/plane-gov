@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 // plane constants
 import { PROJECT_CREATED_AT_FILTER_OPTIONS } from "@plane/constants";
 // components
@@ -15,7 +14,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterCreatedDate = observer(function FilterCreatedDate(props: Props) {
+export function FilterCreatedDate(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
   // state
   const [previewEnabled, setPreviewEnabled] = useState(true);
@@ -79,4 +78,4 @@ export const FilterCreatedDate = observer(function FilterCreatedDate(props: Prop
       )}
     </>
   );
-});
+}

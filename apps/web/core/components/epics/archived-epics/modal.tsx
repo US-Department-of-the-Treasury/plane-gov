@@ -92,13 +92,7 @@ export function ArchiveEpicModal(props: Props) {
                     <Button variant="secondary" size="lg" onClick={onClose}>
                       Cancel
                     </Button>
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      tabIndex={1}
-                      onClick={handleArchiveEpic}
-                      loading={isArchiving}
-                    >
+                    <Button variant="primary" size="lg" tabIndex={1} onClick={handleArchiveEpic} loading={isArchiving}>
                       {isArchiving ? "Archiving" : "Archive"}
                     </Button>
                   </div>

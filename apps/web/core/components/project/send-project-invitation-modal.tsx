@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { observer } from "mobx-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { Plus } from "lucide-react";
 import { Dialog, Transition } from "@headlessui/react";
@@ -50,7 +49,7 @@ const defaultValues: FormValues = {
   ],
 };
 
-export const SendProjectInvitationModal = observer(function SendProjectInvitationModal(props: Props) {
+export function SendProjectInvitationModal(props: Props) {
   const { isOpen, onClose, onSuccess, projectId, workspaceSlug } = props;
   // plane hooks
   const { t } = useTranslation();
@@ -78,7 +77,7 @@ export const SendProjectInvitationModal = observer(function SendProjectInvitatio
   const workspaceMemberIds = workspaceMembers.map((m) => m.member.id);
   const uninvitedPeople = workspaceMemberIds?.filter((userId) => {
     const projectMemberDetails = getProjectMemberByUserId(projectMembers, userId);
-    const isInvited = projectMemberDetails?.member.id && projectMemberDetails?.role;
+    const isInvited = projectMemberDetails?.member && projectMemberDetails?.role;
     return !isInvited;
   });
 
@@ -373,4 +372,4 @@ export const SendProjectInvitationModal = observer(function SendProjectInvitatio
       </Dialog>
     </Transition.Root>
   );
-});
+}

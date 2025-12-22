@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // i18n
 import { useTranslation } from "@plane/i18n";
 // ui icons
@@ -48,7 +47,7 @@ interface IPeekOverviewProperties {
   issueOperations: TIssueOperations;
 }
 
-export const PeekOverviewProperties = observer(function PeekOverviewProperties(props: IPeekOverviewProperties) {
+export function PeekOverviewProperties(props: IPeekOverviewProperties) {
   const { workspaceSlug, projectId, issueId, issueOperations, disabled } = props;
   const { t } = useTranslation();
   // hooks
@@ -261,4 +260,4 @@ export const PeekOverviewProperties = observer(function PeekOverviewProperties(p
       </div>
     </div>
   );
-});
+}

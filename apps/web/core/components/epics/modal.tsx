@@ -173,6 +173,7 @@ export function CreateUpdateEpicModal(props: Props) {
         setActiveProject={setActiveProject}
         data={data}
         isMobile={isMobile}
+        workspaceSlug={workspaceSlug}
       />
     </ModalCore>
   );

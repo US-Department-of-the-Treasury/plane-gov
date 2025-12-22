@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { ISSUE_PRIORITIES } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { PriorityIcon } from "@plane/propel/icons";
@@ -15,7 +14,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterPriority = observer(function FilterPriority(props: Props) {
+export function FilterPriority(props: Props) {
   const { searchQuery } = props;
   // hooks
   const { t } = useTranslation();
@@ -56,4 +55,4 @@ export const FilterPriority = observer(function FilterPriority(props: Props) {
       )}
     </>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Check, Settings, UserPlus } from "lucide-react";
@@ -18,7 +17,7 @@ type TProps = {
   handleWorkspaceNavigation: (workspace: IWorkspace) => void;
   handleClose: () => void;
 };
-const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps) {
+function SidebarDropdownItem(props: TProps) {
   const { workspace, activeWorkspace, handleItemClick, handleWorkspaceNavigation, handleClose } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -118,6 +117,6 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
       </Menu.Item>
     </Link>
   );
-});
+}
 
 export default SidebarDropdownItem;

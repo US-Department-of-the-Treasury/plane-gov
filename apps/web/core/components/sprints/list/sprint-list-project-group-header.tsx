@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { ChevronRightIcon } from "@plane/propel/icons";
@@ -18,12 +17,12 @@ type Props = {
   isExpanded?: boolean;
 };
 
-export const SprintListProjectGroupHeader = observer(function SprintListProjectGroupHeader(props: Props) {
+export function SprintListProjectGroupHeader(props: Props) {
   const { projectId, count, showCount = false, isExpanded = false } = props;
   // router
   const { workspaceSlug } = useParams();
   // store hooks
-  const { data: projects } = useProjects(workspaceSlug as string);
+  const { data: projects } = useProjects(workspaceSlug);
   // derived values
   const project = getProjectById(projects, projectId);
 
@@ -45,4 +44,4 @@ export const SprintListProjectGroupHeader = observer(function SprintListProjectG
       </div>
     </Row>
   );
-});
+}

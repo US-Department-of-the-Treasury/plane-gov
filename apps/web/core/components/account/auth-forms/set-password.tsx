@@ -1,6 +1,5 @@
 import type { FormEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { useSearchParams } from "next/navigation";
 // icons
 import { Eye, EyeOff } from "lucide-react";
@@ -37,7 +36,7 @@ const defaultValues: TResetPasswordFormValues = {
 // services
 const authService = new AuthService();
 
-export const SetPasswordForm = observer(function SetPasswordForm() {
+export function SetPasswordForm() {
   // router
   const router = useAppRouter();
   // search params
@@ -211,4 +210,4 @@ export const SetPasswordForm = observer(function SetPasswordForm() {
       </form>
     </FormContainer>
   );
-});
+}

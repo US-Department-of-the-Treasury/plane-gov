@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -24,7 +23,7 @@ type TEstimateRoot = {
   isAdmin: boolean;
 };
 
-export const EstimateRoot = observer(function EstimateRoot(props: TEstimateRoot) {
+export function EstimateRoot(props: TEstimateRoot) {
   const { workspaceSlug, projectId, isAdmin } = props;
   // hooks
   const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
@@ -131,4 +130,4 @@ export const EstimateRoot = observer(function EstimateRoot(props: TEstimateRoot)
       />
     </div>
   );
-});
+}

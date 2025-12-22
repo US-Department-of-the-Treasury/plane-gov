@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import {
@@ -76,7 +75,7 @@ const USER_DOMAIN = [
 
 const authService = new AuthService();
 
-export const ProfileSetup = observer(function ProfileSetup(props: Props) {
+export function ProfileSetup(props: Props) {
   const { user, totalSteps, stepChange, finishOnboarding } = props;
   // states
   const [profileSetupStep, setProfileSetupStep] = useState<EProfileSetupSteps>(
@@ -587,4 +586,4 @@ export const ProfileSetup = observer(function ProfileSetup(props: Props) {
       </div>
     </div>
   );
-});
+}

@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { EIconSize } from "@plane/constants";
 import { StateGroupIcon } from "@plane/propel/icons";
 import type { IState } from "@plane/types";
@@ -15,7 +14,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterState = observer(function FilterState(props: Props) {
+export function FilterState(props: Props) {
   const { states, searchQuery } = props;
 
   const [itemsToRender, setItemsToRender] = useState(5);
@@ -91,4 +90,4 @@ export const FilterState = observer(function FilterState(props: Props) {
       )}
     </>
   );
-});
+}

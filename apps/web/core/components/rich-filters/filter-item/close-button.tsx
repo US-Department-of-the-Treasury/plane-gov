@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { CloseIcon } from "@plane/propel/icons";
 import type { IFilterInstance } from "@plane/shared-state";
@@ -10,10 +9,9 @@ interface FilterItemCloseButtonProps<P extends TFilterProperty, E extends TExter
   filter: IFilterInstance<P, E>;
 }
 
-export const FilterItemCloseButton = observer(function FilterItemCloseButton<
-  P extends TFilterProperty,
-  E extends TExternalFilter,
->(props: FilterItemCloseButtonProps<P, E>) {
+export function FilterItemCloseButton<P extends TFilterProperty, E extends TExternalFilter>(
+  props: FilterItemCloseButtonProps<P, E>
+) {
   const { conditionId, filter } = props;
 
   const handleRemoveFilter = () => {
@@ -30,4 +28,4 @@ export const FilterItemCloseButton = observer(function FilterItemCloseButton<
       <CloseIcon className="size-3.5" />
     </button>
   );
-});
+}

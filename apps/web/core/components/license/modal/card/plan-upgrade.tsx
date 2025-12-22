@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { TALK_TO_SALES_URL } from "@plane/constants";
 import type { EProductSubscriptionEnum, IPaymentProduct, TSubscriptionPrice } from "@plane/types";
@@ -24,7 +23,7 @@ export type PlanUpgradeCardProps = {
   isTrialAllowed: boolean;
 };
 
-export const PlanUpgradeCard = observer(function PlanUpgradeCard(props: PlanUpgradeCardProps) {
+export function PlanUpgradeCard(props: PlanUpgradeCardProps) {
   const {
     planVariant,
     features,
@@ -106,4 +105,4 @@ export const PlanUpgradeCard = observer(function PlanUpgradeCard(props: PlanUpgr
       )}
     />
   );
-});
+}

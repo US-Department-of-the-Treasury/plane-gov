@@ -53,4 +53,25 @@ export class FavoriteService extends APIService {
         throw error?.response?.data;
       });
   }
+
+  /**
+   * Remove a favorite by entity identifier.
+   * This fetches all favorites, finds the one with matching entity_identifier, and deletes it.
+   */
+  async removeFavoriteEntity(workspaceSlug: string, entityId: string): Promise<void> {
+    try {
+      // Fetch all favorites to find the one with this entity_identifier
+      const favorites = await this.getFavorites(workspaceSlug);
+      const favorite = favorites.find((fav) => fav.entity_identifier === entityId);
+
+      if (!favorite) {
+        throw new Error(`Favorite not found for entity: ${entityId}`);
+      }
+
+      // Delete the favorite
+      await this.deleteFavorite(workspaceSlug, favorite.id);
+    } catch (error) {
+      throw error;
+    }
+  }
 }

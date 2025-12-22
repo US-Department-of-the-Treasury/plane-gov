@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { PriorityIcon, StateGroupIcon } from "@plane/propel/icons";
@@ -21,13 +20,14 @@ type Props = {
   workItem: Pick<TIssue, "id" | "name" | "sequence_id" | "priority" | "start_date" | "target_date" | "type_id">;
 };
 
-export const WorkItemPreviewCard = observer(function WorkItemPreviewCard(props: Props) {
+export function WorkItemPreviewCard(props: Props) {
   const { projectId, stateDetails, workItem } = props;
   // router
-  const { workspaceSlug } = useParams();
+  const { workspaceSlug: routerWorkspaceSlug } = useParams();
+  const workspaceSlug = routerWorkspaceSlug?.toString();
   // query hooks
-  const { data: projects } = useProjects(workspaceSlug as string);
-  const { data: projectStates } = useProjectStates(workspaceSlug as string, projectId);
+  const { data: projects } = useProjects(workspaceSlug);
+  const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
   // derived values
   const project = getProjectById(projects, projectId);
   const projectIdentifier = project?.identifier;
@@ -64,4 +64,4 @@ export const WorkItemPreviewCard = observer(function WorkItemPreviewCard(props: 
       </div>
     </div>
   );
-});
+}

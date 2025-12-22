@@ -1,6 +1,5 @@
 import type { Dispatch, MouseEvent, MutableRefObject, SetStateAction } from "react";
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { MoreHorizontal } from "lucide-react";
 import { SPREADSHEET_SELECT_GROUP } from "@plane/constants";
@@ -49,7 +48,7 @@ interface Props {
   isEpic?: boolean;
 }
 
-export const SpreadsheetIssueRow = observer(function SpreadsheetIssueRow(props: Props) {
+export function SpreadsheetIssueRow(props: Props) {
   const {
     displayProperties,
     issueId,
@@ -98,7 +97,7 @@ export const SpreadsheetIssueRow = observer(function SpreadsheetIssueRow(props: 
         })}
         verticalOffset={100}
         shouldRecordHeights={false}
-        defaultValue={shouldRenderByDefault || isIssueNew(issueStore.getIssueById(issueId))}
+        defaultValue={shouldRenderByDefault || (issueStore.getIssueById(issueId) ? isIssueNew(issueStore.getIssueById(issueId)!) : false)}
       >
         <IssueRowDetails
           issueId={issueId}
@@ -142,7 +141,7 @@ export const SpreadsheetIssueRow = observer(function SpreadsheetIssueRow(props: 
         ))}
     </>
   );
-});
+}
 
 interface IssueRowDetailsProps {
   displayProperties: IIssueDisplayProperties;
@@ -162,7 +161,7 @@ interface IssueRowDetailsProps {
   isEpic?: boolean;
 }
 
-const IssueRowDetails = observer(function IssueRowDetails(props: IssueRowDetailsProps) {
+function IssueRowDetails(props: IssueRowDetailsProps) {
   const {
     displayProperties,
     issueId,
@@ -391,4 +390,4 @@ const IssueRowDetails = observer(function IssueRowDetails(props: IssueRowDetails
       ))}
     </>
   );
-});
+}

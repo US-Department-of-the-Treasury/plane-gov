@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { useSearchParams } from "next/navigation";
 // icons
 import { Eye, EyeOff } from "lucide-react";
@@ -34,7 +33,7 @@ const defaultValues: TResetPasswordFormValues = {
 // services
 const authService = new AuthService();
 
-export const ResetPasswordForm = observer(function ResetPasswordForm() {
+export function ResetPasswordForm() {
   // search params
   const searchParams = useSearchParams();
   const uidb64 = searchParams.get("uidb64");
@@ -194,4 +193,4 @@ export const ResetPasswordForm = observer(function ResetPasswordForm() {
       </form>
     </FormContainer>
   );
-});
+}

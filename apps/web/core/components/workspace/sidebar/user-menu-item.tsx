@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 // plane imports
@@ -26,7 +25,7 @@ export interface SidebarUserMenuItemProps {
   draftIssueCount: number;
 }
 
-export const SidebarUserMenuItem = observer(function SidebarUserMenuItem(props: SidebarUserMenuItemProps) {
+export function SidebarUserMenuItem(props: SidebarUserMenuItemProps) {
   const { item, draftIssueCount } = props;
   // nextjs hooks
   const { workspaceSlug } = useParams();
@@ -67,4 +66,4 @@ export const SidebarUserMenuItem = observer(function SidebarUserMenuItem(props: 
       </SidebarNavItem>
     </Link>
   );
-});
+}

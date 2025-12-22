@@ -52,11 +52,7 @@ export const orderEpics = (epics: IEpic[], orderByKey: TEpicOrderByOptions | und
  * @param {TEpicFilters} filters
  * @returns {boolean}
  */
-export const shouldFilterEpic = (
-  epic: IEpic,
-  displayFilters: TEpicDisplayFilters,
-  filters: TEpicFilters
-): boolean => {
+export const shouldFilterEpic = (epic: IEpic, displayFilters: TEpicDisplayFilters, filters: TEpicFilters): boolean => {
   let fallsInFilters = true;
   Object.keys(filters).forEach((key) => {
     const filterKey = key as keyof TEpicFilters;

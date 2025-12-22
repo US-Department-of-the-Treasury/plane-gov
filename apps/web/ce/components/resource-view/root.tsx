@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // hooks
 import { useWorkspaceSprints } from "@/store/queries/sprint";
@@ -6,7 +5,7 @@ import { useWorkspaceMembers } from "@/store/queries/member";
 // local imports
 import { ResourceMatrix } from "./resource-matrix";
 
-export const ResourceViewRoot = observer(function ResourceViewRoot() {
+export function ResourceViewRoot() {
   const { workspaceSlug } = useParams();
 
   const workspaceSlugStr = workspaceSlug?.toString();
@@ -20,4 +19,4 @@ export const ResourceViewRoot = observer(function ResourceViewRoot() {
   }
 
   return <ResourceMatrix workspaceSlug={workspaceSlugStr} />;
-});
+}

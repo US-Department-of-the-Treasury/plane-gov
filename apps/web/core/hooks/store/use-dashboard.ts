@@ -1,11 +1,22 @@
-import { useContext } from "react";
-// mobx store
-import { StoreContext } from "@/lib/store-context";
-// types
-import type { IDashboardStore } from "@/store/dashboard.store";
+/**
+ * Dashboard hooks using TanStack Query.
+ *
+ * This file re-exports TanStack Query hooks for dashboard functionality.
+ * Replaces the previous MobX-based useDashboard hook.
+ *
+ * @example
+ * import { useHomeDashboardWidgets, useUpdateDashboardWidget } from "@/hooks/store/use-dashboard";
+ *
+ * const { data: dashboard, isLoading } = useHomeDashboardWidgets(workspaceSlug);
+ * const { mutate: updateWidget } = useUpdateDashboardWidget();
+ */
 
-export const useDashboard = (): IDashboardStore => {
-  const context = useContext(StoreContext);
-  if (context === undefined) throw new Error("useDashboard must be used within StoreProvider");
-  return context.dashboard;
-};
+export {
+  useHomeDashboardWidgets,
+  useWidgetStats,
+  useUpdateDashboardWidget,
+  useUpdateDashboardWidgetFilters,
+  getWidgetDetails,
+  getWidgets,
+  getDashboardId,
+} from "@/store/queries/dashboard";

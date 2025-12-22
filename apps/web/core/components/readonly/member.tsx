@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 // plane imports
@@ -19,12 +18,12 @@ export type TReadonlyMemberProps = {
   projectId?: string;
 };
 
-export const ReadonlyMember = observer(function ReadonlyMember(props: TReadonlyMemberProps) {
+export function ReadonlyMember(props: TReadonlyMemberProps) {
   const { className, icon: Icon, hideIcon = false, value, placeholder, multiple = false } = props;
 
   const { t } = useTranslation();
   const { workspaceSlug } = useParams();
-  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug as string);
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const memberIds = Array.isArray(value) ? value : value ? [value] : [];
   const members = memberIds.map((id) => getWorkspaceMemberByUserId(workspaceMembers, id)?.member).filter(Boolean);
 
@@ -61,4 +60,4 @@ export const ReadonlyMember = observer(function ReadonlyMember(props: TReadonlyM
       </div>
     </div>
   );
-});
+}

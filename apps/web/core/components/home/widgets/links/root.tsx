@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 import { Plus } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
@@ -9,7 +8,7 @@ import { LinkCreateUpdateModal } from "./create-update-link-modal";
 import { ProjectLinkList } from "./links";
 import { useLinks } from "./use-links";
 
-export const DashboardQuickLinks = observer(function DashboardQuickLinks(props: THomeWidgetProps) {
+export function DashboardQuickLinks(props: THomeWidgetProps) {
   const { workspaceSlug } = props;
   const { linkOperations } = useLinks(workspaceSlug);
   const {
@@ -56,4 +55,4 @@ export const DashboardQuickLinks = observer(function DashboardQuickLinks(props: 
       </div>
     </>
   );
-});
+}

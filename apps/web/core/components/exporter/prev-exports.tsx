@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import useSWR, { mutate } from "swr";
 import { MoveLeft, MoveRight, RefreshCw } from "lucide-react";
 // plane imports
@@ -26,7 +25,7 @@ type Props = {
   setCursor: (cursor: string) => void;
 };
 type RowData = IExportData;
-export const PrevExports = observer(function PrevExports(props: Props) {
+export function PrevExports(props: Props) {
   // props
   const { workspaceSlug, cursor, per_page, setCursor } = props;
   // state
@@ -127,4 +126,4 @@ export const PrevExports = observer(function PrevExports(props: Props) {
       </div>
     </div>
   );
-});
+}

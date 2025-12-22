@@ -1,6 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Command } from "cmdk";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // hooks
 import { CloseIcon, SearchIcon } from "@plane/propel/icons";
@@ -15,7 +14,7 @@ import { useUser } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useExpandableSearch } from "@/hooks/use-expandable-search";
 
-export const TopNavPowerK = observer(() => {
+export const TopNavPowerK = () => {
   // router
   const router = useAppRouter();
   const params = useParams();
@@ -285,4 +284,4 @@ export const TopNavPowerK = observer(() => {
       </div>
     </div>
   );
-});
+};

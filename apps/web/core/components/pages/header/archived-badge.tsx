@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { ArchiveIcon } from "@plane/propel/icons";
 import { renderFormattedDate } from "@plane/utils";
@@ -9,7 +8,7 @@ type Props = {
   page: TPageInstance;
 };
 
-export const PageArchivedBadge = observer(function PageArchivedBadge({ page }: Props) {
+export function PageArchivedBadge({ page }: Props) {
   if (!page.archived_at) return null;
 
   return (
@@ -18,4 +17,4 @@ export const PageArchivedBadge = observer(function PageArchivedBadge({ page }: P
       <span className="text-11 font-medium">Archived at {renderFormattedDate(page.archived_at)}</span>
     </div>
   );
-});
+}

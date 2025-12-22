@@ -1,11 +1,8 @@
-import { useContext } from "react";
-// mobx store
-import { StoreContext } from "@/lib/store-context";
-// types
-import type { ICommandPaletteStore } from "@/plane-web/store/command-palette.store";
+// Re-export the Zustand store hook
+import { useCommandPaletteStore } from "@/store/client";
+import type { CommandPaletteStore } from "@/store/client";
 
-export const useCommandPalette = (): ICommandPaletteStore => {
-  const context = useContext(StoreContext);
-  if (context === undefined) throw new Error("useCommandPalette must be used within StoreProvider");
-  return context.commandPalette;
+// Export with original name for compatibility
+export const useCommandPalette = (): CommandPaletteStore => {
+  return useCommandPaletteStore();
 };

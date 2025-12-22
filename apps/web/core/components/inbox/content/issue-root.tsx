@@ -1,6 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useMemo, useRef } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
 import type { EditorRefApi } from "@plane/editor";
@@ -49,7 +48,7 @@ type Props = {
   setIsSubmitting: Dispatch<SetStateAction<TNameDescriptionLoader>>;
 };
 
-export const InboxIssueMainContent = observer(function InboxIssueMainContent(props: Props) {
+export function InboxIssueMainContent(props: Props) {
   const { workspaceSlug, projectId, inboxIssue, isEditable, isSubmitting, setIsSubmitting } = props;
   // refs
   const editorRef = useRef<EditorRefApi>(null);
@@ -242,7 +241,9 @@ export const InboxIssueMainContent = observer(function InboxIssueMainContent(pro
                 createdByDisplayName:
                   inboxIssue.source === EInboxIssueSource.FORMS
                     ? "Intake Form user"
-                    : (getMemberDisplayName(getWorkspaceMemberByUserId(workspaceMembers || [], issue.created_by ?? "")) ?? ""),
+                    : (getMemberDisplayName(
+                        getWorkspaceMemberByUserId(workspaceMembers || [], issue.created_by ?? "")
+                      ) ?? ""),
                 id: issue.id,
                 isRestoreDisabled: !isEditable,
               }}
@@ -286,4 +287,4 @@ export const InboxIssueMainContent = observer(function InboxIssueMainContent(pro
       </div>
     </>
   );
-});
+}

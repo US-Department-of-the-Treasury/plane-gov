@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
+
 import useSWR from "swr";
 import { EUserPermissions, EUserPermissionsLevel, WORKSPACE_SETTINGS_TRACKER_EVENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -113,4 +113,4 @@ function WebhookDetailsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(WebhookDetailsPage);
+export default WebhookDetailsPage;

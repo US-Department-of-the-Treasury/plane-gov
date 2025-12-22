@@ -1,10 +1,10 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
 import { EUserProjectRoles } from "@plane/types";
+import type { IProjectView } from "@plane/types";
 // components
 import { ListLayout } from "@/components/core/list";
 import { ViewListLoader } from "@/components/ui/loader/view-list-loader";
@@ -15,7 +15,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 // local imports
 import { ProjectViewListItem } from "./view-list-item";
 
-export const ProjectViewsList = observer(function ProjectViewsList() {
+export function ProjectViewsList() {
   const { projectId } = useParams();
   // plane hooks
   const { t } = useTranslation();
@@ -49,7 +49,7 @@ export const ProjectViewsList = observer(function ProjectViewsList() {
         <div className="flex h-full w-full flex-col">
           <ListLayout>
             {filteredProjectViews.length > 0 ? (
-              filteredProjectViews.map((view) => <ProjectViewListItem key={view.id} view={view} />)
+              filteredProjectViews.map((view: IProjectView) => <ProjectViewListItem key={view.id} view={view} />)
             ) : (
               <p className="mt-10 text-center text-13 text-tertiary">No results found</p>
             )}
@@ -72,4 +72,4 @@ export const ProjectViewsList = observer(function ProjectViewsList() {
       )}
     </>
   );
-});
+}

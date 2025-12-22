@@ -17,10 +17,11 @@ type TActivityBlockComponent = {
   ends: "top" | "bottom" | undefined;
   children: ReactNode;
   customUserName?: string;
+  workspaceSlug: string;
 };
 
 export function ActivityBlockComponent(props: TActivityBlockComponent) {
-  const { icon: Icon, activity, ends, children, customUserName } = props;
+  const { icon: Icon, activity, ends, children, customUserName, workspaceSlug } = props;
   // hooks
   const { isMobile } = usePlatformOS();
 
@@ -36,7 +37,7 @@ export function ActivityBlockComponent(props: TActivityBlockComponent) {
       </div>
       <div className="w-full text-secondary">
         <div className="line-clamp-2">
-          <User activity={activity} customUserName={customUserName} /> {children}
+          <User activity={activity} customUserName={customUserName} workspaceSlug={workspaceSlug} /> {children}
         </div>
         <div className="mt-1">
           <Tooltip

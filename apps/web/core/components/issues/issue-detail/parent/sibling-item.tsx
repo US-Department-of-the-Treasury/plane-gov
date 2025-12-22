@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // ui
 import { CustomMenu } from "@plane/ui";
 // helpers
@@ -16,7 +15,7 @@ type TIssueParentSiblingItem = {
   issueId: string;
 };
 
-export const IssueParentSiblingItem = observer(function IssueParentSiblingItem(props: TIssueParentSiblingItem) {
+export function IssueParentSiblingItem(props: TIssueParentSiblingItem) {
   const { workspaceSlug, projectId, issueId } = props;
   // hooks
   const { data: issueDetail } = useIssue(workspaceSlug, projectId, issueId);
@@ -56,4 +55,4 @@ export const IssueParentSiblingItem = observer(function IssueParentSiblingItem(p
       </CustomMenu.MenuItem>
     </>
   );
-});
+}

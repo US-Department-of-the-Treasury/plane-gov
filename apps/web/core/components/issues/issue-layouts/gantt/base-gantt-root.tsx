@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { ALL_ISSUES, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -36,9 +35,9 @@ export type GanttStoreType =
   | EIssuesStoreType.EPIC
   | EIssuesStoreType.SPRINT
   | EIssuesStoreType.PROJECT_VIEW
-  | EIssuesStoreType.EPIC;
+   ;
 
-export const BaseGanttRoot = observer(function BaseGanttRoot(props: IBaseGanttRoot) {
+export function BaseGanttRoot(props: IBaseGanttRoot) {
   const { viewId, isCompletedSprint = false, isEpic = false } = props;
   const { t } = useTranslation();
   // router
@@ -148,4 +147,4 @@ export const BaseGanttRoot = observer(function BaseGanttRoot(props: IBaseGanttRo
       </TimeLineTypeContext.Provider>
     </IssueLayoutHOC>
   );
-});
+}

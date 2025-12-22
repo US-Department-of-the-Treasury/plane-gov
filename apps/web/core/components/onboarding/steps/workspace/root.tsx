@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { IWorkspaceMemberInvitation } from "@plane/types";
 import { ECreateOrJoinWorkspaceViews, EOnboardingSteps } from "@plane/types";
@@ -13,7 +12,7 @@ type Props = {
   handleStepChange: (step: EOnboardingSteps, skipInvites?: boolean) => void;
 };
 
-export const WorkspaceSetupStep = observer(function WorkspaceSetupStep({ invitations, handleStepChange }: Props) {
+export function WorkspaceSetupStep({ invitations, handleStepChange }: Props) {
   // states
   const [currentView, setCurrentView] = useState<ECreateOrJoinWorkspaceViews | null>(null);
   // store hooks
@@ -47,4 +46,4 @@ export const WorkspaceSetupStep = observer(function WorkspaceSetupStep({ invitat
       )}
     </>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissionsLevel, WORK_ITEM_TRACKER_ELEMENTS } from "@plane/constants";
@@ -11,7 +10,7 @@ import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 
-export const GlobalViewEmptyState = observer(function GlobalViewEmptyState() {
+export function GlobalViewEmptyState() {
   // plane imports
   const { t } = useTranslation();
   // router
@@ -68,4 +67,4 @@ export const GlobalViewEmptyState = observer(function GlobalViewEmptyState() {
       ]}
     />
   );
-});
+}

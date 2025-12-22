@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 // plane imports
@@ -27,7 +26,7 @@ type Props = {
   toggleLoading: (value: boolean) => void;
 };
 
-export const AllIssueLayoutRoot = observer(function AllIssueLayoutRoot(props: Props) {
+export function AllIssueLayoutRoot(props: Props) {
   const { isDefaultView, isLoading = false, toggleLoading } = props;
   // router
   const router = useAppRouter();
@@ -82,7 +81,7 @@ export const AllIssueLayoutRoot = observer(function AllIssueLayoutRoot(props: Pr
     workspaceSlug ? `WORKSPACE_GLOBAL_VIEWS_${workspaceSlug}` : null,
     async () => {
       if (workspaceSlug) {
-        await fetchAllGlobalViews(workspaceSlug);
+        await fetchAllGlobalViews();
       }
     },
     { revalidateIfStale: false, revalidateOnFocus: false }
@@ -171,4 +170,4 @@ export const AllIssueLayoutRoot = observer(function AllIssueLayoutRoot(props: Pr
       </WorkspaceLevelWorkItemFiltersHOC>
     </IssuesStoreContext.Provider>
   );
-});
+}

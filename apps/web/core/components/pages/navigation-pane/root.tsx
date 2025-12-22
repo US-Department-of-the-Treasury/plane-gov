@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRightCircle } from "lucide-react";
 import { Tab } from "@headlessui/react";
@@ -34,10 +33,11 @@ type Props = {
   // Generic extension system for additional navigation pane content
   extensions?: INavigationPaneExtension[];
   storeType: EPageStoreType;
+  workspaceSlug: string;
 };
 
-export const PageNavigationPaneRoot = observer(function PageNavigationPaneRoot(props: Props) {
-  const { handleClose, isNavigationPaneOpen, page, versionHistory, extensions = [], storeType } = props;
+export function PageNavigationPaneRoot(props: Props) {
+  const { handleClose, isNavigationPaneOpen, page, versionHistory, extensions = [], storeType, workspaceSlug } = props;
 
   // navigation
   const router = useRouter();
@@ -108,10 +108,10 @@ export const PageNavigationPaneRoot = observer(function PageNavigationPaneRoot(p
         ) : showNavigationTabs ? (
           <Tab.Group as={React.Fragment} selectedIndex={selectedIndex} onChange={handleTabChange}>
             <PageNavigationPaneTabsList />
-            <PageNavigationPaneTabPanelsRoot page={page} versionHistory={versionHistory} />
+            <PageNavigationPaneTabPanelsRoot page={page} versionHistory={versionHistory} workspaceSlug={workspaceSlug} />
           </Tab.Group>
         ) : null}
       </div>
     </aside>
   );
-});
+}

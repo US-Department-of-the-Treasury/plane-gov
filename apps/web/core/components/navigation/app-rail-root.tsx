@@ -1,5 +1,4 @@
 "use client";
-import { observer } from "mobx-react";
 import { useParams, usePathname } from "next/navigation";
 import { Check, SettingsIcon } from "lucide-react";
 import { ContextMenu } from "@plane/propel/context-menu";
@@ -14,7 +13,7 @@ import { DesktopSidebarWorkspaceMenu } from "@/plane-web/components/desktop";
 // local imports
 import { AppSidebarItemsRoot } from "./items-root";
 
-export const AppRailRoot = observer(() => {
+export const AppRailRoot = () => {
   // router
   const { workspaceSlug } = useParams();
   const pathname = usePathname();
@@ -81,4 +80,4 @@ export const AppRailRoot = observer(() => {
       </ContextMenu>
     </div>
   );
-});
+};

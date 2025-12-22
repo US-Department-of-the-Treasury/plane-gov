@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { TIssueServiceType } from "@plane/types";
 import { Collapsible } from "@plane/ui";
@@ -18,7 +17,7 @@ type Props = {
   issueServiceType: TIssueServiceType;
 };
 
-export const AttachmentsCollapsible = observer(function AttachmentsCollapsible(props: Props) {
+export function AttachmentsCollapsible(props: Props) {
   const { workspaceSlug, projectId, issueId, disabled = false, issueServiceType } = props;
   // store hooks
   const { openWidgets, toggleOpenWidget } = useIssueDetail(issueServiceType);
@@ -51,4 +50,4 @@ export const AttachmentsCollapsible = observer(function AttachmentsCollapsible(p
       />
     </Collapsible>
   );
-});
+}

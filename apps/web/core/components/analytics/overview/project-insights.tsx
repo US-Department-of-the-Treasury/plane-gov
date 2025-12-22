@@ -1,5 +1,4 @@
 import { lazy, Suspense } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane package imports
@@ -22,7 +21,7 @@ const RadarChart = lazy(function RadarChart() {
 
 const analyticsService = new AnalyticsService();
 
-const ProjectInsights = observer(function ProjectInsights() {
+function ProjectInsights() {
   const params = useParams();
   const { t } = useTranslation();
   const workspaceSlug = params.workspaceSlug.toString();
@@ -112,6 +111,6 @@ const ProjectInsights = observer(function ProjectInsights() {
       )}
     </AnalyticsSectionWrapper>
   );
-});
+}
 
 export default ProjectInsights;

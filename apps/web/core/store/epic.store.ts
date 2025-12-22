@@ -44,12 +44,7 @@ export interface IEpicStore {
   fetchEpicDetails: (workspaceSlug: string, projectId: string, epicId: string) => Promise<IEpic>;
   // crud
   createEpic: (workspaceSlug: string, projectId: string, data: Partial<IEpic>) => Promise<IEpic>;
-  updateEpicDetails: (
-    workspaceSlug: string,
-    projectId: string,
-    epicId: string,
-    data: Partial<IEpic>
-  ) => Promise<IEpic>;
+  updateEpicDetails: (workspaceSlug: string, projectId: string, epicId: string, data: Partial<IEpic>) => Promise<IEpic>;
   deleteEpic: (workspaceSlug: string, projectId: string, epicId: string) => Promise<void>;
   createEpicLink: (
     workspaceSlug: string,
@@ -464,12 +459,7 @@ export class EpicsStore implements IEpicStore {
    * @param data
    * @returns ILinkDetails
    */
-  createEpicLink = async (
-    workspaceSlug: string,
-    projectId: string,
-    epicId: string,
-    data: Partial<ILinkDetails>
-  ) => {
+  createEpicLink = async (workspaceSlug: string, projectId: string, epicId: string, data: Partial<ILinkDetails>) => {
     try {
       const epicLink = await this.epicService.createEpicLink(workspaceSlug, projectId, epicId, data);
       runInAction(() => {

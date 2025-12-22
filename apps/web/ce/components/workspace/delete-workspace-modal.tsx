@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import type { IWorkspace } from "@plane/types";
 // ui
 import { EModalPosition, EModalWidth, ModalCore } from "@plane/ui";
@@ -14,7 +13,7 @@ type Props = {
   onClose: () => void;
 };
 
-export const DeleteWorkspaceModal = observer(function DeleteWorkspaceModal(props: Props) {
+export function DeleteWorkspaceModal(props: Props) {
   const { isOpen, data, onClose } = props;
 
   return (
@@ -22,4 +21,4 @@ export const DeleteWorkspaceModal = observer(function DeleteWorkspaceModal(props
       <DeleteWorkspaceForm data={data} onClose={onClose} />
     </ModalCore>
   );
-});
+}

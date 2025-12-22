@@ -24,7 +24,7 @@ export function IssueLinkDetail(props: TIssueLinkDetail) {
   const { workspaceSlug } = useParams();
   // hooks - keep modal state from useIssueDetail
   const { toggleIssueLinkModal: toggleIssueLinkModalStore, setIssueLinkData } = useIssueDetail();
-  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug as string);
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const { isMobile } = usePlatformOS();
 
   const Icon = getIconForLink(linkDetail.url);

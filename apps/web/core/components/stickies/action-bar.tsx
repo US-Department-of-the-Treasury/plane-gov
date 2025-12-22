@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import { Plus, StickyNote as StickyIcon } from "lucide-react";
@@ -18,7 +17,7 @@ import { STICKY_COLORS_LIST } from "../editor/sticky-editor/color-palette";
 import { AllStickiesModal } from "./modal";
 import { StickyNote } from "./sticky";
 
-export const StickyActionBar = observer(function StickyActionBar() {
+export function StickyActionBar() {
   // states
   const [isExpanded, setIsExpanded] = useState(false);
   const [newSticky, setNewSticky] = useState(false);
@@ -139,4 +138,4 @@ export const StickyActionBar = observer(function StickyActionBar() {
       <AllStickiesModal isOpen={allStickiesModal} handleClose={() => toggleAllStickiesModal(false)} />
     </div>
   );
-});
+}

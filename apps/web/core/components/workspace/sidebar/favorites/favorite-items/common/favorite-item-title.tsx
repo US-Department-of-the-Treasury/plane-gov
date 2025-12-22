@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { Tooltip } from "@plane/propel/tooltip";
 import { useAppTheme } from "@/hooks/store/use-app-theme";
@@ -11,7 +10,7 @@ type Props = {
   icon: React.ReactNode;
 };
 
-export const FavoriteItemTitle = observer(function FavoriteItemTitle(props: Props) {
+export function FavoriteItemTitle(props: Props) {
   const { href, title, icon } = props;
   // store hooks
   const { toggleSidebar } = useAppTheme();
@@ -29,4 +28,4 @@ export const FavoriteItemTitle = observer(function FavoriteItemTitle(props: Prop
       </Link>
     </Tooltip>
   );
-});
+}

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
-import { observer } from "mobx-react";
 // plane constants
 import { ALL_ISSUES } from "@plane/constants";
 // types
@@ -52,7 +51,7 @@ export interface IList {
   isEpic?: boolean;
 }
 
-export const List = observer(function List(props: IList) {
+export function List(props: IList) {
   const {
     groupedIssueIds,
     issuesMap,
@@ -173,4 +172,4 @@ export const List = observer(function List(props: IList) {
       )}
     </div>
   );
-});
+}

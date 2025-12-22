@@ -1,11 +1,5 @@
 import { useRef } from "react";
-import { observer } from "mobx-react";
-
-export const SettingsContentLayout = observer(function SettingsContentLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function SettingsContentLayout({ children }: { children: React.ReactNode }) {
   // refs
   const ref = useRef<HTMLDivElement>(null);
 
@@ -14,4 +8,4 @@ export const SettingsContentLayout = observer(function SettingsContentLayout({
       {children}
     </div>
   );
-});
+}

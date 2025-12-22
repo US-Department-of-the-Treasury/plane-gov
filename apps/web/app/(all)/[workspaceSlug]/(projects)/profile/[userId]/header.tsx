@@ -1,6 +1,6 @@
 // ui
 import type { FC } from "react";
-import { observer } from "mobx-react";
+
 import { useParams, useRouter } from "next/navigation";
 import { PanelRight } from "lucide-react";
 import { PROFILE_VIEWER_TAB, PROFILE_ADMINS_TAB, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -23,7 +23,7 @@ type TUserProfileHeader = {
   showProfileIssuesFilter?: boolean;
 };
 
-export const UserProfileHeader = observer(function UserProfileHeader(props: TUserProfileHeader) {
+export function UserProfileHeader(props: TUserProfileHeader) {
   const { userProjectsData, type = undefined, showProfileIssuesFilter } = props;
   // router
   const { workspaceSlug, userId } = useParams();
@@ -107,4 +107,4 @@ export const UserProfileHeader = observer(function UserProfileHeader(props: TUse
       </Header.RightItem>
     </Header>
   );
-});
+}

@@ -76,12 +76,7 @@ export class SprintService extends APIService {
    * @returns {Promise<TIssuesResponse>} The sprint issues data
    * @throws {Error} If the request fails
    */
-  async getSprintIssues(
-    workspaceSlug: string,
-    sprintId: string,
-    queries?: any,
-    config = {}
-  ): Promise<TIssuesResponse> {
+  async getSprintIssues(workspaceSlug: string, sprintId: string, queries?: any, config = {}): Promise<TIssuesResponse> {
     return this.get(
       `/api/workspaces/${workspaceSlug}/sprints/${sprintId}/issues/`,
       {

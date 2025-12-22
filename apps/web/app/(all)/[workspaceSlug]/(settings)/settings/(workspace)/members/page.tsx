@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
+
 import { Search } from "lucide-react";
 // types
 import {
@@ -32,7 +32,7 @@ import { useWorkspaceMembers, useInviteWorkspaceMembers } from "@/store/queries/
 import { SendWorkspaceInvitationModal, MembersActivityButton } from "@/plane-web/components/workspace/members";
 import type { Route } from "./+types/page";
 
-const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsPage({ params }: Route.ComponentProps) {
+function WorkspaceMembersSettingsPage({ params }: Route.ComponentProps) {
   // states
   const [inviteModal, setInviteModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -49,7 +49,7 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
   const { t } = useTranslation();
 
   // derived values
-  const workspaceMemberIds = workspaceMembers?.map(m => m.id);
+  const workspaceMemberIds = workspaceMembers?.map((m) => m.id);
 
   // derived values
   const canPerformWorkspaceAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
@@ -113,7 +113,7 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
   const handleRoleFilterUpdate = (role: string) => {
     const currentFilters = filtersStore.filters;
     const currentRoles = currentFilters?.roles || [];
-    const updatedRoles = currentRoles.includes(role) ? currentRoles.filter((r) => r !== role) : [...currentRoles, role];
+    const updatedRoles = currentRoles.includes(role) ? currentRoles.filter((r: string) => r !== role) : [...currentRoles, role];
 
     filtersStore.updateFilters({
       roles: updatedRoles.length > 0 ? updatedRoles : undefined,
@@ -186,6 +186,6 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
       </section>
     </SettingsContentWrapper>
   );
-});
+}
 
 export default WorkspaceMembersSettingsPage;

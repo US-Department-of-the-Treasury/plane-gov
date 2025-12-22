@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { EEstimateSystem } from "@plane/constants";
 import { convertMinutesToHoursMinutesString, cn } from "@plane/utils";
 // helpers
@@ -18,7 +17,7 @@ type TEstimateListItem = {
   onDeleteClick?: (estimateId: string) => void;
 };
 
-export const EstimateListItem = observer(function EstimateListItem(props: TEstimateListItem) {
+export function EstimateListItem(props: TEstimateListItem) {
   const { estimateId, isAdmin, isEstimateEnabled, isEditable } = props;
   // hooks
   const { estimateById } = useProjectEstimates();
@@ -55,4 +54,4 @@ export const EstimateListItem = observer(function EstimateListItem(props: TEstim
       <EstimateListItemButtons {...props} />
     </div>
   );
-});
+}

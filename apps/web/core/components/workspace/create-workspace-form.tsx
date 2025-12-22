@@ -1,6 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ORGANIZATION_SIZE,
@@ -38,7 +37,7 @@ type Props = {
 
 const workspaceService = new WorkspaceService();
 
-export const CreateWorkspaceForm = observer(function CreateWorkspaceForm(props: Props) {
+export function CreateWorkspaceForm(props: Props) {
   const { t } = useTranslation();
   const {
     onSubmit,
@@ -271,4 +270,4 @@ export const CreateWorkspaceForm = observer(function CreateWorkspaceForm(props: 
       </div>
     </form>
   );
-});
+}

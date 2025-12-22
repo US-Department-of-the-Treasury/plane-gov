@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { MessageSquare } from "lucide-react";
 // plane imports
 import { NOTIFICATION_TRACKER_ELEMENTS, NOTIFICATION_TRACKER_EVENTS } from "@plane/constants";
@@ -18,9 +17,7 @@ type TNotificationItemReadOption = {
   notification: INotification;
 };
 
-export const NotificationItemReadOption = observer(function NotificationItemReadOption(
-  props: TNotificationItemReadOption
-) {
+export function NotificationItemReadOption(props: TNotificationItemReadOption) {
   const { workspaceSlug, notification } = props;
   // hooks
   const { currentNotificationTab } = useWorkspaceNotifications();
@@ -63,4 +60,4 @@ export const NotificationItemReadOption = observer(function NotificationItemRead
       <MessageSquare className="h-3 w-3 text-tertiary" />
     </NotificationItemOptionButton>
   );
-});
+}

@@ -19,11 +19,7 @@ export function EpicLinksList(props: Props) {
   // router
   const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { data: currentEpic } = useEpicDetails(
-    workspaceSlug as string,
-    projectId as string,
-    epicId
-  );
+  const { data: currentEpic } = useEpicDetails(workspaceSlug, projectId, epicId);
   // derived values
   const epicLinks = currentEpic?.link_epic;
   // memoized link handlers

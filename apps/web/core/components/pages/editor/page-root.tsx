@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { CollaborationState, EditorRefApi } from "@plane/editor";
 import type { TDocumentPayload, TPage, TPageVersion, TWebhookConnectionQueryParams } from "@plane/types";
@@ -43,7 +42,7 @@ type TPageRootProps = {
   customRealtimeEventHandlers?: TCustomEventHandlers;
 };
 
-export const PageRoot = observer(function PageRoot(props: TPageRootProps) {
+export function PageRoot(props: TPageRootProps) {
   const {
     config,
     handlers,
@@ -193,8 +192,9 @@ export const PageRoot = observer(function PageRoot(props: TPageRootProps) {
           fetchVersionDetails: handlers.fetchVersionDetails,
         }}
         extensions={navigationPaneExtensions}
+        workspaceSlug={workspaceSlug}
       />
       <PageModals page={page} storeType={storeType} />
     </div>
   );
-});
+}

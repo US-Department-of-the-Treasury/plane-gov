@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { EIssueLayoutTypes } from "@plane/types";
 // components
@@ -36,7 +35,7 @@ interface Props {
   layout: EIssueLayoutTypes;
 }
 
-export const IssueLayoutHOC = observer(function IssueLayoutHOC(props: Props) {
+export function IssueLayoutHOC(props: Props) {
   const { layout } = props;
 
   const storeType = useIssueStoreType();
@@ -53,4 +52,4 @@ export const IssueLayoutHOC = observer(function IssueLayoutHOC(props: Props) {
   }
 
   return <>{props.children}</>;
-});
+}

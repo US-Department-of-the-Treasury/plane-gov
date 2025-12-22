@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { ArchiveRestore } from "lucide-react";
 // plane imports
 import { NOTIFICATION_TRACKER_ELEMENTS, NOTIFICATION_TRACKER_EVENTS } from "@plane/constants";
@@ -19,9 +18,7 @@ type TNotificationItemArchiveOption = {
   notification: INotification;
 };
 
-export const NotificationItemArchiveOption = observer(function NotificationItemArchiveOption(
-  props: TNotificationItemArchiveOption
-) {
+export function NotificationItemArchiveOption(props: TNotificationItemArchiveOption) {
   const { workspaceSlug, notification } = props;
   // hooks
   const { currentNotificationTab } = useWorkspaceNotifications();
@@ -70,4 +67,4 @@ export const NotificationItemArchiveOption = observer(function NotificationItemA
       )}
     </NotificationItemOptionButton>
   );
-});
+}

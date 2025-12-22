@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { Tab } from "@headlessui/react";
 // plane package imports
 import type { ISprint, IEpic, IProject } from "@plane/types";
@@ -20,7 +19,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const WorkItemsModalMainContent = observer(function WorkItemsModalMainContent(props: Props) {
+export function WorkItemsModalMainContent(props: Props) {
   const { projectDetails, sprintDetails, epicDetails, fullScreen, isEpic } = props;
   const { updateSelectedProjects, updateSelectedSprint, updateSelectedEpic, updateIsPeekView } = useAnalytics();
   const [isModalConfigured, setIsModalConfigured] = useState(false);
@@ -78,4 +77,4 @@ export const WorkItemsModalMainContent = observer(function WorkItemsModalMainCon
       </div>
     </Tab.Group>
   );
-});
+}

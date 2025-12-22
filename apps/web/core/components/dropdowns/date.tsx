@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { createPortal } from "react-dom";
 import { usePopper } from "react-popper";
 import { CalendarDays } from "lucide-react";
@@ -37,7 +36,7 @@ type Props = TDropdownProps & {
   renderByDefault?: boolean;
 };
 
-export const DateDropdown = observer(function DateDropdown(props: Props) {
+export function DateDropdown(props: Props) {
   const {
     buttonClassName = "",
     buttonContainerClassName,
@@ -204,4 +203,4 @@ export const DateDropdown = observer(function DateDropdown(props: Props) {
         )}
     </ComboDropDown>
   );
-});
+}

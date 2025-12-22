@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { CreateProjectModal } from "@/components/project/create-project-modal";
 // hooks
@@ -8,7 +7,7 @@ export type TWorkspaceLevelModalsProps = {
   workspaceSlug: string;
 };
 
-export const WorkspaceLevelModals = observer(function WorkspaceLevelModals(props: TWorkspaceLevelModalsProps) {
+export function WorkspaceLevelModals(props: TWorkspaceLevelModalsProps) {
   const { workspaceSlug } = props;
   // store hooks
   const { isCreateProjectModalOpen, toggleCreateProjectModal } = useCommandPalette();
@@ -22,4 +21,4 @@ export const WorkspaceLevelModals = observer(function WorkspaceLevelModals(props
       />
     </>
   );
-});
+}

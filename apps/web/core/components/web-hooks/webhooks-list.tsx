@@ -1,10 +1,9 @@
-import { observer } from "mobx-react";
 // hooks
 import { useWebhook } from "@/hooks/store/use-webhook";
 // components
 import { WebhooksListItem } from "./webhooks-list-item";
 
-export const WebhooksList = observer(function WebhooksList() {
+export function WebhooksList() {
   // store hooks
   const { webhooks } = useWebhook();
 
@@ -15,4 +14,4 @@ export const WebhooksList = observer(function WebhooksList() {
       ))}
     </div>
   );
-});
+}

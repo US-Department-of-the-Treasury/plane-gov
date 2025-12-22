@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import { STICKIES_PER_PAGE } from "@plane/constants";
@@ -9,7 +8,7 @@ import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useSticky } from "@/hooks/use-stickies";
 import { StickiesLayout } from "./stickies-list";
 
-export const StickiesInfinite = observer(function StickiesInfinite() {
+export function StickiesInfinite() {
   const { workspaceSlug } = useParams();
   // hooks
   const { fetchWorkspaceStickies, fetchNextWorkspaceStickies, getWorkspaceStickyIds, loader, paginationInfo } =
@@ -22,7 +21,7 @@ export const StickiesInfinite = observer(function StickiesInfinite() {
 
   useSWR(
     workspaceSlug ? `WORKSPACE_STICKIES_${workspaceSlug}` : null,
-    workspaceSlug ? () => fetchWorkspaceStickies(workspaceSlug.toString()) : null,
+    workspaceSlug ? () => fetchWorkspaceStickies() : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 
@@ -59,4 +58,4 @@ export const StickiesInfinite = observer(function StickiesInfinite() {
       />
     </ContentWrapper>
   );
-});
+}

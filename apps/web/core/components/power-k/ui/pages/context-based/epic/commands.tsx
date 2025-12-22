@@ -39,15 +39,13 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
   const handleUpdateEpic = useCallback(
     async (formData: Partial<IEpic>) => {
       if (!workspaceSlug || !projectId || !epicDetails) return;
-      await updateEpicDetails(workspaceSlug.toString(), projectId.toString(), epicDetails.id, formData).catch(
-        () => {
-          setToast({
-            type: TOAST_TYPE.ERROR,
-            title: "Error!",
-            message: "Epic could not be updated. Please try again.",
-          });
-        }
-      );
+      await updateEpicDetails(workspaceSlug.toString(), projectId.toString(), epicDetails.id, formData).catch(() => {
+        setToast({
+          type: TOAST_TYPE.ERROR,
+          title: "Error!",
+          message: "Epic could not be updated. Please try again.",
+        });
+      });
     },
     [epicDetails, projectId, updateEpicDetails, workspaceSlug]
   );

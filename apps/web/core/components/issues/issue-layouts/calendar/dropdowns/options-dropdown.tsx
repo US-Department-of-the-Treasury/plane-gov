@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { usePopper } from "react-popper";
 import { Check, MoreVerticalIcon } from "lucide-react";
@@ -33,7 +32,7 @@ interface ICalendarHeader {
   ) => Promise<void>;
 }
 
-export const CalendarOptionsDropdown = observer(function CalendarOptionsDropdown(props: ICalendarHeader) {
+export function CalendarOptionsDropdown(props: ICalendarHeader) {
   const { issuesFilterStore, updateFilters } = props;
 
   const { t } = useTranslation();
@@ -164,4 +163,4 @@ export const CalendarOptionsDropdown = observer(function CalendarOptionsDropdown
       )}
     </Popover>
   );
-});
+}

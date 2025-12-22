@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
-import { observer } from "mobx-react";
 import type {
   ChartDataType,
   IBlockUpdateData,
@@ -60,7 +59,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const GanttChartMainContent = observer(function GanttChartMainContent(props: Props) {
+export function GanttChartMainContent(props: Props) {
   const {
     blockIds,
     loadMoreBlocks,
@@ -238,4 +237,4 @@ export const GanttChartMainContent = observer(function GanttChartMainContent(pro
       </MultipleSelectGroup>
     </>
   );
-});
+}

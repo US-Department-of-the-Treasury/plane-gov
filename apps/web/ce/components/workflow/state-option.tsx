@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Check } from "lucide-react";
 import { Combobox } from "@headlessui/react";
 import { cn } from "@plane/utils";
@@ -17,7 +16,7 @@ export type TStateOptionProps = {
   alwaysAllowStateChange?: boolean;
 };
 
-export const StateOption = observer(function StateOption(props: TStateOptionProps) {
+export function StateOption(props: TStateOptionProps) {
   const { option, className = "" } = props;
 
   return (
@@ -36,4 +35,4 @@ export const StateOption = observer(function StateOption(props: TStateOptionProp
       )}
     </Combobox.Option>
   );
-});
+}

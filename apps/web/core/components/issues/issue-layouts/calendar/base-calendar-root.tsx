@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useCallback, useEffect } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EIssueGroupByToServerOptions, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -25,7 +24,7 @@ export type CalendarStoreType =
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.TEAM
   | EIssuesStoreType.TEAM_VIEW
-  | EIssuesStoreType.EPIC;
+   ;
 
 interface IBaseCalendarRoot {
   QuickActions: FC<IQuickActionProps>;
@@ -36,7 +35,7 @@ interface IBaseCalendarRoot {
   canEditPropertiesBasedOnProject?: (projectId: string) => boolean;
 }
 
-export const BaseCalendarRoot = observer(function BaseCalendarRoot(props: IBaseCalendarRoot) {
+export function BaseCalendarRoot(props: IBaseCalendarRoot) {
   const {
     QuickActions,
     addIssuesToView,
@@ -187,4 +186,4 @@ export const BaseCalendarRoot = observer(function BaseCalendarRoot(props: IBaseC
       </div>
     </>
   );
-});
+}

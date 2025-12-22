@@ -543,7 +543,8 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Sprint Reports",
-        description: "Get on-demand sprint reports during and after a\nsprint. Revisit reports anytime from permalinks.",
+        description:
+          "Get on-demand sprint reports during and after a\nsprint. Revisit reports anytime from permalinks.",
         cloud: {
           free: false,
           one: false,

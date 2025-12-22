@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Tab } from "@headlessui/react";
 import { useTranslation } from "@plane/i18n";
 import type { TWorkItemFilterCondition } from "@plane/shared-state";
@@ -30,7 +29,7 @@ type TEpicProgressStats = {
   totalIssuesCount: number;
 };
 
-export const EpicProgressStats = observer(function EpicProgressStats(props: TEpicProgressStats) {
+export function EpicProgressStats(props: TEpicProgressStats) {
   const {
     distribution,
     groupedIssues,
@@ -169,4 +168,4 @@ export const EpicProgressStats = observer(function EpicProgressStats(props: TEpi
       </Tab.Group>
     </div>
   );
-});
+}

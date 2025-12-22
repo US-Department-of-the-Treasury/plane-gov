@@ -17,17 +17,14 @@ export const StateDropdown = function StateDropdown(props: TWorkItemStateDropdow
   // router params
   const { workspaceSlug } = useParams();
   // store hooks
-  const { data: states, isLoading } = useProjectStates(
-    workspaceSlug?.toString() ?? "",
-    projectId
-  );
+  const { data: states, isLoading } = useProjectStates(workspaceSlug?.toString() ?? "", projectId ?? "");
   // derived values
   const stateIds = propsStateIds ?? (states ? getStateIds(states) : []);
 
   return (
     <WorkItemStateDropdownBase
       {...props}
-      getStateById={(stateId: string) => getStateById(states ?? [], stateId)}
+      getStateById={(stateId: string | null | undefined) => getStateById(states ?? [], stateId)}
       isInitializing={isLoading}
       stateIds={stateIds}
       onDropdownOpen={() => {}}

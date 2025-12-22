@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EIssueFilterType, ISSUE_LAYOUTS, ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
@@ -23,7 +22,7 @@ const SUPPORTED_LAYOUTS = [
   { key: "calendar", titleTranslationKey: "issue.layouts.calendar", icon: CalendarLayoutIcon },
 ];
 
-export const SprintIssuesMobileHeader = observer(function SprintIssuesMobileHeader() {
+export function SprintIssuesMobileHeader() {
   // router
   const { workspaceSlug, projectId, sprintId } = useParams();
   // states
@@ -155,4 +154,4 @@ export const SprintIssuesMobileHeader = observer(function SprintIssuesMobileHead
       </div>
     </>
   );
-});
+}

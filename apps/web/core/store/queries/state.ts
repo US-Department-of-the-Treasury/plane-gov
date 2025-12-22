@@ -15,10 +15,10 @@ const stateService = new ProjectStateService();
  * @example
  * const { data: states, isLoading } = useProjectStates(workspaceSlug, projectId);
  */
-export function useProjectStates(workspaceSlug: string, projectId: string) {
+export function useProjectStates(workspaceSlug: string | undefined, projectId: string | null | undefined) {
   return useQuery({
-    queryKey: queryKeys.states.all(workspaceSlug, projectId),
-    queryFn: () => stateService.getStates(workspaceSlug, projectId),
+    queryKey: queryKeys.states.all(workspaceSlug ?? "", projectId ?? ""),
+    queryFn: () => stateService.getStates(workspaceSlug!, projectId!),
     enabled: !!workspaceSlug && !!projectId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes

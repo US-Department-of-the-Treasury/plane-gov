@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 // plane types
 // plane ui
@@ -28,7 +27,7 @@ const defaultValues: TLinkCreateFormFieldOptions = {
   url: "",
 };
 
-export const LinkCreateUpdateModal = observer(function LinkCreateUpdateModal(props: TLinkCreateEditModal) {
+export function LinkCreateUpdateModal(props: TLinkCreateEditModal) {
   // props
   const { isModalOpen, handleOnClose, linkOperations, preloadedData } = props;
   // react hook form
@@ -132,4 +131,4 @@ export const LinkCreateUpdateModal = observer(function LinkCreateUpdateModal(pro
       </form>
     </ModalCore>
   );
-});
+}

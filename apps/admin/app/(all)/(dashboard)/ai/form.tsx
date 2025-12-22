@@ -122,9 +122,7 @@ export function InstanceAIForm(props: IInstanceAIForm) {
         {/* Contact link removed for government deployment */}
         <div className="relative inline-flex items-center gap-2 rounded-sm border border-accent-strong/20 bg-accent-primary/10 px-4 py-2 text-11 text-accent-secondary">
           <Lightbulb height="14" width="14" />
-          <div>
-            If you have a preferred AI models vendor, please contact your system administrator.
-          </div>
+          <div>If you have a preferred AI models vendor, please contact your system administrator.</div>
         </div>
       </div>
     </div>

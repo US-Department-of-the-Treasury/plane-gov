@@ -29,11 +29,7 @@ export function EpicListItem(props: Props) {
   const pathname = usePathname();
   // hooks
   const { isMobile } = usePlatformOS();
-  const { data: epicDetails } = useEpicDetails(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? "",
-    epicId
-  );
+  const { data: epicDetails } = useEpicDetails(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "", epicId);
 
   if (!epicDetails) return null;
 

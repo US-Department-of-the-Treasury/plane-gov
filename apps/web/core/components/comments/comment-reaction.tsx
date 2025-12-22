@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { stringToEmoji } from "@plane/propel/emoji-icon-picker";
 import { EmojiReactionGroup, EmojiReactionPicker } from "@plane/propel/emoji-reaction";
@@ -16,7 +15,7 @@ export type TProps = {
   activityOperations: TCommentsOperations;
 };
 
-export const CommentReactions = observer(function CommentReactions(props: TProps) {
+export function CommentReactions(props: TProps) {
   const { comment, activityOperations, disabled = false } = props;
   // state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
@@ -86,4 +85,4 @@ export const CommentReactions = observer(function CommentReactions(props: TProps
       />
     </div>
   );
-});
+}

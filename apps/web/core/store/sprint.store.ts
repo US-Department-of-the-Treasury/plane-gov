@@ -3,11 +3,7 @@ import { sortBy, set } from "lodash-es";
 import { action, computed, observable, makeObservable, runInAction } from "mobx";
 import { computedFn } from "mobx-utils";
 // types
-import type {
-  ISprint,
-  TSprintPlotType,
-  TSprintEstimateType,
-} from "@plane/types";
+import type { ISprint, TSprintPlotType, TSprintEstimateType } from "@plane/types";
 import type { DistributionUpdates } from "@plane/utils";
 import { orderSprints, shouldFilterSprint, getDate, updateDistribution } from "@plane/utils";
 // services
@@ -36,6 +32,7 @@ export interface ISprintStore {
   getSprintByNumber: (workspaceId: string, number: number) => ISprint | null;
   getWorkspaceSprintIds: (workspaceId: string) => string[] | null;
   getFilteredSprintIds: (workspaceId: string, sortByManual: boolean) => string[] | null;
+  getProjectSprintDetails: (projectId: string) => ISprint[] | undefined;
   getPlotTypeBySprintId: (sprintId: string) => TSprintPlotType;
   getEstimateTypeBySprintId: (sprintId: string) => TSprintEstimateType;
 
@@ -49,11 +46,7 @@ export interface ISprintStore {
   fetchSprintDetails: (workspaceSlug: string, sprintId: string) => Promise<ISprint>;
 
   // crud (limited - sprints are auto-generated)
-  updateSprintDetails: (
-    workspaceSlug: string,
-    sprintId: string,
-    data: Partial<ISprint>
-  ) => Promise<ISprint>;
+  updateSprintDetails: (workspaceSlug: string, sprintId: string, data: Partial<ISprint>) => Promise<ISprint>;
 
   // favorites
   addSprintToFavorites: (workspaceSlug: string, sprintId: string) => Promise<any>;
@@ -118,9 +111,7 @@ export class SprintStore implements ISprintStore {
     const workspaceSlug = this.rootStore.router.workspaceSlug;
     if (!workspaceSlug || !this.fetchedMap[workspaceSlug]) return null;
 
-    let allSprints = Object.values(this.sprintMap ?? {}).filter(
-      (c) => c?.workspace_id && !c?.archived_at
-    );
+    let allSprints = Object.values(this.sprintMap ?? {}).filter((c) => c?.workspace_id && !c?.archived_at);
     allSprints = sortBy(allSprints, [(c) => c.number]);
     return allSprints.map((c) => c.id);
   }
@@ -167,16 +158,12 @@ export class SprintStore implements ISprintStore {
   /**
    * Get sprint by ID
    */
-  getSprintById = computedFn((sprintId: string): ISprint | null =>
-    this.sprintMap?.[sprintId] ?? null
-  );
+  getSprintById = computedFn((sprintId: string): ISprint | null => this.sprintMap?.[sprintId] ?? null);
 
   /**
    * Get sprint name by ID
    */
-  getSprintNameById = computedFn((sprintId: string): string =>
-    this.sprintMap?.[sprintId]?.name
-  );
+  getSprintNameById = computedFn((sprintId: string): string => this.sprintMap?.[sprintId]?.name);
 
   /**
    * Get sprint by workspace ID and sprint number
@@ -192,9 +179,7 @@ export class SprintStore implements ISprintStore {
    * Get all sprint IDs for a workspace
    */
   getWorkspaceSprintIds = computedFn((workspaceId: string): string[] | null => {
-    let sprints = Object.values(this.sprintMap ?? {}).filter(
-      (c) => c.workspace_id === workspaceId && !c?.archived_at
-    );
+    let sprints = Object.values(this.sprintMap ?? {}).filter((c) => c.workspace_id === workspaceId && !c?.archived_at);
     sprints = sortBy(sprints, [(c) => c.number]);
     return sprints.map((c) => c.id);
   });
@@ -218,17 +203,30 @@ export class SprintStore implements ISprintStore {
   });
 
   /**
+   * Get all sprint details for a project (workspace-level sprints)
+   * Note: Sprints are now workspace-wide, so this returns all workspace sprints
+   */
+  getProjectSprintDetails = computedFn((projectId: string): ISprint[] | undefined => {
+    // Since sprints are workspace-wide now, we return all workspace sprints
+    // The projectId parameter is kept for backward compatibility
+    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    if (!workspaceSlug || !this.fetchedMap[workspaceSlug]) return undefined;
+
+    let sprints = Object.values(this.sprintMap ?? {}).filter((c) => c?.workspace_id && !c?.archived_at);
+    sprints = sortBy(sprints, [(c) => c.number]);
+    return sprints;
+  });
+
+  /**
    * Get plot type for a sprint
    */
-  getPlotTypeBySprintId = computedFn((sprintId: string): TSprintPlotType =>
-    this.plotType[sprintId] || "burndown"
-  );
+  getPlotTypeBySprintId = computedFn((sprintId: string): TSprintPlotType => this.plotType[sprintId] || "burndown");
 
   /**
    * Get estimate type for a sprint
    */
-  getEstimateTypeBySprintId = computedFn((sprintId: string): TSprintEstimateType =>
-    this.estimatedType[sprintId] || "issues"
+  getEstimateTypeBySprintId = computedFn(
+    (sprintId: string): TSprintEstimateType => this.estimatedType[sprintId] || "issues"
   );
 
   /**
@@ -300,11 +298,7 @@ export class SprintStore implements ISprintStore {
    * Update sprint details.
    * Only name, description, logo_props, view_props, sort_order can be updated.
    */
-  updateSprintDetails = async (
-    workspaceSlug: string,
-    sprintId: string,
-    data: Partial<ISprint>
-  ): Promise<ISprint> => {
+  updateSprintDetails = async (workspaceSlug: string, sprintId: string, data: Partial<ISprint>): Promise<ISprint> => {
     try {
       // Optimistic update
       runInAction(() => {

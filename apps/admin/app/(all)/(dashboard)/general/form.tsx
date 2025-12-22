@@ -119,8 +119,7 @@ export const GeneralConfigurationForm = observer(function GeneralConfigurationFo
               <div className="text-13 font-medium text-primary leading-5">Let Plane collect anonymous usage data</div>
               <div className="text-11 font-regular text-tertiary leading-5">
                 No PII is collected.This anonymized data is used to understand how you use Plane and build new features
-                in line with{" "}
-our Telemetry Policy.
+                in line with our Telemetry Policy.
               </div>
             </div>
           </div>

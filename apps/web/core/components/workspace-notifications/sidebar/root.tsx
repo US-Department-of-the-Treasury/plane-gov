@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import type { TNotificationTab } from "@plane/constants";
@@ -20,7 +19,7 @@ import { AppliedFilters } from "./filters/applied-filter";
 import { NotificationSidebarHeader } from "./header";
 import { NotificationsLoader } from "./loader";
 
-export const NotificationsSidebarRoot = observer(function NotificationsSidebarRoot() {
+export function NotificationsSidebarRoot() {
   const { workspaceSlug } = useParams();
   // hooks
   const { data: workspaces } = useWorkspaces();
@@ -113,4 +112,4 @@ export const NotificationsSidebarRoot = observer(function NotificationsSidebarRo
       </div>
     </div>
   );
-});
+}

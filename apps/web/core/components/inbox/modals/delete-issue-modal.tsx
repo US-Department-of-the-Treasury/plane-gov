@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // types
 import { PROJECT_ERROR_MESSAGES } from "@plane/constants";
@@ -19,12 +18,7 @@ type Props = {
   onSubmit: () => Promise<void>;
 };
 
-export const DeleteInboxIssueModal = observer(function DeleteInboxIssueModal({
-  isOpen,
-  onClose,
-  onSubmit,
-  data,
-}: Props) {
+export function DeleteInboxIssueModal({ isOpen, onClose, onSubmit, data }: Props) {
   // router
   const { workspaceSlug } = useParams();
   // states
@@ -83,4 +77,4 @@ export const DeleteInboxIssueModal = observer(function DeleteInboxIssueModal({
       }
     />
   );
-});
+}

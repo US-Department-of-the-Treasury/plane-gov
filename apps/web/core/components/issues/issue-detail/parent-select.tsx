@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
@@ -34,7 +33,7 @@ type TIssueParentSelect = {
   workItemLink: string;
 };
 
-export const IssueParentSelect = observer(function IssueParentSelect(props: TIssueParentSelect) {
+export function IssueParentSelect(props: TIssueParentSelect) {
   const {
     className = "",
     disabled = false,
@@ -49,11 +48,7 @@ export const IssueParentSelect = observer(function IssueParentSelect(props: TIss
   // store hooks
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
   // Fetch parent issue if exists (parent might be in different project, but we'll use projectId for now)
-  const { data: parentIssue } = useIssue(
-    workspaceSlug,
-    issue?.parent_id ? projectId : "",
-    issue?.parent_id ?? ""
-  );
+  const { data: parentIssue } = useIssue(workspaceSlug, issue?.parent_id ? projectId : "", issue?.parent_id ?? "");
   const { isParentIssueModalOpen, toggleParentIssueModal } = useIssueDetail();
   const { isMobile } = usePlatformOS();
   // queries
@@ -134,4 +129,4 @@ export const IssueParentSelect = observer(function IssueParentSelect(props: TIss
       </button>
     </>
   );
-});
+}

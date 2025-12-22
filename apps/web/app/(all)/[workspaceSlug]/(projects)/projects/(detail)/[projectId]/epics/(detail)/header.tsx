@@ -68,10 +68,7 @@ export function EpicIssuesHeader() {
     projectId?.toString() ?? ""
   );
   // queries
-  const { data: projectEpics } = useProjectEpics(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? ""
-  );
+  const { data: projectEpics } = useProjectEpics(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   const { data: epicDetails } = useEpicDetails(
     workspaceSlug?.toString() ?? "",
     projectId?.toString() ?? "",
@@ -120,12 +117,11 @@ export function EpicIssuesHeader() {
   const switcherOptions = useMemo(() => {
     if (!projectEpics) return [];
 
-    return projectEpics
-      .map((epic) => ({
-        value: epic.id,
-        query: epic.name,
-        content: <SwitcherLabel name={epic.name} LabelIcon={EpicIcon} />,
-      }));
+    return projectEpics.map((epic) => ({
+      value: epic.id,
+      query: epic.name,
+      content: <SwitcherLabel name={epic.name} LabelIcon={EpicIcon} />,
+    }));
   }, [projectEpics]);
 
   return (

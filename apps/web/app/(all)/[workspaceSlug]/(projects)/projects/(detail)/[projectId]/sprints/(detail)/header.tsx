@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // icons
 import { ChartNoAxesColumn, PanelRight, SlidersHorizontal } from "lucide-react";
@@ -17,7 +16,12 @@ import { Button } from "@plane/propel/button";
 import { IconButton } from "@plane/propel/icon-button";
 import { SprintIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
-import type { ICustomSearchSelectOption, IIssueDisplayFilterOptions, IIssueDisplayProperties, ISprint } from "@plane/types";
+import type {
+  ICustomSearchSelectOption,
+  IIssueDisplayFilterOptions,
+  IIssueDisplayProperties,
+  ISprint,
+} from "@plane/types";
 import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
 import { Breadcrumbs, BreadcrumbNavigationSearchDropdown, Header } from "@plane/ui";
 import { cn } from "@plane/utils";
@@ -44,7 +48,7 @@ import useLocalStorage from "@/hooks/use-local-storage";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
-export const SprintIssuesHeader = observer(function SprintIssuesHeader() {
+export function SprintIssuesHeader() {
   // refs
   const parentRef = useRef<HTMLDivElement>(null);
   // states
@@ -112,14 +116,13 @@ export const SprintIssuesHeader = observer(function SprintIssuesHeader() {
     EUserPermissionsLevel.PROJECT
   );
 
-  const switcherOptions = (sprints
-    ?.map((sprint: ISprint): ICustomSearchSelectOption => {
-      return {
-        value: sprint.id,
-        query: sprint.name,
-        content: <SwitcherLabel name={sprint.name} LabelIcon={SprintIcon} />,
-      };
-    }) ?? []) as ICustomSearchSelectOption[];
+  const switcherOptions = (sprints?.map((sprint: ISprint): ICustomSearchSelectOption => {
+    return {
+      value: sprint.id,
+      query: sprint.name,
+      content: <SwitcherLabel name={sprint.name} LabelIcon={SprintIcon} />,
+    };
+  }) ?? []) as ICustomSearchSelectOption[];
 
   const workItemsCount = getGroupIssueCount(undefined, undefined, false);
 
@@ -271,4 +274,4 @@ export const SprintIssuesHeader = observer(function SprintIssuesHeader() {
       </Header>
     </>
   );
-});
+}

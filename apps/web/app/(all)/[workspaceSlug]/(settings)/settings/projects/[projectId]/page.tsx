@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
+
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 // components
@@ -79,4 +79,4 @@ function ProjectSettingsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ProjectSettingsPage);
+export default ProjectSettingsPage;

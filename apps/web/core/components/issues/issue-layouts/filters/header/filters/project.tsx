@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // ui
 import { Logo } from "@plane/propel/emoji-icon-picker";
@@ -16,7 +15,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterProjects = observer(function FilterProjects(props: Props) {
+export function FilterProjects(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
   // states
   const [itemsToRender, setItemsToRender] = useState(5);
@@ -96,4 +95,4 @@ export const FilterProjects = observer(function FilterProjects(props: Props) {
       )}
     </>
   );
-});
+}

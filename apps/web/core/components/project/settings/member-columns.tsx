@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { CircleMinus } from "lucide-react";
@@ -89,7 +88,7 @@ export function NameColumn(props: NameProps) {
   );
 }
 
-export const AccountTypeColumn = observer(function AccountTypeColumn(props: AccountTypeProps) {
+export function AccountTypeColumn(props: AccountTypeProps) {
   const { rowData, projectId, workspaceSlug } = props;
   // store hooks
   const { data: currentUser } = useUser();
@@ -190,4 +189,4 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
       )}
     </>
   );
-});
+}

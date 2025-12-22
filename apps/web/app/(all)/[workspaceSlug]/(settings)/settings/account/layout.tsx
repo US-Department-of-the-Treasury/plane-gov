@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 import { Outlet } from "react-router";
 // components
@@ -29,4 +28,4 @@ function ProfileSettingsLayout() {
   );
 }
 
-export default observer(ProfileSettingsLayout);
+export default ProfileSettingsLayout;

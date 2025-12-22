@@ -86,7 +86,10 @@ export class IssueFiltersService extends APIService {
     sprintId: string,
     data: Partial<IIssueFiltersResponse>
   ): Promise<any> {
-    return this.patch(`/api/workspaces/${workspaceSlug}/projects/${projectId}/sprints/${sprintId}/user-properties/`, data)
+    return this.patch(
+      `/api/workspaces/${workspaceSlug}/projects/${projectId}/sprints/${sprintId}/user-properties/`,
+      data
+    )
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -111,10 +114,7 @@ export class IssueFiltersService extends APIService {
     epicId: string,
     data: Partial<IIssueFiltersResponse>
   ): Promise<any> {
-    return this.patch(
-      `/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/user-properties/`,
-      data
-    )
+    return this.patch(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/user-properties/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;

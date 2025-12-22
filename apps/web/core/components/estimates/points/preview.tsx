@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { GripVertical, Pencil, Trash2 } from "lucide-react";
 // plane imports
 import { EEstimateSystem, estimateCount } from "@plane/constants";
@@ -26,7 +25,7 @@ type TEstimatePointItemPreview = {
   handleEstimatePointError?: (newValue: string, message: string | undefined) => void;
 };
 
-export const EstimatePointItemPreview = observer(function EstimatePointItemPreview(props: TEstimatePointItemPreview) {
+export function EstimatePointItemPreview(props: TEstimatePointItemPreview) {
   const {
     workspaceSlug,
     projectId,
@@ -121,4 +120,4 @@ export const EstimatePointItemPreview = observer(function EstimatePointItemPrevi
       )}
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { ISearchIssueResponse, TIssue } from "@plane/types";
 // components
@@ -14,7 +13,7 @@ export type TIssueModalProviderProps = {
   children: React.ReactNode;
 };
 
-export const IssueModalProvider = observer(function IssueModalProvider(props: TIssueModalProviderProps) {
+export function IssueModalProvider(props: TIssueModalProviderProps) {
   const { children, allowedProjectIds } = props;
   // states
   const [selectedParentIssue, setSelectedParentIssue] = useState<ISearchIssueResponse | null>(null);
@@ -50,4 +49,4 @@ export const IssueModalProvider = observer(function IssueModalProvider(props: TI
       {children}
     </IssueModalContext.Provider>
   );
-});
+}

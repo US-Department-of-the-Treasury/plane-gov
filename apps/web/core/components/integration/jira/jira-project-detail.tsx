@@ -79,7 +79,7 @@ export function JiraProjectDetail(props: Props) {
       }))
     );
     setValue("data.total_states", projectInfo.states);
-    setValue("data.total_epics", projectInfo.modules);
+    setValue("data.total_epics", (projectInfo as any).modules);
   }, [projectInfo, setValue]);
 
   useEffect(() => {
@@ -135,7 +135,7 @@ export function JiraProjectDetail(props: Props) {
             <p className="text-13 text-secondary">States</p>
           </div>
           <div>
-            <h4 className="mb-2 text-16 font-semibold">{projectInfo?.modules}</h4>
+            <h4 className="mb-2 text-16 font-semibold">{(projectInfo as any)?.modules}</h4>
             <p className="text-13 text-secondary">Epics</p>
           </div>
           <div>

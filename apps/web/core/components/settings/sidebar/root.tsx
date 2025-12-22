@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import { cn } from "@plane/utils";
 import { SettingsSidebarHeader } from "./header";
@@ -20,7 +19,7 @@ interface SettingsSidebarProps {
   renderChildren?: (key: string) => React.ReactNode;
 }
 
-export const SettingsSidebar = observer(function SettingsSidebar(props: SettingsSidebarProps) {
+export function SettingsSidebar(props: SettingsSidebarProps) {
   const {
     isMobile = false,
     customHeader,
@@ -74,4 +73,4 @@ export const SettingsSidebar = observer(function SettingsSidebar(props: Settings
       </div>
     </div>
   );
-});
+}

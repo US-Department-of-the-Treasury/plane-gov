@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -20,7 +19,7 @@ import { ProjectsAppPowerKModalWrapper } from "./ui/modal/wrapper";
 /**
  * Projects App PowerK provider
  */
-export const ProjectsAppPowerKProvider = observer(function ProjectsAppPowerKProvider() {
+export function ProjectsAppPowerKProvider() {
   // router
   const router = useAppRouter();
   const params = useParams();
@@ -86,4 +85,4 @@ export const ProjectsAppPowerKProvider = observer(function ProjectsAppPowerKProv
       />
     </>
   );
-});
+}

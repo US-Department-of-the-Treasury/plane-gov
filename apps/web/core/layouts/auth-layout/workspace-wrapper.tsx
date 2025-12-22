@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { observer } from "mobx-react";
+
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
@@ -39,7 +39,7 @@ interface IWorkspaceAuthWrapper {
   isLoading?: boolean;
 }
 
-export const WorkspaceAuthWrapper = observer(function WorkspaceAuthWrapper(props: IWorkspaceAuthWrapper) {
+export function WorkspaceAuthWrapper(props: IWorkspaceAuthWrapper) {
   const { children, isLoading: isParentLoading = false } = props;
   // router params
   const { workspaceSlug } = useParams();
@@ -200,4 +200,4 @@ export const WorkspaceAuthWrapper = observer(function WorkspaceAuthWrapper(props
   }
 
   return <>{children}</>;
-});
+}

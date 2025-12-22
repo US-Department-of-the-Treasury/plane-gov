@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 // types
 import { WORKSPACE_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -15,7 +14,7 @@ type TDeleteWorkspace = {
   workspace: IWorkspace | null;
 };
 
-export const DeleteWorkspaceSection = observer(function DeleteWorkspaceSection(props: TDeleteWorkspace) {
+export function DeleteWorkspaceSection(props: TDeleteWorkspace) {
   const { workspace } = props;
   // states
   const [isOpen, setIsOpen] = useState(false);
@@ -65,4 +64,4 @@ export const DeleteWorkspaceSection = observer(function DeleteWorkspaceSection(p
       </div>
     </>
   );
-});
+}

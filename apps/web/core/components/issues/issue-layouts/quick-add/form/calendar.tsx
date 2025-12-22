@@ -1,8 +1,7 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import type { TQuickAddIssueForm } from "../root";
 
-export const CalendarQuickAddIssueForm = observer(function CalendarQuickAddIssueForm(props: TQuickAddIssueForm) {
+export function CalendarQuickAddIssueForm(props: TQuickAddIssueForm) {
   const { ref, isOpen, projectDetail, register, onSubmit, isEpic } = props;
 
   return (
@@ -29,4 +28,4 @@ export const CalendarQuickAddIssueForm = observer(function CalendarQuickAddIssue
       </form>
     </div>
   );
-});
+}

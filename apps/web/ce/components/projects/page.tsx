@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // components
 import { ProjectRoot } from "@/components/project/root";
@@ -6,7 +5,7 @@ import { ProjectRoot } from "@/components/project/root";
 import { useProjects } from "@/store/queries/project";
 import { useWorkspaceDetails } from "@/store/queries/workspace";
 
-export const ProjectPageRoot = observer(function ProjectPageRoot() {
+export function ProjectPageRoot() {
   // router
   const { workspaceSlug } = useParams();
   // store
@@ -15,4 +14,4 @@ export const ProjectPageRoot = observer(function ProjectPageRoot() {
   useProjects(workspaceSlug?.toString() ?? "");
 
   return <ProjectRoot />;
-});
+}

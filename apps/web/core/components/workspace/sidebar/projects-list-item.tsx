@@ -4,7 +4,6 @@ import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-d
 import { pointerOutsideOfPreview } from "@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview";
 import { setCustomNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview";
 import { attachInstruction, extractInstruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { observer } from "mobx-react";
 import { useParams, useRouter } from "next/navigation";
 import { createRoot } from "react-dom/client";
 import scrollIntoView from "smooth-scroll-into-view-if-needed";
@@ -53,7 +52,7 @@ type Props = {
   renderInExtendedSidebar?: boolean;
 };
 
-export const SidebarProjectsListItem = observer(function SidebarProjectsListItem(props: Props) {
+export function SidebarProjectsListItem(props: Props) {
   const {
     projectId,
     handleCopyText,
@@ -479,4 +478,4 @@ export const SidebarProjectsListItem = observer(function SidebarProjectsListItem
       </Disclosure>
     </>
   );
-});
+}

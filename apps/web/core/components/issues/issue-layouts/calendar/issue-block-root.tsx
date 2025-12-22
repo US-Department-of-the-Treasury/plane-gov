@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -22,7 +21,7 @@ type Props = {
   canEditProperties: (projectId: string | undefined) => boolean;
 };
 
-export const CalendarIssueBlockRoot = observer(function CalendarIssueBlockRoot(props: Props) {
+export function CalendarIssueBlockRoot(props: Props) {
   const { issueId, quickActions, isDragDisabled, isEpic = false, canEditProperties } = props;
 
   const issueRef = useRef<HTMLAnchorElement | null>(null);
@@ -83,4 +82,4 @@ export const CalendarIssueBlockRoot = observer(function CalendarIssueBlockRoot(p
       isEpic={isEpic}
     />
   );
-});
+}

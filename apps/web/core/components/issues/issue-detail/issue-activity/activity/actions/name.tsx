@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Type } from "lucide-react";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -7,7 +6,7 @@ import { IssueActivityBlockComponent } from "./";
 
 type TIssueNameActivity = { activityId: string; ends: "top" | "bottom" | undefined };
 
-export const IssueNameActivity = observer(function IssueNameActivity(props: TIssueNameActivity) {
+export function IssueNameActivity(props: TIssueNameActivity) {
   const { activityId, ends } = props;
   // hooks
   const {
@@ -26,4 +25,4 @@ export const IssueNameActivity = observer(function IssueNameActivity(props: TIss
       <>set the name to {activity.new_value}.</>
     </IssueActivityBlockComponent>
   );
-});
+}

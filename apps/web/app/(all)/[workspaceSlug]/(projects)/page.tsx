@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { useTranslation } from "@plane/i18n";
 import { AppHeader } from "@/components/core/app-header";
@@ -29,4 +28,4 @@ function WorkspaceDashboardPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(WorkspaceDashboardPage);
+export default WorkspaceDashboardPage;

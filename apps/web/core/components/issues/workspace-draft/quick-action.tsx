@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 // ui
 import type { TContextMenuItem } from "@plane/ui";
@@ -11,7 +10,7 @@ export interface Props {
   MENU_ITEMS: TContextMenuItem[];
 }
 
-export const WorkspaceDraftIssueQuickActions = observer(function WorkspaceDraftIssueQuickActions(props: Props) {
+export function WorkspaceDraftIssueQuickActions(props: Props) {
   const { parentRef, MENU_ITEMS } = props;
 
   const { t } = useTranslation();
@@ -60,4 +59,4 @@ export const WorkspaceDraftIssueQuickActions = observer(function WorkspaceDraftI
       </CustomMenu>
     </>
   );
-});
+}

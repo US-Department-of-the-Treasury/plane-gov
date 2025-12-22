@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { observer } from "mobx-react";
 // plane constants
 import { ALL_ISSUES, EIssueFilterType, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import type { IIssueDisplayFilterOptions } from "@plane/types";
@@ -31,7 +30,7 @@ type Props = {
   issuesLoading: boolean;
 };
 
-export const WorkspaceSpreadsheetRoot = observer(function WorkspaceSpreadsheetRoot(props: Props) {
+export function WorkspaceSpreadsheetRoot(props: Props) {
   const { isLoading = false, workspaceSlug, globalViewId, fetchNextPages, issuesLoading } = props;
 
   // Custom hooks
@@ -122,4 +121,4 @@ export const WorkspaceSpreadsheetRoot = observer(function WorkspaceSpreadsheetRo
       />
     </IssueLayoutHOC>
   );
-});
+}

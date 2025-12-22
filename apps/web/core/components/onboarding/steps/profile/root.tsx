@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { ImageIcon } from "lucide-react";
 // plane imports
@@ -50,7 +49,7 @@ const defaultValues: Partial<TProfileSetupFormValues> = {
   has_marketing_email_consent: true,
 };
 
-export const ProfileSetupStep = observer(function ProfileSetupStep({ handleStepChange }: Props) {
+export function ProfileSetupStep({ handleStepChange }: Props) {
   // states
   const [isImageUploadModalOpen, setIsImageUploadModalOpen] = useState(false);
   // store hooks
@@ -265,4 +264,4 @@ export const ProfileSetupStep = observer(function ProfileSetupStep({ handleStepC
       )}
     </form>
   );
-});
+}

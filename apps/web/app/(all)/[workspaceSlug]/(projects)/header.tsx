@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Shapes } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -10,7 +9,7 @@ import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 // hooks
 import { useHome } from "@/hooks/store/use-home";
 
-export const WorkspaceDashboardHeader = observer(function WorkspaceDashboardHeader() {
+export function WorkspaceDashboardHeader() {
   // plane hooks
   const { t } = useTranslation();
   // hooks
@@ -44,4 +43,4 @@ export const WorkspaceDashboardHeader = observer(function WorkspaceDashboardHead
       </Header>
     </>
   );
-});
+}

@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Check } from "lucide-react";
 import { INBOX_ISSUE_ORDER_BY_OPTIONS, INBOX_ISSUE_SORT_BY_OPTIONS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -14,7 +13,7 @@ import { cn } from "@plane/utils";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import useSize from "@/hooks/use-window-size";
 
-export const InboxIssueOrderByDropdown = observer(function InboxIssueOrderByDropdown() {
+export function InboxIssueOrderByDropdown() {
   // hooks
   const { t } = useTranslation();
   const windowSize = useSize();
@@ -68,4 +67,4 @@ export const InboxIssueOrderByDropdown = observer(function InboxIssueOrderByDrop
       ))}
     </CustomMenu>
   );
-});
+}

@@ -1,11 +1,26 @@
-import { useContext } from "react";
-// mobx store
-import { StoreContext } from "@/lib/store-context";
-// Plane-web
-import type { IStateStore } from "@/plane-web/store/state.store";
-
-export const useProjectState = (): IStateStore => {
-  const context = useContext(StoreContext);
-  if (context === undefined) throw new Error("useProjectState must be used within StoreProvider");
-  return context.state;
-};
+/**
+ * Project state hooks using TanStack Query.
+ * Replaces MobX StateStore with individual query hooks.
+ *
+ * Migration from MobX:
+ * - Instead of: const stateStore = useProjectState()
+ * - Use individual hooks like: const { data: states } = useProjectStates(workspaceSlug, projectId)
+ *
+ * Re-exports all state-related hooks from the queries layer.
+ */
+export {
+  useProjectStates,
+  useWorkspaceStates,
+  useIntakeState,
+  useCreateState,
+  useUpdateState,
+  useDeleteState,
+  useMarkStateAsDefault,
+  useMoveStatePosition,
+  useGroupedProjectStates,
+  groupStatesByGroup,
+  getStateById,
+  getStateIds,
+  getDefaultStateId,
+  getStatePercentageInGroup,
+} from "@/store/queries/state";

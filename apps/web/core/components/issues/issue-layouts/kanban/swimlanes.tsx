@@ -1,5 +1,4 @@
 import type { MutableRefObject } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type {
   GroupByColumnTypes,
@@ -53,7 +52,7 @@ const visibilitySubGroupByGroupCount = (subGroupIssueCount: number, showEmptyGro
   return subGroupHeaderVisibility;
 };
 
-const SubGroupSwimlaneHeader = observer(function SubGroupSwimlaneHeader({
+function SubGroupSwimlaneHeader({
   collapsedGroups,
   getGroupIssueCount,
   group_by,
@@ -96,7 +95,7 @@ const SubGroupSwimlaneHeader = observer(function SubGroupSwimlaneHeader({
         })}
     </div>
   );
-});
+}
 
 interface ISubGroupSwimlane extends ISubGroupSwimlaneHeader {
   addIssuesToView?: (issueIds: string[]) => Promise<TIssue>;
@@ -124,7 +123,7 @@ interface ISubGroupSwimlane extends ISubGroupSwimlaneHeader {
   updateIssue: ((projectId: string | null, issueId: string, data: Partial<TIssue>) => Promise<void>) | undefined;
 }
 
-const SubGroupSwimlane = observer(function SubGroupSwimlane(props: ISubGroupSwimlane) {
+function SubGroupSwimlane(props: ISubGroupSwimlane) {
   const {
     addIssuesToView,
     canEditProperties,
@@ -227,7 +226,7 @@ const SubGroupSwimlane = observer(function SubGroupSwimlane(props: ISubGroupSwim
         })}
     </div>
   );
-});
+}
 
 export interface IKanBanSwimLanes {
   addIssuesToView?: (issueIds: string[]) => Promise<TIssue>;
@@ -257,7 +256,7 @@ export interface IKanBanSwimLanes {
   updateIssue: ((projectId: string | null, issueId: string, data: Partial<TIssue>) => Promise<void>) | undefined;
 }
 
-export const KanBanSwimLanes = observer(function KanBanSwimLanes(props: IKanBanSwimLanes) {
+export function KanBanSwimLanes(props: IKanBanSwimLanes) {
   const {
     issuesMap,
     groupedIssueIds,
@@ -342,4 +341,4 @@ export const KanBanSwimLanes = observer(function KanBanSwimLanes(props: IKanBanS
       )}
     </div>
   );
-});
+}

@@ -39,9 +39,7 @@ type TWorkItemDetailQuickActionProps = IQuickActionProps & {
   isPeekMode?: boolean;
 };
 
-export function WorkItemDetailQuickActions(
-  props: TWorkItemDetailQuickActionProps
-) {
+export function WorkItemDetailQuickActions(props: TWorkItemDetailQuickActionProps) {
   const {
     issue,
     handleDelete,

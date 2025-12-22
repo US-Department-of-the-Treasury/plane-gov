@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 // hooks
 // components
@@ -22,7 +21,7 @@ type TIssueSprintSelect = {
   disabled?: boolean;
 };
 
-export const IssueSprintSelect = observer(function IssueSprintSelect(props: TIssueSprintSelect) {
+export function IssueSprintSelect(props: TIssueSprintSelect) {
   const { className = "", workspaceSlug, projectId, issueId, issueOperations, disabled = false } = props;
   const { t } = useTranslation();
 
@@ -69,4 +68,4 @@ export const IssueSprintSelect = observer(function IssueSprintSelect(props: TIss
       />
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { AlertTriangle } from "lucide-react";
 // types
@@ -27,7 +26,7 @@ const defaultValues = {
   confirmDelete: "",
 };
 
-export const DeleteWorkspaceForm = observer(function DeleteWorkspaceForm(props: Props) {
+export function DeleteWorkspaceForm(props: Props) {
   const { data, onClose } = props;
   // router
   const router = useAppRouter();
@@ -71,9 +70,7 @@ export const DeleteWorkspaceForm = observer(function DeleteWorkspaceForm(props: 
           const currentWorkspaceSlug =
             currentUserSettings?.workspace?.last_workspace_slug ||
             currentUserSettings?.workspace?.fallback_workspace_slug;
-          const isCurrentWorkspaceValid = workspaces?.findIndex(
-            (workspace) => workspace.slug === currentWorkspaceSlug
-          );
+          const isCurrentWorkspaceValid = workspaces?.findIndex((workspace) => workspace.slug === currentWorkspaceSlug);
           if (isCurrentWorkspaceValid !== undefined && isCurrentWorkspaceValid >= 0) {
             redirectionRoute = `/${currentWorkspaceSlug}`;
           }
@@ -185,4 +182,4 @@ export const DeleteWorkspaceForm = observer(function DeleteWorkspaceForm(props: 
       </div>
     </form>
   );
-});
+}

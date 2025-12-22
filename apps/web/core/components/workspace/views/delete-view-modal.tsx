@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // types
 import { GLOBAL_VIEW_TRACKER_EVENTS } from "@plane/constants";
@@ -19,7 +18,7 @@ type Props = {
   onClose: () => void;
 };
 
-export const DeleteGlobalViewModal = observer(function DeleteGlobalViewModal(props: Props) {
+export function DeleteGlobalViewModal(props: Props) {
   const { data, isOpen, onClose } = props;
   // states
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
@@ -77,4 +76,4 @@ export const DeleteGlobalViewModal = observer(function DeleteGlobalViewModal(pro
       content={<>{t("workspace_views.delete_view.content")}</>}
     />
   );
-});
+}

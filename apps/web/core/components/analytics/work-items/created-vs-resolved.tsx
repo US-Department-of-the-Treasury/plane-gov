@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane package imports
@@ -17,7 +16,7 @@ import AnalyticsSectionWrapper from "../analytics-section-wrapper";
 import { ChartLoader } from "../loaders";
 
 const analyticsService = new AnalyticsService();
-const CreatedVsResolved = observer(function CreatedVsResolved() {
+function CreatedVsResolved() {
   const {
     selectedDuration,
     selectedDurationLabel,
@@ -128,6 +127,6 @@ const CreatedVsResolved = observer(function CreatedVsResolved() {
       )}
     </AnalyticsSectionWrapper>
   );
-});
+}
 
 export default CreatedVsResolved;

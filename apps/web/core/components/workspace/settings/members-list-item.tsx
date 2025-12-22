@@ -1,5 +1,4 @@
 import { isEmpty } from "lodash-es";
-import { observer } from "mobx-react";
 // plane imports
 import { MEMBER_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -24,7 +23,7 @@ type Props = {
   memberDetails: (IWorkspaceMember | null)[];
 };
 
-export const WorkspaceMembersListItem = observer(function WorkspaceMembersListItem(props: Props) {
+export function WorkspaceMembersListItem(props: Props) {
   const { memberDetails } = props;
   const { columns, workspaceSlug, removeMemberModal, setRemoveMemberModal } = useMemberColumns();
   // router
@@ -48,11 +47,8 @@ export const WorkspaceMembersListItem = observer(function WorkspaceMembersListIt
       // Get workspace redirection URL
       let redirectionRoute = "/create-workspace";
       const currentWorkspaceSlug =
-        currentUserSettings?.workspace?.last_workspace_slug ||
-        currentUserSettings?.workspace?.fallback_workspace_slug;
-      const isCurrentWorkspaceValid = workspaces?.findIndex(
-        (workspace) => workspace.slug === currentWorkspaceSlug
-      );
+        currentUserSettings?.workspace?.last_workspace_slug || currentUserSettings?.workspace?.fallback_workspace_slug;
+      const isCurrentWorkspaceValid = workspaces?.findIndex((workspace) => workspace.slug === currentWorkspaceSlug);
       if (isCurrentWorkspaceValid !== undefined && isCurrentWorkspaceValid >= 0) {
         redirectionRoute = `/${currentWorkspaceSlug}`;
       }
@@ -142,4 +138,4 @@ export const WorkspaceMembersListItem = observer(function WorkspaceMembersListIt
       />
     </div>
   );
-});
+}

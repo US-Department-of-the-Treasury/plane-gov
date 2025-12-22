@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
 import { Disclosure } from "@headlessui/react";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
@@ -37,7 +36,7 @@ type ActiveSprintsComponentProps = {
   sprintIssueDetails?: ActiveSprintIssueDetails | { nextPageResults: boolean };
 };
 
-const ActiveSprintsComponent = observer(function ActiveSprintsComponent({
+function ActiveSprintsComponent({
   sprintId,
   activeSprint,
   activeSprintResolvedPath,
@@ -89,9 +88,9 @@ const ActiveSprintsComponent = observer(function ActiveSprintsComponent({
       </Row>
     </div>
   );
-});
+}
 
-export const ActiveSprintRoot = observer(function ActiveSprintRoot(props: IActiveSprintDetails) {
+export function ActiveSprintRoot(props: IActiveSprintDetails) {
   const { workspaceSlug, projectId, sprintId: propsSprintId, showHeader = true } = props;
   // theme hook
   const { resolvedTheme } = useTheme();
@@ -117,7 +116,11 @@ export const ActiveSprintRoot = observer(function ActiveSprintRoot(props: IActiv
           {({ open }) => (
             <>
               <Disclosure.Button className="sticky top-0 z-[2] w-full flex-shrink-0 border-b border-subtle bg-layer-1 cursor-pointer">
-                <SprintListGroupHeader title={t("project_sprints.active_sprint.label")} type="current" isExpanded={open} />
+                <SprintListGroupHeader
+                  title={t("project_sprints.active_sprint.label")}
+                  type="current"
+                  isExpanded={open}
+                />
               </Disclosure.Button>
               <Disclosure.Panel>
                 <ActiveSprintsComponent
@@ -146,4 +149,4 @@ export const ActiveSprintRoot = observer(function ActiveSprintRoot(props: IActiv
       )}
     </>
   );
-});
+}

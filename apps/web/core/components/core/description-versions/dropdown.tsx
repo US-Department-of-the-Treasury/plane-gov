@@ -25,7 +25,9 @@ export function DescriptionVersionsDropdown(props: Props) {
   // derived values
   const latestVersion = versions?.[0];
   const lastUpdatedAt = latestVersion?.created_at ?? entityInformation.createdAt;
-  const lastUpdatedByUser = latestVersion?.owned_by ? getWorkspaceMemberByUserId(members, latestVersion.owned_by) : null;
+  const lastUpdatedByUser = latestVersion?.owned_by
+    ? getWorkspaceMemberByUserId(members, latestVersion.owned_by)
+    : null;
   const lastUpdatedByUserDisplayName = lastUpdatedByUser
     ? getMemberDisplayName(lastUpdatedByUser)
     : entityInformation.createdByDisplayName;
@@ -55,7 +57,12 @@ export function DescriptionVersionsDropdown(props: Props) {
     >
       <p className="text-11 text-tertiary font-medium mb-1">{t("description_versions.previously_edited_by")}</p>
       {versions?.map((version) => (
-        <DescriptionVersionsDropdownItem key={version.id} onClick={onVersionClick} version={version} workspaceSlug={workspaceSlug} />
+        <DescriptionVersionsDropdownItem
+          key={version.id}
+          onClick={onVersionClick}
+          version={version}
+          workspaceSlug={workspaceSlug}
+        />
       ))}
     </CustomMenu>
   );

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Search } from "lucide-react";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, MEMBER_TRACKER_ELEMENTS } from "@plane/constants";
@@ -10,7 +9,7 @@ import { MembersSettingsLoader } from "@/components/ui/loader/settings/members";
 // hooks
 import { useUserPermissions } from "@/hooks/store/user";
 // queries
-import { useProjectMembers } from "@/store/queries/member";
+import { useProjectMembers, useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // local imports
 import { MemberListFiltersDropdown } from "./dropdowns/filters/member-list";
 import { ProjectMemberListItem } from "./member-list-item";
@@ -21,7 +20,7 @@ type TProjectMemberListProps = {
   workspaceSlug: string;
 };
 
-export const ProjectMemberList = observer(function ProjectMemberList(props: TProjectMemberListProps) {
+export function ProjectMemberList(props: TProjectMemberListProps) {
   const { projectId, workspaceSlug } = props;
   // states
   const [inviteModal, setInviteModal] = useState(false);
@@ -32,11 +31,16 @@ export const ProjectMemberList = observer(function ProjectMemberList(props: TPro
   const { t } = useTranslation();
   // queries
   const { data: projectMembers = [], isLoading } = useProjectMembers(workspaceSlug, projectId);
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
 
   const filteredMembers = projectMembers.filter((member) => {
+    // Get workspace member details
+    const workspaceMember = getWorkspaceMemberByUserId(workspaceMembers, member.member);
+    if (!workspaceMember?.member) return false;
+
     // Search filter
-    const fullName = `${member.member.first_name} ${member.member.last_name}`.toLowerCase();
-    const displayName = member.member.display_name.toLowerCase();
+    const fullName = `${workspaceMember.member.first_name} ${workspaceMember.member.last_name}`.toLowerCase();
+    const displayName = workspaceMember.member.display_name.toLowerCase();
     const matchesSearch =
       displayName?.includes(searchQuery.toLowerCase()) || fullName.includes(searchQuery.toLowerCase());
 
@@ -103,7 +107,20 @@ export const ProjectMemberList = observer(function ProjectMemberList(props: TPro
       ) : (
         <div className="divide-y divide-subtle overflow-scroll">
           {filteredMembers.length !== 0 && (
-            <ProjectMemberListItem memberDetails={filteredMembers} projectId={projectId} workspaceSlug={workspaceSlug} />
+            <ProjectMemberListItem
+              memberDetails={filteredMembers
+                .map((projectMember) => {
+                  const workspaceMember = getWorkspaceMemberByUserId(workspaceMembers, projectMember.member);
+                  if (!workspaceMember?.member) return null;
+                  return {
+                    ...projectMember,
+                    member: workspaceMember.member,
+                  };
+                })
+                .filter((member) => member !== null)}
+              projectId={projectId}
+              workspaceSlug={workspaceSlug}
+            />
           )}
           {filteredMembers.length === 0 && (
             <h4 className="text-13 mt-16 text-center text-placeholder">{t("no_matching_members")}</h4>
@@ -112,4 +129,4 @@ export const ProjectMemberList = observer(function ProjectMemberList(props: TPro
       )}
     </>
   );
-});
+}

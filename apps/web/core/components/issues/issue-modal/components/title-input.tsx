@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import type { Control, FormState } from "react-hook-form";
 import { Controller } from "react-hook-form";
 // plane imports
@@ -21,7 +20,7 @@ type TIssueTitleInputProps = {
   handleFormChange: () => void;
 };
 
-export const IssueTitleInput = observer(function IssueTitleInput(props: TIssueTitleInputProps) {
+export function IssueTitleInput(props: TIssueTitleInputProps) {
   const {
     control,
     issueTitleRef,
@@ -75,4 +74,4 @@ export const IssueTitleInput = observer(function IssueTitleInput(props: TIssueTi
       <span className="text-caption-sm-medium text-red-500">{errors?.name?.message}</span>
     </div>
   );
-});
+}

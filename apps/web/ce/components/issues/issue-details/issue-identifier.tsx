@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import type { TIssueIdentifierProps, TIssueTypeIdentifier } from "@plane/types";
@@ -7,7 +6,7 @@ import { useProjects, getProjectById } from "@/store/queries/project";
 import { useIssue } from "@/store/queries/issue";
 import { IdentifierText } from "@/components/issues/issue-detail/identifier-text";
 
-export const IssueIdentifier = observer(function IssueIdentifier(props: TIssueIdentifierProps) {
+export function IssueIdentifier(props: TIssueIdentifierProps) {
   const { projectId, variant, size, displayProperties, enableClickToCopyIdentifier = false } = props;
   // store hooks
   const { workspaceSlug } = useParams();
@@ -41,8 +40,8 @@ export const IssueIdentifier = observer(function IssueIdentifier(props: TIssueId
       />
     </div>
   );
-});
+}
 
-export const IssueTypeIdentifier = observer(function IssueTypeIdentifier(_props: TIssueTypeIdentifier) {
+export function IssueTypeIdentifier(_props: TIssueTypeIdentifier) {
   return <></>;
-});
+}

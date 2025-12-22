@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane types
 import { StateGroupIcon } from "@plane/propel/icons";
 import type { IState } from "@plane/types";
@@ -13,9 +12,7 @@ export type TPowerKProjectStatesMenuItemsProps = {
   workspaceSlug: string;
 };
 
-export const PowerKProjectStatesMenuItems = observer(function PowerKProjectStatesMenuItems(
-  props: TPowerKProjectStatesMenuItemsProps
-) {
+export function PowerKProjectStatesMenuItems(props: TPowerKProjectStatesMenuItemsProps) {
   const { handleSelect, selectedStateId, states } = props;
 
   return (
@@ -31,4 +28,4 @@ export const PowerKProjectStatesMenuItems = observer(function PowerKProjectState
       ))}
     </>
   );
-});
+}

@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // local imports
 import type { TPowerKCommandConfig, TPowerKContext, TPowerKPageType } from "../../core/types";
 import { PowerKModalDefaultPage } from "./default";
@@ -13,7 +12,7 @@ type Props = {
   onPageDataSelect: (value: unknown) => void;
 };
 
-export const PowerKModalPagesList = observer(function PowerKModalPagesList(props: Props) {
+export function PowerKModalPagesList(props: Props) {
   const { activePage, context, onCommandSelect, onPageDataSelect } = props;
 
   // Main page content (no specific page)
@@ -27,4 +26,4 @@ export const PowerKModalPagesList = observer(function PowerKModalPagesList(props
       <PowerKAccountPreferencesPages activePage={activePage} handleSelection={onPageDataSelect} />
     </>
   );
-});
+}

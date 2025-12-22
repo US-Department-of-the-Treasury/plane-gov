@@ -1,6 +1,5 @@
 import type { RefObject } from "react";
 import { useRef } from "react";
-import { observer } from "mobx-react";
 // components
 import type { IBlockUpdateDependencyData } from "@plane/types";
 import { cn } from "@plane/utils";
@@ -26,7 +25,7 @@ type Props = {
   updateBlockDates?: (updates: IBlockUpdateDependencyData[]) => Promise<void>;
 };
 
-export const GanttChartBlock = observer(function GanttChartBlock(props: Props) {
+export function GanttChartBlock(props: Props) {
   const {
     blockId,
     showAllBlocks,
@@ -102,4 +101,4 @@ export const GanttChartBlock = observer(function GanttChartBlock(props: Props) {
       )}
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { MoreHorizontal } from "lucide-react";
 
 // ui
@@ -35,7 +34,7 @@ type Props = {
   customClassName?: string;
 };
 
-export const SprintQuickActions = observer(function SprintQuickActions(props: Props) {
+export function SprintQuickActions(props: Props) {
   const { parentRef, sprintId, projectId, workspaceSlug, customClassName } = props;
   // router
   const router = useAppRouter();
@@ -213,4 +212,4 @@ export const SprintQuickActions = observer(function SprintQuickActions(props: Pr
       </CustomMenu>
     </>
   );
-});
+}

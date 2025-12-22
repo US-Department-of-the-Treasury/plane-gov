@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { attachInstruction, extractInstruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { observer } from "mobx-react";
 import { useOutsideClickDetector } from "@plane/hooks";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { DropIndicator } from "@plane/ui";
@@ -16,7 +15,7 @@ type Props = {
   onDrop: (draggingBlockId: string | undefined, droppedBlockId: string | undefined, dropAtEndOfList: boolean) => void;
 };
 
-export const GanttDnDHOC = observer(function GanttDnDHOC(props: Props) {
+export function GanttDnDHOC(props: Props) {
   const { id, isLastChild, children, onDrop, isDragEnabled } = props;
   // states
   const [isDragging, setIsDragging] = useState(false);
@@ -112,4 +111,4 @@ export const GanttDnDHOC = observer(function GanttDnDHOC(props: Props) {
       {isLastChild && <DropIndicator isVisible={instruction === "DRAG_BELOW"} />}
     </div>
   );
-});
+}

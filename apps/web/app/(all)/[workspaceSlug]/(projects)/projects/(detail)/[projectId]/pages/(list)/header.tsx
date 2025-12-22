@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
+
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 // constants
 import { EPageAccess, PROJECT_PAGE_TRACKER_EVENTS, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
@@ -19,7 +19,7 @@ import { useProjectDetails } from "@/store/queries/project";
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 import { EPageStoreType, usePageStore } from "@/plane-web/hooks/store";
 
-export const PagesListHeader = observer(function PagesListHeader() {
+export function PagesListHeader() {
   // states
   const [isCreatingPage, setIsCreatingPage] = useState(false);
   // router
@@ -28,7 +28,10 @@ export const PagesListHeader = observer(function PagesListHeader() {
   const searchParams = useSearchParams();
   const pageType = searchParams.get("type");
   // queries
-  const { data: currentProjectDetails, isLoading } = useProjectDetails(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   // store hooks
   const { canCurrentUserCreatePage, createPage } = usePageStore(EPageStoreType.PROJECT);
   // handle page create
@@ -100,4 +103,4 @@ export const PagesListHeader = observer(function PagesListHeader() {
       )}
     </Header>
   );
-});
+}

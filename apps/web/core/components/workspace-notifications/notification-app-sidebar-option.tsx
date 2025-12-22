@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 // plane imports
 import { getNumberCount } from "@plane/utils";
@@ -12,9 +11,7 @@ type TNotificationAppSidebarOption = {
   workspaceSlug: string;
 };
 
-export const NotificationAppSidebarOption = observer(function NotificationAppSidebarOption(
-  props: TNotificationAppSidebarOption
-) {
+export function NotificationAppSidebarOption(props: TNotificationAppSidebarOption) {
   const { workspaceSlug } = props;
   // hooks
   const { unreadNotificationsCount, getUnreadNotificationsCount } = useWorkspaceNotifications();
@@ -37,4 +34,4 @@ export const NotificationAppSidebarOption = observer(function NotificationAppSid
       <CountChip count={`${isMentionsEnabled ? `@ ` : ``}${getNumberCount(totalNotifications)}`} />
     </div>
   );
-});
+}

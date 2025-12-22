@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR, { mutate } from "swr";
 // types
@@ -20,7 +19,7 @@ type Props = {
 
 const appInstallationService = new AppInstallationService();
 
-export const SelectChannel = observer(function SelectChannel({ integration }: Props) {
+export function SelectChannel({ integration }: Props) {
   // store hooks
   const { config } = useInstance();
   // states
@@ -102,4 +101,4 @@ export const SelectChannel = observer(function SelectChannel({ integration }: Pr
       )}
     </>
   );
-});
+}

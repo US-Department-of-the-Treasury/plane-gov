@@ -26,11 +26,7 @@ export function DescriptionVersionsDropdownItem(props: Props) {
   return (
     <CustomMenu.MenuItem key={version.id} className="flex items-center gap-1" onClick={() => onClick(version.id)}>
       <span className="flex-shrink-0">
-        <Avatar
-          name={displayName}
-          size="sm"
-          src={getFileURL(versionCreator?.avatar_url ?? "")}
-        />
+        <Avatar name={displayName} size="sm" src={getFileURL(versionCreator?.avatar_url ?? "")} />
       </span>
       <p className="text-11 text-secondary flex items-center gap-1.5">
         <span className="font-medium">{displayName}</span>

@@ -20,8 +20,7 @@ export function EpicStatusIcon({ status, className, height = "12px", width = "12
   if (status === "backlog") return <EpicBacklogIcon className={className} height={height} width={width} />;
   else if (status === "cancelled") return <EpicCancelledIcon className={className} height={height} width={width} />;
   else if (status === "completed") return <EpicCompletedIcon className={className} height={height} width={width} />;
-  else if (status === "in-progress")
-    return <EpicInProgressIcon className={className} height={height} width={width} />;
+  else if (status === "in-progress") return <EpicInProgressIcon className={className} height={height} width={width} />;
   else if (status === "paused") return <EpicPausedIcon className={className} height={height} width={width} />;
   else return <EpicPlannedIcon className={className} height={height} width={width} />;
 }

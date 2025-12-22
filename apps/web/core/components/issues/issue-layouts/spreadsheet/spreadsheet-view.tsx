@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane constants
 import { SPREADSHEET_SELECT_GROUP, SPREADSHEET_PROPERTY_LIST } from "@plane/constants";
@@ -37,7 +36,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const SpreadsheetView = observer(function SpreadsheetView(props: Props) {
+export function SpreadsheetView(props: Props) {
   const {
     displayProperties,
     displayFilters,
@@ -127,4 +126,4 @@ export const SpreadsheetView = observer(function SpreadsheetView(props: Props) {
       </MultipleSelectGroup>
     </div>
   );
-});
+}

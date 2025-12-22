@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // ui
 import { EUserPermissions, EUserPermissionsLevel, WORK_ITEM_TRACKER_ELEMENTS } from "@plane/constants";
@@ -17,7 +16,7 @@ import type { IQuickActionProps } from "../list/list-view-types";
 import type { MenuItemFactoryProps } from "./helper";
 import { useArchivedIssueMenuItems } from "./helper";
 
-export const ArchivedIssueQuickActions = observer(function ArchivedIssueQuickActions(props: IQuickActionProps) {
+export function ArchivedIssueQuickActions(props: IQuickActionProps) {
   const {
     issue,
     handleDelete,
@@ -129,4 +128,4 @@ export const ArchivedIssueQuickActions = observer(function ArchivedIssueQuickAct
       </CustomMenu>
     </>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { PageHead } from "@/components/core/page-title";
 import { ArchivedIssuesHeader } from "@/components/issues/archived-issues-header";
@@ -26,4 +25,4 @@ function ProjectArchivedIssuesPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ProjectArchivedIssuesPage);
+export default ProjectArchivedIssuesPage;

@@ -45,7 +45,7 @@ export function IssueSubscription(props: TIssueSubscription) {
         workspaceSlug,
         projectId,
         issueId,
-        subscribed: !isSubscribed
+        subscribed: !isSubscribed,
       },
       {
         onSuccess: () => {

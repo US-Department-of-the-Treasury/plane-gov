@@ -14,13 +14,10 @@ export function InboxIssueAppliedFiltersLabel() {
   // hooks
   const { workspaceSlug, projectId } = useParams();
   const { inboxFilters, handleInboxIssueFilters } = useProjectInbox();
-  const { data: projectLabels } = useProjectLabels(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? ""
-  );
+  const { data: projectLabels } = useProjectLabels(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   // derived values
   const filteredValues = inboxFilters?.labels || [];
-  const currentOptionDetail = (labelId: string) => projectLabels?.find(l => l.id === labelId) || undefined;
+  const currentOptionDetail = (labelId: string) => projectLabels?.find((l) => l.id === labelId) || undefined;
 
   const handleFilterValue = (value: string): string[] =>
     filteredValues?.includes(value) ? filteredValues.filter((v) => v !== value) : [...filteredValues, value];

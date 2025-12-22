@@ -3,7 +3,6 @@ import type {
   DropTargetRecord,
   ElementDragPayload,
 } from "@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { useHome } from "@/hooks/store/use-home";
@@ -11,7 +10,7 @@ import { WidgetItem } from "./widget-item";
 import type { TargetData } from "./widget.helpers";
 import { getInstructionFromPayload } from "./widget.helpers";
 
-export const WidgetList = observer(function WidgetList({ workspaceSlug }: { workspaceSlug: string }) {
+export function WidgetList({ workspaceSlug }: { workspaceSlug: string }) {
   const { orderedWidgets, reorderWidget, toggleWidget } = useHome();
   const { t } = useTranslation();
 
@@ -61,4 +60,4 @@ export const WidgetList = observer(function WidgetList({ workspaceSlug }: { work
       ))}
     </div>
   );
-});
+}

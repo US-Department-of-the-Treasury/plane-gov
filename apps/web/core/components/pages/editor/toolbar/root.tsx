@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { PanelRight } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -19,7 +18,7 @@ type Props = {
   page: TPageInstance;
 };
 
-export const PageEditorToolbarRoot = observer(function PageEditorToolbarRoot(props: Props) {
+export function PageEditorToolbarRoot(props: Props) {
   const { handleOpenNavigationPane, isNavigationPaneOpen, page } = props;
   // translation
   const { t } = useTranslation();
@@ -84,4 +83,4 @@ export const PageEditorToolbarRoot = observer(function PageEditorToolbarRoot(pro
       )}
     </>
   );
-});
+}

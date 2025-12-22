@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // ui
 import { DragHandle } from "@plane/ui";
 // helper
@@ -8,7 +7,7 @@ type Props = {
   isDragging: boolean;
 };
 
-export const StickyItemDragHandle = observer(function StickyItemDragHandle(props: Props) {
+export function StickyItemDragHandle(props: Props) {
   const { isDragging } = props;
 
   return (
@@ -23,4 +22,4 @@ export const StickyItemDragHandle = observer(function StickyItemDragHandle(props
       <DragHandle className="bg-transparent" />
     </div>
   );
-});
+}

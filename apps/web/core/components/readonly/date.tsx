@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { CalendarLayoutIcon } from "@plane/propel/icons";
@@ -12,7 +11,7 @@ export type TReadonlyDateProps = {
   formatToken?: string;
 };
 
-export const ReadonlyDate = observer(function ReadonlyDate(props: TReadonlyDateProps) {
+export function ReadonlyDate(props: TReadonlyDateProps) {
   const { className, hideIcon = false, value, placeholder, formatToken } = props;
 
   const { t } = useTranslation();
@@ -24,4 +23,4 @@ export const ReadonlyDate = observer(function ReadonlyDate(props: TReadonlyDateP
       <span className="flex-grow truncate">{formattedDate ?? placeholder ?? t("common.none")}</span>
     </div>
   );
-});
+}

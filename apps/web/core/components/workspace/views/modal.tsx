@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { GLOBAL_VIEW_TRACKER_EVENTS } from "@plane/constants";
@@ -23,7 +22,7 @@ type Props = {
   preLoadedData?: Partial<IWorkspaceView>;
 };
 
-export const CreateUpdateWorkspaceViewModal = observer(function CreateUpdateWorkspaceViewModal(props: Props) {
+export function CreateUpdateWorkspaceViewModal(props: Props) {
   const { isOpen, onClose, data, preLoadedData } = props;
   // router
   const router = useAppRouter();
@@ -138,4 +137,4 @@ export const CreateUpdateWorkspaceViewModal = observer(function CreateUpdateWork
       />
     </ModalCore>
   );
-});
+}

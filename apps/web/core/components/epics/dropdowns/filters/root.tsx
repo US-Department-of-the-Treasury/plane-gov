@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Search } from "lucide-react";
 // plane imports
 import type { TEpicStatus } from "@plane/propel/icons";
@@ -20,7 +19,7 @@ type Props = {
   isArchived?: boolean;
 };
 
-export const EpicFiltersSelection = observer(function EpicFiltersSelection(props: Props) {
+export function EpicFiltersSelection(props: Props) {
   const {
     displayFilters,
     filters,
@@ -120,4 +119,4 @@ export const EpicFiltersSelection = observer(function EpicFiltersSelection(props
       </div>
     </div>
   );
-});
+}

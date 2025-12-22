@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { ListFilter, Search } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { CloseIcon } from "@plane/propel/icons";
@@ -26,7 +25,7 @@ type TSubIssueFiltersProps = {
   availableFilters: (keyof IIssueFilterOptions)[];
 };
 
-export const SubIssueFilters = observer(function SubIssueFilters(props: TSubIssueFiltersProps) {
+export function SubIssueFilters(props: TSubIssueFiltersProps) {
   const { handleFiltersUpdate, filters, memberIds, states, availableFilters } = props;
   // plane hooks
   const { t } = useTranslation();
@@ -166,4 +165,4 @@ export const SubIssueFilters = observer(function SubIssueFilters(props: TSubIssu
       </FiltersDropdown>
     </>
   );
-});
+}

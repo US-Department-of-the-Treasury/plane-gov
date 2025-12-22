@@ -1,7 +1,6 @@
 import type { FC } from "react";
 import React, { useRef, useState } from "react";
 import { omit } from "lodash-es";
-import { observer } from "mobx-react";
 import { Copy, Pencil, SquareStackIcon, Trash2 } from "lucide-react";
 // plane utils
 import { Tooltip } from "@plane/propel/tooltip";
@@ -29,7 +28,7 @@ type Props = {
   issueId: string;
 };
 
-export const DraftIssueBlock = observer(function DraftIssueBlock(props: Props) {
+export function DraftIssueBlock(props: Props) {
   // props
   const { workspaceSlug, issueId } = props;
   // states
@@ -201,4 +200,4 @@ export const DraftIssueBlock = observer(function DraftIssueBlock(props: Props) {
       </div>
     </>
   );
-});
+}

@@ -10,6 +10,7 @@ import { SprintGroupIcon, SprintIcon, EpicIcon, PriorityIcon, StateGroupIcon } f
 import type {
   GroupByColumnTypes,
   IGroupByColumn,
+  ISprint,
   TSprintGroups,
   IIssueDisplayProperties,
   IPragmaticDropPayload,
@@ -154,7 +155,7 @@ const getSprintColumns = (): IGroupByColumn[] | undefined => {
   const sprintDetails = currentProjectDetails?.id ? getProjectSprintDetails(currentProjectDetails?.id) : undefined;
   // Map the sprint details to the group by columns
   const sprints: IGroupByColumn[] = [];
-  sprintDetails?.map((sprint) => {
+  sprintDetails?.map((sprint: ISprint) => {
     const sprintStatus = sprint.status ? (sprint.status.toLocaleLowerCase() as TSprintGroups) : "draft";
     const isDropDisabled = sprintStatus === "completed";
     sprints.push({

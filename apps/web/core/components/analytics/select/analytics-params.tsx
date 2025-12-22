@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 import type { Control, UseFormSetValue } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { SlidersHorizontal } from "lucide-react";
@@ -22,7 +21,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const AnalyticsSelectParams = observer(function AnalyticsSelectParams(props: Props) {
+export function AnalyticsSelectParams(props: Props) {
   const { control, params, classNames, isEpic } = props;
   const xAxisOptions = useMemo(
     () => ANALYTICS_X_AXIS_VALUES.filter((option) => option.value !== params.group_by),
@@ -100,4 +99,4 @@ export const AnalyticsSelectParams = observer(function AnalyticsSelectParams(pro
       </div>
     </div>
   );
-});
+}

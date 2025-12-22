@@ -1,5 +1,5 @@
 import type React from "react";
-import { observer } from "mobx-react";
+
 import { useParams } from "next/navigation";
 // ui
 import type { ISvgIcons } from "@plane/propel/icons";
@@ -33,7 +33,7 @@ const SPRINT_VIEW_LAYOUTS: {
   },
 ];
 
-export const SprintsListMobileHeader = observer(function SprintsListMobileHeader() {
+export function SprintsListMobileHeader() {
   // router
   const { workspaceSlug, projectId } = useParams();
   // hooks
@@ -79,4 +79,4 @@ export const SprintsListMobileHeader = observer(function SprintsListMobileHeader
       </CustomMenu>
     </div>
   );
-});
+}

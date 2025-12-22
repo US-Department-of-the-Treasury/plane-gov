@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Search } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
 import type { TViewFilterProps, TViewFilters } from "@plane/types";
@@ -18,10 +17,11 @@ type Props = {
   filters: TViewFilters;
   handleFiltersUpdate: <T extends keyof TViewFilters>(filterKey: T, filterValue: TViewFilters[T]) => void;
   memberIds?: string[] | undefined;
+  workspaceSlug: string;
 };
 
-export const ViewFiltersSelection = observer(function ViewFiltersSelection(props: Props) {
-  const { filters, handleFiltersUpdate, memberIds } = props;
+export function ViewFiltersSelection(props: Props) {
+  const { filters, handleFiltersUpdate, memberIds, workspaceSlug } = props;
   // states
   const [filtersSearchQuery, setFiltersSearchQuery] = useState("");
   // store
@@ -112,9 +112,10 @@ export const ViewFiltersSelection = observer(function ViewFiltersSelection(props
             handleUpdate={(val) => handleFilters("owned_by", val)}
             searchQuery={filtersSearchQuery}
             memberIds={memberIds}
+            workspaceSlug={workspaceSlug}
           />
         </div>
       </div>
     </div>
   );
-});
+}

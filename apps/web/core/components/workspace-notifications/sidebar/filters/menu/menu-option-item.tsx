@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Check } from "lucide-react";
 // plane imports
 import type { ENotificationFilterType } from "@plane/constants";
@@ -7,10 +6,7 @@ import { cn } from "@plane/utils";
 // hooks
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 
-export const NotificationFilterOptionItem = observer(function NotificationFilterOptionItem(props: {
-  label: string;
-  value: ENotificationFilterType;
-}) {
+export function NotificationFilterOptionItem(props: { label: string; value: ENotificationFilterType }) {
   const { value, label } = props;
   // hooks
   const { filters, updateFilters } = useWorkspaceNotifications();
@@ -48,4 +44,4 @@ export const NotificationFilterOptionItem = observer(function NotificationFilter
       </div>
     </div>
   );
-});
+}

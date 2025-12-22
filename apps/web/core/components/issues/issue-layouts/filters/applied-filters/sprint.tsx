@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { CloseIcon, SprintGroupIcon } from "@plane/propel/icons";
 import type { TSprintGroups } from "@plane/types";
@@ -13,7 +12,7 @@ type Props = {
   editable: boolean | undefined;
 };
 
-export const AppliedSprintFilters = observer(function AppliedSprintFilters(props: Props) {
+export function AppliedSprintFilters(props: Props) {
   const { handleRemove, values, editable } = props;
   // store hooks
   const { workspaceSlug, projectId } = useParams();
@@ -26,7 +25,9 @@ export const AppliedSprintFilters = observer(function AppliedSprintFilters(props
 
         if (!sprintDetails) return null;
 
-        const sprintStatus = (sprintDetails?.status ? sprintDetails?.status.toLocaleLowerCase() : "draft") as TSprintGroups;
+        const sprintStatus = (
+          sprintDetails?.status ? sprintDetails?.status.toLocaleLowerCase() : "draft"
+        ) as TSprintGroups;
 
         return (
           <div key={sprintId} className="flex items-center gap-1 rounded-sm bg-layer-1 p-1 text-11 truncate">
@@ -46,4 +47,4 @@ export const AppliedSprintFilters = observer(function AppliedSprintFilters(props
       })}
     </>
   );
-});
+}

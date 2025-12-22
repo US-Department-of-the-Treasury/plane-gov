@@ -29,10 +29,7 @@ export function EpicsListView() {
   const { currentProjectDisplayFilters: displayFilters } = useEpicFilter();
   const { allowPermissions } = useUserPermissions();
   // query hooks
-  const { data: epics, isLoading } = useProjectEpics(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? ""
-  );
+  const { data: epics, isLoading } = useProjectEpics(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
 
   // derived values
   const projectEpicIds = epics?.map((epic) => epic.id);

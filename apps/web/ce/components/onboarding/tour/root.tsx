@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { PRODUCT_TOUR_TRACKER_ELEMENTS } from "@plane/constants";
 import { Button } from "@plane/propel/button";
@@ -75,7 +74,7 @@ const TOUR_STEPS: {
   },
 ];
 
-export const TourRoot = observer(function TourRoot(props: TOnboardingTourProps) {
+export function TourRoot(props: TOnboardingTourProps) {
   const { onComplete } = props;
   // states
   const [step, setStep] = useState<TTourSteps>("welcome");
@@ -187,4 +186,4 @@ export const TourRoot = observer(function TourRoot(props: TOnboardingTourProps) 
       )}
     </>
   );
-});
+}

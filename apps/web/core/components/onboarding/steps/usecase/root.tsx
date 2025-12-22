@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { Check } from "lucide-react";
 // plane imports
@@ -25,7 +24,7 @@ const defaultValues = {
   use_case: [] as string[],
 };
 
-export const UseCaseSetupStep = observer(function UseCaseSetupStep({ handleStepChange }: Props) {
+export function UseCaseSetupStep({ handleStepChange }: Props) {
   // store hooks
   const { data: profile, updateUserProfile } = useUserProfile();
   // form info
@@ -169,4 +168,4 @@ export const UseCaseSetupStep = observer(function UseCaseSetupStep({ handleStepC
       </div>
     </form>
   );
-});
+}

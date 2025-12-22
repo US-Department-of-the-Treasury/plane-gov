@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane imports
@@ -15,7 +14,7 @@ import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
 import { IssuePeekOverview } from "../../peek-overview";
 import { ArchivedIssueListLayout } from "../list/roots/archived-issue-root";
 
-export const ArchivedIssueLayoutRoot = observer(function ArchivedIssueLayoutRoot() {
+export function ArchivedIssueLayoutRoot() {
   // router
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
   const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
@@ -59,4 +58,4 @@ export const ArchivedIssueLayoutRoot = observer(function ArchivedIssueLayoutRoot
       </ProjectLevelWorkItemFiltersHOC>
     </IssuesStoreContext.Provider>
   );
-});
+}

@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
+
 // plane imports
 import { useParams, usePathname } from "next/navigation";
 import { SIDEBAR_WIDTH } from "@plane/constants";
@@ -13,7 +13,7 @@ import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { ExtendedAppSidebar } from "./extended-sidebar";
 import { AppSidebar } from "./sidebar";
 
-export const ProjectAppSidebar = observer(function ProjectAppSidebar() {
+export function ProjectAppSidebar() {
   // store hooks
   const {
     sidebarCollapsed,
@@ -65,4 +65,4 @@ export const ProjectAppSidebar = observer(function ProjectAppSidebar() {
       </ResizableSidebar>
     </>
   );
-});
+}

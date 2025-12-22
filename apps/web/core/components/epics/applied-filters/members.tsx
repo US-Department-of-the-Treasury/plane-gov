@@ -31,7 +31,7 @@ export function AppliedMembersFilters(props: Props) {
           <div key={memberId} className="flex items-center gap-1 rounded-sm bg-layer-1 p-1 text-11">
             <Avatar
               name={memberDetails.display_name}
-              src={getFileURL(memberDetails.avatar_url)}
+              src={getFileURL(memberDetails.avatar_url ?? "")}
               showTooltip={false}
               size={"sm"}
             />

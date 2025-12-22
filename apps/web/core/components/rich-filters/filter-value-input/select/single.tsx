@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type {
   IFilterOption,
@@ -19,9 +18,7 @@ type TSingleSelectFilterValueInputProps<P extends TFilterProperty> = {
   onChange: (value: string | null) => void;
 };
 
-export const SingleSelectFilterValueInput = observer(function SingleSelectFilterValueInput<P extends TFilterProperty>(
-  props: TSingleSelectFilterValueInputProps<P>
-) {
+export function SingleSelectFilterValueInput<P extends TFilterProperty>(props: TSingleSelectFilterValueInputProps<P>) {
   const { config, condition, onChange, isDisabled } = props;
   // states
   const [options, setOptions] = useState<IFilterOption<string>[]>([]);
@@ -55,4 +52,4 @@ export const SingleSelectFilterValueInput = observer(function SingleSelectFilter
       defaultOpen={!condition.value}
     />
   );
-});
+}

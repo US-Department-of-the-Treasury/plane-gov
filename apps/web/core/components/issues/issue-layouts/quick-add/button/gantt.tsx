@@ -1,11 +1,10 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { PlusIcon } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { Row } from "@plane/ui";
 import type { TQuickAddIssueButton } from "../root";
 
-export const GanttQuickAddIssueButton = observer(function GanttQuickAddIssueButton(props: TQuickAddIssueButton) {
+export function GanttQuickAddIssueButton(props: TQuickAddIssueButton) {
   const { onClick, isEpic = false } = props;
   const { t } = useTranslation();
   return (
@@ -20,4 +19,4 @@ export const GanttQuickAddIssueButton = observer(function GanttQuickAddIssueButt
       </Row>
     </button>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { IconButton } from "@plane/propel/icon-button";
 import { FilterIcon, FilterAppliedIcon } from "@plane/propel/icons";
@@ -15,9 +14,7 @@ type TFiltersToggleProps<P extends TFilterProperty, E extends TExternalFilter> =
 const COMMON_CLASSNAME =
   "grid place-items-center h-7 w-full py-0.5 px-2 rounded-md border border-subtle-1 transition-all duration-200 cursor-pointer";
 
-export const FiltersToggle = observer(function FiltersToggle<P extends TFilterProperty, E extends TExternalFilter>(
-  props: TFiltersToggleProps<P, E>
-) {
+export function FiltersToggle<P extends TFilterProperty, E extends TExternalFilter>(props: TFiltersToggleProps<P, E>) {
   const { filter } = props;
   // derived values
   const hasAnyConditions = (filter?.allConditionsForDisplay.length ?? 0) > 0;
@@ -81,4 +78,4 @@ export const FiltersToggle = observer(function FiltersToggle<P extends TFilterPr
       iconClassName={iconClassName}
     />
   );
-});
+}

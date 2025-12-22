@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import useSWR from "swr";
 // plane imports
@@ -46,9 +45,7 @@ type TProjectSettingsMemberDefaultsProps = {
   projectId: string;
 };
 
-export const ProjectSettingsMemberDefaults = observer(function ProjectSettingsMemberDefaults(
-  props: TProjectSettingsMemberDefaultsProps
-) {
+export function ProjectSettingsMemberDefaults(props: TProjectSettingsMemberDefaultsProps) {
   const { workspaceSlug, projectId } = props;
   // plane hooks
   const { t } = useTranslation();
@@ -90,13 +87,17 @@ export const ProjectSettingsMemberDefaults = observer(function ProjectSettingsMe
       ...formData,
     });
 
-    await updateProject(workspaceSlug, projectId, {
-      default_assignee:
-        formData.default_assignee === "none"
-          ? null
-          : (formData.default_assignee ?? currentProjectDetails?.default_assignee),
-      project_lead:
-        formData.project_lead === "none" ? null : (formData.project_lead ?? currentProjectDetails?.project_lead),
+    await updateProject({
+      workspaceSlug,
+      projectId,
+      data: {
+        default_assignee:
+          formData.default_assignee === "none"
+            ? null
+            : (formData.default_assignee ?? currentProjectDetails?.default_assignee),
+        project_lead:
+          formData.project_lead === "none" ? null : (formData.project_lead ?? currentProjectDetails?.project_lead),
+      },
     })
       .then(() => {
         setToast({
@@ -113,8 +114,12 @@ export const ProjectSettingsMemberDefaults = observer(function ProjectSettingsMe
   const toggleGuestViewAllIssues = async (value: boolean) => {
     if (!workspaceSlug || !projectId) return;
 
-    updateProject(workspaceSlug, projectId, {
-      guest_view_all_features: value,
+    updateProject({
+      workspaceSlug,
+      projectId,
+      data: {
+        guest_view_all_features: value,
+      },
     })
       .then(() => {
         setToast({
@@ -189,4 +194,4 @@ export const ProjectSettingsMemberDefaults = observer(function ProjectSettingsMe
       )}
     </div>
   );
-});
+}

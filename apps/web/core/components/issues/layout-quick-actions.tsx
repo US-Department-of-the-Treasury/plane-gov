@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { TContextMenuItem } from "@plane/ui";
 import { CustomMenu } from "@plane/ui";
@@ -13,7 +12,7 @@ type Props = {
   storeType: "PROJECT" | "EPIC";
 };
 
-export const LayoutQuickActions = observer(function LayoutQuickActions(props: Props) {
+export function LayoutQuickActions(props: Props) {
   const { workspaceSlug, projectId, storeType } = props;
 
   const layoutLink = `${workspaceSlug}/projects/${projectId}/${storeType === "EPIC" ? "epics" : "issues"}`;
@@ -70,4 +69,4 @@ export const LayoutQuickActions = observer(function LayoutQuickActions(props: Pr
       </CustomMenu>
     </>
   );
-});
+}

@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { Box, Check, PenTool, Rocket, Monitor, RefreshCw } from "lucide-react";
 // plane imports
@@ -35,7 +34,7 @@ const defaultValues = {
   role: "",
 };
 
-export const RoleSetupStep = observer(function RoleSetupStep({ handleStepChange }: Props) {
+export function RoleSetupStep({ handleStepChange }: Props) {
   // store hooks
   const { data: profile, updateUserProfile } = useUserProfile();
   // form info
@@ -166,4 +165,4 @@ export const RoleSetupStep = observer(function RoleSetupStep({ handleStepChange 
       </div>
     </form>
   );
-});
+}

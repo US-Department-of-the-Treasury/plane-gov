@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Check, ListFilter } from "lucide-react";
 // plane imports
 import type { TActivityFilters, TActivityFilterOption } from "@plane/constants";
@@ -14,7 +13,7 @@ type TActivityFilter = {
   filterOptions: TActivityFilterOption[];
 };
 
-export const ActivityFilter = observer(function ActivityFilter(props: TActivityFilter) {
+export function ActivityFilter(props: TActivityFilter) {
   const { selectedFilters = [], filterOptions } = props;
 
   // hooks
@@ -59,4 +58,4 @@ export const ActivityFilter = observer(function ActivityFilter(props: TActivityF
       )}
     />
   );
-});
+}

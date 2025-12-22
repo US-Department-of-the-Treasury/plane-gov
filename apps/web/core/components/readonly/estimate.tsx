@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import { EstimatePropertyIcon } from "@plane/propel/icons";
 import { EEstimateSystem } from "@plane/types";
@@ -17,7 +16,7 @@ export type TReadonlyEstimateProps = {
   workspaceSlug: string;
 };
 
-export const ReadonlyEstimate = observer(function ReadonlyEstimate(props: TReadonlyEstimateProps) {
+export function ReadonlyEstimate(props: TReadonlyEstimateProps) {
   const { className, hideIcon = false, value, placeholder, projectId, workspaceSlug } = props;
 
   const { t } = useTranslation();
@@ -47,4 +46,4 @@ export const ReadonlyEstimate = observer(function ReadonlyEstimate(props: TReado
       <span className="flex-grow truncate">{displayValue ?? placeholder ?? t("common.none")}</span>
     </div>
   );
-});
+}

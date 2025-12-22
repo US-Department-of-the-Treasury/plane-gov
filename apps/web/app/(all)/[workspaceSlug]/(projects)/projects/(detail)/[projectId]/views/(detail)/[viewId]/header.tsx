@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react";
-import { observer } from "mobx-react";
+
 import { useParams } from "next/navigation";
 import { Lock } from "lucide-react";
 // plane imports
@@ -32,7 +32,7 @@ import { useAppRouter } from "@/hooks/use-app-router";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
-export const ProjectViewIssuesHeader = observer(function ProjectViewIssuesHeader() {
+export function ProjectViewIssuesHeader() {
   // refs
   const parentRef = useRef(null);
   // router
@@ -105,8 +105,8 @@ export const ProjectViewIssuesHeader = observer(function ProjectViewIssuesHeader
 
   if (!viewDetails) return;
 
-  const switcherOptions = projectViewIds
-    ?.map((id) => {
+  const switcherOptions = (projectViewIds
+    ?.map((id: string) => {
       const _view = id === viewId ? viewDetails : getViewById(id);
       if (!_view) return;
       return {
@@ -115,7 +115,7 @@ export const ProjectViewIssuesHeader = observer(function ProjectViewIssuesHeader
         content: <SwitcherLabel logo_props={_view.logo_props} name={_view.name} LabelIcon={ViewsIcon} />,
       };
     })
-    .filter((option) => option !== undefined) as ICustomSearchSelectOption[];
+    .filter((option) => option !== undefined) ?? []) as ICustomSearchSelectOption[];
 
   return (
     <Header>
@@ -217,4 +217,4 @@ export const ProjectViewIssuesHeader = observer(function ProjectViewIssuesHeader
       </Header.RightItem>
     </Header>
   );
-});
+}

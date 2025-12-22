@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EIssuesStoreType } from "@plane/types";
@@ -9,7 +8,7 @@ import { useIssues } from "@/hooks/store/use-issues";
 import { EpicIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseCalendarRoot } from "../base-calendar-root";
 
-export const EpicCalendarLayout = observer(function EpicCalendarLayout() {
+export function EpicCalendarLayout() {
   const { workspaceSlug, projectId, epicId } = useParams();
 
   const {
@@ -33,4 +32,4 @@ export const EpicCalendarLayout = observer(function EpicCalendarLayout() {
       viewId={epicId?.toString()}
     />
   );
-});
+}

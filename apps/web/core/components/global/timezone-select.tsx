@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { CustomSearchSelect } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
@@ -16,7 +15,7 @@ type TTimezoneSelect = {
   disabled?: boolean;
 };
 
-export const TimezoneSelect = observer(function TimezoneSelect(props: TTimezoneSelect) {
+export function TimezoneSelect(props: TTimezoneSelect) {
   // props
   const {
     value,
@@ -48,4 +47,4 @@ export const TimezoneSelect = observer(function TimezoneSelect(props: TTimezoneS
       />
     </div>
   );
-});
+}

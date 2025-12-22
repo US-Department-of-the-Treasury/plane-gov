@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // layouts
 import { ProjectAuthWrapper as CoreProjectAuthWrapper } from "@/layouts/auth-layout/project-wrapper";
 
@@ -8,7 +7,7 @@ export type IProjectAuthWrapper = {
   children: React.ReactNode;
 };
 
-export const ProjectAuthWrapper = observer(function ProjectAuthWrapper(props: IProjectAuthWrapper) {
+export function ProjectAuthWrapper(props: IProjectAuthWrapper) {
   // props
   const { workspaceSlug, projectId, children } = props;
 
@@ -17,4 +16,4 @@ export const ProjectAuthWrapper = observer(function ProjectAuthWrapper(props: IP
       {children}
     </CoreProjectAuthWrapper>
   );
-});
+}

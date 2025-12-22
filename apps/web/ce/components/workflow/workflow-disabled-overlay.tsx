@@ -1,5 +1,3 @@
-import { observer } from "mobx-react";
-
 export type TWorkflowDisabledOverlayProps = {
   messageContainerRef: React.RefObject<HTMLDivElement>;
   workflowDisabledSource: string;
@@ -7,6 +5,6 @@ export type TWorkflowDisabledOverlayProps = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const WorkFlowDisabledOverlay = observer(function WorkFlowDisabledOverlay(props: TWorkflowDisabledOverlayProps) {
+export function WorkFlowDisabledOverlay(props: TWorkflowDisabledOverlayProps) {
   return <></>;
-});
+}

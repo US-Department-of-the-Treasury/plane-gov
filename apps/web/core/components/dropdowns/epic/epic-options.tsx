@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import type { Placement } from "@popperjs/core";
-import { observer } from "mobx-react";
 import { usePopper } from "react-popper";
 import { Check, Search } from "lucide-react";
 import { Combobox } from "@headlessui/react";
@@ -30,7 +29,7 @@ interface Props {
   referenceElement: HTMLButtonElement | null;
 }
 
-export const EpicOptions = observer(function EpicOptions(props: Props) {
+export function EpicOptions(props: Props) {
   const { getEpicById, isOpen, epicIds, multiple, onDropdownOpen, placement, referenceElement } = props;
   // refs
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -161,4 +160,4 @@ export const EpicOptions = observer(function EpicOptions(props: Props) {
       </div>
     </Combobox.Options>
   );
-});
+}

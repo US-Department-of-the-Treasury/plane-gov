@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 import { Outlet } from "react-router";
 // components
@@ -17,7 +16,7 @@ import { WorkspaceSettingsSidebar } from "./sidebar";
 
 import type { Route } from "./+types/layout";
 
-const WorkspaceSettingLayout = observer(function WorkspaceSettingLayout({ params }: Route.ComponentProps) {
+function WorkspaceSettingLayout({ params }: Route.ComponentProps) {
   // router
   const { workspaceSlug } = params;
   // store hooks
@@ -54,6 +53,6 @@ const WorkspaceSettingLayout = observer(function WorkspaceSettingLayout({ params
       </div>
     </>
   );
-});
+}
 
 export default WorkspaceSettingLayout;

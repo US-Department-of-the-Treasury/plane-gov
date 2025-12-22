@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useRef } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { CommentReplyIcon } from "@plane/propel/icons";
 import type { TIssueComment } from "@plane/types";
@@ -13,7 +12,7 @@ type TCommentBlock = {
   children: ReactNode;
 };
 
-export const CommentBlock = observer(function CommentBlock(props: TCommentBlock) {
+export function CommentBlock(props: TCommentBlock) {
   const { comment, ends, children } = props;
   const commentBlockRef = useRef<HTMLDivElement>(null);
 
@@ -42,4 +41,4 @@ export const CommentBlock = observer(function CommentBlock(props: TCommentBlock)
       </div>
     </div>
   );
-});
+}

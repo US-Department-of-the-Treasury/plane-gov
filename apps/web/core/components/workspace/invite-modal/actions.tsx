@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Plus } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -19,7 +18,7 @@ type TInvitationModalActionsProps = {
   className?: string;
 };
 
-export const InvitationModalActions = observer(function InvitationModalActions(props: TInvitationModalActionsProps) {
+export function InvitationModalActions(props: TInvitationModalActionsProps) {
   const {
     isInviteDisabled = false,
     isSubmitting = false,
@@ -61,4 +60,4 @@ export const InvitationModalActions = observer(function InvitationModalActions(p
       </div>
     </div>
   );
-});
+}

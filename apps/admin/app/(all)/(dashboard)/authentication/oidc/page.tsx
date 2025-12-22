@@ -12,9 +12,7 @@ import { useInstance } from "@/hooks/store";
 import type { Route } from "./+types/page";
 import { InstanceOIDCConfigForm } from "./form";
 
-const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticationPage(
-  _props: Route.ComponentProps
-) {
+const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticationPage(_props: Route.ComponentProps) {
   // store
   const { fetchInstanceConfigurations, formattedConfig, updateInstanceConfigurations } = useInstance();
   // state

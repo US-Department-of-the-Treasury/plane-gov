@@ -1,5 +1,4 @@
 import { Command } from "cmdk";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import type { IWorkspaceSearchResults } from "@plane/types";
@@ -15,7 +14,7 @@ type Props = {
   results: IWorkspaceSearchResults;
 };
 
-export const PowerKModalSearchResults = observer(function PowerKModalSearchResults(props: Props) {
+export function PowerKModalSearchResults(props: Props) {
   const { closePalette, results } = props;
   // router
   const router = useAppRouter();
@@ -69,4 +68,4 @@ export const PowerKModalSearchResults = observer(function PowerKModalSearchResul
       })}
     </>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Search } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
 // plane imports
@@ -17,7 +16,7 @@ type Props = {
   isArchived?: boolean;
 };
 
-export const SprintFiltersSelection = observer(function SprintFiltersSelection(props: Props) {
+export function SprintFiltersSelection(props: Props) {
   const { filters, handleFiltersUpdate, isArchived = false } = props;
   // states
   const [filtersSearchQuery, setFiltersSearchQuery] = useState("");
@@ -76,4 +75,4 @@ export const SprintFiltersSelection = observer(function SprintFiltersSelection(p
       </div>
     </div>
   );
-});
+}

@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -31,13 +30,13 @@ export type TIssueOperations = {
   restore?: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>;
   addSprintToIssue?: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
   addIssueToSprint?: (workspaceSlug: string, projectId: string, sprintId: string, issueIds: string[]) => Promise<void>;
-  removeIssueFromSprint?: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
-  removeIssueFromEpic?: (
+  removeIssueFromSprint?: (
     workspaceSlug: string,
     projectId: string,
-    epicId: string,
+    sprintId: string,
     issueId: string
   ) => Promise<void>;
+  removeIssueFromEpic?: (workspaceSlug: string, projectId: string, epicId: string, issueId: string) => Promise<void>;
   changeEpicsInIssue?: (
     workspaceSlug: string,
     projectId: string,
@@ -54,7 +53,7 @@ export type TIssueDetailRoot = {
   is_archived?: boolean;
 };
 
-export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDetailRoot) {
+export function IssueDetailRoot(props: TIssueDetailRoot) {
   const { t } = useTranslation();
   const { workspaceSlug, projectId, issueId, is_archived = false } = props;
   // router
@@ -331,4 +330,4 @@ export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDe
       <IssuePeekOverview />
     </>
   );
-});
+}

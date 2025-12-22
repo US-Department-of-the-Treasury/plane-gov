@@ -75,15 +75,10 @@ export function FilterCreatedBy(props: Props) {
                   return (
                     <FilterOption
                       key={`member-${member.id}`}
-                      isChecked={appliedFilters?.includes(member.id) ? true : false}
-                      onClick={() => handleUpdate(member.id)}
+                      isChecked={appliedFilters?.includes(member.id ?? "") ? true : false}
+                      onClick={() => member.id && handleUpdate(member.id)}
                       icon={
-                        <Avatar
-                          name={displayName}
-                          src={getFileURL(member.avatar_url)}
-                          showTooltip={false}
-                          size="md"
-                        />
+                        <Avatar name={displayName} src={getFileURL(member.avatar_url ?? "")} showTooltip={false} size="md" />
                       }
                       title={currentUser?.id === member.id ? "You" : displayName}
                     />

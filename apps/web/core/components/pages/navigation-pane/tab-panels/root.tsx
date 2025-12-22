@@ -15,10 +15,11 @@ import { PageNavigationPaneOutlineTabPanel } from "./outline";
 type Props = {
   page: TPageInstance;
   versionHistory: Pick<TPageRootHandlers, "fetchAllVersions" | "fetchVersionDetails">;
+  workspaceSlug: string;
 };
 
 export function PageNavigationPaneTabPanelsRoot(props: Props) {
-  const { page, versionHistory } = props;
+  const { page, versionHistory, workspaceSlug } = props;
 
   return (
     <Tab.Panels as={React.Fragment}>
@@ -29,7 +30,7 @@ export function PageNavigationPaneTabPanelsRoot(props: Props) {
           className="size-full p-3.5 pt-0 overflow-y-auto vertical-scrollbar scrollbar-sm outline-none"
         >
           {tab.key === "outline" && <PageNavigationPaneOutlineTabPanel page={page} />}
-          {tab.key === "info" && <PageNavigationPaneInfoTabPanel page={page} versionHistory={versionHistory} />}
+          {tab.key === "info" && <PageNavigationPaneInfoTabPanel page={page} versionHistory={versionHistory} workspaceSlug={workspaceSlug} />}
           {tab.key === "assets" && <PageNavigationPaneAssetsTabPanel page={page} />}
           <PageNavigationPaneAdditionalTabPanelsRoot activeTab={tab.key} page={page} />
         </Tab.Panel>

@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import {
   PROFILE_SETTINGS_TRACKER_ELEMENTS,
@@ -17,11 +16,11 @@ import { PreferencesSection } from "../preferences/section";
 const getStartOfWeekLabel = (startOfWeek: EStartOfTheWeek) =>
   START_OF_THE_WEEK_OPTIONS.find((option) => option.value === startOfWeek)?.label;
 
-export const StartOfWeekPreference = observer(function StartOfWeekPreference(props: {
-  option: { title: string; description: string };
-}) {
+export function StartOfWeekPreference(props: { option: { title: string; description: string } }) {
   // hooks
   const { data: userProfile, updateUserProfile } = useUserProfile();
+
+  if (!userProfile) return null;
 
   return (
     <PreferencesSection
@@ -81,4 +80,4 @@ export const StartOfWeekPreference = observer(function StartOfWeekPreference(pro
       }
     />
   );
-});
+}

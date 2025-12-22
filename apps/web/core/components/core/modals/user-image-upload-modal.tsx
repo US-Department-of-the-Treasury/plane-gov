@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useDropzone } from "react-dropzone";
 import { Transition, Dialog } from "@headlessui/react";
 // plane imports
@@ -21,7 +20,7 @@ type Props = {
   value: string | null;
 };
 
-export const UserImageUploadModal = observer(function UserImageUploadModal(props: Props) {
+export function UserImageUploadModal(props: Props) {
   const { handleRemove, isOpen, onClose, onSuccess, value } = props;
   // states
   const [image, setImage] = useState<File | null>(null);
@@ -190,4 +189,4 @@ export const UserImageUploadModal = observer(function UserImageUploadModal(props
       </Dialog>
     </Transition.Root>
   );
-});
+}

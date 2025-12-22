@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { NotAuthorizedView } from "@/components/auth-screens/not-authorized-view";
@@ -34,4 +33,4 @@ function ImportsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ImportsPage);
+export default ImportsPage;

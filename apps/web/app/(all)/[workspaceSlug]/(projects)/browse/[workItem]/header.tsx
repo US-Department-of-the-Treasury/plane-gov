@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { Header, Row } from "@plane/ui";
@@ -15,7 +14,7 @@ import { useIssueByIdentifier } from "@/store/queries/issue";
 // local components
 import { WorkItemDetailsHeader } from "./work-item-header";
 
-export const ProjectWorkItemDetailsHeader = observer(function ProjectWorkItemDetailsHeader() {
+export function ProjectWorkItemDetailsHeader() {
   // router
   const { workspaceSlug, workItem } = useParams();
   // store hooks
@@ -60,4 +59,4 @@ export const ProjectWorkItemDetailsHeader = observer(function ProjectWorkItemDet
       <AppHeader header={<WorkItemDetailsHeader />} />
     </>
   );
-});
+}

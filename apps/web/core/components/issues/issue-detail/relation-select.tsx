@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
@@ -30,7 +29,7 @@ type TIssueRelationSelect = {
   disabled?: boolean;
 };
 
-export const IssueRelationSelect = observer(function IssueRelationSelect(props: TIssueRelationSelect) {
+export function IssueRelationSelect(props: TIssueRelationSelect) {
   const { className = "", workspaceSlug, projectId, issueId, relationKey, disabled = false } = props;
   // hooks
   const {
@@ -137,7 +136,7 @@ export const IssueRelationSelect = observer(function IssueRelationSelect(props: 
       </button>
     </>
   );
-});
+}
 
 // Separate component to fetch individual issue data
 function RelationIssueItem({

@@ -1,11 +1,10 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { PlusIcon } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { Row } from "@plane/ui";
 import type { TQuickAddIssueButton } from "../root";
 
-export const ListQuickAddIssueButton = observer(function ListQuickAddIssueButton(props: TQuickAddIssueButton) {
+export function ListQuickAddIssueButton(props: TQuickAddIssueButton) {
   const { onClick, isEpic = false } = props;
   const { t } = useTranslation();
   return (
@@ -17,4 +16,4 @@ export const ListQuickAddIssueButton = observer(function ListQuickAddIssueButton
       <span className="text-13 font-medium">{isEpic ? t("epic.new") : t("issue.new")}</span>
     </Row>
   );
-});
+}

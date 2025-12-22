@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 // components
 import { PageHead } from "@/components/core/page-title";
@@ -11,7 +10,7 @@ function ProfileSettingsPage() {
   // store hooks
   const { data: currentUser, userProfile } = useUser();
 
-  if (!currentUser) return <></>;
+  if (!currentUser || !userProfile.data) return <></>;
   return (
     <>
       <PageHead title={`${t("profile.label")} - ${t("general_settings")}`} />
@@ -20,4 +19,4 @@ function ProfileSettingsPage() {
   );
 }
 
-export default observer(ProfileSettingsPage);
+export default ProfileSettingsPage;

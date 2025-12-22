@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React, { useCallback, useState } from "react";
-import { observer } from "mobx-react";
 import type { FileRejection } from "react-dropzone";
 import { useDropzone } from "react-dropzone";
 import { Plus } from "lucide-react";
@@ -23,7 +22,7 @@ type Props = {
   issueServiceType: TIssueServiceType;
 };
 
-export const IssueAttachmentActionButton = observer(function IssueAttachmentActionButton(props: Props) {
+export function IssueAttachmentActionButton(props: Props) {
   const { workspaceSlug, projectId, issueId, customButton, disabled = false, issueServiceType } = props;
   // state
   const [isLoading, setIsLoading] = useState(false);
@@ -102,4 +101,4 @@ export const IssueAttachmentActionButton = observer(function IssueAttachmentActi
       </button>
     </div>
   );
-});
+}

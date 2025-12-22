@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // icons
 import { ListFilter, Search } from "lucide-react";
@@ -16,7 +15,7 @@ import { ViewFiltersSelection } from "./filters/filter-selection";
 import { ViewOrderByDropdown } from "./filters/order-by";
 import { IconButton } from "@plane/propel/icon-button";
 
-export const ViewListHeader = observer(function ViewListHeader() {
+export function ViewListHeader() {
   // states
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   // refs
@@ -26,10 +25,7 @@ export const ViewListHeader = observer(function ViewListHeader() {
   // store hooks
   const { filters, updateFilters } = useProjectView();
   // query hooks
-  const { data: projectMembers } = useProjectMembers(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? ""
-  );
+  const { data: projectMembers } = useProjectMembers(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   const projectMemberIds = getProjectMemberIds(projectMembers);
 
   // handlers
@@ -118,9 +114,10 @@ export const ViewListHeader = observer(function ViewListHeader() {
             filters={filters}
             handleFiltersUpdate={updateFilters}
             memberIds={projectMemberIds ?? undefined}
+            workspaceSlug={workspaceSlug.toString()}
           />
         </FiltersDropdown>
       </div>
     </div>
   );
-});
+}

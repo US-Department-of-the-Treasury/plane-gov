@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useFormContext, Controller } from "react-hook-form";
@@ -17,7 +16,7 @@ import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useProjects, getProjectById, getJoinedProjectIds } from "@/store/queries/project";
 // types
 
-export const JiraGetImportDetail = observer(function JiraGetImportDetail() {
+export function JiraGetImportDetail() {
   // store hooks
   const { workspaceSlug } = useParams();
   const { toggleCreateProjectModal } = useCommandPalette();
@@ -219,4 +218,4 @@ export const JiraGetImportDetail = observer(function JiraGetImportDetail() {
       </div>
     </div>
   );
-});
+}

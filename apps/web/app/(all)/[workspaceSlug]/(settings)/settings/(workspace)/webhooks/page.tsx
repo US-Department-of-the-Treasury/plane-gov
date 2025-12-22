@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
+
 import useSWR from "swr";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, WORKSPACE_SETTINGS_TRACKER_ELEMENTS } from "@plane/constants";
@@ -60,7 +60,7 @@ function WebhooksListPage({ params }: Route.ComponentProps) {
         <CreateWebhookModal
           createWebhook={createWebhook}
           clearSecretKey={clearSecretKey}
-          currentWorkspace={currentWorkspace}
+          currentWorkspace={currentWorkspace ?? null}
           isOpen={showCreateWebhookModal}
           onClose={() => {
             setShowCreateWebhookModal(false);
@@ -112,4 +112,4 @@ function WebhooksListPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(WebhooksListPage);
+export default WebhooksListPage;

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 // components
@@ -27,4 +26,4 @@ function WorkspaceDashboardPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(WorkspaceDashboardPage);
+export default WorkspaceDashboardPage;

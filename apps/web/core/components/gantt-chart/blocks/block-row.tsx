@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { ArrowRight } from "lucide-react";
 // helpers
 import type { IBlockUpdateData, IGanttBlock } from "@plane/types";
@@ -22,7 +21,7 @@ type Props = {
   ganttContainerRef: React.RefObject<HTMLDivElement>;
 };
 
-export const BlockRow = observer(function BlockRow(props: Props) {
+export function BlockRow(props: Props) {
   const { blockId, showAllBlocks, blockUpdateHandler, handleScrollToBlock, enableAddBlock, selectionHelpers } = props;
   // states
   const [isHidden, setIsHidden] = useState(false);
@@ -112,4 +111,4 @@ export const BlockRow = observer(function BlockRow(props: Props) {
       </div>
     </div>
   );
-});
+}

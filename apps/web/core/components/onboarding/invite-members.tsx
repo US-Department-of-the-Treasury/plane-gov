@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import type {
   Control,
   FieldArrayWithId,
@@ -78,7 +77,7 @@ const placeholderEmails = [
   "thomas.selfridge@frstflt.com",
   "albert.zahm@frstflt.com",
 ];
-const InviteMemberInput = observer(function InviteMemberInput(props: InviteMemberFormProps) {
+function InviteMemberInput(props: InviteMemberFormProps) {
   const {
     control,
     index,
@@ -255,7 +254,7 @@ const InviteMemberInput = observer(function InviteMemberInput(props: InviteMembe
       )}
     </div>
   );
-});
+}
 
 export function InviteMembers(props: Props) {
   const { finishOnboarding, totalSteps, workspace } = props;

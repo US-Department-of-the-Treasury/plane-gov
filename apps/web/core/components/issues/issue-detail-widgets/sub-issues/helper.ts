@@ -11,12 +11,7 @@ import { copyUrlToClipboard } from "@plane/utils";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import {
-  useAddSubIssues,
-  useUpdateIssue,
-  useDeleteIssue,
-  useIssue
-} from "@/store/queries/issue";
+import { useAddSubIssues, useUpdateIssue, useDeleteIssue, useIssue } from "@/store/queries/issue";
 import { getStateById } from "@/store/queries/state";
 import { queryKeys } from "@/store/queries/query-keys";
 // plane web helpers
@@ -46,11 +41,7 @@ export const useSubIssueOperations = (issueServiceType: TIssueServiceType): TSub
 
   // Helper to get states from cache
   const getStatesFromCache = (workspaceSlug: string, projectId: string) => {
-    return queryClient.getQueryData<any[]>([
-      "PROJECT_STATES",
-      workspaceSlug,
-      projectId,
-    ]) ?? [];
+    return queryClient.getQueryData<any[]>(["PROJECT_STATES", workspaceSlug, projectId]) ?? [];
   };
 
   const subIssueOperations: TSubIssueOperations = useMemo(
@@ -140,7 +131,7 @@ export const useSubIssueOperations = (issueServiceType: TIssueServiceType): TSub
 
           // Invalidate parent's sub-issues
           await queryClient.invalidateQueries({
-            queryKey: [...queryKeys.issues.detail(parentIssueId), "sub-issues"]
+            queryKey: [...queryKeys.issues.detail(parentIssueId), "sub-issues"],
           });
 
           captureSuccess({
@@ -190,7 +181,7 @@ export const useSubIssueOperations = (issueServiceType: TIssueServiceType): TSub
 
           // Invalidate parent's sub-issues
           await queryClient.invalidateQueries({
-            queryKey: [...queryKeys.issues.detail(parentIssueId), "sub-issues"]
+            queryKey: [...queryKeys.issues.detail(parentIssueId), "sub-issues"],
           });
 
           setToast({
@@ -235,7 +226,7 @@ export const useSubIssueOperations = (issueServiceType: TIssueServiceType): TSub
 
           // Invalidate parent's sub-issues
           await queryClient.invalidateQueries({
-            queryKey: [...queryKeys.issues.detail(parentIssueId), "sub-issues"]
+            queryKey: [...queryKeys.issues.detail(parentIssueId), "sub-issues"],
           });
 
           captureSuccess({

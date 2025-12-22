@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // icons
 import { Circle, ExternalLink } from "lucide-react";
@@ -32,7 +31,7 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
-export const IssuesHeader = observer(function IssuesHeader() {
+export function IssuesHeader() {
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId } = useParams();
@@ -129,4 +128,4 @@ export const IssuesHeader = observer(function IssuesHeader() {
       </Header.RightItem>
     </Header>
   );
-});
+}

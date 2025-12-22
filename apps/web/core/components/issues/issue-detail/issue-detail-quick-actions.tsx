@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -29,7 +28,7 @@ type Props = {
   issueId: string;
 };
 
-export const IssueDetailQuickActions = observer(function IssueDetailQuickActions(props: Props) {
+export function IssueDetailQuickActions(props: Props) {
   const { workspaceSlug, projectId, issueId } = props;
   const { t } = useTranslation();
 
@@ -171,4 +170,4 @@ export const IssueDetailQuickActions = observer(function IssueDetailQuickActions
       </div>
     </>
   );
-});
+}

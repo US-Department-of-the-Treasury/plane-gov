@@ -1,5 +1,4 @@
 import { useCallback, useEffect } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 // plane imports
 import { ENotificationLoader, ENotificationQueryParamType } from "@plane/constants";
@@ -21,7 +20,7 @@ type NotificationsRootProps = {
   workspaceSlug?: string;
 };
 
-export const NotificationsRoot = observer(function NotificationsRoot({ workspaceSlug }: NotificationsRootProps) {
+export function NotificationsRoot({ workspaceSlug }: NotificationsRootProps) {
   // hooks
   const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   const {
@@ -110,4 +109,4 @@ export const NotificationsRoot = observer(function NotificationsRoot({ workspace
       )}
     </div>
   );
-});
+}

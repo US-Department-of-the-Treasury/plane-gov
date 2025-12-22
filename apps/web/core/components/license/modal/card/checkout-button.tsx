@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { Button } from "@plane/propel/button";
 import type { EProductSubscriptionEnum, IPaymentProduct, TSubscriptionPrice } from "@plane/types";
@@ -26,7 +25,7 @@ type Props = {
   isTrialAllowed: boolean;
 };
 
-export const PlanCheckoutButton = observer(function PlanCheckoutButton(props: Props) {
+export function PlanCheckoutButton(props: Props) {
   const {
     planeName,
     planVariant,
@@ -97,4 +96,4 @@ export const PlanCheckoutButton = observer(function PlanCheckoutButton(props: Pr
       )}
     </>
   );
-});
+}

@@ -187,12 +187,7 @@ export class EpicIssuesFilter extends IssueFilterHelperStore implements IEpicIss
         set(this.filters, [epicId, "richFilters"], filters);
       });
 
-      this.rootIssueStore.epicIssues.fetchIssuesWithExistingPagination(
-        workspaceSlug,
-        projectId,
-        "mutation",
-        epicId
-      );
+      this.rootIssueStore.epicIssues.fetchIssuesWithExistingPagination(workspaceSlug, projectId, "mutation", epicId);
       await this.issueFilterService.patchEpicIssueFilters(workspaceSlug, projectId, epicId, {
         rich_filters: filters,
       });

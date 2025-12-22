@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // constants
 // helpers
 import { INBOX_STATUS } from "@plane/constants";
@@ -15,7 +14,7 @@ type Props = {
   showDescription?: boolean;
 };
 
-export const InboxIssueStatus = observer(function InboxIssueStatus(props: Props) {
+export function InboxIssueStatus(props: Props) {
   const { inboxIssue, iconSize = 16, showDescription = false } = props;
   //hooks
   const { t } = useTranslation();
@@ -47,4 +46,4 @@ export const InboxIssueStatus = observer(function InboxIssueStatus(props: Props)
       {showDescription && <div className="text-13 whitespace-nowrap">{description}</div>}
     </div>
   );
-});
+}

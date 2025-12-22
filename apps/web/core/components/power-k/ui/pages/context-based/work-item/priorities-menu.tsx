@@ -1,5 +1,4 @@
 import { Command } from "cmdk";
-import { observer } from "mobx-react";
 // plane imports
 import { ISSUE_PRIORITIES } from "@plane/constants";
 import { PriorityIcon } from "@plane/propel/icons";
@@ -12,7 +11,7 @@ type Props = {
   workItemDetails: TIssue;
 };
 
-export const PowerKWorkItemPrioritiesMenu = observer(function PowerKWorkItemPrioritiesMenu(props: Props) {
+export function PowerKWorkItemPrioritiesMenu(props: Props) {
   const { handleSelect, workItemDetails } = props;
 
   return (
@@ -28,4 +27,4 @@ export const PowerKWorkItemPrioritiesMenu = observer(function PowerKWorkItemPrio
       ))}
     </Command.Group>
   );
-});
+}

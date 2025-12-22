@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { History, MessageSquare } from "lucide-react";
@@ -17,7 +16,7 @@ type Props = {
   activity: IUserActivityResponse | undefined;
 };
 
-export const ActivityList = observer(function ActivityList(props: Props) {
+export function ActivityList(props: Props) {
   const { activity } = props;
   // params
   const { workspaceSlug } = useParams();
@@ -174,4 +173,4 @@ export const ActivityList = observer(function ActivityList(props: Props) {
       )}
     </>
   );
-});
+}

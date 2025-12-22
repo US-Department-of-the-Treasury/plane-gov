@@ -170,36 +170,42 @@ export function EpicListItemAction(props: Props) {
     });
   };
 
-  const handleEpicDetailsChange = (payload: Partial<IEpic>) => {
+  const handleEpicDetailsChange = async (payload: Partial<IEpic>): Promise<void> => {
     if (!workspaceSlug || !projectId) return;
 
-    updateEpic(
-      {
-        workspaceSlug: workspaceSlug.toString(),
-        projectId: projectId.toString(),
-        epicId,
-        data: payload,
-      },
-      {
-        onSuccess: () => {
-          setToast({
-            type: TOAST_TYPE.SUCCESS,
-            title: "Success!",
-            message: "Epic updated successfully.",
-          });
+    return new Promise<void>((resolve, reject) => {
+      updateEpic(
+        {
+          workspaceSlug: workspaceSlug.toString(),
+          projectId: projectId.toString(),
+          epicId,
+          data: payload,
         },
-        onError: (err: any) => {
-          setToast({
-            type: TOAST_TYPE.ERROR,
-            title: "Error!",
-            message: err?.detail ?? "Epic could not be updated. Please try again.",
-          });
-        },
-      }
-    );
+        {
+          onSuccess: () => {
+            setToast({
+              type: TOAST_TYPE.SUCCESS,
+              title: "Success!",
+              message: "Epic updated successfully.",
+            });
+            resolve();
+          },
+          onError: (err: any) => {
+            setToast({
+              type: TOAST_TYPE.ERROR,
+              title: "Error!",
+              message: err?.detail ?? "Epic could not be updated. Please try again.",
+            });
+            reject(err);
+          },
+        }
+      );
+    });
   };
 
-  const epicLeadDetails = epicDetails.lead_id ? getWorkspaceMemberByUserId(workspaceMembers, epicDetails.lead_id) : undefined;
+  const epicLeadDetails = epicDetails.lead_id
+    ? getWorkspaceMemberByUserId(workspaceMembers, epicDetails.lead_id)
+    : undefined;
 
   return (
     <>

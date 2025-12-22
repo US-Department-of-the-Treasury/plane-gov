@@ -1,6 +1,5 @@
 import type { FC, FormEvent } from "react";
 import { useMemo, useRef, useState } from "react";
-import { observer } from "mobx-react";
 // icons
 import { CircleAlert, XCircle } from "lucide-react";
 // plane imports
@@ -15,7 +14,7 @@ type TAuthEmailForm = {
   onSubmit: (data: IEmailCheckData) => Promise<void>;
 };
 
-export const AuthEmailForm = observer(function AuthEmailForm(props: TAuthEmailForm) {
+export function AuthEmailForm(props: TAuthEmailForm) {
   const { onSubmit, defaultEmail } = props;
   // states
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -99,4 +98,4 @@ export const AuthEmailForm = observer(function AuthEmailForm(props: TAuthEmailFo
       </Button>
     </form>
   );
-});
+}

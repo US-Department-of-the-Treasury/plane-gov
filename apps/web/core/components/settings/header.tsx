@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ChevronLeftIcon } from "lucide-react";
@@ -13,7 +12,7 @@ import { useWorkspaceDetails } from "@/store/queries/workspace";
 import { WorkspaceLogo } from "../workspace/logo";
 import SettingsTabs from "./tabs";
 
-export const SettingsHeader = observer(function SettingsHeader() {
+export function SettingsHeader() {
   // hooks
   const { t } = useTranslation();
   const { workspaceSlug } = useParams();
@@ -80,4 +79,4 @@ export const SettingsHeader = observer(function SettingsHeader() {
       </div>
     </div>
   );
-});
+}

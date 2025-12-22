@@ -1,5 +1,3 @@
-import { observer } from "mobx-react";
-
 // icons
 import { EIconSize } from "@plane/constants";
 import { CloseIcon, StateGroupIcon } from "@plane/propel/icons";
@@ -10,7 +8,7 @@ type Props = {
   values: string[];
 };
 
-export const AppliedStateGroupFilters = observer(function AppliedStateGroupFilters(props: Props) {
+export function AppliedStateGroupFilters(props: Props) {
   const { handleRemove, values } = props;
 
   return (
@@ -30,4 +28,4 @@ export const AppliedStateGroupFilters = observer(function AppliedStateGroupFilte
       ))}
     </>
   );
-});
+}

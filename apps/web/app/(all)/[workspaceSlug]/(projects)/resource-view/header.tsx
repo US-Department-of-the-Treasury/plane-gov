@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Users } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 // ui
@@ -6,7 +5,7 @@ import { Breadcrumbs, Header } from "@plane/ui";
 // components
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 
-export const ResourceViewHeader = observer(function ResourceViewHeader() {
+export function ResourceViewHeader() {
   const { t } = useTranslation();
   return (
     <Header>
@@ -19,4 +18,4 @@ export const ResourceViewHeader = observer(function ResourceViewHeader() {
       </Header.LeftItem>
     </Header>
   );
-});
+}

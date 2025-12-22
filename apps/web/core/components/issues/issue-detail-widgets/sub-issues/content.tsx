@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React, { useEffect, useState, useCallback } from "react";
-import { observer } from "mobx-react";
 import type { TIssue, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType, EIssuesStoreType } from "@plane/types";
 // components
@@ -23,7 +22,7 @@ type Props = {
 
 type TIssueCrudState = { toggle: boolean; parentIssueId: string | undefined; issue: TIssue | undefined };
 
-export const SubIssuesCollapsibleContent = observer(function SubIssuesCollapsibleContent(props: Props) {
+export function SubIssuesCollapsibleContent(props: Props) {
   const { workspaceSlug, projectId, parentIssueId, disabled, issueServiceType = EIssueServiceType.ISSUES } = props;
   // state
   const [issueCrudState, setIssueCrudState] = useState<{
@@ -157,4 +156,4 @@ export const SubIssuesCollapsibleContent = observer(function SubIssuesCollapsibl
       )}
     </>
   );
-});
+}

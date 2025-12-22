@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { Transition, Dialog } from "@headlessui/react";
 // plane imports
@@ -27,7 +26,7 @@ const defaultValues: TUniqueCodeValuesForm = { email: "", code: "" };
 // service initialization
 const authService = new AuthService();
 
-export const ChangeEmailModal = observer(function ChangeEmailModal(props: Props) {
+export function ChangeEmailModal(props: Props) {
   const { isOpen, onClose } = props;
   // states
   const [currentStep, setCurrentStep] = useState<TModalStep>("EMAIL");
@@ -242,4 +241,4 @@ export const ChangeEmailModal = observer(function ChangeEmailModal(props: Props)
       </Dialog>
     </Transition.Root>
   );
-});
+}

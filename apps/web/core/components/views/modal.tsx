@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 // types
 import { PROJECT_VIEW_TRACKER_EVENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -10,10 +9,10 @@ import { EModalPosition, EModalWidth, ModalCore } from "@plane/ui";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProjectView } from "@/hooks/store/use-project-view";
 import { useWorkItemFilters } from "@/hooks/store/work-item-filters/use-work-item-filters";
 import { useAppRouter } from "@/hooks/use-app-router";
 import useKeypress from "@/hooks/use-keypress";
+import { useCreateView, useUpdateView } from "@/store/queries/view";
 // local imports
 import { ProjectViewForm } from "./form";
 
@@ -26,12 +25,13 @@ type Props = {
   projectId: string;
 };
 
-export const CreateUpdateProjectViewModal = observer(function CreateUpdateProjectViewModal(props: Props) {
+export function CreateUpdateProjectViewModal(props: Props) {
   const { data, isOpen, onClose, preLoadedData, workspaceSlug, projectId } = props;
   // router
   const router = useAppRouter();
   // store hooks
-  const { createView, updateView } = useProjectView();
+  const { mutate: createView } = useCreateView();
+  const { mutate: updateView } = useUpdateView();
   const {
     issuesFilter: { mutateFilters },
   } = useIssues(EIssuesStoreType.PROJECT_VIEW);
@@ -42,60 +42,68 @@ export const CreateUpdateProjectViewModal = observer(function CreateUpdateProjec
   };
 
   const handleCreateView = async (payload: IProjectView) => {
-    await createView(workspaceSlug, projectId, payload)
-      .then((res) => {
-        handleClose();
-        router.push(`/${workspaceSlug}/projects/${projectId}/views/${res.id}`);
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Success!",
-          message: "View created successfully.",
-        });
-        captureSuccess({
-          eventName: PROJECT_VIEW_TRACKER_EVENTS.create,
-          payload: {
-            view_id: res.id,
-          },
-        });
-      })
-      .catch(() => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: "Something went wrong. Please try again.",
-        });
-        captureError({
-          eventName: PROJECT_VIEW_TRACKER_EVENTS.create,
-        });
-      });
+    createView(
+      { workspaceSlug, projectId, data: payload },
+      {
+        onSuccess: (res) => {
+          handleClose();
+          router.push(`/${workspaceSlug}/projects/${projectId}/views/${res.id}`);
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: "View created successfully.",
+          });
+          captureSuccess({
+            eventName: PROJECT_VIEW_TRACKER_EVENTS.create,
+            payload: {
+              view_id: res.id,
+            },
+          });
+        },
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: "Something went wrong. Please try again.",
+          });
+          captureError({
+            eventName: PROJECT_VIEW_TRACKER_EVENTS.create,
+          });
+        },
+      }
+    );
   };
 
   const handleUpdateView = async (payload: IProjectView) => {
-    await updateView(workspaceSlug, projectId, data?.id as string, payload)
-      .then((viewDetails) => {
-        mutateFilters(workspaceSlug, viewDetails.id, viewDetails);
-        resetExpression(EIssuesStoreType.PROJECT_VIEW, viewDetails.id, viewDetails.rich_filters);
-        handleClose();
-        captureSuccess({
-          eventName: PROJECT_VIEW_TRACKER_EVENTS.update,
-          payload: {
-            view_id: data?.id,
-          },
-        });
-      })
-      .catch((err) => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: err?.detail ?? "Something went wrong. Please try again.",
-        });
-        captureError({
-          eventName: PROJECT_VIEW_TRACKER_EVENTS.update,
-          payload: {
-            view_id: data?.id,
-          },
-        });
-      });
+    updateView(
+      { workspaceSlug, projectId, viewId: data?.id as string, data: payload },
+      {
+        onSuccess: (viewDetails) => {
+          mutateFilters(workspaceSlug, viewDetails.id, viewDetails);
+          resetExpression(EIssuesStoreType.PROJECT_VIEW, viewDetails.id, viewDetails.rich_filters);
+          handleClose();
+          captureSuccess({
+            eventName: PROJECT_VIEW_TRACKER_EVENTS.update,
+            payload: {
+              view_id: data?.id,
+            },
+          });
+        },
+        onError: (err: any) => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: err?.detail ?? "Something went wrong. Please try again.",
+          });
+          captureError({
+            eventName: PROJECT_VIEW_TRACKER_EVENTS.update,
+            payload: {
+              view_id: data?.id,
+            },
+          });
+        },
+      }
+    );
   };
 
   const handleFormSubmit = async (formData: IProjectView) => {
@@ -119,4 +127,4 @@ export const CreateUpdateProjectViewModal = observer(function CreateUpdateProjec
       />
     </ModalCore>
   );
-});
+}

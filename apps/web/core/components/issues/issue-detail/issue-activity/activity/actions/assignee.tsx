@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // icons
 import { MembersPropertyIcon } from "@plane/propel/icons";
 // hooks;
@@ -8,7 +7,7 @@ import { IssueActivityBlockComponent, IssueLink } from "./";
 
 type TIssueAssigneeActivity = { activityId: string; showIssue?: boolean; ends: "top" | "bottom" | undefined };
 
-export const IssueAssigneeActivity = observer(function IssueAssigneeActivity(props: TIssueAssigneeActivity) {
+export function IssueAssigneeActivity(props: TIssueAssigneeActivity) {
   const { activityId, ends, showIssue = true } = props;
   // hooks
   const {
@@ -39,4 +38,4 @@ export const IssueAssigneeActivity = observer(function IssueAssigneeActivity(pro
       </>
     </IssueActivityBlockComponent>
   );
-});
+}

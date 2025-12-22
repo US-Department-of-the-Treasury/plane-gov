@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Paperclip } from "lucide-react";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -7,7 +6,7 @@ import { IssueActivityBlockComponent, IssueLink } from "./";
 
 type TIssueAttachmentActivity = { activityId: string; showIssue?: boolean; ends: "top" | "bottom" | undefined };
 
-export const IssueAttachmentActivity = observer(function IssueAttachmentActivity(props: TIssueAttachmentActivity) {
+export function IssueAttachmentActivity(props: TIssueAttachmentActivity) {
   const { activityId, showIssue = true, ends } = props;
   // hooks
   const {
@@ -30,4 +29,4 @@ export const IssueAttachmentActivity = observer(function IssueAttachmentActivity
       </>
     </IssueActivityBlockComponent>
   );
-});
+}

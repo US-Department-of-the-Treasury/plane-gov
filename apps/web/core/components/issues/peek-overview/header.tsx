@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useRef } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { MoveDiagonal, MoveRight } from "lucide-react";
 // plane imports
@@ -66,7 +65,7 @@ export type PeekOverviewHeaderProps = {
   isSubmitting: TNameDescriptionLoader;
 };
 
-export const IssuePeekOverviewHeader = observer(function IssuePeekOverviewHeader(props: PeekOverviewHeaderProps) {
+export function IssuePeekOverviewHeader(props: PeekOverviewHeaderProps) {
   const {
     peekMode,
     setPeekMode,
@@ -89,12 +88,7 @@ export const IssuePeekOverviewHeader = observer(function IssuePeekOverviewHeader
   const { t } = useTranslation();
   // hooks
   const { data: currentUser } = useUser();
-  const {
-    setPeekIssue,
-    removeIssue,
-    archiveIssue,
-    getIsIssuePeeked,
-  } = useIssueDetail();
+  const { setPeekIssue, removeIssue, archiveIssue, getIsIssuePeeked } = useIssueDetail();
   const { isMobile } = usePlatformOS();
   const { data: projects } = useProjects(workspaceSlug);
   const { data: issueDetails } = useIssue(workspaceSlug, projectId, issueId);
@@ -246,4 +240,4 @@ export const IssuePeekOverviewHeader = observer(function IssuePeekOverviewHeader
       </div>
     </div>
   );
-});
+}

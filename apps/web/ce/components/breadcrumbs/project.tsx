@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { ProjectIcon } from "@plane/propel/icons";
 // plane imports
@@ -16,7 +15,7 @@ type TProjectBreadcrumbProps = {
   handleOnClick?: () => void;
 };
 
-export const ProjectBreadcrumb = observer(function ProjectBreadcrumb(props: TProjectBreadcrumbProps) {
+export function ProjectBreadcrumb(props: TProjectBreadcrumbProps) {
   const { workspaceSlug, projectId, handleOnClick } = props;
   // router
   const router = useAppRouter();
@@ -76,4 +75,4 @@ export const ProjectBreadcrumb = observer(function ProjectBreadcrumb(props: TPro
       />
     </>
   );
-});
+}

@@ -5,7 +5,6 @@ import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-d
 import { pointerOutsideOfPreview } from "@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview";
 import { setCustomNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview";
 import { attachInstruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { observer } from "mobx-react";
 import { createRoot } from "react-dom/client";
 // types
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -51,7 +50,7 @@ type Props = {
   ) => void;
 };
 
-export const LabelDndHOC = observer(function LabelDndHOC(props: Props) {
+export function LabelDndHOC(props: Props) {
   const { label, isGroup, isChild, isLastChild, children, onDrop } = props;
 
   const [isDragging, setIsDragging] = useState(false);
@@ -165,4 +164,4 @@ export const LabelDndHOC = observer(function LabelDndHOC(props: Props) {
       {isLastChild && <DropIndicator classNames="my-1" isVisible={instruction === "reorder-below"} />}
     </div>
   );
-});
+}

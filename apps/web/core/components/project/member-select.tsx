@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Ban } from "lucide-react";
 import { EUserProjectRoles } from "@plane/types";
@@ -8,7 +7,7 @@ import { Avatar, CustomSearchSelect } from "@plane/ui";
 // helpers
 import { getFileURL } from "@plane/utils";
 // queries
-import { useProjectMembers } from "@/store/queries/member";
+import { useProjectMembers, useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 
 type Props = {
   value: any;
@@ -16,29 +15,29 @@ type Props = {
   isDisabled?: boolean;
 };
 
-export const MemberSelect = observer(function MemberSelect(props: Props) {
+export function MemberSelect(props: Props) {
   const { value, onChange, isDisabled = false } = props;
   // router
   const { projectId, workspaceSlug } = useParams();
   // queries
-  const { data: projectMembers = [] } = useProjectMembers(
-    workspaceSlug as string,
-    projectId as string
-  );
+  const { data: projectMembers = [] } = useProjectMembers(workspaceSlug, projectId);
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
 
   const options = projectMembers
     ?.map((memberDetails) => {
       if (!memberDetails?.member) return;
+      const workspaceMember = getWorkspaceMemberByUserId(workspaceMembers, memberDetails.member);
+      if (!workspaceMember?.member) return;
       const isGuest = memberDetails.role === EUserProjectRoles.GUEST;
       if (isGuest) return;
 
       return {
-        value: `${memberDetails?.member.id}`,
-        query: `${memberDetails?.member.display_name}`,
+        value: `${workspaceMember.member.id}`,
+        query: `${workspaceMember.member.display_name}`,
         content: (
           <div className="flex items-center gap-2">
-            <Avatar name={memberDetails?.member.display_name} src={getFileURL(memberDetails?.member.avatar_url)} />
-            {memberDetails?.member.display_name}
+            <Avatar name={workspaceMember.member.display_name} src={getFileURL(workspaceMember.member.avatar_url)} />
+            {workspaceMember.member.display_name}
           </div>
         ),
       };
@@ -50,18 +49,21 @@ export const MemberSelect = observer(function MemberSelect(props: Props) {
         content: React.ReactNode;
       }[]
     | undefined;
-  const selectedOption = projectMembers.find((m) => m.member.id === value);
+  const selectedProjectMember = projectMembers.find((m) => m.member === value);
+  const selectedOption = selectedProjectMember
+    ? getWorkspaceMemberByUserId(workspaceMembers, selectedProjectMember.member)
+    : undefined;
 
   return (
     <CustomSearchSelect
       value={value}
       label={
         <div className="flex items-center gap-2 h-3.5">
-          {selectedOption && (
-            <Avatar name={selectedOption.member?.display_name} src={getFileURL(selectedOption.member?.avatar_url)} />
+          {selectedOption?.member && (
+            <Avatar name={selectedOption.member.display_name} src={getFileURL(selectedOption.member.avatar_url)} />
           )}
-          {selectedOption ? (
-            selectedOption.member?.display_name
+          {selectedOption?.member ? (
+            selectedOption.member.display_name
           ) : (
             <div className="flex items-center gap-2">
               <Ban className="h-3.5 w-3.5 rotate-90 text-placeholder" />
@@ -92,4 +94,4 @@ export const MemberSelect = observer(function MemberSelect(props: Props) {
       disabled={isDisabled}
     />
   );
-});
+}

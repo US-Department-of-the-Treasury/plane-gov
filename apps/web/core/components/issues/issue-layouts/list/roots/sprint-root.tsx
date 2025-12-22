@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -12,7 +11,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { SprintIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseListRoot } from "../base-list-root";
 
-export const SprintListLayout = observer(function SprintListLayout() {
+export function SprintListLayout() {
   const { workspaceSlug, projectId, sprintId } = useParams();
   // store
   const { issues } = useIssues(EIssuesStoreType.SPRINT);
@@ -48,4 +47,4 @@ export const SprintListLayout = observer(function SprintListLayout() {
       viewId={sprintId?.toString()}
     />
   );
-});
+}

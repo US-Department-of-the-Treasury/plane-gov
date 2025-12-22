@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import { Transition, Dialog } from "@headlessui/react";
@@ -26,7 +25,7 @@ type Props = {
 // services
 const fileService = new FileService();
 
-export const WorkspaceImageUploadModal = observer(function WorkspaceImageUploadModal(props: Props) {
+export function WorkspaceImageUploadModal(props: Props) {
   const { handleRemove, isOpen, onClose, onSuccess, value } = props;
   // states
   const [image, setImage] = useState<File | null>(null);
@@ -35,7 +34,7 @@ export const WorkspaceImageUploadModal = observer(function WorkspaceImageUploadM
   // router
   const { workspaceSlug } = useParams();
   // store hooks
-  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug as string);
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   const { mutate: updateWorkspace } = useUpdateWorkspace();
 
   const onDrop = (acceptedFiles: File[]) => setImage(acceptedFiles[0]);
@@ -213,4 +212,4 @@ export const WorkspaceImageUploadModal = observer(function WorkspaceImageUploadM
       </Dialog>
     </Transition.Root>
   );
-});
+}

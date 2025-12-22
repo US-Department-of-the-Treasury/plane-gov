@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import type { EIssuesStoreType, TIssue } from "@plane/types";
@@ -29,7 +28,7 @@ export interface IssuesModalProps {
   showActionItemsOnUpdate?: boolean;
 }
 
-export const CreateUpdateIssueModal = observer(function CreateUpdateIssueModal(props: IssuesModalProps) {
+export function CreateUpdateIssueModal(props: IssuesModalProps) {
   // router params
   const { sprintId, epicId } = useParams();
   // derived values
@@ -49,4 +48,4 @@ export const CreateUpdateIssueModal = observer(function CreateUpdateIssueModal(p
       <CreateUpdateIssueModalBase {...props} />
     </IssueModalProvider>
   );
-});
+}

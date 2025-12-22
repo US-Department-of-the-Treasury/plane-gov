@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { ForgotPasswordForm } from "@/components/account/auth-forms/forgot-password";
 import { AuthHeader } from "@/components/auth-screens/header";
@@ -21,4 +20,4 @@ function ForgotPasswordPage() {
   );
 }
 
-export default observer(ForgotPasswordPage);
+export default ForgotPasswordPage;

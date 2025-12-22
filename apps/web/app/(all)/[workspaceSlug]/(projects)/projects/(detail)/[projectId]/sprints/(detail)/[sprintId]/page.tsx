@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { cn } from "@plane/utils";
 // assets
@@ -82,4 +81,4 @@ function SprintDetailPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(SprintDetailPage);
+export default SprintDetailPage;

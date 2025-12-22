@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
-import { observer } from "mobx-react";
 // plane ui
 import { Avatar, Loader } from "@plane/ui";
 // components
@@ -20,7 +19,7 @@ type Props = {
   workspaceSlug: string;
 };
 
-export const FilterLead = observer(function FilterLead(props: Props) {
+export function FilterLead(props: Props) {
   const { appliedFilters, handleUpdate, memberIds, searchQuery, workspaceSlug } = props;
   // states
   const [itemsToRender, setItemsToRender] = useState(5);
@@ -111,4 +110,4 @@ export const FilterLead = observer(function FilterLead(props: Props) {
       )}
     </>
   );
-});
+}

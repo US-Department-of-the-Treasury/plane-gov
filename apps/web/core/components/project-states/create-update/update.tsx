@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { STATE_TRACKER_EVENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IState, TStateOperationsCallbacks } from "@plane/types";
@@ -15,7 +14,7 @@ type TStateUpdate = {
   handleClose: () => void;
 };
 
-export const StateUpdate = observer(function StateUpdate(props: TStateUpdate) {
+export function StateUpdate(props: TStateUpdate) {
   const { state, updateStateCallback, shouldTrackEvents, handleClose } = props;
   // states
   const [loader, setLoader] = useState(false);
@@ -84,4 +83,4 @@ export const StateUpdate = observer(function StateUpdate(props: TStateUpdate) {
       buttonTitle={loader ? `Updating` : `Update`}
     />
   );
-});
+}

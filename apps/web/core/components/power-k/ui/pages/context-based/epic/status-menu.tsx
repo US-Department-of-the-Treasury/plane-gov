@@ -1,5 +1,4 @@
 import { Command } from "cmdk";
-import { observer } from "mobx-react";
 // plane imports
 import { EPIC_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -13,7 +12,7 @@ type Props = {
   value: TEpicStatus;
 };
 
-export const PowerKEpicStatusMenu = observer(function PowerKEpicStatusMenu(props: Props) {
+export function PowerKEpicStatusMenu(props: Props) {
   const { handleSelect, value } = props;
   // translation
   const { t } = useTranslation();
@@ -31,4 +30,4 @@ export const PowerKEpicStatusMenu = observer(function PowerKEpicStatusMenu(props
       ))}
     </Command.Group>
   );
-});
+}

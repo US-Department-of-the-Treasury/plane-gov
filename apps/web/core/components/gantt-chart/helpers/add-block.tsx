@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { addDays } from "date-fns";
-import { observer } from "mobx-react";
 import { Plus } from "lucide-react";
 // ui
 import { Tooltip } from "@plane/propel/tooltip";
@@ -17,7 +16,7 @@ type Props = {
   blockUpdateHandler: (block: any, payload: IBlockUpdateData) => void;
 };
 
-export const ChartAddBlock = observer(function ChartAddBlock(props: Props) {
+export function ChartAddBlock(props: Props) {
   const { block, blockUpdateHandler } = props;
   // states
   const [isButtonVisible, setIsButtonVisible] = useState(false);
@@ -97,4 +96,4 @@ export const ChartAddBlock = observer(function ChartAddBlock(props: Props) {
       )}
     </div>
   );
-});
+}

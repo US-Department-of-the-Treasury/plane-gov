@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import type { ColumnDef, Row, RowData } from "@tanstack/react-table";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import { UserRound } from "lucide-react";
@@ -33,7 +32,7 @@ declare module "@tanstack/react-table" {
   }
 }
 
-const WorkItemsInsightTable = observer(function WorkItemsInsightTable() {
+function WorkItemsInsightTable() {
   // router
   const params = useParams();
   const workspaceSlug = params.workspaceSlug.toString();
@@ -199,6 +198,6 @@ const WorkItemsInsightTable = observer(function WorkItemsInsightTable() {
       onExport={(rows) => workItemsData && exportCSV(rows, columns, workspaceSlug)}
     />
   );
-});
+}
 
 export default WorkItemsInsightTable;

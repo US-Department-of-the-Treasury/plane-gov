@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { ISSUE_PRIORITIES } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { PriorityIcon, CloseIcon } from "@plane/propel/icons";
@@ -8,7 +7,7 @@ import { Tag } from "@plane/ui";
 // hooks
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 
-export const InboxIssueAppliedFiltersPriority = observer(function InboxIssueAppliedFiltersPriority() {
+export function InboxIssueAppliedFiltersPriority() {
   // hooks
   const { t } = useTranslation();
   const { inboxFilters, handleInboxIssueFilters } = useProjectInbox();
@@ -53,4 +52,4 @@ export const InboxIssueAppliedFiltersPriority = observer(function InboxIssueAppl
       </div>
     </Tag>
   );
-});
+}

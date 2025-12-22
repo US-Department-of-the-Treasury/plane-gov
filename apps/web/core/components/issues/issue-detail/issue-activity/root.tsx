@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import uniq from "lodash-es/uniq";
-import { observer } from "mobx-react";
 // plane package imports
 import type { TActivityFilters } from "@plane/constants";
 import { E_SORT_ORDER, defaultActivityFilters, EUserPermissions } from "@plane/constants";
@@ -38,7 +37,7 @@ export type TActivityOperations = {
   uploadCommentAsset: (blockId: string, file: File, commentId?: string) => Promise<TFileSignedURLResponse>;
 };
 
-export const IssueActivity = observer(function IssueActivity(props: TIssueActivity) {
+export function IssueActivity(props: TIssueActivity) {
   const { workspaceSlug, projectId, issueId, disabled = false, isIntakeIssue = false } = props;
   // i18n
   const { t } = useTranslation();
@@ -145,4 +144,4 @@ export const IssueActivity = observer(function IssueActivity(props: TIssueActivi
       </div>
     </div>
   );
-});
+}

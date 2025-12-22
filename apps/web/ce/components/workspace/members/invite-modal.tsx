@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -18,9 +17,7 @@ export type TSendWorkspaceInvitationModalProps = {
   onSubmit: (data: IWorkspaceBulkInviteFormData) => Promise<void> | undefined;
 };
 
-export const SendWorkspaceInvitationModal = observer(function SendWorkspaceInvitationModal(
-  props: TSendWorkspaceInvitationModalProps
-) {
+export function SendWorkspaceInvitationModal(props: TSendWorkspaceInvitationModalProps) {
   const { isOpen, onClose, onSubmit } = props;
   // store hooks
   const { t } = useTranslation();
@@ -57,4 +54,4 @@ export const SendWorkspaceInvitationModal = observer(function SendWorkspaceInvit
       </InvitationForm>
     </ModalCore>
   );
-});
+}

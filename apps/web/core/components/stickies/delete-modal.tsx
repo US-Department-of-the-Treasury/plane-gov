@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 // ui
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -11,7 +10,7 @@ interface IStickyDelete {
   handleClose: () => void;
 }
 
-export const StickyDeleteModal = observer(function StickyDeleteModal(props: IStickyDelete) {
+export function StickyDeleteModal(props: IStickyDelete) {
   const { isOpen, handleClose, handleSubmit } = props;
   // states
   const [loader, setLoader] = useState(false);
@@ -43,4 +42,4 @@ export const StickyDeleteModal = observer(function StickyDeleteModal(props: ISti
       content={t("stickies.delete_confirmation")}
     />
   );
-});
+}

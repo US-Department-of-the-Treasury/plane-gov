@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 // plane imports
@@ -54,7 +53,7 @@ export const HOME_WIDGETS_LIST: {
   },
 };
 
-export const DashboardWidgets = observer(function DashboardWidgets() {
+export function DashboardWidgets() {
   // router
   const { workspaceSlug } = useParams();
   // navigation
@@ -87,7 +86,7 @@ export const DashboardWidgets = observer(function DashboardWidgets() {
 
       {isAnyWidgetEnabled ? (
         <div className="flex flex-col">
-          {orderedWidgets.map((key) => {
+          {orderedWidgets.map((key: THomeWidgetKeys) => {
             const WidgetComponent = HOME_WIDGETS_LIST[key]?.component;
             const isEnabled = widgetsMap[key]?.is_enabled;
             if (!WidgetComponent || !isEnabled) return null;
@@ -109,4 +108,4 @@ export const DashboardWidgets = observer(function DashboardWidgets() {
       )}
     </div>
   );
-});
+}

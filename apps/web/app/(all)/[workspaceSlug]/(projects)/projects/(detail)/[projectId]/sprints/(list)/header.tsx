@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // ui
 import { EUserPermissions, EUserPermissionsLevel, SPRINT_TRACKER_ELEMENTS } from "@plane/constants";
@@ -18,7 +17,7 @@ import { useProjectDetails } from "@/store/queries/project";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
-export const SprintsListHeader = observer(function SprintsListHeader() {
+export function SprintsListHeader() {
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId } = useParams();
@@ -28,7 +27,10 @@ export const SprintsListHeader = observer(function SprintsListHeader() {
   const { allowPermissions } = useUserPermissions();
   const { t } = useTranslation();
   // queries
-  const { data: currentProjectDetails, isLoading } = useProjectDetails(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
 
   const canUserCreateSprint = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
@@ -73,4 +75,4 @@ export const SprintsListHeader = observer(function SprintsListHeader() {
       )}
     </Header>
   );
-});
+}

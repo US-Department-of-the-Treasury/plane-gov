@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { usePopper } from "react-popper";
 import { Check, Search } from "lucide-react";
 import { Combobox } from "@headlessui/react";
@@ -43,7 +42,7 @@ type Props = TDropdownProps & {
       }
   );
 
-export const ProjectDropdownBase = observer(function ProjectDropdownBase(props: Props) {
+export function ProjectDropdownBase(props: Props) {
   const {
     button,
     buttonClassName,
@@ -286,4 +285,4 @@ export const ProjectDropdownBase = observer(function ProjectDropdownBase(props: 
       )}
     </ComboDropDown>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Tab } from "@headlessui/react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -32,7 +31,7 @@ type TSprintProgressStats = {
   totalIssuesCount: number;
 };
 
-export const SprintProgressStats = observer(function SprintProgressStats(props: TSprintProgressStats) {
+export function SprintProgressStats(props: TSprintProgressStats) {
   const {
     sprintId,
     distribution,
@@ -171,4 +170,4 @@ export const SprintProgressStats = observer(function SprintProgressStats(props: 
       </Tab.Group>
     </div>
   );
-});
+}

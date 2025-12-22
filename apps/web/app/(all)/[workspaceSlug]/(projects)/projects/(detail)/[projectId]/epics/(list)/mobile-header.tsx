@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { EPIC_VIEW_LAYOUTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { ChevronDownIcon } from "@plane/propel/icons";
@@ -7,7 +6,7 @@ import { EpicLayoutIcon } from "@/components/epics";
 import { useEpicFilter } from "@/hooks/store/use-epic-filter";
 import { useProject } from "@/hooks/store/use-project";
 
-export const EpicsListMobileHeader = observer(function EpicsListMobileHeader() {
+export function EpicsListMobileHeader() {
   const { currentProjectDetails } = useProject();
   const { updateDisplayFilters } = useEpicFilter();
   const { t } = useTranslation();
@@ -44,4 +43,4 @@ export const EpicsListMobileHeader = observer(function EpicsListMobileHeader() {
       </CustomMenu>
     </div>
   );
-});
+}

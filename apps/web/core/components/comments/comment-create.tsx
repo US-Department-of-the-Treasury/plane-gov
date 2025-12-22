@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useForm, Controller } from "react-hook-form";
 // plane imports
 import { EIssueCommentAccessSpecifier } from "@plane/constants";
@@ -26,7 +25,7 @@ type TCommentCreate = {
 // services
 const fileService = new FileService();
 
-export const CommentCreate = observer(function CommentCreate(props: TCommentCreate) {
+export function CommentCreate(props: TCommentCreate) {
   const {
     workspaceSlug,
     entityId,
@@ -150,4 +149,4 @@ export const CommentCreate = observer(function CommentCreate(props: TCommentCrea
       />
     </div>
   );
-});
+}

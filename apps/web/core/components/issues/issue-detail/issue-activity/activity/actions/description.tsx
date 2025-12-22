@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { AlignLeft } from "lucide-react";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -7,7 +6,7 @@ import { IssueActivityBlockComponent, IssueLink } from "./";
 
 type TIssueDescriptionActivity = { activityId: string; showIssue?: boolean; ends: "top" | "bottom" | undefined };
 
-export const IssueDescriptionActivity = observer(function IssueDescriptionActivity(props: TIssueDescriptionActivity) {
+export function IssueDescriptionActivity(props: TIssueDescriptionActivity) {
   const { activityId, showIssue = true, ends } = props;
   // hooks
   const {
@@ -30,4 +29,4 @@ export const IssueDescriptionActivity = observer(function IssueDescriptionActivi
       </>
     </IssueActivityBlockComponent>
   );
-});
+}

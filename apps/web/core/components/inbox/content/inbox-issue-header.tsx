@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { CircleCheck, CircleX, Clock, ExternalLink, FileStack, Link, Trash2, MoveRight, Copy } from "lucide-react";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -41,7 +40,7 @@ type TInboxIssueActionsHeader = {
   embedRemoveCurrentNotification?: () => void;
 };
 
-export const InboxIssueActionsHeader = observer(function InboxIssueActionsHeader(props: TInboxIssueActionsHeader) {
+export function InboxIssueActionsHeader(props: TInboxIssueActionsHeader) {
   const {
     workspaceSlug,
     projectId,
@@ -449,4 +448,4 @@ export const InboxIssueActionsHeader = observer(function InboxIssueActionsHeader
       </div>
     </>
   );
-});
+}

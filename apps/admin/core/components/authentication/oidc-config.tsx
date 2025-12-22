@@ -22,9 +22,7 @@ export const OIDCConfiguration = observer(function OIDCConfiguration(props: Prop
   // derived values
   const enableOIDCConfig = formattedConfig?.IS_OIDC_ENABLED ?? "";
   const isOIDCConfigured =
-    !!formattedConfig?.OIDC_CLIENT_ID &&
-    !!formattedConfig?.OIDC_AUTHORIZATION_URL &&
-    !!formattedConfig?.OIDC_TOKEN_URL;
+    !!formattedConfig?.OIDC_CLIENT_ID && !!formattedConfig?.OIDC_AUTHORIZATION_URL && !!formattedConfig?.OIDC_TOKEN_URL;
 
   return (
     <>

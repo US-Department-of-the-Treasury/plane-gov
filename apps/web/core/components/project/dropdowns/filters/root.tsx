@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Search } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
 // plane imports
@@ -20,10 +19,11 @@ type Props = {
   handleFiltersUpdate: (key: keyof TProjectFilters, value: string | string[]) => void;
   handleDisplayFiltersUpdate: (updatedDisplayProperties: Partial<TProjectDisplayFilters>) => void;
   memberIds?: string[] | undefined;
+  workspaceSlug: string;
 };
 
-export const ProjectFiltersSelection = observer(function ProjectFiltersSelection(props: Props) {
-  const { displayFilters, filters, handleFiltersUpdate, handleDisplayFiltersUpdate, memberIds } = props;
+export function ProjectFiltersSelection(props: Props) {
+  const { displayFilters, filters, handleFiltersUpdate, handleDisplayFiltersUpdate, memberIds, workspaceSlug } = props;
   // states
   const [filtersSearchQuery, setFiltersSearchQuery] = useState("");
   // store
@@ -78,6 +78,7 @@ export const ProjectFiltersSelection = observer(function ProjectFiltersSelection
             handleUpdate={(val) => handleFiltersUpdate("lead", val)}
             searchQuery={filtersSearchQuery}
             memberIds={memberIds}
+            workspaceSlug={workspaceSlug}
           />
         </div>
 
@@ -88,6 +89,7 @@ export const ProjectFiltersSelection = observer(function ProjectFiltersSelection
             handleUpdate={(val) => handleFiltersUpdate("members", val)}
             searchQuery={filtersSearchQuery}
             memberIds={memberIds}
+            workspaceSlug={workspaceSlug}
           />
         </div>
 
@@ -102,4 +104,4 @@ export const ProjectFiltersSelection = observer(function ProjectFiltersSelection
       </div>
     </div>
   );
-});
+}

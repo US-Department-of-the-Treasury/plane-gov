@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // hooks
 import { usePowerK } from "@/hooks/store/use-power-k";
@@ -18,7 +17,7 @@ type GlobalShortcutsProps = {
  * Global shortcuts component - sets up keyboard listeners and context detection
  * Should be mounted once at the app root level
  */
-export const GlobalShortcutsProvider = observer(function GlobalShortcutsProvider(props: GlobalShortcutsProps) {
+export function GlobalShortcutsProvider(props: GlobalShortcutsProps) {
   const { context, commands } = props;
   // router
   const params = useParams();
@@ -74,4 +73,4 @@ export const GlobalShortcutsProvider = observer(function GlobalShortcutsProvider
   }, [commandRegistry, togglePowerKModal]);
 
   return <ShortcutsModal isOpen={isShortcutsListModalOpen} onClose={() => toggleShortcutsListModal(false)} />;
-});
+}

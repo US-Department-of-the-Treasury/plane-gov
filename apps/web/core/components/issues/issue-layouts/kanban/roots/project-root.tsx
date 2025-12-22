@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -8,7 +7,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { ProjectIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseKanBanRoot } from "../base-kanban-root";
 
-export const KanBanLayout = observer(function KanBanLayout() {
+export function KanBanLayout() {
   // router
   const { workspaceSlug } = useParams();
   // hooks
@@ -28,4 +27,4 @@ export const KanBanLayout = observer(function KanBanLayout() {
       canEditPropertiesBasedOnProject={canEditPropertiesBasedOnProject}
     />
   );
-});
+}

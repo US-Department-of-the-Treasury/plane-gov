@@ -1,6 +1,5 @@
 import React from "react";
 
-import { observer } from "mobx-react";
 // plane imports
 import type {
   TFilterConditionNode,
@@ -22,7 +21,7 @@ import { SingleDateFilterValueInput } from "./date/single";
 import { MultiSelectFilterValueInput } from "./select/multi";
 import { SingleSelectFilterValueInput } from "./select/single";
 
-export const FilterValueInput = observer(function FilterValueInput<P extends TFilterProperty, V extends TFilterValue>(
+export function FilterValueInput<P extends TFilterProperty, V extends TFilterValue>(
   props: TFilterValueInputProps<P, V>
 ) {
   const { condition, filterFieldConfig, isDisabled = false, onChange } = props;
@@ -76,4 +75,4 @@ export const FilterValueInput = observer(function FilterValueInput<P extends TFi
   }
 
   return <AdditionalFilterValueInput {...props} />;
-});
+}

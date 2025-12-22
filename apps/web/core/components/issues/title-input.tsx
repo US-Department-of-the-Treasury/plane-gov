@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import type { TNameDescriptionLoader } from "@plane/types";
 // components
@@ -24,7 +23,7 @@ export type IssueTitleInputProps = {
   containerClassName?: string;
 };
 
-export const IssueTitleInput = observer(function IssueTitleInput(props: IssueTitleInputProps) {
+export function IssueTitleInput(props: IssueTitleInputProps) {
   const {
     disabled,
     value,
@@ -174,4 +173,4 @@ export const IssueTitleInput = observer(function IssueTitleInput(props: IssueTit
       {title?.length === 0 && <span className="text-13 font-medium text-red-500">{t("form.title.required")}</span>}
     </div>
   );
-});
+}

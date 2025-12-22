@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { SPRINT_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import type { TSprintGroups } from "@plane/types";
@@ -14,7 +13,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterStatus = observer(function FilterStatus(props: Props) {
+export function FilterStatus(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
   // states
   const [previewEnabled, setPreviewEnabled] = useState(true);
@@ -48,4 +47,4 @@ export const FilterStatus = observer(function FilterStatus(props: Props) {
       )}
     </>
   );
-});
+}

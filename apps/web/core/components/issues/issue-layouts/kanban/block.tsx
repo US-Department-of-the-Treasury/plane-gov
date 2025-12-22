@@ -2,7 +2,6 @@ import type { MutableRefObject } from "react";
 import { useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane helpers
 import { MoreHorizontal } from "lucide-react";
@@ -61,7 +60,7 @@ interface IssueDetailsBlockProps {
   isEpic?: boolean;
 }
 
-const KanbanIssueDetailsBlock = observer(function KanbanIssueDetailsBlock(props: IssueDetailsBlockProps) {
+function KanbanIssueDetailsBlock(props: IssueDetailsBlockProps) {
   const { cardRef, issue, updateIssue, quickActions, isReadOnly, displayProperties, isEpic = false } = props;
   // refs
   const menuActionRef = useRef<HTMLDivElement | null>(null);
@@ -146,9 +145,9 @@ const KanbanIssueDetailsBlock = observer(function KanbanIssueDetailsBlock(props:
       )}
     </>
   );
-});
+}
 
-export const KanbanIssueBlock = observer(function KanbanIssueBlock(props: IssueBlockProps) {
+export function KanbanIssueBlock(props: IssueBlockProps) {
   const {
     issueId,
     groupId,
@@ -178,11 +177,7 @@ export const KanbanIssueBlock = observer(function KanbanIssueBlock(props: IssueB
 
   // Try TanStack Query first (for single-project views), fallback to MobX issuesMap
   const issueFromMap = issuesMap[issueId];
-  const { data: issueFromQuery } = useIssue(
-    workspaceSlug ?? "",
-    projectId ?? issueFromMap?.project_id ?? "",
-    issueId
-  );
+  const { data: issueFromQuery } = useIssue(workspaceSlug ?? "", projectId ?? issueFromMap?.project_id ?? "", issueId);
 
   // handlers
   const handleIssuePeekOverview = (issue: TIssue) => handleRedirection(workspaceSlug, issue, isMobile);
@@ -309,4 +304,4 @@ export const KanbanIssueBlock = observer(function KanbanIssueBlock(props: IssueB
       </div>
     </>
   );
-});
+}

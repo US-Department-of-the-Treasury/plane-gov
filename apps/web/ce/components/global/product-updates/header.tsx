@@ -1,10 +1,9 @@
-import { observer } from "mobx-react";
 import packageJson from "package.json";
 import { useTranslation } from "@plane/i18n";
 // helpers
 import { cn } from "@plane/utils";
 
-export const ProductUpdatesHeader = observer(function ProductUpdatesHeader() {
+export function ProductUpdatesHeader() {
   const { t } = useTranslation();
   return (
     <div className="flex gap-2 mx-6 my-4 items-center justify-between flex-shrink-0">
@@ -20,4 +19,4 @@ export const ProductUpdatesHeader = observer(function ProductUpdatesHeader() {
       </div>
     </div>
   );
-});
+}

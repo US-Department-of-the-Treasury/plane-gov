@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { differenceInCalendarDays } from "date-fns/differenceInCalendarDays";
-import { observer } from "mobx-react";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { TGroupedIssues, TIssue, TIssueMap, TPaginationData, ICalendarDate } from "@plane/types";
 // types
@@ -48,7 +47,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const CalendarDayTile = observer(function CalendarDayTile(props: Props) {
+export function CalendarDayTile(props: Props) {
   const {
     issuesFilterStore,
     date,
@@ -212,4 +211,4 @@ export const CalendarDayTile = observer(function CalendarDayTile(props: Props) {
       </div>
     </>
   );
-});
+}

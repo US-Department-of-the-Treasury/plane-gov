@@ -1,9 +1,8 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import type { TQuickAddIssueForm } from "../root";
 
-export const SpreadsheetQuickAddIssueForm = observer(function SpreadsheetQuickAddIssueForm(props: TQuickAddIssueForm) {
+export function SpreadsheetQuickAddIssueForm(props: TQuickAddIssueForm) {
   const { ref, projectDetail, register, onSubmit, isEpic } = props;
   const { t } = useTranslation();
   return (
@@ -29,4 +28,4 @@ export const SpreadsheetQuickAddIssueForm = observer(function SpreadsheetQuickAd
       </p>
     </div>
   );
-});
+}

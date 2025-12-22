@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { ExternalLink, LinkIcon } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -17,7 +16,7 @@ type Props = {
   };
 };
 
-export const DefaultWorkspaceViewQuickActions = observer(function DefaultWorkspaceViewQuickActions(props: Props) {
+export function DefaultWorkspaceViewQuickActions(props: Props) {
   const { workspaceSlug, view } = props;
 
   const { t } = useTranslation();
@@ -92,4 +91,4 @@ export const DefaultWorkspaceViewQuickActions = observer(function DefaultWorkspa
       </CustomMenu>
     </>
   );
-});
+}

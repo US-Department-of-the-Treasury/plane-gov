@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane types
 import type { IPartialProject } from "@plane/types";
 import { Spinner } from "@plane/ui";
@@ -13,7 +12,7 @@ type Props = {
   handleSelect: (project: IPartialProject) => void;
 };
 
-export const PowerKOpenProjectMenu = observer(function PowerKOpenProjectMenu(props: Props) {
+export function PowerKOpenProjectMenu(props: Props) {
   const { handleSelect } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -28,4 +27,4 @@ export const PowerKOpenProjectMenu = observer(function PowerKOpenProjectMenu(pro
   if (isLoading) return <Spinner />;
 
   return <PowerKProjectsMenu projects={projectsList} onSelect={handleSelect} />;
-});
+}

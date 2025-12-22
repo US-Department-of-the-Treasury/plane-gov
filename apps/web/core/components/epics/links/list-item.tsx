@@ -98,8 +98,8 @@ export function EpicLinksListItem(props: Props) {
       <div className="px-5">
         <p className="flex items-center gap-1.5 mt-0.5 stroke-[1.5] text-11 text-tertiary">
           Added {calculateTimeAgo(link.created_at)}{" "}
-          {createdByDetails && (
-            <>by {createdByDetails?.is_bot ? createdByDetails?.first_name + " Bot" : createdByDetails?.display_name}</>
+          {createdByDetails?.member && (
+            <>by {createdByDetails.member.is_bot ? createdByDetails.member.first_name + " Bot" : createdByDetails.member.display_name}</>
           )}
         </p>
       </div>

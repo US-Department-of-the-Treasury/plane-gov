@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { STATE_GROUPS } from "@plane/constants";
 import { StateGroupIcon } from "@plane/propel/icons";
@@ -12,7 +11,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterStateGroup = observer(function FilterStateGroup(props: Props) {
+export function FilterStateGroup(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
 
   const [itemsToRender, setItemsToRender] = useState(5);
@@ -66,4 +65,4 @@ export const FilterStateGroup = observer(function FilterStateGroup(props: Props)
       )}
     </>
   );
-});
+}

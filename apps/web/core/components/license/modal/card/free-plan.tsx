@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { CircleX } from "lucide-react";
 // plane constants
 import { FREE_PLAN_UPGRADE_FEATURES } from "@plane/constants";
@@ -9,7 +8,7 @@ type FreePlanCardProps = {
   isOnFreePlan: boolean;
 };
 
-export const FreePlanCard = observer(function FreePlanCard(props: FreePlanCardProps) {
+export function FreePlanCard(props: FreePlanCardProps) {
   const { isOnFreePlan } = props;
   return (
     <div className="py-4 px-2 rounded-xl bg-layer-1">
@@ -38,4 +37,4 @@ export const FreePlanCard = observer(function FreePlanCard(props: FreePlanCardPr
       </div>
     </div>
   );
-});
+}

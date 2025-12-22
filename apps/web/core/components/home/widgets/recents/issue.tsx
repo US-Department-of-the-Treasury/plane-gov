@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane types
 import { PriorityIcon, StateGroupIcon, WorkItemsIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
@@ -22,7 +21,7 @@ type BlockProps = {
   ref: React.RefObject<HTMLDivElement>;
   workspaceSlug: string;
 };
-export const RecentIssue = observer(function RecentIssue(props: BlockProps) {
+export function RecentIssue(props: BlockProps) {
   const { activity, ref, workspaceSlug } = props;
   // hooks
   const { setPeekIssue } = useIssueDetail();
@@ -33,10 +32,7 @@ export const RecentIssue = observer(function RecentIssue(props: BlockProps) {
 
   // queries
   const { data: projects } = useProjects(workspaceSlug?.toString());
-  const { data: projectStates } = useProjectStates(
-    workspaceSlug?.toString() ?? "",
-    issueDetails?.project_id ?? ""
-  );
+  const { data: projectStates } = useProjectStates(workspaceSlug?.toString() ?? "", issueDetails?.project_id ?? "");
 
   const projectDetails = getProjectById(projects, issueDetails?.project_id);
   const projectIdentifier = projectDetails?.identifier;
@@ -144,4 +140,4 @@ export const RecentIssue = observer(function RecentIssue(props: BlockProps) {
       preventDefaultProgress
     />
   );
-});
+}

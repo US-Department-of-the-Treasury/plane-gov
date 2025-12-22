@@ -110,13 +110,7 @@ export function IssueLabelSelect(props: IIssueLabelSelect) {
         multiple
       >
         <Combobox.Button as={Fragment}>
-          <Button
-            ref={setReferenceElement}
-            type="button"
-            variant="tertiary"
-            size="sm"
-            prependIcon={<Plus />}
-          >
+          <Button ref={setReferenceElement} type="button" variant="tertiary" size="sm" prependIcon={<Plus />}>
             {label}
           </Button>
         </Combobox.Button>

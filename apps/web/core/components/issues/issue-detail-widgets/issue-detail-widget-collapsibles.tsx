@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { TIssueServiceType, TWorkItemWidgets } from "@plane/types";
 // hooks
@@ -24,7 +23,7 @@ type Props = {
   hideWidgets?: TWorkItemWidgets[];
 };
 
-export const IssueDetailWidgetCollapsibles = observer(function IssueDetailWidgetCollapsibles(props: Props) {
+export function IssueDetailWidgetCollapsibles(props: Props) {
   const { workspaceSlug, projectId, issueId, disabled, issueServiceType, hideWidgets } = props;
   // store hooks
   const {
@@ -95,4 +94,4 @@ export const IssueDetailWidgetCollapsibles = observer(function IssueDetailWidget
       />
     </div>
   );
-});
+}

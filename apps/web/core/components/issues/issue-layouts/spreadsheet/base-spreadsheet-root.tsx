@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useCallback, useEffect } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { ALL_ISSUES, EIssueFilterType, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -23,7 +22,7 @@ export type SpreadsheetStoreType =
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.TEAM
   | EIssuesStoreType.TEAM_VIEW
-  | EIssuesStoreType.EPIC;
+   ;
 
 interface IBaseSpreadsheetRoot {
   QuickActions: FC<IQuickActionProps>;
@@ -33,7 +32,7 @@ interface IBaseSpreadsheetRoot {
   isEpic?: boolean;
 }
 
-export const BaseSpreadsheetRoot = observer(function BaseSpreadsheetRoot(props: IBaseSpreadsheetRoot) {
+export function BaseSpreadsheetRoot(props: IBaseSpreadsheetRoot) {
   const { QuickActions, canEditPropertiesBasedOnProject, isCompletedSprint = false, viewId, isEpic = false } = props;
   // router
   const { projectId } = useParams();
@@ -126,4 +125,4 @@ export const BaseSpreadsheetRoot = observer(function BaseSpreadsheetRoot(props: 
       />
     </IssueLayoutHOC>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane utils
 import { cn } from "@plane/utils";
 // hooks
@@ -7,7 +6,7 @@ import { useTimeLineChartStore } from "@/hooks/use-timeline-chart";
 import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "../../constants";
 import type { IWeekBlock } from "../../views";
 
-export const WeekChartView = observer(function WeekChartView(_props: any) {
+export function WeekChartView(_props: any) {
   const { currentViewData, renderView } = useTimeLineChartStore();
   const weekBlocks: IWeekBlock[] = renderView;
 
@@ -87,4 +86,4 @@ export const WeekChartView = observer(function WeekChartView(_props: any) {
         ))}
     </div>
   );
-});
+}

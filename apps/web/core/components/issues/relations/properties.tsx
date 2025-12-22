@@ -21,7 +21,14 @@ type Props = {
 };
 
 export function RelationIssueProperty(props: Props) {
-  const { workspaceSlug, projectId, issueId, disabled, issueOperations, issueServiceType = EIssueServiceType.ISSUES } = props;
+  const {
+    workspaceSlug,
+    projectId,
+    issueId,
+    disabled,
+    issueOperations,
+    issueServiceType = EIssueServiceType.ISSUES,
+  } = props;
   // hooks
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
 

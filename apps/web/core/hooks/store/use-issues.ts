@@ -1,3 +1,32 @@
+/**
+ * DEPRECATED: This hook has been migrated from MobX to TanStack Query.
+ *
+ * The MobX-based store pattern has been replaced with TanStack Query hooks for better
+ * performance, simpler state management, and automatic caching/refetching.
+ *
+ * For new code, use the TanStack Query hooks directly from:
+ * @see apps/web/core/store/queries/issue.ts
+ *
+ * Available hooks:
+ * - useIssues(workspaceSlug, projectId, filters) - Fetch issues for a project
+ * - useSprintIssues(workspaceSlug, projectId, sprintId) - Fetch sprint issues
+ * - useModuleIssues(workspaceSlug, projectId, moduleId) - Fetch module issues
+ * - useIssue(workspaceSlug, projectId, issueId) - Fetch single issue
+ * - useCreateIssue() - Create issue mutation
+ * - useUpdateIssue() - Update issue mutation
+ * - useDeleteIssue() - Delete issue mutation
+ *
+ * Migration example:
+ * ```ts
+ * // Old MobX pattern:
+ * const { issues, issuesFilter } = useIssues(EIssuesStoreType.PROJECT);
+ *
+ * // New TanStack Query pattern:
+ * import { useIssues } from "@/store/queries/issue";
+ * const { data: issues, isLoading } = useIssues(workspaceSlug, projectId, filters);
+ * ```
+ */
+
 import { useContext } from "react";
 import { merge } from "lodash-es";
 import type { TIssueMap } from "@plane/types";
@@ -16,7 +45,6 @@ import type { IProjectIssues, IProjectIssuesFilter } from "@/store/issue/project
 import type { IProjectViewIssues, IProjectViewIssuesFilter } from "@/store/issue/project-views";
 import type { IWorkspaceIssuesFilter } from "@/store/issue/workspace";
 import type { IWorkspaceDraftIssues, IWorkspaceDraftIssuesFilter } from "@/store/issue/workspace-draft";
-// constants
 
 type defaultIssueStore = {
   issueMap: TIssueMap;
@@ -73,6 +101,10 @@ export type TStoreIssues = {
   };
 };
 
+/**
+ * @deprecated Use TanStack Query hooks from @/store/queries/issue.ts instead
+ * This MobX-based hook is maintained for backward compatibility only.
+ */
 export const useIssues = <T extends EIssuesStoreType>(storeType?: T): TStoreIssues[T] => {
   const context = useContext(StoreContext);
   if (context === undefined) throw new Error("useIssues must be used within StoreProvider");
@@ -144,3 +176,30 @@ export const useIssues = <T extends EIssuesStoreType>(storeType?: T): TStoreIssu
       }) as TStoreIssues[T];
   }
 };
+
+// Re-export TanStack Query hooks for convenience
+export {
+  useIssue,
+  useIssueByIdentifier,
+  useIssues as useIssuesQuery,
+  useSprintIssues,
+  useModuleIssues,
+  useCreateIssue,
+  useUpdateIssue,
+  useDeleteIssue,
+  useArchiveIssue,
+  useIssueActivities,
+  useSubIssues,
+  useAddSubIssues,
+  useIssueLinks,
+  useCreateIssueLink,
+  useUpdateIssueLink,
+  useDeleteIssueLink,
+  useIssueSubscription,
+  useToggleIssueSubscription,
+  useBulkIssueOperations,
+  useBulkDeleteIssues,
+  useBulkArchiveIssues,
+  useAddIssueToSprint,
+  useRemoveIssueFromSprint,
+} from "@/store/queries/issue";

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { mutate } from "swr";
 // types
 import { SPRINT_TRACKER_EVENTS } from "@plane/constants";
@@ -31,7 +30,7 @@ type SprintModalProps = {
 // services
 const sprintService = new SprintService();
 
-export const SprintCreateUpdateModal = observer(function SprintCreateUpdateModal(props: SprintModalProps) {
+export function SprintCreateUpdateModal(props: SprintModalProps) {
   const { isOpen, handleClose, data, workspaceSlug, projectId } = props;
   // states
   const [activeProject, setActiveProject] = useState<string | null>(null);
@@ -49,7 +48,7 @@ export const SprintCreateUpdateModal = observer(function SprintCreateUpdateModal
   const handleCreateSprint = async (payload: Partial<ISprint>) => {
     if (!workspaceSlug || !projectId) return;
 
-    const selectedProjectId = payload.project_id ?? projectId.toString();
+    const selectedProjectId = projectId.toString();
 
     createSprintMutation(
       {
@@ -77,7 +76,7 @@ export const SprintCreateUpdateModal = observer(function SprintCreateUpdateModal
           captureSuccess({
             eventName: SPRINT_TRACKER_EVENTS.create,
             payload: {
-              id: res.id,
+              id: (res as ISprint).id,
             },
           });
         },
@@ -99,7 +98,7 @@ export const SprintCreateUpdateModal = observer(function SprintCreateUpdateModal
   const handleUpdateSprint = async (sprintId: string, payload: Partial<ISprint>) => {
     if (!workspaceSlug || !projectId) return;
 
-    const selectedProjectId = payload.project_id ?? projectId.toString();
+    const selectedProjectId = projectId.toString();
 
     updateSprintMutation(
       {
@@ -113,7 +112,7 @@ export const SprintCreateUpdateModal = observer(function SprintCreateUpdateModal
           captureSuccess({
             eventName: SPRINT_TRACKER_EVENTS.update,
             payload: {
-              id: res.id,
+              id: (res as ISprint).id,
             },
           });
           setToast({
@@ -140,7 +139,7 @@ export const SprintCreateUpdateModal = observer(function SprintCreateUpdateModal
   const dateChecker = async (projectId: string, payload: SprintDateCheckData) => {
     let status = false;
 
-    await sprintService.sprintDateCheck(workspaceSlug, projectId, payload).then((res) => {
+    await sprintService.sprintDateCheck(workspaceSlug, projectId, payload).then((res: { status: boolean }) => {
       status = res.status;
     });
 
@@ -193,7 +192,8 @@ export const SprintCreateUpdateModal = observer(function SprintCreateUpdateModal
       setToast({
         type: TOAST_TYPE.ERROR,
         title: "Error!",
-        message: "You already have a sprint on the given dates, if you want to create a draft sprint, remove the dates.",
+        message:
+          "You already have a sprint on the given dates, if you want to create a draft sprint, remove the dates.",
       });
   };
 
@@ -205,10 +205,10 @@ export const SprintCreateUpdateModal = observer(function SprintCreateUpdateModal
       return;
     }
 
-    // if data is present, set active project to the project of the
-    // issue. This has more priority than the project in the url.
-    if (data && data.project_id) {
-      setActiveProject(data.project_id);
+    // if data is present, use the projectId from props since sprints are workspace-wide
+    // This has more priority than the project in the url.
+    if (data && projectId) {
+      setActiveProject(projectId);
       return;
     }
 
@@ -232,7 +232,8 @@ export const SprintCreateUpdateModal = observer(function SprintCreateUpdateModal
         setActiveProject={setActiveProject}
         data={data}
         isMobile={isMobile}
+        workspaceSlug={workspaceSlug}
       />
     </ModalCore>
   );
-});
+}

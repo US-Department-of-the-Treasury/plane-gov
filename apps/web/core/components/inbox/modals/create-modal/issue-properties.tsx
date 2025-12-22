@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { ETabIndices } from "@plane/constants";
 import { ParentPropertyIcon } from "@plane/propel/icons";
 import type { ISearchIssueResponse, TIssue } from "@plane/types";
@@ -28,7 +27,7 @@ type TInboxIssueProperties = {
   isVisible?: boolean;
 };
 
-export const InboxIssueProperties = observer(function InboxIssueProperties(props: TInboxIssueProperties) {
+export function InboxIssueProperties(props: TInboxIssueProperties) {
   const { projectId, data, handleData, isVisible = false } = props;
   // hooks
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
@@ -229,4 +228,4 @@ export const InboxIssueProperties = observer(function InboxIssueProperties(props
       )}
     </div>
   );
-});
+}
