@@ -29,7 +29,7 @@ export function useWorkspaceDraftIssues(workspaceSlug: string, params?: Record<s
  */
 export function useInfiniteWorkspaceDraftIssues(workspaceSlug: string, filterParams?: Record<string, unknown>) {
   return useInfiniteQuery({
-    queryKey: queryKeys.workspaceDrafts.filtered(workspaceSlug, filterParams ?? {}),
+    queryKey: queryKeys.workspaceDrafts.infinite(workspaceSlug, filterParams ?? {}),
     queryFn: ({ pageParam }) =>
       workspaceDraftService.getIssues(workspaceSlug, {
         per_page: 50,
@@ -167,6 +167,7 @@ export function useDeleteWorkspaceDraftIssue() {
   return useMutation({
     mutationFn: ({ workspaceSlug, issueId }: DeleteWorkspaceDraftIssueParams) =>
       workspaceDraftService.deleteIssue(workspaceSlug, issueId),
+    // eslint-disable-next-line @typescript-eslint/require-await
     onMutate: async ({ workspaceSlug, issueId }) => {
       // Optimistically remove from list queries
       queryClient.setQueriesData<TWorkspaceDraftPaginationInfo<TWorkspaceDraftIssue>>(
@@ -207,6 +208,7 @@ export function useMoveWorkspaceDraftIssue() {
   return useMutation({
     mutationFn: ({ workspaceSlug, issueId, data }: MoveWorkspaceDraftIssueParams) =>
       workspaceDraftService.moveIssue(workspaceSlug, issueId, data),
+    // eslint-disable-next-line @typescript-eslint/require-await
     onMutate: async ({ workspaceSlug, issueId }) => {
       // Optimistically remove from draft list queries
       queryClient.setQueriesData<TWorkspaceDraftPaginationInfo<TWorkspaceDraftIssue>>(
@@ -225,7 +227,7 @@ export function useMoveWorkspaceDraftIssue() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.workspaceDrafts.all(workspaceSlug) });
       void queryClient.removeQueries({ queryKey: queryKeys.workspaceDrafts.detail(issueId) });
       // If the issue was moved to a project, invalidate that project's issues
-      const movedIssue = data as TIssue | undefined;
+      const movedIssue = data;
       if (movedIssue?.project_id) {
         void queryClient.invalidateQueries({ queryKey: queryKeys.issues.all(workspaceSlug, movedIssue.project_id) });
       }
