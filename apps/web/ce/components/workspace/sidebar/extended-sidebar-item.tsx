@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { attachInstruction, extractInstruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { Pin, PinOff } from "lucide-react";
@@ -35,7 +34,7 @@ type TExtendedSidebarItemProps = {
   isLastChild: boolean;
 };
 
-export const ExtendedSidebarItem = observer(function ExtendedSidebarItem(props: TExtendedSidebarItemProps) {
+export const ExtendedSidebarItem = memo(function ExtendedSidebarItem(props: TExtendedSidebarItemProps) {
   const { item, handleOnNavigationItemDrop, disableDrag = false, disableDrop = false, isLastChild } = props;
   const { t } = useTranslation();
   // states
@@ -170,8 +169,9 @@ export const ExtendedSidebarItem = observer(function ExtendedSidebarItem(props: 
             position="top-start"
             disabled={isDragging}
           >
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               className={cn(
                 "flex items-center justify-center absolute top-1/2 -left-3 -translate-y-1/2 rounded text-placeholder cursor-grab group-hover/project-item:opacity-100 opacity-0",
                 {
@@ -179,10 +179,10 @@ export const ExtendedSidebarItem = observer(function ExtendedSidebarItem(props: 
                   "opacity-100": isDragging,
                 }
               )}
-              ref={dragHandleRef}
+              ref={dragHandleRef as React.RefObject<HTMLDivElement>}
             >
               <DragHandle className="bg-transparent" />
-            </button>
+            </div>
           </Tooltip>
         )}
         <SidebarNavItem isActive={isActive}>

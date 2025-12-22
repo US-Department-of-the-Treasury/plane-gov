@@ -64,6 +64,9 @@ export const SidebarProjectsListItem = observer(function SidebarProjectsListItem
     projectListType,
     renderInExtendedSidebar = false,
   } = props;
+  // router
+  const { workspaceSlug, projectId: URLProjectId } = useParams();
+  const router = useRouter();
   // store hooks
   const { t } = useTranslation();
   const { data: project } = useProjectDetails(workspaceSlug?.toString(), projectId);
@@ -83,10 +86,7 @@ export const SidebarProjectsListItem = observer(function SidebarProjectsListItem
   // refs
   const actionSectionRef = useRef<HTMLButtonElement | null>(null);
   const projectRef = useRef<HTMLDivElement | null>(null);
-  const dragHandleRef = useRef<HTMLButtonElement | null>(null);
-  // router
-  const { workspaceSlug, projectId: URLProjectId } = useParams();
-  const router = useRouter();
+  const dragHandleRef = useRef<HTMLDivElement | null>(null);
 
   // Get available navigation items for this project
   const navigationItems = useNavigationItems({
@@ -297,8 +297,9 @@ export const SidebarProjectsListItem = observer(function SidebarProjectsListItem
                 position="top-end"
                 disabled={isDragging}
               >
-                <button
-                  type="button"
+                <div
+                  role="button"
+                  tabIndex={0}
                   className={cn(
                     "hidden group-hover/project-item:flex items-center justify-center absolute top-1/2 -left-3 -translate-y-1/2 rounded-sm text-placeholder cursor-grab",
                     {
@@ -310,7 +311,7 @@ export const SidebarProjectsListItem = observer(function SidebarProjectsListItem
                   ref={dragHandleRef}
                 >
                   <DragHandle className="bg-transparent" />
-                </button>
+                </div>
               </Tooltip>
             )}
             <>

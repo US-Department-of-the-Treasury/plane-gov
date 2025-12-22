@@ -1,6 +1,4 @@
-import type { FC } from "react";
-import { useCallback, useMemo, useState } from "react";
-import { observer } from "mobx-react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { GripVertical, X } from "lucide-react";
 // plane imports
@@ -38,7 +36,7 @@ const PERSONAL_ITEMS: Array<{ key: TPersonalNavigationItemKey; labelTranslationK
   { key: "drafts", labelTranslationKey: "drafts" },
 ];
 
-export const CustomizeNavigationDialog = observer(function CustomizeNavigationDialog(
+export const CustomizeNavigationDialog = memo(function CustomizeNavigationDialog(
   props: TCustomizeNavigationDialogProps
 ) {
   const { isOpen, onClose } = props;

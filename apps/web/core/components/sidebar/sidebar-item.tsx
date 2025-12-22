@@ -94,12 +94,13 @@ function AppSidebarItemIcon({ icon, highlight }: AppSidebarItemIconProps) {
 
 const AppSidebarLinkItem = forwardRef<HTMLAnchorElement, AppSidebarLinkItemProps>(function AppSidebarLinkItem(
   { href, children, className },
-  ref
+  _ref
 ) {
   if (!href) return null;
 
+  // Note: ref is not forwarded because the compat Link (React Router) handles refs internally
   return (
-    <Link ref={ref} href={href} className={cn(styles.base, className)}>
+    <Link href={href} className={cn(styles.base, className)}>
       {children}
     </Link>
   );

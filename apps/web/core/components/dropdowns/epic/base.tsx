@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
+import { useEffect, useRef, useState, memo } from "react";
+
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import type { IEpic } from "@plane/types";
@@ -41,7 +41,7 @@ type TEpicDropdownBaseProps = TDropdownProps & {
       }
   );
 
-export const EpicDropdownBase = observer(function EpicDropdownBase(props: TEpicDropdownBaseProps) {
+export const EpicDropdownBase = memo(function EpicDropdownBase(props: TEpicDropdownBaseProps) {
   const {
     button,
     buttonClassName,

@@ -44,7 +44,7 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
 
   const issueFilters = globalViewId ? filters[globalViewId.toString()] : undefined;
 
-  const activeLayout = issueFilters?.displayFilters?.layout;
+  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
   const viewDetails = globalViewId ? getViewDetailsById(globalViewId) : undefined;
 
   const handleDisplayFilters = useCallback(

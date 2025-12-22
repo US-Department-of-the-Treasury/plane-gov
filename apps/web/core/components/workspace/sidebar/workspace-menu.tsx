@@ -41,7 +41,7 @@ export const SidebarWorkspaceMenu = observer(function SidebarWorkspaceMenu() {
       Icon: SprintIcon,
     },
     {
-      key: "resource-view",
+      key: "resource_view",
       labelTranslationKey: "sidebar.resource_view",
       href: `/${workspaceSlug}/resource-view/`,
       access: [EUserWorkspaceRoles.ADMIN, EUserWorkspaceRoles.MEMBER],

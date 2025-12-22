@@ -1,5 +1,4 @@
-import { useCallback, useRef, useState } from "react";
-import { observer } from "mobx-react";
+import { memo, useCallback, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 // plane imports
 import { Plus, Search } from "lucide-react";
@@ -19,7 +18,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import type { TProject } from "@/plane-web/types";
 import { ExtendedSidebarWrapper } from "./extended-sidebar-wrapper";
 
-export const ExtendedProjectSidebar = observer(function ExtendedProjectSidebar() {
+export const ExtendedProjectSidebar = memo(function ExtendedProjectSidebar() {
   // refs
   const extendedProjectSidebarRef = useRef<HTMLDivElement | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");

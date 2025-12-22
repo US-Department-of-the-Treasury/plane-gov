@@ -1,5 +1,4 @@
-import React, { useMemo } from "react";
-import { observer } from "mobx-react";
+import React, { memo, useMemo } from "react";
 import { Ellipsis } from "lucide-react";
 import { Disclosure, Transition } from "@headlessui/react";
 // plane imports
@@ -24,7 +23,7 @@ import {
 // plane-web imports
 import { SidebarItem } from "@/plane-web/components/workspace/sidebar/sidebar-item";
 
-export const SidebarMenuItems = observer(function SidebarMenuItems() {
+export const SidebarMenuItems = memo(function SidebarMenuItems() {
   // routers
   const { setValue: toggleWorkspaceMenu, storedValue: isWorkspaceMenuOpen } = useLocalStorage<boolean>(
     "is_workspace_menu_open",

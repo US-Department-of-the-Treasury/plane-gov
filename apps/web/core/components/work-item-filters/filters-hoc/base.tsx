@@ -1,5 +1,4 @@
-import { useEffect, useMemo } from "react";
-import { observer } from "mobx-react";
+import { memo, useEffect, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
 // plane imports
 import type { TSaveViewOptions, TUpdateViewOptions } from "@plane/constants";
@@ -20,7 +19,7 @@ type TAdditionalWorkItemFiltersProps = {
 
 type TWorkItemFiltersHOCProps = TSharedWorkItemFiltersHOCProps & TAdditionalWorkItemFiltersProps;
 
-export const WorkItemFiltersHOC = observer(function WorkItemFiltersHOC(props: TWorkItemFiltersHOCProps) {
+export const WorkItemFiltersHOC = memo(function WorkItemFiltersHOC(props: TWorkItemFiltersHOCProps) {
   const { children, initialWorkItemFilters } = props;
 
   // Only initialize filter instance when initial work item filters are defined
@@ -40,7 +39,7 @@ type TWorkItemFilterProps = TSharedWorkItemFiltersProps &
     children: React.ReactNode | ((props: { filter: IWorkItemFilterInstance }) => React.ReactNode);
   };
 
-const WorkItemFilterRoot = observer(function WorkItemFilterRoot(props: TWorkItemFilterProps) {
+const WorkItemFilterRoot = memo(function WorkItemFilterRoot(props: TWorkItemFilterProps) {
   const {
     children,
     entityType,

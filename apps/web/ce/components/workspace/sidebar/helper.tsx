@@ -23,7 +23,7 @@ export const getSidebarNavigationItemIcon = (key: string, className: string = ""
       return <ProjectIcon className={cn("size-4 flex-shrink-0", className)} />;
     case "views":
       return <ViewsIcon className={cn("size-4 flex-shrink-0", className)} />;
-    case "resource-view":
+    case "resource_view":
       return <TeamsIcon className={cn("size-4 flex-shrink-0", className)} />;
     case "active_sprints":
       return <SprintIcon className={cn("size-4 flex-shrink-0", className)} />;

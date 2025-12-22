@@ -1,4 +1,4 @@
-import { observer } from "mobx-react";
+import { memo } from "react";
 // plane imports
 import type { EIssuesStoreType } from "@plane/types";
 // components
@@ -11,7 +11,7 @@ type TWorkItemFiltersToggleProps = {
   entityId: string;
 };
 
-export const WorkItemFiltersToggle = observer(function WorkItemFiltersToggle(props: TWorkItemFiltersToggleProps) {
+export const WorkItemFiltersToggle = memo(function WorkItemFiltersToggle(props: TWorkItemFiltersToggleProps) {
   const { entityType, entityId } = props;
   // store hooks
   const { getFilter } = useWorkItemFilters();

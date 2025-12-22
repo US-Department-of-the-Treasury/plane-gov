@@ -129,20 +129,6 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
   const { moveIssue } = useWorkspaceDraftIssues();
   const { fetchSprints } = useProjectIssueProperties();
 
-  // Get parent issue data if parentId exists
-  const parentId = watch("parent_id");
-  const { data: parentIssue } = useIssue(
-    workspaceSlug?.toString() ?? "",
-    projectId ?? "",
-    parentId ?? "",
-  );
-
-  // queries
-  const { data: projectStates } = useProjectStates(
-    workspaceSlug?.toString() ?? "",
-    projectId ?? ""
-  );
-
   // form info
   const methods = useForm<TIssue>({
     defaultValues: { ...DEFAULT_WORK_ITEM_FORM_VALUES, project_id: defaultProjectId, ...data },
@@ -160,6 +146,20 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
   } = methods;
 
   const projectId = watch("project_id");
+
+  // Get parent issue data if parentId exists
+  const parentId = watch("parent_id");
+  const { data: parentIssue } = useIssue(
+    workspaceSlug?.toString() ?? "",
+    projectId ?? "",
+    parentId ?? "",
+  );
+
+  // queries
+  const { data: projectStates } = useProjectStates(
+    workspaceSlug?.toString() ?? "",
+    projectId ?? ""
+  );
   const activeAdditionalPropertiesLength = getActiveAdditionalPropertiesLength({
     projectId: projectId,
     workspaceSlug: workspaceSlug?.toString(),
