@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from drf_spectacular.utils import OpenApiResponse, OpenApiRequest
 
-# Module imports
+# Package imports
 from plane.api.serializers import StateSerializer
 from plane.app.permissions import ProjectEntityPermission
 from plane.db.models import Issue, State

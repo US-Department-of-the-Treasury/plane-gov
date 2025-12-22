@@ -52,7 +52,7 @@ export function CreateWebhookModal(props: ICreateWebhookModal) {
         ...payload,
         project: true,
         sprint: true,
-        module: true,
+        epic: true,
         issue: true,
         issue_comment: true,
       };
@@ -61,7 +61,7 @@ export function CreateWebhookModal(props: ICreateWebhookModal) {
         ...payload,
         project: formData.project ?? false,
         sprint: formData.sprint ?? false,
-        module: formData.module ?? false,
+        epic: formData.epic ?? false,
         issue: formData.issue ?? false,
         issue_comment: formData.issue_comment ?? false,
       };

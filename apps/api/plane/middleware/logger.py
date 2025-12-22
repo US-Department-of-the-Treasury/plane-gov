@@ -9,7 +9,7 @@ from django.utils import timezone
 # Third party imports
 from rest_framework.request import Request
 
-# Module imports
+# Package imports
 from plane.utils.ip_address import get_client_ip
 from plane.utils.exception_logger import log_exception
 from plane.bgtasks.logger_task import process_logs

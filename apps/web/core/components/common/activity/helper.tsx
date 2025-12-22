@@ -28,7 +28,7 @@ import {
   IntakeIcon,
   LabelPropertyIcon,
   MembersPropertyIcon,
-  ModuleIcon,
+  EpicIcon,
   PriorityPropertyIcon,
   StartDatePropertyIcon,
   StatePropertyIcon,
@@ -55,7 +55,7 @@ export const iconsMap: ActivityIconMap = {
   state: StatePropertyIcon,
   estimate: EstimatePropertyIcon,
   sprint: SprintIcon,
-  module: ModuleIcon,
+  epic: EpicIcon,
   page: FileText,
   network: Globe,
   identifier: Hash,
@@ -66,7 +66,7 @@ export const iconsMap: ActivityIconMap = {
   is_time_tracking_enabled: Timer,
   is_issue_type_enabled: ListTodo,
   default: Network,
-  module_view: ModuleIcon,
+  epic_view: EpicIcon,
   sprint_view: SprintIcon,
   issue_views_view: Layers,
   page_view: FileText,
@@ -192,15 +192,15 @@ export const messages = (activity: TProjectActivity): { message: string | ReactN
           </>
         ),
       };
-    case "modules":
+    case "epics":
       return {
         message: (
           <>
             <span>
-              {verb} this project {verb === "removed" ? "from" : "to"} the module{" "}
+              {verb} this project {verb === "removed" ? "from" : "to"} the epic{" "}
             </span>
             <span className="font-medium text-primary">
-              {verb === "removed" ? oldValue : newValue || "Unknown module"}
+              {verb === "removed" ? oldValue : newValue || "Unknown epic"}
             </span>
           </>
         ),
@@ -247,7 +247,7 @@ export const messages = (activity: TProjectActivity): { message: string | ReactN
           </>
         ),
       };
-    case "module_view":
+    case "epic_view":
     case "sprint_view":
     case "issue_views_view":
     case "page_view":

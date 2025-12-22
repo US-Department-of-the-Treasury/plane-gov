@@ -13,7 +13,7 @@ import {
   PROJECT_STATES,
   PROJECT_ESTIMATES,
   PROJECT_ALL_SPRINTS,
-  PROJECT_MODULES,
+  PROJECT_EPICS,
   PROJECT_VIEWS,
   PROJECT_INTAKE_STATE,
 } from "@/constants/fetch-keys";
@@ -24,7 +24,7 @@ import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { useTimeLineChart } from "@/hooks/use-timeline-chart";
 import { useProjectLabels } from "@/store/queries/label";
 import { useProjectMembers } from "@/store/queries/member";
-import { useProjectModules } from "@/store/queries/module";
+import { useProjectEpics } from "@/store/queries/epic";
 import { useProjectDetails } from "@/store/queries/project";
 import { useProjectStates, useIntakeState } from "@/store/queries/state";
 import { useProjectSprints } from "@/store/queries/sprint";
@@ -43,16 +43,16 @@ export function ProjectAuthWrapper(props: IProjectAuthWrapper) {
   // store hooks
   const { fetchUserProjectInfo, allowPermissions, getProjectRoleByWorkspaceSlugAndProjectId } = useUserPermissions();
   const { joinProject } = useUserPermissions();
-  const { initGantt } = useTimeLineChart(GANTT_TIMELINE_TYPE.MODULE);
+  const { initGantt } = useTimeLineChart(GANTT_TIMELINE_TYPE.EPIC);
   const { fetchViews } = useProjectView();
   const { data: currentUserData } = useUser();
   const { getProjectEstimates } = useProjectEstimates();
-  // TanStack Query - auto-fetches project details, states, intake state, sprints, modules, and members
+  // TanStack Query - auto-fetches project details, states, intake state, sprints, epics, and members
   const { isLoading: isProjectDetailsLoading, error: projectDetailsError } = useProjectDetails(workspaceSlug, projectId);
   useProjectStates(workspaceSlug, projectId);
   useIntakeState(workspaceSlug, projectId);
   useProjectSprints(workspaceSlug, projectId);
-  useProjectModules(workspaceSlug, projectId);
+  useProjectEpics(workspaceSlug, projectId);
   useProjectMembers(workspaceSlug, projectId);
   // derived values
   const hasPermissionToCurrentProject = allowPermissions(
@@ -63,7 +63,7 @@ export function ProjectAuthWrapper(props: IProjectAuthWrapper) {
   );
   const currentProjectRole = getProjectRoleByWorkspaceSlugAndProjectId(workspaceSlug, projectId);
   const isWorkspaceAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE, workspaceSlug);
-  // Initialize module timeline chart
+  // Initialize epic timeline chart
   useEffect(() => {
     initGantt();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,7 +79,7 @@ export function ProjectAuthWrapper(props: IProjectAuthWrapper) {
     revalidateOnFocus: false,
   });
   // fetching project sprints - handled by TanStack Query useProjectSprints hook above
-  // fetching project modules - handled by TanStack Query useProjectModules hook above
+  // fetching project epics - handled by TanStack Query useProjectEpics hook above
   // fetching project views
   useSWR(PROJECT_VIEWS(projectId, currentProjectRole), () => fetchViews(workspaceSlug, projectId), {
     revalidateIfStale: false,

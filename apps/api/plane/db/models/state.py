@@ -3,7 +3,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.db.models import Q
 
-# Module imports
+# Package imports
 from .project import ProjectBaseModel
 
 

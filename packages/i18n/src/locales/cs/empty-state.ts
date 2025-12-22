@@ -54,15 +54,15 @@ export default {
       cta_primary: "Vytvořit pracovní položku",
       cta_secondary: "Přidat existující pracovní položku",
     },
-    modules: {
-      title: "Namapujte cíle vašeho projektu na moduly a snadno sledujte.",
+    epics: {
+      title: "Namapujte cíle vašeho projektu na epicy a snadno sledujte.",
       description:
-        "Moduly se skládají z propojených pracovních položek. Pomáhají sledovat pokrok prostřednictvím fází projektu, z nichž každá má specifické termíny a analytiku, která ukazuje, jak blízko jste dosažení těchto fází.",
-      cta_primary: "Nastavte svůj první modul",
+        "Epicy se skládají z propojených pracovních položek. Pomáhají sledovat pokrok prostřednictvím fází projektu, z nichž každá má specifické termíny a analytiku, která ukazuje, jak blízko jste dosažení těchto fází.",
+      cta_primary: "Nastavte svůj první epic",
     },
-    module_work_items: {
-      title: "V tomto modulu nejsou žádné pracovní položky k zobrazení",
-      description: "Vytvořte pracovní položky pro zahájení sledování tohoto modulu.",
+    epic_work_items: {
+      title: "V tomto epicu nejsou žádné pracovní položky k zobrazení",
+      description: "Vytvořte pracovní položky pro zahájení sledování tohoto epicu.",
       cta_primary: "Vytvořit pracovní položku",
       cta_secondary: "Přidat existující pracovní položku",
     },
@@ -114,10 +114,10 @@ export default {
       title: "Zatím žádné archivované cykly",
       description: "Pro úklid vašeho projektu archivujte dokončené cykly. Najdete je zde, jakmile budou archivovány.",
     },
-    archive_modules: {
-      title: "Zatím žádné archivované moduly",
+    archive_epics: {
+      title: "Zatím žádné archivované epicy",
       description:
-        "Pro úklid vašeho projektu archivujte dokončené nebo zrušené moduly. Najdete je zde, jakmile budou archivovány.",
+        "Pro úklid vašeho projektu archivujte dokončené nebo zrušené epicy. Najdete je zde, jakmile budou archivovány.",
     },
     home_widget_quick_links: {
       title: "Mějte po ruce důležité odkazy, zdroje nebo dokumenty pro vaši práci",
@@ -160,8 +160,8 @@ export default {
     analytics_no_sprint: {
       title: "Vytvořte cykly pro organizaci práce do časově omezených fází a sledování pokroku napříč sprinty.",
     },
-    analytics_no_module: {
-      title: "Vytvořte moduly pro organizaci své práce a sledování pokroku napříč různými fázemi.",
+    analytics_no_epic: {
+      title: "Vytvořte epicy pro organizaci své práce a sledování pokroku napříč různými fázemi.",
     },
     analytics_no_intake: {
       title: "Nastavte příjem pro správu příchozích požadavků a sledování, jak jsou přijímány a odmítány",

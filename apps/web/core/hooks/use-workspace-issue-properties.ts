@@ -5,7 +5,7 @@ import { useWorkspaceIssuePropertiesExtended } from "@/plane-web/hooks/use-works
 // plane imports
 import { useProjectEstimates } from "./store/estimates";
 import { useLabel } from "./store/use-label";
-import { useWorkspaceModules } from "@/store/queries/module";
+import { useWorkspaceEpics } from "@/store/queries/epic";
 import { useWorkspaceSprints } from "@/store/queries/sprint";
 
 export const useWorkspaceIssueProperties = (workspaceSlug: string | string[] | undefined) => {
@@ -13,8 +13,8 @@ export const useWorkspaceIssueProperties = (workspaceSlug: string | string[] | u
 
   const { getWorkspaceEstimates } = useProjectEstimates();
 
-  // fetch workspace Modules - handled by TanStack Query useWorkspaceModules hook
-  useWorkspaceModules(workspaceSlug ? workspaceSlug.toString() : "");
+  // fetch workspace Epics - handled by TanStack Query useWorkspaceEpics hook
+  useWorkspaceEpics(workspaceSlug ? workspaceSlug.toString() : "");
 
   // fetch workspace Sprints - handled by TanStack Query useWorkspaceSprints hook
   useWorkspaceSprints(workspaceSlug ? workspaceSlug.toString() : "");

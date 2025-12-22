@@ -30,7 +30,7 @@ export const CalendarQuickAddIssueActions = observer(function CalendarQuickAddIs
   const { prePopulatedData, quickAddCallback, addIssuesToView, onOpen, isEpic = false } = props;
   const { t } = useTranslation();
   // router
-  const { workspaceSlug, projectId, moduleId } = useParams();
+  const { workspaceSlug, projectId, epicId } = useParams();
   // states
   const [isOpen, setIsOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -41,8 +41,8 @@ export const CalendarQuickAddIssueActions = observer(function CalendarQuickAddIs
 
   // derived values
   const ExistingIssuesListModalPayload = addIssuesToView
-    ? moduleId
-      ? { module: moduleId.toString(), target_date: "none" }
+    ? epicId
+      ? { epic: epicId.toString(), target_date: "none" }
       : { sprint: true, target_date: "none" }
     : { target_date: "none" };
 

@@ -1,0 +1,79 @@
+import { observer } from "mobx-react";
+import useSWR from "swr";
+// plane imports
+import { cn } from "@plane/utils";
+// assets
+import emptyEpic from "@/app/assets/empty-state/epic.svg?url";
+// components
+import { EmptyState } from "@/components/common/empty-state";
+import { PageHead } from "@/components/core/page-title";
+import { EpicLayoutRoot } from "@/components/issues/issue-layouts/roots/epic-layout-root";
+import { EpicAnalyticsSidebar } from "@/components/epics";
+// hooks
+import { useEpic } from "@/hooks/store/use-epic";
+import { useProject } from "@/hooks/store/use-project";
+import { useAppRouter } from "@/hooks/use-app-router";
+import useLocalStorage from "@/hooks/use-local-storage";
+// tanstack query
+import { useProjectDetails } from "@/store/queries/project";
+import type { Route } from "./+types/page";
+
+function EpicIssuesPage({ params }: Route.ComponentProps) {
+  // router
+  const router = useAppRouter();
+  const { workspaceSlug, projectId, epicId } = params;
+  // store hooks
+  const { fetchEpicDetails, getEpicById } = useEpic();
+  const { getProjectById } = useProject();
+  // const { issuesFilter } = useIssues(EIssuesStoreType.EPIC);
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
+  // local storage
+  const { setValue, storedValue } = useLocalStorage("epic_sidebar_collapsed", "false");
+  const isSidebarCollapsed = storedValue ? (storedValue === "true" ? true : false) : false;
+  // fetching epic details
+  const { error } = useSWR(`CURRENT_EPIC_DETAILS_${epicId}`, () =>
+    fetchEpicDetails(workspaceSlug, projectId, epicId)
+  );
+  // derived values
+  const projectEpic = getEpicById(epicId);
+  const pageTitle = project?.name && projectEpic?.name ? `${project?.name} - ${projectEpic?.name}` : undefined;
+
+  const toggleSidebar = () => {
+    setValue(`${!isSidebarCollapsed}`);
+  };
+
+  // const activeLayout = issuesFilter?.issueFilters?.displayFilters?.layout;
+  return (
+    <>
+      <PageHead title={pageTitle} />
+      {error ? (
+        <EmptyState
+          image={emptyEpic}
+          title="Epic does not exist"
+          description="The epic you are looking for does not exist or has been deleted."
+          primaryButton={{
+            text: "View other epics",
+            onClick: () => router.push(`/${workspaceSlug}/projects/${projectId}/epics`),
+          }}
+        />
+      ) : (
+        <div className="flex h-full w-full">
+          <div className="h-full w-full overflow-hidden">
+            <EpicLayoutRoot />
+          </div>
+          {!isSidebarCollapsed && (
+            <div
+              className={cn(
+                "flex h-full w-[24rem] flex-shrink-0 flex-col gap-3.5 overflow-y-auto border-l border-subtle bg-surface-1 px-6 duration-300 vertical-scrollbar scrollbar-sm absolute right-0 z-13 shadow-raised-200"
+              )}
+            >
+              <EpicAnalyticsSidebar epicId={epicId} handleClose={toggleSidebar} />
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+export default observer(EpicIssuesPage);

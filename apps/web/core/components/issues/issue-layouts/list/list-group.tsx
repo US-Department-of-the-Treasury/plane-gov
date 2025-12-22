@@ -169,8 +169,8 @@ export const ListGroup = observer(function ListGroup(props: Props) {
         preloadedData = { ...preloadedData, assignee_ids: [value] };
       } else if (groupByKey === "sprint" && value != "None") {
         preloadedData = { ...preloadedData, sprint_id: value };
-      } else if (groupByKey === "module" && value != "None") {
-        preloadedData = { ...preloadedData, module_ids: [value] };
+      } else if (groupByKey === "epic" && value != "None") {
+        preloadedData = { ...preloadedData, epic_ids: [value] };
       } else if (groupByKey === "created_by") {
         preloadedData = { ...preloadedData };
       } else {

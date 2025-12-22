@@ -55,15 +55,15 @@ export default {
       cta_primary: "Buat item kerja",
       cta_secondary: "Tambahkan item kerja yang ada",
     },
-    modules: {
-      title: "Petakan tujuan proyek Anda ke Modul dan lacak dengan mudah.",
+    epics: {
+      title: "Petakan tujuan proyek Anda ke Epic dan lacak dengan mudah.",
       description:
-        "Modul terdiri dari item kerja yang saling berhubungan. Mereka membantu dalam memantau kemajuan melalui fase proyek, masing-masing dengan tenggat waktu dan analitik khusus untuk menunjukkan seberapa dekat Anda dengan mencapai fase tersebut.",
-      cta_primary: "Atur modul pertama Anda",
+        "Epic terdiri dari item kerja yang saling berhubungan. Mereka membantu dalam memantau kemajuan melalui fase proyek, masing-masing dengan tenggat waktu dan analitik khusus untuk menunjukkan seberapa dekat Anda dengan mencapai fase tersebut.",
+      cta_primary: "Atur epic pertama Anda",
     },
-    module_work_items: {
-      title: "Tidak ada item kerja untuk ditampilkan dalam Modul ini",
-      description: "Buat item kerja untuk mulai memantau modul ini.",
+    epic_work_items: {
+      title: "Tidak ada item kerja untuk ditampilkan dalam Epic ini",
+      description: "Buat item kerja untuk mulai memantau epic ini.",
       cta_primary: "Buat item kerja",
       cta_secondary: "Tambahkan item kerja yang ada",
     },
@@ -115,10 +115,10 @@ export default {
       description:
         "Untuk merapikan proyek Anda, arsipkan siklus yang telah selesai. Temukan di sini setelah diarsipkan.",
     },
-    archive_modules: {
-      title: "Belum ada Modul yang diarsipkan",
+    archive_epics: {
+      title: "Belum ada Epic yang diarsipkan",
       description:
-        "Untuk merapikan proyek Anda, arsipkan modul yang selesai atau dibatalkan. Temukan di sini setelah diarsipkan.",
+        "Untuk merapikan proyek Anda, arsipkan epic yang selesai atau dibatalkan. Temukan di sini setelah diarsipkan.",
     },
     home_widget_quick_links: {
       title: "Simpan referensi penting, sumber daya, atau dokumen untuk pekerjaan Anda",
@@ -162,8 +162,8 @@ export default {
       title:
         "Buat siklus untuk mengorganisir pekerjaan ke dalam fase berbatas waktu dan melacak kemajuan di seluruh sprint.",
     },
-    analytics_no_module: {
-      title: "Buat modul untuk mengorganisir pekerjaan Anda dan melacak kemajuan di berbagai tahap.",
+    analytics_no_epic: {
+      title: "Buat epic untuk mengorganisir pekerjaan Anda dan melacak kemajuan di berbagai tahap.",
     },
     analytics_no_intake: {
       title: "Siapkan masukan untuk mengelola permintaan masuk dan melacak bagaimana mereka diterima dan ditolak",

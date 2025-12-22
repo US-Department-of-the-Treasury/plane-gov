@@ -152,7 +152,7 @@ export interface IWorkspaceSearchResults {
     project: IWorkspaceProjectSearchResult[];
     issue: IWorkspaceIssueSearchResult[];
     sprint: IWorkspaceDefaultSearchResult[];
-    module: IWorkspaceDefaultSearchResult[];
+    epic: IWorkspaceDefaultSearchResult[];
     issue_view: IWorkspaceDefaultSearchResult[];
     page: IWorkspacePageSearchResult[];
   };

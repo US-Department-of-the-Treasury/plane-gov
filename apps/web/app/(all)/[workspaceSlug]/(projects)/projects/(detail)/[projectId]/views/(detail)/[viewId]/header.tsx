@@ -188,7 +188,7 @@ export const ProjectViewIssuesHeader = observer(function ProjectViewIssuesHeader
                 displayProperties={issueFilters?.displayProperties ?? {}}
                 handleDisplayPropertiesUpdate={handleDisplayProperties}
                 sprintViewDisabled={!currentProjectDetails?.sprint_view}
-                moduleViewDisabled={!currentProjectDetails?.module_view}
+                epicViewDisabled={!currentProjectDetails?.epic_view}
               />
             </FiltersDropdown>
           )}

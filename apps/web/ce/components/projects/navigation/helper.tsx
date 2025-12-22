@@ -1,6 +1,6 @@
 // plane imports
 import { EUserPermissions, EProjectFeatureKey } from "@plane/constants";
-import { SprintIcon, IntakeIcon, ModuleIcon, PageIcon, ViewsIcon, WorkItemsIcon } from "@plane/propel/icons";
+import { SprintIcon, IntakeIcon, EpicIcon, PageIcon, ViewsIcon, WorkItemsIcon } from "@plane/propel/icons";
 // components
 import type { TNavigationItem } from "@/components/workspace/sidebar/project-navigation";
 
@@ -9,7 +9,7 @@ export const getProjectFeatureNavigation = (
   projectId: string,
   project: {
     sprint_view: boolean;
-    module_view: boolean;
+    epic_view: boolean;
     issue_views_view: boolean;
     page_view: boolean;
     inbox_view: boolean;
@@ -36,13 +36,13 @@ export const getProjectFeatureNavigation = (
     sortOrder: 2,
   },
   {
-    i18n_key: "sidebar.modules",
-    key: EProjectFeatureKey.MODULES,
-    name: "Modules",
-    href: `/${workspaceSlug}/projects/${projectId}/modules`,
-    icon: ModuleIcon,
+    i18n_key: "sidebar.epics",
+    key: EProjectFeatureKey.EPICS,
+    name: "Epics",
+    href: `/${workspaceSlug}/projects/${projectId}/epics`,
+    icon: EpicIcon,
     access: [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    shouldRender: project.module_view,
+    shouldRender: project.epic_view,
     sortOrder: 3,
   },
   {

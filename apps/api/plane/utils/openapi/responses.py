@@ -1,7 +1,7 @@
 """
 Common OpenAPI responses for drf-spectacular.
 
-This module provides reusable response definitions for common HTTP status codes
+This epic provides reusable response definitions for common HTTP status codes
 and scenarios that occur across multiple API endpoints.
 """
 
@@ -249,23 +249,23 @@ LABEL_NAME_EXISTS_RESPONSE = OpenApiResponse(
     ],
 )
 
-# Module-specific Responses
-MODULE_NOT_FOUND_RESPONSE = OpenApiResponse(
-    description="Module not found",
+# Epic-specific Responses
+EPIC_NOT_FOUND_RESPONSE = OpenApiResponse(
+    description="Epic not found",
     examples=[
         OpenApiExample(
-            name="Module Not Found",
-            value={"error": "Module not found"},
+            name="Epic Not Found",
+            value={"error": "Epic not found"},
         )
     ],
 )
 
-MODULE_ISSUE_NOT_FOUND_RESPONSE = OpenApiResponse(
-    description="Module issue not found",
+EPIC_ISSUE_NOT_FOUND_RESPONSE = OpenApiResponse(
+    description="Epic issue not found",
     examples=[
         OpenApiExample(
-            name="Module Issue Not Found",
-            value={"error": "Module issue not found"},
+            name="Epic Issue Not Found",
+            value={"error": "Epic issue not found"},
         )
     ],
 )

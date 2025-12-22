@@ -12,7 +12,7 @@ import { PowerKMembersMenu } from "../../../../menus/members";
 import { PowerKWorkItemSprintsMenu } from "./sprints-menu";
 import { PowerKWorkItemEstimatesMenu } from "./estimates-menu";
 import { PowerKWorkItemLabelsMenu } from "./labels-menu";
-import { PowerKWorkItemModulesMenu } from "./modules-menu";
+import { PowerKWorkItemEpicsMenu } from "./epics-menu";
 import { PowerKWorkItemPrioritiesMenu } from "./priorities-menu";
 import { PowerKProjectStatesMenu } from "./states-menu";
 
@@ -70,9 +70,9 @@ export const PowerKWorkItemContextBasedPages = observer(function PowerKWorkItemC
       {activePage === "update-work-item-sprint" && (
         <PowerKWorkItemSprintsMenu handleSelect={handleSelection} workItemDetails={entityDetails} />
       )}
-      {/* modules menu */}
-      {activePage === "update-work-item-module" && (
-        <PowerKWorkItemModulesMenu handleSelect={handleSelection} workItemDetails={entityDetails} />
+      {/* epics menu */}
+      {activePage === "update-work-item-epic" && (
+        <PowerKWorkItemEpicsMenu handleSelect={handleSelection} workItemDetails={entityDetails} />
       )}
       {/* labels menu */}
       {activePage === "update-work-item-labels" && (

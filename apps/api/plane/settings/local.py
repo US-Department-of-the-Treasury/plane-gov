@@ -38,12 +38,12 @@ LOGGING = {
     "disable_existing_loggers": True,
     "formatters": {
         "verbose": {
-            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "format": "{levelname} {asctime} {epic} {process:d} {thread:d} {message}",
             "style": "{",
         },
         "json": {
             "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
-            "fmt": "%(levelname)s %(asctime)s %(module)s %(name)s %(message)s",
+            "fmt": "%(levelname)s %(asctime)s %(epic)s %(name)s %(message)s",
         },
     },
     "handlers": {

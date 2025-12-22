@@ -13,7 +13,7 @@ export const DEFAULT_WORK_ITEM_FORM_VALUES: Partial<TIssue> = {
   assignee_ids: [],
   label_ids: [],
   sprint_id: null,
-  module_ids: null,
+  epic_ids: null,
   start_date: null,
   target_date: null,
 };

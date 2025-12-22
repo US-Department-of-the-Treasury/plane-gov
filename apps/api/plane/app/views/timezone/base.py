@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
-# Module imports
+# Package imports
 from plane.authentication.rate_limit import AuthenticationThrottle
 
 

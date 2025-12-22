@@ -3,7 +3,7 @@ export * from "./label";
 export * from "./members";
 export * from "./priority";
 export * from "./project";
-export * from "./module";
+export * from "./epic";
 export * from "./sprint";
 export * from "./state";
 export * from "./state-group";

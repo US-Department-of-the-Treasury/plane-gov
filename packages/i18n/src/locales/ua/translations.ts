@@ -11,7 +11,7 @@ export default {
     analytics: "Аналітика",
     work_items: "Робочі одиниці",
     sprints: "Цикли",
-    modules: "Модулі",
+    epics: "Модулі",
     intake: "Надходження",
     drafts: "Чернетки",
     favorites: "Вибране",
@@ -372,7 +372,7 @@ export default {
   open_project: "Відкрити проєкт",
   issues: "Робочі одиниці",
   sprints: "Цикли",
-  modules: "Модулі",
+  epics: "Модулі",
   pages: "Сторінки",
   intake: "Надходження",
   time_tracking: "Відстеження часу",
@@ -381,7 +381,7 @@ export default {
   projects_and_issues_description: "Увімкніть або вимкніть ці функції в проєкті.",
   sprints_description:
     "Обмежуйте роботу в часі для кожного проєкту та за потреби коригуйте період. Один цикл може тривати 2 тижні, наступний — 1 тиждень.",
-  modules_description: "Організуйте роботу в підпроєкти з окремими керівниками та виконавцями.",
+  epics_description: "Організуйте роботу в підпроєкти з окремими керівниками та виконавцями.",
   views_description: "Зберігайте власні сортування, фільтри та варіанти відображення або діліться ними з командою.",
   pages_description: "Створюйте та редагуйте довільний вміст: нотатки, документи, що завгодно.",
   intake_description:
@@ -655,8 +655,8 @@ export default {
     project: "Проєкт",
     sprint: "Цикл",
     sprints: "Цикли",
-    module: "Модуль",
-    modules: "Модулі",
+    epic: "Епік",
+    epics: "Модулі",
     labels: "Мітки",
     label: "Мітка",
     assignees: "Призначені",
@@ -995,7 +995,7 @@ export default {
         success: "Робочу одиницю вилучено з циклу.",
         failed: "Не вдалося вилучити робочу одиницю з циклу. Спробуйте ще раз.",
       },
-      module: {
+      epic: {
         loading: "Вилучення робочої одиниці з модуля",
         success: "Робочу одиницю вилучено з модуля.",
         failed: "Не вдалося вилучити робочу одиницю з модуля. Спробуйте ще раз.",
@@ -1345,7 +1345,7 @@ export default {
     selected_projects: "Вибрані проєкти",
     total_members: "Усього учасників",
     total_sprints: "Усього циклів",
-    total_modules: "Усього модулів",
+    total_epics: "Усього модулів",
     pending_work_items: {
       title: "Робочі одиниці, що очікують",
       empty_state: "Тут буде аналітика щодо робочих одиниць у розрізі виконавців.",
@@ -1432,7 +1432,7 @@ export default {
     error: {
       permission: "У вас немає прав для цієї дії.",
       sprint_delete: "Не вдалося видалити цикл",
-      module_delete: "Не вдалося видалити модуль",
+      epic_delete: "Не вдалося видалити епік",
       issue_delete: "Не вдалося видалити робочу одиницю",
     },
     state: {
@@ -2126,23 +2126,23 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Додати модуль",
-    update_module: "Оновити модуль",
-    create_module: "Створити модуль",
-    archive_module: "Заархівувати модуль",
-    restore_module: "Відновити модуль",
-    delete_module: "Видалити модуль",
+  project_epic: {
+    add_epic: "Додати епік",
+    update_epic: "Оновити епік",
+    create_epic: "Створити епік",
+    archive_epic: "Заархівувати епік",
+    restore_epic: "Відновити епік",
+    delete_epic: "Видалити епік",
     empty_state: {
       general: {
         title: "Об’єднуйте ключові етапи в модулі.",
         description:
           "Модулі структурують одиниці під окремими логічними компонентами. Відстежуйте крайні строки та прогрес.",
         primary_button: {
-          text: "Створити перший модуль",
+          text: "Створити перший епік",
           comic: {
             title: "Модулі — це ієрархічні об’єднання.",
-            description: "Наприклад: модуль кошика, шасі, складу.",
+            description: "Наприклад: епік кошика, шасі, складу.",
           },
         },
       },
@@ -2166,13 +2166,13 @@ export default {
       },
     },
     quick_actions: {
-      archive_module: "Заархівувати модуль",
-      archive_module_description: "Архівувати можна лише завершені/скасовані модулі.",
-      delete_module: "Видалити модуль",
+      archive_epic: "Заархівувати епік",
+      archive_epic_description: "Архівувати можна лише завершені/скасовані модулі.",
+      delete_epic: "Видалити епік",
     },
     toast: {
       copy: {
-        success: "Посилання на модуль скопійовано",
+        success: "Посилання на епік скопійовано",
       },
       delete: {
         success: "Модуль видалено",
@@ -2350,7 +2350,7 @@ export default {
           text: "Керувати функціями",
         },
       },
-      module: {
+      epic: {
         title: "Модулі не увімкнені",
         description: "Увімкніть модулі в налаштуваннях проєкту.",
         primary_button: {
@@ -2539,7 +2539,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Backlog",
       planned: "Заплановано",
@@ -2566,9 +2566,9 @@ export default {
     label: "{count, plural, one {Цикл} few {Цикли} other {Циклів}}",
     no_sprint: "Немає циклу",
   },
-  module: {
+  epic: {
     label: "{count, plural, one {Модуль} few {Модулі} other {Модулів}}",
-    no_module: "Немає модуля",
+    no_epic: "Немає модуля",
   },
   description_versions: {
     last_edited_by: "Останнє редагування",

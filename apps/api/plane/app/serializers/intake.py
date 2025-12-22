@@ -1,7 +1,7 @@
 # Third party frameworks
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from .base import BaseSerializer
 from .issue import IssueIntakeSerializer, LabelLiteSerializer, IssueDetailSerializer
 from .project import ProjectLiteSerializer

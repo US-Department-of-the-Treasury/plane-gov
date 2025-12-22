@@ -2,7 +2,7 @@ import { BarChart2, Briefcase, FileText, Home, Inbox, Layers, PenSquare, Setting
 // plane imports
 import { EUserPermissionsLevel } from "@plane/constants";
 import { ArchiveIcon, UserActivityIcon, LayersIcon, ContrastIcon, DiceIcon, Intake } from "@plane/propel/icons";
-import type { ISprint, IModule, IPartialProject, IProjectView, IWorkspace } from "@plane/types";
+import type { ISprint, IEpic, IPartialProject, IProjectView, IWorkspace } from "@plane/types";
 import { EUserProjectRoles, EUserWorkspaceRoles } from "@plane/types";
 // components
 import type { TPowerKCommandConfig, TPowerKContext } from "@/components/power-k/core/types";
@@ -31,8 +31,8 @@ export type TPowerKNavigationCommandKeys =
   | "nav_project_work_items"
   | "open_project_sprint"
   | "nav_project_sprints"
-  | "open_project_module"
-  | "nav_project_modules"
+  | "open_project_epic"
+  | "nav_project_epics"
   | "open_project_view"
   | "nav_project_views"
   | "nav_project_pages"
@@ -336,35 +336,35 @@ export const usePowerKNavigationCommandsRecord = (): Record<TPowerKNavigationCom
         baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.sprint_view,
       closeOnSelect: true,
     },
-    open_project_module: {
-      id: "open_project_module",
+    open_project_epic: {
+      id: "open_project_epic",
       type: "change-page",
       group: "navigation",
-      i18n_title: "power_k.navigation_actions.open_project_module",
+      i18n_title: "power_k.navigation_actions.open_project_epic",
       icon: DiceIcon,
       keySequence: "om",
-      page: "open-project-module",
+      page: "open-project-epic",
       onSelect: (data, ctx) => {
-        const moduleDetails = data as IModule;
+        const epicDetails = data as IEpic;
         handlePowerKNavigate(ctx, [
           ctx.params.workspaceSlug?.toString(),
           "projects",
           ctx.params.projectId?.toString(),
-          "modules",
-          moduleDetails.id,
+          "epics",
+          epicDetails.id,
         ]);
       },
       isEnabled: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.module_view,
+        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.epic_view,
       isVisible: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.module_view,
+        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.epic_view,
       closeOnSelect: true,
     },
-    nav_project_modules: {
-      id: "nav_project_modules",
+    nav_project_epics: {
+      id: "nav_project_epics",
       type: "action",
       group: "navigation",
-      i18n_title: "power_k.navigation_actions.nav_project_modules",
+      i18n_title: "power_k.navigation_actions.nav_project_epics",
       icon: DiceIcon,
       keySequence: "gm",
       action: (ctx) =>
@@ -372,12 +372,12 @@ export const usePowerKNavigationCommandsRecord = (): Record<TPowerKNavigationCom
           ctx.params.workspaceSlug?.toString(),
           "projects",
           ctx.params.projectId?.toString(),
-          "modules",
+          "epics",
         ]),
       isEnabled: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.module_view,
+        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.epic_view,
       isVisible: (ctx) =>
-        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.module_view,
+        baseProjectConditions(ctx) && hasProjectMemberLevelPermissions(ctx) && !!getContextProject(ctx)?.epic_view,
       closeOnSelect: true,
     },
     open_project_view: {

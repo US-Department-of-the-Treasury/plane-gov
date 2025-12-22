@@ -4,7 +4,7 @@ from uuid import uuid4
 # Django imports
 from django.db import models
 
-# Module imports
+# Package imports
 from .workspace import WorkspaceBaseModel
 
 
@@ -16,7 +16,7 @@ class DeployBoard(WorkspaceBaseModel):
     TYPE_CHOICES = (
         ("project", "Project"),
         ("issue", "Issue"),
-        ("module", "Module"),
+        ("epic", "Epic"),
         ("sprint", "Sprint"),
         ("page", "Page"),
         ("view", "View"),

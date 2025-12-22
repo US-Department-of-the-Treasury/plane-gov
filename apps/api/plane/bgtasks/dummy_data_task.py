@@ -10,7 +10,7 @@ from django.db.models import Max
 from celery import shared_task
 from faker import Faker
 
-# Module imports
+# Package imports
 from plane.db.models import (
     Workspace,
     User,
@@ -20,14 +20,14 @@ from plane.db.models import (
     StateGroup,
     Label,
     Sprint,
-    Module,
+    Epic,
     Issue,
     IssueSequence,
     IssueAssignee,
     IssueLabel,
     IssueActivity,
     SprintIssue,
-    ModuleIssue,
+    EpicIssue,
     Page,
     ProjectPage,
     PageLabel,
@@ -184,12 +184,12 @@ def create_sprints(workspace, project, user_id, sprint_count):
     return Sprint.objects.bulk_create(sprints, ignore_conflicts=True)
 
 
-def create_modules(workspace, project, user_id, module_count):
+def create_epics(workspace, project, user_id, epic_count):
     fake = Faker()
     Faker.seed(0)
 
-    modules = []
-    for _ in range(0, module_count):
+    epics = []
+    for _ in range(0, epic_count):
         start_date = [None, fake.date_this_year()][random.randint(0, 1)]
         end_date = (
             None
@@ -200,8 +200,8 @@ def create_modules(workspace, project, user_id, module_count):
             )
         )
 
-        modules.append(
-            Module(
+        epics.append(
+            Epic(
                 name=fake.name(),
                 sort_order=random.randint(0, 65535),
                 start_date=start_date,
@@ -211,7 +211,7 @@ def create_modules(workspace, project, user_id, module_count):
             )
         )
 
-    return Module.objects.bulk_create(modules, ignore_conflicts=True)
+    return Epic.objects.bulk_create(epics, ignore_conflicts=True)
 
 
 def create_pages(workspace, project, user_id, pages_count):
@@ -450,9 +450,9 @@ def create_sprint_issues(workspace, project, user_id, issue_count):
     SprintIssue.objects.bulk_create(bulk_sprint_issues, batch_size=1000, ignore_conflicts=True)
 
 
-def create_module_issues(workspace, project, user_id, issue_count):
+def create_epic_issues(workspace, project, user_id, issue_count):
     # assignees
-    modules = Module.objects.filter(project=project).values_list("id", flat=True)
+    epics = Epic.objects.filter(project=project).values_list("id", flat=True)
     # issues = random.sample(
     #     list(
     #         Issue.objects.filter(project=project).values_list("id", flat=True)
@@ -461,23 +461,23 @@ def create_module_issues(workspace, project, user_id, issue_count):
     # )
     issues = list(Issue.objects.filter(project=project).values_list("id", flat=True))
 
-    shuffled_modules = list(modules)
+    shuffled_epics = list(epics)
 
-    # Bulk issue
-    bulk_module_issues = []
+    # Bulk epic issues
+    bulk_epic_issues = []
     for issue in issues:
-        random.shuffle(shuffled_modules)
-        for module in random.sample(shuffled_modules, random.randint(0, 5)):
-            bulk_module_issues.append(
-                ModuleIssue(
-                    module_id=module,
+        random.shuffle(shuffled_epics)
+        for epic in random.sample(shuffled_epics, random.randint(0, 5)):
+            bulk_epic_issues.append(
+                EpicIssue(
+                    epic_id=epic,
                     issue_id=issue,
                     project=project,
                     workspace=workspace,
                 )
             )
     # Issue assignees
-    ModuleIssue.objects.bulk_create(bulk_module_issues, batch_size=1000, ignore_conflicts=True)
+    EpicIssue.objects.bulk_create(bulk_epic_issues, batch_size=1000, ignore_conflicts=True)
 
 
 @shared_task
@@ -487,7 +487,7 @@ def create_dummy_data(
     members,
     issue_count,
     sprint_count,
-    module_count,
+    epic_count,
     pages_count,
     intake_issue_count,
 ):
@@ -511,8 +511,8 @@ def create_dummy_data(
     # create sprints
     create_sprints(workspace=workspace, project=project, user_id=user_id, sprint_count=sprint_count)
 
-    # create modules
-    create_modules(workspace=workspace, project=project, user_id=user_id, module_count=module_count)
+    # create epics
+    create_epics(workspace=workspace, project=project, user_id=user_id, epic_count=epic_count)
 
     # create pages
     create_pages(workspace=workspace, project=project, user_id=user_id, pages_count=pages_count)
@@ -543,7 +543,7 @@ def create_dummy_data(
     # create sprint issues
     create_sprint_issues(workspace=workspace, project=project, user_id=user_id, issue_count=issue_count)
 
-    # create module issues
-    create_module_issues(workspace=workspace, project=project, user_id=user_id, issue_count=issue_count)
+    # create epic issues
+    create_epic_issues(workspace=workspace, project=project, user_id=user_id, issue_count=issue_count)
 
     return

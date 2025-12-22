@@ -8,7 +8,7 @@ import {
 } from "@/components/workspace/sidebar/favorites/favorite-items/common";
 // helpers
 // hooks
-import { useProjectModules, getModuleById } from "@/store/queries/module";
+import { useProjectEpics, getEpicById } from "@/store/queries/epic";
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useProjectView } from "@/hooks/store/use-project-view";
@@ -26,7 +26,7 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
   // store hooks
   const { getViewById } = useProjectView();
   const { data: sprints } = useProjectSprints(workspaceSlug, favorite.project_id ?? "");
-  const { data: projectModules } = useProjectModules(workspaceSlug, favorite.project_id ?? "");
+  const { data: projectEpics } = useProjectEpics(workspaceSlug, favorite.project_id ?? "");
   const { data: projects } = useProjects(workspaceSlug);
   // additional details
   const { getAdditionalFavoriteItemDetails } = useAdditionalFavoriteItemDetails();
@@ -37,7 +37,7 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
   });
   const viewDetails = getViewById(favoriteItemId ?? "");
   const sprintDetail = getSprintById(sprints, favoriteItemId ?? "");
-  const moduleDetail = getModuleById(projectModules, favoriteItemId ?? "");
+  const epicDetail = getEpicById(projectEpics, favoriteItemId ?? "");
   const currentProjectDetails = getProjectById(projects, favorite.project_id ?? "");
 
   let itemIcon;
@@ -61,9 +61,9 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
       itemTitle = sprintDetail?.name ?? favoriteItemName;
       itemIcon = getFavoriteItemIcon("sprint");
       break;
-    case "module":
-      itemTitle = moduleDetail?.name ?? favoriteItemName;
-      itemIcon = getFavoriteItemIcon("module");
+    case "epic":
+      itemTitle = epicDetail?.name ?? favoriteItemName;
+      itemIcon = getFavoriteItemIcon("epic");
       break;
     default: {
       const additionalDetails = getAdditionalFavoriteItemDetails(workspaceSlug, favorite);

@@ -126,8 +126,8 @@ class IssueFilterSet(BaseFilterSet):
     sprint_id = filters.UUIDFilter(method="filter_sprint_id")
     sprint_id__in = UUIDInFilter(method="filter_sprint_id_in", lookup_expr="in")
 
-    module_id = filters.UUIDFilter(method="filter_module_id")
-    module_id__in = UUIDInFilter(method="filter_module_id_in", lookup_expr="in")
+    epic_id = filters.UUIDFilter(method="filter_epic_id")
+    epic_id__in = UUIDInFilter(method="filter_epic_id_in", lookup_expr="in")
 
     mention_id = filters.UUIDFilter(method="filter_mention_id")
     mention_id__in = UUIDInFilter(method="filter_mention_id_in", lookup_expr="in")
@@ -205,18 +205,18 @@ class IssueFilterSet(BaseFilterSet):
             issue_sprint__deleted_at__isnull=True,
         )
 
-    def filter_module_id(self, queryset, name, value):
-        """Filter by module ID, excluding soft deleted modules"""
+    def filter_epic_id(self, queryset, name, value):
+        """Filter by epic ID, excluding soft deleted epics"""
         return Q(
-            issue_module__module_id=value,
-            issue_module__deleted_at__isnull=True,
+            issue_epic__epic_id=value,
+            issue_epic__deleted_at__isnull=True,
         )
 
-    def filter_module_id_in(self, queryset, name, value):
-        """Filter by module IDs (in), excluding soft deleted modules"""
+    def filter_epic_id_in(self, queryset, name, value):
+        """Filter by epic IDs (in), excluding soft deleted epics"""
         return Q(
-            issue_module__module_id__in=value,
-            issue_module__deleted_at__isnull=True,
+            issue_epic__epic_id__in=value,
+            issue_epic__deleted_at__isnull=True,
         )
 
     def filter_mention_id(self, queryset, name, value):

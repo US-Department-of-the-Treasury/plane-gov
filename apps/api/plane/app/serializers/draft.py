@@ -4,7 +4,7 @@ from django.utils import timezone
 # Third Party imports
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from .base import BaseSerializer
 from plane.db.models import (
     User,
@@ -15,7 +15,7 @@ from plane.db.models import (
     DraftIssueAssignee,
     DraftIssueLabel,
     DraftIssueSprint,
-    DraftIssueModule,
+    DraftIssueEpic,
     ProjectMember,
     EstimatePoint,
 )
@@ -138,9 +138,9 @@ class DraftIssueCreateSerializer(BaseSerializer):
     def create(self, validated_data):
         assignees = validated_data.pop("assignee_ids", None)
         labels = validated_data.pop("label_ids", None)
-        modules = validated_data.pop("module_ids", None)
+        epics = validated_data.pop("epic_ids", None)
         sprint_id = self.initial_data.get("sprint_id", None)
-        modules = self.initial_data.get("module_ids", None)
+        epics = self.initial_data.get("epic_ids", None)
 
         workspace_id = self.context["workspace_id"]
         project_id = self.context["project_id"]
@@ -194,18 +194,18 @@ class DraftIssueCreateSerializer(BaseSerializer):
                 updated_by_id=updated_by_id,
             )
 
-        if modules is not None and len(modules):
-            DraftIssueModule.objects.bulk_create(
+        if epics is not None and len(epics):
+            DraftIssueEpic.objects.bulk_create(
                 [
-                    DraftIssueModule(
-                        module_id=module_id,
+                    DraftIssueEpic(
+                        epic_id=epic_id,
                         draft_issue=issue,
                         project_id=project_id,
                         workspace_id=workspace_id,
                         created_by_id=created_by_id,
                         updated_by_id=updated_by_id,
                     )
-                    for module_id in modules
+                    for epic_id in epics
                 ],
                 batch_size=10,
             )
@@ -216,7 +216,7 @@ class DraftIssueCreateSerializer(BaseSerializer):
         assignees = validated_data.pop("assignee_ids", None)
         labels = validated_data.pop("label_ids", None)
         sprint_id = self.context.get("sprint_id", None)
-        modules = self.initial_data.get("module_ids", None)
+        epics = self.initial_data.get("epic_ids", None)
 
         # Related models
         workspace_id = instance.workspace_id
@@ -271,19 +271,19 @@ class DraftIssueCreateSerializer(BaseSerializer):
                     updated_by_id=updated_by_id,
                 )
 
-        if modules is not None:
-            DraftIssueModule.objects.filter(draft_issue=instance).delete()
-            DraftIssueModule.objects.bulk_create(
+        if epics is not None:
+            DraftIssueEpic.objects.filter(draft_issue=instance).delete()
+            DraftIssueEpic.objects.bulk_create(
                 [
-                    DraftIssueModule(
-                        module_id=module_id,
+                    DraftIssueEpic(
+                        epic_id=epic_id,
                         draft_issue=instance,
                         workspace_id=workspace_id,
                         project_id=project_id,
                         created_by_id=created_by_id,
                         updated_by_id=updated_by_id,
                     )
-                    for module_id in modules
+                    for epic_id in epics
                 ],
                 batch_size=10,
             )
@@ -296,7 +296,7 @@ class DraftIssueCreateSerializer(BaseSerializer):
 class DraftIssueSerializer(BaseSerializer):
     # ids
     sprint_id = serializers.PrimaryKeyRelatedField(read_only=True)
-    module_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
+    epic_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
 
     # Many to many
     label_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
@@ -317,7 +317,7 @@ class DraftIssueSerializer(BaseSerializer):
             "project_id",
             "parent_id",
             "sprint_id",
-            "module_ids",
+            "epic_ids",
             "label_ids",
             "assignee_ids",
             "created_at",

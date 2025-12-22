@@ -55,15 +55,15 @@ export default {
       cta_primary: "Creați element de lucru",
       cta_secondary: "Adăugați element de lucru existent",
     },
-    modules: {
-      title: "Mapați obiectivele proiectului dvs. la Module și urmăriți cu ușurință.",
+    epics: {
+      title: "Mapați obiectivele proiectului dvs. la Epic-uri și urmăriți cu ușurință.",
       description:
-        "Modulele sunt compuse din elemente de lucru interconectate. Acestea ajută la monitorizarea progresului prin fazele proiectului, fiecare cu termene limită și analize specifice pentru a indica cât de aproape sunteți de atingerea acelor faze.",
-      cta_primary: "Setați primul dvs. modul",
+        "Epic-urile sunt compuse din elemente de lucru interconectate. Acestea ajută la monitorizarea progresului prin fazele proiectului, fiecare cu termene limită și analize specifice pentru a indica cât de aproape sunteți de atingerea acelor faze.",
+      cta_primary: "Setați primul dvs. epic",
     },
-    module_work_items: {
-      title: "Niciun element de lucru de afișat în acest Modul",
-      description: "Creați elemente de lucru pentru a începe monitorizarea acestui modul.",
+    epic_work_items: {
+      title: "Niciun element de lucru de afișat în acest Epic",
+      description: "Creați elemente de lucru pentru a începe monitorizarea acestui epic.",
       cta_primary: "Creați element de lucru",
       cta_secondary: "Adăugați element de lucru existent",
     },
@@ -115,10 +115,10 @@ export default {
       title: "Încă nu există cicluri arhivate",
       description: "Pentru a vă aranja proiectul, arhivați ciclurile finalizate. Găsiți-le aici odată arhivate.",
     },
-    archive_modules: {
-      title: "Încă nu există Module arhivate",
+    archive_epics: {
+      title: "Încă nu există Epic-uri arhivate",
       description:
-        "Pentru a vă aranja proiectul, arhivați modulele finalizate sau anulate. Găsiți-le aici odată arhivate.",
+        "Pentru a vă aranja proiectul, arhivați epic-urile finalizate sau anulate. Găsiți-le aici odată arhivate.",
     },
     home_widget_quick_links: {
       title: "Păstrați referințe importante, resurse sau documente la îndemână pentru munca dvs.",
@@ -161,8 +161,8 @@ export default {
     analytics_no_sprint: {
       title: "Creați cicluri pentru a organiza munca în faze limitate în timp și a urmări progresul în sprint-uri.",
     },
-    analytics_no_module: {
-      title: "Creați module pentru a vă organiza munca și a urmări progresul în diferite etape.",
+    analytics_no_epic: {
+      title: "Creați epic-uri pentru a vă organiza munca și a urmări progresul în diferite etape.",
     },
     analytics_no_intake: {
       title: "Configurați admiterea pentru a gestiona solicitările primite și a urmări cum sunt acceptate și respinse",

@@ -35,7 +35,7 @@ LOGGING = {
         "verbose": {"format": "%(asctime)s [%(process)d] %(levelname)s %(name)s: %(message)s"},
         "json": {
             "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
-            "fmt": "%(levelname)s %(asctime)s %(module)s %(name)s %(message)s",
+            "fmt": "%(levelname)s %(asctime)s %(epic)s %(name)s %(message)s",
         },
     },
     "handlers": {

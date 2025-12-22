@@ -1,0 +1,99 @@
+import React, { useState } from "react";
+import { useParams } from "next/navigation";
+// types
+import { EPIC_TRACKER_EVENTS, PROJECT_ERROR_MESSAGES } from "@plane/constants";
+import { useTranslation } from "@plane/i18n";
+import { TOAST_TYPE, setToast } from "@plane/propel/toast";
+import type { IEpic } from "@plane/types";
+// ui
+import { AlertModalCore } from "@plane/ui";
+// constants
+// helpers
+import { captureSuccess, captureError } from "@/helpers/event-tracker.helper";
+// hooks
+import { useEpic } from "@/hooks/store/use-epic";
+import { useAppRouter } from "@/hooks/use-app-router";
+import { useDeleteEpic } from "@/store/queries/epic";
+
+type Props = {
+  data: IEpic;
+  isOpen: boolean;
+  onClose: () => void;
+};
+
+export function DeleteEpicModal(props: Props) {
+  const { data, isOpen, onClose } = props;
+  // states
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  // router
+  const router = useAppRouter();
+  const { workspaceSlug, projectId, epicId, peekEpic } = useParams();
+  // store hooks
+  const deleteEpicMutation = useDeleteEpic();
+  const { t } = useTranslation();
+
+  const handleClose = () => {
+    onClose();
+    setIsDeleteLoading(false);
+  };
+
+  const handleDeletion = async () => {
+    if (!workspaceSlug || !projectId) return;
+
+    setIsDeleteLoading(true);
+
+    await deleteEpicMutation
+      .mutateAsync({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        epicId: data.id,
+      })
+      .then(() => {
+        if (epicId || peekEpic) router.push(`/${workspaceSlug}/projects/${data.project_id}/epics`);
+        handleClose();
+        setToast({
+          type: TOAST_TYPE.SUCCESS,
+          title: "Success!",
+          message: "Epic deleted successfully.",
+        });
+        captureSuccess({
+          eventName: EPIC_TRACKER_EVENTS.delete,
+          payload: { id: data.id },
+        });
+      })
+      .catch((errors) => {
+        const isPermissionError = errors?.error === "You don't have the required permissions.";
+        const currentError = isPermissionError
+          ? PROJECT_ERROR_MESSAGES.permissionError
+          : PROJECT_ERROR_MESSAGES.epicDeleteError;
+        setToast({
+          title: t(currentError.i18n_title),
+          type: TOAST_TYPE.ERROR,
+          message: currentError.i18n_message && t(currentError.i18n_message),
+        });
+        captureError({
+          eventName: EPIC_TRACKER_EVENTS.delete,
+          payload: { id: data.id },
+          error: errors,
+        });
+      })
+      .finally(() => handleClose());
+  };
+
+  return (
+    <AlertModalCore
+      handleClose={handleClose}
+      handleSubmit={handleDeletion}
+      isSubmitting={isDeleteLoading}
+      isOpen={isOpen}
+      title="Delete epic"
+      content={
+        <>
+          Are you sure you want to delete epic-{" "}
+          <span className="break-all font-medium text-primary">{data?.name}</span>? All of the data related to the
+          epic will be permanently removed. This action cannot be undone.
+        </>
+      }
+    />
+  );
+}

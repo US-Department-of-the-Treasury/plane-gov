@@ -3,7 +3,7 @@ from django.core.management import BaseCommand, CommandError
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-# Module imports
+# Package imports
 from plane.license.utils.instance_value import get_email_configuration
 
 

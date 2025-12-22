@@ -112,7 +112,7 @@ def hard_delete():
         Workspace,
         Project,
         Sprint,
-        Module,
+        Epic,
         Issue,
         Page,
         IssueView,
@@ -123,7 +123,7 @@ def hard_delete():
         IssueLink,
         IssueReaction,
         UserFavorite,
-        ModuleIssue,
+        EpicIssue,
         SprintIssue,
         Estimate,
         EstimatePoint,
@@ -139,8 +139,8 @@ def hard_delete():
     # check delete sprint
     _ = Sprint.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 
-    # check delete module
-    _ = Module.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
+    # check delete epic
+    _ = Epic.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 
     # check delete issue
     _ = Issue.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
@@ -167,7 +167,7 @@ def hard_delete():
 
     _ = UserFavorite.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 
-    _ = ModuleIssue.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
+    _ = EpicIssue.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 
     _ = SprintIssue.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 

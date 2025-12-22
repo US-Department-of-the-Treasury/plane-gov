@@ -8,7 +8,7 @@ from .draft import (
     DraftIssue,
     DraftIssueAssignee,
     DraftIssueLabel,
-    DraftIssueModule,
+    DraftIssueEpic,
     DraftIssueSprint,
 )
 from .estimate import Estimate, EstimatePoint
@@ -43,7 +43,7 @@ from .issue import (
     IssueVersion,
     IssueDescriptionVersion,
 )
-from .module import Module, ModuleIssue, ModuleLink, ModuleMember, ModuleUserProperties
+from .epic import Epic, EpicIssue, EpicLink, EpicMember, EpicUserProperties
 from .notification import EmailNotificationLog, Notification, UserNotificationPreference
 from .page import Page, PageLabel, PageLog, ProjectPage, PageVersion
 from .project import (

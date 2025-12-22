@@ -5,7 +5,7 @@ import { Logo } from "@plane/propel/emoji-icon-picker";
 import {
   SprintGroupIcon,
   SprintIcon,
-  ModuleIcon,
+  EpicIcon,
   StatePropertyIcon,
   PriorityIcon,
   StateGroupIcon,
@@ -23,7 +23,7 @@ import type {
   TFilterConfig,
   TFilterValue,
   IIssueLabel,
-  IModule,
+  IEpic,
   IProject,
   TWorkItemFilterProperty,
 } from "@plane/types";
@@ -36,7 +36,7 @@ import {
   getFileURL,
   getLabelFilterConfig,
   getMentionFilterConfig,
-  getModuleFilterConfig,
+  getEpicFilterConfig,
   getPriorityFilterConfig,
   getProjectFilterConfig,
   getStartDateFilterConfig,
@@ -48,9 +48,9 @@ import {
   isLoaderReady,
 } from "@plane/utils";
 // store hooks
+import { useEpic } from "@/hooks/store/use-epic";
 import { useProjectLabels } from "@/store/queries/label";
 import { useProjectMembers } from "@/store/queries/member";
-import { useProjectModules, getModuleById } from "@/store/queries/module";
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
@@ -62,7 +62,7 @@ export type TWorkItemFiltersEntityProps = {
   sprintIds?: string[];
   labelIds?: string[];
   memberIds?: string[];
-  moduleIds?: string[];
+  epicIds?: string[];
   projectId?: string;
   projectIds?: string[];
   stateIds?: string[];
@@ -83,15 +83,16 @@ export type TWorkItemFiltersConfig = {
 };
 
 export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps): TWorkItemFiltersConfig => {
-  const { allowedFilters, sprintIds, labelIds, memberIds, moduleIds, projectId, projectIds, stateIds, workspaceSlug } =
+  const { allowedFilters, sprintIds, labelIds, memberIds, epicIds, projectId, projectIds, stateIds, workspaceSlug } =
     props;
   // TanStack Query
   const { data: allProjects, isLoading: isProjectsLoading } = useProjects(workspaceSlug);
   const { data: allLabels } = useProjectLabels(workspaceSlug, projectId || "");
-  const { data: projectModules } = useProjectModules(workspaceSlug, projectId || "");
   const { data: allStates } = useProjectStates(workspaceSlug, projectId || "");
   const { data: projectSprints } = useProjectSprints(workspaceSlug, projectId || "");
   const { data: projectMembers = [] } = useProjectMembers(workspaceSlug, projectId || "");
+  // MobX store hooks (for epics only - not migrated to TanStack Query yet)
+  const { getEpicById } = useEpic();
   // derived values
   const operatorConfigs = useFiltersOperatorConfigs({ workspaceSlug });
   const filtersToShow = useMemo(() => new Set(allowedFilters), [allowedFilters]);
@@ -135,12 +136,10 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
         : [],
     [sprintIds, projectSprints]
   );
-  const modules = useMemo(
+  const epics = useMemo(
     () =>
-      moduleIds && projectModules
-        ? (moduleIds.map((moduleId) => getModuleById(projectModules, moduleId)).filter((module) => module) as IModule[])
-        : [],
-    [moduleIds, projectModules]
+      epicIds ? (epicIds.map((epicId) => getEpicById(epicId)).filter((epic) => epic) as IEpic[]) : [],
+    [epicIds, getEpicById]
   );
   const projects = useMemo(
     () =>
@@ -212,17 +211,17 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
     [isFilterEnabled, project?.sprint_view, sprints, operatorConfigs]
   );
 
-  // module filter config
-  const moduleFilterConfig = useMemo(
+  // epic filter config
+  const epicFilterConfig = useMemo(
     () =>
-      getModuleFilterConfig<TWorkItemFilterProperty>("module_id")({
-        isEnabled: isFilterEnabled("module_id") && project?.module_view === true && modules !== undefined,
-        filterIcon: ModuleIcon,
-        getOptionIcon: () => <ModuleIcon className="h-3 w-3 flex-shrink-0" />,
-        modules: modules ?? [],
+      getEpicFilterConfig<TWorkItemFilterProperty>("epic_id")({
+        isEnabled: isFilterEnabled("epic_id") && project?.epic_view === true && epics !== undefined,
+        filterIcon: EpicIcon,
+        getOptionIcon: () => <EpicIcon className="h-3 w-3 flex-shrink-0" />,
+        epics: epics ?? [],
         ...operatorConfigs,
       }),
-    [isFilterEnabled, project?.module_view, modules, operatorConfigs]
+    [isFilterEnabled, project?.epic_view, epics, operatorConfigs]
   );
 
   // assignee filter config
@@ -385,7 +384,7 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
       mentionFilterConfig,
       labelFilterConfig,
       sprintFilterConfig,
-      moduleFilterConfig,
+      epicFilterConfig,
       startDateFilterConfig,
       targetDateFilterConfig,
       createdAtFilterConfig,
@@ -399,7 +398,7 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
       state_id: stateFilterConfig,
       label_id: labelFilterConfig,
       sprint_id: sprintFilterConfig,
-      module_id: moduleFilterConfig,
+      epic_id: epicFilterConfig,
       assignee_id: assigneeFilterConfig,
       mention_id: mentionFilterConfig,
       created_by_id: createdByFilterConfig,

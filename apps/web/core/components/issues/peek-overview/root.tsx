@@ -228,19 +228,19 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
           });
         }
       },
-      changeModulesInIssue: async (
+      changeEpicsInIssue: async (
         workspaceSlug: string,
         projectId: string,
         issueId: string,
-        addModuleIds: string[],
-        removeModuleIds: string[]
+        addEpicIds: string[],
+        removeEpicIds: string[]
       ) => {
-        const promise = await issues.changeModulesInIssue(
+        const promise = await issues.changeEpicsInIssue(
           workspaceSlug,
           projectId,
           issueId,
-          addModuleIds,
-          removeModuleIds
+          addEpicIds,
+          removeEpicIds
         );
         fetchActivities(workspaceSlug, projectId, issueId);
         captureSuccess({
@@ -249,10 +249,10 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
         });
         return promise;
       },
-      removeIssueFromModule: async (workspaceSlug: string, projectId: string, moduleId: string, issueId: string) => {
+      removeIssueFromEpic: async (workspaceSlug: string, projectId: string, epicId: string, issueId: string) => {
         try {
-          const removeFromModulePromise = issues.removeIssuesFromModule(workspaceSlug, projectId, moduleId, [issueId]);
-          setPromiseToast(removeFromModulePromise, {
+          const removeFromEpicPromise = issues.removeIssuesFromEpic(workspaceSlug, projectId, epicId, [issueId]);
+          setPromiseToast(removeFromEpicPromise, {
             loading: t("issue.remove.epic.loading"),
             success: {
               title: t("toast.success"),
@@ -263,7 +263,7 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
               message: () => t("issue.remove.epic.failed"),
             },
           });
-          await removeFromModulePromise;
+          await removeFromEpicPromise;
           fetchActivities(workspaceSlug, projectId, issueId);
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,

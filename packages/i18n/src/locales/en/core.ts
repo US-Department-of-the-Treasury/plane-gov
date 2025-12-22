@@ -11,7 +11,7 @@ export default {
     analytics: "Analytics",
     work_items: "Work items",
     sprints: "Sprints",
-    modules: "Modules",
+    epics: "Epics",
     intake: "Intake",
     drafts: "Drafts",
     favorites: "Favorites",

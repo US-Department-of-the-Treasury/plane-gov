@@ -25,7 +25,7 @@ import { DateDropdown } from "@/components/dropdowns/date";
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { ModuleDropdown } from "@/components/dropdowns/module/dropdown";
+import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
 import { PriorityDropdown } from "@/components/dropdowns/priority";
 import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 // helpers
@@ -66,7 +66,7 @@ export function IssueProperties(props: IIssueProperties) {
   const { data: labels } = useProjectLabels(workspaceSlug?.toString() ?? "", issue.project_id ?? "");
   const storeType = useIssueStoreType();
   const {
-    issues: { changeModulesInIssue },
+    issues: { changeEpicsInIssue },
   } = useIssues(storeType);
   const {
     issues: { addSprintToIssue, removeSprintFromIssue },
@@ -92,13 +92,13 @@ export function IssueProperties(props: IIssueProperties) {
 
   const issueOperations = useMemo(
     () => ({
-      addModulesToIssue: async (moduleIds: string[]) => {
+      addEpicsToIssue: async (epicIds: string[]) => {
         if (!workspaceSlug || !issue.project_id || !issue.id) return;
-        await changeModulesInIssue?.(workspaceSlug.toString(), issue.project_id, issue.id, moduleIds, []);
+        await changeEpicsInIssue?.(workspaceSlug.toString(), issue.project_id, issue.id, epicIds, []);
       },
-      removeModulesFromIssue: async (moduleIds: string[]) => {
+      removeEpicsFromIssue: async (epicIds: string[]) => {
         if (!workspaceSlug || !issue.project_id || !issue.id) return;
-        await changeModulesInIssue?.(workspaceSlug.toString(), issue.project_id, issue.id, [], moduleIds);
+        await changeEpicsInIssue?.(workspaceSlug.toString(), issue.project_id, issue.id, [], epicIds);
       },
       addIssueToSprint: async (sprintId: string) => {
         if (!workspaceSlug || !issue.project_id || !issue.id) return;
@@ -109,7 +109,7 @@ export function IssueProperties(props: IIssueProperties) {
         await removeSprintFromIssue?.(workspaceSlug.toString(), issue.project_id, issue.id);
       },
     }),
-    [workspaceSlug, issue, changeModulesInIssue, addSprintToIssue, removeSprintFromIssue]
+    [workspaceSlug, issue, changeEpicsInIssue, addSprintToIssue, removeSprintFromIssue]
   );
 
   const handleState = (stateId: string) => {
@@ -152,18 +152,18 @@ export function IssueProperties(props: IIssueProperties) {
       });
   };
 
-  const handleModule = useCallback(
-    (moduleIds: string[] | null) => {
-      if (!issue || !issue.module_ids || !moduleIds) return;
+  const handleEpic = useCallback(
+    (epicIds: string[] | null) => {
+      if (!issue || !issue.epic_ids || !epicIds) return;
 
-      const updatedModuleIds = xor(issue.module_ids, moduleIds);
-      const modulesToAdd: string[] = [];
-      const modulesToRemove: string[] = [];
-      for (const moduleId of updatedModuleIds)
-        if (issue.module_ids.includes(moduleId)) modulesToRemove.push(moduleId);
-        else modulesToAdd.push(moduleId);
-      if (modulesToAdd.length > 0) issueOperations.addModulesToIssue(modulesToAdd);
-      if (modulesToRemove.length > 0) issueOperations.removeModulesFromIssue(modulesToRemove);
+      const updatedEpicIds = xor(issue.epic_ids, epicIds);
+      const epicsToAdd: string[] = [];
+      const epicsToRemove: string[] = [];
+      for (const epicId of updatedEpicIds)
+        if (issue.epic_ids.includes(epicId)) epicsToRemove.push(epicId);
+        else epicsToAdd.push(epicId);
+      if (epicsToAdd.length > 0) issueOperations.addEpicsToIssue(epicsToAdd);
+      if (epicsToRemove.length > 0) issueOperations.removeEpicsFromIssue(epicsToRemove);
 
       captureSuccess({
         eventName: WORK_ITEM_TRACKER_EVENTS.update,
@@ -385,15 +385,15 @@ export function IssueProperties(props: IIssueProperties) {
       <>
         {!isEpic && (
           <>
-            {/* modules */}
-            {projectDetails?.module_view && (
-              <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="modules">
+            {/* epics */}
+            {projectDetails?.epic_view && (
+              <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="epics">
                 <div className="h-5" onFocus={handleEventPropagation} onClick={handleEventPropagation}>
-                  <ModuleDropdown
+                  <EpicDropdown
                     buttonContainerClassName="truncate max-w-40"
                     projectId={issue?.project_id}
-                    value={issue?.module_ids ?? []}
-                    onChange={handleModule}
+                    value={issue?.epic_ids ?? []}
+                    onChange={handleEpic}
                     disabled={isReadOnly}
                     renderByDefault={isMobile}
                     multiple

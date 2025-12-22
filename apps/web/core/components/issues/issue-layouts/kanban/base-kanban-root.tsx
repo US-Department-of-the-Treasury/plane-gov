@@ -32,7 +32,7 @@ import { KanBanSwimLanes } from "./swimlanes";
 
 export type KanbanStoreType =
   | EIssuesStoreType.PROJECT
-  | EIssuesStoreType.MODULE
+  | EIssuesStoreType.EPIC
   | EIssuesStoreType.SPRINT
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.PROFILE

@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from drf_spectacular.utils import OpenApiResponse, OpenApiRequest
 
-# Module imports
+# Package imports
 from plane.api.serializers import (
     IntakeIssueSerializer,
     IssueSerializer,

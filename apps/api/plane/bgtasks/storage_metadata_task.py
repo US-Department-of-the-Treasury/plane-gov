@@ -1,7 +1,7 @@
 # Third party imports
 from celery import shared_task
 
-# Module imports
+# Package imports
 from plane.db.models import FileAsset
 from plane.settings.storage import S3Storage
 from plane.utils.exception_logger import log_exception

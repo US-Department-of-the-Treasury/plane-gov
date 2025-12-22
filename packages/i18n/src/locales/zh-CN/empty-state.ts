@@ -51,15 +51,15 @@ export default {
       cta_primary: "创建工作项",
       cta_secondary: "添加现有工作项",
     },
-    modules: {
-      title: "将项目目标映射到模块并轻松跟踪。",
+    epics: {
+      title: "将项目目标映射到 Epic 并轻松跟踪。",
       description:
-        "模块由相互关联的工作项组成。它们有助于监控项目阶段的进度,每个阶段都有特定的截止日期和分析,以指示您离实现这些阶段有多近。",
-      cta_primary: "设置您的第一个模块",
+        "Epic 由相互关联的工作项组成。它们有助于监控项目阶段的进度,每个阶段都有特定的截止日期和分析,以指示您离实现这些阶段有多近。",
+      cta_primary: "设置您的第一个 Epic",
     },
-    module_work_items: {
-      title: "此模块中没有要显示的工作项",
-      description: "创建工作项以开始监控此模块。",
+    epic_work_items: {
+      title: "此 Epic 中没有要显示的工作项",
+      description: "创建工作项以开始监控此 Epic。",
       cta_primary: "创建工作项",
       cta_secondary: "添加现有工作项",
     },
@@ -108,9 +108,9 @@ export default {
       title: "暂无已归档周期",
       description: "为了整理项目,请归档已完成的周期。归档后在此处查找它们。",
     },
-    archive_modules: {
-      title: "暂无已归档模块",
-      description: "为了整理项目,请归档已完成或已取消的模块。归档后在此处查找它们。",
+    archive_epics: {
+      title: "暂无已归档 Epic",
+      description: "为了整理项目,请归档已完成或已取消的 Epic。归档后在此处查找它们。",
     },
     home_widget_quick_links: {
       title: "为您的工作保留重要的参考、资源或文档",
@@ -150,8 +150,8 @@ export default {
     analytics_no_sprint: {
       title: "创建周期以将工作组织成有时限的阶段并跟踪冲刺进度。",
     },
-    analytics_no_module: {
-      title: "创建模块以组织工作并跟踪不同阶段的进度。",
+    analytics_no_epic: {
+      title: "创建 Epic 以组织工作并跟踪不同阶段的进度。",
     },
     analytics_no_intake: {
       title: "设置接收以管理传入请求并跟踪它们的接受和拒绝情况",

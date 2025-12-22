@@ -1,7 +1,7 @@
 # Third Party imports
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
-# Module import
+# Epic import
 from plane.db.models import ProjectMember, WorkspaceMember
 from plane.db.models.project import ROLE
 

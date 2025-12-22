@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Max
 from django.db import connection, transaction
 
-# Module imports
+# Package imports
 from plane.db.models import Project, Issue, IssueSequence
 from plane.utils.uuid import convert_uuid_to_integer
 

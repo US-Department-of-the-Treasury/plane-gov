@@ -1,7 +1,7 @@
 # Third party imports
 from rest_framework import serializers
 
-# Module import
+# Epic import
 from plane.db.models import Account, Profile, User, Workspace, WorkspaceMemberInvite
 from plane.utils.url import contains_url
 

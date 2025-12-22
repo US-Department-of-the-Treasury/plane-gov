@@ -93,26 +93,26 @@ export class IssueFiltersService extends APIService {
       });
   }
 
-  // module issue filters
-  async fetchModuleIssueFilters(
+  // epic issue filters (for issues within epics)
+  async fetchEpicIssueFilters(
     workspaceSlug: string,
     projectId: string,
-    moduleId: string
+    epicId: string
   ): Promise<IIssueFiltersResponse> {
-    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${moduleId}/user-properties/`)
+    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/user-properties/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
       });
   }
-  async patchModuleIssueFilters(
+  async patchEpicIssueFilters(
     workspaceSlug: string,
     projectId: string,
-    moduleId: string,
+    epicId: string,
     data: Partial<IIssueFiltersResponse>
   ): Promise<any> {
     return this.patch(
-      `/api/workspaces/${workspaceSlug}/projects/${projectId}/modules/${moduleId}/user-properties/`,
+      `/api/workspaces/${workspaceSlug}/projects/${projectId}/epics/${epicId}/user-properties/`,
       data
     )
       .then((response) => response?.data)

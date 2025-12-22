@@ -3,7 +3,7 @@ from django.conf import settings
 # Django imports
 from django.db import models
 
-# Module imports
+# Package imports
 from .workspace import WorkspaceBaseModel
 
 

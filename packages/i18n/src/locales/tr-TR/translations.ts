@@ -11,7 +11,7 @@ export default {
     analytics: "Analizler",
     work_items: "İş öğeleri",
     sprints: "Döngüler",
-    modules: "Modüller",
+    epics: "Modüller",
     intake: "Talep",
     drafts: "Taslaklar",
     favorites: "Favoriler",
@@ -373,7 +373,7 @@ export default {
   open_project: "Projeyi aç",
   issues: "İş Öğeleri",
   sprints: "Döngüler",
-  modules: "Modüller",
+  epics: "Modüller",
   pages: "Sayfalar",
   intake: "Talep",
   time_tracking: "Zaman Takibi",
@@ -382,7 +382,7 @@ export default {
   projects_and_issues_description: "Bu projede bu özellikleri açıp kapatın.",
   sprints_description:
     "Projeye göre işi zamanla sınırlandırın ve gerektiğinde zaman dilimini ayarlayın. Bir döngü 2 hafta, bir sonraki 1 hafta olabilir.",
-  modules_description: "İşi, özel liderler ve atanmış kişilerle alt projelere ayırın.",
+  epics_description: "İşi, özel liderler ve atanmış kişilerle alt projelere ayırın.",
   views_description: "Özel sıralamaları, filtreleri ve görüntüleme seçeneklerini kaydedin veya ekibinizle paylaşın.",
   pages_description: "Serbest biçimli içerikler oluşturun ve düzenleyin; notlar, belgeler, her şey.",
   intake_description: "Üye olmayanların hata, geri bildirim ve öneri paylaşmasına izin verin; iş akışınızı bozmadan.",
@@ -654,8 +654,8 @@ export default {
     project: "Proje",
     sprint: "Döngü",
     sprints: "Döngüler",
-    module: "Modül",
-    modules: "Modüller",
+    epic: "Epic",
+    epics: "Modüller",
     labels: "Etiketler",
     label: "Etiket",
     assignees: "Atananlar",
@@ -994,10 +994,10 @@ export default {
         success: "İş öğesi döngüden başarıyla kaldırıldı.",
         failed: "İş öğesi döngüden kaldırılamadı. Lütfen tekrar deneyin.",
       },
-      module: {
-        loading: "İş öğesi modülden kaldırılıyor",
-        success: "İş öğesi modülden başarıyla kaldırıldı.",
-        failed: "İş öğesi modülden kaldırılamadı. Lütfen tekrar deneyin.",
+      epic: {
+        loading: "İş öğesi epicden kaldırılıyor",
+        success: "İş öğesi epicden başarıyla kaldırıldı.",
+        failed: "İş öğesi epicden kaldırılamadı. Lütfen tekrar deneyin.",
       },
       parent: {
         label: "Üst iş öğesini kaldır",
@@ -1345,7 +1345,7 @@ export default {
     selected_projects: "Seçilen projeler",
     total_members: "Toplam üye",
     total_sprints: "Toplam döngü",
-    total_modules: "Toplam modül",
+    total_epics: "Toplam epic",
     pending_work_items: {
       title: "Bekleyen iş öğeleri",
       empty_state: "Ekip arkadaşlarınız tarafından bekleyen iş öğelerinin analizi burada görünür.",
@@ -1432,7 +1432,7 @@ export default {
     error: {
       permission: "Bu işlemi yapma izniniz yok.",
       sprint_delete: "Döngü silinemedi",
-      module_delete: "Modül silinemedi",
+      epic_delete: "Modül silinemedi",
       issue_delete: "İş öğesi silinemedi",
     },
     state: {
@@ -2119,29 +2119,29 @@ export default {
       },
     },
   },
-  project_module: {
-    add_module: "Modül Ekle",
-    update_module: "Modülü Güncelle",
-    create_module: "Modül Oluştur",
-    archive_module: "Modülü Arşivle",
-    restore_module: "Modülü Geri Yükle",
-    delete_module: "Modülü sil",
+  project_epic: {
+    add_epic: "Modül Ekle",
+    update_epic: "Modülü Güncelle",
+    create_epic: "Modül Oluştur",
+    archive_epic: "Modülü Arşivle",
+    restore_epic: "Modülü Geri Yükle",
+    delete_epic: "Modülü sil",
     empty_state: {
       general: {
         title: "Proje kilometre taşlarınızı Modüllere eşleyin ve toplu işleri kolayca takip edin.",
         description:
-          "Mantıksal bir üst öğeye ait iş öğeleri grubu bir modül oluşturur. Bunları bir kilometre taşını takip etmenin bir yolu olarak düşünün. Kendi dönemleri ve son teslim tarihleri ile birlikte, bir kilometre taşına ne kadar yakın veya uzak olduğunuzu görmenize yardımcı olacak analitiklere sahiptirler.",
+          "Mantıksal bir üst öğeye ait iş öğeleri grubu bir epic oluşturur. Bunları bir kilometre taşını takip etmenin bir yolu olarak düşünün. Kendi dönemleri ve son teslim tarihleri ile birlikte, bir kilometre taşına ne kadar yakın veya uzak olduğunuzu görmenize yardımcı olacak analitiklere sahiptirler.",
         primary_button: {
-          text: "İlk modülünüzü oluşturun",
+          text: "İlk epicünüzü oluşturun",
           comic: {
             title: "Modüller işleri hiyerarşiye göre gruplamaya yardımcı olur.",
-            description: "Bir araba modülü, bir şasi modülü ve bir depo modülü bu gruplandırmanın iyi örnekleridir.",
+            description: "Bir araba epicü, bir şasi epicü ve bir depo epicü bu gruplandırmanın iyi örnekleridir.",
           },
         },
       },
       no_issues: {
         title: "Modülde iş öğesi yok",
-        description: "Bu modülün bir parçası olarak gerçekleştirmek istediğiniz iş öğelerini oluşturun veya ekleyin",
+        description: "Bu epicün bir parçası olarak gerçekleştirmek istediğiniz iş öğelerini oluşturun veya ekleyin",
         primary_button: {
           text: "Yeni iş öğeleri oluştur",
         },
@@ -2152,17 +2152,17 @@ export default {
       archived: {
         title: "Henüz arşivlenmiş Modül yok",
         description:
-          "Projenizi düzenli tutmak için tamamlanmış veya iptal edilmiş modülleri arşivleyin. Arşivlendikten sonra burada bulabilirsiniz.",
+          "Projenizi düzenli tutmak için tamamlanmış veya iptal edilmiş epicleri arşivleyin. Arşivlendikten sonra burada bulabilirsiniz.",
       },
       sidebar: {
-        in_active: "Bu modül henüz aktif değil.",
+        in_active: "Bu epic henüz aktif değil.",
         invalid_date: "Geçersiz tarih. Lütfen geçerli bir tarih girin.",
       },
     },
     quick_actions: {
-      archive_module: "Modülü arşivle",
-      archive_module_description: "Yalnızca tamamlanmış veya iptal edilmiş\nmodüller arşivlenebilir.",
-      delete_module: "Modülü sil",
+      archive_epic: "Modülü arşivle",
+      archive_epic_description: "Yalnızca tamamlanmış veya iptal edilmiş\nepicler arşivlenebilir.",
+      delete_epic: "Modülü sil",
     },
     toast: {
       copy: {
@@ -2348,10 +2348,10 @@ export default {
           text: "Özellikleri yönet",
         },
       },
-      module: {
+      epic: {
         title: "Modüller bu proje için etkin değil.",
         description:
-          "Modüller projenizin yapı taşlarıdır. Kullanmaya başlamak için proje ayarlarından modülleri etkinleştirin.",
+          "Modüller projenizin yapı taşlarıdır. Kullanmaya başlamak için proje ayarlarından epicleri etkinleştirin.",
         primary_button: {
           text: "Özellikleri yönet",
         },
@@ -2465,7 +2465,7 @@ export default {
     },
     member: {
       title: "Üye",
-      description: "Projeler, döngüler ve modüller içindeki varlıkları okuma, yazma, düzenleme ve silme yetkisi",
+      description: "Projeler, döngüler ve epicler içindeki varlıkları okuma, yazma, düzenleme ve silme yetkisi",
     },
     admin: {
       title: "Yönetici",
@@ -2544,7 +2544,7 @@ export default {
       },
     },
   },
-  project_modules: {
+  project_epics: {
     status: {
       backlog: "Bekleme Listesi",
       planned: "Planlandı",
@@ -2571,9 +2571,9 @@ export default {
     label: "{count, plural, one {Döngü} other {Döngüler}}",
     no_sprint: "Döngü yok",
   },
-  module: {
+  epic: {
     label: "{count, plural, one {Modül} other {Modüller}}",
-    no_module: "Modül yok",
+    no_epic: "Modül yok",
   },
   description_versions: {
     last_edited_by: "Son düzenleyen",

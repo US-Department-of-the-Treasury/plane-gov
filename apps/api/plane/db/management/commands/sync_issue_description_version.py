@@ -1,7 +1,7 @@
 # Django imports
 from django.core.management.base import BaseCommand
 
-# Module imports
+# Package imports
 from plane.bgtasks.issue_description_version_sync import (
     schedule_issue_description_version,
 )

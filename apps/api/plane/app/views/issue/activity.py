@@ -10,7 +10,7 @@ from django.views.decorators.gzip import gzip_page
 from rest_framework.response import Response
 from rest_framework import status
 
-# Module imports
+# Package imports
 from .. import BaseAPIView
 from plane.app.serializers import IssueActivitySerializer, IssueCommentSerializer
 from plane.app.permissions import ProjectEntityPermission, allow_permission, ROLE

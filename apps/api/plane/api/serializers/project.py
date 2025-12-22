@@ -2,7 +2,7 @@
 import random
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from plane.db.models import Project, ProjectIdentifier, WorkspaceMember, State, Estimate
 
 from plane.utils.content_validator import (
@@ -71,7 +71,7 @@ class ProjectCreateSerializer(BaseSerializer):
             "icon_prop",
             "emoji",
             "cover_image",
-            "module_view",
+            "epic_view",
             "sprint_view",
             "issue_views_view",
             "page_view",
@@ -177,13 +177,13 @@ class ProjectSerializer(BaseSerializer):
     """
     Comprehensive project serializer with metrics and member context.
 
-    Provides complete project data including member counts, sprint/module totals,
+    Provides complete project data including member counts, sprint/epic totals,
     deployment status, and user-specific context for project management.
     """
 
     total_members = serializers.IntegerField(read_only=True)
     total_sprints = serializers.IntegerField(read_only=True)
-    total_modules = serializers.IntegerField(read_only=True)
+    total_epics = serializers.IntegerField(read_only=True)
     is_member = serializers.BooleanField(read_only=True)
     sort_order = serializers.FloatField(read_only=True)
     member_role = serializers.IntegerField(read_only=True)

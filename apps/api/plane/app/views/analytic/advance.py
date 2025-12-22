@@ -12,7 +12,7 @@ from plane.db.models import (
     Project,
     Issue,
     Sprint,
-    Module,
+    Epic,
     IssueView,
     ProjectPage,
     Workspace,
@@ -181,7 +181,7 @@ class AdvanceAnalyticsChartEndpoint(AdvanceAnalyticsBaseView):
 
         total_work_items = base_queryset.filter(**date_filter).count()
         total_sprints = Sprint.objects.filter(**self.filters["base_filters"], **date_filter).count()
-        total_modules = Module.objects.filter(**self.filters["base_filters"], **date_filter).count()
+        total_epics = Epic.objects.filter(**self.filters["base_filters"], **date_filter).count()
         total_intake = Issue.objects.filter(
             issue_intake__isnull=False, **self.filters["base_filters"], **date_filter
         ).count()
@@ -194,7 +194,7 @@ class AdvanceAnalyticsChartEndpoint(AdvanceAnalyticsBaseView):
         data = {
             "work_items": total_work_items,
             "sprints": total_sprints,
-            "modules": total_modules,
+            "epics": total_epics,
             "intake": total_intake,
             "members": total_members,
             "pages": total_pages,
@@ -215,7 +215,7 @@ class AdvanceAnalyticsChartEndpoint(AdvanceAnalyticsBaseView):
         queryset = (
             Issue.issue_objects.filter(**self.filters["base_filters"])
             .select_related("workspace", "state", "parent")
-            .prefetch_related("assignees", "labels", "issue_module__module", "issue_sprint__sprint")
+            .prefetch_related("assignees", "labels", "issue_epic__epic", "issue_sprint__sprint")
         )
 
         workspace = Workspace.objects.get(slug=self._workspace_slug)
@@ -292,7 +292,7 @@ class AdvanceAnalyticsChartEndpoint(AdvanceAnalyticsBaseView):
             queryset = (
                 Issue.issue_objects.filter(**self.filters["base_filters"])
                 .select_related("workspace", "state", "parent")
-                .prefetch_related("assignees", "labels", "issue_module__module", "issue_sprint__sprint")
+                .prefetch_related("assignees", "labels", "issue_epic__epic", "issue_sprint__sprint")
             )
 
             # Apply date range filter if available

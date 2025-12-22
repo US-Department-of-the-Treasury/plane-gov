@@ -7,4 +7,4 @@ export { ReadonlyLabels, type TReadonlyLabelsProps } from "./labels";
 export { ReadonlySprint, type TReadonlySprintProps } from "./sprint";
 export { ReadonlyDate, type TReadonlyDateProps } from "./date";
 export { ReadonlyEstimate, type TReadonlyEstimateProps } from "./estimate";
-export { ReadonlyModule, type TReadonlyModuleProps } from "./module";
+export { ReadonlyEpic, type TReadonlyEpicProps } from "./epic";

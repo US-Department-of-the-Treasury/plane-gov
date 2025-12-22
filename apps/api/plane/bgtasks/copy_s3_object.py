@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 # Django imports
 from django.conf import settings
 
-# Module imports
+# Package imports
 from plane.db.models import FileAsset, Page, Issue
 from plane.utils.exception_logger import log_exception
 from plane.settings.storage import S3Storage

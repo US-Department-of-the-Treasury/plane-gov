@@ -2,7 +2,7 @@
 from django.db import models
 from django.db.models import Q
 
-# Module imports
+# Package imports
 from .project import ProjectBaseModel
 from .base import BaseModel
 

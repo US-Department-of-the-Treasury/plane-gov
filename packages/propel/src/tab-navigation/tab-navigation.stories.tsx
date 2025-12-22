@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { OverviewIcon } from "../icons/overview-icon";
 import { SprintIcon } from "../icons/project/sprint-icon";
 import { IntakeIcon } from "../icons/project/intake-icon";
-import { ModuleIcon } from "../icons/project/module-icon";
+import { EpicIcon } from "../icons/project/epic-icon";
 import { PageIcon } from "../icons/project/page-icon";
 import { ViewsIcon } from "../icons/project/view-icon";
 import { WorkItemsIcon } from "../icons/project/work-items-icon";
@@ -39,7 +39,7 @@ export const Default: Story = {
       { key: "overview", name: "Overview", href: "#overview", icon: OverviewIcon },
       { key: "work_items", name: "Work items", href: "#work_items", icon: WorkItemsIcon },
       { key: "sprints", name: "Sprints", href: "#sprints", icon: SprintIcon },
-      { key: "modules", name: "Modules", href: "#modules", icon: ModuleIcon },
+      { key: "epics", name: "Epics", href: "#epics", icon: EpicIcon },
       { key: "views", name: "Views", href: "#views", icon: ViewsIcon },
       { key: "pages", name: "Pages", href: "#pages", icon: PageIcon },
       { key: "intake", name: "Intake", href: "#intake", icon: IntakeIcon },

@@ -328,18 +328,18 @@ def filter_sprint(params, issue_filter, method, prefix=""):
     return issue_filter
 
 
-def filter_module(params, issue_filter, method, prefix=""):
+def filter_epic(params, issue_filter, method, prefix=""):
     if method == "GET":
-        modules = [item for item in params.get("module").split(",") if item != "null"]
-        if "None" in modules:
-            issue_filter[f"{prefix}issue_module__module_id__isnull"] = True
-        modules = filter_valid_uuids(modules)
-        if len(modules) and "" not in modules:
-            issue_filter[f"{prefix}issue_module__module_id__in"] = modules
+        epics = [item for item in params.get("epic").split(",") if item != "null"]
+        if "None" in epics:
+            issue_filter[f"{prefix}issue_epic__epic_id__isnull"] = True
+        epics = filter_valid_uuids(epics)
+        if len(epics) and "" not in epics:
+            issue_filter[f"{prefix}issue_epic__epic_id__in"] = epics
     else:
-        if params.get("module", None) and len(params.get("module")) and params.get("module") != "null":
-            issue_filter[f"{prefix}issue_module__module_id__in"] = params.get("module")
-    issue_filter[f"{prefix}issue_module__deleted_at__isnull"] = True
+        if params.get("epic", None) and len(params.get("epic")) and params.get("epic") != "null":
+            issue_filter[f"{prefix}issue_epic__epic_id__in"] = params.get("epic")
+    issue_filter[f"{prefix}issue_epic__deleted_at__isnull"] = True
     return issue_filter
 
 
@@ -444,7 +444,7 @@ def issue_filters(query_params, method, prefix=""):
         "type": filter_issue_state_type,
         "project": filter_project,
         "sprint": filter_sprint,
-        "module": filter_module,
+        "epic": filter_epic,
         "intake_status": filter_intake_status,
         "inbox_status": filter_inbox_status,
         "sub_issue": filter_sub_issue_toggle,

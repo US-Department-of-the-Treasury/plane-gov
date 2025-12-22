@@ -1,7 +1,7 @@
 # Third party imports
 from rest_framework import serializers
 
-# Module imports
+# Package imports
 from plane.db.models import ProjectMember, WorkspaceMember
 from .base import BaseSerializer
 from plane.db.models import User

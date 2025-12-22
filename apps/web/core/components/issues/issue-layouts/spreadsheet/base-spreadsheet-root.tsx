@@ -18,7 +18,7 @@ import { SpreadsheetView } from "./spreadsheet-view";
 
 export type SpreadsheetStoreType =
   | EIssuesStoreType.PROJECT
-  | EIssuesStoreType.MODULE
+  | EIssuesStoreType.EPIC
   | EIssuesStoreType.SPRINT
   | EIssuesStoreType.PROJECT_VIEW
   | EIssuesStoreType.TEAM

@@ -24,11 +24,11 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.core.serializers.json import DjangoJSONEncoder
 
-# Third party modules
+# Third party imports
 from rest_framework import status
 from rest_framework.response import Response
 
-# Module imports
+# Package imports
 from plane.app.views.base import BaseAPIView, BaseViewSet
 from plane.db.models import (
     Sprint,

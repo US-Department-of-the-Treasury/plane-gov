@@ -161,19 +161,19 @@ export const coreRoutes: RouteConfigEntry[] = [
             ),
           ]),
 
-          // Module Detail
-          layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/modules/(detail)/layout.tsx", [
+          // Epic Detail
+          layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/epics/(detail)/layout.tsx", [
             route(
-              ":workspaceSlug/projects/:projectId/modules/:moduleId",
-              "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/modules/(detail)/[moduleId]/page.tsx"
+              ":workspaceSlug/projects/:projectId/epics/:epicId",
+              "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/epics/(detail)/[epicId]/page.tsx"
             ),
           ]),
 
-          // Modules List
-          layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/modules/(list)/layout.tsx", [
+          // Epics List
+          layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/epics/(list)/layout.tsx", [
             route(
-              ":workspaceSlug/projects/:projectId/modules",
-              "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/modules/(list)/page.tsx"
+              ":workspaceSlug/projects/:projectId/epics",
+              "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/epics/(list)/page.tsx"
             ),
           ]),
 
@@ -217,7 +217,7 @@ export const coreRoutes: RouteConfigEntry[] = [
           ]),
         ]),
 
-        // Project Archives - Issues, Sprints, Modules
+        // Project Archives - Issues, Sprints, Epics
         // Project Archives - Issues - List
         layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/issues/(list)/layout.tsx", [
           route(
@@ -242,11 +242,11 @@ export const coreRoutes: RouteConfigEntry[] = [
           ),
         ]),
 
-        // Project Archives - Modules
-        layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/modules/layout.tsx", [
+        // Project Archives - Epics
+        layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/epics/layout.tsx", [
           route(
-            ":workspaceSlug/projects/:projectId/archives/modules",
-            "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/modules/page.tsx"
+            ":workspaceSlug/projects/:projectId/archives/epics",
+            "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/epics/page.tsx"
           ),
         ]),
       ]),

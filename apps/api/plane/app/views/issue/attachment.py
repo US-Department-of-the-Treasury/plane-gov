@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
-# Module imports
+# Package imports
 from .. import BaseAPIView
 from plane.app.serializers import IssueAttachmentSerializer
 from plane.db.models import FileAsset, Workspace

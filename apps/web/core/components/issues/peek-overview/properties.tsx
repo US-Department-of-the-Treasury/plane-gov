@@ -5,7 +5,7 @@ import { useTranslation } from "@plane/i18n";
 import {
   SprintIcon,
   StatePropertyIcon,
-  ModuleIcon,
+  EpicIcon,
   MembersPropertyIcon,
   PriorityPropertyIcon,
   StartDatePropertyIcon,
@@ -38,7 +38,7 @@ import { IssueWorklogProperty } from "@/plane-web/components/issues/worklog/prop
 import type { TIssueOperations } from "../issue-detail";
 import { IssueSprintSelect } from "../issue-detail/sprint-select";
 import { IssueLabel } from "../issue-detail/label";
-import { IssueModuleSelect } from "../issue-detail/module-select";
+import { IssueEpicSelect } from "../issue-detail/epic-select";
 
 interface IPeekOverviewProperties {
   workspaceSlug: string;
@@ -198,9 +198,9 @@ export const PeekOverviewProperties = observer(function PeekOverviewProperties(p
           </SidebarPropertyListItem>
         )}
 
-        {projectDetails?.module_view && (
-          <SidebarPropertyListItem icon={ModuleIcon} label={t("common.modules")}>
-            <IssueModuleSelect
+        {projectDetails?.epic_view && (
+          <SidebarPropertyListItem icon={EpicIcon} label={t("common.epics")}>
+            <IssueEpicSelect
               className="w-full grow"
               workspaceSlug={workspaceSlug}
               projectId={projectId}

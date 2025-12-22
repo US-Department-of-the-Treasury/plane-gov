@@ -4,7 +4,7 @@ import uuid
 # Django imports
 from django.db import models
 
-# Module imports
+# Package imports
 from plane.db.models import BaseModel
 from plane.db.mixins import AuditModel
 

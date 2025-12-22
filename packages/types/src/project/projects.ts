@@ -21,7 +21,7 @@ export interface IPartialProject {
   workspace: IWorkspace | string;
   sprint_view: boolean;
   issue_views_view: boolean;
-  module_view: boolean;
+  epic_view: boolean;
   page_view: boolean;
   inbox_view: boolean;
   guest_view_all_features?: boolean;
@@ -64,7 +64,7 @@ export type TProjectAnalyticsCount = Pick<IProject, "id"> & {
   completed_issues?: number;
   total_sprints?: number;
   total_members?: number;
-  total_modules?: number;
+  total_epics?: number;
 };
 
 export interface IProjectLite {
@@ -149,7 +149,7 @@ export type TProjectIssuesSearchParams = {
   parent?: boolean;
   issue_relation?: boolean;
   sprint?: boolean;
-  module?: string;
+  epic_id?: string;
   sub_issue?: boolean;
   issue_id?: string;
   workspace_search: boolean;

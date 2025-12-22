@@ -24,7 +24,7 @@ export type HorizontalStackAssetType =
 // Vertical Stack Asset Types
 export type VerticalStackAssetType =
   | "archived-sprint"
-  | "archived-module"
+  | "archived-epic"
   | "archived-work-item"
   | "changelog"
   | "customer"
@@ -35,7 +35,6 @@ export type VerticalStackAssetType =
   | "error-404"
   | "initiative"
   | "invalid-link"
-  | "module"
   | "no-access"
   | "page"
   | "project"

@@ -9,10 +9,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 
-# Module imports
+# Package imports
 from plane.db.mixins import AuditModel
 
-# Module imports
+# Package imports
 from .base import BaseModel
 
 ROLE_CHOICES = ((20, "Admin"), (15, "Member"), (5, "Guest"))
@@ -87,7 +87,7 @@ class Project(BaseModel):
     )
     emoji = models.CharField(max_length=255, null=True, blank=True)
     icon_prop = models.JSONField(null=True)
-    module_view = models.BooleanField(default=False)
+    epic_view = models.BooleanField(default=False)
     sprint_view = models.BooleanField(default=False)
     issue_views_view = models.BooleanField(default=False)
     page_view = models.BooleanField(default=True)

@@ -23,9 +23,9 @@ export const CONTEXT_ENTITY_MAP: Record<TPowerKContextType, TContextEntityMap> =
     i18n_title: "power_k.contextual_actions.sprint.title",
     i18n_indicator: "power_k.contextual_actions.sprint.indicator",
   },
-  module: {
-    i18n_title: "power_k.contextual_actions.module.title",
-    i18n_indicator: "power_k.contextual_actions.module.indicator",
+  epic: {
+    i18n_title: "power_k.contextual_actions.epic.title",
+    i18n_indicator: "power_k.contextual_actions.epic.indicator",
   },
   ...CONTEXT_ENTITY_MAP_EXTENDED,
 };
