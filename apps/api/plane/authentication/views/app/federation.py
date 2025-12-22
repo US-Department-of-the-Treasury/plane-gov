@@ -1,8 +1,10 @@
 # Python imports
 import json
 import os
-import requests
 from urllib.parse import urlencode
+
+import httpx
+from authlib.oidc.discovery import get_well_known_url
 
 # Django imports
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -190,10 +192,11 @@ class FederationPageEndpoint(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class FederationDiscoverEndpoint(View):
     """
-    Server-side OIDC discovery endpoint.
+    Server-side OIDC discovery endpoint using Authlib.
 
     This performs the OIDC discovery on the server side to avoid browser
     certificate trust issues with self-signed certs in development.
+    Uses Authlib's robust OIDC discovery mechanism.
     """
 
     def post(self, request):
@@ -220,23 +223,26 @@ class FederationDiscoverEndpoint(View):
         callback_url = f"{host}/auth/federation/callback/"
 
         try:
-            # Fetch OIDC discovery document
-            well_known_url = f"{federation_url}/.well-known/openid-configuration"
-            response = requests.get(well_known_url, timeout=10, verify=True)
-            response.raise_for_status()
-            discovery = response.json()
+            # Use Authlib's get_well_known_url helper for OIDC discovery URL
+            well_known_url = get_well_known_url(federation_url, external=True)
 
-            # Get registration endpoint
+            # Fetch OIDC discovery document using httpx (Authlib's preferred HTTP client)
+            with httpx.Client(timeout=10.0, verify=True) as client:
+                response = client.get(well_known_url)
+                response.raise_for_status()
+                discovery = response.json()
+
+            # Get registration endpoint from discovery document
             registration_endpoint = discovery.get("registration_endpoint")
             if not registration_endpoint:
-                # Try mtls_endpoint_aliases
+                # Try mtls_endpoint_aliases (for PIV/mTLS providers)
                 mtls_endpoints = discovery.get("mtls_endpoint_aliases", {})
                 registration_endpoint = mtls_endpoints.get("registration_endpoint")
             if not registration_endpoint:
-                # Fallback to default path
+                # Fallback to default federation path
                 registration_endpoint = f"{discovery.get('issuer', federation_url)}/federation/register"
 
-            # Build registration URL
+            # Build registration URL with query params
             params = {
                 "client_name": client_name,
                 "redirect_uri": redirect_uri,
@@ -252,8 +258,15 @@ class FederationDiscoverEndpoint(View):
                 "discoveryDocument": discovery,
             })
 
-        except requests.RequestException as e:
-            return JsonResponse({"error": f"Discovery failed: {str(e)}"}, status=500)
+        except httpx.HTTPStatusError as e:
+            # Log the full error for debugging, but return generic message to user
+            return JsonResponse({"error": f"Discovery failed: HTTP {e.response.status_code}"}, status=500)
+        except httpx.RequestError:
+            # Don't expose internal error details to prevent information leakage
+            return JsonResponse({"error": "Discovery failed: Unable to reach identity provider"}, status=500)
+        except Exception:
+            # Don't expose internal error details to prevent information leakage
+            return JsonResponse({"error": "Discovery failed: An unexpected error occurred"}, status=500)
 
 
 class FederationCallbackEndpoint(View):
@@ -280,7 +293,7 @@ class FederationCallbackEndpoint(View):
         registration_token = request.GET.get("registration_token")
 
         if registration_token:
-            # Exchange token for credentials via backchannel
+            # Exchange token for credentials via backchannel using httpx
             issuer_url = request.session.get("federation_issuer_url", "")
             if not issuer_url:
                 return HttpResponseRedirect(
@@ -289,14 +302,15 @@ class FederationCallbackEndpoint(View):
 
             try:
                 complete_url = f"{issuer_url}/federation/complete"
-                response = requests.post(
-                    complete_url,
-                    json={"registration_token": registration_token},
-                    timeout=10,
-                    verify=True,
-                )
 
-                if not response.ok:
+                # Use httpx for server-side HTTP requests (consistent with Authlib)
+                with httpx.Client(timeout=10.0, verify=True) as client:
+                    response = client.post(
+                        complete_url,
+                        json={"registration_token": registration_token},
+                    )
+
+                if not response.is_success:
                     error_data = response.json()
                     return HttpResponseRedirect(
                         f"{host}/auth/federation/?error={error_data.get('error', 'unknown')}"
@@ -320,7 +334,7 @@ class FederationCallbackEndpoint(View):
                     content_type='text/html'
                 )
 
-            except requests.RequestException as e:
+            except httpx.RequestError as e:
                 return HttpResponseRedirect(
                     f"{host}/auth/federation/?error=server_error&error_description={str(e)}"
                 )
@@ -373,12 +387,14 @@ def _save_oidc_credentials(issuer_url: str, client_id: str, client_secret: str):
 
     # Derive OIDC URLs from issuer
     if issuer_url:
-        credentials["authorization_url"] = f"{issuer_url.replace(':8090', ':8443').replace(':8444', ':8443')}/oauth/authorize"
+        # Handle port translation for fpki-validator (auth on :8443, API on :8090/:8444)
+        auth_base = issuer_url.replace(':8090', ':8443').replace(':8444', ':8443')
+        credentials["authorization_url"] = f"{auth_base}/oauth/authorize"
         credentials["token_url"] = f"{issuer_url}/oauth/token"
         credentials["userinfo_url"] = f"{issuer_url}/oauth/userinfo"
 
     # Save to file (in production, use SSM or database)
-    creds_file = os.path.join(os.path.dirname(__file__), "..", "..", "..", "oidc_credentials.json")
+    creds_file = os.path.join(os.path.dirname(__file__), "..", "..", "oidc_credentials.json")
     creds_file = os.path.normpath(creds_file)
 
     with open(creds_file, "w") as f:
@@ -387,6 +403,7 @@ def _save_oidc_credentials(issuer_url: str, client_id: str, client_secret: str):
     # Also set environment variables for immediate use
     os.environ["OIDC_CLIENT_ID"] = client_id
     os.environ["OIDC_CLIENT_SECRET"] = client_secret
+    os.environ["OIDC_ISSUER_URL"] = issuer_url
     if issuer_url:
         os.environ["OIDC_AUTHORIZATION_URL"] = credentials["authorization_url"]
         os.environ["OIDC_TOKEN_URL"] = credentials["token_url"]

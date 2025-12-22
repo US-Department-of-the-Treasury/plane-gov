@@ -1,14 +1,14 @@
 # Python imports
+import hashlib
 import json
 import os
 import re
-import secrets
-import hashlib
-import base64
 from datetime import datetime
 from urllib.parse import urlencode
 
 import pytz
+from authlib.integrations.requests_client import OAuth2Session
+from authlib.oidc.discovery import get_well_known_url
 
 # Package imports
 from plane.authentication.adapter.oauth import OauthAdapter
@@ -23,7 +23,7 @@ def _load_oidc_credentials_from_file():
     """
     Load OIDC credentials from saved JSON file (set by federation flow).
 
-    Returns dict with keys: client_id, client_secret, authorization_url, token_url, userinfo_url
+    Returns dict with keys: client_id, client_secret, issuer_url, etc.
     or empty dict if file doesn't exist.
     """
     creds_file = os.path.join(os.path.dirname(__file__), "..", "..", "oidc_credentials.json")
@@ -38,35 +38,42 @@ def _load_oidc_credentials_from_file():
     return {}
 
 
-class OIDCOAuthProvider(OauthAdapter):
+class OIDCClient:
     """
-    OpenID Connect OAuth provider for Login.gov and other OIDC identity providers.
+    Authlib-based OIDC client for government identity providers.
 
     Supports:
     - Login.gov (federal identity)
+    - FPKI Validator (PIV authentication)
     - Azure AD Government
     - Any standard OIDC-compliant IdP
 
     Features:
+    - Automatic OIDC discovery via .well-known/openid-configuration
     - PKCE flow (required by Login.gov)
     - Configurable endpoints via environment or admin panel
-    - Standard OIDC claims mapping
+    - Standard OIDC claims mapping with X.509 DN fallback
     """
 
-    provider = "oidc"
+    def __init__(self, redirect_uri: str):
+        """
+        Initialize OIDC client with configuration from environment/file.
 
-    def __init__(self, request, code=None, state=None, callback=None):
+        Args:
+            redirect_uri: The OAuth callback URL
+        """
         # Load credentials from file (set by federation flow) as fallback
         file_creds = _load_oidc_credentials_from_file()
 
         # Get OIDC configuration from instance config, environment, or saved file
         (
-            OIDC_CLIENT_ID,
-            OIDC_CLIENT_SECRET,
-            OIDC_AUTHORIZATION_URL,
-            OIDC_TOKEN_URL,
-            OIDC_USERINFO_URL,
-            OIDC_SCOPE,
+            client_id,
+            client_secret,
+            issuer_url,
+            authorization_url,
+            token_url,
+            userinfo_url,
+            scope,
         ) = get_configuration_value(
             [
                 {
@@ -76,6 +83,10 @@ class OIDCOAuthProvider(OauthAdapter):
                 {
                     "key": "OIDC_CLIENT_SECRET",
                     "default": os.environ.get("OIDC_CLIENT_SECRET") or file_creds.get("client_secret"),
+                },
+                {
+                    "key": "OIDC_ISSUER_URL",
+                    "default": os.environ.get("OIDC_ISSUER_URL") or file_creds.get("issuer_url"),
                 },
                 {
                     "key": "OIDC_AUTHORIZATION_URL",
@@ -96,105 +107,207 @@ class OIDCOAuthProvider(OauthAdapter):
             ]
         )
 
-        if not (OIDC_CLIENT_ID and OIDC_AUTHORIZATION_URL and OIDC_TOKEN_URL):
+        if not client_id:
             raise AuthenticationException(
                 error_code=AUTHENTICATION_ERROR_CODES["OIDC_NOT_CONFIGURED"],
                 error_message="OIDC_NOT_CONFIGURED",
             )
 
-        self.client_id = OIDC_CLIENT_ID
-        self.client_secret = OIDC_CLIENT_SECRET
-        self.scope = OIDC_SCOPE
-        self.token_url = OIDC_TOKEN_URL
-        self.userinfo_url = OIDC_USERINFO_URL
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.issuer_url = issuer_url
+        self.scope = scope
+        self.redirect_uri = redirect_uri
 
-        # Generate PKCE challenge for Login.gov compliance
-        self.code_verifier = None
-        self.code_challenge = None
-        if not code:  # Only generate on initiate, not callback
-            self.code_verifier, self.code_challenge = self._generate_pkce_pair()
+        # Store explicit endpoints if provided (otherwise discovery will be used)
+        self._authorization_url = authorization_url
+        self._token_url = token_url
+        self._userinfo_url = userinfo_url
 
+        # Create Authlib OAuth2Session with PKCE support
+        self.session = OAuth2Session(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            redirect_uri=self.redirect_uri,
+            scope=self.scope,
+            code_challenge_method="S256",  # PKCE with SHA-256 (Login.gov requirement)
+        )
+
+    def get_authorization_url(self, state: str) -> tuple[str, str]:
+        """
+        Generate authorization URL with PKCE challenge.
+
+        Args:
+            state: CSRF protection state parameter
+
+        Returns:
+            tuple: (authorization_url, code_verifier)
+        """
+        auth_endpoint = self._authorization_url
+        if not auth_endpoint and self.issuer_url:
+            # Use OIDC discovery
+            auth_endpoint = f"{self.issuer_url}/oauth/authorize"
+
+        if not auth_endpoint:
+            raise AuthenticationException(
+                error_code=AUTHENTICATION_ERROR_CODES["OIDC_NOT_CONFIGURED"],
+                error_message="OIDC_NOT_CONFIGURED",
+            )
+
+        # Authlib generates PKCE code_verifier and code_challenge automatically
+        url, state_returned = self.session.create_authorization_url(
+            auth_endpoint,
+            state=state,
+        )
+
+        # Get the code_verifier that was generated
+        code_verifier = self.session.session_state.get("code_verifier")
+
+        return url, code_verifier
+
+    def fetch_token(self, code: str, code_verifier: str) -> dict:
+        """
+        Exchange authorization code for tokens.
+
+        Args:
+            code: Authorization code from callback
+            code_verifier: PKCE code verifier from session
+
+        Returns:
+            dict: Token response with access_token, id_token, etc.
+        """
+        token_endpoint = self._token_url
+        if not token_endpoint and self.issuer_url:
+            token_endpoint = f"{self.issuer_url}/oauth/token"
+
+        if not token_endpoint:
+            raise AuthenticationException(
+                error_code=AUTHENTICATION_ERROR_CODES["OIDC_NOT_CONFIGURED"],
+                error_message="OIDC_NOT_CONFIGURED",
+            )
+
+        try:
+            token = self.session.fetch_token(
+                token_endpoint,
+                code=code,
+                code_verifier=code_verifier,
+            )
+            return token
+        except Exception as e:
+            raise AuthenticationException(
+                error_code=AUTHENTICATION_ERROR_CODES["OIDC_OAUTH_PROVIDER_ERROR"],
+                error_message=f"Token exchange failed: {str(e)}",
+            )
+
+    def get_userinfo(self, access_token: str) -> dict:
+        """
+        Fetch user info from OIDC userinfo endpoint.
+
+        Args:
+            access_token: Valid access token
+
+        Returns:
+            dict: User info claims
+        """
+        userinfo_endpoint = self._userinfo_url
+        if not userinfo_endpoint and self.issuer_url:
+            userinfo_endpoint = f"{self.issuer_url}/oauth/userinfo"
+
+        if not userinfo_endpoint:
+            raise AuthenticationException(
+                error_code=AUTHENTICATION_ERROR_CODES["OIDC_NOT_CONFIGURED"],
+                error_message="OIDC_NOT_CONFIGURED",
+            )
+
+        try:
+            # Create a new session with the token for userinfo request
+            session = OAuth2Session(
+                client_id=self.client_id,
+                token={"access_token": access_token, "token_type": "Bearer"},
+            )
+            resp = session.get(userinfo_endpoint)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as e:
+            raise AuthenticationException(
+                error_code=AUTHENTICATION_ERROR_CODES["OIDC_OAUTH_PROVIDER_ERROR"],
+                error_message=f"Userinfo request failed: {str(e)}",
+            )
+
+
+class OIDCOAuthProvider(OauthAdapter):
+    """
+    Authlib-based OIDC OAuth provider for Plane authentication.
+
+    Wraps OIDCClient to integrate with Plane's authentication adapter pattern.
+    """
+
+    provider = "oidc"
+
+    def __init__(self, request, code=None, state=None, callback=None):
+        # Build redirect URI
         redirect_uri = f"""{"https" if request.is_secure() else "http"}://{request.get_host()}/auth/oidc/callback/"""
 
-        url_params = {
-            "client_id": self.client_id,
-            "scope": self.scope,
-            "redirect_uri": redirect_uri,
-            "response_type": "code",
-            "state": state,
-        }
+        # Initialize Authlib client
+        self.oidc_client = OIDCClient(redirect_uri=redirect_uri)
 
-        # Add PKCE parameters if generated (Login.gov requires S256)
-        if self.code_challenge:
-            url_params["code_challenge"] = self.code_challenge
-            url_params["code_challenge_method"] = "S256"
+        # Store code verifier if initiating (not callback)
+        self.code_verifier = None
+        self._auth_url = None
 
-        auth_url = f"{OIDC_AUTHORIZATION_URL}?{urlencode(url_params)}"
+        if not code:
+            # Generate authorization URL with PKCE
+            self._auth_url, self.code_verifier = self.oidc_client.get_authorization_url(state or "")
 
+        # Initialize parent adapter
         super().__init__(
             request,
             self.provider,
-            self.client_id,
-            self.scope,
+            self.oidc_client.client_id,
+            self.oidc_client.scope,
             redirect_uri,
-            auth_url,
-            self.token_url,
-            self.userinfo_url,
-            self.client_secret,
+            self._auth_url or "",
+            self.oidc_client._token_url or "",
+            self.oidc_client._userinfo_url or "",
+            self.oidc_client.client_secret,
             code,
             callback=callback,
         )
 
-    @staticmethod
-    def _generate_pkce_pair():
-        """
-        Generate PKCE code verifier and challenge for Login.gov compliance.
+    def get_auth_url(self):
+        """Return the authorization URL."""
+        return self._auth_url
 
-        Returns:
-            tuple: (code_verifier, code_challenge)
-        """
-        # Generate a high-entropy code verifier
-        code_verifier = secrets.token_urlsafe(64)
-
-        # Create S256 code challenge
-        code_challenge = base64.urlsafe_b64encode(
-            hashlib.sha256(code_verifier.encode()).digest()
-        ).decode().rstrip('=')
-
-        return code_verifier, code_challenge
+    def set_code_verifier(self, code_verifier: str):
+        """Set the PKCE code verifier from session storage."""
+        self._code_verifier = code_verifier
 
     def set_token_data(self):
-        data = {
-            "code": self.code,
-            "client_id": self.client_id,
-            "redirect_uri": self.redirect_uri,
-            "grant_type": "authorization_code",
-        }
+        """Exchange authorization code for tokens using Authlib."""
+        code_verifier = getattr(self, "_code_verifier", None)
+        if not code_verifier:
+            raise AuthenticationException(
+                error_code=AUTHENTICATION_ERROR_CODES["OIDC_OAUTH_PROVIDER_ERROR"],
+                error_message="Missing PKCE code verifier",
+            )
 
-        # Include client_secret if configured (some IdPs require it)
-        if self.client_secret:
-            data["client_secret"] = self.client_secret
+        token = self.oidc_client.fetch_token(self.code, code_verifier)
 
-        # Include PKCE code_verifier if available in session
-        # Note: code_verifier is passed via session in the view layer
-        if hasattr(self, '_code_verifier') and self._code_verifier:
-            data["code_verifier"] = self._code_verifier
+        # Calculate token expiration
+        expires_at = None
+        if token.get("expires_in"):
+            expires_at = datetime.fromtimestamp(
+                datetime.now(tz=pytz.utc).timestamp() + token.get("expires_in", 3600),
+                tz=pytz.utc
+            )
 
-        token_response = self.get_user_token(data=data)
         super().set_token_data(
             {
-                "access_token": token_response.get("access_token"),
-                "refresh_token": token_response.get("refresh_token", None),
-                "access_token_expired_at": (
-                    datetime.fromtimestamp(
-                        datetime.now(tz=pytz.utc).timestamp() + token_response.get("expires_in", 3600),
-                        tz=pytz.utc
-                    )
-                    if token_response.get("expires_in")
-                    else None
-                ),
+                "access_token": token.get("access_token"),
+                "refresh_token": token.get("refresh_token"),
+                "access_token_expired_at": expires_at,
                 "refresh_token_expired_at": None,
-                "id_token": token_response.get("id_token", ""),
+                "id_token": token.get("id_token", ""),
             }
         )
 
@@ -212,25 +325,25 @@ class OIDCOAuthProvider(OauthAdapter):
         - family_name -> last_name
         - picture -> avatar
         """
-        user_info_response = self.get_user_response()
+        user_info = self.oidc_client.get_userinfo(self.token_data.get("access_token"))
 
         # Extract email - try multiple locations for PIV/OIDC compatibility
-        email = self._extract_email_from_response(user_info_response)
+        email = self._extract_email_from_response(user_info)
 
         # If no email found, generate synthetic from DN
         if not email:
-            sub_dn = user_info_response.get("sub", "")
+            sub_dn = user_info.get("sub", "")
             email = self._generate_synthetic_email(sub_dn)
 
         # Extract name from claims or parse from X.509 DN
-        first_name = user_info_response.get("given_name", "")
-        last_name = user_info_response.get("family_name", "")
+        first_name = user_info.get("given_name", "")
+        last_name = user_info.get("family_name", "")
 
         if not first_name:
-            name = user_info_response.get("name", "")
+            name = user_info.get("name", "")
             if not name:
                 # Parse name from X.509 DN Common Name
-                name = self._extract_cn_from_dn(user_info_response.get("sub", ""))
+                name = self._extract_cn_from_dn(user_info.get("sub", ""))
 
             # Split name into first/last
             name_parts = name.split(" ", 1) if name else [""]
@@ -244,10 +357,10 @@ class OIDCOAuthProvider(OauthAdapter):
         user_data = {
             "email": email,
             "user": {
-                "avatar": user_info_response.get("picture", ""),
+                "avatar": user_info.get("picture", ""),
                 "first_name": first_name,
                 "last_name": last_name,
-                "provider_id": user_info_response.get("sub"),  # Full X.509 DN for audit trail
+                "provider_id": user_info.get("sub"),  # Full X.509 DN for audit trail
                 "is_password_autoset": True,
             },
         }
@@ -361,7 +474,3 @@ class OIDCOAuthProvider(OauthAdapter):
             if upper_part.startswith("E=") or upper_part.startswith("EMAILADDRESS="):
                 return part.split("=", 1)[1]
         return ""
-
-    def set_code_verifier(self, code_verifier):
-        """Set the PKCE code verifier from session storage."""
-        self._code_verifier = code_verifier
