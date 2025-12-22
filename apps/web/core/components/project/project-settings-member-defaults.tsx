@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import useSWR from "swr";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";

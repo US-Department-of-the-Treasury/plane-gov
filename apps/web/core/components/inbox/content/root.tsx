@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import type { TNameDescriptionLoader } from "@plane/types";
 // components
@@ -8,6 +8,7 @@ import { ContentWrapper } from "@plane/ui";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import { InboxIssueActionsHeader } from "./inbox-issue-header";
 import { InboxIssueMainContent } from "./issue-root";
@@ -52,18 +53,19 @@ export function InboxContentRoot(props: TInboxContentRoot) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isIssueAvailable, isNotificationEmbed]);
 
-  useSWR(
-    workspaceSlug && projectId && inboxIssueId
-      ? `PROJECT_INBOX_ISSUE_DETAIL_${workspaceSlug}_${projectId}_${inboxIssueId}`
-      : null,
-    workspaceSlug && projectId && inboxIssueId
-      ? () => fetchInboxIssueById(workspaceSlug, projectId, inboxIssueId)
-      : null,
-    {
-      revalidateOnFocus: false,
-      revalidateIfStale: false,
-    }
-  );
+  useQuery({
+    queryKey:
+      workspaceSlug && projectId && inboxIssueId ? queryKeys.inbox.detail(inboxIssueId) : [],
+    queryFn: async () => {
+      if (workspaceSlug && projectId && inboxIssueId) {
+        await fetchInboxIssueById(workspaceSlug, projectId, inboxIssueId);
+      }
+      return null;
+    },
+    enabled: !!(workspaceSlug && projectId && inboxIssueId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const isEditable =
     allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug, projectId) ||

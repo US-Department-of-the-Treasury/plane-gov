@@ -1,12 +1,10 @@
 import { useSearchParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { Boxes, Check, User2 } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
 // components
 import { LogoSpinner } from "@/components/common/logo-spinner";
 import { EmptySpace, EmptySpaceItem } from "@/components/ui/empty-space";
-// constants
-import { WORKSPACE_INVITATION } from "@/constants/fetch-keys";
 // helpers
 import { EPageTypes } from "@/helpers/authentication.helper";
 // hooks
@@ -31,12 +29,13 @@ function WorkspaceInvitationPage() {
   // store hooks
   const { data: currentUser } = useUser();
 
-  const { data: invitationDetail, error } = useSWR(
-    invitation_id && slug && WORKSPACE_INVITATION(invitation_id.toString()),
-    invitation_id && slug
-      ? () => workspaceService.getWorkspaceInvitation(slug.toString(), invitation_id.toString())
-      : null
-  );
+  const { data: invitationDetail, error } = useQuery({
+    queryKey: ["workspace-invitations", slug, invitation_id],
+    queryFn: () => workspaceService.getWorkspaceInvitation(slug!.toString(), invitation_id!.toString()),
+    enabled: !!(invitation_id && slug),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const handleAccept = () => {
     if (!invitationDetail) return;

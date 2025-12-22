@@ -1,14 +1,14 @@
 import type { FC } from "react";
 import { useParams } from "next/navigation";
 import { useFormContext, useFieldArray, Controller } from "react-hook-form";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane types
 import type { IJiraImporterForm } from "@plane/types";
 // plane ui
 import { Avatar, CustomSelect, CustomSearchSelect, Input, ToggleSwitch } from "@plane/ui";
 // constants
 import { getFileURL } from "@plane/utils";
-import { WORKSPACE_MEMBERS } from "@/constants/fetch-keys";
+import { queryKeys } from "@/store/queries/query-keys";
 // helpers
 // plane web services
 import { WorkspaceService } from "@/plane-web/services";
@@ -29,10 +29,11 @@ export function JiraImportUsers() {
     name: "data.users",
   });
 
-  const { data: members } = useSWR(
-    workspaceSlug ? WORKSPACE_MEMBERS(workspaceSlug?.toString() ?? "") : null,
-    workspaceSlug ? () => workspaceService.fetchWorkspaceMembers(workspaceSlug?.toString() ?? "") : null
-  );
+  const { data: members } = useQuery({
+    queryKey: queryKeys.members.workspace(workspaceSlug as string),
+    queryFn: () => workspaceService.fetchWorkspaceMembers(workspaceSlug as string),
+    enabled: !!workspaceSlug,
+  });
 
   const options = members
     ?.map((member) => {

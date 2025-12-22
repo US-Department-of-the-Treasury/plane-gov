@@ -1,14 +1,15 @@
 import React from "react";
 import { useParams } from "next/navigation";
-import useSWRInfinite from "swr/infinite";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import type { IWorkspaceIntegration } from "@plane/types";
-// services
 // ui
 import { CustomSearchSelect } from "@plane/ui";
 // helpers
 import { truncateText } from "@plane/utils";
+// store
+import { queryKeys } from "@/store/queries/query-keys";
+// services
 import { ProjectService } from "@/services/project";
-// types
 
 type Props = {
   integration: IWorkspaceIntegration;
@@ -18,6 +19,16 @@ type Props = {
   characterLimit?: number;
 };
 
+type GithubRepo = {
+  id: string;
+  full_name: string;
+};
+
+type GithubReposResponse = {
+  repositories: GithubRepo[];
+  total_count: number;
+};
+
 const projectService = new ProjectService();
 
 export function SelectRepository(props: Props) {
@@ -25,24 +36,32 @@ export function SelectRepository(props: Props) {
   // router
   const { workspaceSlug } = useParams();
 
-  const getKey = (pageIndex: number) => {
-    if (!workspaceSlug || !integration) return;
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery<GithubReposResponse>({
+    queryKey: queryKeys.integrations.github.repositories(workspaceSlug as string, integration?.id ?? ""),
+    queryFn: async ({ pageParam }) => {
+      const page = pageParam as number;
+      const url = `${process.env.VITE_API_BASE_URL}/api/workspaces/${workspaceSlug}/workspace-integrations/${integration.id}/github-repositories/?page=${page}`;
+      return projectService.getGithubRepositories(url);
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const totalFetched = allPages.reduce((acc, page) => acc + page.repositories.length, 0);
+      if (totalFetched < lastPage.total_count) {
+        return allPages.length + 1;
+      }
+      return undefined;
+    },
+    enabled: !!workspaceSlug && !!integration?.id,
+  });
 
-    return `${process.env.VITE_API_BASE_URL}/api/workspaces/${workspaceSlug}/workspace-integrations/${
-      integration.id
-    }/github-repositories/?page=${++pageIndex}`;
-  };
-
-  const fetchGithubRepos = async (url: string) => {
-    const data = await projectService.getGithubRepositories(url);
-
-    return data;
-  };
-
-  const { data: paginatedData, size, setSize, isValidating } = useSWRInfinite(getKey, fetchGithubRepos);
-
-  let userRepositories = (paginatedData ?? []).map((data) => data.repositories).flat();
-  userRepositories = userRepositories.filter((data) => data?.id);
+  const paginatedData = data?.pages ?? [];
+  let userRepositories = paginatedData.map((page) => page.repositories).flat();
+  userRepositories = userRepositories.filter((repo) => repo?.id);
 
   const totalCount = paginatedData && paginatedData.length > 0 ? paginatedData[0].total_count : 0;
 
@@ -67,14 +86,14 @@ export function SelectRepository(props: Props) {
       label={label}
       footerOption={
         <>
-          {userRepositories && options.length < totalCount && (
+          {userRepositories && hasNextPage && (
             <button
               type="button"
               className="w-full p-1 text-center text-10 text-secondary hover:bg-layer-1"
-              onClick={() => setSize(size + 1)}
-              disabled={isValidating}
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
             >
-              {isValidating ? "Loading..." : "Click to load more..."}
+              {isFetchingNextPage ? "Loading..." : "Click to load more..."}
             </button>
           )}
         </>

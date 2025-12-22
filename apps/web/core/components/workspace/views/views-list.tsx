@@ -1,9 +1,11 @@
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // components
 import { ViewListLoader } from "@/components/ui/loader/view-list-loader";
 // hooks
 import { useGlobalView } from "@/hooks/store/use-global-view";
+// queries
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import { GlobalViewListItem } from "./view-list-item";
 
@@ -18,10 +20,13 @@ export function GlobalViewsList(props: Props) {
   // store hooks
   const { fetchAllGlobalViews, currentWorkspaceViews, getSearchedViews } = useGlobalView();
 
-  useSWR(
-    workspaceSlug ? `GLOBAL_VIEWS_LIST_${workspaceSlug.toString()}` : null,
-    workspaceSlug ? () => fetchAllGlobalViews() : null
-  );
+  useQuery({
+    queryKey: queryKeys.workspaceViews.all(workspaceSlug?.toString() ?? ""),
+    queryFn: () => fetchAllGlobalViews(),
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   if (!currentWorkspaceViews) return <ViewListLoader />;
 

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Link from "next/link";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // icons
 import { History, MessageSquare } from "lucide-react";
 import { calculateTimeAgo, getFileURL } from "@plane/utils";
@@ -8,12 +8,12 @@ import { calculateTimeAgo, getFileURL } from "@plane/utils";
 import { ActivityIcon, ActivityMessage } from "@/components/core/activity";
 import { RichTextEditor } from "@/components/editor/rich-text";
 import { ActivitySettingsLoader } from "@/components/ui/loader/settings/activity";
-// constants
-import { USER_ACTIVITY } from "@/constants/fetch-keys";
 // hooks
 import { useUser } from "@/hooks/store/user";
 // services
 import { UserService } from "@/services/user.service";
+// query keys
+import { queryKeys } from "@/store/queries/query-keys";
 const userService = new UserService();
 
 type Props = {
@@ -29,16 +29,16 @@ export function ProfileActivityListPage(props: Props) {
   // store hooks
   const { data: currentUser } = useUser();
 
-  const { data: userProfileActivity } = useSWR(
-    USER_ACTIVITY({
-      cursor,
-    }),
-    () =>
+  const { data: userProfileActivity } = useQuery({
+    queryKey: queryKeys.userActivity.all({ cursor }),
+    queryFn: () =>
       userService.getUserActivity({
         cursor,
         per_page: perPage,
-      })
-  );
+      }),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   useEffect(() => {
     if (!userProfileActivity) return;

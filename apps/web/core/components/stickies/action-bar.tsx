@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { Plus, StickyNote as StickyIcon } from "lucide-react";
 // plane hooks
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -12,6 +12,8 @@ import { cn } from "@plane/utils";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useSticky } from "@/hooks/use-stickies";
+// queries
+import { queryKeys } from "@/store/queries/query-keys";
 // components
 import { STICKY_COLORS_LIST } from "../editor/sticky-editor/color-palette";
 import { AllStickiesModal } from "./modal";
@@ -35,10 +37,13 @@ export function StickyActionBar() {
     ? STICKY_COLORS_LIST.find((c) => c.key === stickies[recentStickyId].background_color)?.backgroundColor
     : STICKY_COLORS_LIST[0].backgroundColor;
 
-  useSWR(
-    workspaceSlug ? `WORKSPACE_STICKIES_RECENT_${workspaceSlug}` : null,
-    workspaceSlug ? () => fetchRecentSticky(workspaceSlug.toString()) : null
-  );
+  useQuery({
+    queryKey: queryKeys.stickies.recent(workspaceSlug?.toString() ?? ""),
+    queryFn: () => fetchRecentSticky(workspaceSlug.toString()),
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   useOutsideClickDetector(ref, () => {
     setNewSticky(false);

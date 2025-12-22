@@ -1,15 +1,14 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import type { TWorkItemFilterCondition } from "@plane/shared-state";
 import { EIssuesStoreType } from "@plane/types";
-// constants
-import { SPRINT_ISSUES_WITH_PARAMS } from "@/constants/fetch-keys";
 // hooks
 import { useSprintDetails, useSprintProgress } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useWorkItemFilters } from "@/hooks/store/work-item-filters/use-work-item-filters";
+import { queryKeys } from "@/store/queries/query-keys";
 
 interface IActiveSprintDetails {
   workspaceSlug: string;
@@ -34,15 +33,15 @@ const useSprintsDetails = (props: IActiveSprintDetails) => {
   useSprintProgress(workspaceSlug, projectId, sprintId || "");
 
   // fetch active sprint issues
-  useSWR(
-    workspaceSlug && projectId && sprint?.id
-      ? SPRINT_ISSUES_WITH_PARAMS(sprint?.id, { priority: "urgent,high" })
-      : null,
-    workspaceSlug && projectId && sprint?.id
-      ? () => fetchActiveSprintIssues(workspaceSlug, projectId, 30, sprint?.id)
-      : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
+  useQuery({
+    queryKey: queryKeys.issues.sprint(sprint?.id || ""),
+    queryFn: () => fetchActiveSprintIssues(workspaceSlug, projectId, 30, sprint!.id),
+    enabled: !!(workspaceSlug && projectId && sprint?.id),
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
+  });
 
   const sprintIssueDetails = sprint?.id ? getActiveSprintByIdFromIssue(sprint?.id) : { nextPageResults: false };
 

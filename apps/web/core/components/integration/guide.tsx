@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import useSWR, { mutate } from "swr";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 // icons
 import { RefreshCw } from "lucide-react";
 // plane imports
@@ -17,7 +17,7 @@ import JiraLogo from "@/app/assets/services/jira.svg?url";
 import { DeleteImportModal, GithubImporterRoot, JiraImporterRoot, SingleImport } from "@/components/integration";
 import { ImportExportSettingsLoader } from "@/components/ui/loader/settings/import-and-export";
 // constants
-import { IMPORTER_SERVICES_LIST } from "@/constants/fetch-keys";
+import { queryKeys } from "@/store/queries/query-keys";
 // hooks
 import { useUser } from "@/hooks/store/user";
 // services
@@ -51,11 +51,13 @@ function IntegrationGuide() {
   const { data: currentUser } = useUser();
 
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
-  const { data: importerServices } = useSWR(
-    workspaceSlug ? IMPORTER_SERVICES_LIST(workspaceSlug) : null,
-    workspaceSlug ? () => integrationService.getImporterServicesList(workspaceSlug) : null
-  );
+  const { data: importerServices } = useQuery({
+    queryKey: queryKeys.integrations.imports(workspaceSlug as string),
+    queryFn: () => integrationService.getImporterServicesList(workspaceSlug as string),
+    enabled: !!workspaceSlug,
+  });
 
   const handleDeleteImport = (importService: IImporterService) => {
     setImportToDelete(importService);
@@ -128,7 +130,7 @@ function IntegrationGuide() {
                     className="flex flex-shrink-0 items-center gap-1 rounded-sm bg-layer-1 px-1.5 py-1 text-11 outline-none"
                     onClick={() => {
                       setRefreshing(true);
-                      mutate(IMPORTER_SERVICES_LIST(workspaceSlug)).then(() => setRefreshing(false));
+                      queryClient.invalidateQueries({ queryKey: queryKeys.integrations.imports(workspaceSlug as string) }).then(() => setRefreshing(false));
                     }}
                   >
                     <RefreshCw className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} />{" "}

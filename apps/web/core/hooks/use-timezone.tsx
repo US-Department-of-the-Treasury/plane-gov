@@ -1,7 +1,8 @@
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import type { TTimezoneObject } from "@plane/types";
 // services
 import timezoneService from "@/services/timezone.service";
+import { queryKeys } from "@/store/queries/query-keys";
 
 // group timezones by value
 const groupTimezones = (timezones: TTimezoneObject[]): TTimezoneObject[] => {
@@ -30,10 +31,13 @@ const useTimezone = () => {
   // fetching the timezone from the server
   const {
     data: timezones,
-    isLoading: timezoneIsLoading,
+    isPending: timezoneIsLoading,
     error: timezonesError,
-  } = useSWR("TIMEZONES_LIST", () => timezoneService.fetch(), {
-    refreshInterval: 0,
+  } = useQuery({
+    queryKey: queryKeys.timezones.all(),
+    queryFn: () => timezoneService.fetch(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
   });
 
   // derived values

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane package imports
 import { useTranslation } from "@plane/i18n";
 import { AreaChart } from "@plane/propel/charts/area-chart";
@@ -11,6 +11,7 @@ import { renderFormattedDate } from "@plane/utils";
 import { useAnalytics } from "@/hooks/store/use-analytics";
 // services
 import { AnalyticsService } from "@/services/analytics.service";
+import { queryKeys } from "@/store/queries/query-keys";
 // plane web components
 import AnalyticsSectionWrapper from "../analytics-section-wrapper";
 import { ChartLoader } from "../loaders";
@@ -29,9 +30,16 @@ function CreatedVsResolved() {
   const params = useParams();
   const { t } = useTranslation();
   const workspaceSlug = params.workspaceSlug.toString();
-  const { data: createdVsResolvedData, isLoading: isCreatedVsResolvedLoading } = useSWR(
-    `created-vs-resolved-${workspaceSlug}-${selectedDuration}-${selectedProjects}-${selectedSprint}-${selectedEpic}-${isPeekView}-${isEpic}`,
-    () =>
+  const { data: createdVsResolvedData, isPending: isCreatedVsResolvedLoading } = useQuery({
+    queryKey: queryKeys.analytics.charts(workspaceSlug, "work-items", {
+      selectedDuration,
+      selectedProjects,
+      selectedSprint,
+      selectedEpic,
+      isPeekView,
+      isEpic,
+    }),
+    queryFn: () =>
       analyticsService.getAdvanceAnalyticsCharts<IChartResponse>(
         workspaceSlug,
         "work-items",
@@ -43,8 +51,10 @@ function CreatedVsResolved() {
           ...(isEpic ? { epic: true } : {}),
         },
         isPeekView
-      )
-  );
+      ),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   const parsedData: TChartData<string, string>[] = useMemo(() => {
     if (!createdVsResolvedData?.data) return [];
     return createdVsResolvedData.data.map((datum) => ({

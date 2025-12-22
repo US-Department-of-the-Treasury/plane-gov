@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "@plane/i18n";
 // plane types
 import { PageIcon, ProjectIcon, WorkItemsIcon } from "@plane/propel/icons";
@@ -9,6 +9,7 @@ import type { TActivityEntityData, THomeWidgetProps, TRecentActivityFilterKeys }
 import { ContentOverflowWrapper } from "@/components/core/content-overflow-HOC";
 // plane web services
 import { WorkspaceService } from "@/plane-web/services";
+import { queryKeys } from "@/store/queries/query-keys";
 import { RecentsEmptyState } from "../empty-states";
 import { EWidgetKeys, WidgetLoader } from "../loaders";
 import { FiltersDropdown } from "./filters";
@@ -38,21 +39,20 @@ export function RecentActivityWidget(props: TRecentWidgetProps) {
   // ref
   const ref = useRef<HTMLDivElement>(null);
 
-  const { data: recents, isLoading } = useSWR(
-    workspaceSlug ? `WORKSPACE_RECENT_ACTIVITY_${workspaceSlug}_${filter}` : null,
-    workspaceSlug
-      ? () =>
-          workspaceService.fetchWorkspaceRecents(
-            workspaceSlug.toString(),
-            filter === filters[0].name ? undefined : filter
-          )
-      : null,
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
+  const { data: recents, isPending } = useQuery({
+    queryKey: queryKeys.recents.activity(
+      workspaceSlug?.toString() ?? "",
+      filter === filters[0].name ? "all" : filter
+    ),
+    queryFn: () =>
+      workspaceService.fetchWorkspaceRecents(
+        workspaceSlug.toString(),
+        filter === filters[0].name ? undefined : filter
+      ),
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const resolveRecent = (activity: TActivityEntityData) => {
     switch (activity.entity_name) {
@@ -68,7 +68,7 @@ export function RecentActivityWidget(props: TRecentWidgetProps) {
     }
   };
 
-  if (!isLoading && recents?.length === 0)
+  if (!isPending && recents?.length === 0)
     return (
       <div ref={ref} className="max-h-[500px] overflow-y-scroll">
         <div className="flex items-center justify-between mb-4">
@@ -93,8 +93,8 @@ export function RecentActivityWidget(props: TRecentWidgetProps) {
         {showFilterSelect && <FiltersDropdown filters={filters} activeFilter={filter} setActiveFilter={setFilter} />}
       </div>
       <div className="min-h-[250px] flex flex-col">
-        {isLoading && <WidgetLoader widgetKey={WIDGET_KEY} />}
-        {!isLoading &&
+        {isPending && <WidgetLoader widgetKey={WIDGET_KEY} />}
+        {!isPending &&
           recents
             ?.filter((recent) => recent.entity_data)
             .map((activity) => <div key={activity.id}>{resolveRecent(activity)}</div>)}

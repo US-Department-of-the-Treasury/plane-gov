@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 // hooks
@@ -7,6 +7,7 @@ import { EmptyStateCompact } from "@plane/propel/empty-state";
 import { useProjectEstimates } from "@/hooks/store/estimates";
 // store hooks
 import { useProjectDetails } from "@/store/queries/project";
+import { queryKeys } from "@/store/queries/query-keys";
 // plane web components
 import { UpdateEstimateModal } from "@/plane-web/components/estimates";
 // local imports
@@ -35,10 +36,13 @@ export function EstimateRoot(props: TEstimateRoot) {
 
   const { t } = useTranslation();
 
-  const { isLoading: isSWRLoading } = useSWR(
-    workspaceSlug && projectId ? `PROJECT_ESTIMATES_${workspaceSlug}_${projectId}` : null,
-    async () => workspaceSlug && projectId && getProjectEstimates(workspaceSlug, projectId)
-  );
+  const { isPending: isSWRLoading } = useQuery({
+    queryKey: queryKeys.estimates.all(workspaceSlug, projectId),
+    queryFn: async () => getProjectEstimates(workspaceSlug, projectId),
+    enabled: !!(workspaceSlug && projectId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   return (
     <div className="container mx-auto">

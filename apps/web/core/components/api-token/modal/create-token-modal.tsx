@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { mutate } from "swr";
+import { useQueryClient } from "@tanstack/react-query";
 // plane imports
 import { PROFILE_SETTINGS_TRACKER_EVENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -7,8 +7,8 @@ import { APITokenService } from "@plane/services";
 import type { IApiToken } from "@plane/types";
 import { EModalPosition, EModalWidth, ModalCore } from "@plane/ui";
 import { renderFormattedDate, csvDownload } from "@plane/utils";
-// constants
-import { API_TOKENS_LIST } from "@/constants/fetch-keys";
+// query keys
+import { queryKeys } from "@/store/queries/query-keys";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // local imports
@@ -28,6 +28,8 @@ export function CreateApiTokenModal(props: Props) {
   // states
   const [neverExpires, setNeverExpires] = useState<boolean>(false);
   const [generatedToken, setGeneratedToken] = useState<IApiToken | null | undefined>(null);
+  // hooks
+  const queryClient = useQueryClient();
 
   const handleClose = () => {
     onClose();
@@ -57,15 +59,10 @@ export function CreateApiTokenModal(props: Props) {
         setGeneratedToken(res);
         downloadSecretKey(res);
 
-        mutate<IApiToken[]>(
-          API_TOKENS_LIST,
-          (prevData) => {
-            if (!prevData) return;
-
-            return [res, ...prevData];
-          },
-          false
-        );
+        queryClient.setQueryData<IApiToken[]>(queryKeys.apiTokens.all(), (prevData) => {
+          if (!prevData) return [res];
+          return [res, ...prevData];
+        });
         captureSuccess({
           eventName: PROFILE_SETTINGS_TRACKER_EVENTS.pat_created,
           payload: {

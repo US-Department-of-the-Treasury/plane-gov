@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane package imports
 import { useTranslation } from "@plane/i18n";
 import { EmptyStateCompact } from "@plane/propel/empty-state";
@@ -9,6 +9,7 @@ import type { TChartData } from "@plane/types";
 import { useAnalytics } from "@/hooks/store/use-analytics";
 // services
 import { AnalyticsService } from "@/services/analytics.service";
+import { queryKeys } from "@/store/queries/query-keys";
 // plane web components
 import AnalyticsSectionWrapper from "../analytics-section-wrapper";
 import { ProjectInsightsLoader } from "../loaders";
@@ -28,9 +29,15 @@ function ProjectInsights() {
   const { selectedDuration, selectedDurationLabel, selectedProjects, selectedSprint, selectedEpic, isPeekView } =
     useAnalytics();
 
-  const { data: projectInsightsData, isLoading: isLoadingProjectInsight } = useSWR(
-    `radar-chart-project-insights-${workspaceSlug}-${selectedDuration}-${selectedProjects}-${selectedSprint}-${selectedEpic}-${isPeekView}`,
-    () =>
+  const { data: projectInsightsData, isPending: isLoadingProjectInsight } = useQuery({
+    queryKey: queryKeys.analytics.charts(workspaceSlug, "projects", {
+      selectedDuration,
+      selectedProjects,
+      selectedSprint,
+      selectedEpic,
+      isPeekView,
+    }),
+    queryFn: () =>
       analyticsService.getAdvanceAnalyticsCharts<TChartData<string, string>[]>(
         workspaceSlug,
         "projects",
@@ -41,8 +48,10 @@ function ProjectInsights() {
           ...(selectedEpic ? { epic_id: selectedEpic } : {}),
         },
         isPeekView
-      )
-  );
+      ),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   return (
     <AnalyticsSectionWrapper

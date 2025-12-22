@@ -1,6 +1,6 @@
 // plane package imports
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import type { IInsightField } from "@plane/constants";
 import { ANALYTICS_INSIGHTS_FIELDS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -10,6 +10,7 @@ import { cn } from "@plane/utils";
 import { useAnalytics } from "@/hooks/store/use-analytics";
 // services
 import { AnalyticsService } from "@/services/analytics.service";
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import InsightCard from "./insight-card";
 
@@ -48,9 +49,15 @@ function TotalInsights({ analyticsType, peekView }: { analyticsType: TAnalyticsT
   const workspaceSlug = params.workspaceSlug.toString();
   const { t } = useTranslation();
   const { selectedDuration, selectedProjects, selectedSprint, selectedEpic, isPeekView, isEpic } = useAnalytics();
-  const { data: totalInsightsData, isLoading } = useSWR(
-    `total-insights-${analyticsType}-${selectedDuration}-${selectedProjects}-${selectedSprint}-${selectedEpic}-${isEpic}`,
-    () =>
+  const { data: totalInsightsData, isPending: isLoading } = useQuery({
+    queryKey: queryKeys.analytics.advance(workspaceSlug, analyticsType, {
+      selectedDuration,
+      selectedProjects,
+      selectedSprint,
+      selectedEpic,
+      isEpic,
+    }),
+    queryFn: () =>
       analyticsService.getAdvanceAnalytics<IAnalyticsResponse>(
         workspaceSlug,
         analyticsType,
@@ -62,8 +69,10 @@ function TotalInsights({ analyticsType, peekView }: { analyticsType: TAnalyticsT
           ...(isEpic ? { epic: true } : {}),
         },
         isPeekView
-      )
-  );
+      ),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   return (
     <div
       className={cn(

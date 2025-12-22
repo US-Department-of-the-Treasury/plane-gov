@@ -1,13 +1,13 @@
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // ui
 import { ArchiveIcon, WorkItemsIcon } from "@plane/propel/icons";
 import { Breadcrumbs, Header } from "@plane/ui";
 // components
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { IssueDetailQuickActions } from "@/components/issues/issue-detail/issue-detail-quick-actions";
-// constants
-import { ISSUE_DETAILS } from "@/constants/fetch-keys";
+// store
+import { queryKeys } from "@/store/queries/query-keys";
 // hooks
 import { useProjectDetails } from "@/store/queries/project";
 // plane web
@@ -26,12 +26,11 @@ export function ProjectArchivedIssueDetailsHeader() {
     projectId?.toString() ?? ""
   );
 
-  const { data: issueDetails } = useSWR(
-    workspaceSlug && projectId && archivedIssueId ? ISSUE_DETAILS(archivedIssueId.toString()) : null,
-    workspaceSlug && projectId && archivedIssueId
-      ? () => issueService.retrieve(workspaceSlug.toString(), projectId.toString(), archivedIssueId.toString())
-      : null
-  );
+  const { data: issueDetails } = useQuery({
+    queryKey: queryKeys.issues.detail(archivedIssueId as string),
+    queryFn: () => issueService.retrieve(workspaceSlug as string, projectId as string, archivedIssueId as string),
+    enabled: !!workspaceSlug && !!projectId && !!archivedIssueId,
+  });
 
   return (
     <Header>

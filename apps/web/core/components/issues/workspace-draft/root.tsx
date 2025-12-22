@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { Fragment } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { EUserPermissionsLevel, EDraftIssuePaginationType, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -15,6 +15,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceDraftIssues } from "@/hooks/store/workspace-draft";
 import { useWorkspaceIssueProperties } from "@/hooks/use-workspace-issue-properties";
 import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
+import { queryKeys } from "@/store/queries/query-keys";
 // components
 import { DraftIssueBlock } from "./draft-issue-block";
 import { WorkspaceDraftEmptyState } from "./empty-state";
@@ -44,11 +45,18 @@ export function WorkspaceDraftIssuesRoot(props: TWorkspaceDraftIssuesRoot) {
   useWorkspaceIssueProperties(workspaceSlug);
 
   // fetching issues
-  const { isLoading } = useSWR(
-    workspaceSlug ? `WORKSPACE_DRAFT_ISSUES_${workspaceSlug}` : null,
-    workspaceSlug ? async () => await fetchIssues(workspaceSlug, "init-loader") : null,
-    { revalidateOnFocus: false, revalidateIfStale: false }
-  );
+  const { isPending } = useQuery({
+    queryKey: workspaceSlug ? queryKeys.workspaceDrafts.all(workspaceSlug) : [],
+    queryFn: async () => {
+      if (workspaceSlug) {
+        await fetchIssues(workspaceSlug, "init-loader");
+      }
+      return null;
+    },
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   // handle nest issues
   const handleNextIssues = async () => {
@@ -56,7 +64,7 @@ export function WorkspaceDraftIssuesRoot(props: TWorkspaceDraftIssuesRoot) {
     await fetchIssues(workspaceSlug, "pagination", EDraftIssuePaginationType.NEXT);
   };
 
-  if (isLoading) {
+  if (isPending) {
     return <WorkspaceDraftIssuesLoader items={14} />;
   }
 

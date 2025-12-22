@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { mutate } from "swr";
+import { useQueryClient } from "@tanstack/react-query";
 // types
 import { PROFILE_SETTINGS_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -9,8 +9,8 @@ import { APITokenService } from "@plane/services";
 import type { IApiToken } from "@plane/types";
 // ui
 import { AlertModalCore } from "@plane/ui";
-// fetch-keys
-import { API_TOKENS_LIST } from "@/constants/fetch-keys";
+// query keys
+import { queryKeys } from "@/store/queries/query-keys";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 
 type Props = {
@@ -25,8 +25,9 @@ export function DeleteApiTokenModal(props: Props) {
   const { isOpen, onClose, tokenId } = props;
   // states
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
-  // router params
+  // hooks
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const handleClose = () => {
     onClose();
@@ -45,10 +46,8 @@ export function DeleteApiTokenModal(props: Props) {
           message: t("workspace_settings.settings.api_tokens.delete.success.message"),
         });
 
-        mutate<IApiToken[]>(
-          API_TOKENS_LIST,
-          (prevData) => (prevData ?? []).filter((token) => token.id !== tokenId),
-          false
+        queryClient.setQueryData<IApiToken[]>(queryKeys.apiTokens.all(), (prevData) =>
+          (prevData ?? []).filter((token) => token.id !== tokenId)
         );
         captureSuccess({
           eventName: PROFILE_SETTINGS_TRACKER_EVENTS.pat_deleted,
