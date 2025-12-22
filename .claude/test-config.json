@@ -1,0 +1,27 @@
+{
+  "framework": "playwright",
+  "workingDir": "apps/web",
+  "commands": {
+    "smoke": "pnpm test:smoke",
+    "e2e": "pnpm test:e2e",
+    "comprehensive": "pnpm test:comprehensive",
+    "ui": "pnpm test:e2e:ui",
+    "headed": "pnpm test:e2e:headed"
+  },
+  "testDirs": ["e2e/specs/smoke/", "e2e/specs/crud/", "e2e/specs/interactions/"],
+  "testFiles": {
+    "smoke": [
+      "specs/smoke/auth-routes.spec.ts",
+      "specs/smoke/project-routes.spec.ts",
+      "specs/smoke/settings-routes.spec.ts",
+      "specs/smoke/workspace-routes.spec.ts"
+    ],
+    "crud": [
+      "specs/crud/drafts.spec.ts",
+      "specs/crud/epics.spec.ts",
+      "specs/crud/issues.spec.ts",
+      "specs/crud/sprints.spec.ts"
+    ]
+  },
+  "lastAnalyzed": "2025-12-22T00:00:00Z"
+}
