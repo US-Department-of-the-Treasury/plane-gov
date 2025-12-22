@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { Info, Plus, SquareUser } from "lucide-react";
@@ -35,7 +34,6 @@ import { CreateUpdateEpicLinkModal, EpicAnalyticsProgress, EpicLinksList } from 
 import { captureElementAndEvent, captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
-import { useEpic } from "@/hooks/store/use-epic";
 import { useUserPermissions } from "@/hooks/store/user";
 import {
   useEpicDetails,
@@ -60,7 +58,7 @@ type Props = {
 };
 
 // TODO: refactor this component
-export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props: Props) {
+export function EpicAnalyticsSidebar(props: Props) {
   const { epicId, handleClose, isArchived } = props;
   // states
   const [epicLinkModal, setEpicLinkModal] = useState(false);
@@ -537,4 +535,4 @@ export const EpicAnalyticsSidebar = observer(function EpicAnalyticsSidebar(props
       </>
     </div>
   );
-});
+}

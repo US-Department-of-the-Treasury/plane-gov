@@ -1,5 +1,4 @@
-import type { FC } from "react";
-import { observer } from "mobx-react";
+import { useMemo } from "react";
 // assets
 import AllFiltersImage from "@/app/assets/empty-state/epic/all-filters.svg?url";
 import NameFilterImage from "@/app/assets/empty-state/epic/name-filter.svg?url";
@@ -8,23 +7,34 @@ import { EpicListItem, EpicPeekOverview } from "@/components/epics";
 // ui
 import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
 import { useEpicFilter } from "@/hooks/store/use-epic-filter";
+// queries
+import { useArchivedEpics } from "@/store/queries/epic";
 
 export interface IArchivedEpicsView {
   workspaceSlug: string;
   projectId: string;
 }
 
-export const ArchivedEpicsView = observer(function ArchivedEpicsView(props: IArchivedEpicsView) {
+export function ArchivedEpicsView(props: IArchivedEpicsView) {
   const { workspaceSlug, projectId } = props;
-  // store hooks
-  const { getFilteredArchivedEpicIds, loader } = useEpic();
+  // queries
+  const { data: archivedEpics, isLoading } = useArchivedEpics(workspaceSlug, projectId);
   const { archivedEpicsSearchQuery } = useEpicFilter();
-  // derived values
-  const filteredArchivedEpicIds = getFilteredArchivedEpicIds(projectId);
 
-  if (loader || !filteredArchivedEpicIds) return <SprintEpicListLayoutLoader />;
+  // derived values - filter epics based on search query
+  const filteredArchivedEpicIds = useMemo(() => {
+    if (!archivedEpics) return [];
+
+    const searchQuery = archivedEpicsSearchQuery.trim().toLowerCase();
+    if (!searchQuery) return archivedEpics.map(epic => epic.id);
+
+    return archivedEpics
+      .filter(epic => epic.name.toLowerCase().includes(searchQuery))
+      .map(epic => epic.id);
+  }, [archivedEpics, archivedEpicsSearchQuery]);
+
+  if (isLoading || !filteredArchivedEpicIds) return <SprintEpicListLayoutLoader />;
 
   if (filteredArchivedEpicIds.length === 0)
     return (
@@ -61,4 +71,4 @@ export const ArchivedEpicsView = observer(function ArchivedEpicsView(props: IArc
       </div>
     </div>
   );
-});
+}

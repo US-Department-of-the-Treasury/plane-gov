@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import { observer } from "mobx-react";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 // icons
 import { Check, Info } from "lucide-react";
@@ -11,7 +10,7 @@ import { ListItem } from "@/components/core/list";
 import { EpicListItemAction, EpicQuickActions } from "@/components/epics";
 // helpers
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
+import { useEpicDetails } from "@/store/queries/epic";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 
@@ -19,7 +18,7 @@ type Props = {
   epicId: string;
 };
 
-export const EpicListItem = observer(function EpicListItem(props: Props) {
+export function EpicListItem(props: Props) {
   const { epicId } = props;
   // refs
   const parentRef = useRef(null);
@@ -28,12 +27,13 @@ export const EpicListItem = observer(function EpicListItem(props: Props) {
   const { workspaceSlug, projectId } = useParams();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  // store hooks
-  const { getEpicById } = useEpic();
+  // hooks
   const { isMobile } = usePlatformOS();
-
-  // derived values
-  const epicDetails = getEpicById(epicId);
+  const { data: epicDetails } = useEpicDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? "",
+    epicId
+  );
 
   if (!epicDetails) return null;
 
@@ -106,4 +106,4 @@ export const EpicListItem = observer(function EpicListItem(props: Props) {
       parentRef={parentRef}
     />
   );
-});
+}

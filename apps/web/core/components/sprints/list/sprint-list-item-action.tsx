@@ -1,6 +1,5 @@
-import type { FC, MouseEvent } from "react";
+import type { MouseEvent } from "react";
 import React, { useEffect, useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Eye, ArrowRight, CalendarDays } from "lucide-react";
@@ -53,7 +52,7 @@ const defaultValues: Partial<ISprint> = {
   end_date: null,
 };
 
-export const SprintListItemAction = observer(function SprintListItemAction(props: Props) {
+export function SprintListItemAction(props: Props) {
   const { workspaceSlug, projectId, sprintId, sprintDetails, parentRef, isActive = false } = props;
   // router
   const { projectId: routerProjectId } = useParams();
@@ -343,4 +342,4 @@ export const SprintListItemAction = observer(function SprintListItemAction(props
       </div>
     </>
   );
-});
+}

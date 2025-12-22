@@ -48,12 +48,12 @@ import {
   isLoaderReady,
 } from "@plane/utils";
 // store hooks
-import { useEpic } from "@/hooks/store/use-epic";
 import { useProjectLabels } from "@/store/queries/label";
 import { useProjectMembers } from "@/store/queries/member";
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
+import { useProjectEpics, getEpicById } from "@/store/queries/epic";
 // plane web imports
 import { useFiltersOperatorConfigs } from "@/plane-web/hooks/rich-filters/use-filters-operator-configs";
 
@@ -91,8 +91,7 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
   const { data: allStates } = useProjectStates(workspaceSlug, projectId || "");
   const { data: projectSprints } = useProjectSprints(workspaceSlug, projectId || "");
   const { data: projectMembers = [] } = useProjectMembers(workspaceSlug, projectId || "");
-  // MobX store hooks (for epics only - not migrated to TanStack Query yet)
-  const { getEpicById } = useEpic();
+  const { data: projectEpics } = useProjectEpics(workspaceSlug, projectId || "");
   // derived values
   const operatorConfigs = useFiltersOperatorConfigs({ workspaceSlug });
   const filtersToShow = useMemo(() => new Set(allowedFilters), [allowedFilters]);
@@ -138,8 +137,10 @@ export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps):
   );
   const epics = useMemo(
     () =>
-      epicIds ? (epicIds.map((epicId) => getEpicById(epicId)).filter((epic) => epic) as IEpic[]) : [],
-    [epicIds, getEpicById]
+      epicIds && projectEpics
+        ? (epicIds.map((epicId) => getEpicById(projectEpics, epicId)).filter((epic) => epic) as IEpic[])
+        : [],
+    [epicIds, projectEpics]
   );
   const projects = useMemo(
     () =>

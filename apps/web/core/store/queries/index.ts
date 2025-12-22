@@ -83,6 +83,8 @@ export {
   useDeleteEpic,
   useArchiveEpic,
   useRestoreEpic,
+  useAddEpicToFavorites,
+  useRemoveEpicFromFavorites,
   useCreateEpicLink,
   useUpdateEpicLink,
   useDeleteEpicLink,

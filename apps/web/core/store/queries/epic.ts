@@ -443,6 +443,102 @@ export function useUpdateEpicLink() {
   });
 }
 
+interface AddEpicToFavoritesParams {
+  workspaceSlug: string;
+  projectId: string;
+  epicId: string;
+}
+
+/**
+ * Hook to add an epic to favorites with optimistic updates.
+ * Replaces MobX EpicsStore.addEpicToFavorites for write operations.
+ *
+ * @example
+ * const { mutate: addToFavorites, isPending } = useAddEpicToFavorites();
+ * addToFavorites({ workspaceSlug, projectId, epicId });
+ */
+export function useAddEpicToFavorites() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, projectId, epicId }: AddEpicToFavoritesParams) =>
+      epicService.addEpicToFavorites(workspaceSlug, projectId, { epic: epicId }),
+    onMutate: async ({ workspaceSlug, projectId, epicId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.epics.all(workspaceSlug, projectId) });
+
+      const previousEpics = queryClient.getQueryData<IEpic[]>(queryKeys.epics.all(workspaceSlug, projectId));
+
+      if (previousEpics) {
+        queryClient.setQueryData<IEpic[]>(
+          queryKeys.epics.all(workspaceSlug, projectId),
+          previousEpics.map((epic) => (epic.id === epicId ? { ...epic, is_favorite: true } : epic))
+        );
+      }
+
+      return { previousEpics, workspaceSlug, projectId };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousEpics && context.workspaceSlug && context.projectId) {
+        queryClient.setQueryData(
+          queryKeys.epics.all(context.workspaceSlug, context.projectId),
+          context.previousEpics
+        );
+      }
+    },
+    onSettled: (_data, _error, { workspaceSlug, projectId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.epics.all(workspaceSlug, projectId) });
+    },
+  });
+}
+
+interface RemoveEpicFromFavoritesParams {
+  workspaceSlug: string;
+  projectId: string;
+  epicId: string;
+}
+
+/**
+ * Hook to remove an epic from favorites with optimistic updates.
+ * Replaces MobX EpicsStore.removeEpicFromFavorites for write operations.
+ *
+ * @example
+ * const { mutate: removeFromFavorites, isPending } = useRemoveEpicFromFavorites();
+ * removeFromFavorites({ workspaceSlug, projectId, epicId });
+ */
+export function useRemoveEpicFromFavorites() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, projectId, epicId }: RemoveEpicFromFavoritesParams) =>
+      epicService.removeEpicFromFavorites(workspaceSlug, projectId, epicId),
+    onMutate: async ({ workspaceSlug, projectId, epicId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.epics.all(workspaceSlug, projectId) });
+
+      const previousEpics = queryClient.getQueryData<IEpic[]>(queryKeys.epics.all(workspaceSlug, projectId));
+
+      if (previousEpics) {
+        queryClient.setQueryData<IEpic[]>(
+          queryKeys.epics.all(workspaceSlug, projectId),
+          previousEpics.map((epic) => (epic.id === epicId ? { ...epic, is_favorite: false } : epic))
+        );
+      }
+
+      return { previousEpics, workspaceSlug, projectId };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousEpics && context.workspaceSlug && context.projectId) {
+        queryClient.setQueryData(
+          queryKeys.epics.all(context.workspaceSlug, context.projectId),
+          context.previousEpics
+        );
+      }
+    },
+    onSettled: (_data, _error, { workspaceSlug, projectId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.epics.all(workspaceSlug, projectId) });
+    },
+  });
+}
+
 interface DeleteEpicLinkParams {
   workspaceSlug: string;
   projectId: string;

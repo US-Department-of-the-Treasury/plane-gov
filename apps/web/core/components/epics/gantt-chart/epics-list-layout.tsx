@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // PLane
 import { GANTT_TIMELINE_TYPE } from "@plane/types";
@@ -12,7 +11,7 @@ import { useEpic } from "@/hooks/store/use-epic";
 import { useEpicFilter } from "@/hooks/store/use-epic-filter";
 import { useProject } from "@/hooks/store/use-project";
 
-export const EpicsListGanttChartView = observer(function EpicsListGanttChartView() {
+export function EpicsListGanttChartView() {
   // router
   const { workspaceSlug, projectId } = useParams();
   // store
@@ -68,4 +67,4 @@ export const EpicsListGanttChartView = observer(function EpicsListGanttChartView
       />
     </TimeLineTypeContext.Provider>
   );
-});
+}

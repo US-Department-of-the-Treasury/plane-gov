@@ -1,6 +1,4 @@
-import type { FC } from "react";
 import { Fragment, useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { useSearchParams } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { Disclosure, Transition } from "@headlessui/react";
@@ -18,7 +16,6 @@ import ProgressChart from "@/components/core/sidebar/progress-chart";
 import { EpicProgressStats } from "@/components/epics";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
-import { useEpic } from "@/hooks/store/use-epic";
 import { useWorkItemFilters } from "@/hooks/store/work-item-filters/use-work-item-filters";
 import { useEpicDetails } from "@/store/queries/epic";
 // plane web constants
@@ -33,7 +30,7 @@ const epicBurnDownChartOptions = [
   { value: "points", i18n_label: "points" },
 ];
 
-export const EpicAnalyticsProgress = observer(function EpicAnalyticsProgress(props: TEpicAnalyticsProgress) {
+export function EpicAnalyticsProgress(props: TEpicAnalyticsProgress) {
   // props
   const { workspaceSlug, projectId, epicId } = props;
   // router
@@ -43,18 +40,16 @@ export const EpicAnalyticsProgress = observer(function EpicAnalyticsProgress(pro
   const { t } = useTranslation();
   // hooks
   const { areEstimateEnabledByProjectId, currentActiveEstimateId, estimateById } = useProjectEstimates();
-  const { getPlotTypeByEpicId, setPlotType, getEpicById, fetchEpicDetails, fetchArchivedEpicDetails } =
-    useEpic();
   const { data: epicDetails, refetch } = useEpicDetails(workspaceSlug, projectId, epicId);
   const { getFilter, updateFilterValueFromSidebar } = useWorkItemFilters();
   // state
   const [loader, setLoader] = useState(false);
+  const [plotType, setPlotType] = useState<TEpicPlotType>("burndown");
   // derived values
   const epicFilter = getFilter(EIssuesStoreType.EPIC, epicId);
   const selectedAssignees = epicFilter?.findFirstConditionByPropertyAndOperator("assignee_id", "in");
   const selectedLabels = epicFilter?.findFirstConditionByPropertyAndOperator("label_id", "in");
   const selectedStateGroups = epicFilter?.findFirstConditionByPropertyAndOperator("state_group", "in");
-  const plotType: TEpicPlotType = getPlotTypeByEpicId(epicId);
   const isCurrentProjectEstimateEnabled = projectId && areEstimateEnabledByProjectId(projectId) ? true : false;
   const estimateDetails =
     isCurrentProjectEstimateEnabled && currentActiveEstimateId && estimateById(currentActiveEstimateId);
@@ -97,7 +92,7 @@ export const EpicAnalyticsProgress = observer(function EpicAnalyticsProgress(pro
 
   // handlers
   const onChange = async (value: TEpicPlotType) => {
-    setPlotType(epicId, value);
+    setPlotType(value);
     if (!workspaceSlug || !projectId || !epicId) return;
     try {
       setLoader(true);
@@ -105,7 +100,7 @@ export const EpicAnalyticsProgress = observer(function EpicAnalyticsProgress(pro
       setLoader(false);
     } catch (error) {
       setLoader(false);
-      setPlotType(epicId, plotType);
+      setPlotType(plotType);
     }
   };
 
@@ -225,4 +220,4 @@ export const EpicAnalyticsProgress = observer(function EpicAnalyticsProgress(pro
       </Disclosure>
     </div>
   );
-});
+}

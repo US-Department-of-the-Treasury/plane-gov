@@ -15,7 +15,6 @@ import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssueModal } from "@/hooks/context/use-issue-modal";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -70,7 +69,6 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   const { t } = useTranslation();
   const { workspaceSlug, projectId: routerProjectId, sprintId, epicId, workItem } = useParams();
   const queryClient = useQueryClient();
-  const { fetchEpicDetails } = useEpic();
   const { issues } = useIssues(storeType);
   const { issues: projectIssues } = useIssues(EIssuesStoreType.PROJECT);
   const { issues: draftIssues } = useIssues(EIssuesStoreType.WORKSPACE_DRAFT);
@@ -135,12 +133,14 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   const addIssueToEpic = async (issue: TIssue, epicIds: string[]) => {
     if (!workspaceSlug || !issue.project_id) return;
 
-    await Promise.all([
-      issues.changeEpicsInIssue(workspaceSlug.toString(), issue.project_id, issue.id, epicIds, []),
-      ...epicIds.map(
-        (epicId) => issue.project_id && fetchEpicDetails(workspaceSlug.toString(), issue.project_id, epicId)
-      ),
-    ]);
+    await issues.changeEpicsInIssue(workspaceSlug.toString(), issue.project_id, issue.id, epicIds, []);
+    // Invalidate epic queries to refetch updated data
+    for (const epicId of epicIds) {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.epics.detail(epicId) });
+    }
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.epics.all(workspaceSlug.toString(), issue.project_id),
+    });
   };
 
   const handleCreateMoreToggleChange = (value: boolean) => {

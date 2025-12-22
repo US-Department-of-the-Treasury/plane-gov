@@ -4,7 +4,6 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
 import { useAppRouter } from "@/hooks/use-app-router";
 // queries
 import { useEpicDetails, useArchiveEpic } from "@/store/queries/epic";

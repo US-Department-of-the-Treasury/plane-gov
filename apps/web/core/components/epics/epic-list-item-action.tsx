@@ -1,6 +1,4 @@
-import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // icons
 import { SquareUser } from "lucide-react";
@@ -29,8 +27,8 @@ import { EpicStatusDropdown } from "@/components/epics/epic-status-dropdown";
 // helpers
 import { captureElementAndEvent, captureError } from "@/helpers/event-tracker.helper";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useAddEpicToFavorites, useRemoveEpicFromFavorites, useUpdateEpic } from "@/store/queries/epic";
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { ButtonAvatars } from "../dropdowns/member/avatar";
 
@@ -40,13 +38,16 @@ type Props = {
   parentRef: React.RefObject<HTMLDivElement>;
 };
 
-export const EpicListItemAction = observer(function EpicListItemAction(props: Props) {
+export function EpicListItemAction(props: Props) {
   const { epicId, epicDetails, parentRef } = props;
   // router
   const { workspaceSlug, projectId } = useParams();
   //   store hooks
   const { allowPermissions } = useUserPermissions();
-  const { addEpicToFavorites, removeEpicFromFavorites, updateEpicDetails } = useEpic();
+  // mutation hooks
+  const { mutate: addToFavorites } = useAddEpicToFavorites();
+  const { mutate: removeFromFavorites } = useRemoveEpicFromFavorites();
+  const { mutate: updateEpic } = useUpdateEpic();
   // query hooks
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
 
@@ -70,28 +71,40 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
     e.preventDefault();
     if (!workspaceSlug || !projectId) return;
 
-    const addToFavoritePromise = addEpicToFavorites(workspaceSlug.toString(), projectId.toString(), epicId)
-      .then(() => {
-        // open favorites menu if closed
-        if (!storedValue) toggleFavoriteMenu(true);
-        captureElementAndEvent({
-          element: {
-            elementName: EPIC_TRACKER_ELEMENTS.LIST_ITEM,
+    const addToFavoritePromise = new Promise<void>((resolve, reject) => {
+      addToFavorites(
+        {
+          workspaceSlug: workspaceSlug.toString(),
+          projectId: projectId.toString(),
+          epicId,
+        },
+        {
+          onSuccess: () => {
+            // open favorites menu if closed
+            if (!storedValue) toggleFavoriteMenu(true);
+            captureElementAndEvent({
+              element: {
+                elementName: EPIC_TRACKER_ELEMENTS.LIST_ITEM,
+              },
+              event: {
+                eventName: EPIC_TRACKER_EVENTS.favorite,
+                payload: { id: epicId },
+                state: "SUCCESS",
+              },
+            });
+            resolve();
           },
-          event: {
-            eventName: EPIC_TRACKER_EVENTS.favorite,
-            payload: { id: epicId },
-            state: "SUCCESS",
+          onError: (error) => {
+            captureError({
+              eventName: EPIC_TRACKER_EVENTS.favorite,
+              payload: { id: epicId },
+              error,
+            });
+            reject(error);
           },
-        });
-      })
-      .catch((error) => {
-        captureError({
-          eventName: EPIC_TRACKER_EVENTS.favorite,
-          payload: { id: epicId },
-          error,
-        });
-      });
+        }
+      );
+    });
 
     setPromiseToast(addToFavoritePromise, {
       loading: "Adding epic to favorites...",
@@ -111,30 +124,38 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
     e.preventDefault();
     if (!workspaceSlug || !projectId) return;
 
-    const removeFromFavoritePromise = removeEpicFromFavorites(
-      workspaceSlug.toString(),
-      projectId.toString(),
-      epicId
-    )
-      .then(() => {
-        captureElementAndEvent({
-          element: {
-            elementName: EPIC_TRACKER_ELEMENTS.LIST_ITEM,
+    const removeFromFavoritePromise = new Promise<void>((resolve, reject) => {
+      removeFromFavorites(
+        {
+          workspaceSlug: workspaceSlug.toString(),
+          projectId: projectId.toString(),
+          epicId,
+        },
+        {
+          onSuccess: () => {
+            captureElementAndEvent({
+              element: {
+                elementName: EPIC_TRACKER_ELEMENTS.LIST_ITEM,
+              },
+              event: {
+                eventName: EPIC_TRACKER_EVENTS.unfavorite,
+                payload: { id: epicId },
+                state: "SUCCESS",
+              },
+            });
+            resolve();
           },
-          event: {
-            eventName: EPIC_TRACKER_EVENTS.unfavorite,
-            payload: { id: epicId },
-            state: "SUCCESS",
+          onError: (error) => {
+            captureError({
+              eventName: EPIC_TRACKER_EVENTS.unfavorite,
+              payload: { id: epicId },
+              error,
+            });
+            reject(error);
           },
-        });
-      })
-      .catch((error) => {
-        captureError({
-          eventName: EPIC_TRACKER_EVENTS.unfavorite,
-          payload: { id: epicId },
-          error,
-        });
-      });
+        }
+      );
+    });
 
     setPromiseToast(removeFromFavoritePromise, {
       loading: "Removing epic from favorites...",
@@ -149,24 +170,33 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
     });
   };
 
-  const handleEpicDetailsChange = async (payload: Partial<IEpic>) => {
+  const handleEpicDetailsChange = (payload: Partial<IEpic>) => {
     if (!workspaceSlug || !projectId) return;
 
-    await updateEpicDetails(workspaceSlug.toString(), projectId.toString(), epicId, payload)
-      .then(() => {
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Success!",
-          message: "Epic updated successfully.",
-        });
-      })
-      .catch((err) => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: err?.detail ?? "Epic could not be updated. Please try again.",
-        });
-      });
+    updateEpic(
+      {
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        epicId,
+        data: payload,
+      },
+      {
+        onSuccess: () => {
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: "Epic updated successfully.",
+          });
+        },
+        onError: (err: any) => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: err?.detail ?? "Epic could not be updated. Please try again.",
+          });
+        },
+      }
+    );
   };
 
   const epicLeadDetails = epicDetails.lead_id ? getWorkspaceMemberByUserId(workspaceMembers, epicDetails.lead_id) : undefined;
@@ -235,4 +265,4 @@ export const EpicListItemAction = observer(function EpicListItemAction(props: Pr
       )}
     </>
   );
-});
+}

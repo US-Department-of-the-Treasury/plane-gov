@@ -1,5 +1,4 @@
 import { Fragment } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import type { TSprintEstimateType } from "@plane/types";
@@ -18,7 +17,7 @@ type ProgressChartProps = {
   projectId: string;
   sprintId: string;
 };
-export const SidebarChart = observer(function SidebarChart(props: ProgressChartProps) {
+export function SidebarChart(props: ProgressChartProps) {
   const { workspaceSlug, projectId, sprintId } = props;
 
   // hooks
@@ -71,4 +70,4 @@ export const SidebarChart = observer(function SidebarChart(props: ProgressChartP
       </div>
     </div>
   );
-});
+}

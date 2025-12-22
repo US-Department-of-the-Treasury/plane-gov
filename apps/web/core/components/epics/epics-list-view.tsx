@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams, useSearchParams } from "next/navigation";
 // components
 import { EUserPermissionsLevel, EPIC_TRACKER_ELEMENTS } from "@plane/constants";
@@ -14,11 +13,11 @@ import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-l
 import { GanttLayoutLoader } from "@/components/ui/loader/layouts/gantt-layout-loader";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useEpic } from "@/hooks/store/use-epic";
 import { useEpicFilter } from "@/hooks/store/use-epic-filter";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useProjectEpics } from "@/store/queries/epic";
 
-export const EpicsListView = observer(function EpicsListView() {
+export function EpicsListView() {
   // router
   const { workspaceSlug, projectId } = useParams();
   const searchParams = useSearchParams();
@@ -27,19 +26,23 @@ export const EpicsListView = observer(function EpicsListView() {
   const { t } = useTranslation();
   // store hooks
   const { toggleCreateEpicModal } = useCommandPalette();
-  const { getProjectEpicIds, getFilteredEpicIds, loader } = useEpic();
   const { currentProjectDisplayFilters: displayFilters } = useEpicFilter();
   const { allowPermissions } = useUserPermissions();
+  // query hooks
+  const { data: epics, isLoading } = useProjectEpics(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
 
   // derived values
-  const projectEpicIds = projectId ? getProjectEpicIds(projectId.toString()) : undefined;
-  const filteredEpicIds = projectId ? getFilteredEpicIds(projectId.toString()) : undefined;
+  const projectEpicIds = epics?.map((epic) => epic.id);
+  const filteredEpicIds = epics?.map((epic) => epic.id);
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
     EUserPermissionsLevel.PROJECT
   );
 
-  if (loader || !projectEpicIds || !filteredEpicIds)
+  if (isLoading || !projectEpicIds || !filteredEpicIds)
     return (
       <>
         {displayFilters?.layout === "list" && <SprintEpicListLayoutLoader />}
@@ -109,4 +112,4 @@ export const EpicsListView = observer(function EpicsListView() {
       </div>
     </ContentWrapper>
   );
-});
+}

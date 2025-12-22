@@ -1,6 +1,4 @@
-import type { FC } from "react";
 import { Fragment } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 // plane imports
@@ -23,7 +21,7 @@ export type ActiveSprintProductivityProps = {
   sprint: ISprint | null;
 };
 
-export const ActiveSprintProductivity = observer(function ActiveSprintProductivity(props: ActiveSprintProductivityProps) {
+export function ActiveSprintProductivity(props: ActiveSprintProductivityProps) {
   const { workspaceSlug, projectId, sprint } = props;
   // theme hook
   const { resolvedTheme } = useTheme();
@@ -100,4 +98,4 @@ export const ActiveSprintProductivity = observer(function ActiveSprintProductivi
       <Loader.Item width="100%" height="100%" />
     </Loader>
   );
-});
+}

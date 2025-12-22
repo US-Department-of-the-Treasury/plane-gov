@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { HelpCircle } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 // ui
@@ -12,7 +11,8 @@ import { usePowerK } from "@/hooks/store/use-power-k";
 // plane web components
 import { PlaneVersionNumber } from "@/plane-web/components/global";
 
-export const HelpMenuRoot = observer(function HelpMenuRoot() {
+// Note: observer() removed - this component only calls actions, doesn't read observables
+export function HelpMenuRoot() {
   // store hooks
   const { t } = useTranslation();
   const { toggleShortcutsListModal } = usePowerK();
@@ -64,4 +64,4 @@ export const HelpMenuRoot = observer(function HelpMenuRoot() {
       </CustomMenu>
     </>
   );
-});
+}

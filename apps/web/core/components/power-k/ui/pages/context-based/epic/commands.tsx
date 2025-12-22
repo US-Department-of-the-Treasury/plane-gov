@@ -12,19 +12,22 @@ import { copyTextToClipboard } from "@plane/utils";
 // components
 import type { TPowerKCommandConfig } from "@/components/power-k/core/types";
 // hooks
+import { useProjectEpics, getEpicById } from "@/store/queries";
 import { useEpic } from "@/hooks/store/use-epic";
 import { useUser } from "@/hooks/store/user";
 
 export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
   // navigation
   const { workspaceSlug, projectId, epicId } = useParams();
+  // queries
+  const { data: epics } = useProjectEpics(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   // store
   const {
     permission: { allowPermissions },
   } = useUser();
-  const { getEpicById, addEpicToFavorites, removeEpicFromFavorites, updateEpicDetails } = useEpic();
+  const { addEpicToFavorites, removeEpicFromFavorites, updateEpicDetails } = useEpic();
   // derived values
-  const epicDetails = epicId ? getEpicById(epicId.toString()) : null;
+  const epicDetails = epicId ? getEpicById(epics, epicId.toString()) : null;
   const isFavorite = !!epicDetails?.is_favorite;
   // permission
   const isEditingAllowed =

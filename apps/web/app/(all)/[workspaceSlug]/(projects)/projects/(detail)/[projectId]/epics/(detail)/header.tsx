@@ -1,5 +1,4 @@
-import { useCallback, useRef, useState } from "react";
-import { observer } from "mobx-react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 // icons
 import { ChartNoAxesColumn, PanelRight, SlidersHorizontal } from "lucide-react";
@@ -14,7 +13,7 @@ import {
 import { Button } from "@plane/propel/button";
 import { EpicIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
-import type { ICustomSearchSelectOption, IIssueDisplayFilterOptions, IIssueDisplayProperties } from "@plane/types";
+import type { IIssueDisplayFilterOptions, IIssueDisplayProperties } from "@plane/types";
 import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
 import { Breadcrumbs, Header, BreadcrumbNavigationSearchDropdown } from "@plane/ui";
 import { cn } from "@plane/utils";
@@ -33,8 +32,6 @@ import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-to
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useEpic } from "@/hooks/store/use-epic";
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -45,8 +42,9 @@ import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/com
 import { IconButton } from "@plane/propel/icon-button";
 // tanstack query
 import { useProjectDetails } from "@/store/queries/project";
+import { useProjectEpics, useEpicDetails } from "@/store/queries/epic";
 
-export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
+export function EpicIssuesHeader() {
   // refs
   const parentRef = useRef<HTMLDivElement>(null);
   // states
@@ -63,12 +61,21 @@ export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
     issues: { getGroupIssueCount },
   } = useIssues(EIssuesStoreType.EPIC);
   const { updateFilters } = useIssuesActions(EIssuesStoreType.EPIC);
-  const { projectEpicIds, getEpicById } = useEpic();
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
   const { data: currentProjectDetails, isLoading } = useProjectDetails(
     workspaceSlug?.toString() ?? "",
     projectId?.toString() ?? ""
+  );
+  // queries
+  const { data: projectEpics } = useProjectEpics(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+  const { data: epicDetails } = useEpicDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? "",
+    epicId ?? ""
   );
   const loader = isLoading ? "init-loader" : undefined;
   // local storage
@@ -76,7 +83,6 @@ export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
   // derived values
   const isSidebarCollapsed = storedValue ? (storedValue === "true" ? true : false) : false;
   const activeLayout = issueFilters?.displayFilters?.layout;
-  const epicDetails = epicId ? getEpicById(epicId) : undefined;
   const canUserCreateIssue = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT
@@ -111,17 +117,16 @@ export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
     [projectId, updateFilters]
   );
 
-  const switcherOptions = projectEpicIds
-    ?.map((id) => {
-      const _epic = id === epicId ? epicDetails : getEpicById(id);
-      if (!_epic) return;
-      return {
-        value: _epic.id,
-        query: _epic.name,
-        content: <SwitcherLabel name={_epic.name} LabelIcon={EpicIcon} />,
-      };
-    })
-    .filter((option) => option !== undefined) as ICustomSearchSelectOption[];
+  const switcherOptions = useMemo(() => {
+    if (!projectEpics) return [];
+
+    return projectEpics
+      .map((epic) => ({
+        value: epic.id,
+        query: epic.name,
+        content: <SwitcherLabel name={epic.name} LabelIcon={EpicIcon} />,
+      }));
+  }, [projectEpics]);
 
   return (
     <>
@@ -271,4 +276,4 @@ export const EpicIssuesHeader = observer(function EpicIssuesHeader() {
       </Header>
     </>
   );
-});
+}

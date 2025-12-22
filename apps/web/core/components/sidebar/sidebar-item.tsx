@@ -1,3 +1,4 @@
+import React, { forwardRef } from "react";
 import Link from "next/link";
 import { cn } from "@plane/utils";
 
@@ -91,36 +92,63 @@ function AppSidebarItemIcon({ icon, highlight }: AppSidebarItemIconProps) {
   );
 }
 
-function AppSidebarLinkItem({ href, children, className }: AppSidebarLinkItemProps) {
+const AppSidebarLinkItem = forwardRef<HTMLAnchorElement, AppSidebarLinkItemProps>(function AppSidebarLinkItem(
+  { href, children, className },
+  ref
+) {
   if (!href) return null;
 
   return (
-    <Link href={href} className={cn(styles.base, className)}>
+    <Link ref={ref} href={href} className={cn(styles.base, className)}>
       {children}
     </Link>
   );
-}
+});
 
-function AppSidebarButtonItem({ children, onClick, disabled = false, className }: AppSidebarButtonItemProps) {
+// Note: Using div instead of button because this component is typically nested
+// inside CustomMenu which wraps it in its own button element. Using a button here
+// would create invalid HTML (button inside button).
+const AppSidebarButtonItem = forwardRef<HTMLDivElement, AppSidebarButtonItemProps>(function AppSidebarButtonItem(
+  { children, onClick, disabled = false, className },
+  ref
+) {
   return (
-    <button className={cn(styles.base, className)} onClick={onClick} disabled={disabled} type="button">
+    <div
+      ref={ref}
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      className={cn(styles.base, disabled && "opacity-50 cursor-not-allowed", className)}
+      onClick={disabled ? undefined : onClick}
+      onKeyDown={(e) => {
+        if (!disabled && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+      aria-disabled={disabled}
+    >
       {children}
-    </button>
+    </div>
   );
-}
+});
 
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
-export type AppSidebarItemComponent = React.FC<AppSidebarItemProps> & {
+export type AppSidebarItemComponent = React.ForwardRefExoticComponent<
+  AppSidebarItemProps & React.RefAttributes<HTMLElement>
+> & {
   Label: React.FC<AppSidebarItemLabelProps>;
   Icon: React.FC<AppSidebarItemIconProps>;
-  Link: React.FC<AppSidebarLinkItemProps>;
-  Button: React.FC<AppSidebarButtonItemProps>;
+  Link: React.ForwardRefExoticComponent<AppSidebarLinkItemProps & React.RefAttributes<HTMLAnchorElement>>;
+  Button: React.ForwardRefExoticComponent<AppSidebarButtonItemProps & React.RefAttributes<HTMLDivElement>>;
 };
 
-function AppSidebarItem({ variant = "link", item }: AppSidebarItemProps) {
+const AppSidebarItem = forwardRef<HTMLElement, AppSidebarItemProps>(function AppSidebarItem(
+  { variant = "link", item },
+  ref
+) {
   if (!item) return null;
 
   const { icon, isActive, label, href, onClick, disabled, showLabel = true } = item;
@@ -133,15 +161,19 @@ function AppSidebarItem({ variant = "link", item }: AppSidebarItemProps) {
   );
 
   if (variant === "link") {
-    return <AppSidebarLinkItem href={href}>{commonItems}</AppSidebarLinkItem>;
+    return (
+      <AppSidebarLinkItem ref={ref as React.Ref<HTMLAnchorElement>} href={href}>
+        {commonItems}
+      </AppSidebarLinkItem>
+    );
   }
 
   return (
-    <AppSidebarButtonItem onClick={onClick} disabled={disabled}>
+    <AppSidebarButtonItem ref={ref as React.Ref<HTMLDivElement>} onClick={onClick} disabled={disabled}>
       {commonItems}
     </AppSidebarButtonItem>
   );
-}
+}) as AppSidebarItemComponent;
 
 // ============================================================================
 // COMPOUND COMPONENT ASSIGNMENT

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // ui
 import { EPIC_STATUS } from "@plane/constants";
@@ -10,7 +9,7 @@ import { SIDEBAR_WIDTH } from "@/components/gantt-chart/constants";
 import { getBlockViewDetails } from "@/components/issues/issue-layouts/utils";
 // constants
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
+import { useEpicDetails } from "@/store/queries";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 
@@ -18,15 +17,17 @@ type Props = {
   epicId: string;
 };
 
-export const EpicGanttBlock = observer(function EpicGanttBlock(props: Props) {
+export function EpicGanttBlock(props: Props) {
   const { epicId } = props;
   // router
   const router = useAppRouter();
-  const { workspaceSlug } = useParams();
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { getEpicById } = useEpic();
-  // derived values
-  const epicDetails = getEpicById(epicId);
+  const { data: epicDetails } = useEpicDetails(
+    workspaceSlug as string,
+    projectId as string,
+    epicId
+  );
   // hooks
   const { isMobile } = usePlatformOS();
 
@@ -65,15 +66,17 @@ export const EpicGanttBlock = observer(function EpicGanttBlock(props: Props) {
       </div>
     </Tooltip>
   );
-});
+}
 
-export const EpicGanttSidebarBlock = observer(function EpicGanttSidebarBlock(props: Props) {
+export function EpicGanttSidebarBlock(props: Props) {
   const { epicId } = props;
-  const { workspaceSlug } = useParams();
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { getEpicById } = useEpic();
-  // derived values
-  const epicDetails = getEpicById(epicId);
+  const { data: epicDetails } = useEpicDetails(
+    workspaceSlug as string,
+    projectId as string,
+    epicId
+  );
 
   return (
     <Link
@@ -85,4 +88,4 @@ export const EpicGanttSidebarBlock = observer(function EpicGanttSidebarBlock(pro
       <h6 className="flex-grow truncate text-13 font-medium">{epicDetails?.name}</h6>
     </Link>
   );
-});
+}

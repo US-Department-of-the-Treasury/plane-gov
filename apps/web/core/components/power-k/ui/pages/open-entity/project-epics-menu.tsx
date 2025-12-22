@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane types
 import type { IEpic } from "@plane/types";
 import { Spinner } from "@plane/ui";
@@ -6,26 +5,23 @@ import { Spinner } from "@plane/ui";
 import type { TPowerKContext } from "@/components/power-k/core/types";
 import { PowerKEpicsMenu } from "@/components/power-k/menus/epics";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
+import { useProjectEpics } from "@/store/queries";
 
 type Props = {
   context: TPowerKContext;
   handleSelect: (epic: IEpic) => void;
 };
 
-export const PowerKOpenProjectEpicsMenu = observer(function PowerKOpenProjectEpicsMenu(props: Props) {
+export function PowerKOpenProjectEpicsMenu(props: Props) {
   const { context, handleSelect } = props;
-  // store hooks
-  const { fetchedMap, getProjectEpicIds, getEpicById } = useEpic();
+  // hooks
+  const workspaceSlug = context.params.workspaceSlug?.toString() ?? "";
+  const projectId = context.params.projectId?.toString() ?? "";
+  const { data: epics, isLoading } = useProjectEpics(workspaceSlug, projectId);
   // derived values
-  const projectId = context.params.projectId?.toString();
-  const isFetched = projectId ? fetchedMap[projectId] : false;
-  const projectEpicIds = projectId ? getProjectEpicIds(projectId) : undefined;
-  const epicsList = projectEpicIds
-    ? projectEpicIds.map((epicId) => getEpicById(epicId)).filter((epic) => !!epic)
-    : [];
+  const epicsList = epics ? epics.filter((epic) => !!epic) : [];
 
-  if (!isFetched) return <Spinner />;
+  if (isLoading) return <Spinner />;
 
   return <PowerKEpicsMenu epics={epicsList} onSelect={handleSelect} />;
-});
+}
