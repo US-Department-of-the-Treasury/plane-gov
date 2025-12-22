@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { ColumnDef, Row, RowData } from "@tanstack/react-table";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { UserRound } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { Logo } from "@plane/propel/emoji-icon-picker";
@@ -14,6 +14,7 @@ import { getFileURL } from "@plane/utils";
 // hooks
 import { useAnalytics } from "@/hooks/store/use-analytics";
 import { AnalyticsService } from "@/services/analytics.service";
+import { queryKeys } from "@/store/queries/query-keys";
 // store hooks
 import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
@@ -40,9 +41,16 @@ function WorkItemsInsightTable() {
   // store hooks
   const { data: projects } = useProjects(workspaceSlug);
   const { selectedDuration, selectedProjects, selectedSprint, selectedEpic, isPeekView, isEpic } = useAnalytics();
-  const { data: workItemsData, isLoading } = useSWR(
-    `insights-table-work-items-${workspaceSlug}-${selectedDuration}-${selectedProjects}-${selectedSprint}-${selectedEpic}-${isPeekView}-${isEpic}`,
-    () =>
+  const { data: workItemsData, isPending: isLoading } = useQuery({
+    queryKey: queryKeys.analytics.stats(workspaceSlug, "work-items", {
+      selectedDuration,
+      selectedProjects,
+      selectedSprint,
+      selectedEpic,
+      isPeekView,
+      isEpic,
+    }),
+    queryFn: () =>
       analyticsService.getAdvanceAnalyticsStats<WorkItemInsightColumns[]>(
         workspaceSlug,
         "work-items",
@@ -54,8 +62,10 @@ function WorkItemsInsightTable() {
           ...(isEpic ? { epic: true } : {}),
         },
         isPeekView
-      )
-  );
+      ),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   // derived values
   const columnsLabels: Record<keyof Omit<WorkItemInsightColumns, "project_id" | "avatar_url" | "assignee_id">, string> =
     useMemo(

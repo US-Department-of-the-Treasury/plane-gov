@@ -1,5 +1,6 @@
 // components
 import { useParams, usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@plane/utils";
 import { TopNavPowerK } from "@/components/navigation";
 import { HelpMenuRoot } from "@/components/workspace/sidebar/help-section/root";
@@ -9,8 +10,8 @@ import { useAppRailPreferences } from "@/hooks/use-navigation-preferences";
 import { Tooltip } from "@plane/propel/tooltip";
 import { AppSidebarItem } from "@/components/sidebar/sidebar-item";
 import { InboxIcon } from "@plane/propel/icons";
-import useSWR from "swr";
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import { StarUsOnGitHubLink } from "@/app/(all)/[workspaceSlug]/(projects)/star-us-link";
 
@@ -26,10 +27,13 @@ export function TopNavigationRoot() {
   const showLabel = preferences.displayMode === "icon_with_label";
 
   // Fetch notification count
-  useSWR(
-    workspaceSlug ? "WORKSPACE_UNREAD_NOTIFICATION_COUNT" : null,
-    workspaceSlug ? () => getUnreadNotificationsCount(workspaceSlug.toString()) : null
-  );
+  useQuery({
+    queryKey: queryKeys.notifications.unreadCount(workspaceSlug?.toString() ?? ""),
+    queryFn: () => getUnreadNotificationsCount(workspaceSlug.toString()),
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   // Calculate notification count
   const isMentionsEnabled = unreadNotificationsCount.mention_unread_notifications_count > 0;

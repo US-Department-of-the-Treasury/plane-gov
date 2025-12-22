@@ -1,14 +1,14 @@
 import { usePathname } from "next/navigation";
 import { Outlet } from "react-router";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // components
 import { PROFILE_VIEWER_TAB, PROFILE_ADMINS_TAB, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { AppHeader } from "@/components/core/app-header";
 import { ContentWrapper } from "@/components/core/content-wrapper";
 import { ProfileSidebar } from "@/components/profile/sidebar";
-// constants
-import { USER_PROFILE_PROJECT_SEGREGATION } from "@/constants/fetch-keys";
+// store
+import { queryKeys } from "@/store/queries/query-keys";
 // hooks
 import { useUserPermissions } from "@/hooks/store/user";
 import useSize from "@/hooks/use-window-size";
@@ -37,9 +37,10 @@ function UseProfileLayout({ params }: Route.ComponentProps) {
   const windowSize = useSize();
   const isSmallerScreen = windowSize[0] >= 768;
 
-  const { data: userProjectsData } = useSWR(USER_PROFILE_PROJECT_SEGREGATION(workspaceSlug, userId), () =>
-    userService.getUserProfileProjectsSegregation(workspaceSlug, userId)
-  );
+  const { data: userProjectsData } = useQuery({
+    queryKey: queryKeys.userProfiles.projects(workspaceSlug, userId),
+    queryFn: () => userService.getUserProfileProjectsSegregation(workspaceSlug, userId),
+  });
   // derived values
   const isAuthorizedPath =
     pathname.includes("assigned") || pathname.includes("created") || pathname.includes("subscribed");

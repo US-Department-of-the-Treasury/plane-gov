@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import type { TPageVersion } from "@plane/types";
@@ -14,6 +14,8 @@ import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName }
 import { useQueryParams } from "@/hooks/use-query-params";
 // store
 import type { TPageInstance } from "@/store/pages/base-page";
+// query keys
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import { PAGE_NAVIGATION_PANE_VERSION_QUERY_PARAM } from "../..";
 
@@ -81,10 +83,13 @@ export function PageNavigationPaneInfoTabVersionHistory(props: Props) {
   // query params
   const { updateQueryParams } = useQueryParams();
   // fetch all versions
-  const { data: versionsList } = useSWR(
-    id ? `PAGE_VERSIONS_LIST_${id}` : null,
-    id ? () => versionHistory.fetchAllVersions(id) : null
-  );
+  const { data: versionsList } = useQuery({
+    queryKey: queryKeys.pages.versions(id ?? ""),
+    queryFn: () => versionHistory.fetchAllVersions(id!),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const getVersionLink = useCallback(
     (versionID?: string) => {

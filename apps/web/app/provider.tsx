@@ -1,8 +1,6 @@
 import { lazy, Suspense } from "react";
 import { useTheme, ThemeProvider } from "next-themes";
-import { SWRConfig } from "swr";
 // Plane Imports
-import { WEB_SWR_CONFIG } from "@plane/constants";
 import { TranslationProvider } from "@plane/i18n";
 import { Toast } from "@plane/propel/toast";
 // helpers
@@ -44,9 +42,7 @@ export function AppProvider(props: IAppProvider) {
             <ToastWithTheme />
             <StoreWrapper>
               <InstanceWrapper>
-                <Suspense>
-                  <SWRConfig value={WEB_SWR_CONFIG}>{children}</SWRConfig>
-                </Suspense>
+                <Suspense>{children}</Suspense>
               </InstanceWrapper>
             </StoreWrapper>
           </TranslationProvider>

@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane package imports
 import { useTranslation } from "@plane/i18n";
 import { Loader } from "@plane/ui";
@@ -8,6 +8,7 @@ import { Loader } from "@plane/ui";
 import { useAnalytics } from "@/hooks/store/use-analytics";
 // services
 import { ProjectService } from "@/services/project";
+import { queryKeys } from "@/store/queries/query-keys";
 // plane web components
 import AnalyticsSectionWrapper from "../analytics-section-wrapper";
 import ActiveProjectItem from "./active-project-item";
@@ -18,15 +19,16 @@ function ActiveProjects() {
   const { t } = useTranslation();
   const { workspaceSlug } = useParams();
   const { selectedDurationLabel } = useAnalytics();
-  const { data: projectAnalyticsCount, isLoading: isProjectAnalyticsCountLoading } = useSWR(
-    workspaceSlug ? ["projectAnalyticsCount", workspaceSlug] : null,
-    workspaceSlug
-      ? () =>
-          projectService.getProjectAnalyticsCount(workspaceSlug.toString(), {
-            fields: "total_work_items,total_completed_work_items",
-          })
-      : null
-  );
+  const { data: projectAnalyticsCount, isPending: isProjectAnalyticsCountLoading } = useQuery({
+    queryKey: [...queryKeys.projects.analytics(workspaceSlug?.toString() ?? ""), "count"],
+    queryFn: () =>
+      projectService.getProjectAnalyticsCount(workspaceSlug.toString(), {
+        fields: "total_work_items,total_completed_work_items",
+      }),
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   return (
     <AnalyticsSectionWrapper
       title={`${t("workspace_analytics.active_projects")}`}

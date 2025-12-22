@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { GROUP_CHOICES } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -11,8 +11,8 @@ import { ProfilePriorityDistribution } from "@/components/profile/overview/prior
 import { ProfileStateDistribution } from "@/components/profile/overview/state-distribution";
 import { ProfileStats } from "@/components/profile/overview/stats";
 import { ProfileWorkload } from "@/components/profile/overview/workload";
-// constants
-import { USER_PROFILE_DATA } from "@/constants/fetch-keys";
+// store
+import { queryKeys } from "@/store/queries/query-keys";
 // services
 import { UserService } from "@/services/user.service";
 import type { Route } from "./+types/page";
@@ -22,9 +22,10 @@ export default function ProfileOverviewPage({ params }: Route.ComponentProps) {
   const { workspaceSlug, userId } = params;
 
   const { t } = useTranslation();
-  const { data: userProfile } = useSWR(USER_PROFILE_DATA(workspaceSlug, userId), () =>
-    userService.getUserProfileData(workspaceSlug, userId)
-  );
+  const { data: userProfile } = useQuery({
+    queryKey: queryKeys.userProfiles.detail(workspaceSlug, userId),
+    queryFn: () => userService.getUserProfileData(workspaceSlug, userId),
+  });
 
   const stateDistribution: IUserStateDistribution[] = Object.keys(GROUP_CHOICES).map((key) => {
     const group = userProfile?.state_distribution.find((g) => g.state_group === key);

@@ -1,9 +1,10 @@
 import { useCallback } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import type { THomeWidgetProps } from "@plane/types";
 import { useHome } from "@/hooks/store/use-home";
+import { queryKeys } from "@/store/queries/query-keys";
 import { LinkCreateUpdateModal } from "./create-update-link-modal";
 import { ProjectLinkList } from "./links";
 import { useLinks } from "./use-links";
@@ -21,15 +22,13 @@ export function DashboardQuickLinks(props: THomeWidgetProps) {
     setLinkData(undefined);
   }, [toggleLinkModal, setLinkData]);
 
-  useSWR(
-    workspaceSlug ? `HOME_LINKS_${workspaceSlug}` : null,
-    workspaceSlug ? () => fetchLinks(workspaceSlug.toString()) : null,
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
+  useQuery({
+    queryKey: [...queryKeys.home.widgets(workspaceSlug?.toString() ?? ""), "links"],
+    queryFn: () => fetchLinks(workspaceSlug.toString()),
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   return (
     <>
       <LinkCreateUpdateModal

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import useSWR, { mutate } from "swr";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 // types
 import type { IWorkspaceIntegration, ISlackIntegration } from "@plane/types";
 // ui
 import { Loader } from "@plane/ui";
-// fetch-keys
-import { SLACK_CHANNEL_INFO } from "@/constants/fetch-keys";
+// store
+import { queryKeys } from "@/store/queries/query-keys";
 // hooks
 import { useInstance } from "@/hooks/store/use-instance";
 import useIntegrationPopup from "@/hooks/use-integration-popup";
@@ -27,6 +27,7 @@ export function SelectChannel({ integration }: Props) {
   const [slackChannel, setSlackChannel] = useState<ISlackIntegration | null>(null);
 
   const { workspaceSlug, projectId } = useParams();
+  const queryClient = useQueryClient();
 
   // FIXME:
   const { startAuth } = useIntegrationPopup({
@@ -36,13 +37,12 @@ export function SelectChannel({ integration }: Props) {
     slack_client_id: config?.slack_client_id || "",
   });
 
-  const { data: projectIntegration } = useSWR(
-    workspaceSlug && projectId && integration.id ? SLACK_CHANNEL_INFO(workspaceSlug, projectId) : null,
-    () =>
-      workspaceSlug && projectId && integration.id
-        ? appInstallationService.getSlackChannelDetail(workspaceSlug, projectId, integration.id)
-        : null
-  );
+  const { data: projectIntegration } = useQuery({
+    queryKey: queryKeys.integrations.slack.channelInfo(workspaceSlug as string, projectId as string),
+    queryFn: () =>
+      appInstallationService.getSlackChannelDetail(workspaceSlug as string, projectId as string, integration.id),
+    enabled: !!workspaceSlug && !!projectId && !!integration.id,
+  });
 
   useEffect(() => {
     if (projectId && projectIntegration && projectIntegration.length > 0) {
@@ -58,16 +58,19 @@ export function SelectChannel({ integration }: Props) {
 
   const handleDelete = async () => {
     if (!workspaceSlug || !projectId) return;
-    if (projectIntegration.length === 0) return;
-    mutate(SLACK_CHANNEL_INFO(workspaceSlug?.toString(), projectId?.toString()), (prevData: any) => {
-      if (!prevData) return;
-      return prevData.id !== integration.id;
-    }).then(() => {
-      setSlackChannelAvailabilityToggle(false);
-      setSlackChannel(null);
-    });
+    if (projectIntegration?.length === 0) return;
+    queryClient
+      .setQueryData(
+        queryKeys.integrations.slack.channelInfo(workspaceSlug as string, projectId as string),
+        (prevData: any) => {
+          if (!prevData) return;
+          return prevData.id !== integration.id;
+        }
+      );
+    setSlackChannelAvailabilityToggle(false);
+    setSlackChannel(null);
     appInstallationService
-      .removeSlackChannel(workspaceSlug, projectId, integration.id, slackChannel?.id)
+      .removeSlackChannel(workspaceSlug as string, projectId as string, integration.id, slackChannel?.id)
       .catch((err) => console.error(err));
   };
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { isEmpty } from "lodash-es";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane constants
 import { ISSUE_DISPLAY_FILTERS_BY_PAGE, PROJECT_VIEW_TRACKER_ELEMENTS } from "@plane/constants";
 import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
@@ -14,6 +14,7 @@ import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import { IssuePeekOverview } from "../../peek-overview";
 import { SprintCalendarLayout } from "../calendar/roots/sprint-root";
@@ -57,15 +58,18 @@ export function SprintLayoutRoot() {
   const workItemFilters = sprintId ? issuesFilter?.getIssueFilters(sprintId) : undefined;
   const activeLayout = workItemFilters?.displayFilters?.layout;
 
-  useSWR(
-    workspaceSlug && projectId && sprintId ? `SPRINT_ISSUES_${workspaceSlug}_${projectId}_${sprintId}` : null,
-    async () => {
+  useQuery({
+    queryKey: workspaceSlug && projectId && sprintId ? queryKeys.issues.sprint(sprintId) : [],
+    queryFn: async () => {
       if (workspaceSlug && projectId && sprintId) {
         await issuesFilter?.fetchFilters(workspaceSlug, projectId, sprintId);
       }
+      return null;
     },
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
+    enabled: !!(workspaceSlug && projectId && sprintId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const sprintDetails = getSprintById(sprints, sprintId);
   const sprintStatus = sprintDetails?.status?.toLocaleLowerCase() ?? "draft";

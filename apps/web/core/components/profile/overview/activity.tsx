@@ -1,5 +1,5 @@
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // ui
 import { useTranslation } from "@plane/i18n";
 import { EmptyStateCompact } from "@plane/propel/empty-state";
@@ -7,13 +7,13 @@ import { Loader, Card } from "@plane/ui";
 import { calculateTimeAgo, getFileURL } from "@plane/utils";
 // components
 import { ActivityMessage, IssueLink } from "@/components/core/activity";
-// constants
-import { USER_PROFILE_ACTIVITY } from "@/constants/fetch-keys";
 // helpers
 // hooks
 import { useUser } from "@/hooks/store/user";
 // services
 import { UserService } from "@/services/user.service";
+// query keys
+import { queryKeys } from "@/store/queries/query-keys";
 
 const userService = new UserService();
 
@@ -23,15 +23,16 @@ export function ProfileActivity() {
   const { data: currentUser } = useUser();
   const { t } = useTranslation();
 
-  const { data: userProfileActivity } = useSWR(
-    workspaceSlug && userId ? USER_PROFILE_ACTIVITY(workspaceSlug.toString(), userId.toString(), {}) : null,
-    workspaceSlug && userId
-      ? () =>
-          userService.getUserProfileActivity(workspaceSlug.toString(), userId.toString(), {
-            per_page: 10,
-          })
-      : null
-  );
+  const { data: userProfileActivity } = useQuery({
+    queryKey: queryKeys.userProfiles.activity(workspaceSlug?.toString() ?? "", userId?.toString() ?? "", {}),
+    queryFn: () =>
+      userService.getUserProfileActivity(workspaceSlug!.toString(), userId!.toString(), {
+        per_page: 10,
+      }),
+    enabled: !!(workspaceSlug && userId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   return (
     <div className="space-y-2">

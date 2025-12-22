@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { ColumnDef, Row, RowData, Table } from "@tanstack/react-table";
 import { useParams } from "next/navigation";
 import { useTheme } from "next-themes";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane package imports
 import { Download } from "lucide-react";
 import type { ChartXAxisDateGrouping } from "@plane/constants";
@@ -18,6 +18,7 @@ import { generateExtendedColors, parseChartData } from "@/components/chart/utils
 import { useAnalytics } from "@/hooks/store/use-analytics";
 import { useWorkspaceStates } from "@/store/queries/state";
 import { AnalyticsService } from "@/services/analytics.service";
+import { queryKeys } from "@/store/queries/query-keys";
 import { exportCSV } from "../export";
 import { DataTable } from "../insight-table/data-table";
 import { ChartLoader } from "../loaders";
@@ -52,10 +53,19 @@ function PriorityChart(props: Props) {
   const { data: workspaceStates } = useWorkspaceStates(workspaceSlug);
   const { resolvedTheme } = useTheme();
 
-  const { data: priorityChartData, isLoading: priorityChartLoading } = useSWR(
-    `customized-insights-chart-${workspaceSlug}-${selectedDuration}-
-    ${selectedProjects}-${selectedSprint}-${selectedEpic}-${props.x_axis}-${props.y_axis}-${props.group_by}-${isPeekView}-${isEpic}`,
-    () =>
+  const { data: priorityChartData, isPending: priorityChartLoading } = useQuery({
+    queryKey: queryKeys.analytics.charts(workspaceSlug, "custom-work-items", {
+      selectedDuration,
+      selectedProjects,
+      selectedSprint,
+      selectedEpic,
+      isPeekView,
+      isEpic,
+      x_axis: props.x_axis,
+      y_axis: props.y_axis,
+      group_by: props.group_by,
+    }),
+    queryFn: () =>
       analyticsService.getAdvanceAnalyticsCharts<TChart>(
         workspaceSlug,
         "custom-work-items",
@@ -68,8 +78,10 @@ function PriorityChart(props: Props) {
           ...props,
         },
         isPeekView
-      )
-  );
+      ),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   const parsedData = useMemo(
     () =>
       priorityChartData && parseChartData(priorityChartData, props.x_axis, props.group_by, props.x_axis_date_grouping),

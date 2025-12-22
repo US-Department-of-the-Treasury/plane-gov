@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 import Link from "next/link";
 
-import useSWR, { mutate } from "swr";
 import { CheckCircle2 } from "lucide-react";
 // plane imports
 import { ROLE, MEMBER_TRACKER_EVENTS, MEMBER_TRACKER_ELEMENTS, GROUP_WORKSPACE_TRACKER_EVENT } from "@plane/constants";
@@ -18,7 +17,6 @@ import emptyInvitation from "@/app/assets/empty-state/invitation.svg?url";
 // components
 import { EmptyState } from "@/components/common/empty-state";
 import { WorkspaceLogo } from "@/components/workspace/logo";
-import { USER_WORKSPACES_LIST } from "@/constants/fetch-keys";
 // helpers
 // hooks
 import { captureError, captureSuccess, joinEventGroup } from "@/helpers/event-tracker.helper";
@@ -28,8 +26,9 @@ import { useAppRouter } from "@/hooks/use-app-router";
 import { AuthenticationWrapper } from "@/lib/wrappers/authentication-wrapper";
 // plane web services
 import { WorkspaceService } from "@/plane-web/services";
-import { useWorkspaces } from "@/store/queries/workspace";
+import { useUserWorkspaceInvitations } from "@/store/queries/workspace";
 import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/store/queries/query-keys";
 
 const workspaceService = new WorkspaceService();
 
@@ -45,7 +44,7 @@ function UserInvitationsPage() {
   const { updateUserProfile } = useUserProfile();
   const queryClient = useQueryClient();
 
-  const { data: invitations } = useSWR("USER_WORKSPACE_INVITATIONS", () => workspaceService.userWorkspaceInvitations());
+  const { data: invitations } = useUserWorkspaceInvitations();
 
   const redirectWorkspaceSlug =
     // currentUserSettings?.workspace?.last_workspace_slug ||
@@ -75,7 +74,8 @@ function UserInvitationsPage() {
     workspaceService
       .joinWorkspaces({ invitations: invitationsRespond })
       .then(() => {
-        mutate(USER_WORKSPACES_LIST);
+        queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all() });
+        queryClient.invalidateQueries({ queryKey: ["user", "workspace-invitations"] });
         const firstInviteId = invitationsRespond[0];
         const invitation = invitations?.find((i) => i.id === firstInviteId);
         const redirectWorkspace = invitations?.find((i) => i.id === firstInviteId)?.workspace;
@@ -95,7 +95,7 @@ function UserInvitationsPage() {
           .then(() => {
             setIsJoiningWorkspaces(false);
             // Invalidate workspaces query to refetch
-            queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all() });
             router.push(`/${redirectWorkspace?.slug}`);
           })
           .catch(() => {

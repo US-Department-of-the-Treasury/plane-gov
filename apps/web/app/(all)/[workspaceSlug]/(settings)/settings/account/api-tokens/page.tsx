@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { PROFILE_SETTINGS_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -11,10 +11,10 @@ import { ApiTokenListItem } from "@/components/api-token/token-list-item";
 import { PageHead } from "@/components/core/page-title";
 import { SettingsHeading } from "@/components/settings/heading";
 import { APITokenSettingsLoader } from "@/components/ui/loader/settings/api-token";
-import { API_TOKENS_LIST } from "@/constants/fetch-keys";
 // store hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useWorkspaceDetails } from "@/store/queries/workspace";
+import { queryKeys } from "@/store/queries/query-keys";
 import type { Route } from "./+types/page";
 
 const apiTokenService = new APITokenService();
@@ -29,7 +29,12 @@ function ApiTokensPage({ params }: Route.ComponentProps) {
   // store hooks
   const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
 
-  const { data: tokens } = useSWR(API_TOKENS_LIST, () => apiTokenService.list());
+  const { data: tokens } = useQuery({
+    queryKey: queryKeys.apiTokens.all(),
+    queryFn: () => apiTokenService.list(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const pageTitle = currentWorkspace?.name
     ? `${currentWorkspace.name} - ${t("workspace_settings.settings.api_tokens.title")}`

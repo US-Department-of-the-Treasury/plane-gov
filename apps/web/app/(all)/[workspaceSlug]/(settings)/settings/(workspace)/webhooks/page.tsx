@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, WORKSPACE_SETTINGS_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -17,6 +17,7 @@ import { captureClick } from "@/helpers/event-tracker.helper";
 import { useWebhook } from "@/hooks/store/use-webhook";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceDetails } from "@/store/queries/workspace";
+import { queryKeys } from "@/store/queries/query-keys";
 import type { Route } from "./+types/page";
 
 function WebhooksListPage({ params }: Route.ComponentProps) {
@@ -33,10 +34,13 @@ function WebhooksListPage({ params }: Route.ComponentProps) {
   // derived values
   const canPerformWorkspaceAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
 
-  useSWR(
-    canPerformWorkspaceAdminActions ? `WEBHOOKS_LIST_${workspaceSlug}` : null,
-    canPerformWorkspaceAdminActions ? () => fetchWebhooks(workspaceSlug) : null
-  );
+  useQuery({
+    queryKey: queryKeys.webhooks.all(workspaceSlug),
+    queryFn: () => fetchWebhooks(workspaceSlug),
+    enabled: canPerformWorkspaceAdminActions,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const pageTitle = currentWorkspace?.name
     ? `${currentWorkspace.name} - ${t("workspace_settings.settings.webhooks.title")}`

@@ -3,16 +3,14 @@ import React, { useEffect } from "react";
 // next
 import { useParams } from "next/navigation";
 
-// swr
+// react-query
 import { useFormContext, Controller } from "react-hook-form";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import type { IJiraImporterForm, IJiraMetadata } from "@plane/types";
-
-// react hook form
 
 // services
 import { ToggleSwitch, Spinner } from "@plane/ui";
-import { JIRA_IMPORTER_DETAIL } from "@/constants/fetch-keys";
+import { queryKeys } from "@/store/queries/query-keys";
 import { JiraImporterService } from "@/services/integrations";
 
 // fetch keys
@@ -48,22 +46,18 @@ export function JiraProjectDetail(props: Props) {
     cloud_hostname: watch("metadata.cloud_hostname"),
   };
 
-  const { data: projectInfo, error } = useSWR(
+  const isValid =
     workspaceSlug &&
-      !errors.metadata?.api_token &&
-      !errors.metadata?.project_key &&
-      !errors.metadata?.email &&
-      !errors.metadata?.cloud_hostname
-      ? JIRA_IMPORTER_DETAIL(workspaceSlug.toString(), params)
-      : null,
-    workspaceSlug &&
-      !errors.metadata?.api_token &&
-      !errors.metadata?.project_key &&
-      !errors.metadata?.email &&
-      !errors.metadata?.cloud_hostname
-      ? () => jiraImporterService.getJiraProjectInfo(workspaceSlug.toString(), params)
-      : null
-  );
+    !errors.metadata?.api_token &&
+    !errors.metadata?.project_key &&
+    !errors.metadata?.email &&
+    !errors.metadata?.cloud_hostname;
+
+  const { data: projectInfo, error } = useQuery({
+    queryKey: queryKeys.integrations.jira.projectInfo(workspaceSlug as string, params.project_key),
+    queryFn: () => jiraImporterService.getJiraProjectInfo(workspaceSlug as string, params),
+    enabled: !!isValid,
+  });
 
   useEffect(() => {
     if (!projectInfo) return;

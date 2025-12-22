@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // services
-import { USER_PROFILE_ACTIVITY } from "@/constants/fetch-keys";
 import { UserService } from "@/services/user.service";
 // components
 import { ActivityList } from "./activity-list";
-// fetch-keys
+// query keys
+import { queryKeys } from "@/store/queries/query-keys";
 
 // services
 const userService = new UserService();
@@ -23,20 +23,17 @@ export function WorkspaceActivityListPage(props: Props) {
   // router
   const { workspaceSlug, userId } = useParams();
 
-  const { data: userProfileActivity } = useSWR(
-    workspaceSlug && userId
-      ? USER_PROFILE_ACTIVITY(workspaceSlug.toString(), userId.toString(), {
-          cursor,
-        })
-      : null,
-    workspaceSlug && userId
-      ? () =>
-          userService.getUserProfileActivity(workspaceSlug.toString(), userId.toString(), {
-            cursor,
-            per_page: perPage,
-          })
-      : null
-  );
+  const { data: userProfileActivity } = useQuery({
+    queryKey: queryKeys.userProfiles.activity(workspaceSlug?.toString() ?? "", userId?.toString() ?? "", { cursor }),
+    queryFn: () =>
+      userService.getUserProfileActivity(workspaceSlug!.toString(), userId!.toString(), {
+        cursor,
+        per_page: perPage,
+      }),
+    enabled: !!(workspaceSlug && userId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   useEffect(() => {
     if (!userProfileActivity) return;

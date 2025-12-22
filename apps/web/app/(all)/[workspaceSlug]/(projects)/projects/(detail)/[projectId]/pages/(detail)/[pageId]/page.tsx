@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 
 import Link from "next/link";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane types
 import { getButtonStyling } from "@plane/propel/button";
 import type { TSearchEntityRequestPayload, TWebhookConnectionQueryParams } from "@plane/types";
@@ -26,6 +26,7 @@ import { EPageStoreType, usePage, usePageStore } from "@/plane-web/hooks/store";
 import { WorkspaceService } from "@/plane-web/services";
 // services
 import { ProjectPageService, ProjectPageVersionService } from "@/services/page";
+import { queryKeys } from "@/store/queries/query-keys";
 import type { Route } from "./+types/page";
 const workspaceService = new WorkspaceService();
 const projectPageService = new ProjectPageService();
@@ -60,15 +61,12 @@ function PageDetailsPage({ params }: Route.ComponentProps) {
   // editor config
   const { getEditorFileHandlers } = useEditorConfig();
   // fetch page details
-  const { error: pageDetailsError } = useSWR(
-    `PAGE_DETAILS_${pageId}`,
-    () => fetchPageDetails(workspaceSlug, projectId, pageId),
-    {
-      revalidateIfStale: true,
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-    }
-  );
+  const { error: pageDetailsError } = useQuery({
+    queryKey: queryKeys.pages.detail(pageId),
+    queryFn: () => fetchPageDetails(workspaceSlug, projectId, pageId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   // page root handlers
   const pageRootHandlers: TPageRootHandlers = useMemo(
     () => ({

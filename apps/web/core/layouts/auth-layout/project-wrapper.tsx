@@ -1,26 +1,16 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { GANTT_TIMELINE_TYPE } from "@plane/types";
 // components
 import { ProjectAccessRestriction } from "@/components/auth-screens/project/project-access-restriction";
-import {
-  PROJECT_DETAILS,
-  PROJECT_ME_INFORMATION,
-  PROJECT_MEMBER_PREFERENCES,
-  PROJECT_STATES,
-  PROJECT_ESTIMATES,
-  PROJECT_ALL_SPRINTS,
-  PROJECT_EPICS,
-  PROJECT_VIEWS,
-  PROJECT_INTAKE_STATE,
-} from "@/constants/fetch-keys";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useProjectView } from "@/hooks/store/use-project-view";
-import { useUser, useUserPermissions } from "@/hooks/store/user";
+import { useCurrentUser } from "@/store/queries/user";
+import { useUserPermissions } from "@/hooks/store/user";
 import { useTimeLineChart } from "@/hooks/use-timeline-chart";
 import { useProjectLabels } from "@/store/queries/label";
 import { useProjectMembers } from "@/store/queries/member";
@@ -45,7 +35,7 @@ export function ProjectAuthWrapper(props: IProjectAuthWrapper) {
   const { joinProject } = useUserPermissions();
   const { initGantt } = useTimeLineChart(GANTT_TIMELINE_TYPE.EPIC);
   const { fetchViews } = useProjectView();
-  const { data: currentUserData } = useUser();
+  const { data: currentUserData } = useCurrentUser();
   const { getProjectEstimates } = useProjectEstimates();
   // TanStack Query - auto-fetches project details, states, intake state, sprints, epics, and members
   const { isLoading: isProjectDetailsLoading, error: projectDetailsError } = useProjectDetails(
@@ -72,21 +62,32 @@ export function ProjectAuthWrapper(props: IProjectAuthWrapper) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // fetching user project member information
-  useSWR(PROJECT_ME_INFORMATION(workspaceSlug, projectId), () => fetchUserProjectInfo(workspaceSlug, projectId));
+  // TanStack Query - fetching user project member information
+  useQuery({
+    queryKey: ["project-member-me", workspaceSlug, projectId],
+    queryFn: () => fetchUserProjectInfo(workspaceSlug, projectId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   // fetching project labels - TanStack Query auto-fetches
   useProjectLabels(workspaceSlug, projectId);
-  // fetching project estimates
-  useSWR(PROJECT_ESTIMATES(projectId, currentProjectRole), () => getProjectEstimates(workspaceSlug, projectId), {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
+  // TanStack Query - fetching project estimates
+  useQuery({
+    queryKey: ["project-estimates", projectId, currentProjectRole],
+    queryFn: () => getProjectEstimates(workspaceSlug, projectId),
+    enabled: !!currentProjectRole,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
   // fetching project sprints - handled by TanStack Query useProjectSprints hook above
   // fetching project epics - handled by TanStack Query useProjectEpics hook above
-  // fetching project views
-  useSWR(PROJECT_VIEWS(projectId, currentProjectRole), () => fetchViews(workspaceSlug, projectId), {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
+  // TanStack Query - fetching project views
+  useQuery({
+    queryKey: ["project-views", projectId, currentProjectRole],
+    queryFn: () => fetchViews(workspaceSlug, projectId),
+    enabled: !!currentProjectRole,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   // handle join project

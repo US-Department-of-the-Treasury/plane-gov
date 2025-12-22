@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import useSWR, { mutate } from "swr";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Check, List, Settings, UploadCloud } from "lucide-react";
 import { MembersPropertyIcon } from "@plane/propel/icons";
 // types
@@ -18,8 +18,8 @@ import {
   GithubImportUsers,
   GithubImportConfirm,
 } from "@/components/integration";
-// fetch keys
-import { APP_INTEGRATIONS, IMPORTER_SERVICES_LIST, WORKSPACE_INTEGRATIONS } from "@/constants/fetch-keys";
+// store
+import { queryKeys } from "@/store/queries/query-keys";
 // hooks
 import { useAppRouter } from "@/hooks/use-app-router";
 // services
@@ -92,13 +92,18 @@ export function GithubImporterRoot() {
   const { handleSubmit, control, setValue, watch } = useForm<TFormValues>({
     defaultValues: defaultFormValues,
   });
+  const queryClient = useQueryClient();
 
-  const { data: appIntegrations } = useSWR(APP_INTEGRATIONS, () => integrationService.getAppIntegrationsList());
+  const { data: appIntegrations } = useQuery({
+    queryKey: queryKeys.integrations.app(),
+    queryFn: () => integrationService.getAppIntegrationsList(),
+  });
 
-  const { data: workspaceIntegrations } = useSWR(
-    workspaceSlug ? WORKSPACE_INTEGRATIONS(workspaceSlug) : null,
-    workspaceSlug ? () => integrationService.getWorkspaceIntegrationsList(workspaceSlug) : null
-  );
+  const { data: workspaceIntegrations } = useQuery({
+    queryKey: queryKeys.integrations.workspace(workspaceSlug as string),
+    queryFn: () => integrationService.getWorkspaceIntegrationsList(workspaceSlug as string),
+    enabled: !!workspaceSlug,
+  });
 
   const activeIntegrationState = () => {
     const currentElementIndex = integrationWorkflowData.findIndex((i) => i?.key === currentStep?.state);
@@ -138,10 +143,10 @@ export function GithubImporterRoot() {
     };
 
     await githubIntegrationService
-      .createGithubServiceImport(workspaceSlug, payload)
+      .createGithubServiceImport(workspaceSlug as string, payload)
       .then(() => {
         router.push(`/${workspaceSlug}/settings/imports`);
-        mutate(IMPORTER_SERVICES_LIST(workspaceSlug));
+        queryClient.invalidateQueries({ queryKey: queryKeys.integrations.imports(workspaceSlug as string) });
       })
       .catch(() =>
         setToast({

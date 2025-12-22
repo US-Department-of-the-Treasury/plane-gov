@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "next/navigation";
-import useSWR, { mutate } from "swr";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IWorkspaceIntegration } from "@plane/types";
 // assets
@@ -8,8 +8,8 @@ import GithubLogo from "@/app/assets/logos/github-square.png?url";
 import SlackLogo from "@/app/assets/services/slack.png?url";
 // components
 import { SelectRepository, SelectChannel } from "@/components/integration";
-// constants
-import { PROJECT_GITHUB_REPOSITORY } from "@/constants/fetch-keys";
+// queries
+import { queryKeys } from "@/store/queries/query-keys";
 // services
 import { ProjectService } from "@/services/project";
 
@@ -33,12 +33,22 @@ const projectService = new ProjectService();
 
 export function IntegrationCard({ integration }: Props) {
   const { workspaceSlug, projectId } = useParams();
+  const queryClient = useQueryClient();
 
-  const { data: syncedGithubRepository } = useSWR(projectId ? PROJECT_GITHUB_REPOSITORY(projectId) : null, () =>
-    workspaceSlug && projectId && integration
-      ? projectService.getProjectGithubRepository(workspaceSlug, projectId, integration.id)
-      : null
-  );
+  const { data: syncedGithubRepository } = useQuery({
+    queryKey: queryKeys.integrations.github.repository(projectId?.toString() ?? ""),
+    queryFn: () =>
+      workspaceSlug && projectId && integration
+        ? projectService.getProjectGithubRepository(
+            workspaceSlug.toString(),
+            projectId.toString(),
+            integration.id
+          )
+        : null,
+    enabled: !!(workspaceSlug && projectId && integration),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const handleChange = (repo: any) => {
     if (!workspaceSlug || !projectId || !integration) return;
@@ -51,14 +61,16 @@ export function IntegrationCard({ integration }: Props) {
     } = repo;
 
     projectService
-      .syncGithubRepository(workspaceSlug, projectId, integration.id, {
+      .syncGithubRepository(workspaceSlug.toString(), projectId.toString(), integration.id, {
         name,
         owner: login,
         repository_id: id,
         url: html_url,
       })
       .then(() => {
-        mutate(PROJECT_GITHUB_REPOSITORY(projectId));
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.integrations.github.repository(projectId.toString()),
+        });
 
         setToast({
           type: TOAST_TYPE.SUCCESS,

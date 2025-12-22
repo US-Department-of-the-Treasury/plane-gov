@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { mutate } from "swr";
+import { useQueryClient } from "@tanstack/react-query";
 // types
 import { SPRINT_TRACKER_EVENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -16,6 +16,8 @@ import useLocalStorage from "@/hooks/use-local-storage";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // services
 import { SprintService } from "@/services/sprint.service";
+// queries
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import { SprintForm } from "./form";
 
@@ -40,6 +42,7 @@ export function SprintCreateUpdateModal(props: SprintModalProps) {
   const { isMobile } = usePlatformOS();
   // query hooks
   const { data: projects } = useProjects(workspaceSlug);
+  const queryClient = useQueryClient();
   // derived values
   const workspaceProjectIds = getJoinedProjectIds(projects);
 
@@ -58,13 +61,15 @@ export function SprintCreateUpdateModal(props: SprintModalProps) {
       },
       {
         onSuccess: (res) => {
-          // mutate when the current sprint creation is active
+          // invalidate query when the current sprint creation is active
           if (payload.start_date && payload.end_date) {
             const currentDate = new Date();
             const sprintStartDate = new Date(payload.start_date);
             const sprintEndDate = new Date(payload.end_date);
             if (currentDate >= sprintStartDate && currentDate <= sprintEndDate) {
-              mutate(`PROJECT_ACTIVE_SPRINT_${selectedProjectId}`);
+              queryClient.invalidateQueries({
+                queryKey: queryKeys.sprints.active(workspaceSlug, selectedProjectId),
+              });
             }
           }
 

@@ -1,35 +1,21 @@
-import useSWR from "swr";
-
 // components
 import { LogoSpinner } from "@/components/common/logo-spinner";
 import { OnboardingRoot } from "@/components/onboarding";
-// constants
-import { USER_WORKSPACES_LIST } from "@/constants/fetch-keys";
 // helpers
 import { EPageTypes } from "@/helpers/authentication.helper";
 // hooks
 import { useUser } from "@/hooks/store/user";
 // wrappers
 import { AuthenticationWrapper } from "@/lib/wrappers/authentication-wrapper";
-// services
-import { WorkspaceService } from "@/plane-web/services";
-import { useWorkspaces } from "@/store/queries/workspace";
-
-const workspaceService = new WorkspaceService();
+// queries
+import { useUserWorkspaceInvitations } from "@/store/queries/workspace";
 
 function OnboardingPage() {
   // store hooks
   const { data: user } = useUser();
-  // TanStack Query automatically fetches workspaces
-  useWorkspaces();
 
   // fetching user workspace invitations
-  const { isLoading: invitationsLoader, data: invitations } = useSWR(
-    `USER_WORKSPACE_INVITATIONS_LIST_${user?.id}`,
-    () => {
-      if (user?.id) return workspaceService.userWorkspaceInvitations();
-    }
-  );
+  const { isPending: invitationsLoader, data: invitations } = useUserWorkspaceInvitations();
 
   return (
     <AuthenticationWrapper pageType={EPageTypes.ONBOARDING}>

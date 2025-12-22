@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // components
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { NotAuthorizedView } from "@/components/auth-screens/not-authorized-view";
@@ -7,13 +7,12 @@ import { SingleIntegrationCard } from "@/components/integration";
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 import { IntegrationAndImportExportBanner } from "@/components/ui/integration-and-import-export-banner";
 import { IntegrationsSettingsLoader } from "@/components/ui/loader/settings/integration";
-// constants
-import { APP_INTEGRATIONS } from "@/constants/fetch-keys";
 // hooks
 import { useWorkspaceDetails } from "@/store/queries/workspace";
 import { useUserPermissions } from "@/hooks/store/user";
 // services
 import { IntegrationService } from "@/services/integrations";
+import { queryKeys } from "@/store/queries/query-keys";
 import type { Route } from "./+types/page";
 
 const integrationService = new IntegrationService();
@@ -28,9 +27,13 @@ function WorkspaceIntegrationsPage({ params }: Route.ComponentProps) {
   // derived values
   const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
   const pageTitle = currentWorkspace?.name ? `${currentWorkspace.name} - Integrations` : undefined;
-  const { data: appIntegrations } = useSWR(isAdmin ? APP_INTEGRATIONS : null, () =>
-    isAdmin ? integrationService.getAppIntegrationsList() : null
-  );
+  const { data: appIntegrations } = useQuery({
+    queryKey: queryKeys.integrations.app(),
+    queryFn: () => integrationService.getAppIntegrationsList(),
+    enabled: isAdmin,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   if (!isAdmin) return <NotAuthorizedView section="settings" className="h-auto" />;
 

@@ -187,6 +187,92 @@ export const queryKeys = {
     widgets: (workspaceSlug: string) => ["home", workspaceSlug, "widgets"] as const,
   },
 
+  // Timezone queries
+  timezones: {
+    all: () => ["timezones"] as const,
+  },
+
+  // API Token queries
+  apiTokens: {
+    all: () => ["api-tokens"] as const,
+    detail: (tokenId: string) => ["api-tokens", "detail", tokenId] as const,
+  },
+
+  // Email notification settings
+  emailNotifications: {
+    settings: () => ["email-notifications", "settings"] as const,
+  },
+
+  // Integration queries
+  integrations: {
+    app: () => ["integrations", "app"] as const,
+    workspace: (workspaceSlug: string) => ["integrations", "workspace", workspaceSlug] as const,
+    project: (workspaceSlug: string, projectId: string) => ["integrations", "project", workspaceSlug, projectId] as const,
+    github: {
+      repository: (projectId: string) => ["integrations", "github", "repository", projectId] as const,
+      repositories: (workspaceSlug: string, integrationId: string) =>
+        ["integrations", "github", "repositories", workspaceSlug, integrationId] as const,
+      repositoryInfo: (workspaceSlug: string, repoName: string) =>
+        ["integrations", "github", "repository-info", workspaceSlug, repoName] as const,
+      commits: (workspaceSlug: string, projectId: string, integrationId: string, repoFullName: string) =>
+        ["integrations", "github", "commits", workspaceSlug, projectId, integrationId, repoFullName] as const,
+    },
+    slack: {
+      channelInfo: (workspaceSlug: string, projectId: string) =>
+        ["integrations", "slack", "channel-info", workspaceSlug, projectId] as const,
+    },
+    jira: {
+      projects: (workspaceSlug: string, integrationId: string) =>
+        ["integrations", "jira", "projects", workspaceSlug, integrationId] as const,
+      projectInfo: (workspaceSlug: string, projectId: string) =>
+        ["integrations", "jira", "project-info", workspaceSlug, projectId] as const,
+      users: (workspaceSlug: string, projectId: string) =>
+        ["integrations", "jira", "users", workspaceSlug, projectId] as const,
+    },
+    imports: (workspaceSlug: string) => ["integrations", "imports", workspaceSlug] as const,
+  },
+
+  // User profile queries (for viewing other users' profiles)
+  userProfiles: {
+    detail: (workspaceSlug: string, userId: string) => ["user-profiles", workspaceSlug, userId] as const,
+    projects: (workspaceSlug: string, userId: string) => ["user-profiles", workspaceSlug, userId, "projects"] as const,
+    activity: (workspaceSlug: string, userId: string, params?: Record<string, unknown>) =>
+      ["user-profiles", workspaceSlug, userId, "activity", params] as const,
+    issues: (workspaceSlug: string, userId: string) => ["user-profiles", workspaceSlug, userId, "issues"] as const,
+  },
+
+  // User activity queries
+  userActivity: {
+    all: (params: Record<string, unknown>) => ["user-activity", params] as const,
+  },
+
+  // Exporter queries
+  exporter: {
+    services: (workspaceSlug: string, cursor: string, perPage: string) =>
+      ["exporter", "services", workspaceSlug, cursor, perPage] as const,
+  },
+
+  // Description versions queries
+  descriptionVersions: {
+    all: (entityId: string) => ["description-versions", entityId] as const,
+    detail: (versionId: string) => ["description-versions", "detail", versionId] as const,
+  },
+
+  // Pages queries (project pages, distinct from wiki pages)
+  pages: {
+    all: (workspaceSlug: string, projectId: string) => ["pages", workspaceSlug, projectId] as const,
+    list: (workspaceSlug: string, projectId: string, pageType: string) =>
+      ["pages", workspaceSlug, projectId, pageType] as const,
+    detail: (pageId: string) => ["pages", "detail", pageId] as const,
+    versions: (pageId: string) => ["pages", pageId, "versions"] as const,
+    versionDetail: (versionId: string) => ["pages", "version", versionId] as const,
+  },
+
+  // Recents queries
+  recents: {
+    activity: (workspaceSlug: string, filter: string) => ["recents", workspaceSlug, filter] as const,
+  },
+
   // Wiki queries
   wiki: {
     // Pages

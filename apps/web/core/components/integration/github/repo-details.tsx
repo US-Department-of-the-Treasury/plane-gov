@@ -5,15 +5,15 @@ import { useParams } from "next/navigation";
 
 // react-hook-form
 import type { UseFormSetValue } from "react-hook-form";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // services
 // ui
 import { Button } from "@plane/propel/button";
 import { Loader } from "@plane/ui";
 // types
 import type { IUserDetails, TFormValues, TIntegrationSteps } from "@/components/integration";
-// fetch-keys
-import { GITHUB_REPOSITORY_INFO } from "@/constants/fetch-keys";
+// store
+import { queryKeys } from "@/store/queries/query-keys";
 import { GithubIntegrationService } from "@/services/integrations";
 
 type Props = {
@@ -29,16 +29,15 @@ const githubIntegrationService = new GithubIntegrationService();
 export function GithubRepoDetails({ selectedRepo, handleStepChange, setUsers, setValue }: Props) {
   const { workspaceSlug } = useParams();
 
-  const { data: repoInfo } = useSWR(
-    workspaceSlug && selectedRepo ? GITHUB_REPOSITORY_INFO(workspaceSlug, selectedRepo.name) : null,
-    workspaceSlug && selectedRepo
-      ? () =>
-          githubIntegrationService.getGithubRepoInfo(workspaceSlug, {
-            owner: selectedRepo.owner.login,
-            repo: selectedRepo.name,
-          })
-      : null
-  );
+  const { data: repoInfo } = useQuery({
+    queryKey: queryKeys.integrations.github.repositoryInfo(workspaceSlug as string, selectedRepo?.name ?? ""),
+    queryFn: () =>
+      githubIntegrationService.getGithubRepoInfo(workspaceSlug as string, {
+        owner: selectedRepo.owner.login,
+        repo: selectedRepo.name,
+      }),
+    enabled: !!workspaceSlug && !!selectedRepo,
+  });
 
   useEffect(() => {
     if (!repoInfo) return;
