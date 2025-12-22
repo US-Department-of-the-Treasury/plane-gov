@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { useRef, useState } from "react";
-import { observer } from "mobx-react";
+import { useRef, useState, memo } from "react";
 import { useParams } from "next/navigation";
 import { useTranslation } from "@plane/i18n";
 // ui
@@ -30,7 +29,7 @@ type Props = TDropdownProps & {
   currentSprintId?: string;
 };
 
-export const SprintDropdown = observer(function SprintDropdown(props: Props) {
+export const SprintDropdown = memo(function SprintDropdown(props: Props) {
   const {
     button,
     buttonClassName,

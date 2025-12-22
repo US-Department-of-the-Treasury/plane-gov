@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { observer } from "mobx-react";
+import { memo, useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 // icons
 import { LogOut, Settings, Settings2 } from "lucide-react";
@@ -18,7 +17,7 @@ type Props = {
   size?: "xs" | "sm" | "md";
 };
 
-export const UserMenuRoot = observer(function UserMenuRoot(props: Props) {
+export const UserMenuRoot = memo(function UserMenuRoot(props: Props) {
   const { size = "sm" } = props;
   const { workspaceSlug } = useParams();
   // router

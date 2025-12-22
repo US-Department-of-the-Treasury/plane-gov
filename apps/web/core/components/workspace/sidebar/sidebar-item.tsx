@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import { observer } from "mobx-react";
+import { memo, type ReactNode } from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 // plane imports
@@ -22,7 +21,7 @@ type Props = {
   additionalStaticItems?: string[];
 };
 
-export const SidebarItemBase = observer(function SidebarItemBase({
+export const SidebarItemBase = memo(function SidebarItemBase({
   item,
   additionalRender,
   additionalStaticItems,

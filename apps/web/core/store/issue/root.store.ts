@@ -1,5 +1,5 @@
 import { isEmpty } from "lodash-es";
-import { autorun, makeObservable, observable } from "mobx";
+import { autorun, makeObservable, observable, runInAction } from "mobx";
 // types
 import type { ISprint, IIssueLabel, IEpic, IProject, IState, IUserLite, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
@@ -205,26 +205,28 @@ export class IssueRootStore implements IIssueRootStore {
     this.rootStore = rootStore;
 
     autorun(() => {
-      if (rootStore?.user?.data?.id) this.currentUserId = rootStore?.user?.data?.id;
-      if (this.workspaceSlug !== rootStore.router.workspaceSlug) this.workspaceSlug = rootStore.router.workspaceSlug;
-      if (this.teamspaceId !== rootStore.router.teamspaceId) this.teamspaceId = rootStore.router.teamspaceId;
-      if (this.projectId !== rootStore.router.projectId) this.projectId = rootStore.router.projectId;
-      if (this.sprintId !== rootStore.router.sprintId) this.sprintId = rootStore.router.sprintId;
-      if (this.epicId !== rootStore.router.epicId) this.epicId = rootStore.router.epicId;
-      if (this.viewId !== rootStore.router.viewId) this.viewId = rootStore.router.viewId;
-      if (this.globalViewId !== rootStore.router.globalViewId) this.globalViewId = rootStore.router.globalViewId;
-      if (this.userId !== rootStore.router.userId) this.userId = rootStore.router.userId;
-      if (!isEmpty(rootStore?.state?.stateMap)) this.stateMap = rootStore?.state?.stateMap;
-      if (!isEmpty(rootStore?.state?.projectStates)) this.stateDetails = rootStore?.state?.projectStates;
-      if (!isEmpty(rootStore?.state?.workspaceStates)) this.workspaceStateDetails = rootStore?.state?.workspaceStates;
-      if (!isEmpty(rootStore?.label?.labelMap)) this.labelMap = rootStore?.label?.labelMap;
-      if (!isEmpty(rootStore?.memberRoot?.workspace?.workspaceMemberMap))
-        this.workSpaceMemberRolesMap = rootStore?.memberRoot?.workspace?.memberMap || undefined;
-      if (!isEmpty(rootStore?.memberRoot?.memberMap)) this.memberMap = rootStore?.memberRoot?.memberMap || undefined;
-      if (!isEmpty(rootStore?.projectRoot?.project?.projectMap))
-        this.projectMap = rootStore?.projectRoot?.project?.projectMap;
-      if (!isEmpty(rootStore?.epic?.epicMap)) this.epicMap = rootStore?.epic?.epicMap;
-      if (!isEmpty(rootStore?.sprint?.sprintMap)) this.sprintMap = rootStore?.sprint?.sprintMap;
+      runInAction(() => {
+        if (rootStore?.user?.data?.id) this.currentUserId = rootStore?.user?.data?.id;
+        if (this.workspaceSlug !== rootStore.router.workspaceSlug) this.workspaceSlug = rootStore.router.workspaceSlug;
+        if (this.teamspaceId !== rootStore.router.teamspaceId) this.teamspaceId = rootStore.router.teamspaceId;
+        if (this.projectId !== rootStore.router.projectId) this.projectId = rootStore.router.projectId;
+        if (this.sprintId !== rootStore.router.sprintId) this.sprintId = rootStore.router.sprintId;
+        if (this.epicId !== rootStore.router.epicId) this.epicId = rootStore.router.epicId;
+        if (this.viewId !== rootStore.router.viewId) this.viewId = rootStore.router.viewId;
+        if (this.globalViewId !== rootStore.router.globalViewId) this.globalViewId = rootStore.router.globalViewId;
+        if (this.userId !== rootStore.router.userId) this.userId = rootStore.router.userId;
+        if (!isEmpty(rootStore?.state?.stateMap)) this.stateMap = rootStore?.state?.stateMap;
+        if (!isEmpty(rootStore?.state?.projectStates)) this.stateDetails = rootStore?.state?.projectStates;
+        if (!isEmpty(rootStore?.state?.workspaceStates)) this.workspaceStateDetails = rootStore?.state?.workspaceStates;
+        if (!isEmpty(rootStore?.label?.labelMap)) this.labelMap = rootStore?.label?.labelMap;
+        if (!isEmpty(rootStore?.memberRoot?.workspace?.workspaceMemberMap))
+          this.workSpaceMemberRolesMap = rootStore?.memberRoot?.workspace?.memberMap || undefined;
+        if (!isEmpty(rootStore?.memberRoot?.memberMap)) this.memberMap = rootStore?.memberRoot?.memberMap || undefined;
+        if (!isEmpty(rootStore?.projectRoot?.project?.projectMap))
+          this.projectMap = rootStore?.projectRoot?.project?.projectMap;
+        if (!isEmpty(rootStore?.epic?.epicMap)) this.epicMap = rootStore?.epic?.epicMap;
+        if (!isEmpty(rootStore?.sprint?.sprintMap)) this.sprintMap = rootStore?.sprint?.sprintMap;
+      });
     });
 
     this.issues = new IssueStore();

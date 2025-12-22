@@ -25,7 +25,7 @@ export const ProfileIssuesFilter = observer(function ProfileIssuesFilter() {
     issuesFilter: { issueFilters, updateFilters },
   } = useIssues(EIssuesStoreType.PROFILE);
   // derived values
-  const activeLayout = issueFilters?.displayFilters?.layout;
+  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const handleLayoutChange = useCallback(
     (layout: EIssueLayoutTypes) => {
