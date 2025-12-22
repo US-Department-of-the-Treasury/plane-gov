@@ -92,11 +92,11 @@ export const ModuleOptions = observer(function ModuleOptions(props: Props) {
   if (!multiple)
     options?.unshift({
       value: null,
-      query: t("module.no_module"),
+      query: t("epic.no_epic"),
       content: (
         <div className="flex items-center gap-2">
           <ModuleIcon className="h-3 w-3 flex-shrink-0" />
-          <span className="flex-grow truncate">{t("module.no_module")}</span>
+          <span className="flex-grow truncate">{t("epic.no_epic")}</span>
         </div>
       ),
     });

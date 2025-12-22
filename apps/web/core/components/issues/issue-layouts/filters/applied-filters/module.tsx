@@ -1,7 +1,8 @@
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // hooks
 import { CloseIcon, ModuleIcon } from "@plane/propel/icons";
-import { useModule } from "@/hooks/store/use-module";
+import { useWorkspaceModules, getModuleById } from "@/store/queries/module";
 // ui
 
 type Props = {
@@ -12,13 +13,15 @@ type Props = {
 
 export const AppliedModuleFilters = observer(function AppliedModuleFilters(props: Props) {
   const { handleRemove, values, editable } = props;
-  // store hooks
-  const { getModuleById } = useModule();
+  // router
+  const { workspaceSlug } = useParams();
+  // fetch workspace modules using TanStack Query
+  const { data: modules } = useWorkspaceModules(workspaceSlug?.toString() ?? "");
 
   return (
     <>
       {values.map((moduleId) => {
-        const moduleDetails = getModuleById(moduleId) ?? null;
+        const moduleDetails = getModuleById(modules, moduleId) ?? null;
 
         if (!moduleDetails) return null;
 

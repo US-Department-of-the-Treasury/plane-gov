@@ -7,7 +7,7 @@ import { Avatar } from "@plane/ui";
 import { calculateTimeAgo, getFileURL, getPageName } from "@plane/utils";
 import { ListItem } from "@/components/core/list";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 
 type BlockProps = {
   activity: TActivityEntityData;
@@ -19,14 +19,14 @@ export function RecentPage(props: BlockProps) {
   const { activity, ref, workspaceSlug } = props;
   // router
   const router = useRouter();
-  // store hooks
-  const { getUserDetails } = useMember();
+  // queries
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug);
   // derived values
   const pageDetails = activity.entity_data as TPageEntityData;
 
   if (!pageDetails) return <></>;
 
-  const ownerDetails = getUserDetails(pageDetails?.owned_by);
+  const ownerDetails = getWorkspaceMemberByUserId(workspaceMembers, pageDetails?.owned_by);
   const pageLink = pageDetails.project_id
     ? `/${workspaceSlug}/projects/${pageDetails.project_id}/pages/${pageDetails.id}`
     : `/${workspaceSlug}/pages/${pageDetails.id}`;

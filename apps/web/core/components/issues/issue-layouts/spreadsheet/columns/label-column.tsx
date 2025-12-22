@@ -1,9 +1,9 @@
-import React from "react";
-import { observer } from "mobx-react";
+import React, { useMemo } from "react";
+import { useParams } from "next/navigation";
 // types
 import type { TIssue } from "@plane/types";
 // hooks
-import { useLabel } from "@/hooks/store/use-label";
+import { useProjectLabels } from "@/store/queries/label";
 // components
 import { IssuePropertyLabels } from "../../properties";
 
@@ -14,10 +14,21 @@ type Props = {
   disabled: boolean;
 };
 
-export const SpreadsheetLabelColumn = observer(function SpreadsheetLabelColumn(props: Props) {
+export function SpreadsheetLabelColumn(props: Props) {
   const { issue, onChange, disabled, onClose } = props;
+  // router
+  const { workspaceSlug: routerWorkspaceSlug } = useParams();
+  const workspaceSlug = routerWorkspaceSlug?.toString();
   // hooks
-  const { labelMap } = useLabel();
+  const { data: labels } = useProjectLabels(workspaceSlug ?? "", issue.project_id ?? "");
+
+  const labelMap = useMemo(() => {
+    if (!labels) return {};
+    return labels.reduce((acc, label) => {
+      acc[label.id] = label;
+      return acc;
+    }, {} as Record<string, typeof labels[0]>);
+  }, [labels]);
 
   const defaultLabelOptions = issue?.label_ids?.map((id) => labelMap[id]) || [];
 
@@ -41,4 +52,4 @@ export const SpreadsheetLabelColumn = observer(function SpreadsheetLabelColumn(p
       />
     </div>
   );
-});
+}

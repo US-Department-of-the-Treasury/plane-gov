@@ -6,8 +6,8 @@ import type { TCommentsOperations } from "@plane/types";
 import { copyUrlToClipboard, formatTextList, generateWorkItemLink } from "@plane/utils";
 import { useEditorAsset } from "@/hooks/store/use-editor-asset";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
-import { useProject } from "@/hooks/store/use-project";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUser } from "@/hooks/store/user";
 
 export const useWorkItemCommentOperations = (
@@ -25,13 +25,12 @@ export const useWorkItemCommentOperations = (
     removeCommentReaction,
     issue: { getIssueById },
   } = useIssueDetail();
-  const { getProjectById } = useProject();
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug ?? "");
   const { uploadEditorAsset, duplicateEditorAsset } = useEditorAsset();
   const { data: currentUser } = useUser();
+  const { data: projectDetails } = useProjectDetails(workspaceSlug ?? "", projectId ?? "");
   // derived values
   const issueDetails = issueId ? getIssueById(issueId) : undefined;
-  const projectDetails = projectId ? getProjectById(projectId) : undefined;
   // translation
   const { t } = useTranslation();
 
@@ -196,7 +195,9 @@ export const useWorkItemCommentOperations = (
         const reactionUsers = (reactionIds?.[reaction] || [])
           .map((reactionId) => {
             const reactionDetails = getCommentReactionById(reactionId);
-            return reactionDetails ? getUserDetails(reactionDetails.actor)?.display_name : null;
+            if (!reactionDetails) return null;
+            const member = getWorkspaceMemberByUserId(workspaceMembers, reactionDetails.actor);
+            return member?.member?.display_name;
           })
           .filter((displayName): displayName is string => !!displayName);
         const formattedUsers = formatTextList(reactionUsers);

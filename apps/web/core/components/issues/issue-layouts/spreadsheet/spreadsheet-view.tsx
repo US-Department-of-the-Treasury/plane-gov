@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane constants
 import { SPREADSHEET_SELECT_GROUP, SPREADSHEET_PROPERTY_LIST } from "@plane/constants";
 // types
@@ -8,7 +9,7 @@ import { EIssueLayoutTypes } from "@plane/types";
 // components
 import { MultipleSelectGroup } from "@/components/core/multiple-select";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 // plane web components
 import { IssueBulkOperationsRoot } from "@/plane-web/components/issues/bulk-operations";
 // plane web hooks
@@ -56,8 +57,13 @@ export const SpreadsheetView = observer(function SpreadsheetView(props: Props) {
   // refs
   const containerRef = useRef<HTMLTableElement | null>(null);
   const portalRef = useRef<HTMLDivElement | null>(null);
+  // router
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   // plane web hooks
   const isBulkOperationsEnabled = useBulkOperationStatus();
 

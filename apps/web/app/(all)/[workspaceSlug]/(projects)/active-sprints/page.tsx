@@ -2,12 +2,14 @@ import { observer } from "mobx-react";
 // components
 import { PageHead } from "@/components/core/page-title";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // plane web components
 import { WorkspaceActiveSprintsRoot } from "@/plane-web/components/active-sprints";
+import type { Route } from "./+types/page";
 
-function WorkspaceActiveSprintsPage() {
-  const { currentWorkspace } = useWorkspace();
+function WorkspaceActiveSprintsPage({ params }: Route.ComponentProps) {
+  const { workspaceSlug } = params;
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   // derived values
   const pageTitle = currentWorkspace?.name ? `${currentWorkspace?.name} - Active Sprints` : undefined;
 

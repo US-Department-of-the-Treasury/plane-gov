@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { observer } from "mobx-react";
 import { Outlet } from "react-router";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 import { useAppRouter } from "@/hooks/use-app-router";
 // types
 import type { Route } from "./+types/layout";
@@ -12,7 +12,8 @@ function ProjectSettingsLayout({ params }: Route.ComponentProps) {
   // router
   const router = useAppRouter();
   // store hooks
-  const { joinedProjectIds } = useProject();
+  const { data: projects } = useProjects(workspaceSlug);
+  const joinedProjectIds = getJoinedProjectIds(projects);
 
   useEffect(() => {
     if (projectId) return;

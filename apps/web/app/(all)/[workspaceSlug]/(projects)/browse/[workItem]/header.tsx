@@ -9,8 +9,9 @@ import { TabNavigationRoot } from "@/components/navigation";
 import { AppSidebarToggleButton } from "@/components/sidebar/sidebar-toggle-button";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useProjectNavigationPreferences } from "@/hooks/use-navigation-preferences";
+// tanstack query
+import { useIssueByIdentifier } from "@/store/queries/issue";
 // local components
 import { WorkItemDetailsHeader } from "./work-item-header";
 
@@ -19,12 +20,15 @@ export const ProjectWorkItemDetailsHeader = observer(function ProjectWorkItemDet
   const { workspaceSlug, workItem } = useParams();
   // store hooks
   const { sidebarCollapsed } = useAppTheme();
-  const {
-    issue: { getIssueById, getIssueIdByIdentifier },
-  } = useIssueDetail();
-  // derived values
-  const issueId = getIssueIdByIdentifier(workItem?.toString());
-  const issueDetails = issueId ? getIssueById(issueId?.toString()) : undefined;
+  // parse work item identifier
+  const workItemStr = workItem?.toString() || "";
+  const [projectIdentifier, sequenceId] = workItemStr.split("-");
+  // tanstack query
+  const { data: issueDetails } = useIssueByIdentifier(
+    workspaceSlug?.toString() || "",
+    projectIdentifier || "",
+    sequenceId || ""
+  );
   // preferences
   const { preferences: projectPreferences } = useProjectNavigationPreferences();
 

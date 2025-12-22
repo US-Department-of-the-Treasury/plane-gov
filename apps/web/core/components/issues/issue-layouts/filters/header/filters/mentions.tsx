@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane ui
 import { Loader, Avatar } from "@plane/ui";
 // components
@@ -8,7 +9,7 @@ import { getFileURL } from "@plane/utils";
 import { FilterHeader, FilterOption } from "@/components/issues/issue-layouts/filters";
 // helpers
 // hooks
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { useUser } from "@/hooks/store/user";
 
 type Props = {
@@ -20,27 +21,33 @@ type Props = {
 
 export const FilterMentions = observer(function FilterMentions(props: Props) {
   const { appliedFilters, handleUpdate, memberIds, searchQuery } = props;
+  // params
+  const { workspaceSlug } = useParams();
   // states
   const [itemsToRender, setItemsToRender] = useState(5);
   const [previewEnabled, setPreviewEnabled] = useState(true);
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
   const { data: currentUser } = useUser();
 
   const appliedFiltersCount = appliedFilters?.length ?? 0;
 
   const sortedOptions = useMemo(() => {
-    const filteredOptions = (memberIds || []).filter((memberId) =>
-      getUserDetails(memberId)?.display_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredOptions = (memberIds || []).filter((memberId) => {
+      const member = getWorkspaceMemberByUserId(workspaceMembers, memberId);
+      return member?.member?.display_name.toLowerCase().includes(searchQuery.toLowerCase());
+    });
 
     return sortBy(filteredOptions, [
       (memberId) => !(appliedFilters ?? []).includes(memberId),
       (memberId) => memberId !== currentUser?.id,
-      (memberId) => getUserDetails(memberId)?.display_name.toLowerCase(),
+      (memberId) => {
+        const member = getWorkspaceMemberByUserId(workspaceMembers, memberId);
+        return member?.member?.display_name.toLowerCase();
+      },
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
+  }, [searchQuery, workspaceMembers]);
 
   const handleViewToggle = () => {
     if (!sortedOptions) return;
@@ -62,7 +69,8 @@ export const FilterMentions = observer(function FilterMentions(props: Props) {
             sortedOptions.length > 0 ? (
               <>
                 {sortedOptions.slice(0, itemsToRender).map((memberId) => {
-                  const member = getUserDetails(memberId);
+                  const workspaceMember = getWorkspaceMemberByUserId(workspaceMembers, memberId);
+                  const member = workspaceMember?.member;
 
                   if (!member) return null;
                   return (

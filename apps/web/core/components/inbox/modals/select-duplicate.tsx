@@ -16,7 +16,7 @@ import lightSearchAsset from "@/app/assets/empty-state/search/search-light.webp?
 // components
 import { SimpleEmptyState } from "@/components/empty-state/simple-empty-state-root";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
 import useDebounce from "@/hooks/use-debounce";
 // services
 import { ProjectService } from "@/services/project";
@@ -41,7 +41,7 @@ export function SelectDuplicateInboxIssueModal(props: Props) {
   // theme hook
   const { resolvedTheme } = useTheme();
   // hooks
-  const { getProjectById } = useProject();
+  const { data: projects = [] } = useProjects(workspaceSlug?.toString());
   const { t } = useTranslation();
   // derived values
   const debouncedSearchTerm: string = useDebounce(query, 500);
@@ -104,7 +104,7 @@ export function SelectDuplicateInboxIssueModal(props: Props) {
                     }}
                   />
                   <span className="flex-shrink-0 text-11 text-secondary">
-                    {getProjectById(issue?.project_id)?.identifier}-{issue.sequence_id}
+                    {getProjectById(projects, issue?.project_id)?.identifier}-{issue.sequence_id}
                   </span>
                   <span className="text-secondary">{issue.name}</span>
                 </div>

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { omit } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import {
@@ -17,8 +16,8 @@ import { cn } from "@plane/utils";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useUserPermissions } from "@/hooks/store/user";
 // plane-web imports
 import { DuplicateWorkItemModal } from "@/plane-web/components/issues/issue-layouts/quick-action-dropdowns/duplicate-modal";
@@ -30,7 +29,7 @@ import type { IQuickActionProps } from "../list/list-view-types";
 import type { MenuItemFactoryProps } from "./helper";
 import { useProjectIssueMenuItems } from "./helper";
 
-export const ProjectIssueQuickActions = observer(function ProjectIssueQuickActions(props: IQuickActionProps) {
+export function ProjectIssueQuickActions(props: IQuickActionProps) {
   const {
     issue,
     handleDelete,
@@ -50,15 +49,20 @@ export const ProjectIssueQuickActions = observer(function ProjectIssueQuickActio
   const [deleteIssueModal, setDeleteIssueModal] = useState(false);
   const [archiveIssueModal, setArchiveIssueModal] = useState(false);
   const [duplicateWorkItemModal, setDuplicateWorkItemModal] = useState(false);
+
   // store hooks
   const { allowPermissions } = useUserPermissions();
   const { issuesFilter } = useIssues(EIssuesStoreType.PROJECT);
-  const { getStateById } = useProjectState();
-  const { getProjectIdentifierById } = useProject();
+
+  // queries
+  const { data: projects } = useProjects(workspaceSlug?.toString());
+  const { data: projectStates } = useProjectStates(workspaceSlug?.toString(), issue.project_id);
+
   // derived values
   const activeLayout = `${issuesFilter.issueFilters?.displayFilters?.layout} layout`;
-  const stateDetails = getStateById(issue.state_id);
-  const projectIdentifier = getProjectIdentifierById(issue?.project_id);
+  const stateDetails = getStateById(projectStates, issue.state_id);
+  const projectDetails = getProjectById(projects, issue?.project_id);
+  const projectIdentifier = projectDetails?.identifier;
   // auth
   const isEditingAllowed =
     allowPermissions(
@@ -264,4 +268,4 @@ export const ProjectIssueQuickActions = observer(function ProjectIssueQuickActio
       </CustomMenu>
     </>
   );
-});
+}

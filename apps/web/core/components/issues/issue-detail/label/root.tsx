@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IIssueLabel, TIssue, TIssueServiceType } from "@plane/types";
@@ -7,7 +6,7 @@ import { EIssueServiceType } from "@plane/types";
 // components
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useLabel } from "@/hooks/store/use-label";
+import { useCreateLabel } from "@/store/queries/label";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 // ui
 // types
@@ -29,7 +28,7 @@ export type TLabelOperations = {
   createLabel: (workspaceSlug: string, projectId: string, data: Partial<IIssueLabel>) => Promise<any>;
 };
 
-export const IssueLabel = observer(function IssueLabel(props: TIssueLabel) {
+export function IssueLabel(props: TIssueLabel) {
   const {
     workspaceSlug,
     projectId,
@@ -42,7 +41,7 @@ export const IssueLabel = observer(function IssueLabel(props: TIssueLabel) {
   const { t } = useTranslation();
   // hooks
   const { updateIssue } = useIssueDetail(issueServiceType);
-  const { createLabel } = useLabel();
+  const { mutateAsync: createLabelMutation } = useCreateLabel();
   const {
     issue: { getIssueById },
   } = useIssueDetail(issueServiceType);
@@ -66,7 +65,7 @@ export const IssueLabel = observer(function IssueLabel(props: TIssueLabel) {
       },
       createLabel: async (workspaceSlug: string, projectId: string, data: Partial<IIssueLabel>) => {
         try {
-          const labelResponse = await createLabel(workspaceSlug, projectId, data);
+          const labelResponse = await createLabelMutation({ workspaceSlug, projectId, data });
           if (!isInboxIssue)
             setToast({
               title: t("toast.success"),
@@ -88,7 +87,7 @@ export const IssueLabel = observer(function IssueLabel(props: TIssueLabel) {
         }
       },
     }),
-    [updateIssue, createLabel, onLabelUpdate]
+    [updateIssue, createLabelMutation, onLabelUpdate]
   );
 
   return (
@@ -113,4 +112,4 @@ export const IssueLabel = observer(function IssueLabel(props: TIssueLabel) {
       )}
     </div>
   );
-});
+}

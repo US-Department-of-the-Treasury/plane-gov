@@ -4,8 +4,8 @@ import { useParams } from "next/navigation";
 import type { TPowerKPageType } from "@/components/power-k/core/types";
 import { PowerKMembersMenu } from "@/components/power-k/menus/members";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
-import { useModule } from "@/hooks/store/use-module";
+import { useModuleDetails } from "@/store/queries/module";
+import { useProjectMembers } from "@/store/queries/member";
 // local imports
 import { PowerKModuleStatusMenu } from "./status-menu";
 
@@ -17,15 +17,17 @@ type Props = {
 export const PowerKModuleContextBasedPages = observer(function PowerKModuleContextBasedPages(props: Props) {
   const { activePage, handleSelection } = props;
   // navigation
-  const { moduleId } = useParams();
-  // store hooks
-  const { getModuleById } = useModule();
-  const {
-    project: { getProjectMemberIds },
-  } = useMember();
-  // derived values
-  const moduleDetails = moduleId ? getModuleById(moduleId.toString()) : null;
-  const projectMemberIds = moduleDetails?.project_id ? getProjectMemberIds(moduleDetails.project_id, false) : [];
+  const { workspaceSlug, projectId, moduleId } = useParams();
+  // queries
+  const { data: moduleDetails } = useModuleDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? "",
+    moduleId?.toString() ?? ""
+  );
+  const { data: projectMembers = [] } = useProjectMembers(
+    workspaceSlug?.toString() ?? "",
+    moduleDetails?.project_id ?? ""
+  );
 
   if (!moduleDetails) return null;
 
@@ -35,7 +37,11 @@ export const PowerKModuleContextBasedPages = observer(function PowerKModuleConte
       {activePage === "update-module-member" && moduleDetails && (
         <PowerKMembersMenu
           handleSelect={handleSelection}
-          userIds={projectMemberIds ?? undefined}
+          members={projectMembers.map((m) => ({
+            id: m.member,
+            display_name: m.member_display_name || m.member_email || "",
+            avatar_url: m.member_avatar_url,
+          }))}
           value={moduleDetails.member_ids}
         />
       )}

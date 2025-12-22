@@ -22,6 +22,8 @@ export function IssueLinksCollapsibleContent(props: Props) {
 
   return (
     <LinkList
+      workspaceSlug={workspaceSlug}
+      projectId={projectId}
       issueId={issueId}
       linkOperations={handleLinkOperations}
       disabled={disabled}

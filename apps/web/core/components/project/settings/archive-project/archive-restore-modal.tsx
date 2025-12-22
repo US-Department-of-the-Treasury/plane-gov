@@ -4,8 +4,9 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { useAppRouter } from "@/hooks/use-app-router";
+// store queries
+import { useProjects, getProjectById, useArchiveProject, useRestoreProject } from "@/store/queries/project";
 
 type Props = {
   workspaceSlug: string;
@@ -20,61 +21,66 @@ export function ArchiveRestoreProjectModal(props: Props) {
   const { workspaceSlug, projectId, isOpen, onClose, archive } = props;
   // router
   const router = useAppRouter();
-  // states
-  const [isLoading, setIsLoading] = useState(false);
   // store hooks
-  const { getProjectById, archiveProject, restoreProject } = useProject();
+  const { data: projects } = useProjects(workspaceSlug);
+  const { mutate: archiveProjectMutation, isPending: isArchiving } = useArchiveProject();
+  const { mutate: restoreProjectMutation, isPending: isRestoring } = useRestoreProject();
 
-  const projectDetails = getProjectById(projectId);
+  const projectDetails = getProjectById(projects, projectId);
   if (!projectDetails) return null;
 
+  const isLoading = isArchiving || isRestoring;
+
   const handleClose = () => {
-    setIsLoading(false);
     onClose();
   };
 
-  const handleArchiveProject = async () => {
-    setIsLoading(true);
-    await archiveProject(workspaceSlug, projectId)
-      .then(() => {
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Archive success",
-          message: `${projectDetails.name} has been archived successfully`,
-        });
-        onClose();
-        router.push(`/${workspaceSlug}/projects/`);
-      })
-      .catch(() =>
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: "Project could not be archived. Please try again.",
-        })
-      )
-      .finally(() => setIsLoading(false));
+  const handleArchiveProject = () => {
+    archiveProjectMutation(
+      { workspaceSlug, projectId },
+      {
+        onSuccess: () => {
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Archive success",
+            message: `${projectDetails.name} has been archived successfully`,
+          });
+          onClose();
+          router.push(`/${workspaceSlug}/projects/`);
+        },
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: "Project could not be archived. Please try again.",
+          });
+        },
+      }
+    );
   };
 
-  const handleRestoreProject = async () => {
-    setIsLoading(true);
-    await restoreProject(workspaceSlug, projectId)
-      .then(() => {
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Restore success",
-          message: `You can find ${projectDetails.name} in your projects.`,
-        });
-        onClose();
-        router.push(`/${workspaceSlug}/projects/`);
-      })
-      .catch(() =>
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: "Project could not be restored. Please try again.",
-        })
-      )
-      .finally(() => setIsLoading(false));
+  const handleRestoreProject = () => {
+    restoreProjectMutation(
+      { workspaceSlug, projectId },
+      {
+        onSuccess: () => {
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Restore success",
+            message: `You can find ${projectDetails.name} in your projects.`,
+          });
+          onClose();
+          router.push(`/${workspaceSlug}/projects/`);
+        },
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: "Project could not be restored. Please try again.",
+          });
+        },
+      }
+    );
   };
 
   return (

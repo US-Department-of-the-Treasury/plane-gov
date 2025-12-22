@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
 import { Disclosure } from "@headlessui/react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -12,6 +11,7 @@ import { CountChip } from "@/components/common/count-chip";
 import { MembersSettingsLoader } from "@/components/ui/loader/settings/members";
 // hooks
 import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, useWorkspaceInvitations } from "@/store/queries/member";
 // local imports
 import { WorkspaceInvitationsListItem } from "./invitations-list-item";
 import { WorkspaceMembersListItem } from "./members-list-item";
@@ -28,51 +28,47 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
   // store hooks
   const {
     workspace: {
-      fetchWorkspaceMembers,
-      fetchWorkspaceMemberInvitations,
-      workspaceMemberIds,
       getFilteredWorkspaceMemberIds,
       getSearchedWorkspaceMemberIds,
-      workspaceMemberInvitationIds,
       getSearchedWorkspaceInvitationIds,
-      getWorkspaceMemberDetails,
     },
   } = useMember();
   const { t } = useTranslation();
-  // fetching workspace invitations
-  useSWR(
-    workspaceSlug ? `WORKSPACE_MEMBERS_AND_MEMBER_INVITATIONS_${workspaceSlug.toString()}` : null,
-    workspaceSlug
-      ? async () => {
-          await fetchWorkspaceMemberInvitations(workspaceSlug.toString());
-          await fetchWorkspaceMembers(workspaceSlug.toString());
-        }
-      : null
-  );
 
-  if (!workspaceMemberIds && !workspaceMemberInvitationIds) return <MembersSettingsLoader />;
+  // TanStack Query hooks
+  const { data: workspaceMembers, isLoading: membersLoading } = useWorkspaceMembers(workspaceSlug?.toString() || "");
+  const { data: workspaceInvitations, isLoading: invitationsLoading } = useWorkspaceInvitations(workspaceSlug?.toString() || "");
+
+  if (membersLoading || invitationsLoading) return <MembersSettingsLoader />;
 
   // derived values
+  const workspaceMemberIds = workspaceMembers?.map(m => m.id);
+  const workspaceMemberInvitationIds = workspaceInvitations?.map(i => i.id);
   const filteredMemberIds = workspaceSlug ? getFilteredWorkspaceMemberIds(workspaceSlug.toString()) : [];
   const searchedMemberIds = searchQuery ? getSearchedWorkspaceMemberIds(searchQuery) : filteredMemberIds;
   const searchedInvitationsIds = getSearchedWorkspaceInvitationIds(searchQuery);
-  const memberDetails = searchedMemberIds
-    ?.map((memberId) => getWorkspaceMemberDetails(memberId))
+
+  // Filter members based on searched IDs
+  const memberDetails = workspaceMembers
+    ?.filter(member => searchedMemberIds?.includes(member.id))
     .sort((a, b) => {
       if (a?.is_active && !b?.is_active) return -1;
       if (!a?.is_active && b?.is_active) return 1;
       return 0;
     });
 
+  // Filter invitations based on searched IDs
+  const filteredInvitations = workspaceInvitations?.filter(inv => searchedInvitationsIds?.includes(inv.id));
+
   return (
     <>
       <div className="divide-y-[0.5px] divide-subtle overflow-scroll	">
-        {searchedMemberIds?.length !== 0 && <WorkspaceMembersListItem memberDetails={memberDetails ?? []} />}
-        {searchedInvitationsIds?.length === 0 && searchedMemberIds?.length === 0 && (
+        {memberDetails && memberDetails.length > 0 && <WorkspaceMembersListItem memberDetails={memberDetails} />}
+        {(!filteredInvitations || filteredInvitations.length === 0) && (!memberDetails || memberDetails.length === 0) && (
           <h4 className="mt-16 text-center text-body-xs-regular text-placeholder">{t("no_matching_members")}</h4>
         )}
       </div>
-      {isAdmin && searchedInvitationsIds && searchedInvitationsIds.length > 0 && (
+      {isAdmin && filteredInvitations && filteredInvitations.length > 0 && (
         <Collapsible
           isOpen={showPendingInvites}
           onToggle={() => setShowPendingInvites((prev) => !prev)}
@@ -82,8 +78,8 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
             <div className="flex w-full items-center justify-between pt-4">
               <div className="flex">
                 <h4 className="text-h5-medium pt-2 pb-2">{t("workspace_settings.settings.members.pending_invites")}</h4>
-                {searchedInvitationsIds && (
-                  <CountChip count={searchedInvitationsIds.length} className="h-5  m-auto ml-2" />
+                {filteredInvitations && (
+                  <CountChip count={filteredInvitations.length} className="h-5  m-auto ml-2" />
                 )}
               </div>{" "}
               <ChevronDownIcon className={`h-5 w-5 transition-all ${showPendingInvites ? "rotate-180" : ""}`} />
@@ -92,8 +88,8 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
         >
           <Disclosure.Panel>
             <div className="ml-auto items-center gap-1.5 rounded-md bg-surface-1 py-1.5">
-              {searchedInvitationsIds?.map((invitationId) => (
-                <WorkspaceInvitationsListItem key={invitationId} invitationId={invitationId} />
+              {filteredInvitations?.map((invitation) => (
+                <WorkspaceInvitationsListItem key={invitation.id} invitationId={invitation.id} />
               ))}
             </div>
           </Disclosure.Panel>

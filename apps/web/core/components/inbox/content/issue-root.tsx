@@ -21,11 +21,13 @@ import { IssueTitleInput } from "@/components/issues/title-input";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
-import { useProject } from "@/hooks/store/use-project";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import { useUser } from "@/hooks/store/user";
 import useReloadConfirmations from "@/hooks/use-reload-confirmation";
+// queries
+import { useDeleteIssue, useArchiveIssue } from "@/store/queries/issue";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
+import { useProjectDetails } from "@/store/queries/project";
 // store types
 import { DeDupeIssuePopoverRoot } from "@/plane-web/components/de-dupe/duplicate-popover";
 import { useDebouncedDuplicateIssues } from "@/plane-web/hooks/use-debounced-duplicate-issues";
@@ -53,10 +55,11 @@ export const InboxIssueMainContent = observer(function InboxIssueMainContent(pro
   const editorRef = useRef<EditorRefApi>(null);
   // store hooks
   const { data: currentUser } = useUser();
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const { loader } = useProjectInbox();
-  const { getProjectById } = useProject();
-  const { removeIssue, archiveIssue } = useIssueDetail();
+  // mutations
+  const { mutateAsync: deleteIssue } = useDeleteIssue();
+  const { mutateAsync: archiveIssue } = useArchiveIssue();
   // reload confirmation
   const { setShowAlert } = useReloadConfirmations(isSubmitting === "submitting");
 
@@ -73,7 +76,7 @@ export const InboxIssueMainContent = observer(function InboxIssueMainContent(pro
 
   // derived values
   const issue = inboxIssue.issue;
-  const projectDetails = issue?.project_id ? getProjectById(issue?.project_id) : undefined;
+  const { data: projectDetails } = useProjectDetails(workspaceSlug, issue?.project_id ?? "");
   const isIntakeAccepted = inboxIssue.status === EInboxIssueStatus.ACCEPTED;
 
   // debounced duplicate issues swr
@@ -96,7 +99,11 @@ export const InboxIssueMainContent = observer(function InboxIssueMainContent(pro
 
       remove: async (_workspaceSlug: string, _projectId: string, _issueId: string) => {
         try {
-          await removeIssue(workspaceSlug, projectId, _issueId);
+          await deleteIssue({
+            workspaceSlug: _workspaceSlug,
+            projectId: _projectId,
+            issueId: _issueId,
+          });
           setToast({
             title: "Success!",
             type: TOAST_TYPE.SUCCESS,
@@ -140,24 +147,28 @@ export const InboxIssueMainContent = observer(function InboxIssueMainContent(pro
           });
         }
       },
-      archive: async (workspaceSlug: string, projectId: string, issueId: string) => {
+      archive: async (_workspaceSlug: string, _projectId: string, _issueId: string) => {
         try {
-          await archiveIssue(workspaceSlug, projectId, issueId);
+          await archiveIssue({
+            workspaceSlug: _workspaceSlug,
+            projectId: _projectId,
+            issueId: _issueId,
+          });
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.archive,
-            payload: { id: issueId },
+            payload: { id: _issueId },
           });
         } catch (error) {
           console.error("Error in archiving issue:", error);
           captureError({
             eventName: WORK_ITEM_TRACKER_EVENTS.archive,
-            payload: { id: issueId },
+            payload: { id: _issueId },
             error: error as Error,
           });
         }
       },
     }),
-    [inboxIssue]
+    [inboxIssue, deleteIssue, archiveIssue]
   );
 
   if (!issue) return <></>;
@@ -231,7 +242,7 @@ export const InboxIssueMainContent = observer(function InboxIssueMainContent(pro
                 createdByDisplayName:
                   inboxIssue.source === EInboxIssueSource.FORMS
                     ? "Intake Form user"
-                    : (getUserDetails(issue.created_by ?? "")?.display_name ?? ""),
+                    : (getMemberDisplayName(getWorkspaceMemberByUserId(workspaceMembers || [], issue.created_by ?? "")) ?? ""),
                 id: issue.id,
                 isRestoreDisabled: !isEditable,
               }}

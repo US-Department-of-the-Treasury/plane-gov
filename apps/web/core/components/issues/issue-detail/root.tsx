@@ -151,6 +151,7 @@ export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDe
           });
         }
       },
+      // Sprint operations still use MobX for now - they handle complex bridge ID logic
       addSprintToIssue: async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => {
         try {
           await addSprintToIssue(workspaceSlug, projectId, sprintId, issueId);
@@ -222,14 +223,14 @@ export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDe
         try {
           const removeFromModulePromise = removeIssueFromModule(workspaceSlug, projectId, moduleId, issueId);
           setPromiseToast(removeFromModulePromise, {
-            loading: t("issue.remove.module.loading"),
+            loading: t("issue.remove.epic.loading"),
             success: {
               title: t("common.success"),
-              message: () => t("issue.remove.module.success"),
+              message: () => t("issue.remove.epic.success"),
             },
             error: {
               title: t("common.error.label"),
-              message: () => t("issue.remove.module.failed"),
+              message: () => t("issue.remove.epic.failed"),
             },
           });
           await removeFromModulePromise;

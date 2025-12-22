@@ -16,9 +16,9 @@ import { cn, getFileURL } from "@plane/utils";
 import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUser, useUserSettings } from "@/hooks/store/user";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useWorkspaces } from "@/store/queries/workspace";
 
 const WORKSPACE_ACTION_LINKS = [
   {
@@ -60,11 +60,11 @@ export const ProfileLayoutSidebar = observer(function ProfileLayoutSidebar() {
   const { sidebarCollapsed, toggleSidebar } = useAppTheme();
   const { data: currentUser, signOut } = useUser();
   const { data: currentUserSettings } = useUserSettings();
-  const { workspaces } = useWorkspace();
+  const { data: workspaces } = useWorkspaces();
   const { isMobile } = usePlatformOS();
   const { t } = useTranslation();
 
-  const workspacesList = Object.values(workspaces ?? {});
+  const workspacesList = workspaces ?? [];
 
   // redirect url for normal mode
   const redirectWorkspaceSlug =

@@ -9,8 +9,9 @@ import { cn, calculateTotalFilters } from "@plane/utils";
 // components
 import { FiltersDropdown } from "@/components/issues/issue-layouts/filters";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useProjectFilter } from "@/hooks/store/use-project-filter";
+// queries
+import { useWorkspaceMembers } from "@/store/queries/member";
 // local imports
 import { ProjectFiltersSelection } from "./dropdowns/filters";
 import { ProjectOrderByDropdown } from "./dropdowns/order-by";
@@ -38,9 +39,9 @@ const HeaderFilters = observer(function HeaderFilters({
     updateFilters,
     updateDisplayFilters,
   } = useProjectFilter();
-  const {
-    workspace: { workspaceMemberIds },
-  } = useMember();
+  // queries
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug as string);
+  const workspaceMemberIds = workspaceMembers.map((m) => m.member.id);
   const handleFilters = useCallback(
     (key: keyof TProjectFilters, value: string | string[]) => {
       if (!workspaceSlug) return;

@@ -6,7 +6,7 @@ import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintNameById, useArchiveSprint } from "@/store/queries/sprint";
 import { useAppRouter } from "@/hooks/use-app-router";
 
 type Props = {
@@ -22,50 +22,50 @@ export function ArchiveSprintModal(props: Props) {
   const { workspaceSlug, projectId, sprintId, isOpen, handleClose } = props;
   // router
   const router = useAppRouter();
-  // states
-  const [isArchiving, setIsArchiving] = useState(false);
-  // store hooks
-  const { getSprintNameById, archiveSprint } = useSprint();
+  // query hooks
+  const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
+  const { mutate: archiveSprint, isPending: isArchiving } = useArchiveSprint();
 
-  const sprintName = getSprintNameById(sprintId);
+  const sprintName = getSprintNameById(sprints, sprintId);
 
   const onClose = () => {
-    setIsArchiving(false);
     handleClose();
   };
 
-  const handleArchiveSprint = async () => {
-    setIsArchiving(true);
-    await archiveSprint(workspaceSlug, projectId, sprintId)
-      .then(() => {
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Archive success",
-          message: "Your archives can be found in project archives.",
-        });
-        captureSuccess({
-          eventName: SPRINT_TRACKER_EVENTS.archive,
-          payload: {
-            id: sprintId,
-          },
-        });
-        onClose();
-        router.push(`/${workspaceSlug}/projects/${projectId}/sprints`);
-      })
-      .catch(() => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: "Sprint could not be archived. Please try again.",
-        });
-        captureError({
-          eventName: SPRINT_TRACKER_EVENTS.archive,
-          payload: {
-            id: sprintId,
-          },
-        });
-      })
-      .finally(() => setIsArchiving(false));
+  const handleArchiveSprint = () => {
+    archiveSprint(
+      { workspaceSlug, projectId, sprintId },
+      {
+        onSuccess: () => {
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Archive success",
+            message: "Your archives can be found in project archives.",
+          });
+          captureSuccess({
+            eventName: SPRINT_TRACKER_EVENTS.archive,
+            payload: {
+              id: sprintId,
+            },
+          });
+          onClose();
+          router.push(`/${workspaceSlug}/projects/${projectId}/sprints`);
+        },
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: "Sprint could not be archived. Please try again.",
+          });
+          captureError({
+            eventName: SPRINT_TRACKER_EVENTS.archive,
+            payload: {
+              id: sprintId,
+            },
+          });
+        },
+      }
+    );
   };
 
   return (

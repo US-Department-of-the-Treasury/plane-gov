@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 // plane imports
@@ -6,7 +5,7 @@ import { useTranslation } from "@plane/i18n";
 import { Avatar } from "@plane/ui";
 import { calculateTimeAgoShort, getFileURL, renderFormattedDate } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
 // store
 import type { TPageInstance } from "@/store/pages/base-page";
 
@@ -14,16 +13,16 @@ type Props = {
   page: TPageInstance;
 };
 
-export const PageNavigationPaneInfoTabActorsInfo = observer(function PageNavigationPaneInfoTabActorsInfo(props: Props) {
+export function PageNavigationPaneInfoTabActorsInfo(props: Props) {
   const { page } = props;
   // navigation
   const { workspaceSlug } = useParams();
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: members } = useWorkspaceMembers(workspaceSlug as string);
   // derived values
   const { owned_by, updated_by } = page;
-  const editorInformation = updated_by ? getUserDetails(updated_by) : undefined;
-  const creatorInformation = owned_by ? getUserDetails(owned_by) : undefined;
+  const editorInformation = updated_by ? getWorkspaceMemberByUserId(members, updated_by) : undefined;
+  const creatorInformation = owned_by ? getWorkspaceMemberByUserId(members, owned_by) : undefined;
   // translation
   const { t } = useTranslation();
 
@@ -35,11 +34,11 @@ export const PageNavigationPaneInfoTabActorsInfo = observer(function PageNavigat
           <Link href={`/${workspaceSlug?.toString()}/profile/${page.updated_by}`} className="flex items-center gap-1">
             <Avatar
               src={getFileURL(editorInformation?.avatar_url ?? "")}
-              name={editorInformation?.display_name}
+              name={editorInformation ? getMemberDisplayName(editorInformation) : undefined}
               className="flex-shrink-0"
               size="sm"
             />
-            <span>{editorInformation?.display_name ?? t("common.deactivated_user")}</span>
+            <span>{editorInformation ? getMemberDisplayName(editorInformation) : t("common.deactivated_user")}</span>
           </Link>
           <span className="flex-shrink-0 text-tertiary">{calculateTimeAgoShort(page.updated_at ?? "")} ago</span>
         </div>
@@ -52,15 +51,15 @@ export const PageNavigationPaneInfoTabActorsInfo = observer(function PageNavigat
           <Link href={`/${workspaceSlug?.toString()}/profile/${page.created_by}`} className="flex items-center gap-1">
             <Avatar
               src={getFileURL(creatorInformation?.avatar_url ?? "")}
-              name={creatorInformation?.display_name}
+              name={creatorInformation ? getMemberDisplayName(creatorInformation) : undefined}
               className="flex-shrink-0"
               size="sm"
             />
-            <span>{creatorInformation?.display_name ?? t("common.deactivated_user")}</span>
+            <span>{creatorInformation ? getMemberDisplayName(creatorInformation) : t("common.deactivated_user")}</span>
           </Link>
           <span className="flex-shrink-0 text-tertiary">{renderFormattedDate(page.created_at)}</span>
         </div>
       </div>
     </div>
   );
-});
+}

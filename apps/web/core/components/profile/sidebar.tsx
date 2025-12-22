@@ -21,9 +21,10 @@ import { cn, renderFormattedDate, getFileURL } from "@plane/utils";
 import { getCoverImageDisplayURL } from "@/helpers/cover-image.helper";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// queries
+import { useProjects, getProjectById } from "@/store/queries/project";
 // components
 import { ProfileSidebarTime } from "./time";
 
@@ -41,9 +42,10 @@ export const ProfileSidebar = observer(function ProfileSidebar(props: TProfileSi
   // store hooks
   const { data: currentUser } = useUser();
   const { profileSidebarCollapsed, toggleProfileSidebar } = useAppTheme();
-  const { getProjectById } = useProject();
   const { isMobile } = usePlatformOS();
   const { t } = useTranslation();
+  // queries
+  const { data: projects } = useProjects(workspaceSlug?.toString());
   // derived values
   const userData = userProjectsData?.user_data;
 
@@ -140,7 +142,7 @@ export const ProfileSidebar = observer(function ProfileSidebar(props: TProfileSi
             </div>
             <div className="mt-9 divide-y divide-subtle">
               {userProjectsData.project_data.map((project, index) => {
-                const projectDetails = getProjectById(project.id);
+                const projectDetails = getProjectById(projects, project.id);
 
                 const totalIssues =
                   project.created_issues + project.assigned_issues + project.pending_issues + project.completed_issues;

@@ -12,9 +12,9 @@ import { EViewAccess } from "@plane/types";
 import { FavoriteStar } from "@plane/ui";
 import { getPublishViewLink } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useProjectView } from "@/hooks/store/use-project-view";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // plane web imports
 import { PublishViewModal } from "@/plane-web/components/views/publish";
 // local imports
@@ -38,9 +38,9 @@ export const ViewListItemAction = observer(function ViewListItemAction(props: Pr
   const { workspaceSlug, projectId } = useParams();
   // store
   const { allowPermissions } = useUserPermissions();
-
   const { addViewToFavorites, removeViewFromFavorites } = useProjectView();
-  const { getUserDetails } = useMember();
+  // query hooks
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
 
   // local storage
   const { setValue: toggleFavoriteMenu, storedValue: isFavoriteOpen } = useLocalStorage<boolean>(
@@ -72,7 +72,7 @@ export const ViewListItemAction = observer(function ViewListItemAction(props: Pr
     removeViewFromFavorites(workspaceSlug.toString(), projectId.toString(), view.id);
   };
 
-  const ownedByDetails = view.owned_by ? getUserDetails(view.owned_by) : undefined;
+  const ownedByDetails = view.owned_by ? getWorkspaceMemberByUserId(workspaceMembers, view.owned_by) : undefined;
 
   return (
     <>

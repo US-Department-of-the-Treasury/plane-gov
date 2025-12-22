@@ -19,9 +19,9 @@ import { RichTextEditor } from "@/components/editor/rich-text";
 // hooks
 import { useEditorAsset } from "@/hooks/store/use-editor-asset";
 import { useInstance } from "@/hooks/store/use-instance";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import useKeypress from "@/hooks/use-keypress";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // plane web services
 import { WorkspaceService } from "@/plane-web/services";
 // services
@@ -72,8 +72,8 @@ export const IssueDescriptionEditor = observer(function IssueDescriptionEditor(p
   // states
   const [iAmFeelingLucky, setIAmFeelingLucky] = useState(false);
   // store hooks
-  const { getWorkspaceBySlug } = useWorkspace();
-  const workspaceId = getWorkspaceBySlug(workspaceSlug?.toString())?.id ?? "";
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug?.toString());
+  const workspaceId = currentWorkspace?.id ?? "";
   const { config } = useInstance();
   const { uploadEditorAsset, duplicateEditorAsset } = useEditorAsset();
   // platform

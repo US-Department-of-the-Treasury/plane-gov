@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // icons
 import { ListFilter, Search } from "lucide-react";
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -8,8 +9,8 @@ import { CloseIcon } from "@plane/propel/icons";
 // helpers
 import { cn } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useProjectView } from "@/hooks/store/use-project-view";
+import { useProjectMembers, getProjectMemberIds } from "@/store/queries/member";
 import { FiltersDropdown } from "../issues/issue-layouts/filters";
 import { ViewFiltersSelection } from "./filters/filter-selection";
 import { ViewOrderByDropdown } from "./filters/order-by";
@@ -20,11 +21,16 @@ export const ViewListHeader = observer(function ViewListHeader() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   // refs
   const inputRef = useRef<HTMLInputElement>(null);
+  // router
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
   const { filters, updateFilters } = useProjectView();
-  const {
-    project: { projectMemberIds },
-  } = useMember();
+  // query hooks
+  const { data: projectMembers } = useProjectMembers(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+  const projectMemberIds = getProjectMemberIds(projectMembers);
 
   // handlers
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

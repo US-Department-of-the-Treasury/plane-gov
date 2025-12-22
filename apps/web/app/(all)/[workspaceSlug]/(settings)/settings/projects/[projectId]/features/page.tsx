@@ -5,7 +5,7 @@ import { NotAuthorizedView } from "@/components/auth-screens/not-authorized-view
 import { PageHead } from "@/components/core/page-title";
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { ProjectFeaturesList } from "@/plane-web/components/projects/settings/features-list";
 import type { Route } from "./+types/page";
@@ -15,7 +15,7 @@ function FeaturesSettingsPage({ params }: Route.ComponentProps) {
   // store
   const { workspaceUserInfo, allowPermissions } = useUserPermissions();
 
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   // derived values
   const pageTitle = currentProjectDetails?.name ? `${currentProjectDetails?.name} - Features` : undefined;
   const canPerformProjectAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT);

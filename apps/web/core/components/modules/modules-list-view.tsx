@@ -14,9 +14,47 @@ import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-modu
 import { GanttLayoutLoader } from "@/components/ui/loader/layouts/gantt-layout-loader";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useModule } from "@/hooks/store/use-module";
 import { useModuleFilter } from "@/hooks/store/use-module-filter";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useProjectModules, getModuleIds } from "@/store/queries/module";
+import type { IModule } from "@plane/types";
+import { useMemo } from "react";
+
+// Helper function to filter modules based on filters and search
+function filterModules(modules: IModule[] | undefined, filters: any, searchQuery: string): IModule[] {
+  if (!modules) return [];
+
+  let filtered = modules;
+
+  // Apply search query
+  if (searchQuery && searchQuery.trim() !== "") {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter(
+      (module) =>
+        module.name.toLowerCase().includes(query) ||
+        module.description?.toLowerCase().includes(query)
+    );
+  }
+
+  // Apply status filter
+  if (filters?.status && filters.status.length > 0) {
+    filtered = filtered.filter((module) => filters.status.includes(module.status));
+  }
+
+  // Apply lead filter
+  if (filters?.lead && filters.lead.length > 0) {
+    filtered = filtered.filter((module) => module.lead_id && filters.lead.includes(module.lead_id));
+  }
+
+  // Apply members filter
+  if (filters?.members && filters.members.length > 0) {
+    filtered = filtered.filter((module) =>
+      module.member_ids?.some((memberId) => filters.members.includes(memberId))
+    );
+  }
+
+  return filtered;
+}
 
 export const ModulesListView = observer(function ModulesListView() {
   // router
@@ -27,18 +65,31 @@ export const ModulesListView = observer(function ModulesListView() {
   const { t } = useTranslation();
   // store hooks
   const { toggleCreateModuleModal } = useCommandPalette();
-  const { getProjectModuleIds, getFilteredModuleIds, loader } = useModule();
-  const { currentProjectDisplayFilters: displayFilters } = useModuleFilter();
+  const { currentProjectDisplayFilters: displayFilters, currentProjectFilters: filters, searchQuery } = useModuleFilter();
   const { allowPermissions } = useUserPermissions();
+
+  // TanStack Query hooks
+  const { data: modules, isLoading } = useProjectModules(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+
   // derived values
-  const projectModuleIds = projectId ? getProjectModuleIds(projectId.toString()) : undefined;
-  const filteredModuleIds = projectId ? getFilteredModuleIds(projectId.toString()) : undefined;
+  const projectModuleIds = useMemo(() => (modules ? getModuleIds(modules) : undefined), [modules]);
+  const filteredModuleIds = useMemo(() => {
+    const filteredModules = filterModules(modules, filters, searchQuery);
+    // Apply favorites filter
+    const finalModules = displayFilters?.favorites
+      ? filteredModules.filter((m) => m.is_favorite)
+      : filteredModules;
+    return finalModules.map((m) => m.id);
+  }, [modules, filters, searchQuery, displayFilters?.favorites]);
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
     EUserPermissionsLevel.PROJECT
   );
 
-  if (loader || !projectModuleIds || !filteredModuleIds)
+  if (isLoading || !projectModuleIds || !filteredModuleIds)
     return (
       <>
         {displayFilters?.layout === "list" && <SprintModuleListLayoutLoader />}

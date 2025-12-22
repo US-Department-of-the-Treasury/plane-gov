@@ -7,8 +7,8 @@ import { EUserProjectRoles } from "@plane/types";
 import { Avatar, CustomSearchSelect } from "@plane/ui";
 // helpers
 import { getFileURL } from "@plane/utils";
-// hooks
-import { useMember } from "@/hooks/store/use-member";
+// queries
+import { useProjectMembers } from "@/store/queries/member";
 
 type Props = {
   value: any;
@@ -19,16 +19,15 @@ type Props = {
 export const MemberSelect = observer(function MemberSelect(props: Props) {
   const { value, onChange, isDisabled = false } = props;
   // router
-  const { projectId } = useParams();
-  // store hooks
-  const {
-    project: { projectMemberIds, getProjectMemberDetails },
-  } = useMember();
+  const { projectId, workspaceSlug } = useParams();
+  // queries
+  const { data: projectMembers = [] } = useProjectMembers(
+    workspaceSlug as string,
+    projectId as string
+  );
 
-  const options = projectMemberIds
-    ?.map((userId) => {
-      const memberDetails = projectId ? getProjectMemberDetails(userId, projectId.toString()) : null;
-
+  const options = projectMembers
+    ?.map((memberDetails) => {
       if (!memberDetails?.member) return;
       const isGuest = memberDetails.role === EUserProjectRoles.GUEST;
       if (isGuest) return;
@@ -51,7 +50,7 @@ export const MemberSelect = observer(function MemberSelect(props: Props) {
         content: React.ReactNode;
       }[]
     | undefined;
-  const selectedOption = projectId ? getProjectMemberDetails(value, projectId.toString()) : null;
+  const selectedOption = projectMembers.find((m) => m.member.id === value);
 
   return (
     <CustomSearchSelect

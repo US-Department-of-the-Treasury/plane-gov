@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { observer } from "mobx-react";
-// hooks
-import { useProject } from "@/hooks/store/use-project";
+// store hooks
+import { useProjects, getProjectById, getJoinedProjectIds } from "@/store/queries/project";
 // local imports
 import type { TDropdownProps } from "../types";
 import { ProjectDropdownBase } from "./base";
@@ -28,8 +28,13 @@ type Props = TDropdownProps & {
   );
 
 export const ProjectDropdown = observer(function ProjectDropdown(props: Props) {
+  const { workspaceSlug } = props;
   // store hooks
-  const { joinedProjectIds, getProjectById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug);
 
-  return <ProjectDropdownBase {...props} getProjectById={getProjectById} projectIds={joinedProjectIds} />;
+  // derived values
+  const joinedProjectIds = projects ? getJoinedProjectIds(projects) : [];
+  const getProjectByIdFn = (projectId: string) => getProjectById(projects || [], projectId);
+
+  return <ProjectDropdownBase {...props} getProjectById={getProjectByIdFn} projectIds={joinedProjectIds} />;
 });

@@ -12,8 +12,8 @@ import { CustomMenu } from "@plane/ui";
 import { cn } from "@plane/utils";
 // components
 import { ExistingIssuesListModal } from "@/components/core/modals/existing-issues-list-modal";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// queries
+import { useUpdateIssue } from "@/store/queries/issue";
 import { QuickAddIssueRoot } from "../quick-add";
 
 type TCalendarQuickAddIssueActions = {
@@ -35,7 +35,10 @@ export const CalendarQuickAddIssueActions = observer(function CalendarQuickAddIs
   const [isOpen, setIsOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isExistingIssueModalOpen, setIsExistingIssueModalOpen] = useState(false);
-  const { updateIssue } = useIssueDetail();
+
+  // queries
+  const { mutateAsync: updateIssue } = useUpdateIssue();
+
   // derived values
   const ExistingIssuesListModalPayload = addIssuesToView
     ? moduleId
@@ -48,7 +51,14 @@ export const CalendarQuickAddIssueActions = observer(function CalendarQuickAddIs
 
     const issueIds = data.map((i) => i.id);
     const addExistingIssuesPromise = Promise.all(
-      data.map((issue) => updateIssue(workspaceSlug.toString(), projectId.toString(), issue.id, prePopulatedData ?? {}))
+      data.map((issue) =>
+        updateIssue({
+          workspaceSlug: workspaceSlug.toString(),
+          projectId: projectId.toString(),
+          issueId: issue.id,
+          data: prePopulatedData ?? {}
+        })
+      )
     ).then(() => addIssuesToView?.(issueIds));
 
     setPromiseToast(addExistingIssuesPromise, {

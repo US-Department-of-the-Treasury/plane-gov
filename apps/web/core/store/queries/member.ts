@@ -400,3 +400,170 @@ export function useRemoveProjectMember() {
     },
   });
 }
+
+// ===========================
+// UTILITY FUNCTIONS
+// ===========================
+
+/**
+ * Get workspace member by member ID.
+ *
+ * @example
+ * const { data: members } = useWorkspaceMembers(workspaceSlug);
+ * const member = getWorkspaceMemberById(members, memberId);
+ */
+export function getWorkspaceMemberById(
+  members: IWorkspaceMember[] | undefined,
+  memberId: string | null | undefined
+): IWorkspaceMember | undefined {
+  if (!members || !memberId) return undefined;
+  return members.find((m) => m.id === memberId);
+}
+
+/**
+ * Get workspace member by user ID (member.member.id).
+ *
+ * @example
+ * const { data: members } = useWorkspaceMembers(workspaceSlug);
+ * const member = getWorkspaceMemberByUserId(members, userId);
+ */
+export function getWorkspaceMemberByUserId(
+  members: IWorkspaceMember[] | undefined,
+  userId: string | null | undefined
+): IWorkspaceMember | undefined {
+  if (!members || !userId) return undefined;
+  return members.find((m) => m.member?.id === userId);
+}
+
+/**
+ * Get workspace member IDs.
+ *
+ * @example
+ * const { data: members } = useWorkspaceMembers(workspaceSlug);
+ * const memberIds = getWorkspaceMemberIds(members);
+ */
+export function getWorkspaceMemberIds(members: IWorkspaceMember[] | undefined): string[] {
+  if (!members) return [];
+  return members.map((m) => m.id);
+}
+
+/**
+ * Get user IDs from workspace members.
+ *
+ * @example
+ * const { data: members } = useWorkspaceMembers(workspaceSlug);
+ * const userIds = getWorkspaceUserIds(members);
+ */
+export function getWorkspaceUserIds(members: IWorkspaceMember[] | undefined): string[] {
+  if (!members) return [];
+  return members.filter((m) => m.member?.id).map((m) => m.member!.id);
+}
+
+/**
+ * Get project member by member ID.
+ *
+ * @example
+ * const { data: members } = useProjectMembers(workspaceSlug, projectId);
+ * const member = getProjectMemberById(members, memberId);
+ */
+export function getProjectMemberById(
+  members: TProjectMembership[] | undefined,
+  memberId: string | null | undefined
+): TProjectMembership | undefined {
+  if (!members || !memberId) return undefined;
+  return members.find((m) => m.id === memberId);
+}
+
+/**
+ * Get project member by user ID (member.member.id).
+ *
+ * @example
+ * const { data: members } = useProjectMembers(workspaceSlug, projectId);
+ * const member = getProjectMemberByUserId(members, userId);
+ */
+export function getProjectMemberByUserId(
+  members: TProjectMembership[] | undefined,
+  userId: string | null | undefined
+): TProjectMembership | undefined {
+  if (!members || !userId) return undefined;
+  return members.find((m) => m.member?.id === userId);
+}
+
+/**
+ * Get project member IDs.
+ *
+ * @example
+ * const { data: members } = useProjectMembers(workspaceSlug, projectId);
+ * const memberIds = getProjectMemberIds(members);
+ */
+export function getProjectMemberIds(members: TProjectMembership[] | undefined): string[] {
+  if (!members) return [];
+  return members.map((m) => m.id);
+}
+
+/**
+ * Get user IDs from project members.
+ *
+ * @example
+ * const { data: members } = useProjectMembers(workspaceSlug, projectId);
+ * const userIds = getProjectUserIds(members);
+ */
+export function getProjectUserIds(members: TProjectMembership[] | undefined): string[] {
+  if (!members) return [];
+  return members.filter((m) => m.member?.id).map((m) => m.member!.id);
+}
+
+/**
+ * Get member display name (falls back to email).
+ *
+ * @example
+ * const displayName = getMemberDisplayName(member);
+ */
+export function getMemberDisplayName(
+  member: IWorkspaceMember | TProjectMembership | undefined
+): string {
+  if (!member?.member) return "";
+  return member.member.display_name || member.member.email || "";
+}
+
+/**
+ * Get workspace members map keyed by user ID for fast lookups.
+ *
+ * @example
+ * const { data: members } = useWorkspaceMembers(workspaceSlug);
+ * const memberMap = getWorkspaceMembersMap(members);
+ * const user = memberMap.get(userId);
+ */
+export function getWorkspaceMembersMap(
+  members: IWorkspaceMember[] | undefined
+): Map<string, IWorkspaceMember> {
+  const map = new Map<string, IWorkspaceMember>();
+  if (!members) return map;
+  members.forEach((m) => {
+    if (m.member?.id) {
+      map.set(m.member.id, m);
+    }
+  });
+  return map;
+}
+
+/**
+ * Get project members map keyed by user ID for fast lookups.
+ *
+ * @example
+ * const { data: members } = useProjectMembers(workspaceSlug, projectId);
+ * const memberMap = getProjectMembersMap(members);
+ * const user = memberMap.get(userId);
+ */
+export function getProjectMembersMap(
+  members: TProjectMembership[] | undefined
+): Map<string, TProjectMembership> {
+  const map = new Map<string, TProjectMembership>();
+  if (!members) return map;
+  members.forEach((m) => {
+    if (m.member?.id) {
+      map.set(m.member.id, m);
+    }
+  });
+  return map;
+}

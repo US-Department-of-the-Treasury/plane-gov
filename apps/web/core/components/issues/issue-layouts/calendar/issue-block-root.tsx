@@ -2,10 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
 // components
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// queries
+import { useIssue } from "@/store/queries/issue";
 import type { TRenderQuickActions } from "../list/list-view-types";
 import { HIGHLIGHT_CLASS } from "../utils";
 import { CalendarIssueBlock } from "./issue-block";
@@ -25,11 +28,23 @@ export const CalendarIssueBlockRoot = observer(function CalendarIssueBlockRoot(p
   const issueRef = useRef<HTMLAnchorElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // router
+  const { workspaceSlug, projectId } = useParams();
+
+  // For UI state only (peek overview)
   const {
     issue: { getIssueById },
   } = useIssueDetail();
 
-  const issue = getIssueById(issueId);
+  // Try to get from MobX cache first, fallback to TanStack Query
+  const cachedIssue = getIssueById(issueId);
+  const { data: queriedIssue } = useIssue(
+    workspaceSlug?.toString() || "",
+    projectId?.toString() || cachedIssue?.project_id || "",
+    issueId
+  );
+
+  const issue = cachedIssue || queriedIssue;
 
   const canDrag = !isDragDisabled && canEditProperties(issue?.project_id ?? undefined);
 

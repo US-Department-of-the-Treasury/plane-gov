@@ -1,28 +1,22 @@
 import { useProjectEstimates } from "./store/estimates";
-import { useSprint } from "./store/use-sprint";
 import { useLabel } from "./store/use-label";
 import { useMember } from "./store/use-member";
-import { useModule } from "./store/use-module";
-import { useProjectState } from "./store/use-project-state";
 
 export const useProjectIssueProperties = () => {
-  const { fetchProjectStates } = useProjectState();
   const {
     project: { fetchProjectMembers },
   } = useMember();
   const { fetchProjectLabels } = useLabel();
-  const { fetchAllSprints: fetchProjectAllSprints } = useSprint();
-  const { fetchModules: fetchProjectAllModules } = useModule();
   const { getProjectEstimates } = useProjectEstimates();
 
-  // fetching project states
+  // fetching project states - handled by TanStack Query useProjectStates hook
+  // This function is kept for backward compatibility but is a no-op
+  // Components should use useProjectStates(workspaceSlug, projectId) directly
   const fetchStates = async (
-    workspaceSlug: string | string[] | undefined,
-    projectId: string | string[] | undefined
+    _workspaceSlug: string | string[] | undefined,
+    _projectId: string | string[] | undefined
   ) => {
-    if (workspaceSlug && projectId) {
-      await fetchProjectStates(workspaceSlug.toString(), projectId.toString());
-    }
+    // No-op: TanStack Query handles fetching automatically via useProjectStates hook
   };
   // fetching project members
   const fetchMembers = async (
@@ -43,23 +37,23 @@ export const useProjectIssueProperties = () => {
       await fetchProjectLabels(workspaceSlug.toString(), projectId.toString());
     }
   };
-  // fetching project sprints
+  // fetching project sprints - handled by TanStack Query useProjectSprints hook
+  // This function is kept for backward compatibility but is a no-op
+  // Components should use useProjectSprints(workspaceSlug, projectId) directly
   const fetchSprints = async (
-    workspaceSlug: string | string[] | undefined,
-    projectId: string | string[] | undefined
+    _workspaceSlug: string | string[] | undefined,
+    _projectId: string | string[] | undefined
   ) => {
-    if (workspaceSlug && projectId) {
-      await fetchProjectAllSprints(workspaceSlug.toString(), projectId.toString());
-    }
+    // No-op: TanStack Query handles fetching automatically via useProjectSprints hook
   };
-  // fetching project modules
+  // fetching project modules - handled by TanStack Query useProjectModules hook
+  // This function is kept for backward compatibility but is a no-op
+  // Components should use useProjectModules(workspaceSlug, projectId) directly
   const fetchModules = async (
-    workspaceSlug: string | string[] | undefined,
-    projectId: string | string[] | undefined
+    _workspaceSlug: string | string[] | undefined,
+    _projectId: string | string[] | undefined
   ) => {
-    if (workspaceSlug && projectId) {
-      await fetchProjectAllModules(workspaceSlug.toString(), projectId.toString());
-    }
+    // No-op: TanStack Query handles fetching automatically via useProjectModules hook
   };
   // fetching project estimates
   const fetchEstimates = async (

@@ -17,10 +17,11 @@ import type { IUser, IWorkspace, TOnboardingSteps } from "@plane/types";
 import { CustomSelect, Input, Spinner } from "@plane/ui";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserProfile, useUserSettings } from "@/hooks/store/user";
 // services
 import { WorkspaceService } from "@/plane-web/services";
+// store
+import { useCreateWorkspace } from "@/store/queries/workspace";
 
 type Props = {
   stepChange: (steps: Partial<TOnboardingSteps>) => Promise<void>;
@@ -42,7 +43,7 @@ export const CreateWorkspace = observer(function CreateWorkspace(props: Props) {
   // store hooks
   const { updateUserProfile } = useUserProfile();
   const { fetchCurrentUserSettings } = useUserSettings();
-  const { createWorkspace, fetchWorkspaces } = useWorkspace();
+  const { mutateAsync: createWorkspace } = useCreateWorkspace();
   // form info
   const {
     handleSubmit,
@@ -67,7 +68,7 @@ export const CreateWorkspace = observer(function CreateWorkspace(props: Props) {
         if (res.status === true && !RESTRICTED_URLS.includes(formData.slug)) {
           setSlugError(false);
 
-          await createWorkspace(formData)
+          await createWorkspace({ data: formData })
             .then(async (workspaceResponse) => {
               setToast({
                 type: TOAST_TYPE.SUCCESS,
@@ -78,7 +79,6 @@ export const CreateWorkspace = observer(function CreateWorkspace(props: Props) {
                 eventName: WORKSPACE_TRACKER_EVENTS.create,
                 payload: { slug: formData.slug },
               });
-              await fetchWorkspaces();
               await completeStep(workspaceResponse.id);
             })
             .catch(() => {

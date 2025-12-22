@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useMemo } from "react";
 import { observer } from "mobx-react";
 // components
 import { useTranslation } from "@plane/i18n";
@@ -9,8 +10,9 @@ import NameFilterImage from "@/app/assets/empty-state/sprint/name-filter.svg?url
 import { SprintsList } from "@/components/sprints/list";
 import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getActiveSprint, getCompletedSprints } from "@/store/queries/sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
+import { shouldFilterSprint } from "@plane/utils";
 
 export interface ISprintsView {
   workspaceSlug: string;
@@ -20,17 +22,52 @@ export interface ISprintsView {
 export const SprintsView = observer(function SprintsView(props: ISprintsView) {
   const { workspaceSlug, projectId } = props;
   // store hooks
-  const { getFilteredSprintIds, getFilteredCompletedSprintIds, loader, currentProjectActiveSprintId } = useSprint();
-  const { searchQuery } = useSprintFilter();
+  const { data: sprints, isLoading } = useProjectSprints(workspaceSlug, projectId);
+  const { currentProjectFilters, searchQuery } = useSprintFilter();
   const { t } = useTranslation();
-  // derived values
-  const filteredSprintIds = getFilteredSprintIds(projectId, false);
-  const filteredCompletedSprintIds = getFilteredCompletedSprintIds(projectId);
-  const filteredUpcomingSprintIds = (filteredSprintIds ?? []).filter(
-    (sprintId) => sprintId !== currentProjectActiveSprintId
-  );
 
-  if (loader || !filteredSprintIds) return <SprintModuleListLayoutLoader />;
+  // derived values - filter and compute sprint lists
+  const { filteredSprintIds, filteredCompletedSprintIds, currentProjectActiveSprintId, filteredUpcomingSprintIds } =
+    useMemo(() => {
+      if (!sprints) {
+        return {
+          filteredSprintIds: null,
+          filteredCompletedSprintIds: null,
+          currentProjectActiveSprintId: null,
+          filteredUpcomingSprintIds: [],
+        };
+      }
+
+      const filters = currentProjectFilters ?? {};
+
+      // Filter sprints by search query and filters
+      const filtered = sprints
+        .filter((sprint) => !sprint.archived_at)
+        .filter((sprint) => sprint.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        .filter((sprint) => shouldFilterSprint(sprint, filters));
+
+      // Get active sprint
+      const activeSprint = getActiveSprint(sprints);
+      const activeSprintId = activeSprint?.id ?? null;
+
+      // Get completed sprints
+      const completedSprints = getCompletedSprints(filtered);
+
+      // Get all filtered sprint IDs
+      const allFilteredIds = filtered.map((sprint) => sprint.id);
+
+      // Get upcoming sprint IDs (filtered, excluding active)
+      const upcomingIds = allFilteredIds.filter((id) => id !== activeSprintId);
+
+      return {
+        filteredSprintIds: allFilteredIds,
+        filteredCompletedSprintIds: completedSprints.map((s) => s.id),
+        currentProjectActiveSprintId: activeSprintId,
+        filteredUpcomingSprintIds: upcomingIds,
+      };
+    }, [sprints, currentProjectFilters, searchQuery]);
+
+  if (isLoading || !filteredSprintIds) return <SprintModuleListLayoutLoader />;
 
   if (filteredSprintIds.length === 0 && filteredCompletedSprintIds?.length === 0)
     return (

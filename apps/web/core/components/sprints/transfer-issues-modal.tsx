@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { AlertCircle, Search } from "lucide-react";
@@ -6,8 +6,10 @@ import { Dialog, Transition } from "@headlessui/react";
 import { SprintIcon, TransferIcon, CloseIcon } from "@plane/propel/icons";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { EIssuesStoreType } from "@plane/types";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/store/queries/query-keys";
 //icons
 // constants
 
@@ -23,12 +25,26 @@ export const TransferIssuesModal = observer(function TransferIssuesModal(props: 
   const [query, setQuery] = useState("");
 
   // store hooks
-  const { currentProjectIncompleteSprintIds, getSprintById, fetchActiveSprintProgress } = useSprint();
+  const { workspaceSlug, projectId } = useParams();
+  const { data: sprints } = useProjectSprints(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   const {
     issues: { transferIssuesFromSprint },
   } = useIssues(EIssuesStoreType.SPRINT);
+  const queryClient = useQueryClient();
 
-  const { workspaceSlug, projectId } = useParams();
+  // Compute incomplete sprint IDs
+  const currentProjectIncompleteSprintIds = useMemo(() => {
+    if (!sprints) return [];
+    const now = new Date();
+    return sprints
+      .filter((sprint) => {
+        if (sprint.archived_at) return false;
+        if (!sprint.end_date) return true; // Draft sprints
+        const endDate = new Date(sprint.end_date);
+        return endDate >= now; // Not completed
+      })
+      .map((sprint) => sprint.id);
+  }, [sprints]);
 
   const transferIssue = async (payload: { new_sprint_id: string }) => {
     if (!workspaceSlug || !projectId || !sprintId) return;
@@ -40,7 +56,16 @@ export const TransferIssuesModal = observer(function TransferIssuesModal(props: 
           title: "Success!",
           message: "Work items have been transferred successfully",
         });
-        await getSprintDetails(payload.new_sprint_id);
+        // Invalidate sprint queries to refresh data
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.sprints.all(workspaceSlug.toString(), projectId.toString()),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: [...queryKeys.sprints.detail(sprintId), "progress"],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: [...queryKeys.sprints.detail(payload.new_sprint_id), "progress"],
+        });
       })
       .catch(() => {
         setToast({
@@ -51,23 +76,8 @@ export const TransferIssuesModal = observer(function TransferIssuesModal(props: 
       });
   };
 
-  /**To update issue counts in target sprint and current sprint */
-  const getSprintDetails = async (newSprintId: string) => {
-    const sprintsFetch = [
-      fetchActiveSprintProgress(workspaceSlug.toString(), projectId.toString(), sprintId),
-      fetchActiveSprintProgress(workspaceSlug.toString(), projectId.toString(), newSprintId),
-    ];
-    await Promise.all(sprintsFetch).catch((error) => {
-      setToast({
-        type: TOAST_TYPE.ERROR,
-        title: "Error",
-        message: error.error || "Unable to fetch sprint details",
-      });
-    });
-  };
-
   const filteredOptions = currentProjectIncompleteSprintIds?.filter((optionId) => {
-    const sprintDetails = getSprintById(optionId);
+    const sprintDetails = getSprintById(sprints, optionId);
 
     return sprintDetails?.name?.toLowerCase().includes(query?.toLowerCase());
   });
@@ -130,7 +140,7 @@ export const TransferIssuesModal = observer(function TransferIssuesModal(props: 
                     {filteredOptions ? (
                       filteredOptions.length > 0 ? (
                         filteredOptions.map((optionId) => {
-                          const sprintDetails = getSprintById(optionId);
+                          const sprintDetails = getSprintById(sprints, optionId);
 
                           if (!sprintDetails) return;
 

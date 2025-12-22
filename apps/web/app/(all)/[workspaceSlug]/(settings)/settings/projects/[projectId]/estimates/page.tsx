@@ -6,14 +6,14 @@ import { PageHead } from "@/components/core/page-title";
 import { EstimateRoot } from "@/components/estimates";
 // hooks
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import type { Route } from "./+types/page";
 
 function EstimatesSettingsPage({ params }: Route.ComponentProps) {
   const { workspaceSlug, projectId } = params;
   // store
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   const { workspaceUserInfo, allowPermissions } = useUserPermissions();
 
   // derived values

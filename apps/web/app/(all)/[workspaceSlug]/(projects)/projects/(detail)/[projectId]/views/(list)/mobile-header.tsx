@@ -1,4 +1,5 @@
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // icons
 import { ListFilter } from "lucide-react";
 import { ChevronDownIcon } from "@plane/propel/icons";
@@ -8,15 +9,19 @@ import { FiltersDropdown } from "@/components/issues/issue-layouts/filters";
 import { ViewFiltersSelection } from "@/components/views/filters/filter-selection";
 import { ViewOrderByDropdown } from "@/components/views/filters/order-by";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useProjectView } from "@/hooks/store/use-project-view";
+import { useProjectMembers, getProjectMemberIds } from "@/store/queries/member";
 
 export const ViewMobileHeader = observer(function ViewMobileHeader() {
+  // router
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
   const { filters, updateFilters } = useProjectView();
-  const {
-    project: { projectMemberIds },
-  } = useMember();
+  const { data: projectMembers } = useProjectMembers(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+  const projectMemberIds = getProjectMemberIds(projectMembers);
 
   return (
     <>

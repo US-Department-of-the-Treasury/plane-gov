@@ -1,7 +1,6 @@
-import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // store hooks
+import { useWorkspaceLabels } from "@/store/queries/label";
 // icons
 import {
   TagIcon,
@@ -31,7 +30,6 @@ import { Tooltip } from "@plane/propel/tooltip";
 import type { IIssueActivity } from "@plane/types";
 import { renderFormattedDate, generateWorkItemLink, capitalizeFirstLetter } from "@plane/utils";
 // helpers
-import { useLabel } from "@/hooks/store/use-label";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // types
 
@@ -91,13 +89,9 @@ function UserLink({ activity }: { activity: IIssueActivity }) {
   );
 }
 
-const LabelPill = observer(function LabelPill({ labelId, workspaceSlug }: { labelId: string; workspaceSlug: string }) {
-  // store hooks
-  const { workspaceLabels, fetchWorkspaceLabels } = useLabel();
-
-  useEffect(() => {
-    if (!workspaceLabels) fetchWorkspaceLabels(workspaceSlug);
-  }, [fetchWorkspaceLabels, workspaceLabels, workspaceSlug]);
+function LabelPill({ labelId, workspaceSlug }: { labelId: string; workspaceSlug: string }) {
+  // TanStack Query auto-fetches workspace labels
+  const { data: workspaceLabels } = useWorkspaceLabels(workspaceSlug);
 
   return (
     <span
@@ -108,7 +102,7 @@ const LabelPill = observer(function LabelPill({ labelId, workspaceSlug }: { labe
       aria-hidden="true"
     />
   );
-});
+}
 
 const inboxActivityMessage = {
   declined: {

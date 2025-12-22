@@ -6,23 +6,25 @@ import { EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { Loader } from "@plane/ui";
 import { cn } from "@plane/utils";
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions, useUserSettings } from "@/hooks/store/user";
 import { PROJECT_SETTINGS_LINKS } from "@/plane-web/constants/project";
 import { getProjectSettingsPageLabelI18nKey } from "@/plane-web/helpers/project-settings";
+// store queries
+import { useProjects, getProjectById } from "@/store/queries/project";
 
 export const NavItemChildren = observer(function NavItemChildren(props: { projectId: string }) {
   const { projectId } = props;
   const { workspaceSlug } = useParams();
   const pathname = usePathname();
   // mobx store
-  const { getProjectById } = useProject();
   const { allowPermissions } = useUserPermissions();
-  const { t } = useTranslation();
   const { toggleSidebar } = useUserSettings();
+  const { t } = useTranslation();
+  // store queries
+  const { data: projects } = useProjects(workspaceSlug as string);
 
   // derived values
-  const currentProject = getProjectById(projectId);
+  const currentProject = getProjectById(projects, projectId);
 
   if (!currentProject) {
     return (

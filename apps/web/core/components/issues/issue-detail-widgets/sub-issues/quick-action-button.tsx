@@ -11,8 +11,11 @@ import { CustomMenu } from "@plane/ui";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useIssue } from "@/store/queries/issue";
 
 type Props = {
+  workspaceSlug: string;
+  projectId: string;
   issueId: string;
   customButton?: React.ReactNode;
   disabled?: boolean;
@@ -20,20 +23,18 @@ type Props = {
 };
 
 export const SubIssuesActionButton = observer(function SubIssuesActionButton(props: Props) {
-  const { issueId, customButton, disabled = false, issueServiceType } = props;
+  const { workspaceSlug, projectId, issueId, customButton, disabled = false, issueServiceType } = props;
   // translation
   const { t } = useTranslation();
   // store hooks
   const {
-    issue: { getIssueById },
     toggleCreateIssueModal,
     toggleSubIssuesModal,
     setIssueCrudOperationState,
     issueCrudOperationState,
   } = useIssueDetail(issueServiceType);
-
-  // derived values
-  const issue = getIssueById(issueId);
+  // queries
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
 
   if (!issue) return <></>;
 

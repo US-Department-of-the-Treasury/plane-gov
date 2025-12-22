@@ -16,8 +16,8 @@ import type { IWorkspace } from "@plane/types";
 import { CustomSelect, Input } from "@plane/ui";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useCreateWorkspace } from "@/store/queries/workspace";
 // services
 import { WorkspaceService } from "@/plane-web/services";
 
@@ -56,7 +56,7 @@ export const CreateWorkspaceForm = observer(function CreateWorkspaceForm(props: 
   // router
   const router = useAppRouter();
   // store hooks
-  const { createWorkspace } = useWorkspace();
+  const { mutate: createWorkspace } = useCreateWorkspace();
   // form info
   const {
     handleSubmit,
@@ -72,31 +72,36 @@ export const CreateWorkspaceForm = observer(function CreateWorkspaceForm(props: 
       if (res.status === true && !RESTRICTED_URLS.includes(formData.slug)) {
         setSlugError(false);
 
-        try {
-          const workspaceResponse = await createWorkspace(formData);
-          captureSuccess({
-            eventName: WORKSPACE_TRACKER_EVENTS.create,
-            payload: { slug: formData.slug },
-          });
-          setToast({
-            type: TOAST_TYPE.SUCCESS,
-            title: t("workspace_creation.toast.success.title"),
-            message: t("workspace_creation.toast.success.message"),
-          });
+        createWorkspace(
+          { data: formData },
+          {
+            onSuccess: async (workspaceResponse) => {
+              captureSuccess({
+                eventName: WORKSPACE_TRACKER_EVENTS.create,
+                payload: { slug: formData.slug },
+              });
+              setToast({
+                type: TOAST_TYPE.SUCCESS,
+                title: t("workspace_creation.toast.success.title"),
+                message: t("workspace_creation.toast.success.message"),
+              });
 
-          if (onSubmit) await onSubmit(workspaceResponse);
-        } catch {
-          captureError({
-            eventName: WORKSPACE_TRACKER_EVENTS.create,
-            payload: { slug: formData.slug },
-            error: new Error("Error creating workspace"),
-          });
-          setToast({
-            type: TOAST_TYPE.ERROR,
-            title: t("workspace_creation.toast.error.title"),
-            message: t("workspace_creation.toast.error.message"),
-          });
-        }
+              if (onSubmit) await onSubmit(workspaceResponse);
+            },
+            onError: () => {
+              captureError({
+                eventName: WORKSPACE_TRACKER_EVENTS.create,
+                payload: { slug: formData.slug },
+                error: new Error("Error creating workspace"),
+              });
+              setToast({
+                type: TOAST_TYPE.ERROR,
+                title: t("workspace_creation.toast.error.title"),
+                message: t("workspace_creation.toast.error.message"),
+              });
+            },
+          }
+        );
       } else {
         setSlugError(true);
       }

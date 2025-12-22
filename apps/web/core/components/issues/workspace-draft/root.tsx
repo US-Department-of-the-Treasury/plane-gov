@@ -12,10 +12,10 @@ import { cn } from "@plane/utils";
 import { captureClick } from "@/helpers/event-tracker.helper";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceDraftIssues } from "@/hooks/store/workspace-draft";
 import { useWorkspaceIssueProperties } from "@/hooks/use-workspace-issue-properties";
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 // components
 import { DraftIssueBlock } from "./draft-issue-block";
 import { WorkspaceDraftEmptyState } from "./empty-state";
@@ -31,7 +31,8 @@ export const WorkspaceDraftIssuesRoot = observer(function WorkspaceDraftIssuesRo
   const { t } = useTranslation();
   // hooks
   const { loader, paginationInfo, fetchIssues, issueIds } = useWorkspaceDraftIssues();
-  const { workspaceProjectIds } = useProject();
+  const { data: projects } = useProjects(workspaceSlug);
+  const workspaceProjectIds = getJoinedProjectIds(projects);
   const { toggleCreateProjectModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
   // derived values

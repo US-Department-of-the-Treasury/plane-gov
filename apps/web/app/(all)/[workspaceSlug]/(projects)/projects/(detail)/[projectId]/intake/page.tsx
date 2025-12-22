@@ -13,7 +13,7 @@ import { PageHead } from "@/components/core/page-title";
 import { DetailedEmptyState } from "@/components/empty-state/detailed-empty-state-root";
 import { InboxIssueRoot } from "@/components/inbox";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import type { Route } from "./+types/page";
@@ -29,8 +29,9 @@ function ProjectInboxPage({ params }: Route.ComponentProps) {
   const { resolvedTheme } = useTheme();
   // plane hooks
   const { t } = useTranslation();
+  // queries
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   // hooks
-  const { currentProjectDetails } = useProject();
   const { allowPermissions } = useUserPermissions();
   // derived values
   const canPerformEmptyStateActions = allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT);

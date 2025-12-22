@@ -21,9 +21,9 @@ import { ArchiveModuleModal, CreateUpdateModuleModal, DeleteModuleModal } from "
 // helpers
 import { captureClick, captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
-import { useModule } from "@/hooks/store/use-module";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useProjectModules, getModuleById, useRestoreModule } from "@/store/queries/module";
 
 type Props = {
   parentRef: React.RefObject<HTMLDivElement>;
@@ -43,12 +43,14 @@ export const ModuleQuickActions = observer(function ModuleQuickActions(props: Pr
   const [deleteModal, setDeleteModal] = useState(false);
   // store hooks
   const { allowPermissions } = useUserPermissions();
-
-  const { getModuleById, restoreModule } = useModule();
-
   const { t } = useTranslation();
+
+  // TanStack Query hooks
+  const { data: modules } = useProjectModules(workspaceSlug, projectId);
+  const restoreModuleMutation = useRestoreModule();
+
   // derived values
-  const moduleDetails = getModuleById(moduleId);
+  const moduleDetails = getModuleById(modules, moduleId);
   // auth
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
@@ -69,7 +71,12 @@ export const ModuleQuickActions = observer(function ModuleQuickActions(props: Pr
   const handleOpenInNewTab = () => window.open(`/${moduleLink}`, "_blank");
 
   const handleRestoreModule = async () =>
-    await restoreModule(workspaceSlug, projectId, moduleId)
+    await restoreModuleMutation
+      .mutateAsync({
+        workspaceSlug,
+        projectId,
+        moduleId,
+      })
       .then(() => {
         setToast({
           type: TOAST_TYPE.SUCCESS,

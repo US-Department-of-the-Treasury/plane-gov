@@ -1,9 +1,7 @@
-import { observer } from "mobx-react";
-import useSWR from "swr";
 import type { TIssue } from "@plane/types";
 // components
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useSubIssues } from "@/store/queries/issue";
 // types
 import { IssueParentSiblingItem } from "./sibling-item";
 
@@ -13,24 +11,14 @@ export type TIssueParentSiblings = {
   parentIssue: TIssue;
 };
 
-export const IssueParentSiblings = observer(function IssueParentSiblings(props: TIssueParentSiblings) {
+export function IssueParentSiblings(props: TIssueParentSiblings) {
   const { workspaceSlug, currentIssue, parentIssue } = props;
   // hooks
-  const {
-    fetchSubIssues,
-    subIssues: { subIssuesByIssueId },
-  } = useIssueDetail();
-
-  const { isLoading } = useSWR(
-    parentIssue && parentIssue.project_id
-      ? `ISSUE_PARENT_CHILD_ISSUES_${workspaceSlug}_${parentIssue.project_id}_${parentIssue.id}`
-      : null,
-    parentIssue && parentIssue.project_id
-      ? () => fetchSubIssues(workspaceSlug, parentIssue.project_id!, parentIssue.id)
-      : null
+  const { data: subIssues, isLoading } = useSubIssues(
+    workspaceSlug,
+    parentIssue.project_id ?? "",
+    parentIssue.id
   );
-
-  const subIssueIds = (parentIssue && subIssuesByIssueId(parentIssue.id)) || undefined;
 
   return (
     <div className="my-1">
@@ -38,11 +26,16 @@ export const IssueParentSiblings = observer(function IssueParentSiblings(props: 
         <div className="flex items-center gap-2 whitespace-nowrap px-1 py-1 text-left text-11 text-secondary">
           Loading
         </div>
-      ) : subIssueIds && subIssueIds.length > 0 ? (
-        subIssueIds.map(
-          (issueId) =>
-            currentIssue.id != issueId && (
-              <IssueParentSiblingItem key={issueId} workspaceSlug={workspaceSlug} issueId={issueId} />
+      ) : subIssues && subIssues.length > 0 ? (
+        subIssues.map(
+          (subIssue) =>
+            currentIssue.id !== subIssue && (
+              <IssueParentSiblingItem
+                key={subIssue}
+                workspaceSlug={workspaceSlug}
+                projectId={parentIssue.project_id ?? ""}
+                issueId={subIssue}
+              />
             )
         )
       ) : (
@@ -52,4 +45,4 @@ export const IssueParentSiblings = observer(function IssueParentSiblings(props: 
       )}
     </div>
   );
-});
+}

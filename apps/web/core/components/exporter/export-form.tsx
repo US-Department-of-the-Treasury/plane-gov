@@ -21,9 +21,10 @@ import { CustomSearchSelect, CustomSelect } from "@plane/ui";
 // import { WorkspaceLevelWorkItemFiltersHOC } from "@/components/work-item-filters/filters-hoc/workspace-level";
 // import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useProject } from "@/hooks/store/use-project";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { ProjectExportService } from "@/services/project/project-export.service";
+// store hooks
+import { useProjects, getProjectById, getProjectIds } from "@/store/queries/project";
 
 type Props = {
   workspaceSlug: string;
@@ -58,8 +59,11 @@ export const ExportForm = observer(function ExportForm(props: Props) {
   // store hooks
   const { allowPermissions } = useUserPermissions();
   const { data: user, canPerformAnyCreateAction, projectsWithCreatePermissions } = useUser();
-  const { workspaceProjectIds, getProjectById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug);
   const { t } = useTranslation();
+
+  // derived values
+  const workspaceProjectIds = projects ? getProjectIds(projects) : [];
   // form
   const { handleSubmit, control } = useForm<FormData>({
     defaultValues: {
@@ -70,14 +74,13 @@ export const ExportForm = observer(function ExportForm(props: Props) {
     },
   });
 
-  // derived values
   const hasProjects = workspaceProjectIds && workspaceProjectIds.length > 0;
   const isMember = allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.WORKSPACE);
   const wsProjectIdsWithCreatePermisisons = projectsWithCreatePermissions
     ? intersection(workspaceProjectIds, Object.keys(projectsWithCreatePermissions))
     : [];
   const options = wsProjectIdsWithCreatePermisisons?.map((projectId) => {
-    const projectDetails = getProjectById(projectId);
+    const projectDetails = getProjectById(projects || [], projectId);
 
     return {
       value: projectDetails?.id,
@@ -172,7 +175,7 @@ export const ExportForm = observer(function ExportForm(props: Props) {
                   value && value.length > 0
                     ? value
                         .map((projectId) => {
-                          const projectDetails = getProjectById(projectId);
+                          const projectDetails = getProjectById(projects || [], projectId);
 
                           return projectDetails?.identifier;
                         })

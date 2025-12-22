@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { observer } from "mobx-react";
+import React from "react";
 import { useParams } from "next/navigation";
 // types
 import { STATE_TRACKER_EVENTS } from "@plane/constants";
@@ -10,7 +9,7 @@ import { AlertModalCore } from "@plane/ui";
 // constants
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useDeleteState } from "@/store/queries/state";
 
 type TStateDeleteModal = {
   isOpen: boolean;
@@ -18,58 +17,58 @@ type TStateDeleteModal = {
   data: IState | null;
 };
 
-export const StateDeleteModal = observer(function StateDeleteModal(props: TStateDeleteModal) {
+export const StateDeleteModal = function StateDeleteModal(props: TStateDeleteModal) {
   const { isOpen, onClose, data } = props;
-  // states
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   // router
   const { workspaceSlug } = useParams();
-  const { deleteState } = useProjectState();
+  const { mutate: deleteState, isPending: isDeleteLoading } = useDeleteState();
 
   const handleClose = () => {
     onClose();
-    setIsDeleteLoading(false);
   };
 
-  const handleDeletion = async () => {
+  const handleDeletion = () => {
     if (!workspaceSlug || !data) return;
 
-    setIsDeleteLoading(true);
-
-    await deleteState(workspaceSlug.toString(), data.project_id, data.id)
-      .then(() => {
-        captureSuccess({
-          eventName: STATE_TRACKER_EVENTS.delete,
-          payload: {
-            id: data.id,
-          },
-        });
-        handleClose();
-      })
-      .catch((err) => {
-        if (err.status === 400)
-          setToast({
-            type: TOAST_TYPE.ERROR,
-            title: "Error!",
-            message:
-              "This state contains some work items within it, please move them to some other state to delete this state.",
+    deleteState(
+      {
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: data.project_id,
+        stateId: data.id,
+      },
+      {
+        onSuccess: () => {
+          captureSuccess({
+            eventName: STATE_TRACKER_EVENTS.delete,
+            payload: {
+              id: data.id,
+            },
           });
-        else
-          setToast({
-            type: TOAST_TYPE.ERROR,
-            title: "Error!",
-            message: "State could not be deleted. Please try again.",
+          handleClose();
+        },
+        onError: (err: any) => {
+          if (err.status === 400)
+            setToast({
+              type: TOAST_TYPE.ERROR,
+              title: "Error!",
+              message:
+                "This state contains some work items within it, please move them to some other state to delete this state.",
+            });
+          else
+            setToast({
+              type: TOAST_TYPE.ERROR,
+              title: "Error!",
+              message: "State could not be deleted. Please try again.",
+            });
+          captureError({
+            eventName: STATE_TRACKER_EVENTS.delete,
+            payload: {
+              id: data.id,
+            },
           });
-        captureError({
-          eventName: STATE_TRACKER_EVENTS.delete,
-          payload: {
-            id: data.id,
-          },
-        });
-      })
-      .finally(() => {
-        setIsDeleteLoading(false);
-      });
+        },
+      }
+    );
   };
 
   return (
@@ -87,4 +86,4 @@ export const StateDeleteModal = observer(function StateDeleteModal(props: TState
       }
     />
   );
-});
+};

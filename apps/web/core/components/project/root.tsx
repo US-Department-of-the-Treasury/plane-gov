@@ -8,20 +8,21 @@ import { calculateTotalFilters } from "@plane/utils";
 // components
 import { PageHead } from "@/components/core/page-title";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectIds } from "@/store/queries/project";
 import { useProjectFilter } from "@/hooks/store/use-project-filter";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // local imports
 import { ProjectAppliedFiltersList } from "./applied-filters";
 import { ProjectCardList } from "./card-list";
 
 export const ProjectRoot = observer(function ProjectRoot() {
-  const { currentWorkspace } = useWorkspace();
   const { workspaceSlug } = useParams();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug?.toString());
   const pathname = usePathname();
   const { t } = useTranslation();
   // store
-  const { totalProjectIds, filteredProjectIds } = useProject();
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
+  const totalProjectIds = getProjectIds(projects);
   const {
     currentWorkspaceFilters,
     currentWorkspaceAppliedDisplayFilters,
@@ -29,6 +30,7 @@ export const ProjectRoot = observer(function ProjectRoot() {
     clearAllAppliedDisplayFilters,
     updateFilters,
     updateDisplayFilters,
+    filteredProjectIds,
   } = useProjectFilter();
   // derived values
   const pageTitle = currentWorkspace?.name

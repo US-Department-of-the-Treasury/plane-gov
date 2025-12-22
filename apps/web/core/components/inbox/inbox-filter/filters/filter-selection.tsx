@@ -1,12 +1,12 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
 // hooks
-import { useLabel } from "@/hooks/store/use-label";
-import { useMember } from "@/hooks/store/use-member";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjectLabels } from "@/store/queries/label";
+import { useProjectStates } from "@/store/queries/state";
+import { useProjectMembers, getProjectUserIds } from "@/store/queries/member";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // local imports
 import { FilterDate } from "./date";
@@ -16,16 +16,26 @@ import { FilterPriority } from "./priority";
 import { FilterState } from "./state";
 import { FilterStatus } from "./status";
 
-export const InboxIssueFilterSelection = observer(function InboxIssueFilterSelection() {
+export function InboxIssueFilterSelection() {
   // hooks
+  const { workspaceSlug, projectId } = useParams();
   const { isMobile } = usePlatformOS();
-  const {
-    project: { projectMemberIds },
-  } = useMember();
-  const { projectLabels } = useLabel();
-  const { projectStates } = useProjectState();
+  const { data: projectMembers } = useProjectMembers(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+  const { data: projectLabels } = useProjectLabels(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+  const { data: projectStates } = useProjectStates(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   // states
   const [filtersSearchQuery, setFiltersSearchQuery] = useState("");
+
+  const projectMemberIds = getProjectUserIds(projectMembers);
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden">
@@ -90,4 +100,4 @@ export const InboxIssueFilterSelection = observer(function InboxIssueFilterSelec
       </div>
     </div>
   );
-});
+}

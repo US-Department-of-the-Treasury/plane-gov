@@ -10,6 +10,7 @@ import ProgressChart from "@/components/core/sidebar/progress-chart";
 import { validateSprintSnapshot } from "@/components/sprints/analytics-sidebar/issue-progress";
 import { EstimateTypeDropdown } from "@/components/sprints/dropdowns";
 // hooks
+import { useSprintDetails } from "@/store/queries/sprint";
 import { useSprint } from "@/hooks/store/use-sprint";
 
 type ProgressChartProps = {
@@ -21,12 +22,12 @@ export const SidebarChart = observer(function SidebarChart(props: ProgressChartP
   const { workspaceSlug, projectId, sprintId } = props;
 
   // hooks
-  const { getEstimateTypeBySprintId, getSprintById, fetchSprintDetails, fetchArchivedSprintDetails, setEstimateType } =
-    useSprint();
+  const { data: sprintData } = useSprintDetails(workspaceSlug, projectId, sprintId);
+  const { getEstimateTypeBySprintId, setEstimateType } = useSprint();
   const { t } = useTranslation();
 
   // derived data
-  const sprintDetails = validateSprintSnapshot(getSprintById(sprintId));
+  const sprintDetails = validateSprintSnapshot(sprintData || null);
   const sprintStartDate = getDate(sprintDetails?.start_date);
   const sprintEndDate = getDate(sprintDetails?.end_date);
   const totalEstimatePoints = sprintDetails?.total_estimate_points || 0;
@@ -45,22 +46,11 @@ export const SidebarChart = observer(function SidebarChart(props: ProgressChartP
   // handlers
   const onChange = async (value: TSprintEstimateType) => {
     setEstimateType(sprintId, value);
-    if (!workspaceSlug || !projectId || !sprintId) return;
-    try {
-      if (isArchived) {
-        await fetchArchivedSprintDetails(workspaceSlug, projectId, sprintId);
-      } else {
-        await fetchSprintDetails(workspaceSlug, projectId, sprintId);
-      }
-    } catch (err) {
-      console.error(err);
-      setEstimateType(sprintId, estimateType);
-    }
   };
   return (
     <div>
       <div className="relative flex items-center justify-between gap-2 pt-4">
-        <EstimateTypeDropdown value={estimateType} onChange={onChange} sprintId={sprintId} projectId={projectId} />
+        <EstimateTypeDropdown value={estimateType} onChange={onChange} sprintId={sprintId} projectId={projectId} workspaceSlug={workspaceSlug} />
       </div>
       <div className="py-4">
         <div>

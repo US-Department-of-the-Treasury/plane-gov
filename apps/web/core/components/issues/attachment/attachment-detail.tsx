@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { useState } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
 // ui
@@ -22,7 +23,7 @@ import { IssueAttachmentDeleteModal } from "@/components/issues/attachment/delet
 // helpers
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // types
 import type { TAttachmentHelpers } from "../issue-detail-widgets/attachments/helper";
@@ -38,8 +39,10 @@ type TIssueAttachmentsDetail = {
 export const IssueAttachmentsDetail = observer(function IssueAttachmentsDetail(props: TIssueAttachmentsDetail) {
   // props
   const { attachmentId, attachmentHelpers, disabled } = props;
+  // params
+  const { workspaceSlug } = useParams();
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
   const {
     attachment: { getAttachmentById },
   } = useIssueDetail();
@@ -78,7 +81,7 @@ export const IssueAttachmentsDetail = observer(function IssueAttachmentsDetail(p
                 <Tooltip
                   isMobile={isMobile}
                   tooltipContent={`${
-                    getUserDetails(attachment.updated_by)?.display_name ?? ""
+                    getWorkspaceMemberByUserId(workspaceMembers, attachment.updated_by)?.member?.display_name ?? ""
                   } uploaded on ${renderFormattedDate(attachment.updated_at)}`}
                 >
                   <span>

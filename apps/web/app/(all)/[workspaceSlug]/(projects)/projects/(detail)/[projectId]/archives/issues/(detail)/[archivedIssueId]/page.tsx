@@ -1,6 +1,5 @@
 import { observer } from "mobx-react";
 import { useRouter } from "next/navigation";
-import useSWR from "swr";
 // ui
 import { Banner } from "@plane/propel/banner";
 import { Button } from "@plane/propel/button";
@@ -9,32 +8,23 @@ import { Loader } from "@plane/ui";
 // components
 import { PageHead } from "@/components/core/page-title";
 import { IssueDetailRoot } from "@/components/issues/issue-detail";
-// constants
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
+// tanstack query
+import { useIssue } from "@/store/queries/issue";
 import type { Route } from "./+types/page";
 
 function ArchivedIssueDetailsPage({ params }: Route.ComponentProps) {
   // router
   const { workspaceSlug, projectId, archivedIssueId } = params;
   const router = useRouter();
-  // states
-  // hooks
-  const {
-    fetchIssue,
-    issue: { getIssueById },
-  } = useIssueDetail();
-
-  const { getProjectById } = useProject();
-
-  const { isLoading } = useSWR(`ARCHIVED_ISSUE_DETAIL_${workspaceSlug}_${projectId}_${archivedIssueId}`, () =>
-    fetchIssue(workspaceSlug, projectId, archivedIssueId)
-  );
+  // queries
+  const { data: projects } = useProjects(workspaceSlug);
+  // tanstack query - fetch archived issue
+  const { data: issue, isLoading } = useIssue(workspaceSlug, projectId, archivedIssueId);
 
   // derived values
-  const issue = getIssueById(archivedIssueId);
-  const project = issue ? getProjectById(issue?.project_id ?? "") : undefined;
+  const project = issue ? getProjectById(projects, issue?.project_id ?? "") : undefined;
   const pageTitle = project && issue ? `${project?.identifier}-${issue?.sequence_id} ${issue?.name}` : undefined;
 
   if (!issue) return <></>;

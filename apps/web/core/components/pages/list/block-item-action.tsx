@@ -8,12 +8,12 @@ import { renderFormattedDate, getFileURL } from "@plane/utils";
 // helpers
 import { captureClick } from "@/helpers/event-tracker.helper";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { usePageOperations } from "@/hooks/use-page-operations";
 // plane web hooks
 import type { EPageStoreType } from "@/plane-web/hooks/store";
 // store
 import type { TPageInstance } from "@/store/pages/base-page";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // local imports
 import { PageActions } from "../dropdowns";
 
@@ -25,15 +25,15 @@ type Props = {
 
 export const BlockItemAction = observer(function BlockItemAction(props: Props) {
   const { page, parentRef, storeType } = props;
-  // store hooks
-  const { getUserDetails } = useMember();
+  // queries
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(page.workspace);
   // page operations
   const { pageOperations } = usePageOperations({
     page,
   });
   // derived values
   const { access, created_at, is_favorite, owned_by, canCurrentUserFavoritePage } = page;
-  const ownerDetails = owned_by ? getUserDetails(owned_by) : undefined;
+  const ownerDetails = owned_by ? getWorkspaceMemberByUserId(workspaceMembers, owned_by) : undefined;
 
   return (
     <>

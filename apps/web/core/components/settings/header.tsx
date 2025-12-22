@@ -1,13 +1,14 @@
 import { observer } from "mobx-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { ChevronLeftIcon } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { getButtonStyling } from "@plane/propel/button";
 import { cn } from "@plane/utils";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserSettings } from "@/hooks/store/user";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // local imports
 import { WorkspaceLogo } from "../workspace/logo";
 import SettingsTabs from "./tabs";
@@ -15,7 +16,8 @@ import SettingsTabs from "./tabs";
 export const SettingsHeader = observer(function SettingsHeader() {
   // hooks
   const { t } = useTranslation();
-  const { currentWorkspace } = useWorkspace();
+  const { workspaceSlug } = useParams();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug?.toString());
   const { isScrolled } = useUserSettings();
 
   return (

@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { observer } from "mobx-react";
+import React from "react";
 import { useParams } from "next/navigation";
 // types
 import { PROJECT_SETTINGS_TRACKER_EVENTS } from "@plane/constants";
@@ -9,7 +8,7 @@ import type { IIssueLabel } from "@plane/types";
 import { AlertModalCore } from "@plane/ui";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useLabel } from "@/hooks/store/use-label";
+import { useDeleteLabel } from "@/store/queries/label";
 
 type Props = {
   isOpen: boolean;
@@ -17,26 +16,25 @@ type Props = {
   data: IIssueLabel | null;
 };
 
-export const DeleteLabelModal = observer(function DeleteLabelModal(props: Props) {
+export function DeleteLabelModal(props: Props) {
   const { isOpen, onClose, data } = props;
   // router
   const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { deleteLabel } = useLabel();
-  // states
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const { mutateAsync: deleteLabel, isPending: isDeleteLoading } = useDeleteLabel();
 
   const handleClose = () => {
     onClose();
-    setIsDeleteLoading(false);
   };
 
   const handleDeletion = async () => {
     if (!workspaceSlug || !projectId || !data) return;
 
-    setIsDeleteLoading(true);
-
-    await deleteLabel(workspaceSlug.toString(), projectId.toString(), data.id)
+    await deleteLabel({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      labelId: data.id,
+    })
       .then(() => {
         captureSuccess({
           eventName: PROJECT_SETTINGS_TRACKER_EVENTS.label_deleted,
@@ -48,8 +46,6 @@ export const DeleteLabelModal = observer(function DeleteLabelModal(props: Props)
         handleClose();
       })
       .catch((err) => {
-        setIsDeleteLoading(false);
-
         captureError({
           eventName: PROJECT_SETTINGS_TRACKER_EVENTS.label_deleted,
           payload: {
@@ -83,4 +79,4 @@ export const DeleteLabelModal = observer(function DeleteLabelModal(props: Props)
       }
     />
   );
-});
+}

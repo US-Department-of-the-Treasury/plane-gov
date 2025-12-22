@@ -9,8 +9,10 @@ import { Tooltip } from "@plane/propel/tooltip";
 import { cn } from "@plane/utils";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// queries
+import { useIssue } from "@/store/queries/issue";
+import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 // local imports
@@ -45,18 +47,21 @@ export const IssueParentSelect = observer(function IssueParentSelect(props: TIss
   } = props;
   const { t } = useTranslation();
   // store hooks
-  const { getProjectById } = useProject();
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
+  // Fetch parent issue if exists (parent might be in different project, but we'll use projectId for now)
+  const { data: parentIssue } = useIssue(
+    workspaceSlug,
+    issue?.parent_id ? projectId : "",
+    issue?.parent_id ?? ""
+  );
   const { isParentIssueModalOpen, toggleParentIssueModal } = useIssueDetail();
+  const { isMobile } = usePlatformOS();
+  // queries
+  const { data: projects = [] } = useProjects(workspaceSlug);
 
   // derived values
-  const issue = getIssueById(issueId);
-  const parentIssue = issue?.parent_id ? getIssueById(issue.parent_id) : undefined;
   const parentIssueProjectDetails =
-    parentIssue && parentIssue.project_id ? getProjectById(parentIssue.project_id) : undefined;
-  const { isMobile } = usePlatformOS();
+    parentIssue && parentIssue.project_id ? getProjectById(projects, parentIssue.project_id) : undefined;
 
   if (!issue) return <></>;
 

@@ -14,9 +14,9 @@ import { cn, getFileURL } from "@plane/utils";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // plane web constants
 
 export const NoProjectsEmptyState = observer(function NoProjectsEmptyState() {
@@ -26,8 +26,9 @@ export const NoProjectsEmptyState = observer(function NoProjectsEmptyState() {
   const { allowPermissions } = useUserPermissions();
   const { toggleCreateProjectModal } = useCommandPalette();
   const { data: currentUser } = useUser();
-  const { joinedProjectIds } = useProject();
-  const { currentWorkspace: activeWorkspace } = useWorkspace();
+  const { data: projects } = useProjects(workspaceSlug as string);
+  const joinedProjectIds = getJoinedProjectIds(projects);
+  const { data: activeWorkspace } = useWorkspaceDetails(workspaceSlug as string);
   // local storage
   const { storedValue, setValue } = useLocalStorage(`quickstart-guide-${workspaceSlug}`, {
     hide: false,

@@ -20,7 +20,7 @@ import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 import type { TIssueOperations } from "@/components/issues/issue-detail";
 import { IssueLabel } from "@/components/issues/issue-detail/label";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useAppRouter } from "@/hooks/use-app-router";
 
 type Props = {
@@ -38,8 +38,8 @@ export const InboxIssueContentProperties = observer(function InboxIssueContentPr
     props;
 
   const router = useAppRouter();
-  // store hooks
-  const { currentProjectDetails } = useProject();
+  // hooks
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
 
   const minDate = issue.start_date ? getDate(issue.start_date) : null;
   minDate?.setDate(minDate.getDate());

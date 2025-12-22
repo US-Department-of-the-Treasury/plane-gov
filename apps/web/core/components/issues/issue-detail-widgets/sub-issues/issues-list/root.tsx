@@ -10,6 +10,7 @@ import { EIssueServiceType, EIssuesStoreType } from "@plane/types";
 import { SectionEmptyState } from "@/components/empty-state/section-empty-state-root";
 import { getGroupByColumns, isWorkspaceLevel } from "@/components/issues/issue-layouts/utils";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useSubIssues } from "@/store/queries/issue";
 
 import { SubIssuesListGroup } from "./list-group";
 type Props = {
@@ -46,10 +47,12 @@ export const SubIssuesListRoot = observer(function SubIssuesListRoot(props: Prop
   // store hooks
   const {
     subIssues: {
-      subIssuesByIssueId,
       filters: { getSubIssueFilters, getGroupedSubWorkItems, getFilteredSubWorkItems, resetFilters },
     },
   } = useIssueDetail(issueServiceType);
+  // queries
+  const { data: subIssuesData } = useSubIssues(workspaceSlug, projectId, parentIssueId);
+  const subIssueIds = useMemo(() => subIssuesData?.sub_issues?.map((issue) => issue.id) ?? [], [subIssuesData]);
 
   // derived values
   const filters = getSubIssueFilters(rootIssueId);
@@ -71,10 +74,9 @@ export const SubIssuesListRoot = observer(function SubIssuesListRoot(props: Prop
         const groupedSubIssues = getGroupedSubWorkItems(rootIssueId);
         return groupedSubIssues?.[groupId] ?? [];
       }
-      const subIssueIds = subIssuesByIssueId(parentIssueId);
-      return subIssueIds ?? [];
+      return subIssueIds;
     },
-    [isRootLevel, subIssuesByIssueId, rootIssueId, getGroupedSubWorkItems, parentIssueId]
+    [isRootLevel, subIssueIds, rootIssueId, getGroupedSubWorkItems]
   );
 
   const isSubWorkItems = issueServiceType === EIssueServiceType.ISSUES;

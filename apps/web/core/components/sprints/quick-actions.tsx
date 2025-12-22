@@ -19,7 +19,7 @@ import { copyUrlToClipboard, cn } from "@plane/utils";
 // hooks
 import { useSprintMenuItems } from "@/components/common/quick-actions-helper";
 import { captureClick, captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintById, useRestoreSprint } from "@/store/queries/sprint";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 // local imports
@@ -45,10 +45,11 @@ export const SprintQuickActions = observer(function SprintQuickActions(props: Pr
   const [deleteModal, setDeleteModal] = useState(false);
   // store hooks
   const { allowPermissions } = useUserPermissions();
-  const { getSprintById, restoreSprint } = useSprint();
+  const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
+  const { mutate: restoreSprintMutation } = useRestoreSprint();
   const { t } = useTranslation();
   // derived values
-  const sprintDetails = getSprintById(sprintId);
+  const sprintDetails = getSprintById(sprints, sprintId);
   // auth
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
@@ -68,35 +69,44 @@ export const SprintQuickActions = observer(function SprintQuickActions(props: Pr
     });
   const handleOpenInNewTab = () => window.open(`/${sprintLink}`, "_blank");
 
-  const handleRestoreSprint = async () =>
-    await restoreSprint(workspaceSlug, projectId, sprintId)
-      .then(() => {
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: t("project_sprints.action.restore.success.title"),
-          message: t("project_sprints.action.restore.success.description"),
-        });
-        captureSuccess({
-          eventName: SPRINT_TRACKER_EVENTS.restore,
-          payload: {
-            id: sprintId,
-          },
-        });
-        router.push(`/${workspaceSlug}/projects/${projectId}/archives/sprints`);
-      })
-      .catch(() => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: t("project_sprints.action.restore.failed.title"),
-          message: t("project_sprints.action.restore.failed.description"),
-        });
-        captureError({
-          eventName: SPRINT_TRACKER_EVENTS.restore,
-          payload: {
-            id: sprintId,
-          },
-        });
-      });
+  const handleRestoreSprint = async () => {
+    restoreSprintMutation(
+      {
+        workspaceSlug,
+        projectId,
+        sprintId,
+      },
+      {
+        onSuccess: () => {
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: t("project_sprints.action.restore.success.title"),
+            message: t("project_sprints.action.restore.success.description"),
+          });
+          captureSuccess({
+            eventName: SPRINT_TRACKER_EVENTS.restore,
+            payload: {
+              id: sprintId,
+            },
+          });
+          router.push(`/${workspaceSlug}/projects/${projectId}/archives/sprints`);
+        },
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: t("project_sprints.action.restore.failed.title"),
+            message: t("project_sprints.action.restore.failed.description"),
+          });
+          captureError({
+            eventName: SPRINT_TRACKER_EVENTS.restore,
+            payload: {
+              id: sprintId,
+            },
+          });
+        },
+      }
+    );
+  };
 
   const menuResult = useSprintMenuItems({
     sprintDetails: sprintDetails ?? undefined,

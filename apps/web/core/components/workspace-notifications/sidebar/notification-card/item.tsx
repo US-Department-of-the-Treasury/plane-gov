@@ -8,7 +8,7 @@ import { cn, calculateTimeAgo, renderFormattedDate, renderFormattedTime, getFile
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 import { useNotification } from "@/hooks/store/notifications/use-notification";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaces, getWorkspaceBySlug } from "@/store/queries/workspace";
 // local imports
 import { NotificationContent } from "./content";
 import { NotificationOption } from "./options";
@@ -24,7 +24,7 @@ export const NotificationItem = observer(function NotificationItem(props: TNotif
   const { currentSelectedNotificationId, setCurrentSelectedNotificationId } = useWorkspaceNotifications();
   const { asJson: notification, markNotificationAsRead } = useNotification(notificationId);
   const { getIsIssuePeeked, setPeekIssue } = useIssueDetail();
-  const { getWorkspaceBySlug } = useWorkspace();
+  const { data: workspaces } = useWorkspaces();
   // states
   const [isSnoozeStateModalOpen, setIsSnoozeStateModalOpen] = useState(false);
   const [customSnoozeModal, setCustomSnoozeModal] = useState(false);
@@ -32,7 +32,7 @@ export const NotificationItem = observer(function NotificationItem(props: TNotif
   // derived values
   const projectId = notification?.project || undefined;
   const issueId = notification?.data?.issue?.id || undefined;
-  const workspace = getWorkspaceBySlug(workspaceSlug);
+  const workspace = getWorkspaceBySlug(workspaces, workspaceSlug);
 
   const notificationField = notification?.data?.issue_activity.field || undefined;
   const notificationTriggeredBy = notification.triggered_by_details || undefined;

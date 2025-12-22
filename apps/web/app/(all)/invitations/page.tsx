@@ -22,13 +22,14 @@ import { USER_WORKSPACES_LIST } from "@/constants/fetch-keys";
 // helpers
 // hooks
 import { captureError, captureSuccess, joinEventGroup } from "@/helpers/event-tracker.helper";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUser, useUserProfile } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 // services
 import { AuthenticationWrapper } from "@/lib/wrappers/authentication-wrapper";
 // plane web services
 import { WorkspaceService } from "@/plane-web/services";
+import { useWorkspaces } from "@/store/queries/workspace";
+import { useQueryClient } from "@tanstack/react-query";
 
 const workspaceService = new WorkspaceService();
 
@@ -42,8 +43,7 @@ function UserInvitationsPage() {
   const { t } = useTranslation();
   const { data: currentUser } = useUser();
   const { updateUserProfile } = useUserProfile();
-
-  const { fetchWorkspaces } = useWorkspace();
+  const queryClient = useQueryClient();
 
   const { data: invitations } = useSWR("USER_WORKSPACE_INVITATIONS", () => workspaceService.userWorkspaceInvitations());
 
@@ -94,9 +94,9 @@ function UserInvitationsPage() {
         updateUserProfile({ last_workspace_id: redirectWorkspace?.id })
           .then(() => {
             setIsJoiningWorkspaces(false);
-            fetchWorkspaces().then(() => {
-              router.push(`/${redirectWorkspace?.slug}`);
-            });
+            // Invalidate workspaces query to refetch
+            queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+            router.push(`/${redirectWorkspace?.slug}`);
           })
           .catch(() => {
             setToast({

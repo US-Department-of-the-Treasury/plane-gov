@@ -13,8 +13,9 @@ import type { TFileSignedURLResponse, TIssueComment } from "@plane/types";
 import { CommentCreate } from "@/components/comments/comment-create";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 // plane web components
 import { ActivityFilterRoot } from "@/plane-web/components/issues/worklog/activity/filter-root";
 import { IssueActivityWorklogCreateButton } from "@/plane-web/components/issues/worklog/activity/worklog-create-button";
@@ -53,8 +54,9 @@ export const IssueActivity = observer(function IssueActivity(props: TIssueActivi
   } = useIssueDetail();
 
   const { getProjectRoleByWorkspaceSlugAndProjectId } = useUserPermissions();
-  const { getProjectById } = useProject();
   const { data: currentUser } = useUser();
+  // queries
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
   // derived values
   const issue = issueId ? getIssueById(issueId) : undefined;
   const currentUserProjectRole = getProjectRoleByWorkspaceSlugAndProjectId(workspaceSlug, projectId);
@@ -83,7 +85,6 @@ export const IssueActivity = observer(function IssueActivity(props: TIssueActivi
   // helper hooks
   const activityOperations = useWorkItemCommentOperations(workspaceSlug, projectId, issueId);
 
-  const project = getProjectById(projectId);
   const renderCommentCreationBox = useMemo(
     () => (
       <CommentCreate

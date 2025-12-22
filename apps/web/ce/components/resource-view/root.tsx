@@ -1,30 +1,23 @@
 import { observer } from "mobx-react";
-import { useEffect } from "react";
+import { useParams } from "next/navigation";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
-import { useSprint } from "@/hooks/store/use-sprint";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceSprints } from "@/store/queries/sprint";
+import { useWorkspaceMembers } from "@/store/queries/member";
 // local imports
 import { ResourceMatrix } from "./resource-matrix";
 
 export const ResourceViewRoot = observer(function ResourceViewRoot() {
-  const { currentWorkspace } = useWorkspace();
-  const { workspace: workspaceMemberStore } = useMember();
-  const sprintStore = useSprint();
+  const { workspaceSlug } = useParams();
 
-  const workspaceSlug = currentWorkspace?.slug;
+  const workspaceSlugStr = workspaceSlug?.toString();
 
-  // Fetch workspace members and sprints on mount
-  useEffect(() => {
-    if (!workspaceSlug) return;
+  // TanStack Query automatically fetches sprints and members
+  useWorkspaceSprints(workspaceSlugStr || "");
+  useWorkspaceMembers(workspaceSlugStr || "");
 
-    void workspaceMemberStore.fetchWorkspaceMembers(workspaceSlug);
-    void sprintStore.fetchWorkspaceSprints(workspaceSlug);
-  }, [workspaceSlug, workspaceMemberStore, sprintStore]);
-
-  if (!workspaceSlug) {
+  if (!workspaceSlugStr) {
     return null;
   }
 
-  return <ResourceMatrix workspaceSlug={workspaceSlug} />;
+  return <ResourceMatrix workspaceSlug={workspaceSlugStr} />;
 });

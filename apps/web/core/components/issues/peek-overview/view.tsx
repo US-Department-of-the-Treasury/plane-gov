@@ -11,6 +11,7 @@ import { cn } from "@plane/utils";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import useKeypress from "@/hooks/use-keypress";
 import usePeekOverviewOutsideClickDetector from "@/hooks/use-peek-overview-outside-click";
+import { useIssue } from "@/store/queries/issue";
 // local imports
 import type { TIssueOperations } from "../issue-detail";
 import { IssueActivity } from "../issue-detail/issue-activity";
@@ -58,14 +59,13 @@ export const IssueView = observer(function IssueView(props: IIssueView) {
   // ref
   const issuePeekOverviewRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRefApi>(null);
-  // store hooks
+  // hooks
   const {
     setPeekIssue,
     isAnyModalOpen,
-    issue: { getIssueById },
   } = useIssueDetail();
   const { isAnyModalOpen: isAnyEpicModalOpen } = useIssueDetail(EIssueServiceType.EPICS);
-  const issue = getIssueById(issueId);
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
   // remove peek id
   const removeRoutePeekId = () => {
     setPeekIssue(undefined);

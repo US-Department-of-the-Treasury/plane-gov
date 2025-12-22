@@ -25,7 +25,7 @@ import { HeaderFilters } from "@/components/issues/filters";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -43,7 +43,10 @@ export const IssuesHeader = observer(function IssuesHeader() {
   // i18n
   const { t } = useTranslation();
 
-  const { currentProjectDetails, loader } = useProject();
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
 
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
@@ -62,7 +65,7 @@ export const IssuesHeader = observer(function IssuesHeader() {
     <Header>
       <Header.LeftItem>
         <div className="flex items-center gap-2.5">
-          <Breadcrumbs onBack={() => router.back()} isLoading={loader === "init-loader"} className="flex-grow-0">
+          <Breadcrumbs onBack={() => router.back()} isLoading={isLoading} className="flex-grow-0">
             <CommonProjectBreadcrumbs workspaceSlug={workspaceSlug?.toString()} projectId={projectId?.toString()} />
             <Breadcrumbs.Item
               component={

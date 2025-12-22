@@ -15,6 +15,7 @@ import ProjectCreateButtons from "@/components/project/create/project-create-but
 import { DEFAULT_COVER_IMAGE_URL, getCoverImageType, uploadCoverImage } from "@/helpers/cover-image.helper";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useProject } from "@/hooks/store/use-project";
+import { useCreateProject, useUpdateProject } from "@/store/queries/project";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web types
 import type { TProject } from "@/plane-web/types/projects";
@@ -35,7 +36,9 @@ export const CreateProjectForm = observer(function CreateProjectForm(props: TCre
   const { setToFavorite, workspaceSlug, data, onClose, handleNextStep, updateCoverImageStatus } = props;
   // store
   const { t } = useTranslation();
-  const { addProjectToFavorites, createProject, updateProject } = useProject();
+  const { addProjectToFavorites } = useProject();
+  const { mutateAsync: createProject } = useCreateProject();
+  const { mutateAsync: updateProject } = useUpdateProject();
   // states
   const [isChangeInIdentifierRequired, setIsChangeInIdentifierRequired] = useState(true);
   // form info
@@ -89,14 +92,22 @@ export const CreateProjectForm = observer(function CreateProjectForm(props: TCre
       }
     }
 
-    return createProject(workspaceSlug.toString(), formData)
+    return createProject({ workspaceSlug: workspaceSlug.toString(), data: formData })
       .then(async (res) => {
         if (uploadedAssetUrl) {
           await updateCoverImageStatus(res.id, uploadedAssetUrl);
-          await updateProject(workspaceSlug.toString(), res.id, { cover_image_url: uploadedAssetUrl });
+          await updateProject({
+            workspaceSlug: workspaceSlug.toString(),
+            projectId: res.id,
+            data: { cover_image_url: uploadedAssetUrl },
+          });
         } else if (coverImage && coverImage.startsWith("http")) {
           await updateCoverImageStatus(res.id, coverImage);
-          await updateProject(workspaceSlug.toString(), res.id, { cover_image_url: coverImage });
+          await updateProject({
+            workspaceSlug: workspaceSlug.toString(),
+            projectId: res.id,
+            data: { cover_image_url: coverImage },
+          });
         }
         captureSuccess({
           eventName: PROJECT_TRACKER_EVENTS.create,

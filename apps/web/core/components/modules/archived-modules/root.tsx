@@ -1,19 +1,19 @@
 import React, { useCallback } from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
 import type { TModuleFilters } from "@plane/types";
-// components
+// helpers
 import { calculateTotalFilters } from "@plane/utils";
+// components
 import { ArchivedModulesView, ModuleAppliedFiltersList } from "@/components/modules";
 import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
-// helpers
 // hooks
-import { useModule } from "@/hooks/store/use-module";
 import { useModuleFilter } from "@/hooks/store/use-module-filter";
+// queries
+import { useArchivedModules } from "@/store/queries/module";
 
 export const ArchivedModuleLayoutRoot = observer(function ArchivedModuleLayoutRoot() {
   // router
@@ -21,20 +21,14 @@ export const ArchivedModuleLayoutRoot = observer(function ArchivedModuleLayoutRo
   // plane hooks
   const { t } = useTranslation();
   // hooks
-  const { fetchArchivedModules, projectArchivedModuleIds, loader } = useModule();
   const { clearAllFilters, currentProjectArchivedFilters, updateFilters } = useModuleFilter();
-  // derived values
-  const totalArchivedModules = projectArchivedModuleIds?.length ?? 0;
-
-  useSWR(
-    workspaceSlug && projectId ? `ARCHIVED_MODULES_${workspaceSlug.toString()}_${projectId.toString()}` : null,
-    async () => {
-      if (workspaceSlug && projectId) {
-        await fetchArchivedModules(workspaceSlug.toString(), projectId.toString());
-      }
-    },
-    { revalidateIfStale: false, revalidateOnFocus: false }
+  // queries
+  const { data: archivedModules, isLoading } = useArchivedModules(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
   );
+  // derived values
+  const totalArchivedModules = archivedModules?.length ?? 0;
 
   const handleRemoveFilter = useCallback(
     (key: keyof TModuleFilters, value: string | null) => {
@@ -51,7 +45,7 @@ export const ArchivedModuleLayoutRoot = observer(function ArchivedModuleLayoutRo
 
   if (!workspaceSlug || !projectId) return <></>;
 
-  if (loader || !projectArchivedModuleIds) {
+  if (isLoading) {
     return <SprintModuleListLayoutLoader />;
   }
 

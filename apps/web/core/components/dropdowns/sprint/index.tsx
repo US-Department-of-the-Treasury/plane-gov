@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import { useTranslation } from "@plane/i18n";
 // ui
 import { SprintIcon, ChevronDownIcon } from "@plane/propel/icons";
@@ -8,7 +9,7 @@ import { ComboDropDown } from "@plane/ui";
 // helpers
 import { cn } from "@plane/utils";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useWorkspaceSprints, getSprintNameById } from "@/store/queries/sprint";
 import { useDropdown } from "@/hooks/use-dropdown";
 // local components and constants
 import { DropdownButton } from "../buttons";
@@ -54,16 +55,19 @@ export const SprintDropdown = observer(function SprintDropdown(props: Props) {
   } = props;
   // i18n
   const { t } = useTranslation();
+  // router
+  const { workspaceSlug } = useParams();
   // states
-
   const [isOpen, setIsOpen] = useState(false);
-  const { getSprintNameById } = useSprint();
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   // popper-js refs
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
 
-  const selectedName = value ? getSprintNameById(value) : null;
+  // TanStack Query
+  const { data: sprints } = useWorkspaceSprints(workspaceSlug?.toString() ?? "");
+
+  const selectedName = value ? getSprintNameById(sprints, value) : null;
 
   const { handleClose, handleKeyDown, handleOnClick } = useDropdown({
     dropdownRef,

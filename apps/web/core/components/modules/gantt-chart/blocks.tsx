@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 // ui
@@ -10,23 +9,26 @@ import { SIDEBAR_WIDTH } from "@/components/gantt-chart/constants";
 import { getBlockViewDetails } from "@/components/issues/issue-layouts/utils";
 // constants
 // hooks
-import { useModule } from "@/hooks/store/use-module";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useProjectModules, getModuleById } from "@/store/queries/module";
 
 type Props = {
   moduleId: string;
 };
 
-export const ModuleGanttBlock = observer(function ModuleGanttBlock(props: Props) {
+export function ModuleGanttBlock(props: Props) {
   const { moduleId } = props;
   // router
   const router = useAppRouter();
-  const { workspaceSlug } = useParams();
-  // store hooks
-  const { getModuleById } = useModule();
+  const { workspaceSlug, projectId } = useParams();
+  // query hooks
+  const { data: modules } = useProjectModules(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   // derived values
-  const moduleDetails = getModuleById(moduleId);
+  const moduleDetails = getModuleById(modules, moduleId);
   // hooks
   const { isMobile } = usePlatformOS();
 
@@ -65,15 +67,18 @@ export const ModuleGanttBlock = observer(function ModuleGanttBlock(props: Props)
       </div>
     </Tooltip>
   );
-});
+}
 
-export const ModuleGanttSidebarBlock = observer(function ModuleGanttSidebarBlock(props: Props) {
+export function ModuleGanttSidebarBlock(props: Props) {
   const { moduleId } = props;
-  const { workspaceSlug } = useParams();
-  // store hooks
-  const { getModuleById } = useModule();
+  const { workspaceSlug, projectId } = useParams();
+  // query hooks
+  const { data: modules } = useProjectModules(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   // derived values
-  const moduleDetails = getModuleById(moduleId);
+  const moduleDetails = getModuleById(modules, moduleId);
 
   return (
     <Link
@@ -85,4 +90,4 @@ export const ModuleGanttSidebarBlock = observer(function ModuleGanttSidebarBlock
       <h6 className="flex-grow truncate text-13 font-medium">{moduleDetails?.name}</h6>
     </Link>
   );
-});
+}

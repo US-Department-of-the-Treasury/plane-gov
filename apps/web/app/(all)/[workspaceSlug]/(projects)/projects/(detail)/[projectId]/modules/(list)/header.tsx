@@ -12,9 +12,10 @@ import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { ModuleViewHeader } from "@/components/modules";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useProjects } from "@/store/queries/project";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
@@ -25,8 +26,8 @@ export const ModulesListHeader = observer(function ModulesListHeader() {
   // store hooks
   const { toggleCreateModuleModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
-
-  const { loader } = useProject();
+  // queries
+  const { isLoading } = useProjects(workspaceSlug?.toString() ?? "");
 
   const { t } = useTranslation();
 
@@ -40,7 +41,7 @@ export const ModulesListHeader = observer(function ModulesListHeader() {
     <Header>
       <Header.LeftItem>
         <div>
-          <Breadcrumbs onBack={router.back} isLoading={loader === "init-loader"}>
+          <Breadcrumbs onBack={router.back} isLoading={isLoading}>
             <CommonProjectBreadcrumbs workspaceSlug={workspaceSlug?.toString()} projectId={projectId?.toString()} />
             <Breadcrumbs.Item
               component={

@@ -7,7 +7,7 @@ import { Breadcrumbs } from "@plane/ui";
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import type { TNavigationItem } from "@/components/workspace/sidebar/project-navigation";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
 // local imports
 import { getProjectFeatureNavigation } from "../projects/navigation/helper";
 
@@ -24,9 +24,9 @@ export const ProjectFeatureBreadcrumb = observer(function ProjectFeatureBreadcru
 ) {
   const { workspaceSlug, projectId, featureKey, isLast = false, additionalNavigationItems } = props;
   // store hooks
-  const { getPartialProjectById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug);
   // derived values
-  const project = getPartialProjectById(projectId);
+  const project = getProjectById(projects, projectId);
 
   if (!project) return null;
 

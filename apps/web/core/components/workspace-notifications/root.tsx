@@ -9,9 +9,9 @@ import { cn } from "@plane/utils";
 import { LogoSpinner } from "@/components/common/logo-spinner";
 // hooks
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceIssueProperties } from "@/hooks/use-workspace-issue-properties";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // plane web imports
 import { useNotificationPreview } from "@/plane-web/hooks/use-notification-preview";
 // local imports
@@ -23,7 +23,7 @@ type NotificationsRootProps = {
 
 export const NotificationsRoot = observer(function NotificationsRoot({ workspaceSlug }: NotificationsRootProps) {
   // hooks
-  const { currentWorkspace } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   const {
     currentSelectedNotificationId,
     setCurrentSelectedNotificationId,

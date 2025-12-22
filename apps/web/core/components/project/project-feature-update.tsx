@@ -5,9 +5,8 @@ import { useTranslation } from "@plane/i18n";
 import { Button, getButtonStyling } from "@plane/propel/button";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { Row } from "@plane/ui";
-// components
-// hooks
-import { useProject } from "@/hooks/store/use-project";
+// store queries
+import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web imports
 import { ProjectFeaturesList } from "@/plane-web/components/projects/settings/features-list";
 
@@ -21,10 +20,10 @@ export const ProjectFeatureUpdate = observer(function ProjectFeatureUpdate(props
   const { workspaceSlug, projectId, onClose } = props;
   // store hooks
   const { t } = useTranslation();
-  const { getProjectById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug);
 
   if (!workspaceSlug || !projectId) return null;
-  const currentProjectDetails = getProjectById(projectId);
+  const currentProjectDetails = getProjectById(projects, projectId);
   if (!currentProjectDetails) return null;
 
   return (

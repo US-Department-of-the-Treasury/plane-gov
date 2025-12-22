@@ -11,7 +11,7 @@ import { cn, getNumberCount } from "@plane/utils";
 import { CountChip } from "@/components/common/count-chip";
 // hooks
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaces, getWorkspaceBySlug } from "@/store/queries/workspace";
 // plane web components
 import { NotificationListRoot } from "@/plane-web/components/workspace-notifications/list-root";
 // local imports
@@ -23,7 +23,7 @@ import { NotificationsLoader } from "./loader";
 export const NotificationsSidebarRoot = observer(function NotificationsSidebarRoot() {
   const { workspaceSlug } = useParams();
   // hooks
-  const { getWorkspaceBySlug } = useWorkspace();
+  const { data: workspaces } = useWorkspaces();
   const {
     currentSelectedNotificationId,
     unreadNotificationsCount,
@@ -35,7 +35,7 @@ export const NotificationsSidebarRoot = observer(function NotificationsSidebarRo
 
   const { t } = useTranslation();
   // derived values
-  const workspace = workspaceSlug ? getWorkspaceBySlug(workspaceSlug.toString()) : undefined;
+  const workspace = workspaceSlug ? getWorkspaceBySlug(workspaces, workspaceSlug.toString()) : undefined;
   const notificationIds = workspace ? notificationIdsByWorkspaceId(workspace.id) : undefined;
 
   const handleTabClick = useCallback(

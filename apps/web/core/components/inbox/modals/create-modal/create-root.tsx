@@ -13,12 +13,12 @@ import { renderFormattedPayloadDate, getTabIndex } from "@plane/utils";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useAppRouter } from "@/hooks/use-app-router";
 import useKeypress from "@/hooks/use-keypress";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // plane web imports
 import { DeDupeButtonRoot } from "@/plane-web/components/de-dupe/de-dupe-button";
 import { DuplicateModalRoot } from "@/plane-web/components/de-dupe/duplicate-modal";
@@ -65,10 +65,10 @@ export const InboxIssueCreateRoot = observer(function InboxIssueCreateRoot(props
   const modalContainerRef = useRef<HTMLDivElement | null>(null);
   // hooks
   const { createInboxIssue } = useProjectInbox();
-  const { getWorkspaceBySlug } = useWorkspace();
-  const workspaceId = getWorkspaceBySlug(workspaceSlug)?.id;
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
+  const workspaceId = currentWorkspace?.id;
   const { isMobile } = usePlatformOS();
-  const { getProjectById } = useProject();
+  const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId);
   const { t } = useTranslation();
   // states
   const [createMore, setCreateMore] = useState<boolean>(false);
@@ -83,9 +83,6 @@ export const InboxIssueCreateRoot = observer(function InboxIssueCreateRoot(props
     },
     [formData]
   );
-
-  // derived values
-  const projectDetails = projectId ? getProjectById(projectId) : undefined;
 
   const { getIndex } = getTabIndex(ETabIndices.INTAKE_ISSUE_FORM, isMobile);
 

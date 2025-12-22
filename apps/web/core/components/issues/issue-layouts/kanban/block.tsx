@@ -22,9 +22,10 @@ import { HIGHLIGHT_CLASS, getIssueBlockId } from "@/components/issues/issue-layo
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useKanbanView } from "@/hooks/store/use-kanban-view";
-import { useProject } from "@/hooks/store/use-project";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useIssue } from "@/store/queries/issue";
+import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 // local components
@@ -166,18 +167,27 @@ export const KanbanIssueBlock = observer(function KanbanIssueBlock(props: IssueB
 
   const cardRef = useRef<HTMLAnchorElement | null>(null);
   // router
-  const { workspaceSlug: routerWorkspaceSlug } = useParams();
+  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
   const workspaceSlug = routerWorkspaceSlug?.toString();
+  const projectId = routerProjectId?.toString();
   // hooks
-  const { getProjectIdentifierById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug ?? "");
   const { getIsIssuePeeked } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
   const { handleRedirection } = useIssuePeekOverviewRedirection(isEpic);
   const { isMobile } = usePlatformOS();
 
+  // Try TanStack Query first (for single-project views), fallback to MobX issuesMap
+  const issueFromMap = issuesMap[issueId];
+  const { data: issueFromQuery } = useIssue(
+    workspaceSlug ?? "",
+    projectId ?? issueFromMap?.project_id ?? "",
+    issueId
+  );
+
   // handlers
   const handleIssuePeekOverview = (issue: TIssue) => handleRedirection(workspaceSlug, issue, isMobile);
 
-  const issue = issuesMap[issueId];
+  const issue = issueFromQuery ?? issueFromMap;
 
   const { setIsDragging: setIsKanbanDragging } = useKanbanView();
 
@@ -187,7 +197,7 @@ export const KanbanIssueBlock = observer(function KanbanIssueBlock(props: IssueB
   const canEditIssueProperties = canEditProperties(issue?.project_id ?? undefined);
 
   const isDragAllowed = canDragIssuesInCurrentGrouping && !issue?.tempId && canEditIssueProperties;
-  const projectIdentifier = getProjectIdentifierById(issue?.project_id);
+  const projectIdentifier = getProjectById(projects, issue?.project_id)?.identifier;
 
   const workItemLink = generateWorkItemLink({
     workspaceSlug,

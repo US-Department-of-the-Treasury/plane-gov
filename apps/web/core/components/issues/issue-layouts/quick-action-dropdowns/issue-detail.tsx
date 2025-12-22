@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { omit } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams, usePathname } from "next/navigation";
 import { Ellipsis } from "lucide-react";
 // plane imports
@@ -18,8 +17,8 @@ import { cn } from "@plane/utils";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjectDetails } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useUserPermissions } from "@/hooks/store/user";
 // plane-web components
 import { DuplicateWorkItemModal } from "@/plane-web/components/issues/issue-layouts/quick-action-dropdowns/duplicate-modal";
@@ -40,7 +39,7 @@ type TWorkItemDetailQuickActionProps = IQuickActionProps & {
   isPeekMode?: boolean;
 };
 
-export const WorkItemDetailQuickActions = observer(function WorkItemDetailQuickActions(
+export function WorkItemDetailQuickActions(
   props: TWorkItemDetailQuickActionProps
 ) {
   const {
@@ -71,12 +70,12 @@ export const WorkItemDetailQuickActions = observer(function WorkItemDetailQuickA
   // store hooks
   const { allowPermissions } = useUserPermissions();
   const { issuesFilter } = useIssues(EIssuesStoreType.PROJECT);
-  const { getStateById } = useProjectState();
-  const { getProjectIdentifierById } = useProject();
+  const { data: projectStates } = useProjectStates(workspaceSlug?.toString(), issue.project_id);
+  const { data: projectDetails } = useProjectDetails(workspaceSlug?.toString(), issue.project_id);
   // derived values
   const activeLayout = `${issuesFilter.issueFilters?.displayFilters?.layout} layout`;
-  const stateDetails = getStateById(issue.state_id);
-  const projectIdentifier = getProjectIdentifierById(issue?.project_id);
+  const stateDetails = getStateById(projectStates, issue.state_id);
+  const projectIdentifier = projectDetails?.identifier;
   // auth
   const isEditingAllowed =
     allowPermissions(
@@ -353,4 +352,4 @@ export const WorkItemDetailQuickActions = observer(function WorkItemDetailQuickA
       </CustomMenu>
     </>
   );
-});
+}

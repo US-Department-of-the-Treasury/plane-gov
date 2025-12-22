@@ -11,9 +11,10 @@ import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { SprintsViewHeader } from "@/components/sprints/sprints-view-header";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
@@ -25,8 +26,9 @@ export const SprintsListHeader = observer(function SprintsListHeader() {
   // store hooks
   const { toggleCreateSprintModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
-  const { currentProjectDetails, loader } = useProject();
   const { t } = useTranslation();
+  // queries
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
 
   const canUserCreateSprint = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
@@ -36,7 +38,7 @@ export const SprintsListHeader = observer(function SprintsListHeader() {
   return (
     <Header>
       <Header.LeftItem>
-        <Breadcrumbs onBack={router.back} isLoading={loader === "init-loader"}>
+        <Breadcrumbs onBack={router.back} isLoading={isLoading}>
           <CommonProjectBreadcrumbs workspaceSlug={workspaceSlug?.toString()} projectId={projectId?.toString()} />
           <Breadcrumbs.Item
             component={

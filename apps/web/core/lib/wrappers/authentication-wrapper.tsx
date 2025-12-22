@@ -7,9 +7,9 @@ import { LogoSpinner } from "@/components/common/logo-spinner";
 // helpers
 import { EPageTypes } from "@/helpers/authentication.helper";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUser, useUserProfile, useUserSettings } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useWorkspaces, getWorkspaceBySlug } from "@/store/queries/workspace";
 
 type TPageType = EPageTypes;
 
@@ -34,7 +34,7 @@ export const AuthenticationWrapper = observer(function AuthenticationWrapper(pro
   const { isLoading: isUserLoading, data: currentUser, fetchCurrentUser } = useUser();
   const { data: currentUserProfile } = useUserProfile();
   const { data: currentUserSettings } = useUserSettings();
-  const { loader: workspacesLoader, workspaces } = useWorkspace();
+  const { data: workspaces, isLoading: workspacesLoader } = useWorkspaces();
 
   const { isLoading: isUserSWRLoading } = useSWR("USER_INFORMATION", async () => await fetchCurrentUser(), {
     revalidateOnFocus: false,
@@ -63,9 +63,9 @@ export const AuthenticationWrapper = observer(function AuthenticationWrapper(pro
       currentUserSettings?.workspace?.last_workspace_slug || currentUserSettings?.workspace?.fallback_workspace_slug;
 
     // validate the current workspace_slug is available in the user's workspace list
-    const isCurrentWorkspaceValid = Object.values(workspaces || {}).findIndex(
-      (workspace) => workspace.slug === currentWorkspaceSlug
-    );
+    const isCurrentWorkspaceValid = workspaces
+      ? workspaces.findIndex((workspace) => workspace.slug === currentWorkspaceSlug)
+      : -1;
 
     if (isCurrentWorkspaceValid >= 0) redirectionRoute = `/${currentWorkspaceSlug}`;
 

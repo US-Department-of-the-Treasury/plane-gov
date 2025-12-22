@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 import { Globe2, Lock } from "lucide-react";
 // plane imports
@@ -16,7 +15,7 @@ import { CommentReactions } from "../comment-reaction";
 import { CommentCardEditForm } from "./edit-form";
 import { EmojiReactionButton, EmojiReactionPicker } from "@plane/propel/emoji-reaction";
 import { Avatar, Tooltip } from "@plane/ui";
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
 
 export type TCommentCardDisplayProps = {
   activityOperations: TCommentsOperations;
@@ -34,7 +33,7 @@ export type TCommentCardDisplayProps = {
   renderQuickActions?: () => ReactNode;
 };
 
-export const CommentCardDisplay = observer(function CommentCardDisplay(props: TCommentCardDisplayProps) {
+export function CommentCardDisplay(props: TCommentCardDisplayProps) {
   const {
     activityOperations,
     comment,
@@ -54,12 +53,12 @@ export const CommentCardDisplay = observer(function CommentCardDisplay(props: TC
   // state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: members } = useWorkspaceMembers(workspaceSlug);
   // derived values
-  const userDetails = getUserDetails(comment?.actor);
+  const userDetails = getWorkspaceMemberByUserId(members, comment?.actor);
   const displayName = comment?.actor_detail?.is_bot
     ? comment?.actor_detail?.first_name + `Bot`
-    : (userDetails?.display_name ?? comment?.actor_detail?.display_name);
+    : (userDetails ? getMemberDisplayName(userDetails) : comment?.actor_detail?.display_name);
   const avatarUrl = userDetails?.avatar_url ?? comment?.actor_detail?.avatar_url;
 
   const userReactions = activityOperations.userReactions(comment.id);
@@ -180,4 +179,4 @@ export const CommentCardDisplay = observer(function CommentCardDisplay(props: TC
       )}
     </div>
   );
-});
+}

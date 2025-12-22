@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // types
 import { MODULE_TRACKER_EVENTS, PROJECT_ERROR_MESSAGES } from "@plane/constants";
@@ -12,8 +11,8 @@ import { AlertModalCore } from "@plane/ui";
 // helpers
 import { captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
-import { useModule } from "@/hooks/store/use-module";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useDeleteModule } from "@/store/queries/module";
 
 type Props = {
   data: IModule;
@@ -21,7 +20,7 @@ type Props = {
   onClose: () => void;
 };
 
-export const DeleteModuleModal = observer(function DeleteModuleModal(props: Props) {
+export function DeleteModuleModal(props: Props) {
   const { data, isOpen, onClose } = props;
   // states
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
@@ -29,7 +28,7 @@ export const DeleteModuleModal = observer(function DeleteModuleModal(props: Prop
   const router = useAppRouter();
   const { workspaceSlug, projectId, moduleId, peekModule } = useParams();
   // store hooks
-  const { deleteModule } = useModule();
+  const deleteModuleMutation = useDeleteModule();
   const { t } = useTranslation();
 
   const handleClose = () => {
@@ -42,7 +41,12 @@ export const DeleteModuleModal = observer(function DeleteModuleModal(props: Prop
 
     setIsDeleteLoading(true);
 
-    await deleteModule(workspaceSlug.toString(), projectId.toString(), data.id)
+    await deleteModuleMutation
+      .mutateAsync({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        moduleId: data.id,
+      })
       .then(() => {
         if (moduleId || peekModule) router.push(`/${workspaceSlug}/projects/${data.project_id}/modules`);
         handleClose();
@@ -91,4 +95,4 @@ export const DeleteModuleModal = observer(function DeleteModuleModal(props: Prop
       }
     />
   );
-});
+}

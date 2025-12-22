@@ -18,11 +18,12 @@ import { cn } from "@plane/utils";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserProfile, useUserSettings } from "@/hooks/store/user";
 // plane-web imports
 import { getIsWorkspaceCreationDisabled } from "@/plane-web/helpers/instance.helper";
 import { WorkspaceService } from "@/plane-web/services";
+// store
+import { useCreateWorkspace } from "@/store/queries/workspace";
 // local components
 import { CommonOnboardingHeader } from "../common";
 
@@ -49,7 +50,7 @@ export const WorkspaceCreateStep = observer(function WorkspaceCreateStep({
   // store hooks
   const { updateUserProfile } = useUserProfile();
   const { fetchCurrentUserSettings } = useUserSettings();
-  const { createWorkspace, fetchWorkspaces } = useWorkspace();
+  const { mutateAsync: createWorkspace } = useCreateWorkspace();
 
   const isWorkspaceCreationEnabled = getIsWorkspaceCreationDisabled() === false;
 
@@ -76,7 +77,7 @@ export const WorkspaceCreateStep = observer(function WorkspaceCreateStep({
       if (res.status === true && !RESTRICTED_URLS.includes(formData.slug)) {
         setSlugError(false);
         try {
-          const workspaceResponse = await createWorkspace(formData);
+          const workspaceResponse = await createWorkspace({ data: formData });
           setToast({
             type: TOAST_TYPE.SUCCESS,
             title: t("workspace_creation.toast.success.title"),
@@ -86,7 +87,6 @@ export const WorkspaceCreateStep = observer(function WorkspaceCreateStep({
             eventName: WORKSPACE_TRACKER_EVENTS.create,
             payload: { slug: formData.slug },
           });
-          await fetchWorkspaces();
           await completeStep(workspaceResponse.id);
           onComplete(formData.organization_size === "Just myself");
         } catch {
