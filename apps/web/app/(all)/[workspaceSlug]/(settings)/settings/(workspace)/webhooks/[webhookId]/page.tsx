@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { EUserPermissions, EUserPermissionsLevel, WORKSPACE_SETTINGS_TRACKER_EVENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IWebhook } from "@plane/types";
@@ -15,6 +15,7 @@ import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useWebhook } from "@/hooks/store/use-webhook";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceDetails } from "@/store/queries/workspace";
+import { queryKeys } from "@/store/queries/query-keys";
 import type { Route } from "./+types/page";
 
 function WebhookDetailsPage({ params }: Route.ComponentProps) {
@@ -35,10 +36,13 @@ function WebhookDetailsPage({ params }: Route.ComponentProps) {
   const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
   const pageTitle = currentWorkspace?.name ? `${currentWorkspace.name} - Webhook` : undefined;
 
-  useSWR(
-    isAdmin ? `WEBHOOK_DETAILS_${workspaceSlug}_${webhookId}` : null,
-    isAdmin ? () => fetchWebhookById(workspaceSlug, webhookId) : null
-  );
+  useQuery({
+    queryKey: queryKeys.webhooks.detail(webhookId),
+    queryFn: () => fetchWebhookById(workspaceSlug, webhookId),
+    enabled: isAdmin,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const handleUpdateWebhook = async (formData: IWebhook) => {
     if (!formData || !formData.id) return;

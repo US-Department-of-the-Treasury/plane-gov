@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 // components
@@ -8,17 +8,21 @@ import { SettingsHeading } from "@/components/settings/heading";
 import { EmailSettingsLoader } from "@/components/ui/loader/settings/email";
 // services
 import { UserService } from "@/services/user.service";
+import { queryKeys } from "@/store/queries/query-keys";
 
 const userService = new UserService();
 
 export default function ProfileNotificationPage() {
   const { t } = useTranslation();
   // fetching user email notification settings
-  const { data, isLoading } = useSWR("CURRENT_USER_EMAIL_NOTIFICATION_SETTINGS", () =>
-    userService.currentUserEmailNotificationSettings()
-  );
+  const { data, isPending } = useQuery({
+    queryKey: queryKeys.emailNotifications.settings(),
+    queryFn: () => userService.currentUserEmailNotificationSettings(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
-  if (!data || isLoading) {
+  if (!data || isPending) {
     return <EmailSettingsLoader />;
   }
 

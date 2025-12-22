@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { ENotificationLoader, ENotificationQueryParamType } from "@plane/constants";
 import { EmptyStateCompact } from "@plane/propel/empty-state";
@@ -11,6 +11,8 @@ import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceIssueProperties } from "@/hooks/use-workspace-issue-properties";
 import { useWorkspaceDetails } from "@/store/queries/workspace";
+// queries
+import { queryKeys } from "@/store/queries/query-keys";
 // plane web imports
 import { useNotificationPreview } from "@/plane-web/hooks/use-notification-preview";
 // local imports
@@ -48,20 +50,22 @@ export function NotificationsRoot({ workspaceSlug }: NotificationsRootProps) {
     currentWorkspace && notificationIdsByWorkspaceId(currentWorkspace.id)
       ? ENotificationQueryParamType.CURRENT
       : ENotificationQueryParamType.INIT;
-  useSWR(
-    currentWorkspace?.slug ? `WORKSPACE_NOTIFICATION_${currentWorkspace?.slug}` : null,
-    currentWorkspace?.slug
-      ? () => getNotifications(currentWorkspace?.slug, notificationMutation, notificationLoader)
-      : null
-  );
+  useQuery({
+    queryKey: queryKeys.notifications.all(currentWorkspace?.slug ?? ""),
+    queryFn: () => getNotifications(currentWorkspace?.slug ?? "", notificationMutation, notificationLoader),
+    enabled: !!currentWorkspace?.slug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   // fetching user project member info
-  const { isLoading: projectMemberInfoLoader } = useSWR(
-    workspace_slug && project_id && is_inbox_issue
-      ? `PROJECT_MEMBER_PERMISSION_INFO_${workspace_slug}_${project_id}`
-      : null,
-    workspace_slug && project_id && is_inbox_issue ? () => fetchUserProjectInfo(workspace_slug, project_id) : null
-  );
+  const { isPending: projectMemberInfoLoader } = useQuery({
+    queryKey: ["PROJECT_MEMBER_PERMISSION_INFO", workspace_slug, project_id],
+    queryFn: () => fetchUserProjectInfo(workspace_slug!, project_id!),
+    enabled: !!(workspace_slug && project_id && is_inbox_issue),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const embedRemoveCurrentNotification = useCallback(
     () => setCurrentSelectedNotificationId(undefined),

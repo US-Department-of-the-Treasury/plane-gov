@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // ui
 import { LogOut } from "lucide-react";
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -15,16 +15,6 @@ import { cn } from "@plane/utils";
 import WorkSpaceNotAvailable from "@/app/assets/workspace/workspace-not-available.png?url";
 // components
 import { LogoSpinner } from "@/components/common/logo-spinner";
-// constants
-import {
-  WORKSPACE_MEMBERS,
-  WORKSPACE_PARTIAL_PROJECTS,
-  WORKSPACE_MEMBER_ME_INFORMATION,
-  WORKSPACE_PROJECTS_ROLES_INFORMATION,
-  WORKSPACE_FAVORITE,
-  WORKSPACE_STATES,
-  WORKSPACE_SIDEBAR_PREFERENCES,
-} from "@/constants/fetch-keys";
 // hooks
 import { useFavorite } from "@/hooks/store/use-favorite";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
@@ -33,6 +23,7 @@ import { useWorkspaceStates } from "@/store/queries/state";
 import { useWorkspaces, useSidebarNavigationPreferences, getWorkspaceBySlug } from "@/store/queries/workspace";
 import { useWorkspaceMembers } from "@/store/queries/member";
 import { usePartialProjects } from "@/store/queries/project";
+import { queryKeys } from "@/store/queries/query-keys";
 
 interface IWorkspaceAuthWrapper {
   children: ReactNode;
@@ -67,28 +58,31 @@ export function WorkspaceAuthWrapper(props: IWorkspaceAuthWrapper) {
   const currentWorkspace = workspaceSlug ? getWorkspaceBySlug(workspaces, workspaceSlug.toString()) : undefined;
   const currentWorkspaceInfo = workspaceSlug && workspaceInfoBySlug(workspaceSlug.toString());
 
-  // fetching user workspace information
-  useSWR(
-    workspaceSlug && currentWorkspace ? WORKSPACE_MEMBER_ME_INFORMATION(workspaceSlug.toString()) : null,
-    workspaceSlug && currentWorkspace ? () => fetchUserWorkspaceInfo(workspaceSlug.toString()) : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
-  useSWR(
-    workspaceSlug && currentWorkspace ? WORKSPACE_PROJECTS_ROLES_INFORMATION(workspaceSlug.toString()) : null,
-    workspaceSlug && currentWorkspace ? () => fetchUserProjectPermissions(workspaceSlug.toString()) : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
+  // TanStack Query - fetching user workspace information
+  useQuery({
+    queryKey: ["workspace-member-me", workspaceSlug?.toString()],
+    queryFn: () => fetchUserWorkspaceInfo(workspaceSlug!.toString()),
+    enabled: !!workspaceSlug && !!currentWorkspace,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
-  // fetch workspace favorite
-  useSWR(
-    workspaceSlug && currentWorkspace && canPerformWorkspaceMemberActions
-      ? WORKSPACE_FAVORITE(workspaceSlug.toString())
-      : null,
-    workspaceSlug && currentWorkspace && canPerformWorkspaceMemberActions
-      ? () => fetchFavorite(workspaceSlug.toString())
-      : null,
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
+  useQuery({
+    queryKey: ["workspace-projects-roles", workspaceSlug?.toString()],
+    queryFn: () => fetchUserProjectPermissions(workspaceSlug!.toString()),
+    enabled: !!workspaceSlug && !!currentWorkspace,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+
+  // TanStack Query - fetch workspace favorite
+  useQuery({
+    queryKey: queryKeys.favorites.all(workspaceSlug?.toString() || ""),
+    queryFn: () => fetchFavorite(workspaceSlug!.toString()),
+    enabled: !!workspaceSlug && !!currentWorkspace && canPerformWorkspaceMemberActions,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const handleSignOut = async () => {
     await signOut().catch(() =>

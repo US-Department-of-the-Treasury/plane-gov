@@ -1,14 +1,13 @@
 import type { ReactNode } from "react";
 
 import { useSearchParams, usePathname } from "next/navigation";
-import useSWR from "swr";
 // components
 import { LogoSpinner } from "@/components/common/logo-spinner";
 // helpers
 import { EPageTypes } from "@/helpers/authentication.helper";
 // hooks
-import { useUser, useUserProfile, useUserSettings } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useCurrentUser, useCurrentUserProfile, useCurrentUserSettings } from "@/store/queries/user";
 import { useWorkspaces, getWorkspaceBySlug } from "@/store/queries/workspace";
 
 type TPageType = EPageTypes;
@@ -30,16 +29,11 @@ export function AuthenticationWrapper(props: TAuthenticationWrapper) {
   const nextPath = searchParams.get("next_path");
   // props
   const { children, pageType = EPageTypes.AUTHENTICATED } = props;
-  // hooks
-  const { isLoading: isUserLoading, data: currentUser, fetchCurrentUser } = useUser();
-  const { data: currentUserProfile } = useUserProfile();
-  const { data: currentUserSettings } = useUserSettings();
+  // TanStack Query hooks
+  const { isPending: isUserLoading, data: currentUser } = useCurrentUser();
+  const { data: currentUserProfile } = useCurrentUserProfile();
+  const { data: currentUserSettings } = useCurrentUserSettings();
   const { data: workspaces, isLoading: workspacesLoader } = useWorkspaces();
-
-  const { isLoading: isUserSWRLoading } = useSWR("USER_INFORMATION", async () => await fetchCurrentUser(), {
-    revalidateOnFocus: false,
-    shouldRetryOnError: false,
-  });
 
   const isUserOnboard =
     currentUserProfile?.is_onboarded ||
@@ -72,7 +66,7 @@ export function AuthenticationWrapper(props: TAuthenticationWrapper) {
     return redirectionRoute;
   };
 
-  if ((isUserSWRLoading || isUserLoading || workspacesLoader) && !currentUser?.id)
+  if ((isUserLoading || workspacesLoader) && !currentUser?.id)
     return (
       <div className="relative flex h-screen w-full items-center justify-center">
         <LogoSpinner />

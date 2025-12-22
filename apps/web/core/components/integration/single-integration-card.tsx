@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import useSWR, { mutate } from "swr";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle } from "lucide-react";
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { Button } from "@plane/propel/button";
@@ -13,7 +13,7 @@ import { Loader } from "@plane/ui";
 import GithubLogo from "@/app/assets/services/github.png?url";
 import SlackLogo from "@/app/assets/services/slack.png?url";
 // constants
-import { WORKSPACE_INTEGRATIONS } from "@/constants/fetch-keys";
+import { queryKeys } from "@/store/queries/query-keys";
 // hooks
 import { useInstance } from "@/hooks/store/use-instance";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -58,10 +58,13 @@ export function SingleIntegrationCard({ integration }: Props) {
     github_app_name: config?.github_app_name || "",
     slack_client_id: config?.slack_client_id || "",
   });
+  const queryClient = useQueryClient();
 
-  const { data: workspaceIntegrations } = useSWR(workspaceSlug ? WORKSPACE_INTEGRATIONS(workspaceSlug) : null, () =>
-    workspaceSlug ? integrationService.getWorkspaceIntegrationsList(workspaceSlug) : null
-  );
+  const { data: workspaceIntegrations } = useQuery({
+    queryKey: queryKeys.integrations.workspace(workspaceSlug as string),
+    queryFn: () => integrationService.getWorkspaceIntegrationsList(workspaceSlug as string),
+    enabled: !!workspaceSlug,
+  });
 
   const handleRemoveIntegration = async () => {
     if (!workspaceSlug || !integration || !workspaceIntegrations) return;
@@ -73,10 +76,9 @@ export function SingleIntegrationCard({ integration }: Props) {
     await integrationService
       .deleteWorkspaceIntegration(workspaceSlug, workspaceIntegrationId ?? "")
       .then(() => {
-        mutate<IWorkspaceIntegration[]>(
-          WORKSPACE_INTEGRATIONS(workspaceSlug),
-          (prevData) => prevData?.filter((i) => i.id !== workspaceIntegrationId),
-          false
+        queryClient.setQueryData<IWorkspaceIntegration[]>(
+          queryKeys.integrations.workspace(workspaceSlug as string),
+          (prevData) => prevData?.filter((i) => i.id !== workspaceIntegrationId)
         );
         setDeletingIntegration(false);
 

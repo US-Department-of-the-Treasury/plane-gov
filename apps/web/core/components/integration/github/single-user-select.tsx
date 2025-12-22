@@ -1,12 +1,12 @@
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane types
 import type { IGithubRepoCollaborator } from "@plane/types";
 // plane ui
 import { Avatar, CustomSelect, CustomSearchSelect, Input } from "@plane/ui";
 // constants
 import { getFileURL } from "@plane/utils";
-import { WORKSPACE_MEMBERS } from "@/constants/fetch-keys";
+import { queryKeys } from "@/store/queries/query-keys";
 // helpers
 // plane web services
 import { WorkspaceService } from "@/plane-web/services";
@@ -41,10 +41,11 @@ const workspaceService = new WorkspaceService();
 export function SingleUserSelect({ collaborator, index, users, setUsers }: Props) {
   const { workspaceSlug } = useParams();
 
-  const { data: members } = useSWR(
-    workspaceSlug ? WORKSPACE_MEMBERS(workspaceSlug.toString()) : null,
-    workspaceSlug ? () => workspaceService.fetchWorkspaceMembers(workspaceSlug.toString()) : null
-  );
+  const { data: members } = useQuery({
+    queryKey: queryKeys.members.workspace(workspaceSlug as string),
+    queryFn: () => workspaceService.fetchWorkspaceMembers(workspaceSlug as string),
+    enabled: !!workspaceSlug,
+  });
 
   const options = members
     ?.map((member) => {

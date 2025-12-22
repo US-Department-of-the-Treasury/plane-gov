@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
-import { mutate } from "swr";
+import { useQueryClient } from "@tanstack/react-query";
 // icons
 import { ArrowLeft, Check, List, Settings } from "lucide-react";
 import { Button } from "@plane/propel/button";
@@ -11,8 +11,8 @@ import { MembersPropertyIcon } from "@plane/propel/icons";
 import type { IJiraImporterForm } from "@plane/types";
 // assets
 import JiraLogo from "@/app/assets/services/jira.svg?url";
-// fetch keys
-import { IMPORTER_SERVICES_LIST } from "@/constants/fetch-keys";
+// store
+import { queryKeys } from "@/store/queries/query-keys";
 // hooks
 import { useAppRouter } from "@/hooks/use-app-router";
 // services
@@ -59,6 +59,7 @@ export function JiraImporterRoot() {
 
   const router = useAppRouter();
   const { workspaceSlug } = useParams();
+  const queryClient = useQueryClient();
 
   const methods = useForm<IJiraImporterForm>({
     defaultValues: jiraFormDefaultValues,
@@ -74,7 +75,7 @@ export function JiraImporterRoot() {
     await jiraImporterService
       .createJiraImporter(workspaceSlug.toString(), data)
       .then(() => {
-        mutate(IMPORTER_SERVICES_LIST(workspaceSlug.toString()));
+        queryClient.invalidateQueries({ queryKey: queryKeys.integrations.imports(workspaceSlug.toString()) });
         router.push(`/${workspaceSlug}/settings/imports`);
       })
       .catch((err) => {

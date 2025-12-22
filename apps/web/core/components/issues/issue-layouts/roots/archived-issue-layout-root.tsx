@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
 import { EIssuesStoreType } from "@plane/types";
@@ -10,6 +10,7 @@ import { ProjectLevelWorkItemFiltersHOC } from "@/components/work-item-filters/f
 import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 import { useIssues } from "@/hooks/store/use-issues";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import { IssuePeekOverview } from "../../peek-overview";
 import { ArchivedIssueListLayout } from "../list/roots/archived-issue-root";
@@ -24,15 +25,18 @@ export function ArchivedIssueLayoutRoot() {
   // derived values
   const workItemFilters = projectId ? issuesFilter?.getIssueFilters(projectId) : undefined;
 
-  useSWR(
-    workspaceSlug && projectId ? `ARCHIVED_ISSUES_${workspaceSlug.toString()}_${projectId.toString()}` : null,
-    async () => {
+  useQuery({
+    queryKey: workspaceSlug && projectId ? ["archived-issues", workspaceSlug, projectId] : [],
+    queryFn: async () => {
       if (workspaceSlug && projectId) {
         await issuesFilter?.fetchFilters(workspaceSlug.toString(), projectId.toString());
       }
+      return null;
     },
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
+    enabled: !!(workspaceSlug && projectId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   if (!workspaceSlug || !projectId || !workItemFilters) return <></>;
   return (

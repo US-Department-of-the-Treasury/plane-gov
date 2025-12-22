@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "@plane/i18n";
 import type { IWorkspaceMemberInvitation } from "@plane/types";
 // components
@@ -56,14 +56,14 @@ export function AuthHeader(props: TAuthHeader) {
   // plane imports
   const { t } = useTranslation();
 
-  const { data: invitation, isLoading } = useSWR(
-    workspaceSlug && invitationId ? `WORKSPACE_INVITATION_${workspaceSlug}_${invitationId}` : null,
-    async () => workspaceSlug && invitationId && workSpaceService.getWorkspaceInvitation(workspaceSlug, invitationId),
-    {
-      revalidateOnFocus: false,
-      shouldRetryOnError: false,
-    }
-  );
+  const { data: invitation, isPending: isLoading } = useQuery({
+    queryKey: ["workspace-invitation", workspaceSlug, invitationId],
+    queryFn: async () => workSpaceService.getWorkspaceInvitation(workspaceSlug!, invitationId!),
+    enabled: !!(workspaceSlug && invitationId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    retry: false,
+  });
 
   const getHeaderSubHeader = (
     step: EAuthSteps,

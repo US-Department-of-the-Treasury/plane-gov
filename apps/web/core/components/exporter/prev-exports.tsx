@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useSWR, { mutate } from "swr";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoveLeft, MoveRight, RefreshCw } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -9,10 +9,9 @@ import type { IExportData } from "@plane/types";
 import { Table } from "@plane/ui";
 // components
 import { ImportExportSettingsLoader } from "@/components/ui/loader/settings/import-and-export";
-// constants
-import { EXPORT_SERVICES_LIST } from "@/constants/fetch-keys";
 // services
 import { IntegrationService } from "@/services/integrations";
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import { useExportColumns } from "./column";
 
@@ -33,15 +32,21 @@ export function PrevExports(props: Props) {
   // hooks
   const { t } = useTranslation();
   const columns = useExportColumns();
+  const queryClient = useQueryClient();
 
-  const { data: exporterServices } = useSWR(
-    workspaceSlug && cursor ? EXPORT_SERVICES_LIST(workspaceSlug, cursor, `${per_page}`) : null,
-    workspaceSlug && cursor ? () => integrationService.getExportsServicesList(workspaceSlug, cursor, per_page) : null
-  );
+  const { data: exporterServices } = useQuery({
+    queryKey: queryKeys.exporter.services(workspaceSlug, cursor ?? "", `${per_page}`),
+    queryFn: () => integrationService.getExportsServicesList(workspaceSlug, cursor ?? "", per_page),
+    enabled: !!(workspaceSlug && cursor),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const handleRefresh = () => {
     setRefreshing(true);
-    mutate(EXPORT_SERVICES_LIST(workspaceSlug, `${cursor}`, `${per_page}`)).then(() => setRefreshing(false));
+    queryClient
+      .invalidateQueries({ queryKey: queryKeys.exporter.services(workspaceSlug, cursor ?? "", `${per_page}`) })
+      .then(() => setRefreshing(false));
   };
 
   useEffect(() => {

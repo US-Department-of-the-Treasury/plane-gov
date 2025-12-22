@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { useState, useMemo, useCallback } from "react";
 import { usePathname } from "next/navigation";
 // Plane imports
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { EUserPermissions, EUserPermissionsLevel, WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setPromiseToast, setToast } from "@plane/propel/toast";
@@ -16,6 +16,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useWorkItemProperties } from "@/plane-web/hooks/use-issue-properties";
 import { useUpdateIssue, useDeleteIssue, useArchiveIssue } from "@/store/queries/issue";
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import type { TIssueOperations } from "../issue-detail";
 import { IssueView } from "./view";
@@ -275,15 +276,20 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
     [fetchIssue, is_draft, issues, fetchActivities, pathname, removeRoutePeekId, restoreIssue]
   );
 
-  const { isLoading } = useSWR(
-    ["peek-issue", peekIssue?.workspaceSlug, peekIssue?.projectId, peekIssue?.issueId],
-    () => peekIssue && issueOperations.fetch(peekIssue.workspaceSlug, peekIssue.projectId, peekIssue.issueId),
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
+  const { isPending } = useQuery({
+    queryKey: peekIssue?.issueId
+      ? ["peek-issue", peekIssue.workspaceSlug, peekIssue.projectId, peekIssue.issueId]
+      : [],
+    queryFn: async () => {
+      if (peekIssue) {
+        await issueOperations.fetch(peekIssue.workspaceSlug, peekIssue.projectId, peekIssue.issueId);
+      }
+      return null;
+    },
+    enabled: !!(peekIssue?.workspaceSlug && peekIssue?.projectId && peekIssue?.issueId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   if (!peekIssue?.workspaceSlug || !peekIssue?.projectId || !peekIssue?.issueId) return <></>;
 
@@ -300,7 +306,7 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
       workspaceSlug={peekIssue.workspaceSlug}
       projectId={peekIssue.projectId}
       issueId={peekIssue.issueId}
-      isLoading={isLoading}
+      isLoading={isPending}
       isError={error}
       is_archived={!!peekIssue.isArchived}
       disabled={!isEditable}

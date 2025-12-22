@@ -1,8 +1,10 @@
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import type { TPageNavigationTabs } from "@plane/types";
 // plane web hooks
 import type { EPageStoreType } from "@/plane-web/hooks/store";
 import { usePageStore } from "@/plane-web/hooks/store";
+// query keys
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import { PagesListHeaderRoot } from "./header";
 import { PagesListMainContent } from "./pages-list-main-content";
@@ -20,10 +22,13 @@ export function PagesListView(props: TPageView) {
   // store hooks
   const { isAnyPageAvailable, fetchPagesList } = usePageStore(storeType);
   // fetching pages list
-  useSWR(
-    workspaceSlug && projectId && pageType ? `PROJECT_PAGES_${projectId}` : null,
-    workspaceSlug && projectId && pageType ? () => fetchPagesList(workspaceSlug, projectId, pageType) : null
-  );
+  useQuery({
+    queryKey: queryKeys.pages.list(workspaceSlug ?? "", projectId ?? "", pageType ?? "public"),
+    queryFn: () => fetchPagesList(workspaceSlug!, projectId!, pageType!),
+    enabled: !!(workspaceSlug && projectId && pageType),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   // pages loader
   return (

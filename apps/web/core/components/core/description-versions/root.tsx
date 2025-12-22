@@ -1,8 +1,10 @@
 import { useCallback, useState } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import type { TDescriptionVersionDetails, TDescriptionVersionsListResponse } from "@plane/types";
 import { cn } from "@plane/utils";
+// query keys
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import { DescriptionVersionsDropdown } from "./dropdown";
 import { DescriptionVersionsModal } from "./modal";
@@ -34,15 +36,21 @@ export function DescriptionVersionsRoot(props: Props) {
   // derived values
   const entityId = entityInformation.id;
   // fetch versions list
-  const { data: versionsListResponse } = useSWR(
-    entityId ? `DESCRIPTION_VERSIONS_LIST_${entityId}` : null,
-    entityId ? () => fetchHandlers.listDescriptionVersions(entityId) : null
-  );
+  const { data: versionsListResponse } = useQuery({
+    queryKey: queryKeys.descriptionVersions.all(entityId ?? ""),
+    queryFn: () => fetchHandlers.listDescriptionVersions(entityId!),
+    enabled: !!entityId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   // fetch active version details
-  const { data: activeVersionResponse } = useSWR(
-    entityId && activeVersionId ? `DESCRIPTION_VERSION_DETAILS_${activeVersionId}` : null,
-    entityId && activeVersionId ? () => fetchHandlers.retrieveDescriptionVersion(entityId, activeVersionId) : null
-  );
+  const { data: activeVersionResponse } = useQuery({
+    queryKey: queryKeys.descriptionVersions.detail(activeVersionId ?? ""),
+    queryFn: () => fetchHandlers.retrieveDescriptionVersion(entityId!, activeVersionId!),
+    enabled: !!(entityId && activeVersionId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   const versions = versionsListResponse?.results;
   const versionsCount = versions?.length ?? 0;
   const activeVersionDetails = versions?.find((version) => version.id === activeVersionId);

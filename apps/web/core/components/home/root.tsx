@@ -1,5 +1,5 @@
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { PRODUCT_TOUR_TRACKER_EVENTS } from "@plane/constants";
 import { ContentWrapper } from "@plane/ui";
@@ -8,6 +8,7 @@ import { captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
 import { useHome } from "@/hooks/store/use-home";
 import { useUserProfile, useUser } from "@/hooks/store/user";
+import { queryKeys } from "@/store/queries/query-keys";
 // plane web imports
 import { HomePeekOverviewsRoot } from "@/plane-web/components/home";
 import { TourRoot } from "@/plane-web/components/onboarding/tour/root";
@@ -22,15 +23,13 @@ export function WorkspaceHomeView() {
   const { data: currentUserProfile, updateTourCompleted } = useUserProfile();
   const { fetchWidgets } = useHome();
 
-  useSWR(
-    workspaceSlug ? `HOME_DASHBOARD_WIDGETS_${workspaceSlug}` : null,
-    workspaceSlug ? () => fetchWidgets(workspaceSlug?.toString()) : null,
-    {
-      revalidateIfStale: true,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-    }
-  );
+  useQuery({
+    queryKey: queryKeys.home.widgets(workspaceSlug?.toString() ?? ""),
+    queryFn: () => fetchWidgets(workspaceSlug?.toString()),
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const handleTourCompleted = () => {
     updateTourCompleted()

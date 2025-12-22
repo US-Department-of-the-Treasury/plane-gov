@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { GLOBAL_VIEW_TRACKER_ELEMENTS, ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
@@ -19,6 +19,7 @@ import { useIssues } from "@/hooks/store/use-issues";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
 import { useWorkspaceIssueProperties } from "@/hooks/use-workspace-issue-properties";
+import { queryKeys } from "@/store/queries/query-keys";
 
 type Props = {
   isDefaultView: boolean;
@@ -77,20 +78,23 @@ export function AllIssueLayoutRoot(props: Props) {
   }, [fetchNextIssues, workspaceSlug, globalViewId]);
 
   // Fetch global views
-  const { isLoading: globalViewsLoading } = useSWR(
-    workspaceSlug ? `WORKSPACE_GLOBAL_VIEWS_${workspaceSlug}` : null,
-    async () => {
+  const { isPending: globalViewsLoading } = useQuery({
+    queryKey: workspaceSlug ? queryKeys.workspaceViews.all(workspaceSlug) : [],
+    queryFn: async () => {
       if (workspaceSlug) {
         await fetchAllGlobalViews();
       }
+      return null;
     },
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   // Fetch issues
-  const { isLoading: issuesLoading } = useSWR(
-    workspaceSlug && globalViewId ? `WORKSPACE_GLOBAL_VIEW_ISSUES_${workspaceSlug}_${globalViewId}` : null,
-    async () => {
+  const { isPending: issuesLoading } = useQuery({
+    queryKey: workspaceSlug && globalViewId ? ["workspace-view-issues", workspaceSlug, globalViewId] : [],
+    queryFn: async () => {
       if (workspaceSlug && globalViewId) {
         clear();
         toggleLoading(true);
@@ -101,9 +105,12 @@ export function AllIssueLayoutRoot(props: Props) {
         });
         toggleLoading(false);
       }
+      return null;
     },
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
+    enabled: !!(workspaceSlug && globalViewId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   // Empty state
   if (!isLoading && !globalViewsLoading && !issuesLoading && !viewDetails && !isDefaultView) {

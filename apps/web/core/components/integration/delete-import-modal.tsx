@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { useParams } from "next/navigation";
 
-import { mutate } from "swr";
+import { useQueryClient } from "@tanstack/react-query";
 
 // headless ui
 import { AlertTriangle } from "lucide-react";
@@ -12,7 +12,7 @@ import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IUser, IImporterService } from "@plane/types";
 import { Input } from "@plane/ui";
-import { IMPORTER_SERVICES_LIST } from "@/constants/fetch-keys";
+import { queryKeys } from "@/store/queries/query-keys";
 import { IntegrationService } from "@/services/integrations/integration.service";
 // ui
 // icons
@@ -34,20 +34,20 @@ export function DeleteImportModal({ isOpen, handleClose, data }: Props) {
   const [confirmDeleteImport, setConfirmDeleteImport] = useState(false);
 
   const { workspaceSlug } = useParams();
+  const queryClient = useQueryClient();
 
   const handleDeletion = () => {
     if (!workspaceSlug || !data) return;
 
     setDeleteLoading(true);
 
-    mutate<IImporterService[]>(
-      IMPORTER_SERVICES_LIST(workspaceSlug),
-      (prevData) => (prevData ?? []).filter((i) => i.id !== data.id),
-      false
+    queryClient.setQueryData<IImporterService[]>(
+      queryKeys.integrations.imports(workspaceSlug as string),
+      (prevData) => (prevData ?? []).filter((i) => i.id !== data.id)
     );
 
     integrationService
-      .deleteImporterService(workspaceSlug, data.service, data.id)
+      .deleteImporterService(workspaceSlug as string, data.service, data.id)
       .catch(() =>
         setToast({
           type: TOAST_TYPE.ERROR,

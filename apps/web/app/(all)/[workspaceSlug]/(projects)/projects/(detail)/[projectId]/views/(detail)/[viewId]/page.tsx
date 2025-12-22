@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // assets
 import emptyView from "@/app/assets/empty-state/view.svg?url";
 // components
@@ -10,6 +10,7 @@ import { useProjectView } from "@/hooks/store/use-project-view";
 import { useAppRouter } from "@/hooks/use-app-router";
 // queries
 import { useProjectDetails } from "@/store/queries/project";
+import { queryKeys } from "@/store/queries/query-keys";
 import type { Route } from "./+types/page";
 
 function ProjectViewIssuesPage({ params }: Route.ComponentProps) {
@@ -24,7 +25,12 @@ function ProjectViewIssuesPage({ params }: Route.ComponentProps) {
   const projectView = getViewById(viewId);
   const pageTitle = project?.name && projectView?.name ? `${project?.name} - ${projectView?.name}` : undefined;
 
-  const { error } = useSWR(`VIEW_DETAILS_${viewId}`, () => fetchViewDetails(workspaceSlug, projectId, viewId));
+  const { error } = useQuery({
+    queryKey: queryKeys.views.detail(viewId),
+    queryFn: () => fetchViewDetails(workspaceSlug, projectId, viewId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   if (error) {
     return (

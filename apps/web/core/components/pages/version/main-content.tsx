@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { EyeIcon, TriangleAlert } from "lucide-react";
 // plane imports
 import { Button } from "@plane/propel/button";
@@ -8,6 +8,8 @@ import type { TPageVersion } from "@plane/types";
 import { renderFormattedDate, renderFormattedTime } from "@plane/utils";
 // helpers
 import type { EPageStoreType } from "@/plane-web/hooks/store";
+// query keys
+import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import type { TVersionEditorProps } from "./editor";
 
@@ -40,11 +42,14 @@ export function PageVersionsMainContent(props: Props) {
   const {
     data: versionDetails,
     error: versionDetailsError,
-    mutate: mutateVersionDetails,
-  } = useSWR(
-    pageId && activeVersion ? `PAGE_VERSION_${activeVersion}` : null,
-    pageId && activeVersion ? () => fetchVersionDetails(pageId, activeVersion) : null
-  );
+    refetch: mutateVersionDetails,
+  } = useQuery({
+    queryKey: queryKeys.pages.versionDetail(activeVersion ?? ""),
+    queryFn: () => fetchVersionDetails(pageId, activeVersion!),
+    enabled: !!(pageId && activeVersion),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const handleRestoreVersion = async () => {
     if (!restoreEnabled) return;

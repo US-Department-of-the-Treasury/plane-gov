@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 // plane imports
 import { ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
 import { EIssuesStoreType } from "@plane/types";
@@ -13,6 +13,8 @@ import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
+// query keys
+import { queryKeys } from "@/store/queries/query-keys";
 
 type Props = {
   type: "assigned" | "subscribed" | "created";
@@ -33,15 +35,18 @@ export function ProfileIssuesPage(props: Props) {
     if (setViewId) setViewId(type);
   }, [type, setViewId]);
 
-  useSWR(
-    workspaceSlug && userId ? `CURRENT_WORKSPACE_PROFILE_ISSUES_${workspaceSlug}_${userId}` : null,
-    async () => {
+  useQuery({
+    queryKey: queryKeys.userProfiles.issues(workspaceSlug?.toString() ?? "", userId?.toString() ?? ""),
+    queryFn: async () => {
       if (workspaceSlug && userId) {
-        await fetchFilters(workspaceSlug, userId);
+        await fetchFilters(workspaceSlug.toString(), userId.toString());
       }
+      return null;
     },
-    { revalidateIfStale: false, revalidateOnFocus: false }
-  );
+    enabled: !!(workspaceSlug && userId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   return (
     <IssuesStoreContext.Provider value={EIssuesStoreType.PROFILE}>
