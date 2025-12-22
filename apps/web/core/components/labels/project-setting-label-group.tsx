@@ -1,6 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Disclosure, Transition } from "@headlessui/react";
 import { PROJECT_SETTINGS_TRACKER_ELEMENTS } from "@plane/constants";
@@ -35,7 +34,7 @@ type Props = {
   isEditable?: boolean;
 };
 
-export const ProjectSettingLabelGroup = observer(function ProjectSettingLabelGroup(props: Props) {
+export function ProjectSettingLabelGroup(props: Props) {
   const {
     label,
     labelChildren,
@@ -168,4 +167,4 @@ export const ProjectSettingLabelGroup = observer(function ProjectSettingLabelGro
       )}
     </LabelDndHOC>
   );
-});
+}

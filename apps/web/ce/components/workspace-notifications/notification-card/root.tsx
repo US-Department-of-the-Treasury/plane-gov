@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { ENotificationLoader, ENotificationQueryParamType } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -13,7 +12,7 @@ type TNotificationCardListRoot = {
   workspaceId: string;
 };
 
-export const NotificationCardListRoot = observer(function NotificationCardListRoot(props: TNotificationCardListRoot) {
+export function NotificationCardListRoot(props: TNotificationCardListRoot) {
   const { workspaceSlug, workspaceId } = props;
   // hooks
   const { loader, paginationInfo, getNotifications, notificationIdsByWorkspaceId } = useWorkspaceNotifications();
@@ -53,4 +52,4 @@ export const NotificationCardListRoot = observer(function NotificationCardListRo
       )}
     </div>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane package imports
 import { getButtonStyling } from "@plane/propel/button";
@@ -15,7 +14,7 @@ type Props = {
   projectIds: string[] | undefined;
 };
 
-export const ProjectSelect = observer(function ProjectSelect(props: Props) {
+export function ProjectSelect(props: Props) {
   const { value, onChange, projectIds } = props;
   const { workspaceSlug } = useParams();
   const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
@@ -63,4 +62,4 @@ export const ProjectSelect = observer(function ProjectSelect(props: Props) {
       multiple
     />
   );
-});
+}

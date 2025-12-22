@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { OctagonAlert } from "lucide-react";
 // plane imports
 import type { IWorkspaceMemberInvitation, TOnboardingSteps } from "@plane/types";
@@ -26,7 +25,7 @@ type Props = {
   finishOnboarding: () => Promise<void>;
 };
 
-export const CreateOrJoinWorkspaces = observer(function CreateOrJoinWorkspaces(props: Props) {
+export function CreateOrJoinWorkspaces(props: Props) {
   const { invitations, totalSteps, stepChange, finishOnboarding } = props;
   // states
   const [currentView, setCurrentView] = useState<ECreateOrJoinWorkspaceViews | null>(null);
@@ -89,4 +88,4 @@ export const CreateOrJoinWorkspaces = observer(function CreateOrJoinWorkspaces(p
       <SwitchAccountDropdown />
     </div>
   );
-});
+}

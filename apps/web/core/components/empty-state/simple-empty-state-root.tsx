@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // utils
 import { cn } from "@plane/utils";
 
@@ -28,7 +27,7 @@ const getTitleClassName = (hasDescription: boolean) =>
     "text-16 text-tertiary": hasDescription,
   });
 
-export const SimpleEmptyState = observer(function SimpleEmptyState(props: Props) {
+export function SimpleEmptyState(props: Props) {
   const { title, description, size = "sm", assetPath } = props;
 
   return (
@@ -44,4 +43,4 @@ export const SimpleEmptyState = observer(function SimpleEmptyState(props: Props)
       {description && <p className="text-14 font-medium text-placeholder whitespace-pre-line">{description}</p>}
     </div>
   );
-});
+}

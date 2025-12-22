@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 // types
@@ -29,7 +28,7 @@ const ARCHIVES_TAB_LIST: {
   },
 ];
 
-export const ArchiveTabsList = observer(function ArchiveTabsList() {
+export function ArchiveTabsList() {
   // router
   const { workspaceSlug, projectId } = useParams();
   const pathname = usePathname();
@@ -61,4 +60,4 @@ export const ArchiveTabsList = observer(function ArchiveTabsList() {
       )}
     </>
   );
-});
+}

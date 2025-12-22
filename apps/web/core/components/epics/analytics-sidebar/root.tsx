@@ -70,11 +70,7 @@ export function EpicAnalyticsSidebar(props: Props) {
   const { t } = useTranslation();
   const { allowPermissions } = useUserPermissions();
 
-  const { data: epicDetails } = useEpicDetails(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? "",
-    epicId
-  );
+  const { data: epicDetails } = useEpicDetails(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "", epicId);
   const { mutateAsync: updateEpic } = useUpdateEpic();
   const { mutateAsync: createLink } = useCreateEpicLink();
   const { mutateAsync: updateLink } = useUpdateEpicLink();
@@ -247,9 +243,7 @@ export function EpicAnalyticsSidebar(props: Props) {
   const epicStatus = EPIC_STATUS.find((status) => status.value === epicDetails.status);
 
   const issueCount =
-    epicDetails.total_issues === 0
-      ? "0 work items"
-      : `${epicDetails.completed_issues}/${epicDetails.total_issues}`;
+    epicDetails.total_issues === 0 ? "0 work items" : `${epicDetails.completed_issues}/${epicDetails.total_issues}`;
 
   const issueEstimatePointCount =
     epicDetails.total_estimate_points === 0

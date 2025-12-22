@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { RotateCcw } from "lucide-react";
 // hooks
 import { ArchiveIcon } from "@plane/propel/icons";
@@ -9,7 +8,7 @@ import { IssueActivityBlockComponent } from "./";
 
 type TIssueArchivedAtActivity = { activityId: string; ends: "top" | "bottom" | undefined };
 
-export const IssueArchivedAtActivity = observer(function IssueArchivedAtActivity(props: TIssueArchivedAtActivity) {
+export function IssueArchivedAtActivity(props: TIssueArchivedAtActivity) {
   const { activityId, ends } = props;
   // hooks
   const {
@@ -36,4 +35,4 @@ export const IssueArchivedAtActivity = observer(function IssueArchivedAtActivity
       {activity.new_value === "restore" ? "restored the work item" : "archived the work item"}.
     </IssueActivityBlockComponent>
   );
-});
+}

@@ -88,7 +88,9 @@ export const DocumentEditor = forwardRef(function DocumentEditor(
           return res;
         },
         renderComponent: EditorMentionsRoot,
-        getMentionedEntityDetails: (id: string) => ({ display_name: getMemberDisplayName(getWorkspaceMemberByUserId(workspaceMembers || [], id)) ?? "" }),
+        getMentionedEntityDetails: (id: string) => ({
+          display_name: getMemberDisplayName(getWorkspaceMemberByUserId(workspaceMembers || [], id)) ?? "",
+        }),
       }}
       extendedEditorProps={extendedEditorProps}
       {...rest}

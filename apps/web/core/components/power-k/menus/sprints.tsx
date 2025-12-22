@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { ContrastIcon } from "@plane/propel/icons";
 import type { ISprint } from "@plane/types";
@@ -12,7 +11,7 @@ type Props = {
   value?: string | null;
 };
 
-export const PowerKSprintsMenu = observer(function PowerKSprintsMenu({ sprints, onSelect, value }: Props) {
+export function PowerKSprintsMenu({ sprints, onSelect, value }: Props) {
   return (
     <PowerKMenuBuilder
       items={sprints}
@@ -25,4 +24,4 @@ export const PowerKSprintsMenu = observer(function PowerKSprintsMenu({ sprints, 
       emptyText="No sprints found"
     />
   );
-});
+}

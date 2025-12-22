@@ -1,6 +1,5 @@
 import type { MutableRefObject } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { IIssueDisplayFilterOptions, IIssueDisplayProperties, TIssue } from "@plane/types";
 // components
@@ -34,7 +33,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const SpreadsheetTable = observer(function SpreadsheetTable(props: Props) {
+export function SpreadsheetTable(props: Props) {
   const {
     displayProperties,
     displayFilters,
@@ -143,4 +142,4 @@ export const SpreadsheetTable = observer(function SpreadsheetTable(props: Props)
       )}
     </table>
   );
-});
+}

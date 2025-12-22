@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import type { IState, TStateGroups, TStateOperationsCallbacks } from "@plane/types";
 // components
 import { StateItem } from "@/components/project-states";
@@ -13,7 +12,7 @@ type TStateList = {
   stateItemClassName?: string;
 };
 
-export const StateList = observer(function StateList(props: TStateList) {
+export function StateList(props: TStateList) {
   const {
     groupKey,
     groupedStates,
@@ -41,4 +40,4 @@ export const StateList = observer(function StateList(props: TStateList) {
       ))}
     </>
   );
-});
+}

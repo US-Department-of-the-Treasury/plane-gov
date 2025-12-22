@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 import { Circle } from "lucide-react";
 import { ChevronDownIcon, ChevronUpIcon } from "@plane/propel/icons";
 // Plane
@@ -19,7 +18,7 @@ interface IHeaderSubGroupByCard {
   handleCollapsedGroups: (toggle: "group_by" | "sub_group_by", value: string) => void;
 }
 
-export const HeaderSubGroupByCard = observer(function HeaderSubGroupByCard(props: IHeaderSubGroupByCard) {
+export function HeaderSubGroupByCard(props: IHeaderSubGroupByCard) {
   const { icon, title, count, column_id, collapsedGroups, sub_group_by, handleCollapsedGroups } = props;
   return (
     <div
@@ -46,4 +45,4 @@ export const HeaderSubGroupByCard = observer(function HeaderSubGroupByCard(props
       <WorkFlowGroupTree groupBy={sub_group_by} groupId={column_id} />
     </div>
   );
-});
+}

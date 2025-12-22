@@ -19,14 +19,10 @@ export function SpreadsheetDueDateColumn(props: Props) {
   const { issue, onChange, disabled, onClose } = props;
 
   // Extract workspaceSlug from window location
-  const workspaceSlug = typeof window !== 'undefined'
-    ? window.location.pathname.split('/')[1]
-    : undefined;
+  const workspaceSlug = typeof window !== "undefined" ? window.location.pathname.split("/")[1] : undefined;
 
   const { data: projectStates } = useProjectStates(workspaceSlug, issue.project_id);
-  const stateDetails = projectStates && issue.state_id
-    ? getStateById(projectStates, issue.state_id)
-    : undefined;
+  const stateDetails = projectStates && issue.state_id ? getStateById(projectStates, issue.state_id) : undefined;
 
   return (
     <div className="h-11 border-b-[0.5px] border-subtle">

@@ -140,3 +140,22 @@ export function useUpdateCurrentUserProfile() {
     },
   });
 }
+
+/**
+ * Hook to finish user onboarding.
+ *
+ * @example
+ * const { mutate: finishOnboarding, isPending } = useFinishUserOnboarding();
+ * finishOnboarding();
+ */
+export function useFinishUserOnboarding() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => userService.updateUserOnBoard(),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.users.profile() });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
+    },
+  });
+}

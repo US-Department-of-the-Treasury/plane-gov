@@ -48,7 +48,10 @@ export function ProjectAuthWrapper(props: IProjectAuthWrapper) {
   const { data: currentUserData } = useUser();
   const { getProjectEstimates } = useProjectEstimates();
   // TanStack Query - auto-fetches project details, states, intake state, sprints, epics, and members
-  const { isLoading: isProjectDetailsLoading, error: projectDetailsError } = useProjectDetails(workspaceSlug, projectId);
+  const { isLoading: isProjectDetailsLoading, error: projectDetailsError } = useProjectDetails(
+    workspaceSlug,
+    projectId
+  );
   useProjectStates(workspaceSlug, projectId);
   useIntakeState(workspaceSlug, projectId);
   useProjectSprints(workspaceSlug, projectId);
@@ -99,7 +102,7 @@ export function ProjectAuthWrapper(props: IProjectAuthWrapper) {
   if (!isProjectLoading && hasPermissionToCurrentProject === false) {
     return (
       <ProjectAccessRestriction
-        errorStatusCode={projectDetailsError?.status}
+        errorStatusCode={(projectDetailsError as any)?.status}
         isWorkspaceAdmin={isWorkspaceAdmin}
         handleJoinProject={handleJoinProject}
         isJoinButtonDisabled={isJoiningProject}

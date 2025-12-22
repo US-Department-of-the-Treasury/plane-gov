@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { ListFilter, Search } from "lucide-react";
 // plane imports
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -19,7 +18,7 @@ type Props = {
   projectId: string;
 };
 
-export const SprintsViewHeader = observer(function SprintsViewHeader(props: Props) {
+export function SprintsViewHeader(props: Props) {
   const { projectId } = props;
   // refs
   const inputRef = useRef<HTMLInputElement>(null);
@@ -124,4 +123,4 @@ export const SprintsViewHeader = observer(function SprintsViewHeader(props: Prop
       </FiltersDropdown>
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { EditorRefApi } from "@plane/editor";
 import type { TIssueComment, TCommentsOperations } from "@plane/types";
@@ -21,7 +20,7 @@ type TCommentCard = {
   projectId?: string;
 };
 
-export const CommentCard = observer(function CommentCard(props: TCommentCard) {
+export function CommentCard(props: TCommentCard) {
   const {
     workspaceSlug,
     entityId,
@@ -68,4 +67,4 @@ export const CommentCard = observer(function CommentCard(props: TCommentCard) {
       />
     </CommentBlock>
   );
-});
+}

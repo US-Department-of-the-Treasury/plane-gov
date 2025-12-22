@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -15,7 +14,7 @@ import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
 import { SprintAppliedFiltersList } from "../applied-filters";
 import { ArchivedSprintsView } from "./view";
 
-export const ArchivedSprintLayoutRoot = observer(function ArchivedSprintLayoutRoot() {
+export function ArchivedSprintLayoutRoot() {
   // router
   const { workspaceSlug, projectId } = useParams();
   // plane hooks
@@ -73,4 +72,4 @@ export const ArchivedSprintLayoutRoot = observer(function ArchivedSprintLayoutRo
       )}
     </>
   );
-});
+}

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { Row } from "@plane/ui";
 // components
@@ -13,7 +12,7 @@ export interface AppHeaderProps {
   rowClassName?: string;
 }
 
-export const AppHeader = observer(function AppHeader(props: AppHeaderProps) {
+export function AppHeader(props: AppHeaderProps) {
   const { header, mobileHeader, className, rowClassName } = props;
 
   return (
@@ -24,4 +23,4 @@ export const AppHeader = observer(function AppHeader(props: AppHeaderProps) {
       {mobileHeader && mobileHeader}
     </div>
   );
-});
+}

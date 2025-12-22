@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane utils
 import { cn } from "@plane/utils";
 // hooks
@@ -8,7 +7,7 @@ import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "../../constants";
 import type { IMonthBlock, IQuarterMonthBlock } from "../../views";
 import { groupMonthsToQuarters } from "../../views";
 
-export const QuarterChartView = observer(function QuarterChartView(_props: any) {
+export function QuarterChartView(_props: any) {
   const { currentViewData, renderView } = useTimeLineChartStore();
   const monthBlocks: IMonthBlock[] = renderView;
 
@@ -90,4 +89,4 @@ export const QuarterChartView = observer(function QuarterChartView(_props: any) 
         ))}
     </div>
   );
-});
+}

@@ -33,10 +33,7 @@ export const StateItemTitle = function StateItemTitle(props: TStateItemTitleProp
   // router params
   const { workspaceSlug, projectId } = useParams();
   // tanstack query hooks
-  const { data: groupedStates } = useGroupedProjectStates(
-    workspaceSlug as string,
-    projectId as string
-  );
+  const { data: groupedStates } = useGroupedProjectStates(workspaceSlug, projectId);
   // derived values
   const statePercentage = getStatePercentageInGroup(groupedStates, state.id);
   const percentage = statePercentage ? statePercentage / 100 : undefined;

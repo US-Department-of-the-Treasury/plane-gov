@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { PriorityPropertyIcon } from "@plane/propel/icons";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -7,7 +6,7 @@ import { IssueActivityBlockComponent, IssueLink } from "./";
 
 type TIssuePriorityActivity = { activityId: string; showIssue?: boolean; ends: "top" | "bottom" | undefined };
 
-export const IssuePriorityActivity = observer(function IssuePriorityActivity(props: TIssuePriorityActivity) {
+export function IssuePriorityActivity(props: TIssuePriorityActivity) {
   const { activityId, showIssue = true, ends } = props;
   // hooks
   const {
@@ -30,4 +29,4 @@ export const IssuePriorityActivity = observer(function IssuePriorityActivity(pro
       </>
     </IssueActivityBlockComponent>
   );
-});
+}

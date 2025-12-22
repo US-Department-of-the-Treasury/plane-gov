@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import type { IBaseLayoutsKanbanItem, IBaseLayoutsKanbanGroupProps } from "@plane/types";
 import { cn } from "@plane/utils";
@@ -6,7 +5,7 @@ import { useGroupDropTarget } from "../hooks/use-group-drop-target";
 import { GroupHeader } from "./group-header";
 import { BaseKanbanItem } from "./item";
 
-export const BaseKanbanGroup = observer(function BaseKanbanGroup<T extends IBaseLayoutsKanbanItem>(
+export function BaseKanbanGroup<T extends IBaseLayoutsKanbanItem>(
   props: IBaseLayoutsKanbanGroupProps<T>
 ) {
   const {
@@ -95,4 +94,4 @@ export const BaseKanbanGroup = observer(function BaseKanbanGroup<T extends IBase
       )}
     </div>
   );
-});
+}

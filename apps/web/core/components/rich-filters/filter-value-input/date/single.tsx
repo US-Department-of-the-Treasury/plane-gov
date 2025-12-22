@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { TDateFilterFieldConfig, TFilterConditionNodeForDisplay, TFilterProperty } from "@plane/types";
 import { cn, renderFormattedPayloadDate } from "@plane/utils";
@@ -13,9 +12,7 @@ type TSingleDateFilterValueInputProps<P extends TFilterProperty> = {
   onChange: (value: string | null | undefined) => void;
 };
 
-export const SingleDateFilterValueInput = observer(function SingleDateFilterValueInput<P extends TFilterProperty>(
-  props: TSingleDateFilterValueInputProps<P>
-) {
+export function SingleDateFilterValueInput<P extends TFilterProperty>(props: TSingleDateFilterValueInputProps<P>) {
   const { config, condition, isDisabled, onChange } = props;
   // derived values
   const conditionValue = typeof condition.value === "string" ? condition.value : null;
@@ -43,4 +40,4 @@ export const SingleDateFilterValueInput = observer(function SingleDateFilterValu
       disabled={isDisabled}
     />
   );
-});
+}

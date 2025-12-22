@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // components
@@ -12,7 +11,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const GlobalViewsList = observer(function GlobalViewsList(props: Props) {
+export function GlobalViewsList(props: Props) {
   const { searchQuery } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -21,7 +20,7 @@ export const GlobalViewsList = observer(function GlobalViewsList(props: Props) {
 
   useSWR(
     workspaceSlug ? `GLOBAL_VIEWS_LIST_${workspaceSlug.toString()}` : null,
-    workspaceSlug ? () => fetchAllGlobalViews(workspaceSlug.toString()) : null
+    workspaceSlug ? () => fetchAllGlobalViews() : null
   );
 
   if (!currentWorkspaceViews) return <ViewListLoader />;
@@ -35,4 +34,4 @@ export const GlobalViewsList = observer(function GlobalViewsList(props: Props) {
       ))}
     </>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane constants
 import { EIssueFilterType, ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
@@ -14,7 +13,7 @@ import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-to
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
 
-export const ProfileIssuesFilter = observer(function ProfileIssuesFilter() {
+export function ProfileIssuesFilter() {
   // i18n
   const { t } = useTranslation();
   // router
@@ -78,4 +77,4 @@ export const ProfileIssuesFilter = observer(function ProfileIssuesFilter() {
       </FiltersDropdown>
     </div>
   );
-});
+}

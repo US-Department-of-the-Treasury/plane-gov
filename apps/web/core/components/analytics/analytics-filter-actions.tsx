@@ -1,5 +1,4 @@
 // plane web components
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // hooks
 import { useAnalytics } from "@/hooks/store/use-analytics";
@@ -7,7 +6,7 @@ import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 // components
 import { ProjectSelect } from "./select/project";
 
-const AnalyticsFilterActions = observer(function AnalyticsFilterActions() {
+function AnalyticsFilterActions() {
   const { selectedProjects, updateSelectedProjects } = useAnalytics();
   const { workspaceSlug } = useParams();
   const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
@@ -31,6 +30,6 @@ const AnalyticsFilterActions = observer(function AnalyticsFilterActions() {
       /> */}
     </div>
   );
-});
+}
 
 export default AnalyticsFilterActions;

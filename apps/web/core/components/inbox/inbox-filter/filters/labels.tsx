@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 import type { IIssueLabel } from "@plane/types";
 import { Loader } from "@plane/ui";
 // components
@@ -17,7 +16,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterLabels = observer(function FilterLabels(props: Props) {
+export function FilterLabels(props: Props) {
   const { labels, searchQuery } = props;
 
   const [itemsToRender, setItemsToRender] = useState(5);
@@ -86,4 +85,4 @@ export const FilterLabels = observer(function FilterLabels(props: Props) {
       )}
     </>
   );
-});
+}

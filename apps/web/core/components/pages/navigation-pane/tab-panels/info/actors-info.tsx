@@ -18,7 +18,7 @@ export function PageNavigationPaneInfoTabActorsInfo(props: Props) {
   // navigation
   const { workspaceSlug } = useParams();
   // store hooks
-  const { data: members } = useWorkspaceMembers(workspaceSlug as string);
+  const { data: members } = useWorkspaceMembers(workspaceSlug);
   // derived values
   const { owned_by, updated_by } = page;
   const editorInformation = updated_by ? getWorkspaceMemberByUserId(members, updated_by) : undefined;

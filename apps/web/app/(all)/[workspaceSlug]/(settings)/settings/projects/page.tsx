@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
 // plane imports
 import { PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
@@ -35,4 +34,4 @@ function ProjectSettingsPage() {
   );
 }
 
-export default observer(ProjectSettingsPage);
+export default ProjectSettingsPage;

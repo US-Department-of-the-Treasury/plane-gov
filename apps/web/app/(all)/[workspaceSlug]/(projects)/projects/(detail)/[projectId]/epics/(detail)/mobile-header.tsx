@@ -31,7 +31,10 @@ export function EpicIssuesMobileHeader() {
   // plane hooks
   const { t } = useTranslation();
   // queries
-  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
+  const { data: currentProjectDetails } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   const { data: epicDetails } = useEpicDetails(
     workspaceSlug?.toString() ?? "",
     projectId?.toString() ?? "",

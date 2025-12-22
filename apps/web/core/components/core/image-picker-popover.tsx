@@ -1,6 +1,5 @@
 // Unsplash integration removed for government deployment - no external API calls
 import React, { useState, useRef, useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import { Tab, Popover } from "@headlessui/react";
@@ -36,7 +35,7 @@ type Props = {
 // services
 const fileService = new FileService();
 
-export const ImagePickerPopover = observer(function ImagePickerPopover(props: Props) {
+export function ImagePickerPopover(props: Props) {
   const { label, value, onChange, disabled = false, tabIndex, isProfileCover = false, projectId } = props;
   // states
   const [image, setImage] = useState<File | null>(null);
@@ -276,4 +275,4 @@ export const ImagePickerPopover = observer(function ImagePickerPopover(props: Pr
       )}
     </Popover>
   );
-});
+}

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { observer } from "mobx-react";
+
 import { Outlet } from "react-router";
 // hooks
 import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
@@ -25,4 +25,4 @@ function ProjectSettingsLayout({ params }: Route.ComponentProps) {
   return <Outlet />;
 }
 
-export default observer(ProjectSettingsLayout);
+export default ProjectSettingsLayout;

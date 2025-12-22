@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { MoreHorizontal, Star } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -16,7 +15,7 @@ type Props = {
   handleRemoveFromFavorites: (favorite: IFavorite) => void;
 };
 
-export const FavoriteItemQuickAction = observer(function FavoriteItemQuickAction(props: Props) {
+export function FavoriteItemQuickAction(props: Props) {
   const { ref, isMenuActive, onChange, handleRemoveFromFavorites, favorite } = props;
   // translation
   const { t } = useTranslation();
@@ -47,4 +46,4 @@ export const FavoriteItemQuickAction = observer(function FavoriteItemQuickAction
       </CustomMenu.MenuItem>
     </CustomMenu>
   );
-});
+}

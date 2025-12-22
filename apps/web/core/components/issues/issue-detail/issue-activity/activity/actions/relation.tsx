@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 // Plane-web
@@ -9,7 +8,7 @@ import { IssueActivityBlockComponent } from "./";
 
 type TIssueRelationActivity = { activityId: string; ends: "top" | "bottom" | undefined };
 
-export const IssueRelationActivity = observer(function IssueRelationActivity(props: TIssueRelationActivity) {
+export function IssueRelationActivity(props: TIssueRelationActivity) {
   const { activityId, ends } = props;
   // hooks
   const {
@@ -35,4 +34,4 @@ export const IssueRelationActivity = observer(function IssueRelationActivity(pro
       )}
     </IssueActivityBlockComponent>
   );
-});
+}

@@ -24,10 +24,13 @@ export function SpreadsheetLabelColumn(props: Props) {
 
   const labelMap = useMemo(() => {
     if (!labels) return {};
-    return labels.reduce((acc, label) => {
-      acc[label.id] = label;
-      return acc;
-    }, {} as Record<string, typeof labels[0]>);
+    return labels.reduce(
+      (acc, label) => {
+        acc[label.id] = label;
+        return acc;
+      },
+      {} as Record<string, (typeof labels)[0]>
+    );
   }, [labels]);
 
   const defaultLabelOptions = issue?.label_ids?.map((id) => labelMap[id]) || [];

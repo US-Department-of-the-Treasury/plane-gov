@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { EditorRefApi } from "@plane/editor";
 import type { TNameDescriptionLoader } from "@plane/types";
@@ -43,7 +42,7 @@ type Props = {
   isArchived: boolean;
 };
 
-export const IssueMainContent = observer(function IssueMainContent(props: Props) {
+export function IssueMainContent(props: Props) {
   const { workspaceSlug, projectId, issueId, issueOperations, isEditable, isArchived } = props;
   // refs
   const editorRef = useRef<EditorRefApi>(null);
@@ -158,7 +157,8 @@ export const IssueMainContent = observer(function IssueMainContent(props: Props)
               className="flex-shrink-0"
               entityInformation={{
                 createdAt: issue.created_at ? new Date(issue.created_at) : new Date(),
-                createdByDisplayName: getWorkspaceMemberByUserId(workspaceMembers, issue.created_by ?? "")?.member?.display_name ?? "",
+                createdByDisplayName:
+                  getWorkspaceMemberByUserId(workspaceMembers, issue.created_by ?? "")?.member?.display_name ?? "",
                 id: issueId,
                 isRestoreDisabled: !isEditable || isArchived,
               }}
@@ -198,4 +198,4 @@ export const IssueMainContent = observer(function IssueMainContent(props: Props)
       <IssueActivity workspaceSlug={workspaceSlug} projectId={projectId} issueId={issueId} disabled={isArchived} />
     </>
   );
-});
+}

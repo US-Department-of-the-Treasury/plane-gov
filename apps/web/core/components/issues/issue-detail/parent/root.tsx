@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useRouter } from "next/navigation";
 import { MinusCircle } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
@@ -28,7 +27,7 @@ export type TIssueParentDetail = {
   issueOperations: TIssueOperations;
 };
 
-export const IssueParentDetail = observer(function IssueParentDetail(props: TIssueParentDetail) {
+export function IssueParentDetail(props: TIssueParentDetail) {
   const { workspaceSlug, projectId, issueId, issue, issueOperations } = props;
   // router
   const router = useRouter();
@@ -38,21 +37,14 @@ export const IssueParentDetail = observer(function IssueParentDetail(props: TIss
   const { isMobile } = usePlatformOS();
 
   // Fetch parent issue if exists
-  const { data: parentIssue } = useIssue(
-    workspaceSlug,
-    issue.parent_id ? projectId : "",
-    issue.parent_id ?? ""
-  );
+  const { data: parentIssue } = useIssue(workspaceSlug, issue.parent_id ? projectId : "", issue.parent_id ?? "");
 
   // derived values
   const isParentEpic = parentIssue?.is_epic;
 
   // queries
   const { data: projects } = useProjects(workspaceSlug);
-  const { data: parentStates } = useProjectStates(
-    workspaceSlug,
-    parentIssue?.project_id ?? ""
-  );
+  const { data: parentStates } = useProjectStates(workspaceSlug, parentIssue?.project_id ?? "");
 
   const projectDetails = getProjectById(projects, parentIssue?.project_id);
   const projectIdentifier = projectDetails?.identifier;
@@ -111,4 +103,4 @@ export const IssueParentDetail = observer(function IssueParentDetail(props: TIss
       </div>
     </>
   );
-});
+}

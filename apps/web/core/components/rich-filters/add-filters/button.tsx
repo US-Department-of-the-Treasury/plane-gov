@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { ListFilter } from "lucide-react";
 // plane imports
 import type { TButtonSize, TButtonVariant } from "@plane/propel/button";
@@ -28,7 +27,7 @@ export type TAddFilterButtonProps<P extends TFilterProperty, E extends TExternal
   onFilterSelect?: (id: string) => void;
 };
 
-export const AddFilterButton = observer(function AddFilterButton<P extends TFilterProperty, E extends TExternalFilter>(
+export function AddFilterButton<P extends TFilterProperty, E extends TExternalFilter>(
   props: TAddFilterButtonProps<P, E>
 ) {
   const { filter, buttonConfig, onFilterSelect } = props;
@@ -73,4 +72,4 @@ export const AddFilterButton = observer(function AddFilterButton<P extends TFilt
       }
     />
   );
-});
+}

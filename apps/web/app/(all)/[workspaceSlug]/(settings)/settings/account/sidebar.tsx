@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams, usePathname } from "next/navigation";
 import { CircleUser, Activity, Bell, CircleUserRound, KeyRound, Settings2, Blocks, Lock } from "lucide-react";
 // plane imports
@@ -30,7 +29,7 @@ type TProfileSidebarProps = {
   isMobile?: boolean;
 };
 
-export const ProfileSidebar = observer(function ProfileSidebar(props: TProfileSidebarProps) {
+export function ProfileSidebar(props: TProfileSidebarProps) {
   const { isMobile = false } = props;
   // router
   const pathname = usePathname();
@@ -72,4 +71,4 @@ export const ProfileSidebar = observer(function ProfileSidebar(props: TProfileSi
       shouldRender
     />
   );
-});
+}

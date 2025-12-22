@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { InboxIcon } from "@plane/propel/icons";
@@ -12,9 +11,7 @@ type TNotificationSidebarHeader = {
   workspaceSlug: string;
 };
 
-export const NotificationSidebarHeader = observer(function NotificationSidebarHeader(
-  props: TNotificationSidebarHeader
-) {
+export function NotificationSidebarHeader(props: TNotificationSidebarHeader) {
   const { workspaceSlug } = props;
   const { t } = useTranslation();
 
@@ -39,4 +36,4 @@ export const NotificationSidebarHeader = observer(function NotificationSidebarHe
       </Header.RightItem>
     </Header>
   );
-});
+}

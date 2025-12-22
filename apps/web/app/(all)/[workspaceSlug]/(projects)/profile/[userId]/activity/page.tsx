@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
+
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -69,4 +69,4 @@ function ProfileActivityPage() {
   );
 }
 
-export default observer(ProfileActivityPage);
+export default ProfileActivityPage;

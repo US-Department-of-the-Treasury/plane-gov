@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
@@ -32,7 +31,7 @@ const defaultValues: TForgotPasswordFormValues = {
 // services
 const authService = new AuthService();
 
-export const ForgotPasswordForm = observer(function ForgotPasswordForm() {
+export function ForgotPasswordForm() {
   // search params
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
@@ -143,4 +142,4 @@ export const ForgotPasswordForm = observer(function ForgotPasswordForm() {
       </form>
     </FormContainer>
   );
-});
+}

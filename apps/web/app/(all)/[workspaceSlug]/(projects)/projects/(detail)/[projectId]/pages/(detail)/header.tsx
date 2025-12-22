@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { PageIcon } from "@plane/propel/icons";
@@ -26,7 +25,7 @@ export interface IPagesHeaderProps {
 
 const storeType = EPageStoreType.PROJECT;
 
-export const PageDetailsHeader = observer(function PageDetailsHeader() {
+export function PageDetailsHeader() {
   // router
   const router = useAppRouter();
   const { workspaceSlug, pageId, projectId } = useParams();
@@ -104,4 +103,4 @@ export const PageDetailsHeader = observer(function PageDetailsHeader() {
       </Header.RightItem>
     </Header>
   );
-});
+}

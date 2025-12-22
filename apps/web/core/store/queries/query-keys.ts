@@ -88,6 +88,100 @@ export const queryKeys = {
     workspace: (workspaceSlug: string) => ["members", "workspace", workspaceSlug] as const,
     project: (projectId: string) => ["members", "project", projectId] as const,
   },
+
+  // View queries
+  views: {
+    all: (workspaceSlug: string, projectId: string) => ["views", workspaceSlug, projectId] as const,
+    detail: (viewId: string) => ["views", "detail", viewId] as const,
+  },
+
+  // Workspace View queries (Global Views)
+  workspaceViews: {
+    all: (workspaceSlug: string) => ["workspace-views", workspaceSlug] as const,
+    detail: (viewId: string) => ["workspace-views", "detail", viewId] as const,
+  },
+
+  // Favorite queries
+  favorites: {
+    all: (workspaceSlug: string) => ["favorites", workspaceSlug] as const,
+    grouped: (workspaceSlug: string, favoriteId: string) => ["favorites", workspaceSlug, "grouped", favoriteId] as const,
+  },
+
+  // Analytics queries
+  analytics: {
+    advance: (workspaceSlug: string, tab: string, params?: Record<string, unknown>) =>
+      ["analytics", workspaceSlug, tab, params] as const,
+    stats: (workspaceSlug: string, tab: string, params?: Record<string, unknown>) =>
+      ["analytics", workspaceSlug, "stats", tab, params] as const,
+    charts: (workspaceSlug: string, tab: string, params?: Record<string, unknown>) =>
+      ["analytics", workspaceSlug, "charts", tab, params] as const,
+  },
+
+  // Workspace draft issue queries
+  workspaceDrafts: {
+    all: (workspaceSlug: string) => ["workspace-drafts", workspaceSlug] as const,
+    filtered: (workspaceSlug: string, filters: Record<string, unknown>) =>
+      ["workspace-drafts", workspaceSlug, filters] as const,
+    detail: (issueId: string) => ["workspace-drafts", "detail", issueId] as const,
+  },
+
+  // Notification queries
+  notifications: {
+    all: (workspaceSlug: string) => ["notifications", workspaceSlug] as const,
+    filtered: (workspaceSlug: string, params: Record<string, unknown>) =>
+      ["notifications", workspaceSlug, params] as const,
+    unreadCount: (workspaceSlug: string) => ["notifications", workspaceSlug, "unread-count"] as const,
+  },
+
+  // Instance queries
+  instance: {
+    info: () => ["instance", "info"] as const,
+  },
+
+  // Project publish queries
+  projectPublish: {
+    settings: (projectId: string) => ["project-publish", projectId, "settings"] as const,
+  },
+
+  // Sticky queries
+  stickies: {
+    all: (workspaceSlug: string, cursor: string, query?: string) =>
+      ["stickies", workspaceSlug, cursor, query] as const,
+    recent: (workspaceSlug: string) => ["stickies", workspaceSlug, "recent"] as const,
+  },
+
+  // Estimate queries
+  estimates: {
+    all: (workspaceSlug: string, projectId: string) => ["estimates", workspaceSlug, projectId] as const,
+    workspace: (workspaceSlug: string) => ["estimates", "workspace", workspaceSlug] as const,
+    detail: (estimateId: string) => ["estimates", "detail", estimateId] as const,
+  },
+
+  // Webhook queries
+  webhooks: {
+    all: (workspaceSlug: string) => ["webhooks", workspaceSlug] as const,
+    detail: (webhookId: string) => ["webhooks", "detail", webhookId] as const,
+  },
+
+  // Inbox queries
+  inbox: {
+    all: (workspaceSlug: string, projectId: string) => ["inbox", workspaceSlug, projectId] as const,
+    filtered: (workspaceSlug: string, projectId: string, filters: Record<string, unknown>) =>
+      ["inbox", workspaceSlug, projectId, filters] as const,
+    detail: (inboxIssueId: string) => ["inbox", "detail", inboxIssueId] as const,
+  },
+
+  // Dashboard queries
+  dashboard: {
+    home: (workspaceSlug: string) => ["dashboard", workspaceSlug, "home"] as const,
+    widgets: (workspaceSlug: string, dashboardId: string) => ["dashboard", workspaceSlug, dashboardId, "widgets"] as const,
+    widgetStats: (workspaceSlug: string, dashboardId: string, widgetKey: string) => ["dashboard", workspaceSlug, dashboardId, "stats", widgetKey] as const,
+  },
+
+  // Home queries
+  home: {
+    widgets: (workspaceSlug: string) => ["home", workspaceSlug, "widgets"] as const,
+  },
 } as const;
 
 // Type helpers for query keys

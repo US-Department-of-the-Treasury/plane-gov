@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { Fragment } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 // plane imports
 import { EUserPermissionsLevel, EDraftIssuePaginationType, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
@@ -25,7 +24,7 @@ type TWorkspaceDraftIssuesRoot = {
   workspaceSlug: string;
 };
 
-export const WorkspaceDraftIssuesRoot = observer(function WorkspaceDraftIssuesRoot(props: TWorkspaceDraftIssuesRoot) {
+export function WorkspaceDraftIssuesRoot(props: TWorkspaceDraftIssuesRoot) {
   const { workspaceSlug } = props;
   // plane hooks
   const { t } = useTranslation();
@@ -111,4 +110,4 @@ export const WorkspaceDraftIssuesRoot = observer(function WorkspaceDraftIssuesRo
       )}
     </div>
   );
-});
+}

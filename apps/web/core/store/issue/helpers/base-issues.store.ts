@@ -90,12 +90,7 @@ export interface IBaseIssuesStore {
     issueIds: string[],
     fetchAddedIssues?: boolean
   ) => Promise<void>;
-  removeIssuesFromEpic: (
-    workspaceSlug: string,
-    projectId: string,
-    epicId: string,
-    issueIds: string[]
-  ) => Promise<void>;
+  removeIssuesFromEpic: (workspaceSlug: string, projectId: string, epicId: string, issueIds: string[]) => Promise<void>;
   changeEpicsInIssue(
     workspaceSlug: string,
     projectId: string,
@@ -1865,8 +1860,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
         return getIssueIds(
           orderBy(array, [
             getSortOrderToFilterEmptyValues.bind(null, "epic_ids"), //preferring sorting based on empty values to always keep the empty values below
-            (issue) =>
-              this.populateIssueDataForSorting("epic_ids", issue?.["epic_ids"], issue?.["project_id"], "asc"),
+            (issue) => this.populateIssueDataForSorting("epic_ids", issue?.["epic_ids"], issue?.["project_id"], "asc"),
           ])
         );
       case "-issue_epic__epic__name":
@@ -1886,7 +1880,8 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
         return getIssueIds(
           orderBy(array, [
             getSortOrderToFilterEmptyValues.bind(null, "sprint_id"), //preferring sorting based on empty values to always keep the empty values below
-            (issue) => this.populateIssueDataForSorting("sprint_id", issue?.["sprint_id"], issue?.["project_id"], "asc"),
+            (issue) =>
+              this.populateIssueDataForSorting("sprint_id", issue?.["sprint_id"], issue?.["project_id"], "asc"),
           ])
         );
       case "-issue_sprint__sprint__name":

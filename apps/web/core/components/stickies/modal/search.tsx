@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState } from "react";
 import { debounce } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Search } from "lucide-react";
 // plane hooks
@@ -12,7 +11,7 @@ import { cn } from "@plane/utils";
 import { useSticky } from "@/hooks/use-stickies";
 import { IconButton } from "@plane/propel/icon-button";
 
-export const StickySearch = observer(function StickySearch() {
+export function StickySearch() {
   // router
   const { workspaceSlug } = useParams();
   // hooks
@@ -37,7 +36,7 @@ export const StickySearch = observer(function StickySearch() {
   };
 
   const fetchStickies = async () => {
-    await fetchWorkspaceStickies(workspaceSlug.toString());
+    await fetchWorkspaceStickies();
   };
 
   const debouncedSearch = useCallback(
@@ -97,4 +96,4 @@ export const StickySearch = observer(function StickySearch() {
       </div>
     </div>
   );
-});
+}

@@ -366,7 +366,7 @@ export const useMultipleSelect = (props: Props) => {
   // when entities list change, remove entityIds from the selected entities array, which are not present in the new list
   useEffect(() => {
     if (disabled) return;
-    selectedEntityIds.map((entityID) => {
+    selectedEntityIds().map((entityID: string) => {
       const isEntityPresent = entitiesList.find((en) => en?.entityID === entityID);
       if (!isEntityPresent) {
         const entityDetails = getEntityDetailsFromEntityID(entityID);

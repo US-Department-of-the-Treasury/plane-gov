@@ -16,16 +16,11 @@ export function PowerKWorkItemEpicsMenu(props: Props) {
   const { handleSelect, workItemDetails } = props;
   // hooks
   const { workspaceSlug } = useParams();
-  const { data: epics, isLoading } = useProjectEpics(
-    workspaceSlug?.toString() ?? "",
-    workItemDetails.project_id ?? ""
-  );
+  const { data: epics, isLoading } = useProjectEpics(workspaceSlug?.toString() ?? "", workItemDetails.project_id ?? "");
   // derived values
   const filteredEpicsList = epics ? epics.filter((epic) => !!epic) : undefined;
 
   if (isLoading || !filteredEpicsList) return <Spinner />;
 
-  return (
-    <PowerKEpicsMenu epics={filteredEpicsList} onSelect={handleSelect} value={workItemDetails.epic_ids ?? []} />
-  );
+  return <PowerKEpicsMenu epics={filteredEpicsList} onSelect={handleSelect} value={workItemDetails.epic_ids ?? []} />;
 }

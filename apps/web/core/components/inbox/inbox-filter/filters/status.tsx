@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 // types
 import { INBOX_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -16,7 +15,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterStatus = observer(function FilterStatus(props: Props) {
+export function FilterStatus(props: Props) {
   const { searchQuery } = props;
   // hooks
   const { currentTab, inboxFilters, handleInboxIssueFilters } = useProjectInbox();
@@ -67,4 +66,4 @@ export const FilterStatus = observer(function FilterStatus(props: Props) {
       )}
     </>
   );
-});
+}

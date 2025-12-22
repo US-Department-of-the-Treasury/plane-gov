@@ -1,12 +1,9 @@
-import { observer } from "mobx-react";
 import type { IBaseLayoutsKanbanItem, IBaseLayoutsKanbanProps } from "@plane/types";
 import { cn } from "@plane/utils";
 import { useLayoutState } from "../hooks/use-layout-state";
 import { BaseKanbanGroup } from "./group";
 
-export const BaseKanbanLayout = observer(function BaseKanbanLayout<T extends IBaseLayoutsKanbanItem>(
-  props: IBaseLayoutsKanbanProps<T>
-) {
+export function BaseKanbanLayout<T extends IBaseLayoutsKanbanItem>(props: IBaseLayoutsKanbanProps<T>) {
   const {
     items,
     groups,
@@ -65,4 +62,4 @@ export const BaseKanbanLayout = observer(function BaseKanbanLayout<T extends IBa
       })}
     </div>
   );
-});
+}

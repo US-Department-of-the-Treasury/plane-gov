@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EIssueServiceType } from "@plane/types";
@@ -6,7 +5,7 @@ import { EIssueServiceType } from "@plane/types";
 import type { TPowerKPageType } from "@/components/power-k/core/types";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProjectMembers } from "@/store/queries/member";
+import { useProjectMembers, useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // local imports
 import { PowerKMembersMenu } from "../../../../menus/members";
 import { PowerKWorkItemSprintsMenu } from "./sprints-menu";
@@ -21,7 +20,7 @@ type Props = {
   handleSelection: (data: unknown) => void;
 };
 
-export const PowerKWorkItemContextBasedPages = observer(function PowerKWorkItemContextBasedPages(props: Props) {
+export function PowerKWorkItemContextBasedPages(props: Props) {
   const { activePage, handleSelection } = props;
   // navigation
   const { workItem: entityIdentifier, workspaceSlug, projectId } = useParams();
@@ -37,6 +36,7 @@ export const PowerKWorkItemContextBasedPages = observer(function PowerKWorkItemC
     workspaceSlug?.toString() ?? "",
     entityDetails?.project_id ?? ""
   );
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
 
   if (!entityDetails) return null;
 
@@ -54,11 +54,17 @@ export const PowerKWorkItemContextBasedPages = observer(function PowerKWorkItemC
       {activePage === "update-work-item-assignee" && (
         <PowerKMembersMenu
           handleSelect={handleSelection}
-          members={projectMembers.map((m) => ({
-            id: m.member,
-            display_name: m.member_display_name || m.member_email || "",
-            avatar_url: m.member_avatar_url,
-          }))}
+          members={projectMembers
+            .map((m) => {
+              const workspaceMember = getWorkspaceMemberByUserId(workspaceMembers, m.member);
+              if (!workspaceMember?.member) return null;
+              return {
+                id: workspaceMember.member.id,
+                display_name: workspaceMember.member.display_name || workspaceMember.member.email || "",
+                avatar_url: workspaceMember.member.avatar_url,
+              };
+            })
+            .filter((member) => member !== null)}
           value={entityDetails.assignee_ids}
         />
       )}
@@ -80,4 +86,4 @@ export const PowerKWorkItemContextBasedPages = observer(function PowerKWorkItemC
       )}
     </>
   );
-});
+}

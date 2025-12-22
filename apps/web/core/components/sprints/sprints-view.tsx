@@ -1,8 +1,8 @@
 import type { FC } from "react";
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 // components
 import { useTranslation } from "@plane/i18n";
+import type { ISprint } from "@plane/types";
 // assets
 import AllFiltersImage from "@/app/assets/empty-state/sprint/all-filters.svg?url";
 import NameFilterImage from "@/app/assets/empty-state/sprint/name-filter.svg?url";
@@ -19,7 +19,7 @@ export interface ISprintsView {
   projectId: string;
 }
 
-export const SprintsView = observer(function SprintsView(props: ISprintsView) {
+export function SprintsView(props: ISprintsView) {
   const { workspaceSlug, projectId } = props;
   // store hooks
   const { data: sprints, isLoading } = useProjectSprints(workspaceSlug, projectId);
@@ -42,9 +42,9 @@ export const SprintsView = observer(function SprintsView(props: ISprintsView) {
 
       // Filter sprints by search query and filters
       const filtered = sprints
-        .filter((sprint) => !sprint.archived_at)
-        .filter((sprint) => sprint.name.toLowerCase().includes(searchQuery.toLowerCase()))
-        .filter((sprint) => shouldFilterSprint(sprint, filters));
+        .filter((sprint: ISprint) => !sprint.archived_at)
+        .filter((sprint: ISprint) => sprint.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        .filter((sprint: ISprint) => shouldFilterSprint(sprint, filters));
 
       // Get active sprint
       const activeSprint = getActiveSprint(sprints);
@@ -54,10 +54,10 @@ export const SprintsView = observer(function SprintsView(props: ISprintsView) {
       const completedSprints = getCompletedSprints(filtered);
 
       // Get all filtered sprint IDs
-      const allFilteredIds = filtered.map((sprint) => sprint.id);
+      const allFilteredIds = filtered.map((sprint: ISprint) => sprint.id);
 
       // Get upcoming sprint IDs (filtered, excluding active)
-      const upcomingIds = allFilteredIds.filter((id) => id !== activeSprintId);
+      const upcomingIds = allFilteredIds.filter((id: string) => id !== activeSprintId);
 
       return {
         filteredSprintIds: allFilteredIds,
@@ -97,4 +97,4 @@ export const SprintsView = observer(function SprintsView(props: ISprintsView) {
       projectId={projectId}
     />
   );
-});
+}

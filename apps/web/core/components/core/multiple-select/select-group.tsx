@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // hooks
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { useMultipleSelect } from "@/hooks/use-multiple-select";
@@ -10,7 +9,7 @@ type Props = {
   entities: Record<string, string[]>; // { groupID: entityIds[] }
 };
 
-export const MultipleSelectGroup = observer(function MultipleSelectGroup(props: Props) {
+export function MultipleSelectGroup(props: Props) {
   const { children, containerRef, disabled = false, entities } = props;
 
   const helpers = useMultipleSelect({
@@ -20,4 +19,4 @@ export const MultipleSelectGroup = observer(function MultipleSelectGroup(props: 
   });
 
   return <>{children(helpers)}</>;
-});
+}

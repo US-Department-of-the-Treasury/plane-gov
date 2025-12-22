@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import type { Control } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { ETabIndices } from "@plane/constants";
@@ -21,7 +20,7 @@ type TIssueParentTagProps = {
   setSelectedParentIssue: (issue: ISearchIssueResponse | null) => void;
 };
 
-export const IssueParentTag = observer(function IssueParentTag(props: TIssueParentTagProps) {
+export function IssueParentTag(props: TIssueParentTagProps) {
   const { control, selectedParentIssue, handleFormChange, setSelectedParentIssue } = props;
   // store hooks
   const { isMobile } = usePlatformOS();
@@ -70,4 +69,4 @@ export const IssueParentTag = observer(function IssueParentTag(props: TIssuePare
       )}
     />
   );
-});
+}

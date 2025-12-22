@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { cn } from "@plane/utils";
 import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "@/components/gantt-chart/constants";
@@ -9,7 +8,7 @@ import { useTimeLineChartStore } from "@/hooks/use-timeline-chart";
 import type { IMonthView } from "../../views";
 import { getNumberOfDaysBetweenTwoDates } from "../../views/helpers";
 
-export const MonthChartView = observer(function MonthChartView(_props: any) {
+export function MonthChartView(_props: any) {
   // chart hook
   const { currentViewData, renderView } = useTimeLineChartStore();
   const monthView: IMonthView = renderView;
@@ -101,4 +100,4 @@ export const MonthChartView = observer(function MonthChartView(_props: any) {
       )}
     </div>
   );
-});
+}

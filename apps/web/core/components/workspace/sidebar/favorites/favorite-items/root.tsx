@@ -9,7 +9,6 @@ import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-d
 import { pointerOutsideOfPreview } from "@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview";
 import { setCustomNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview";
 import { attachInstruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { observer } from "mobx-react";
 import { createRoot } from "react-dom/client";
 // plane imports
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -30,7 +29,7 @@ type Props = {
   handleDrop: (self: DropTargetRecord, source: ElementDragPayload, location: DragLocationHistory) => void;
 };
 
-export const FavoriteRoot = observer(function FavoriteRoot(props: Props) {
+export function FavoriteRoot(props: Props) {
   // props
   const { isLastChild, parentId, workspaceSlug, favorite, handleRemoveFromFavorites, handleDrop } = props;
   // store hooks
@@ -135,4 +134,4 @@ export const FavoriteRoot = observer(function FavoriteRoot(props: Props) {
       {isLastChild && <DropIndicator isVisible={instruction === "reorder-below"} />}
     </>
   );
-});
+}

@@ -2,12 +2,7 @@ import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 
 // plane imports
-import {
-  EUserPermissions,
-  EUserPermissionsLevel,
-  EPIC_TRACKER_ELEMENTS,
-  EPIC_TRACKER_EVENTS,
-} from "@plane/constants";
+import { EUserPermissions, EUserPermissionsLevel, EPIC_TRACKER_ELEMENTS, EPIC_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { IconButton } from "@plane/propel/icon-button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { EstimatePropertyIcon } from "@plane/propel/icons";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -7,7 +6,7 @@ import { IssueActivityBlockComponent, IssueLink } from "./";
 
 type TIssueEstimateActivity = { activityId: string; showIssue?: boolean; ends: "top" | "bottom" | undefined };
 
-export const IssueEstimateActivity = observer(function IssueEstimateActivity(props: TIssueEstimateActivity) {
+export function IssueEstimateActivity(props: TIssueEstimateActivity) {
   const { activityId, showIssue = true, ends } = props;
   // hooks
   const {
@@ -32,4 +31,4 @@ export const IssueEstimateActivity = observer(function IssueEstimateActivity(pro
       </>
     </IssueActivityBlockComponent>
   );
-});
+}

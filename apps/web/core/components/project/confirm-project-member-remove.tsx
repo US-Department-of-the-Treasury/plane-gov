@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 // headless ui
@@ -20,7 +19,7 @@ type Props = {
   onClose: () => void;
 };
 
-export const ConfirmProjectMemberRemove = observer(function ConfirmProjectMemberRemove(props: Props) {
+export function ConfirmProjectMemberRemove(props: Props) {
   const { data, onSubmit, isOpen, onClose } = props;
   // router
   const { workspaceSlug, projectId } = useParams();
@@ -131,4 +130,4 @@ export const ConfirmProjectMemberRemove = observer(function ConfirmProjectMember
       </Dialog>
     </Transition.Root>
   );
-});
+}

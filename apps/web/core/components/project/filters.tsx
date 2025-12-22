@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { ListFilter } from "lucide-react";
 // plane imports
@@ -23,12 +22,7 @@ type Props = {
   isMobile?: boolean;
 };
 
-const HeaderFilters = observer(function HeaderFilters({
-  filterMenuButton,
-  isMobile,
-  classname = "",
-  filterClassname = "",
-}: Props) {
+function HeaderFilters({ filterMenuButton, isMobile, classname = "", filterClassname = "" }: Props) {
   // i18n
   const { t } = useTranslation();
   // router
@@ -40,7 +34,7 @@ const HeaderFilters = observer(function HeaderFilters({
     updateDisplayFilters,
   } = useProjectFilter();
   // queries
-  const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug as string);
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug);
   const workspaceMemberIds = workspaceMembers.map((m) => m.member.id);
   const handleFilters = useCallback(
     (key: keyof TProjectFilters, value: string | string[]) => {
@@ -95,10 +89,11 @@ const HeaderFilters = observer(function HeaderFilters({
               updateDisplayFilters(workspaceSlug.toString(), val);
             }}
             memberIds={workspaceMemberIds ?? undefined}
+            workspaceSlug={workspaceSlug.toString()}
           />
         </FiltersDropdown>
       </div>
     </div>
   );
-});
+}
 export default HeaderFilters;

@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useRef } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { ViewsIcon } from "@plane/propel/icons";
@@ -18,7 +17,7 @@ type Props = {
   view: IProjectView;
 };
 
-export const ProjectViewListItem = observer(function ProjectViewListItem(props: Props) {
+export function ProjectViewListItem(props: Props) {
   const { view } = props;
   // refs
   const parentRef = useRef(null);
@@ -55,4 +54,4 @@ export const ProjectViewListItem = observer(function ProjectViewListItem(props: 
       parentRef={parentRef}
     />
   );
-});
+}

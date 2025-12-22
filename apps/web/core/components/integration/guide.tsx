@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import useSWR, { mutate } from "swr";
@@ -39,7 +38,7 @@ const getImporterLogo = (provider: string) => {
 };
 
 // FIXME: [Deprecated] Remove this component
-const IntegrationGuide = observer(function IntegrationGuide() {
+function IntegrationGuide() {
   // states
   const [refreshing, setRefreshing] = useState(false);
   const [deleteImportModal, setDeleteImportModal] = useState(false);
@@ -170,7 +169,7 @@ const IntegrationGuide = observer(function IntegrationGuide() {
       </div>
     </>
   );
-});
+}
 
 export default IntegrationGuide;
 

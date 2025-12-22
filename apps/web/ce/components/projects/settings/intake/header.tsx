@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { RefreshCcw } from "lucide-react";
 // ui
@@ -18,7 +17,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 import { IntakeIcon } from "@plane/propel/icons";
 
-export const ProjectInboxHeader = observer(function ProjectInboxHeader() {
+export function ProjectInboxHeader() {
   // states
   const [createIssueModal, setCreateIssueModal] = useState(false);
   // router
@@ -85,4 +84,4 @@ export const ProjectInboxHeader = observer(function ProjectInboxHeader() {
       </Header.RightItem>
     </Header>
   );
-});
+}

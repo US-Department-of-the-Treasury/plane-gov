@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { EIssuesStoreType } from "@plane/types";
 // hooks
@@ -9,7 +8,7 @@ import { useIssues } from "@/hooks/store/use-issues";
 import { SprintIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseCalendarRoot } from "../base-calendar-root";
 
-export const SprintCalendarLayout = observer(function SprintCalendarLayout() {
+export function SprintCalendarLayout() {
   const { workspaceSlug, projectId, sprintId } = useParams();
 
   const {
@@ -38,4 +37,4 @@ export const SprintCalendarLayout = observer(function SprintCalendarLayout() {
       viewId={sprintId?.toString()}
     />
   );
-});
+}

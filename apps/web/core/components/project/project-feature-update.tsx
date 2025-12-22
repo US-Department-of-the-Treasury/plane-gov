@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useTranslation } from "@plane/i18n";
 // ui
@@ -16,7 +15,7 @@ type Props = {
   onClose: () => void;
 };
 
-export const ProjectFeatureUpdate = observer(function ProjectFeatureUpdate(props: Props) {
+export function ProjectFeatureUpdate(props: Props) {
   const { workspaceSlug, projectId, onClose } = props;
   // store hooks
   const { t } = useTranslation();
@@ -53,4 +52,4 @@ export const ProjectFeatureUpdate = observer(function ProjectFeatureUpdate(props
       </div>
     </>
   );
-});
+}

@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useCallback, useEffect } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane constants
 import { EIssueFilterType, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -31,7 +30,7 @@ type ListStoreType =
   | EIssuesStoreType.WORKSPACE_DRAFT
   | EIssuesStoreType.TEAM
   | EIssuesStoreType.TEAM_VIEW
-  | EIssuesStoreType.EPIC;
+   ;
 
 interface IBaseListRoot {
   QuickActions: FC<IQuickActionProps>;
@@ -41,7 +40,7 @@ interface IBaseListRoot {
   isCompletedSprint?: boolean;
   isEpic?: boolean;
 }
-export const BaseListRoot = observer(function BaseListRoot(props: IBaseListRoot) {
+export function BaseListRoot(props: IBaseListRoot) {
   const {
     QuickActions,
     viewId,
@@ -173,4 +172,4 @@ export const BaseListRoot = observer(function BaseListRoot(props: IBaseListRoot)
       </div>
     </IssueLayoutHOC>
   );
-});
+}

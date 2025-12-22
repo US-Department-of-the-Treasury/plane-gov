@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { observer } from "mobx-react";
 import { Wrench } from "lucide-react";
 // plane imports
 import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
+import { useGenerateFakeMembers } from "@/store/queries/member";
 
 interface DevGenerateFakeUsersProps {
   workspaceSlug: string;
@@ -15,27 +14,23 @@ interface DevGenerateFakeUsersProps {
  * Development-only component for generating fake workspace members.
  * Only renders when import.meta.env.DEV is true.
  */
-export const DevGenerateFakeUsers = observer(function DevGenerateFakeUsers({ workspaceSlug }: DevGenerateFakeUsersProps) {
+export function DevGenerateFakeUsers({ workspaceSlug }: DevGenerateFakeUsersProps) {
   // Only render in development mode
   if (!import.meta.env.DEV) {
     return null;
   }
 
   return <DevGenerateFakeUsersContent workspaceSlug={workspaceSlug} />;
-});
+}
 
-const DevGenerateFakeUsersContent = observer(function DevGenerateFakeUsersContent({
-  workspaceSlug,
-}: DevGenerateFakeUsersProps) {
+function DevGenerateFakeUsersContent({ workspaceSlug }: DevGenerateFakeUsersProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [count, setCount] = useState(5);
   const [isLoading, setIsLoading] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const {
-    workspace: { generateFakeMembers },
-  } = useMember();
+  const { mutate: generateFakeMembers, isPending } = useGenerateFakeMembers();
 
   // Close popover when clicking outside
   useEffect(() => {
@@ -59,7 +54,7 @@ const DevGenerateFakeUsersContent = observer(function DevGenerateFakeUsersConten
     };
   }, [isOpen]);
 
-  const handleGenerate = useCallback(async () => {
+  const handleGenerate = useCallback(() => {
     if (count < 1 || count > 50) {
       setToast({
         type: TOAST_TYPE.ERROR,
@@ -70,27 +65,32 @@ const DevGenerateFakeUsersContent = observer(function DevGenerateFakeUsersConten
     }
 
     setIsLoading(true);
-    try {
-      const result = await generateFakeMembers(workspaceSlug, count);
-      setToast({
-        type: TOAST_TYPE.SUCCESS,
-        title: "Success!",
-        message: result.message,
-      });
-      setIsOpen(false);
-    } catch (error: unknown) {
-      let message = "Failed to generate fake users";
-      if (error && typeof error === "object" && "error" in error) {
-        message = (error as { error: string }).error;
+    generateFakeMembers(
+      { workspaceSlug, count },
+      {
+        onSuccess: (result) => {
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: result.message,
+          });
+          setIsOpen(false);
+          setIsLoading(false);
+        },
+        onError: (error: unknown) => {
+          let message = "Failed to generate fake users";
+          if (error && typeof error === "object" && "error" in error) {
+            message = (error as { error: string }).error;
+          }
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error",
+            message,
+          });
+          setIsLoading(false);
+        },
       }
-      setToast({
-        type: TOAST_TYPE.ERROR,
-        title: "Error",
-        message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    );
   }, [count, generateFakeMembers, workspaceSlug]);
 
   return (
@@ -135,10 +135,10 @@ const DevGenerateFakeUsersContent = observer(function DevGenerateFakeUsersConten
 
             <div className="flex gap-2">
               <Button
-                variant="neutral-secondary"
+                variant="secondary"
                 size="sm"
                 onClick={() => setIsOpen(false)}
-                disabled={isLoading}
+                disabled={isLoading || isPending}
                 className="flex-1"
               >
                 Cancel
@@ -147,7 +147,7 @@ const DevGenerateFakeUsersContent = observer(function DevGenerateFakeUsersConten
                 variant="primary"
                 size="sm"
                 onClick={handleGenerate}
-                loading={isLoading}
+                loading={isLoading || isPending}
                 className="flex-1"
               >
                 Generate
@@ -158,4 +158,4 @@ const DevGenerateFakeUsersContent = observer(function DevGenerateFakeUsersConten
       )}
     </div>
   );
-});
+}

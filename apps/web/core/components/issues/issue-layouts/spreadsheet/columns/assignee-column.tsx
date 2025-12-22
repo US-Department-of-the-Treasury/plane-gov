@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // types
 import type { TIssue } from "@plane/types";
 // components
@@ -12,7 +11,7 @@ type Props = {
   disabled: boolean;
 };
 
-export const SpreadsheetAssigneeColumn = observer(function SpreadsheetAssigneeColumn(props: Props) {
+export function SpreadsheetAssigneeColumn(props: Props) {
   const { issue, onChange, disabled, onClose } = props;
 
   return (
@@ -43,4 +42,4 @@ export const SpreadsheetAssigneeColumn = observer(function SpreadsheetAssigneeCo
       />
     </div>
   );
-});
+}

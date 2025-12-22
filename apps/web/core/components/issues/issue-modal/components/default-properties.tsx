@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import type { Control } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { ETabIndices, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -43,7 +42,7 @@ type TIssueDefaultPropertiesProps = {
   setSelectedParentIssue: (issue: ISearchIssueResponse) => void;
 };
 
-export const IssueDefaultProperties = observer(function IssueDefaultProperties(props: TIssueDefaultPropertiesProps) {
+export function IssueDefaultProperties(props: TIssueDefaultPropertiesProps) {
   const {
     control,
     id,
@@ -332,4 +331,4 @@ export const IssueDefaultProperties = observer(function IssueDefaultProperties(p
       />
     </div>
   );
-});
+}

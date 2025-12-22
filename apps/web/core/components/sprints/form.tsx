@@ -23,6 +23,7 @@ type Props = {
   setActiveProject: (projectId: string) => void;
   data?: ISprint | null;
   isMobile?: boolean;
+  workspaceSlug: string;
 };
 
 const defaultValues: Partial<ISprint> = {
@@ -33,7 +34,7 @@ const defaultValues: Partial<ISprint> = {
 };
 
 export function SprintForm(props: Props) {
-  const { handleFormSubmit, handleClose, status, projectId, setActiveProject, data, isMobile = false } = props;
+  const { handleFormSubmit, handleClose, status, projectId, setActiveProject, data, isMobile = false, workspaceSlug } = props;
   // plane hooks
   const { t } = useTranslation();
   // store hooks
@@ -46,7 +47,6 @@ export function SprintForm(props: Props) {
     reset,
   } = useForm<ISprint>({
     defaultValues: {
-      project_id: projectId,
       name: data?.name || "",
       description: data?.description || "",
       start_date: data?.start_date || null,
@@ -68,27 +68,21 @@ export function SprintForm(props: Props) {
       <div className="space-y-5 p-5">
         <div className="flex items-center gap-x-3">
           {!status && (
-            <Controller
-              control={control}
-              name="project_id"
-              render={({ field: { value, onChange } }) => (
-                <div className="h-7">
-                  <ProjectDropdown
-                    value={value}
-                    onChange={(val) => {
-                      if (!Array.isArray(val)) {
-                        onChange(val);
-                        setActiveProject(val);
-                      }
-                    }}
-                    multiple={false}
-                    buttonVariant="border-with-text"
-                    renderCondition={(projectId) => !!projectsWithCreatePermissions?.[projectId]}
-                    tabIndex={getIndex("cover_image")}
-                  />
-                </div>
-              )}
-            />
+            <div className="h-7">
+              <ProjectDropdown
+                value={projectId}
+                onChange={(val) => {
+                  if (!Array.isArray(val)) {
+                    setActiveProject(val);
+                  }
+                }}
+                multiple={false}
+                buttonVariant="border-with-text"
+                renderCondition={(projectId) => !!projectsWithCreatePermissions?.[projectId]}
+                tabIndex={getIndex("cover_image")}
+                workspaceSlug={workspaceSlug}
+              />
+            </div>
           )}
           <h3 className="text-18 font-medium text-secondary">
             {status ? t("project_sprints.update_sprint") : t("project_sprints.create_sprint")}

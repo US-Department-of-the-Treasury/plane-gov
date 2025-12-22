@@ -2,7 +2,6 @@ import type { Dispatch, MouseEvent, SetStateAction } from "react";
 import { useEffect, useRef } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { ChevronRightIcon } from "@plane/propel/icons";
 // types
@@ -49,7 +48,7 @@ interface IssueBlockProps {
   isEpic?: boolean;
 }
 
-export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
+export function IssueBlock(props: IssueBlockProps) {
   const {
     issue,
     groupId,
@@ -338,4 +337,4 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
       </Row>
     </ControlLink>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane package imports
 import { Expand, Shrink } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
@@ -14,7 +13,7 @@ type Props = {
   epic?: IEpic;
 };
 
-export const WorkItemsModalHeader = observer(function WorkItemsModalHeader(props: Props) {
+export function WorkItemsModalHeader(props: Props) {
   const { fullScreen, handleClose, setFullScreen, title, sprint, epic } = props;
 
   return (
@@ -40,4 +39,4 @@ export const WorkItemsModalHeader = observer(function WorkItemsModalHeader(props
       </div>
     </div>
   );
-});
+}

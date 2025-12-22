@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { Tooltip } from "@plane/propel/tooltip";
 import { cn } from "@plane/propel/utils";
@@ -17,10 +16,9 @@ interface IFilterItemPropertyProps<P extends TFilterProperty, E extends TExterna
   tooltipContent?: React.ReactNode | undefined;
 }
 
-export const FilterItemProperty = observer(function FilterItemProperty<
-  P extends TFilterProperty,
-  E extends TExternalFilter,
->(props: IFilterItemPropertyProps<P, E>) {
+export function FilterItemProperty<P extends TFilterProperty, E extends TExternalFilter>(
+  props: IFilterItemPropertyProps<P, E>
+) {
   const { conditionId, filter, isDisabled } = props;
 
   if (isDisabled) {
@@ -38,7 +36,7 @@ export const FilterItemProperty = observer(function FilterItemProperty<
       customButton={<PropertyButton {...props} />}
     />
   );
-});
+}
 
 type TPropertyButtonProps<P extends TFilterProperty, E extends TExternalFilter> = IFilterItemPropertyProps<P, E> & {
   className?: string;

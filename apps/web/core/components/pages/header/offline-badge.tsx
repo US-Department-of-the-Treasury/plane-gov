@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { Tooltip } from "@plane/propel/tooltip";
 // hooks
@@ -10,7 +9,7 @@ type Props = {
   page: TPageInstance;
 };
 
-export const PageOfflineBadge = observer(function PageOfflineBadge({ page }: Props) {
+export function PageOfflineBadge({ page }: Props) {
   // use online status
   const { isOnline } = useOnlineStatus();
 
@@ -27,4 +26,4 @@ export const PageOfflineBadge = observer(function PageOfflineBadge({ page }: Pro
       </div>
     </Tooltip>
   );
-});
+}

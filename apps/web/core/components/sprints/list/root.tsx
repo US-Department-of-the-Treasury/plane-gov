@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 import { Disclosure } from "@headlessui/react";
 // components
 import { useTranslation } from "@plane/i18n";
@@ -21,7 +20,7 @@ export interface ISprintsList {
   isArchived?: boolean;
 }
 
-export const SprintsList = observer(function SprintsList(props: ISprintsList) {
+export function SprintsList(props: ISprintsList) {
   const { completedSprintIds, upcomingSprintIds, sprintIds, workspaceSlug, projectId, isArchived = false } = props;
   const { t } = useTranslation();
 
@@ -50,7 +49,11 @@ export const SprintsList = observer(function SprintsList(props: ISprintsList) {
                       />
                     </Disclosure.Button>
                     <Disclosure.Panel>
-                      <SprintsListMap sprintIds={upcomingSprintIds} projectId={projectId} workspaceSlug={workspaceSlug} />
+                      <SprintsListMap
+                        sprintIds={upcomingSprintIds}
+                        projectId={projectId}
+                        workspaceSlug={workspaceSlug}
+                      />
                     </Disclosure.Panel>
                   </>
                 )}
@@ -69,7 +72,11 @@ export const SprintsList = observer(function SprintsList(props: ISprintsList) {
                     />
                   </Disclosure.Button>
                   <Disclosure.Panel>
-                    <SprintsListMap sprintIds={completedSprintIds} projectId={projectId} workspaceSlug={workspaceSlug} />
+                    <SprintsListMap
+                      sprintIds={completedSprintIds}
+                      projectId={projectId}
+                      workspaceSlug={workspaceSlug}
+                    />
                   </Disclosure.Panel>
                 </>
               )}
@@ -80,4 +87,4 @@ export const SprintsList = observer(function SprintsList(props: ISprintsList) {
       <SprintPeekOverview projectId={projectId} workspaceSlug={workspaceSlug} isArchived={isArchived} />
     </ContentWrapper>
   );
-});
+}

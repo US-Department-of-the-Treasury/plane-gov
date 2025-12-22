@@ -1,6 +1,5 @@
 import React from "react";
 import { Command } from "cmdk";
-import { observer } from "mobx-react";
 // hooks
 import useTimezone from "@/hooks/use-timezone";
 // local imports
@@ -10,7 +9,7 @@ type Props = {
   onSelect: (timezone: string) => void;
 };
 
-export const PowerKPreferencesTimezonesMenu = observer(function PowerKPreferencesTimezonesMenu(props: Props) {
+export function PowerKPreferencesTimezonesMenu(props: Props) {
   const { onSelect } = props;
   // timezones
   const { timezones } = useTimezone();
@@ -26,4 +25,4 @@ export const PowerKPreferencesTimezonesMenu = observer(function PowerKPreference
       ))}
     </Command.Group>
   );
-});
+}

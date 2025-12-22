@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 // plane utils
 import { cn, renderFormattedDate } from "@plane/utils";
 //helpers
@@ -16,7 +15,7 @@ type LeftResizableProps = {
     width: number;
   };
 };
-export const LeftResizable = observer(function LeftResizable(props: LeftResizableProps) {
+export function LeftResizable(props: LeftResizableProps) {
   const { enableBlockLeftResize, isMoving, handleBlockDrag, position } = props;
   const [isHovering, setIsHovering] = useState(false);
 
@@ -58,4 +57,4 @@ export const LeftResizable = observer(function LeftResizable(props: LeftResizabl
       />
     </>
   );
-});
+}

@@ -1,7 +1,6 @@
 import type { FC } from "react";
 import { useState } from "react";
 import { range } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // icons
 import { Copy, Eye, EyeOff, RefreshCw } from "lucide-react";
@@ -25,7 +24,7 @@ type Props = {
   data: Partial<IWebhook>;
 };
 
-export const WebhookSecretKey = observer(function WebhookSecretKey(props: Props) {
+export function WebhookSecretKey(props: Props) {
   const { data } = props;
   // states
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -71,7 +70,7 @@ export const WebhookSecretKey = observer(function WebhookSecretKey(props: Props)
         });
 
         if (currentWebhook && webhookSecretKey) {
-          const csvData = getCurrentHookAsCSV(currentWorkspace, currentWebhook, webhookSecretKey);
+          const csvData = getCurrentHookAsCSV(currentWorkspace ?? null, currentWebhook, webhookSecretKey);
           csvDownload(csvData, `webhook-secret-key-${Date.now()}`);
         }
       })
@@ -143,4 +142,4 @@ export const WebhookSecretKey = observer(function WebhookSecretKey(props: Props)
       )}
     </>
   );
-});
+}

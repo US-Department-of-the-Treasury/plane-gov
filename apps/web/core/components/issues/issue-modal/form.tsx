@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React, { useState, useRef, useEffect } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 // editor
@@ -72,7 +71,7 @@ export interface IssueFormProps {
   dataResetProperties?: any[];
 }
 
-export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormProps) {
+export function IssueFormRoot(props: IssueFormProps) {
   const { t } = useTranslation();
   const {
     data,
@@ -149,17 +148,10 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
 
   // Get parent issue data if parentId exists
   const parentId = watch("parent_id");
-  const { data: parentIssue } = useIssue(
-    workspaceSlug?.toString() ?? "",
-    projectId ?? "",
-    parentId ?? "",
-  );
+  const { data: parentIssue } = useIssue(workspaceSlug?.toString() ?? "", projectId ?? "", parentId ?? "");
 
   // queries
-  const { data: projectStates } = useProjectStates(
-    workspaceSlug?.toString() ?? "",
-    projectId ?? ""
-  );
+  const { data: projectStates } = useProjectStates(workspaceSlug?.toString() ?? "", projectId ?? "");
   const activeAdditionalPropertiesLength = getActiveAdditionalPropertiesLength({
     projectId: projectId,
     workspaceSlug: workspaceSlug?.toString(),
@@ -167,10 +159,7 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
   });
 
   // queries
-  const { data: projectDetails } = useProjectDetails(
-    workspaceSlug?.toString() ?? "",
-    projectId ?? ""
-  );
+  const { data: projectDetails } = useProjectDetails(workspaceSlug?.toString() ?? "", projectId ?? "");
 
   // derived values
   const isDisabled = isSubmitting || isApplyingTemplate;
@@ -602,4 +591,4 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
       </div>
     </FormProvider>
   );
-});
+}

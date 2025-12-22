@@ -283,8 +283,8 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
         });
       },
       modifierShortcut: "shift+e",
-      isEnabled: () => isEstimateEnabled && isEditingAllowed,
-      isVisible: () => isEstimateEnabled && isEditingAllowed,
+      isEnabled: () => !!(isEstimateEnabled && isEditingAllowed),
+      isVisible: () => !!(isEstimateEnabled && isEditingAllowed),
       closeOnSelect: true,
     },
     {

@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 import { Plus } from "lucide-react";
 // plane imports
 import type { TIssueServiceType } from "@plane/types";
@@ -13,7 +12,7 @@ type Props = {
   issueServiceType: TIssueServiceType;
 };
 
-export const IssueLinksActionButton = observer(function IssueLinksActionButton(props: Props) {
+export function IssueLinksActionButton(props: Props) {
   const { customButton, disabled = false, issueServiceType } = props;
   // store hooks
   const { toggleIssueLinkModal } = useIssueDetail(issueServiceType);
@@ -30,4 +29,4 @@ export const IssueLinksActionButton = observer(function IssueLinksActionButton(p
       {customButton ? customButton : <Plus className="h-4 w-4" />}
     </button>
   );
-});
+}

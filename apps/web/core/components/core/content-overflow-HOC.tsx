@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import { cn } from "@plane/utils";
 
@@ -14,7 +13,7 @@ interface IContentOverflowWrapper {
   customButton?: ReactNode;
 }
 
-export const ContentOverflowWrapper = observer(function ContentOverflowWrapper(props: IContentOverflowWrapper) {
+export function ContentOverflowWrapper(props: IContentOverflowWrapper) {
   const {
     children,
     maxHeight = 625,
@@ -155,4 +154,4 @@ export const ContentOverflowWrapper = observer(function ContentOverflowWrapper(p
       )}
     </div>
   );
-});
+}

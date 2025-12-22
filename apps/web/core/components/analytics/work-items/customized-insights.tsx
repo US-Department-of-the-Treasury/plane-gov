@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 // plane package imports
@@ -11,13 +10,7 @@ import AnalyticsSectionWrapper from "../analytics-section-wrapper";
 import { AnalyticsSelectParams } from "../select/analytics-params";
 import PriorityChart from "./priority-chart";
 
-const CustomizedInsights = observer(function CustomizedInsights({
-  peekView,
-  isEpic,
-}: {
-  peekView?: boolean;
-  isEpic?: boolean;
-}) {
+function CustomizedInsights({ peekView, isEpic }: { peekView?: boolean; isEpic?: boolean }) {
   const { t } = useTranslation();
   const { workspaceSlug } = useParams();
   const { control, watch, setValue } = useForm<IAnalyticsParams>({
@@ -51,6 +44,6 @@ const CustomizedInsights = observer(function CustomizedInsights({
       <PriorityChart x_axis={params.x_axis} y_axis={params.y_axis} group_by={params.group_by} />
     </AnalyticsSectionWrapper>
   );
-});
+}
 
 export default CustomizedInsights;

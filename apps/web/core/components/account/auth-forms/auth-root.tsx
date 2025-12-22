@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
 // plane imports
@@ -28,7 +27,7 @@ type TAuthRoot = {
   authMode: EAuthModes;
 };
 
-export const AuthRoot = observer(function AuthRoot(props: TAuthRoot) {
+export function AuthRoot(props: TAuthRoot) {
   //router
   const searchParams = useSearchParams();
   // query params
@@ -183,8 +182,8 @@ export const AuthRoot = observer(function AuthRoot(props: TAuthRoot) {
           setErrorInfo={(errorInfo) => setErrorInfo(errorInfo)}
           currentAuthMode={currentAuthMode}
         />
-        <TermsAndConditions authType={authMode} />
+        <TermsAndConditions />
       </div>
     </div>
   );
-});
+}

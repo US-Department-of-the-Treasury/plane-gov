@@ -1,10 +1,9 @@
-import { observer } from "mobx-react";
 // components
 import { cn } from "@plane/utils";
 // local imports
 import type { TPopoverMenuOptions } from "./root";
 
-export const NotificationMenuOptionItem = observer(function NotificationMenuOptionItem(props: TPopoverMenuOptions) {
+export function NotificationMenuOptionItem(props: TPopoverMenuOptions) {
   const { type, label = "", isActive, prependIcon, appendIcon, onClick } = props;
 
   if (type === "menu-item")
@@ -27,4 +26,4 @@ export const NotificationMenuOptionItem = observer(function NotificationMenuOpti
     );
 
   return <div className="border-b border-subtle" />;
-});
+}

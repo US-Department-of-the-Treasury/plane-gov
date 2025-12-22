@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // components
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -12,7 +11,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { SprintIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseKanBanRoot } from "../base-kanban-root";
 
-export const SprintKanBanLayout = observer(function SprintKanBanLayout() {
+export function SprintKanBanLayout() {
   const { workspaceSlug, projectId, sprintId } = useParams();
 
   // store
@@ -49,4 +48,4 @@ export const SprintKanBanLayout = observer(function SprintKanBanLayout() {
       viewId={sprintId?.toString()}
     />
   );
-});
+}

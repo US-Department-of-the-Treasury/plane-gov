@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Outlet } from "react-router";
 // plane web imports
 import { AutomationsListWrapper } from "@/plane-web/components/automations/list/wrapper";
@@ -14,4 +13,4 @@ function AutomationsListLayout({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(AutomationsListLayout);
+export default AutomationsListLayout;

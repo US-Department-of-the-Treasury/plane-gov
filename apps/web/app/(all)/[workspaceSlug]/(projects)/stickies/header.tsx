@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { Button } from "@plane/propel/button";
@@ -11,7 +10,7 @@ import { useStickyOperations } from "@/components/stickies/sticky/use-operations
 // hooks
 import { useSticky } from "@/hooks/use-stickies";
 
-export const WorkspaceStickyHeader = observer(function WorkspaceStickyHeader() {
+export function WorkspaceStickyHeader() {
   const { workspaceSlug } = useParams();
   // hooks
   const { creatingSticky, toggleShowNewSticky } = useSticky();
@@ -52,4 +51,4 @@ export const WorkspaceStickyHeader = observer(function WorkspaceStickyHeader() {
       </Header>
     </>
   );
-});
+}

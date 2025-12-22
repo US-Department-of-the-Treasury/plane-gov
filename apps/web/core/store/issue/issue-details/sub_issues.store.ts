@@ -340,8 +340,8 @@ export class IssueSubIssuesStore implements IIssueSubIssuesStore {
         );
         // fetching other project labels
         this.rootIssueDetailStore.rootIssueStore.rootStore.label.fetchProjectLabels(workspaceSlug, projectId);
-        // fetching other project sprints
-        this.rootIssueDetailStore.rootIssueStore.rootStore.sprint.fetchAllSprints(workspaceSlug, projectId);
+        // fetching other project sprints - migrated to TanStack Query, no need to fetch explicitly
+        // this.rootIssueDetailStore.rootIssueStore.rootStore.sprint.fetchAllSprints(workspaceSlug, projectId);
         // fetching other project epics
         this.rootIssueDetailStore.rootIssueStore.rootStore.epic.fetchEpics(workspaceSlug, projectId);
         // fetching other project estimates

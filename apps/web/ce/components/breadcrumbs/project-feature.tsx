@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { EProjectFeatureKey } from "@plane/constants";
 import { Breadcrumbs } from "@plane/ui";
@@ -19,9 +18,7 @@ type TProjectFeatureBreadcrumbProps = {
   additionalNavigationItems?: TNavigationItem[];
 };
 
-export const ProjectFeatureBreadcrumb = observer(function ProjectFeatureBreadcrumb(
-  props: TProjectFeatureBreadcrumbProps
-) {
+export function ProjectFeatureBreadcrumb(props: TProjectFeatureBreadcrumbProps) {
   const { workspaceSlug, projectId, featureKey, isLast = false, additionalNavigationItems } = props;
   // store hooks
   const { data: projects } = useProjects(workspaceSlug);
@@ -57,4 +54,4 @@ export const ProjectFeatureBreadcrumb = observer(function ProjectFeatureBreadcru
       />
     </>
   );
-});
+}

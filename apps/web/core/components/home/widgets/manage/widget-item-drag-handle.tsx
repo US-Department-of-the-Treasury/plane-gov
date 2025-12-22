@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 // ui
 import { DragHandle } from "@plane/ui";
 // helper
@@ -11,7 +10,7 @@ type Props = {
   isDragging: boolean;
 };
 
-export const WidgetItemDragHandle = observer(function WidgetItemDragHandle(props: Props) {
+export function WidgetItemDragHandle(props: Props) {
   const { isDragging } = props;
 
   return (
@@ -23,4 +22,4 @@ export const WidgetItemDragHandle = observer(function WidgetItemDragHandle(props
       <DragHandle className="bg-transparent" />
     </div>
   );
-});
+}

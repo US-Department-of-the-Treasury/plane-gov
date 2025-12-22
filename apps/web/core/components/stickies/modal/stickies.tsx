@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Plus } from "lucide-react";
 // plane ui
@@ -14,7 +13,7 @@ type TProps = {
   handleClose?: () => void;
 };
 
-export const Stickies = observer(function Stickies(props: TProps) {
+export function Stickies(props: TProps) {
   const { handleClose } = props;
   // navigation
   const { workspaceSlug } = useParams();
@@ -71,4 +70,4 @@ export const Stickies = observer(function Stickies(props: TProps) {
       </div>
     </div>
   );
-});
+}

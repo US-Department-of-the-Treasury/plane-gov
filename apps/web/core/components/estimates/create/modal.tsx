@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { EEstimateSystem, ESTIMATE_SYSTEMS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -22,7 +21,7 @@ type TCreateEstimateModal = {
   handleClose: () => void;
 };
 
-export const CreateEstimateModal = observer(function CreateEstimateModal(props: TCreateEstimateModal) {
+export function CreateEstimateModal(props: TCreateEstimateModal) {
   // props
   const { workspaceSlug, projectId, isOpen, handleClose } = props;
   // hooks
@@ -207,4 +206,4 @@ export const CreateEstimateModal = observer(function CreateEstimateModal(props: 
       </div>
     </ModalCore>
   );
-});
+}

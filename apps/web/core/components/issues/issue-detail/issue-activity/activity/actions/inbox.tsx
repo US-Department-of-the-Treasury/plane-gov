@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // hooks
 import { IntakeIcon } from "@plane/propel/icons";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -8,7 +7,7 @@ import { IssueActivityBlockComponent } from "./";
 
 type TIssueInboxActivity = { activityId: string; ends: "top" | "bottom" | undefined };
 
-export const IssueInboxActivity = observer(function IssueInboxActivity(props: TIssueInboxActivity) {
+export function IssueInboxActivity(props: TIssueInboxActivity) {
   const { activityId, ends } = props;
   // hooks
   const {
@@ -42,4 +41,4 @@ export const IssueInboxActivity = observer(function IssueInboxActivity(props: TI
       <>{getInboxActivityMessage()}</>
     </IssueActivityBlockComponent>
   );
-});
+}

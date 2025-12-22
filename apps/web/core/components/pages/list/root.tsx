@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // types
 import type { TPageNavigationTabs } from "@plane/types";
 // components
@@ -14,7 +13,7 @@ type TPagesListRoot = {
   storeType: EPageStoreType;
 };
 
-export const PagesListRoot = observer(function PagesListRoot(props: TPagesListRoot) {
+export function PagesListRoot(props: TPagesListRoot) {
   const { pageType, storeType } = props;
   // store hooks
   const { getCurrentProjectFilteredPageIdsByTab } = usePageStore(storeType);
@@ -29,4 +28,4 @@ export const PagesListRoot = observer(function PagesListRoot(props: TPagesListRo
       ))}
     </ListLayout>
   );
-});
+}

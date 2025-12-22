@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import useSWR from "swr";
 // components
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -54,4 +53,4 @@ function WorkspaceIntegrationsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(WorkspaceIntegrationsPage);
+export default WorkspaceIntegrationsPage;

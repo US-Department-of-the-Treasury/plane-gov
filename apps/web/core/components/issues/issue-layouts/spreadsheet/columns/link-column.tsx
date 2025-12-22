@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // types
 import type { TIssue } from "@plane/types";
 import { Row } from "@plane/ui";
@@ -8,7 +7,7 @@ type Props = {
   issue: TIssue;
 };
 
-export const SpreadsheetLinkColumn = observer(function SpreadsheetLinkColumn(props: Props) {
+export function SpreadsheetLinkColumn(props: Props) {
   const { issue } = props;
 
   return (
@@ -16,4 +15,4 @@ export const SpreadsheetLinkColumn = observer(function SpreadsheetLinkColumn(pro
       {issue?.link_count ?? 0} {issue?.link_count === 1 ? "link" : "links"}
     </Row>
   );
-});
+}

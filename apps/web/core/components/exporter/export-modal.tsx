@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { intersection } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
 // types
@@ -28,7 +27,7 @@ type Props = {
 
 const projectExportService = new ProjectExportService();
 
-export const Exporter = observer(function Exporter(props: Props) {
+export function Exporter(props: Props) {
   const { isOpen, handleClose, user, provider, mutateServices } = props;
   // states
   const [exportLoading, setExportLoading] = useState(false);
@@ -199,4 +198,4 @@ export const Exporter = observer(function Exporter(props: Props) {
       </Dialog>
     </Transition.Root>
   );
-});
+}

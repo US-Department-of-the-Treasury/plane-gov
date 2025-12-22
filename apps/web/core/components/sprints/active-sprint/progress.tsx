@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
 // plane imports
 import { PROGRESS_STATE_GROUPS_DETAILS } from "@plane/constants";
@@ -20,7 +19,7 @@ export type ActiveSprintProgressProps = {
   handleFiltersUpdate: (conditions: TWorkItemFilterCondition[]) => void;
 };
 
-export const ActiveSprintProgress = observer(function ActiveSprintProgress(props: ActiveSprintProgressProps) {
+export function ActiveSprintProgress(props: ActiveSprintProgressProps) {
   const { handleFiltersUpdate, sprint } = props;
   // theme hook
   const { resolvedTheme } = useTheme();
@@ -109,4 +108,4 @@ export const ActiveSprintProgress = observer(function ActiveSprintProgress(props
       <Loader.Item width="100%" height="100%" />
     </Loader>
   );
-});
+}

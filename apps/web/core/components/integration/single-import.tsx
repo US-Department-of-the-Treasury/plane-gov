@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Trash2 } from "lucide-react";
 // plane imports
 import { IMPORTERS_LIST } from "@plane/constants";
@@ -18,7 +17,7 @@ type Props = {
   handleDelete: () => void;
 };
 
-export const SingleImport = observer(function SingleImport({ service, refreshing, handleDelete }: Props) {
+export function SingleImport({ service, refreshing, handleDelete }: Props) {
   const { t } = useTranslation();
 
   const importer = IMPORTERS_LIST.find((i) => i.provider === service.service);
@@ -61,4 +60,4 @@ export const SingleImport = observer(function SingleImport({ service, refreshing
       </CustomMenu>
     </div>
   );
-});
+}

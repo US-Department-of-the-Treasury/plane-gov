@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane ui
 import { WorkItemsIcon } from "@plane/propel/icons";
@@ -15,7 +14,7 @@ import { useIssueByIdentifier } from "@/store/queries/issue";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
-export const WorkItemDetailsHeader = observer(function WorkItemDetailsHeader() {
+export function WorkItemDetailsHeader() {
   // router
   const router = useAppRouter();
   const { workspaceSlug, workItem } = useParams();
@@ -70,4 +69,4 @@ export const WorkItemDetailsHeader = observer(function WorkItemDetailsHeader() {
       </Header.RightItem>
     </Header>
   );
-});
+}

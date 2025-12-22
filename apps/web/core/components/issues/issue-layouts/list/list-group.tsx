@@ -2,7 +2,6 @@ import type { MutableRefObject } from "react";
 import { useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { observer } from "mobx-react";
 // plane imports
 import { DRAG_ALLOWED_GROUPS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -69,7 +68,7 @@ interface Props {
   isEpic?: boolean;
 }
 
-export const ListGroup = observer(function ListGroup(props: Props) {
+export function ListGroup(props: Props) {
   const {
     groupIssueIds = [],
     group,
@@ -107,9 +106,7 @@ export const ListGroup = observer(function ListGroup(props: Props) {
   const projectId = firstIssueId ? issuesMap?.[firstIssueId]?.project_id : undefined;
 
   // Extract workspaceSlug from window location or router context
-  const workspaceSlug = typeof window !== 'undefined'
-    ? window.location.pathname.split('/')[1]
-    : undefined;
+  const workspaceSlug = typeof window !== "undefined" ? window.location.pathname.split("/")[1] : undefined;
 
   const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
 
@@ -339,4 +336,4 @@ export const ListGroup = observer(function ListGroup(props: Props) {
       )}
     </div>
   ) : null;
-});
+}

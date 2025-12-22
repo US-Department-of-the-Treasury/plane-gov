@@ -1,5 +1,4 @@
 import type { MutableRefObject } from "react";
-import { observer } from "mobx-react";
 // i18n
 import { useTranslation } from "@plane/i18n";
 import type {
@@ -65,7 +64,7 @@ export interface IKanBan {
   isEpic?: boolean;
 }
 
-export const KanBan = observer(function KanBan(props: IKanBan) {
+export function KanBan(props: IKanBan) {
   const {
     issuesMap,
     groupedIssueIds,
@@ -233,4 +232,4 @@ export const KanBan = observer(function KanBan(props: IKanBan) {
         })}
     </ContentWrapper>
   );
-});
+}

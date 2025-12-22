@@ -80,13 +80,19 @@ export function SprintAnalyticsProgress(props: TSprintAnalyticsProgress) {
       backlog:
         estimateType === "points" ? sprintDetails?.backlog_estimate_points || 0 : sprintDetails?.backlog_issues || 0,
       unstarted:
-        estimateType === "points" ? sprintDetails?.unstarted_estimate_points || 0 : sprintDetails?.unstarted_issues || 0,
+        estimateType === "points"
+          ? sprintDetails?.unstarted_estimate_points || 0
+          : sprintDetails?.unstarted_issues || 0,
       started:
         estimateType === "points" ? sprintDetails?.started_estimate_points || 0 : sprintDetails?.started_issues || 0,
       completed:
-        estimateType === "points" ? sprintDetails?.completed_estimate_points || 0 : sprintDetails?.completed_issues || 0,
+        estimateType === "points"
+          ? sprintDetails?.completed_estimate_points || 0
+          : sprintDetails?.completed_issues || 0,
       cancelled:
-        estimateType === "points" ? sprintDetails?.cancelled_estimate_points || 0 : sprintDetails?.cancelled_issues || 0,
+        estimateType === "points"
+          ? sprintDetails?.cancelled_estimate_points || 0
+          : sprintDetails?.cancelled_issues || 0,
     }),
     [estimateType, sprintDetails]
   );
@@ -106,7 +112,9 @@ export function SprintAnalyticsProgress(props: TSprintAnalyticsProgress) {
             {isSprintDateValid ? (
               <div className="relative w-full flex justify-between items-center gap-2">
                 <Disclosure.Button className="relative flex items-center gap-2 w-full">
-                  <div className="font-medium text-secondary text-13">{t("project_sprints.active_sprint.progress")}</div>
+                  <div className="font-medium text-secondary text-13">
+                    {t("project_sprints.active_sprint.progress")}
+                  </div>
                 </Disclosure.Button>
                 <Disclosure.Button className="ml-auto">
                   {open ? (

@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane package imports
@@ -15,7 +14,7 @@ import ActiveProjectItem from "./active-project-item";
 
 const projectService = new ProjectService();
 
-const ActiveProjects = observer(function ActiveProjects() {
+function ActiveProjects() {
   const { t } = useTranslation();
   const { workspaceSlug } = useParams();
   const { selectedDurationLabel } = useAnalytics();
@@ -42,6 +41,6 @@ const ActiveProjects = observer(function ActiveProjects() {
       </div>
     </AnalyticsSectionWrapper>
   );
-});
+}
 
 export default ActiveProjects;

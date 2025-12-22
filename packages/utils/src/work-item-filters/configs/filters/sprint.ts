@@ -18,7 +18,10 @@ export type TCreateSprintFilterParams = TCreateFilterConfigParams &
  * @param params - The filter params
  * @returns The sprint multi select config
  */
-export const getSprintMultiSelectConfig = (params: TCreateSprintFilterParams, singleValueOperator: TSupportedOperators) =>
+export const getSprintMultiSelectConfig = (
+  params: TCreateSprintFilterParams,
+  singleValueOperator: TSupportedOperators
+) =>
   getMultiSelectConfig<ISprint, string, TSprintGroups>(
     {
       items: params.sprints,

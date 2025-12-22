@@ -35,10 +35,10 @@ export function usePartialProjects(workspaceSlug: string) {
  * @example
  * const { data: projects, isLoading } = useProjects(workspaceSlug);
  */
-export function useProjects(workspaceSlug: string) {
+export function useProjects(workspaceSlug: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.projects.all(workspaceSlug),
-    queryFn: () => projectService.getProjects(workspaceSlug),
+    queryKey: queryKeys.projects.all(workspaceSlug ?? ""),
+    queryFn: () => projectService.getProjects(workspaceSlug!),
     enabled: !!workspaceSlug,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -52,10 +52,10 @@ export function useProjects(workspaceSlug: string) {
  * @example
  * const { data: project, isLoading } = useProjectDetails(workspaceSlug, projectId);
  */
-export function useProjectDetails(workspaceSlug: string, projectId: string) {
+export function useProjectDetails(workspaceSlug: string | undefined, projectId: string | null | undefined) {
   return useQuery({
-    queryKey: queryKeys.projects.detail(projectId),
-    queryFn: () => projectService.getProject(workspaceSlug, projectId),
+    queryKey: queryKeys.projects.detail(projectId ?? ""),
+    queryFn: () => projectService.getProject(workspaceSlug!, projectId!),
     enabled: !!workspaceSlug && !!projectId,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -120,7 +120,7 @@ export function useCreateProject() {
           sort_order: previousProjects.length + 1,
           sprint_view: true,
           issue_views_view: true,
-          module_view: true,
+          epic_view: true,
           page_view: true,
           inbox_view: false,
         };

@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane imports
@@ -19,7 +18,7 @@ type Props = {
   type: "assigned" | "subscribed" | "created";
 };
 
-export const ProfileIssuesPage = observer(function ProfileIssuesPage(props: Props) {
+export function ProfileIssuesPage(props: Props) {
   const { type } = props;
   const { workspaceSlug, userId } = useParams();
   // store hooks
@@ -73,4 +72,4 @@ export const ProfileIssuesPage = observer(function ProfileIssuesPage(props: Prop
       </WorkspaceLevelWorkItemFiltersHOC>
     </IssuesStoreContext.Provider>
   );
-});
+}

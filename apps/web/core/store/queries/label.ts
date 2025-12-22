@@ -15,10 +15,10 @@ const labelService = new IssueLabelService();
  * @example
  * const { data: labels, isLoading } = useProjectLabels(workspaceSlug, projectId);
  */
-export function useProjectLabels(workspaceSlug: string, projectId: string) {
+export function useProjectLabels(workspaceSlug: string | undefined, projectId: string | null | undefined) {
   return useQuery({
-    queryKey: queryKeys.labels.all(workspaceSlug, projectId),
-    queryFn: () => labelService.getProjectLabels(workspaceSlug, projectId),
+    queryKey: queryKeys.labels.all(workspaceSlug ?? "", projectId ?? ""),
+    queryFn: () => labelService.getProjectLabels(workspaceSlug!, projectId!),
     enabled: !!workspaceSlug && !!projectId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
@@ -187,7 +187,9 @@ function computeLabelPositionData(
   if (!droppedParentId) {
     currentArray = labelTree;
   } else {
-    const parentLabel = labelTree.find((label) => label.id === droppedParentId) as IIssueLabel & { children?: IIssueLabel[] };
+    const parentLabel = labelTree.find((label) => label.id === droppedParentId) as IIssueLabel & {
+      children?: IIssueLabel[];
+    };
     currentArray = parentLabel?.children || [];
   }
 
@@ -246,19 +248,38 @@ export function useUpdateLabelPosition() {
     }: UpdateLabelPositionParams) => {
       // Get current labels to compute position
       const labels = queryClient.getQueryData<IIssueLabel[]>(queryKeys.labels.all(workspaceSlug, projectId)) || [];
-      const result = computeLabelPositionData(labels, draggingLabelId, droppedParentId, droppedLabelId, dropAtEndOfList);
+      const result = computeLabelPositionData(
+        labels,
+        draggingLabelId,
+        droppedParentId,
+        droppedLabelId,
+        dropAtEndOfList
+      );
 
       if (!result) return; // No update needed
 
       return labelService.patchIssueLabel(workspaceSlug, projectId, result.labelId, result.data);
     },
-    onMutate: async ({ workspaceSlug, projectId, draggingLabelId, droppedParentId, droppedLabelId, dropAtEndOfList }) => {
+    onMutate: async ({
+      workspaceSlug,
+      projectId,
+      draggingLabelId,
+      droppedParentId,
+      droppedLabelId,
+      dropAtEndOfList,
+    }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.labels.all(workspaceSlug, projectId) });
 
       const previousLabels = queryClient.getQueryData<IIssueLabel[]>(queryKeys.labels.all(workspaceSlug, projectId));
 
       if (previousLabels) {
-        const result = computeLabelPositionData(previousLabels, draggingLabelId, droppedParentId, droppedLabelId, dropAtEndOfList);
+        const result = computeLabelPositionData(
+          previousLabels,
+          draggingLabelId,
+          droppedParentId,
+          droppedLabelId,
+          dropAtEndOfList
+        );
         if (result) {
           queryClient.setQueryData<IIssueLabel[]>(
             queryKeys.labels.all(workspaceSlug, projectId),

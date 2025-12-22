@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane ui
 import { Avatar, Loader } from "@plane/ui";
@@ -19,7 +18,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterCreatedBy = observer(function FilterCreatedBy(props: Props) {
+export function FilterCreatedBy(props: Props) {
   const { appliedFilters, handleUpdate, memberIds, searchQuery } = props;
   // params
   const { workspaceSlug } = useParams();
@@ -107,4 +106,4 @@ export const FilterCreatedBy = observer(function FilterCreatedBy(props: Props) {
       )}
     </>
   );
-});
+}

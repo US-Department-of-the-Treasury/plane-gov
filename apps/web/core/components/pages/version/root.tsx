@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useRouter, useSearchParams } from "next/navigation";
 // plane imports
 import type { TPageVersion } from "@plane/types";
@@ -22,7 +21,7 @@ type Props = {
   storeType: EPageStoreType;
 };
 
-export const PageVersionsOverlay = observer(function PageVersionsOverlay(props: Props) {
+export function PageVersionsOverlay(props: Props) {
   const { editorComponent, fetchVersionDetails, handleRestore, pageId, restoreEnabled, storeType } = props;
   // navigation
   const router = useRouter();
@@ -64,4 +63,4 @@ export const PageVersionsOverlay = observer(function PageVersionsOverlay(props: 
       />
     </div>
   );
-});
+}

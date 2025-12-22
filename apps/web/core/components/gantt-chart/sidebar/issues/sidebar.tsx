@@ -1,6 +1,5 @@
 import type { RefObject } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 // ui
 import { GANTT_TIMELINE_TYPE } from "@plane/types";
 import type { IBlockUpdateData } from "@plane/types";
@@ -31,7 +30,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const IssueGanttSidebar = observer(function IssueGanttSidebar(props: Props) {
+export function IssueGanttSidebar(props: Props) {
   const {
     blockUpdateHandler,
     blockIds,
@@ -125,4 +124,4 @@ export const IssueGanttSidebar = observer(function IssueGanttSidebar(props: Prop
       )}
     </div>
   );
-});
+}

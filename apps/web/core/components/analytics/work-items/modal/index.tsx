@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 // plane package imports
 import { ModalPortal, EPortalWidth, EPortalPosition } from "@plane/propel/portal";
 import type { ISprint, IEpic, IProject } from "@plane/types";
@@ -17,7 +16,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const WorkItemsModal = observer(function WorkItemsModal(props: Props) {
+export function WorkItemsModal(props: Props) {
   const { isOpen, onClose, projectDetails, epicDetails, sprintDetails, isEpic } = props;
   const { updateIsEpic, isPeekView } = useAnalytics();
   const [fullScreen, setFullScreen] = useState(false);
@@ -62,4 +61,4 @@ export const WorkItemsModal = observer(function WorkItemsModal(props: Props) {
       </div>
     </ModalPortal>
   );
-});
+}

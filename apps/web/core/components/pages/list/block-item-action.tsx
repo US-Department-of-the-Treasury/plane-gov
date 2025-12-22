@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Earth, Info, Lock, Minus } from "lucide-react";
 // plane imports
 import { PROJECT_PAGE_TRACKER_ELEMENTS } from "@plane/constants";
@@ -23,7 +22,7 @@ type Props = {
   storeType: EPageStoreType;
 };
 
-export const BlockItemAction = observer(function BlockItemAction(props: Props) {
+export function BlockItemAction(props: Props) {
   const { page, parentRef, storeType } = props;
   // queries
   const { data: workspaceMembers = [] } = useWorkspaceMembers(page.workspace);
@@ -90,4 +89,4 @@ export const BlockItemAction = observer(function BlockItemAction(props: Props) {
       />
     </>
   );
-});
+}

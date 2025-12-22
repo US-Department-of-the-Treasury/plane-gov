@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useSearchParams } from "next/navigation";
 import { EAuthModes, EAuthSteps } from "@plane/constants";
 import type { IEmailCheckData } from "@plane/types";
@@ -29,7 +28,7 @@ type TAuthFormRoot = {
 
 const authService = new AuthService();
 
-export const AuthFormRoot = observer(function AuthFormRoot(props: TAuthFormRoot) {
+export function AuthFormRoot(props: TAuthFormRoot) {
   const { authStep, authMode, email, setEmail, setAuthMode, setAuthStep, setErrorInfo, currentAuthMode } = props;
   // router
   const router = useAppRouter();
@@ -129,4 +128,4 @@ export const AuthFormRoot = observer(function AuthFormRoot(props: TAuthFormRoot)
   }
 
   return <></>;
-});
+}

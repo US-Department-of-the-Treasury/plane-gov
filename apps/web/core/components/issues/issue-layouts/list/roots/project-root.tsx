@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -9,7 +8,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { ProjectIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseListRoot } from "../base-list-root";
 
-export const ListLayout = observer(function ListLayout() {
+export function ListLayout() {
   // router
   const { workspaceSlug } = useParams();
   // hooks
@@ -31,4 +30,4 @@ export const ListLayout = observer(function ListLayout() {
       canEditPropertiesBasedOnProject={canEditPropertiesBasedOnProject}
     />
   );
-});
+}

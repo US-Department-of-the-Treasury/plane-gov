@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -15,7 +14,7 @@ import { useEpicFilter } from "@/hooks/store/use-epic-filter";
 // queries
 import { useArchivedEpics } from "@/store/queries/epic";
 
-export const ArchivedEpicLayoutRoot = observer(function ArchivedEpicLayoutRoot() {
+export function ArchivedEpicLayoutRoot() {
   // router
   const { workspaceSlug, projectId } = useParams();
   // plane hooks
@@ -77,4 +76,4 @@ export const ArchivedEpicLayoutRoot = observer(function ArchivedEpicLayoutRoot()
       )}
     </>
   );
-});
+}

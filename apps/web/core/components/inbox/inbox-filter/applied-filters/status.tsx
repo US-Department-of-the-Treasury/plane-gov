@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { INBOX_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { CloseIcon } from "@plane/propel/icons";
@@ -10,7 +9,7 @@ import { Tag } from "@plane/ui";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import { InboxStatusIcon } from "../../inbox-status-icon";
 
-export const InboxIssueAppliedFiltersStatus = observer(function InboxIssueAppliedFiltersStatus() {
+export function InboxIssueAppliedFiltersStatus() {
   // hooks
   const { inboxFilters, handleInboxIssueFilters } = useProjectInbox();
   const { t } = useTranslation();
@@ -47,4 +46,4 @@ export const InboxIssueAppliedFiltersStatus = observer(function InboxIssueApplie
       })}
     </Tag>
   );
-});
+}

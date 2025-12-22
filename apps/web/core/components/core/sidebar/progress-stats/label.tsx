@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 // assets
@@ -21,7 +20,7 @@ type TLabelStatComponent = {
   isEditable?: boolean;
 };
 
-export const LabelStatComponent = observer(function LabelStatComponent(props: TLabelStatComponent) {
+export function LabelStatComponent(props: TLabelStatComponent) {
   const { distribution, isEditable, selectedLabelIds, handleLabelFiltersUpdate } = props;
   const { t } = useTranslation();
   return (
@@ -82,4 +81,4 @@ export const LabelStatComponent = observer(function LabelStatComponent(props: TL
       )}
     </div>
   );
-});
+}

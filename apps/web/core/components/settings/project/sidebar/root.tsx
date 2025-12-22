@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { PROJECT_SETTINGS_CATEGORIES, PROJECT_SETTINGS_CATEGORY } from "@plane/constants";
@@ -16,18 +15,21 @@ type TProjectSettingsSidebarProps = {
   isMobile?: boolean;
 };
 
-export const ProjectSettingsSidebar = observer(function ProjectSettingsSidebar(props: TProjectSettingsSidebarProps) {
+export function ProjectSettingsSidebar(props: TProjectSettingsSidebarProps) {
   const { isMobile = false } = props;
   const { workspaceSlug } = useParams();
   // store hooks
-  const { data: projects } = useProjects(workspaceSlug as string);
+  const { data: projects } = useProjects(workspaceSlug);
 
   // derived values
   const joinedProjectIds = getJoinedProjectIds(projects);
-  const projectMap = (projects || []).reduce((acc, project) => {
-    acc[project.id] = project;
-    return acc;
-  }, {} as Record<string, typeof projects[0]>);
+  const projectMap = (projects || []).reduce(
+    (acc, project) => {
+      acc[project.id] = project;
+      return acc;
+    },
+    {} as Record<string, NonNullable<typeof projects>[0]>
+  );
 
   const groupedProject = joinedProjectIds.map((projectId) => ({
     key: projectId,
@@ -57,4 +59,4 @@ export const ProjectSettingsSidebar = observer(function ProjectSettingsSidebar(p
       renderChildren={(key: string) => <NavItemChildren projectId={key} />}
     />
   );
-});
+}

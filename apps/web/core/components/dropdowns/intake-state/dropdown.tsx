@@ -17,13 +17,11 @@ export function IntakeStateDropdown(props: TWorkItemStateDropdownProps) {
   // router params
   const { workspaceSlug } = useParams();
   // store hooks
-  const { data: intakeState, isLoading } = useIntakeState(
-    workspaceSlug?.toString() ?? "",
-    projectId ?? ""
-  );
+  const { data: intakeState, isLoading } = useIntakeState(workspaceSlug?.toString() ?? "", projectId ?? "");
   // derived values
-  const stateIds = propsStateIds ?? (intakeState?.states?.map(s => s.id) ?? []);
-  const getStateById = (stateId: string) => intakeState?.states?.find(s => s.id === stateId);
+  const stateIds = propsStateIds ?? (intakeState ? [intakeState.id] : []);
+  const getStateById = (stateId: string | null | undefined) =>
+    intakeState && stateId && intakeState.id === stateId ? intakeState : undefined;
 
   return (
     <WorkItemStateDropdownBase

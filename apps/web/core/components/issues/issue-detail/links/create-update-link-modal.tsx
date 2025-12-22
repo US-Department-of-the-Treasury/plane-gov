@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "@plane/i18n";
 // plane types
@@ -31,9 +30,7 @@ const defaultValues: TIssueLinkCreateFormFieldOptions = {
   url: "",
 };
 
-export const IssueLinkCreateUpdateModal = observer(function IssueLinkCreateUpdateModal(
-  props: TIssueLinkCreateEditModal
-) {
+export function IssueLinkCreateUpdateModal(props: TIssueLinkCreateEditModal) {
   const { isModalOpen, handleOnClose, linkOperations, issueServiceType } = props;
   // i18n
   const { t } = useTranslation();
@@ -145,4 +142,4 @@ export const IssueLinkCreateUpdateModal = observer(function IssueLinkCreateUpdat
       </form>
     </ModalCore>
   );
-});
+}

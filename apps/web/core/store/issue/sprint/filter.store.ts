@@ -187,7 +187,12 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
         set(this.filters, [sprintId, "richFilters"], filters);
       });
 
-      this.rootIssueStore.sprintIssues.fetchIssuesWithExistingPagination(workspaceSlug, projectId, "mutation", sprintId);
+      this.rootIssueStore.sprintIssues.fetchIssuesWithExistingPagination(
+        workspaceSlug,
+        projectId,
+        "mutation",
+        sprintId
+      );
       await this.issueFilterService.patchSprintIssueFilters(workspaceSlug, projectId, sprintId, {
         rich_filters: filters,
       });

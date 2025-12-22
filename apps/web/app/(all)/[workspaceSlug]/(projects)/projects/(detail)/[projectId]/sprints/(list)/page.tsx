@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
+
 // plane imports
 import { useTheme } from "next-themes";
 import { EUserPermissionsLevel, SPRINT_TRACKER_ELEMENTS } from "@plane/constants";
@@ -136,4 +136,4 @@ function ProjectSprintsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ProjectSprintsPage);
+export default ProjectSprintsPage;

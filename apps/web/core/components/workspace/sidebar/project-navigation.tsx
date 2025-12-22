@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { EUserPermissionsLevel, EUserPermissions } from "@plane/constants";
@@ -32,7 +31,7 @@ type TProjectItemsProps = {
   additionalNavigationItems?: (workspaceSlug: string, projectId: string) => TNavigationItem[];
 };
 
-export const ProjectNavigation = observer(function ProjectNavigation(props: TProjectItemsProps) {
+export function ProjectNavigation(props: TProjectItemsProps) {
   const { workspaceSlug, projectId, additionalNavigationItems } = props;
   const { workItem: workItemIdentifierFromRoute } = useParams();
   // store hooks
@@ -183,4 +182,4 @@ export const ProjectNavigation = observer(function ProjectNavigation(props: TPro
       })}
     </>
   );
-});
+}

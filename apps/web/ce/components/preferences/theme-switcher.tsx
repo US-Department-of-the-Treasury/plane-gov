@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
 // plane imports
 import type { I_THEME_OPTION } from "@plane/constants";
@@ -14,7 +13,7 @@ import { PreferencesSection } from "@/components/preferences/section";
 // hooks
 import { useUserProfile } from "@/hooks/store/user";
 
-export const ThemeSwitcher = observer(function ThemeSwitcher(props: {
+export function ThemeSwitcher(props: {
   option: {
     id: string;
     title: string;
@@ -72,4 +71,4 @@ export const ThemeSwitcher = observer(function ThemeSwitcher(props: {
       {userProfile.theme?.theme === "custom" && <CustomThemeSelector />}
     </>
   );
-});
+}

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { observer } from "mobx-react";
+
 import { useSearchParams, usePathname } from "next/navigation";
 import useSWR from "swr";
 // components
@@ -23,7 +23,7 @@ const isValidURL = (url: string): boolean => {
   return !disallowedSchemes.test(url);
 };
 
-export const AuthenticationWrapper = observer(function AuthenticationWrapper(props: TAuthenticationWrapper) {
+export function AuthenticationWrapper(props: TAuthenticationWrapper) {
   const pathname = usePathname();
   const router = useAppRouter();
   const searchParams = useSearchParams();
@@ -135,4 +135,4 @@ export const AuthenticationWrapper = observer(function AuthenticationWrapper(pro
   }
 
   return <>{children}</>;
-});
+}

@@ -108,6 +108,7 @@ export {
   useRestoreProject,
   useUpdateProjectView,
   useCheckProjectIdentifier,
+  getProjectById,
 } from "./project";
 
 // Workspace hooks (TanStack Query)
@@ -125,6 +126,19 @@ export {
   useUserWorkspaceInvitations,
   useJoinWorkspace,
   useLastActiveWorkspace,
+  // Workspace Views (Global Views)
+  useWorkspaceViews,
+  useWorkspaceViewDetails,
+  useCreateWorkspaceView,
+  useUpdateWorkspaceView,
+  useDeleteWorkspaceView,
+  getWorkspaceViewById,
+  getSearchedWorkspaceViews,
+  // Utility functions
+  getWorkspaceBySlug,
+  getWorkspaceById,
+  getWorkspaceIds,
+  getWorkspaceSlugs,
 } from "./workspace";
 
 // Issue hooks (TanStack Query)
@@ -152,3 +166,167 @@ export {
   useAddIssueToSprint,
   useRemoveIssueFromSprint,
 } from "./issue";
+
+// View hooks (TanStack Query)
+export {
+  useProjectViews,
+  useViewDetails,
+  useCreateView,
+  useUpdateView,
+  useDeleteView,
+  useAddViewToFavorites,
+  useRemoveViewFromFavorites,
+  getViewById,
+} from "./view";
+
+// Estimate hooks (TanStack Query)
+export {
+  useWorkspaceEstimates,
+  useProjectEstimates,
+  useEstimateDetails,
+  useCreateEstimate,
+  useDeleteEstimate,
+  useCreateEstimatePoint,
+  useUpdateEstimatePoint,
+  getEstimateById,
+  getCurrentActiveEstimate,
+  getCurrentActiveEstimateId,
+  getArchivedEstimates,
+  getArchivedEstimateIds,
+  getEstimateIds,
+  getEstimatePointById,
+  getEstimatePointIds,
+} from "./estimate";
+
+// Webhook hooks (TanStack Query)
+export {
+  useWebhooks,
+  useWebhookDetails,
+  useCreateWebhook,
+  useUpdateWebhook,
+  useDeleteWebhook,
+  useRegenerateWebhookSecretKey,
+  getWebhookById,
+  getActiveWebhooks,
+  getInactiveWebhooks,
+  getWebhookIds,
+} from "./webhook";
+
+// Favorite hooks (TanStack Query)
+export {
+  useFavorites,
+  useGroupedFavorites,
+  useAddFavorite,
+  useUpdateFavorite,
+  useDeleteFavorite,
+  useMoveFavoriteToFolder,
+  useReorderFavorite,
+  useRemoveFromFavoriteFolder,
+  getFavoriteById,
+  getFavoriteByEntityId,
+  getFavoriteFolders,
+  getFavoritesByWorkspace,
+  groupFavorites,
+} from "./favorite";
+
+// Analytics hooks (TanStack Query)
+export {
+  useAdvanceAnalytics,
+  useAdvanceAnalyticsStats,
+  useAdvanceAnalyticsCharts,
+} from "./analytics";
+
+// Workspace draft hooks (TanStack Query)
+export {
+  useWorkspaceDraftIssues,
+  useInfiniteWorkspaceDraftIssues,
+  useWorkspaceDraftIssue,
+  useCreateWorkspaceDraftIssue,
+  useUpdateWorkspaceDraftIssue,
+  useDeleteWorkspaceDraftIssue,
+  useMoveWorkspaceDraftIssue,
+} from "./workspace-draft";
+
+// Inbox hooks (TanStack Query)
+export {
+  useInboxIssues,
+  useInfiniteInboxIssues,
+  useInboxIssue,
+  useCreateInboxIssue,
+  useUpdateInboxIssueStatus,
+  useUpdateInboxIssueDuplicate,
+  useUpdateInboxIssueSnooze,
+  useUpdateInboxIssue,
+  useUpdateProjectIssueFromInbox,
+  useDeleteInboxIssue,
+  getInboxIssueById,
+  getInboxIssueIds,
+} from "./inbox";
+
+// Notification hooks (TanStack Query)
+export {
+  useUnreadNotificationsCount,
+  useNotifications,
+  useUpdateNotification,
+  useMarkNotificationAsRead,
+  useMarkNotificationAsUnread,
+  useArchiveNotification,
+  useUnarchiveNotification,
+  useSnoozeNotification,
+  useUnsnoozeNotification,
+  useMarkAllNotificationsAsRead,
+  getNotificationById,
+  filterNotificationsByReadStatus,
+  filterNotificationsByArchivedStatus,
+} from "./notification";
+
+// Instance hooks (TanStack Query)
+export {
+  useInstanceInfo,
+  getInstanceConfig,
+  getInstance,
+  isInstanceConfigured,
+} from "./instance";
+
+// Dashboard hooks (TanStack Query)
+export {
+  useHomeDashboardWidgets,
+  useWidgetStats,
+  useUpdateDashboardWidget,
+  useUpdateDashboardWidgetFilters,
+  getWidgetDetails,
+  getWidgets,
+  getDashboardId,
+} from "./dashboard";
+
+// Home hooks (TanStack Query)
+export {
+  useHomeWidgets,
+  useToggleWidget,
+  useReorderWidget,
+  isAnyWidgetEnabled,
+  getOrderedWidgets,
+  getWidgetByKey,
+  buildWidgetsMap,
+} from "./home";
+
+// Project publish hooks (TanStack Query)
+export {
+  useProjectPublishSettings,
+  usePublishProject,
+  useUpdatePublishSettings,
+  useUnpublishProject,
+  getPublishSettingsByProjectId,
+} from "./project-publish";
+
+// Sticky hooks (TanStack Query)
+export {
+  useWorkspaceStickies,
+  useRecentSticky,
+  useCreateSticky,
+  useUpdateSticky,
+  useDeleteSticky,
+  useUpdateStickyPosition,
+  getAllStickiesFromCache,
+  getSortedStickyIds,
+} from "./sticky";

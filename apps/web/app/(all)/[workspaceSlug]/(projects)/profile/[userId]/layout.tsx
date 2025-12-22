@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 import { Outlet } from "react-router";
 import useSWR from "swr";
@@ -89,4 +88,4 @@ function UseProfileLayout({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(UseProfileLayout);
+export default UseProfileLayout;

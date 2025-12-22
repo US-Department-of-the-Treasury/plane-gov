@@ -1,6 +1,5 @@
 import type { FC, FormEvent } from "react";
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { Check, Info } from "lucide-react";
 import { EEstimateSystem, MAX_ESTIMATE_POINT_INPUT_LENGTH } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -30,7 +29,7 @@ type TEstimatePointUpdate = {
   handleEstimatePointError?: (newValue: string, message: string | undefined, mode?: "add" | "delete") => void;
 };
 
-export const EstimatePointUpdate = observer(function EstimatePointUpdate(props: TEstimatePointUpdate) {
+export function EstimatePointUpdate(props: TEstimatePointUpdate) {
   const {
     workspaceSlug,
     projectId,
@@ -215,4 +214,4 @@ export const EstimatePointUpdate = observer(function EstimatePointUpdate(props: 
       </button>
     </form>
   );
-});
+}

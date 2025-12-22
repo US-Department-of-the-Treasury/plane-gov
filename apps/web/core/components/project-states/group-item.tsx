@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { observer } from "mobx-react";
 import { Plus } from "lucide-react";
 // plane imports
 import { EIconSize, STATE_TRACKER_ELEMENTS } from "@plane/constants";
@@ -24,7 +23,7 @@ type TGroupItem = {
   handleExpand: (groupKey: TStateGroups) => void;
 };
 
-export const GroupItem = observer(function GroupItem(props: TGroupItem) {
+export function GroupItem(props: TGroupItem) {
   const {
     groupKey,
     groupedStates,
@@ -126,4 +125,4 @@ export const GroupItem = observer(function GroupItem(props: TGroupItem) {
       )}
     </div>
   );
-});
+}

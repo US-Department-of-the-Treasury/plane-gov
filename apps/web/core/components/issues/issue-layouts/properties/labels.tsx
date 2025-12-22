@@ -116,14 +116,7 @@ type LabelItemProps = {
   noLabelBorder: boolean;
 };
 
-function LabelItem({
-  label,
-  isMobile,
-  renderByDefault,
-  disabled,
-  fullWidth,
-  noLabelBorder,
-}: LabelItemProps) {
+function LabelItem({ label, isMobile, renderByDefault, disabled, fullWidth, noLabelBorder }: LabelItemProps) {
   const { t } = useTranslation();
 
   return (

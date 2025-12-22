@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // ui
 import { PROJECT_VIEW_TRACKER_ELEMENTS } from "@plane/constants";
@@ -15,7 +14,7 @@ import { useProjects } from "@/store/queries/project";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
-export const ProjectViewsHeader = observer(function ProjectViewsHeader() {
+export function ProjectViewsHeader() {
   const { workspaceSlug, projectId } = useParams();
   // store hooks
   const { toggleCreateViewModal } = useCommandPalette();
@@ -57,4 +56,4 @@ export const ProjectViewsHeader = observer(function ProjectViewsHeader() {
       </Header>
     </>
   );
-});
+}

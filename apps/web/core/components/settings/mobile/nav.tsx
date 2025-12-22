@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { observer } from "mobx-react";
 import { Menu } from "lucide-react";
 import { useOutsideClickDetector } from "@plane/hooks";
 import { useTranslation } from "@plane/i18n";
@@ -11,7 +10,7 @@ type Props = {
   activePath: string;
 };
 
-export const SettingsMobileNav = observer(function SettingsMobileNav(props: Props) {
+export function SettingsMobileNav(props: Props) {
   const { hamburgerContent: HamburgerContent, activePath } = props;
   // refs
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -44,4 +43,4 @@ export const SettingsMobileNav = observer(function SettingsMobileNav(props: Prop
       </div>
     </div>
   );
-});
+}

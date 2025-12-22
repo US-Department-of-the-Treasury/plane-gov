@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { AlertCircle, Search } from "lucide-react";
 import { Dialog, Transition } from "@headlessui/react";
 import { SprintIcon, TransferIcon, CloseIcon } from "@plane/propel/icons";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
+import type { ISprint } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
@@ -19,7 +19,7 @@ type Props = {
   sprintId: string;
 };
 
-export const TransferIssuesModal = observer(function TransferIssuesModal(props: Props) {
+export function TransferIssuesModal(props: Props) {
   const { isOpen, handleClose, sprintId } = props;
   // states
   const [query, setQuery] = useState("");
@@ -37,13 +37,13 @@ export const TransferIssuesModal = observer(function TransferIssuesModal(props: 
     if (!sprints) return [];
     const now = new Date();
     return sprints
-      .filter((sprint) => {
+      .filter((sprint: ISprint) => {
         if (sprint.archived_at) return false;
         if (!sprint.end_date) return true; // Draft sprints
         const endDate = new Date(sprint.end_date);
         return endDate >= now; // Not completed
       })
-      .map((sprint) => sprint.id);
+      .map((sprint: ISprint) => sprint.id);
   }, [sprints]);
 
   const transferIssue = async (payload: { new_sprint_id: string }) => {
@@ -76,7 +76,7 @@ export const TransferIssuesModal = observer(function TransferIssuesModal(props: 
       });
   };
 
-  const filteredOptions = currentProjectIncompleteSprintIds?.filter((optionId) => {
+  const filteredOptions = currentProjectIncompleteSprintIds?.filter((optionId: string) => {
     const sprintDetails = getSprintById(sprints, optionId);
 
     return sprintDetails?.name?.toLowerCase().includes(query?.toLowerCase());
@@ -139,7 +139,7 @@ export const TransferIssuesModal = observer(function TransferIssuesModal(props: 
                   <div className="flex w-full flex-col items-start gap-2 px-5">
                     {filteredOptions ? (
                       filteredOptions.length > 0 ? (
-                        filteredOptions.map((optionId) => {
+                        filteredOptions.map((optionId: string) => {
                           const sprintDetails = getSprintById(sprints, optionId);
 
                           if (!sprintDetails) return;
@@ -187,4 +187,4 @@ export const TransferIssuesModal = observer(function TransferIssuesModal(props: 
       </Dialog>
     </Transition.Root>
   );
-});
+}

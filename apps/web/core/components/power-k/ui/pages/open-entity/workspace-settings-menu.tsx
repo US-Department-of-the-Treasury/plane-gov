@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane types
 import { EUserPermissionsLevel, WORKSPACE_SETTINGS } from "@plane/constants";
 // components
@@ -15,7 +14,7 @@ type Props = {
   handleSelect: (href: string) => void;
 };
 
-export const PowerKOpenWorkspaceSettingsMenu = observer(function PowerKOpenWorkspaceSettingsMenu(props: Props) {
+export function PowerKOpenWorkspaceSettingsMenu(props: Props) {
   const { context, handleSelect } = props;
   // plane hooks
   const { t } = useTranslation();
@@ -35,4 +34,4 @@ export const PowerKOpenWorkspaceSettingsMenu = observer(function PowerKOpenWorks
   }));
 
   return <PowerKSettingsMenu settings={settingsListWithIcons} onSelect={(setting) => handleSelect(setting.href)} />;
-});
+}

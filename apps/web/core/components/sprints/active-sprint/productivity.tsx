@@ -48,7 +48,13 @@ export function ActiveSprintProductivity(props: ActiveSprintProductivityProps) {
         <Link href={`/${workspaceSlug}/projects/${projectId}/sprints/${sprint?.id}`}>
           <h3 className="text-14 text-tertiary font-semibold">{t("project_sprints.active_sprint.issue_burndown")}</h3>
         </Link>
-        <EstimateTypeDropdown value={estimateType} onChange={onChange} sprintId={sprint.id} projectId={projectId} workspaceSlug={workspaceSlug} />
+        <EstimateTypeDropdown
+          value={estimateType}
+          onChange={onChange}
+          sprintId={sprint.id}
+          projectId={projectId}
+          workspaceSlug={workspaceSlug}
+        />
       </div>
 
       <Link href={`/${workspaceSlug}/projects/${projectId}/sprints/${sprint?.id}`}>

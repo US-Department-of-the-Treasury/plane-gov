@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { observer } from "mobx-react";
+
 import Link from "next/link";
 import useSWR from "swr";
 // plane types
@@ -191,4 +191,4 @@ function PageDetailsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(PageDetailsPage);
+export default PageDetailsPage;

@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { USER_TRACKER_EVENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -20,7 +19,7 @@ type Props = {
   invitations?: IWorkspaceMemberInvitation[];
 };
 
-export const OnboardingRoot = observer(function OnboardingRoot({ invitations = [] }: Props) {
+export function OnboardingRoot({ invitations = [] }: Props) {
   const [currentStep, setCurrentStep] = useState<TOnboardingStep>(EOnboardingSteps.PROFILE_SETUP);
   // store hooks
   const { data: user } = useUser();
@@ -58,7 +57,7 @@ export const OnboardingRoot = observer(function OnboardingRoot({ invitations = [
   // handle step change
   const stepChange = useCallback(
     async (steps: Partial<TOnboardingSteps>) => {
-      if (!user) return;
+      if (!user || !userProfile) return;
 
       const payload: Partial<TUserProfile> = {
         onboarding_step: {
@@ -139,4 +138,4 @@ export const OnboardingRoot = observer(function OnboardingRoot({ invitations = [
       <OnboardingStepRoot currentStep={currentStep} invitations={invitations} handleStepChange={handleStepChange} />
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EIssueFilterType, ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
@@ -18,7 +17,7 @@ import {
 import { useIssues } from "@/hooks/store/use-issues";
 import { useProjectDetails } from "@/store/queries/project";
 
-export const ProjectIssuesMobileHeader = observer(function ProjectIssuesMobileHeader() {
+export function ProjectIssuesMobileHeader() {
   // i18n
   const { t } = useTranslation();
   const [analyticsModal, setAnalyticsModal] = useState(false);
@@ -105,4 +104,4 @@ export const ProjectIssuesMobileHeader = observer(function ProjectIssuesMobileHe
       </div>
     </>
   );
-});
+}

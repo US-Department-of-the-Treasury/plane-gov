@@ -104,7 +104,13 @@ export function ArchiveSprintModal(props: Props) {
                     <Button variant="secondary" size="lg" onClick={onClose}>
                       Cancel
                     </Button>
-                    <Button variant="primary" size="lg" tabIndex={1} onClick={handleArchiveSprint} loading={isArchiving}>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      tabIndex={1}
+                      onClick={handleArchiveSprint}
+                      loading={isArchiving}
+                    >
                       {isArchiving ? "Archiving" : "Archive"}
                     </Button>
                   </div>

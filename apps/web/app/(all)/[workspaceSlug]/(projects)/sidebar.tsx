@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { isEmpty } from "lodash-es";
-import { observer } from "mobx-react";
+
 // plane helpers
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 // components
@@ -15,7 +15,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 // plane web components
 import { SidebarTeamsList } from "@/plane-web/components/workspace/sidebar/teams-sidebar-list";
 
-export const AppSidebar = observer(function AppSidebar() {
+export function AppSidebar() {
   // store hooks
   const { allowPermissions } = useUserPermissions();
   const { groupedFavorites } = useFavorite();
@@ -39,4 +39,4 @@ export const AppSidebar = observer(function AppSidebar() {
       <SidebarProjectsList />
     </SidebarWrapper>
   );
-});
+}

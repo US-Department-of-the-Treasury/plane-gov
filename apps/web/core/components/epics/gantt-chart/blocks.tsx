@@ -23,11 +23,7 @@ export function EpicGanttBlock(props: Props) {
   const router = useAppRouter();
   const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { data: epicDetails } = useEpicDetails(
-    workspaceSlug as string,
-    projectId as string,
-    epicId
-  );
+  const { data: epicDetails } = useEpicDetails(workspaceSlug, projectId, epicId);
   // hooks
   const { isMobile } = usePlatformOS();
 
@@ -51,9 +47,7 @@ export function EpicGanttBlock(props: Props) {
         className="relative flex h-full w-full cursor-pointer items-center rounded-sm"
         style={blockStyle}
         onClick={() =>
-          router.push(
-            `/${workspaceSlug?.toString()}/projects/${epicDetails?.project_id}/epics/${epicDetails?.id}`
-          )
+          router.push(`/${workspaceSlug?.toString()}/projects/${epicDetails?.project_id}/epics/${epicDetails?.id}`)
         }
       >
         <div className="absolute left-0 top-0 h-full w-full bg-surface-1/50" />
@@ -72,11 +66,7 @@ export function EpicGanttSidebarBlock(props: Props) {
   const { epicId } = props;
   const { workspaceSlug, projectId } = useParams();
   // store hooks
-  const { data: epicDetails } = useEpicDetails(
-    workspaceSlug as string,
-    projectId as string,
-    epicId
-  );
+  const { data: epicDetails } = useEpicDetails(workspaceSlug, projectId, epicId);
 
   return (
     <Link

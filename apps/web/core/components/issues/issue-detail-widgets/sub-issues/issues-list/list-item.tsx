@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Pencil, Trash, Link as LinkIcon, Loader } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { CloseIcon, ChevronRightIcon } from "@plane/propel/icons";
@@ -42,7 +41,7 @@ type Props = {
   storeType?: EIssuesStoreType;
 };
 
-export const SubIssuesListItem = observer(function SubIssuesListItem(props: Props) {
+export function SubIssuesListItem(props: Props) {
   const {
     workspaceSlug,
     projectId,
@@ -265,4 +264,4 @@ export const SubIssuesListItem = observer(function SubIssuesListItem(props: Prop
         )}
     </div>
   );
-});
+}

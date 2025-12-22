@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import type { UseFormRegister } from "react-hook-form";
 import { useForm } from "react-hook-form";
@@ -49,7 +48,7 @@ const defaultValues: Partial<TIssue> = {
   name: "",
 };
 
-export const QuickAddIssueRoot = observer(function QuickAddIssueRoot(props: TQuickAddIssueRoot) {
+export function QuickAddIssueRoot(props: TQuickAddIssueRoot) {
   const {
     isQuickAddOpen,
     layout,
@@ -183,4 +182,4 @@ export const QuickAddIssueRoot = observer(function QuickAddIssueRoot(props: TQui
       )}
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
 import type { TInboxIssueCurrentTab } from "@plane/types";
@@ -37,7 +36,7 @@ const tabNavigationOptions: { key: TInboxIssueCurrentTab; i18n_label: string }[]
   },
 ];
 
-export const InboxSidebar = observer(function InboxSidebar(props: IInboxSidebarProps) {
+export function InboxSidebar(props: IInboxSidebarProps) {
   const { workspaceSlug, projectId, inboxIssueId, setIsMobileSidebar } = props;
   // router
   const router = useAppRouter();
@@ -179,4 +178,4 @@ export const InboxSidebar = observer(function InboxSidebar(props: IInboxSidebarP
       </div>
     </div>
   );
-});
+}

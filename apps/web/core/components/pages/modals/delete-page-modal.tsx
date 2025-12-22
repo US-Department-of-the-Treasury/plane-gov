@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 // ui
 import { useParams } from "next/navigation";
 import { PROJECT_PAGE_TRACKER_EVENTS } from "@plane/constants";
@@ -23,7 +22,7 @@ type TConfirmPageDeletionProps = {
   storeType: EPageStoreType;
 };
 
-export const DeletePageModal = observer(function DeletePageModal(props: TConfirmPageDeletionProps) {
+export function DeletePageModal(props: TConfirmPageDeletionProps) {
   const { isOpen, onClose, page, storeType } = props;
   // states
   const [isDeleting, setIsDeleting] = useState(false);
@@ -98,4 +97,4 @@ export const DeletePageModal = observer(function DeletePageModal(props: TConfirm
       }
     />
   );
-});
+}

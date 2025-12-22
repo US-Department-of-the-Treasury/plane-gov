@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import useSWR from "swr";
 // assets
 import emptyView from "@/app/assets/empty-state/view.svg?url";
@@ -49,4 +48,4 @@ function ProjectViewIssuesPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ProjectViewIssuesPage);
+export default ProjectViewIssuesPage;

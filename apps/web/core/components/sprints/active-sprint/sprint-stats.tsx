@@ -1,7 +1,6 @@
 import type { FC } from "react";
 import { Fragment, useCallback, useRef, useState } from "react";
 import { isEmpty } from "lodash-es";
-import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
 import { CalendarCheck } from "lucide-react";
 // headless ui
@@ -47,7 +46,7 @@ export type ActiveSprintStatsProps = {
   sprintIssueDetails?: ActiveSprintIssueDetails | { nextPageResults: boolean };
 };
 
-export const ActiveSprintStats = observer(function ActiveSprintStats(props: ActiveSprintStatsProps) {
+export function ActiveSprintStats(props: ActiveSprintStatsProps) {
   const { workspaceSlug, projectId, sprint, sprintId, handleFiltersUpdate, sprintIssueDetails } = props;
   // local storage
   const { storedValue: tab, setValue: setTab } = useLocalStorage("activeSprintTab", "Assignees");
@@ -370,4 +369,4 @@ export const ActiveSprintStats = observer(function ActiveSprintStats(props: Acti
       <Loader.Item width="100%" height="17rem" />
     </Loader>
   );
-});
+}

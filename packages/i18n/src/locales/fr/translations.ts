@@ -2182,7 +2182,8 @@ export default {
       },
       no_issues: {
         title: "Aucun élément de travail dans l'épique",
-        description: "Créez ou ajoutez des éléments de travail que vous souhaitez accomplir dans le cadre de cet épique",
+        description:
+          "Créez ou ajoutez des éléments de travail que vous souhaitez accomplir dans le cadre de cet épique",
         primary_button: {
           text: "Créer de nouveaux éléments de travail",
         },

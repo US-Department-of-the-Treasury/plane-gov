@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Placement } from "@popperjs/core";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { createPortal } from "react-dom";
 import { usePopper } from "react-popper";
@@ -29,7 +28,7 @@ interface Props {
   referenceElement: HTMLButtonElement | null;
 }
 
-export const MemberOptions = observer(function MemberOptions(props: Props) {
+export function MemberOptions(props: Props) {
   const {
     getUserDetails,
     isOpen,
@@ -108,12 +107,7 @@ export const MemberOptions = observer(function MemberOptions(props: Props) {
                 <Avatar name={userDetails?.display_name} src={getFileURL(userDetails?.avatar_url ?? "")} />
               )}
             </div>
-            <span
-              className={cn(
-                "flex-grow truncate",
-                isUserSuspended(userId) ? "text-placeholder" : ""
-              )}
-            >
+            <span className={cn("flex-grow truncate", isUserSuspended(userId) ? "text-placeholder" : "")}>
               {currentUser?.id === userId ? t("you") : userDetails?.display_name}
             </span>
           </div>
@@ -165,9 +159,7 @@ export const MemberOptions = observer(function MemberOptions(props: Props) {
                           "flex w-full select-none items-center justify-between gap-2 truncate rounded-sm px-1 py-1.5",
                           active && "bg-layer-transparent-hover",
                           selected ? "text-primary" : "text-secondary",
-                          isUserSuspended(option.value)
-                            ? "cursor-not-allowed"
-                            : "cursor-pointer"
+                          isUserSuspended(option.value) ? "cursor-not-allowed" : "cursor-pointer"
                         )
                       }
                       disabled={isUserSuspended(option.value)}
@@ -197,4 +189,4 @@ export const MemberOptions = observer(function MemberOptions(props: Props) {
     </Combobox.Options>,
     document.body
   );
-});
+}

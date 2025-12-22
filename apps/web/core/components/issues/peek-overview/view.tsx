@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { createPortal } from "react-dom";
 // plane imports
 import type { EditorRefApi } from "@plane/editor";
@@ -36,7 +35,7 @@ interface IIssueView {
   issueOperations: TIssueOperations;
 }
 
-export const IssueView = observer(function IssueView(props: IIssueView) {
+export function IssueView(props: IIssueView) {
   const {
     workspaceSlug,
     projectId,
@@ -60,10 +59,7 @@ export const IssueView = observer(function IssueView(props: IIssueView) {
   const issuePeekOverviewRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRefApi>(null);
   // hooks
-  const {
-    setPeekIssue,
-    isAnyModalOpen,
-  } = useIssueDetail();
+  const { setPeekIssue, isAnyModalOpen } = useIssueDetail();
   const { isAnyModalOpen: isAnyEpicModalOpen } = useIssueDetail(EIssueServiceType.EPICS);
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
   // remove peek id
@@ -264,4 +260,4 @@ export const IssueView = observer(function IssueView(props: IIssueView) {
   );
 
   return <>{shouldUsePortal && portalContainer ? createPortal(content, portalContainer) : content}</>;
-});
+}

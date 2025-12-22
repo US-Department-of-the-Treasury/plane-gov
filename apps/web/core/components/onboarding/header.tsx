@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { PlaneLockup, ChevronLeftIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
@@ -17,7 +16,7 @@ type OnboardingHeaderProps = {
   hasInvitations: boolean;
 };
 
-export const OnboardingHeader = observer(function OnboardingHeader(props: OnboardingHeaderProps) {
+export function OnboardingHeader(props: OnboardingHeaderProps) {
   const { currentStep, updateCurrentStep, hasInvitations } = props;
   // store hooks
   const { data: user } = useUser();
@@ -85,4 +84,4 @@ export const OnboardingHeader = observer(function OnboardingHeader(props: Onboar
       </div>
     </div>
   );
-});
+}

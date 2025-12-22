@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Trash } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
@@ -25,7 +24,7 @@ type TIssueAttachmentsListItem = {
   issueServiceType?: TIssueServiceType;
 };
 
-export const IssueAttachmentsListItem = observer(function IssueAttachmentsListItem(props: TIssueAttachmentsListItem) {
+export function IssueAttachmentsListItem(props: TIssueAttachmentsListItem) {
   const { t } = useTranslation();
   // props
   const { attachmentId, disabled, issueServiceType = EIssueServiceType.ISSUES } = props;
@@ -100,4 +99,4 @@ export const IssueAttachmentsListItem = observer(function IssueAttachmentsListIt
       </button>
     </>
   );
-});
+}

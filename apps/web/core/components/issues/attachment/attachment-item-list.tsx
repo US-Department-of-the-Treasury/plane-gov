@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useCallback, useState } from "react";
-import { observer } from "mobx-react";
 import type { FileRejection } from "react-dropzone";
 import { useDropzone } from "react-dropzone";
 import { UploadCloud } from "lucide-react";
@@ -29,7 +28,7 @@ type TIssueAttachmentItemList = {
   issueServiceType?: TIssueServiceType;
 };
 
-export const IssueAttachmentItemList = observer(function IssueAttachmentItemList(props: TIssueAttachmentItemList) {
+export function IssueAttachmentItemList(props: TIssueAttachmentItemList) {
   const {
     workspaceSlug,
     projectId,
@@ -149,4 +148,4 @@ export const IssueAttachmentItemList = observer(function IssueAttachmentItemList
       )}
     </>
   );
-});
+}

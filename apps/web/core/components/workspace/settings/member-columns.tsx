@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { Trash2 } from "lucide-react";
@@ -107,7 +106,7 @@ export function NameColumn(props: NameProps) {
   );
 }
 
-export const AccountTypeColumn = observer(function AccountTypeColumn(props: AccountTypeProps) {
+export function AccountTypeColumn(props: AccountTypeProps) {
   const { rowData, workspaceSlug } = props;
   // form info
   const {
@@ -186,4 +185,4 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
       )}
     </>
   );
-});
+}

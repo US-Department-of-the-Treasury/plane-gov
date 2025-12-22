@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { observer } from "mobx-react";
 // types
 import { WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
 import type { IIssueDisplayProperties, TIssue } from "@plane/types";
@@ -19,7 +18,7 @@ type Props = {
   isEstimateEnabled: boolean;
 };
 
-export const IssueColumn = observer(function IssueColumn(props: Props) {
+export function IssueColumn(props: Props) {
   const { displayProperties, issueDetail, disableUserActions, property, updateIssue } = props;
   // router
   const tableCellRef = useRef<HTMLTableCellElement | null>(null);
@@ -60,4 +59,4 @@ export const IssueColumn = observer(function IssueColumn(props: Props) {
       </td>
     </WithDisplayPropertiesHOC>
   );
-});
+}

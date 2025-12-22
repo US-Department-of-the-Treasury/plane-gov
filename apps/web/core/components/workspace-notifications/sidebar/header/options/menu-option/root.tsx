@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { observer } from "mobx-react";
 import { Check, CheckCircle, Clock, MoreVertical } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -22,7 +21,7 @@ export type TPopoverMenuOptions = {
   onClick?: (() => void) | undefined;
 };
 
-export const NotificationHeaderMenuOption = observer(function NotificationHeaderMenuOption() {
+export function NotificationHeaderMenuOption() {
   // hooks
   const { filters, updateFilters, updateBulkFilters } = useWorkspaceNotifications();
   const { t } = useTranslation();
@@ -79,4 +78,4 @@ export const NotificationHeaderMenuOption = observer(function NotificationHeader
       render={(item: TPopoverMenuOptions) => <NotificationMenuOptionItem {...item} />}
     />
   );
-});
+}

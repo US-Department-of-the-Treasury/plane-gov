@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import type { TNameDescriptionLoader } from "@plane/types";
@@ -23,7 +22,7 @@ type TInboxContentRoot = {
   embedRemoveCurrentNotification?: () => void;
 };
 
-export const InboxContentRoot = observer(function InboxContentRoot(props: TInboxContentRoot) {
+export function InboxContentRoot(props: TInboxContentRoot) {
   const {
     workspaceSlug,
     projectId,
@@ -106,4 +105,4 @@ export const InboxContentRoot = observer(function InboxContentRoot(props: TInbox
       </div>
     </>
   );
-});
+}

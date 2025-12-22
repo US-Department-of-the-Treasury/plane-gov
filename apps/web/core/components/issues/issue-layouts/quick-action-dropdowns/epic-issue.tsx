@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { omit } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import {
@@ -30,7 +29,7 @@ import type { IQuickActionProps } from "../list/list-view-types";
 import type { MenuItemFactoryProps } from "./helper";
 import { useEpicIssueMenuItems } from "./helper";
 
-export const EpicIssueQuickActions = observer(function EpicIssueQuickActions(props: IQuickActionProps) {
+export function EpicIssueQuickActions(props: IQuickActionProps) {
   const {
     issue,
     handleDelete,
@@ -263,4 +262,4 @@ export const EpicIssueQuickActions = observer(function EpicIssueQuickActions(pro
       </CustomMenu>
     </>
   );
-});
+}

@@ -27,11 +27,9 @@ export function ArchivedEpicsView(props: IArchivedEpicsView) {
     if (!archivedEpics) return [];
 
     const searchQuery = archivedEpicsSearchQuery.trim().toLowerCase();
-    if (!searchQuery) return archivedEpics.map(epic => epic.id);
+    if (!searchQuery) return archivedEpics.map((epic) => epic.id);
 
-    return archivedEpics
-      .filter(epic => epic.name.toLowerCase().includes(searchQuery))
-      .map(epic => epic.id);
+    return archivedEpics.filter((epic) => epic.name.toLowerCase().includes(searchQuery)).map((epic) => epic.id);
   }, [archivedEpics, archivedEpicsSearchQuery]);
 
   if (isLoading || !filteredArchivedEpicIds) return <SprintEpicListLayoutLoader />;

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
+
 import { useTheme } from "next-themes";
 // plane imports
 import type { I_THEME_OPTION } from "@plane/constants";
@@ -74,4 +74,4 @@ function ProfileAppearancePage() {
   );
 }
 
-export default observer(ProfileAppearancePage);
+export default ProfileAppearancePage;

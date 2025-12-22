@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
+
 import { useTheme } from "next-themes";
 // plane imports
 import { EUserPermissionsLevel } from "@plane/constants";
@@ -90,6 +90,7 @@ function ProjectViewsPage({ params }: Route.ComponentProps) {
             handleClearAllFilters={clearAllFilters}
             handleRemoveFilter={handleRemoveFilter}
             alwaysAllowEditing
+            workspaceSlug={workspaceSlug}
           />
         </Header>
       )}
@@ -98,4 +99,4 @@ function ProjectViewsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ProjectViewsPage);
+export default ProjectViewsPage;

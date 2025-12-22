@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import type { IGanttBlock } from "@plane/types";
 import { Row } from "@plane/ui";
@@ -21,7 +20,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const IssuesSidebarBlock = observer(function IssuesSidebarBlock(props: Props) {
+export function IssuesSidebarBlock(props: Props) {
   const { block, enableSelection, isDragging, selectionHelpers, isEpic = false } = props;
   // store hooks
   const { updateActiveBlockId, isBlockActive, getNumberOfDaysFromPosition } = useTimeLineChartStore();
@@ -89,4 +88,4 @@ export const IssuesSidebarBlock = observer(function IssuesSidebarBlock(props: Pr
       </Row>
     </div>
   );
-});
+}

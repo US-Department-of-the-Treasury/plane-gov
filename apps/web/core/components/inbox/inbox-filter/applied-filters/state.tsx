@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { EIconSize } from "@plane/constants";
 import { StateGroupIcon, CloseIcon } from "@plane/propel/icons";
@@ -8,14 +7,11 @@ import { Tag } from "@plane/ui";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import { useProjectStates, getStateById } from "@/store/queries/state";
 
-export const InboxIssueAppliedFiltersState = observer(function InboxIssueAppliedFiltersState() {
+export function InboxIssueAppliedFiltersState() {
   // hooks
   const { workspaceSlug, projectId } = useParams();
   const { inboxFilters, handleInboxIssueFilters } = useProjectInbox();
-  const { data: projectStates } = useProjectStates(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? ""
-  );
+  const { data: projectStates } = useProjectStates(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   // derived values
   const filteredValues = inboxFilters?.state || [];
   const currentOptionDetail = (stateId: string) => getStateById(projectStates ?? [], stateId) || undefined;
@@ -56,4 +52,4 @@ export const InboxIssueAppliedFiltersState = observer(function InboxIssueApplied
       </div>
     </Tag>
   );
-});
+}

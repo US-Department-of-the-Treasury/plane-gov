@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { EpicStatusIcon } from "@plane/propel/icons";
 import type { IEpic } from "@plane/types";
@@ -12,7 +11,7 @@ type Props = {
   value?: string[];
 };
 
-export const PowerKEpicsMenu = observer(function PowerKEpicsMenu({ epics, onSelect, value }: Props) {
+export function PowerKEpicsMenu({ epics, onSelect, value }: Props) {
   return (
     <PowerKMenuBuilder
       items={epics}
@@ -25,4 +24,4 @@ export const PowerKEpicsMenu = observer(function PowerKEpicsMenu({ epics, onSele
       emptyText="No epics found"
     />
   );
-});
+}

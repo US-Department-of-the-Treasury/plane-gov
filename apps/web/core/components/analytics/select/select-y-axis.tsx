@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { EEstimateSystem } from "@plane/constants";
 import { ProjectIcon } from "@plane/propel/icons";
@@ -15,7 +14,7 @@ type Props = {
   options: { value: ChartYAxisMetric; label: string }[];
 };
 
-export const SelectYAxis = observer(function SelectYAxis({ value, onChange, hiddenOptions, options }: Props) {
+export function SelectYAxis({ value, onChange, hiddenOptions, options }: Props) {
   // hooks
   const { projectId } = useParams();
   const { areEstimateEnabledByProjectId, currentActiveEstimateId, estimateById } = useProjectEstimates();
@@ -61,4 +60,4 @@ export const SelectYAxis = observer(function SelectYAxis({ value, onChange, hidd
       })}
     </CustomSelect>
   );
-});
+}

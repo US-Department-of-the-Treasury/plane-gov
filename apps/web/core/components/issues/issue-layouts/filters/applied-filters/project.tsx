@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { CloseIcon } from "@plane/propel/icons";
@@ -11,7 +10,7 @@ type Props = {
   editable: boolean | undefined;
 };
 
-export const AppliedProjectFilters = observer(function AppliedProjectFilters(props: Props) {
+export function AppliedProjectFilters(props: Props) {
   const { handleRemove, values, editable } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -45,4 +44,4 @@ export const AppliedProjectFilters = observer(function AppliedProjectFilters(pro
       })}
     </>
   );
-});
+}

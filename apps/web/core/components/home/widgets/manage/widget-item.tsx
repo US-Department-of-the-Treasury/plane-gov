@@ -10,7 +10,6 @@ import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-d
 import { pointerOutsideOfPreview } from "@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview";
 import { setCustomNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview";
 import { attachInstruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { createRoot } from "react-dom/client";
 // plane types
@@ -33,7 +32,7 @@ type Props = {
   handleToggle: (workspaceSlug: string, widgetKey: string, is_enabled: boolean) => void;
 };
 
-export const WidgetItem = observer(function WidgetItem(props: Props) {
+export function WidgetItem(props: Props) {
   // props
   const { widgetId, isLastChild, handleDrop, handleToggle } = props;
   const { workspaceSlug } = useParams();
@@ -139,4 +138,4 @@ export const WidgetItem = observer(function WidgetItem(props: Props) {
       {isLastChild && <DropIndicator isVisible={instruction === "reorder-below"} />}
     </div>
   );
-});
+}

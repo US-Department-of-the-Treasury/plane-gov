@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { differenceInCalendarDays } from "date-fns/differenceInCalendarDays";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { PlusIcon } from "lucide-react";
 // plane imports
@@ -24,9 +23,7 @@ type TCalendarQuickAddIssueActions = {
   isEpic?: boolean;
 };
 
-export const CalendarQuickAddIssueActions = observer(function CalendarQuickAddIssueActions(
-  props: TCalendarQuickAddIssueActions
-) {
+export function CalendarQuickAddIssueActions(props: TCalendarQuickAddIssueActions) {
   const { prePopulatedData, quickAddCallback, addIssuesToView, onOpen, isEpic = false } = props;
   const { t } = useTranslation();
   // router
@@ -42,7 +39,7 @@ export const CalendarQuickAddIssueActions = observer(function CalendarQuickAddIs
   // derived values
   const ExistingIssuesListModalPayload = addIssuesToView
     ? epicId
-      ? { epic: epicId.toString(), target_date: "none" }
+      ? { epic_id: epicId.toString(), target_date: "none" }
       : { sprint: true, target_date: "none" }
     : { target_date: "none" };
 
@@ -56,7 +53,7 @@ export const CalendarQuickAddIssueActions = observer(function CalendarQuickAddIs
           workspaceSlug: workspaceSlug.toString(),
           projectId: projectId.toString(),
           issueId: issue.id,
-          data: prePopulatedData ?? {}
+          data: prePopulatedData ?? {},
         })
       )
     ).then(() => addIssuesToView?.(issueIds));
@@ -148,4 +145,4 @@ export const CalendarQuickAddIssueActions = observer(function CalendarQuickAddIs
       />
     </>
   );
-});
+}

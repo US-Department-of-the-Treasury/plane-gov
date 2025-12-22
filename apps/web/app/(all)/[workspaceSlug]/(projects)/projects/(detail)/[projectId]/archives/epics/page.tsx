@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { PageHead } from "@/components/core/page-title";
 import { ArchivedEpicLayoutRoot, ArchivedEpicsHeader } from "@/components/epics";
@@ -25,4 +24,4 @@ function ProjectArchivedEpicsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ProjectArchivedEpicsPage);
+export default ProjectArchivedEpicsPage;

@@ -29,12 +29,7 @@ export function AppliedMembersFilters(props: Props) {
 
         return (
           <div key={memberId} className="flex items-center gap-1 rounded-sm bg-layer-1 py-1 px-1.5 text-11">
-            <Avatar
-              name={displayName}
-              src={getFileURL(memberDetails.avatar_url)}
-              showTooltip={false}
-              size={"sm"}
-            />
+            <Avatar name={displayName} src={getFileURL(memberDetails.avatar_url ?? "")} showTooltip={false} size={"sm"} />
             <span className="normal-case">{displayName}</span>
             {editable && (
               <button

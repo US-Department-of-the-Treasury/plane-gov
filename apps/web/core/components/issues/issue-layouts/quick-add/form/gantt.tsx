@@ -1,10 +1,9 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import { cn } from "@plane/utils";
 import type { TQuickAddIssueForm } from "../root";
 
-export const GanttQuickAddIssueForm = observer(function GanttQuickAddIssueForm(props: TQuickAddIssueForm) {
+export function GanttQuickAddIssueForm(props: TQuickAddIssueForm) {
   const { ref, projectDetail, hasError, register, onSubmit, isEpic } = props;
   const { t } = useTranslation();
   return (
@@ -32,4 +31,4 @@ export const GanttQuickAddIssueForm = observer(function GanttQuickAddIssueForm(p
       </div>
     </div>
   );
-});
+}

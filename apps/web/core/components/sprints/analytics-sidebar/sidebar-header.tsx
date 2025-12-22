@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React, { useEffect } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { ArrowRight } from "lucide-react";
 // Plane Imports
@@ -41,7 +40,7 @@ const defaultValues: Partial<ISprint> = {
 
 const sprintService = new SprintService();
 
-export const SprintSidebarHeader = observer(function SprintSidebarHeader(props: Props) {
+export function SprintSidebarHeader(props: Props) {
   const { workspaceSlug, projectId, sprintDetails, handleClose, isArchived = false } = props;
   // hooks
   const { allowPermissions } = useUserPermissions();
@@ -238,4 +237,4 @@ export const SprintSidebarHeader = observer(function SprintSidebarHeader(props: 
       </div>
     </>
   );
-});
+}

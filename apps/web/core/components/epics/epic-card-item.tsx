@@ -31,7 +31,13 @@ import { captureElementAndEvent } from "@/helpers/event-tracker.helper";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
-import { useProjectEpics, getEpicById, useUpdateEpic, useAddEpicToFavorites, useRemoveEpicFromFavorites } from "@/store/queries/epic";
+import {
+  useProjectEpics,
+  getEpicById,
+  useUpdateEpic,
+  useAddEpicToFavorites,
+  useRemoveEpicFromFavorites,
+} from "@/store/queries/epic";
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 
 type Props = {
@@ -50,10 +56,7 @@ export function EpicCardItem(props: Props) {
   // store hooks
   const { allowPermissions } = useUserPermissions();
   // query hooks
-  const { data: epics } = useProjectEpics(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? ""
-  );
+  const { data: epics } = useProjectEpics(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
   // mutation hooks
   const { mutate: updateEpic } = useUpdateEpic();
@@ -169,33 +172,37 @@ export function EpicCardItem(props: Props) {
     e.preventDefault();
   };
 
-  const handleEpicDetailsChange = (payload: Partial<IEpic>) => {
+  const handleEpicDetailsChange = async (payload: Partial<IEpic>): Promise<void> => {
     if (!workspaceSlug || !projectId) return;
 
-    updateEpic(
-      {
-        workspaceSlug: workspaceSlug.toString(),
-        projectId: projectId.toString(),
-        epicId,
-        data: payload,
-      },
-      {
-        onSuccess: () => {
-          setToast({
-            type: TOAST_TYPE.SUCCESS,
-            title: "Success!",
-            message: "Epic updated successfully.",
-          });
+    return new Promise<void>((resolve, reject) => {
+      updateEpic(
+        {
+          workspaceSlug: workspaceSlug.toString(),
+          projectId: projectId.toString(),
+          epicId,
+          data: payload,
         },
-        onError: (err: any) => {
-          setToast({
-            type: TOAST_TYPE.ERROR,
-            title: "Error!",
-            message: err?.detail ?? "Epic could not be updated. Please try again.",
-          });
-        },
-      }
-    );
+        {
+          onSuccess: () => {
+            setToast({
+              type: TOAST_TYPE.SUCCESS,
+              title: "Success!",
+              message: "Epic updated successfully.",
+            });
+            resolve();
+          },
+          onError: (err: any) => {
+            setToast({
+              type: TOAST_TYPE.ERROR,
+              title: "Error!",
+              message: err?.detail ?? "Epic could not be updated. Please try again.",
+            });
+            reject(err);
+          },
+        }
+      );
+    });
   };
 
   const openEpicOverview = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -233,7 +240,9 @@ export function EpicCardItem(props: Props) {
         : `${epicCompletedIssues}/${epicTotalIssues} Work items`
     : `0 work items`;
 
-  const epicLeadDetails = epicDetails?.lead_id ? getWorkspaceMemberByUserId(workspaceMembers, epicDetails.lead_id) : undefined;
+  const epicLeadDetails = epicDetails?.lead_id
+    ? getWorkspaceMemberByUserId(workspaceMembers, epicDetails.lead_id)
+    : undefined;
 
   const progressIndicatorData = PROGRESS_STATE_GROUPS_DETAILS.map((group, index) => ({
     id: index,

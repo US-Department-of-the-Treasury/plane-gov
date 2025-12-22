@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Tooltip } from "@plane/propel/tooltip";
 import { CircularProgressIndicator } from "@plane/ui";
 import { getFileExtension, truncateText } from "@plane/utils";
@@ -15,7 +14,7 @@ type Props = {
   uploadStatus: TAttachmentUploadStatus;
 };
 
-export const IssueAttachmentsUploadDetails = observer(function IssueAttachmentsUploadDetails(props: Props) {
+export function IssueAttachmentsUploadDetails(props: Props) {
   // props
   const { uploadStatus } = props;
   // derived values
@@ -49,4 +48,4 @@ export const IssueAttachmentsUploadDetails = observer(function IssueAttachmentsU
       </div>
     </div>
   );
-});
+}

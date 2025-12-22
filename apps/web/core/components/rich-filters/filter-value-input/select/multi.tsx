@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type {
   SingleOrArray,
@@ -21,9 +20,7 @@ type TMultiSelectFilterValueInputProps<P extends TFilterProperty> = {
   onChange: (values: SingleOrArray<string>) => void;
 };
 
-export const MultiSelectFilterValueInput = observer(function MultiSelectFilterValueInput<P extends TFilterProperty>(
-  props: TMultiSelectFilterValueInputProps<P>
-) {
+export function MultiSelectFilterValueInput<P extends TFilterProperty>(props: TMultiSelectFilterValueInputProps<P>) {
   const { config, condition, isDisabled, onChange } = props;
   // states
   const [options, setOptions] = useState<IFilterOption<string>[]>([]);
@@ -51,4 +48,4 @@ export const MultiSelectFilterValueInput = observer(function MultiSelectFilterVa
       defaultOpen={getFilterValueLength(condition.value) === 0}
     />
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // types
 import { PROJECT_ERROR_MESSAGES, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -25,7 +24,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const DeleteIssueModal = observer(function DeleteIssueModal(props: Props) {
+export function DeleteIssueModal(props: Props) {
   const { dataId, data, isOpen, handleClose, isSubIssue = false, onSubmit, isEpic = false } = props;
   // states
   const [isDeleting, setIsDeleting] = useState(false);
@@ -123,4 +122,4 @@ export const DeleteIssueModal = observer(function DeleteIssueModal(props: Props)
       }
     />
   );
-});
+}

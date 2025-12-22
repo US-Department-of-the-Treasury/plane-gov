@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 // plane imports
@@ -24,9 +23,7 @@ export type SidebarWorkspaceMenuItemProps = {
   };
 };
 
-export const SidebarWorkspaceMenuItem = observer(function SidebarWorkspaceMenuItem(
-  props: SidebarWorkspaceMenuItemProps
-) {
+export function SidebarWorkspaceMenuItem(props: SidebarWorkspaceMenuItemProps) {
   const { item } = props;
 
   const { t } = useTranslation();
@@ -66,4 +63,4 @@ export const SidebarWorkspaceMenuItem = observer(function SidebarWorkspaceMenuIt
       </SidebarNavItem>
     </Link>
   );
-});
+}

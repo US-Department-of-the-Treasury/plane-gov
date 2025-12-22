@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { CircleDashed } from "lucide-react";
 import { ALL_ISSUES } from "@plane/constants";
 import { ChevronRightIcon } from "@plane/propel/icons";
@@ -29,7 +28,7 @@ interface TSubIssuesListGroupProps {
   spacingLeft?: number;
 }
 
-export const SubIssuesListGroup = observer(function SubIssuesListGroup(props: TSubIssuesListGroupProps) {
+export function SubIssuesListGroup(props: TSubIssuesListGroupProps) {
   const {
     group,
     serviceType,
@@ -95,4 +94,4 @@ export const SubIssuesListGroup = observer(function SubIssuesListGroup(props: TS
       </Collapsible>
     </>
   );
-});
+}

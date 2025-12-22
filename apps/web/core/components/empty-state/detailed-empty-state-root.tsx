@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // ui
 import { Button } from "@plane/propel/button";
 // utils
@@ -56,7 +55,7 @@ function CustomButton({
   );
 }
 
-export const DetailedEmptyState = observer(function DetailedEmptyState(props: Props) {
+export function DetailedEmptyState(props: Props) {
   const {
     title,
     description,
@@ -99,4 +98,4 @@ export const DetailedEmptyState = observer(function DetailedEmptyState(props: Pr
       </div>
     </div>
   );
-});
+}

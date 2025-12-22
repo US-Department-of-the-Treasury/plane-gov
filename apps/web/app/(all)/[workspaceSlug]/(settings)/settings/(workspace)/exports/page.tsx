@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -54,4 +53,4 @@ function ExportsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ExportsPage);
+export default ExportsPage;

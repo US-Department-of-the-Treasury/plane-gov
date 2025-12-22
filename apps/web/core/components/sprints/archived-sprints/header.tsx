@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useCallback, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // icons
 import { ListFilter, Search } from "lucide-react";
@@ -18,7 +17,7 @@ import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
 // local imports
 import { SprintFiltersSelection } from "../dropdowns";
 
-export const ArchivedSprintsHeader = observer(function ArchivedSprintsHeader() {
+export function ArchivedSprintsHeader() {
   // router
   const { projectId } = useParams();
   // refs
@@ -129,4 +128,4 @@ export const ArchivedSprintsHeader = observer(function ArchivedSprintsHeader() {
       </div>
     </div>
   );
-});
+}

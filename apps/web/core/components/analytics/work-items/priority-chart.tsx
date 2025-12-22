@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import type { ColumnDef, Row, RowData, Table } from "@tanstack/react-table";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import useSWR from "swr";
@@ -42,7 +41,7 @@ interface Props {
 }
 
 const analyticsService = new AnalyticsService();
-const PriorityChart = observer(function PriorityChart(props: Props) {
+function PriorityChart(props: Props) {
   const { x_axis, y_axis, group_by } = props;
   const { t } = useTranslation();
   // router
@@ -239,6 +238,6 @@ const PriorityChart = observer(function PriorityChart(props: Props) {
       )}
     </div>
   );
-});
+}
 
 export default PriorityChart;

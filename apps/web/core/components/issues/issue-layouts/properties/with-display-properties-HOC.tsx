@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { observer } from "mobx-react";
 import type { IIssueDisplayProperties } from "@plane/types";
 
 interface IWithDisplayPropertiesHOC {
@@ -9,7 +8,7 @@ interface IWithDisplayPropertiesHOC {
   children: ReactNode;
 }
 
-export const WithDisplayPropertiesHOC = observer(function WithDisplayPropertiesHOC({
+export function WithDisplayPropertiesHOC({
   displayProperties,
   shouldRenderProperty,
   displayPropertyKey,
@@ -26,4 +25,4 @@ export const WithDisplayPropertiesHOC = observer(function WithDisplayPropertiesH
   if (!renderProperty) return null;
 
   return <>{children}</>;
-});
+}

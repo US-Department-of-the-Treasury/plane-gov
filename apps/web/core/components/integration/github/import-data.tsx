@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import type { Control, UseFormWatch } from "react-hook-form";
 import { Controller } from "react-hook-form";
@@ -23,7 +22,7 @@ type Props = {
   watch: UseFormWatch<TFormValues>;
 };
 
-export const GithubImportData = observer(function GithubImportData(props: Props) {
+export function GithubImportData(props: Props) {
   const { handleStepChange, integration, control, watch } = props;
   // hooks
   const { workspaceSlug } = useParams();
@@ -122,4 +121,4 @@ export const GithubImportData = observer(function GithubImportData(props: Props)
       </div>
     </div>
   );
-});
+}

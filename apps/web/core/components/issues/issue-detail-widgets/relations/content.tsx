@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import type { TIssue, TIssueServiceType } from "@plane/types";
@@ -36,7 +35,7 @@ export type TRelationObject = {
   placeholder: string;
 };
 
-export const RelationsCollapsibleContent = observer(function RelationsCollapsibleContent(props: Props) {
+export function RelationsCollapsibleContent(props: Props) {
   const { workspaceSlug, issueId, disabled = false, issueServiceType = EIssueServiceType.ISSUES } = props;
   // plane hooks
   const { t } = useTranslation();
@@ -233,4 +232,4 @@ export const RelationsCollapsibleContent = observer(function RelationsCollapsibl
       )}
     </>
   );
-});
+}

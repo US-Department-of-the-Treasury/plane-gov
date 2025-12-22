@@ -14,13 +14,16 @@ const sprintArchiveService = new SprintArchiveService();
  * Hook to fetch all sprints for a project.
  * Replaces MobX SprintStore.fetchAllSprints for read operations.
  *
+ * Note: Sprints are now workspace-wide, so this fetches all workspace sprints.
+ * Filter by projectId on the client side if needed.
+ *
  * @example
  * const { data: sprints, isLoading } = useProjectSprints(workspaceSlug, projectId);
  */
 export function useProjectSprints(workspaceSlug: string, projectId: string) {
   return useQuery({
     queryKey: queryKeys.sprints.all(workspaceSlug, projectId),
-    queryFn: () => sprintService.getSprintsWithParams(workspaceSlug, projectId),
+    queryFn: () => sprintService.getWorkspaceSprints(workspaceSlug),
     enabled: !!workspaceSlug && !!projectId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
@@ -48,13 +51,20 @@ export function useWorkspaceSprints(workspaceSlug: string) {
  * Hook to fetch active sprint for a project.
  * Replaces MobX SprintStore.fetchActiveSprint for read operations.
  *
+ * Note: Uses deprecated workspaceActiveSprints method for backward compatibility.
+ * This will be replaced with a proper active sprints endpoint in the future.
+ *
  * @example
  * const { data: activeSprints, isLoading } = useActiveSprint(workspaceSlug, projectId);
  */
 export function useActiveSprint(workspaceSlug: string, projectId: string) {
   return useQuery({
     queryKey: queryKeys.sprints.active(workspaceSlug, projectId),
-    queryFn: () => sprintService.getSprintsWithParams(workspaceSlug, projectId, "current"),
+    queryFn: async () => {
+      const response = await sprintService.workspaceActiveSprints(workspaceSlug, "0", 100);
+      // Extract results array from paginated response
+      return response.results;
+    },
     enabled: !!workspaceSlug && !!projectId,
     staleTime: 2 * 60 * 1000, // 2 minutes - active sprint changes more frequently
     gcTime: 30 * 60 * 1000,
@@ -65,13 +75,15 @@ export function useActiveSprint(workspaceSlug: string, projectId: string) {
  * Hook to fetch sprint details by ID.
  * Replaces MobX SprintStore.fetchSprintDetails for read operations.
  *
+ * Note: Sprints are workspace-wide, projectId is kept for query key consistency.
+ *
  * @example
  * const { data: sprint, isLoading } = useSprintDetails(workspaceSlug, projectId, sprintId);
  */
 export function useSprintDetails(workspaceSlug: string, projectId: string, sprintId: string) {
   return useQuery({
     queryKey: queryKeys.sprints.detail(sprintId),
-    queryFn: () => sprintService.getSprintDetails(workspaceSlug, projectId, sprintId),
+    queryFn: () => sprintService.getSprintDetails(workspaceSlug, sprintId),
     enabled: !!workspaceSlug && !!projectId && !!sprintId,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -82,13 +94,15 @@ export function useSprintDetails(workspaceSlug: string, projectId: string, sprin
  * Hook to fetch archived sprints for a project.
  * Replaces MobX SprintStore.fetchArchivedSprints for read operations.
  *
+ * Note: Sprints are workspace-wide, projectId is kept for query key consistency.
+ *
  * @example
  * const { data: archivedSprints, isLoading } = useArchivedSprints(workspaceSlug, projectId);
  */
 export function useArchivedSprints(workspaceSlug: string, projectId: string) {
   return useQuery({
     queryKey: [...queryKeys.sprints.all(workspaceSlug, projectId), "archived"],
-    queryFn: () => sprintArchiveService.getArchivedSprints(workspaceSlug, projectId),
+    queryFn: () => sprintArchiveService.getArchivedSprints(workspaceSlug),
     enabled: !!workspaceSlug && !!projectId,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -98,13 +112,21 @@ export function useArchivedSprints(workspaceSlug: string, projectId: string) {
 /**
  * Hook to fetch sprint progress.
  *
+ * TODO: This hook is currently disabled as the sprint service no longer has a
+ * dedicated progress endpoint. Sprint progress is included in getSprintDetails.
+ * Consider removing this hook or updating it to derive progress from sprint details.
+ *
  * @example
  * const { data: progress, isLoading } = useSprintProgress(workspaceSlug, projectId, sprintId);
  */
 export function useSprintProgress(workspaceSlug: string, projectId: string, sprintId: string) {
   return useQuery({
     queryKey: [...queryKeys.sprints.detail(sprintId), "progress"],
-    queryFn: () => sprintService.workspaceActiveSprintsProgress(workspaceSlug, projectId, sprintId),
+    queryFn: async () => {
+      // Sprint progress is included in sprint details
+      const sprint = await sprintService.getSprintDetails(workspaceSlug, sprintId);
+      return sprint.progress_snapshot;
+    },
     enabled: !!workspaceSlug && !!projectId && !!sprintId,
     staleTime: 2 * 60 * 1000, // Progress changes frequently
     gcTime: 30 * 60 * 1000,
@@ -121,6 +143,9 @@ interface CreateSprintParams {
  * Hook to create a new sprint with optimistic updates.
  * Replaces MobX SprintStore.createSprint for write operations.
  *
+ * DEPRECATED: Sprints are now workspace-wide and auto-generated.
+ * This mutation will throw an error if called. Remove usage of this hook.
+ *
  * @example
  * const { mutate: createSprint, isPending } = useCreateSprint();
  * createSprint({ workspaceSlug, projectId, data: { name: "Sprint 1", start_date: "2024-01-01" } });
@@ -129,8 +154,12 @@ export function useCreateSprint() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, projectId, data }: CreateSprintParams) =>
-      sprintService.createSprint(workspaceSlug, projectId, data),
+    mutationFn: ({ workspaceSlug, projectId, data }: CreateSprintParams) => {
+      throw new Error(
+        "Sprint creation is disabled. Sprints are now workspace-wide and auto-generated. " +
+          "Configure workspace.sprint_start_date to enable automatic sprint generation."
+      );
+    },
     onMutate: async ({ workspaceSlug, projectId, data }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.sprints.all(workspaceSlug, projectId) });
 
@@ -144,13 +173,11 @@ export function useCreateSprint() {
           description: data.description ?? "",
           start_date: data.start_date ?? null,
           end_date: data.end_date ?? null,
-          project_id: projectId,
           workspace_id: "",
-          owned_by_id: "",
+          number: previousSprints.length + 1,
           sort_order: previousSprints.length + 1,
           archived_at: null,
           view_props: { filters: {} },
-          project_detail: { id: projectId },
           progress: [],
           progress_snapshot: undefined,
           version: 0,
@@ -199,6 +226,9 @@ interface UpdateSprintParams {
  * Hook to update a sprint with optimistic updates.
  * Replaces MobX SprintStore.updateSprintDetails for write operations.
  *
+ * Note: Only name, description, logo_props, view_props, and sort_order can be updated.
+ * Sprint dates are auto-calculated and cannot be changed.
+ *
  * @example
  * const { mutate: updateSprint, isPending } = useUpdateSprint();
  * updateSprint({ workspaceSlug, projectId, sprintId, data: { name: "Updated Sprint" } });
@@ -208,7 +238,7 @@ export function useUpdateSprint() {
 
   return useMutation({
     mutationFn: ({ workspaceSlug, projectId, sprintId, data }: UpdateSprintParams) =>
-      sprintService.patchSprint(workspaceSlug, projectId, sprintId, data),
+      sprintService.patchSprint(workspaceSlug, sprintId, data),
     onMutate: async ({ workspaceSlug, projectId, sprintId, data }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.sprints.all(workspaceSlug, projectId) });
       await queryClient.cancelQueries({ queryKey: queryKeys.sprints.detail(sprintId) });
@@ -263,6 +293,10 @@ interface DeleteSprintParams {
  * Hook to delete a sprint with optimistic updates.
  * Replaces MobX SprintStore.deleteSprint for write operations.
  *
+ * DEPRECATED: Sprints are now workspace-wide and auto-generated.
+ * Sprints cannot be deleted manually. Use useArchiveSprint instead.
+ * This mutation will throw an error if called.
+ *
  * @example
  * const { mutate: deleteSprint, isPending } = useDeleteSprint();
  * deleteSprint({ workspaceSlug, projectId, sprintId });
@@ -271,8 +305,12 @@ export function useDeleteSprint() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, projectId, sprintId }: DeleteSprintParams) =>
-      sprintService.deleteSprint(workspaceSlug, projectId, sprintId),
+    mutationFn: ({ workspaceSlug, projectId, sprintId }: DeleteSprintParams) => {
+      throw new Error(
+        "Sprint deletion is disabled. Sprints are workspace-wide and auto-generated. " +
+          "Use archiveSprint instead to archive a sprint."
+      );
+    },
     onMutate: async ({ workspaceSlug, projectId, sprintId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.sprints.all(workspaceSlug, projectId) });
 
@@ -322,7 +360,7 @@ export function useArchiveSprint() {
 
   return useMutation({
     mutationFn: ({ workspaceSlug, projectId, sprintId }: ArchiveSprintParams) =>
-      sprintArchiveService.archiveSprint(workspaceSlug, projectId, sprintId),
+      sprintArchiveService.archiveSprint(workspaceSlug, sprintId),
     onMutate: async ({ workspaceSlug, projectId, sprintId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.sprints.all(workspaceSlug, projectId) });
 
@@ -369,7 +407,7 @@ export function useRestoreSprint() {
 
   return useMutation({
     mutationFn: ({ workspaceSlug, projectId, sprintId }: ArchiveSprintParams) =>
-      sprintArchiveService.restoreSprint(workspaceSlug, projectId, sprintId),
+      sprintArchiveService.restoreSprint(workspaceSlug, sprintId),
     onMutate: async ({ workspaceSlug, projectId, sprintId }) => {
       const archivedKey = [...queryKeys.sprints.all(workspaceSlug, projectId), "archived"];
       await queryClient.cancelQueries({ queryKey: archivedKey });
@@ -409,7 +447,10 @@ export function useRestoreSprint() {
  * const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
  * const sprint = getSprintById(sprints, sprintId);
  */
-export function getSprintById(sprints: ISprint[] | undefined, sprintId: string | null | undefined): ISprint | undefined {
+export function getSprintById(
+  sprints: ISprint[] | undefined,
+  sprintId: string | null | undefined
+): ISprint | undefined {
   if (!sprints || !sprintId) return undefined;
   return sprints.find((sprint) => sprint.id === sprintId);
 }
@@ -421,7 +462,10 @@ export function getSprintById(sprints: ISprint[] | undefined, sprintId: string |
  * const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
  * const name = getSprintNameById(sprints, sprintId);
  */
-export function getSprintNameById(sprints: ISprint[] | undefined, sprintId: string | null | undefined): string | undefined {
+export function getSprintNameById(
+  sprints: ISprint[] | undefined,
+  sprintId: string | null | undefined
+): string | undefined {
   if (!sprints || !sprintId) return undefined;
   return sprints.find((sprint) => sprint.id === sprintId)?.name;
 }

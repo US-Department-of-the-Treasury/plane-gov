@@ -1,6 +1,5 @@
 import type { RefObject } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 import type { IBaseLayoutsBaseItem, IBlockUpdateData } from "@plane/types";
 import { Loader, Row } from "@plane/ui";
 import { cn } from "@plane/utils";
@@ -24,7 +23,7 @@ type Props<T extends IBaseLayoutsBaseItem> = {
   renderItem: (item: T) => React.ReactNode;
 };
 
-export const BaseGanttSidebar = observer(function BaseGanttSidebar<T extends IBaseLayoutsBaseItem>(props: Props<T>) {
+export function BaseGanttSidebar<T extends IBaseLayoutsBaseItem>(props: Props<T>) {
   const {
     blockUpdateHandler,
     blockIds,
@@ -146,4 +145,4 @@ export const BaseGanttSidebar = observer(function BaseGanttSidebar<T extends IBa
       )}
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import type { IIssueDisplayFilterOptions, TIssueExtraOptions } from "@plane/types";
 // components
@@ -29,7 +28,7 @@ type Props = {
   enabledExtraOptions: TIssueExtraOptions[];
 };
 
-export const FilterExtraOptions = observer(function FilterExtraOptions(props: Props) {
+export function FilterExtraOptions(props: Props) {
   const { selectedExtraOptions, handleUpdate, enabledExtraOptions } = props;
   // hooks
   const { t } = useTranslation();
@@ -51,4 +50,4 @@ export const FilterExtraOptions = observer(function FilterExtraOptions(props: Pr
       })}
     </div>
   );
-});
+}

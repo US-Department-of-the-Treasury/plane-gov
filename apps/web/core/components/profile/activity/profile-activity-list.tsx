@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import useSWR from "swr";
 // icons
@@ -25,7 +24,7 @@ type Props = {
   updateEmptyState: (state: boolean) => void;
 };
 
-export const ProfileActivityListPage = observer(function ProfileActivityListPage(props: Props) {
+export function ProfileActivityListPage(props: Props) {
   const { cursor, perPage, updateResultsCount, updateTotalPages, updateEmptyState } = props;
   // store hooks
   const { data: currentUser } = useUser();
@@ -185,4 +184,4 @@ export const ProfileActivityListPage = observer(function ProfileActivityListPage
       )}
     </>
   );
-});
+}

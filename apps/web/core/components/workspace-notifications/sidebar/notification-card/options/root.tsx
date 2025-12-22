@@ -1,5 +1,4 @@
 import type { Dispatch, SetStateAction } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { cn } from "@plane/utils";
 // hooks
@@ -18,7 +17,7 @@ type TNotificationOption = {
   setCustomSnoozeModal: Dispatch<SetStateAction<boolean>>;
 };
 
-export const NotificationOption = observer(function NotificationOption(props: TNotificationOption) {
+export function NotificationOption(props: TNotificationOption) {
   const {
     workspaceSlug,
     notificationId,
@@ -28,7 +27,14 @@ export const NotificationOption = observer(function NotificationOption(props: TN
     setCustomSnoozeModal,
   } = props;
   // hooks
-  const notification = useNotification(notificationId);
+  const notification = useNotification(workspaceSlug, { snoozed: false, archived: false }, notificationId);
+
+  // Don't render if notification is not found
+  if (!notification.asJson) return null;
+
+  // After check, notification conforms to INotification (all properties exist)
+  // Type assertion is safe here because we checked notification.asJson exists above
+  const notificationData = notification as any;
 
   return (
     <div
@@ -38,15 +44,15 @@ export const NotificationOption = observer(function NotificationOption(props: TN
     >
       <div className="relative flex justify-center items-center gap-2">
         {/* read */}
-        <NotificationItemReadOption workspaceSlug={workspaceSlug} notification={notification} />
+        <NotificationItemReadOption workspaceSlug={workspaceSlug} notification={notificationData} />
 
         {/* archive */}
-        <NotificationItemArchiveOption workspaceSlug={workspaceSlug} notification={notification} />
+        <NotificationItemArchiveOption workspaceSlug={workspaceSlug} notification={notificationData} />
 
         {/* snooze notification */}
         <NotificationItemSnoozeOption
           workspaceSlug={workspaceSlug}
-          notification={notification}
+          notification={notificationData}
           setIsSnoozeStateModalOpen={setIsSnoozeStateModalOpen}
           customSnoozeModal={customSnoozeModal}
           setCustomSnoozeModal={setCustomSnoozeModal}
@@ -54,4 +60,4 @@ export const NotificationOption = observer(function NotificationOption(props: TN
       </div>
     </div>
   );
-});
+}

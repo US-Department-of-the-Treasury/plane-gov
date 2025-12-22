@@ -133,7 +133,7 @@ export function PageEditorBody(props: Props) {
   const getUserDetailsCallback = useCallback(
     (userId: string) => {
       const member = getWorkspaceMemberByUserId(members, userId);
-      return member ? { display_name: getMemberDisplayName(member) } : undefined;
+      return member?.member;
     },
     [members]
   );

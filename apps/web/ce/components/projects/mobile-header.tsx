@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { ListFilter } from "lucide-react";
 // plane imports
@@ -15,7 +14,7 @@ import { ProjectOrderByDropdown } from "@/components/project/dropdowns/order-by"
 import { useProjectFilter } from "@/hooks/store/use-project-filter";
 import { useWorkspaceMembers, getWorkspaceMemberIds } from "@/store/queries/member";
 
-export const ProjectsListMobileHeader = observer(function ProjectsListMobileHeader() {
+export function ProjectsListMobileHeader() {
   // i18n
   const { t } = useTranslation();
   // router
@@ -85,9 +84,10 @@ export const ProjectsListMobileHeader = observer(function ProjectsListMobileHead
               updateDisplayFilters(workspaceSlug.toString(), val);
             }}
             memberIds={workspaceMemberIds ?? undefined}
+            workspaceSlug={workspaceSlug?.toString() ?? ""}
           />
         </FiltersDropdown>
       </div>
     </div>
   );
-});
+}

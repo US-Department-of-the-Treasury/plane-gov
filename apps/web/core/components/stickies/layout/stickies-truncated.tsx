@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
@@ -15,7 +14,7 @@ type StickiesTruncatedProps = {
   handleClose?: () => void;
 };
 
-export const StickiesTruncated = observer(function StickiesTruncated(props: StickiesTruncatedProps) {
+export function StickiesTruncated(props: StickiesTruncatedProps) {
   const { handleClose = () => {} } = props;
   // navigation
   const { workspaceSlug } = useParams();
@@ -25,7 +24,7 @@ export const StickiesTruncated = observer(function StickiesTruncated(props: Stic
 
   useSWR(
     workspaceSlug ? `WORKSPACE_STICKIES_${workspaceSlug}` : null,
-    workspaceSlug ? () => fetchWorkspaceStickies(workspaceSlug.toString()) : null,
+    workspaceSlug ? () => fetchWorkspaceStickies() : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 
@@ -49,4 +48,4 @@ export const StickiesTruncated = observer(function StickiesTruncated(props: Stic
       <StickiesLayout workspaceSlug={workspaceSlug?.toString()} />
     </ContentOverflowWrapper>
   );
-});
+}

@@ -1,5 +1,4 @@
 import type { MutableRefObject } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { TIssue, IIssueDisplayProperties, IIssueMap } from "@plane/types";
 // local imports
@@ -21,7 +20,7 @@ interface IssueBlocksListProps {
   isEpic?: boolean;
 }
 
-export const KanbanIssueBlocksList = observer(function KanbanIssueBlocksList(props: IssueBlocksListProps) {
+export function KanbanIssueBlocksList(props: IssueBlocksListProps) {
   const {
     sub_group_id,
     groupId,
@@ -72,4 +71,4 @@ export const KanbanIssueBlocksList = observer(function KanbanIssueBlocksList(pro
       ) : null}
     </>
   );
-});
+}

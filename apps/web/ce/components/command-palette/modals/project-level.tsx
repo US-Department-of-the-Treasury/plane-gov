@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { SprintCreateUpdateModal } from "@/components/sprints/modal";
 import { CreateUpdateEpicModal } from "@/components/epics";
@@ -14,7 +13,7 @@ export type TProjectLevelModalsProps = {
   projectId: string;
 };
 
-export const ProjectLevelModals = observer(function ProjectLevelModals(props: TProjectLevelModalsProps) {
+export function ProjectLevelModals(props: TProjectLevelModalsProps) {
   const { workspaceSlug, projectId } = props;
   // store hooks
   const {
@@ -59,4 +58,4 @@ export const ProjectLevelModals = observer(function ProjectLevelModals(props: TP
       />
     </>
   );
-});
+}

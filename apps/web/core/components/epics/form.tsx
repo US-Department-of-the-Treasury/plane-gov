@@ -14,7 +14,7 @@ import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
 import { ProjectDropdown } from "@/components/dropdowns/project/dropdown";
 import { EpicStatusSelect } from "@/components/epics";
 // hooks
-import { useUser } from "@/hooks/store/user/user-user";
+import { useUser } from "@/hooks/store/user";
 
 type Props = {
   handleFormSubmit: (values: Partial<IEpic>, dirtyFields: any) => Promise<void>;
@@ -24,6 +24,7 @@ type Props = {
   setActiveProject: React.Dispatch<React.SetStateAction<string | null>>;
   data?: IEpic;
   isMobile?: boolean;
+  workspaceSlug: string;
 };
 
 const defaultValues: Partial<IEpic> = {
@@ -35,7 +36,7 @@ const defaultValues: Partial<IEpic> = {
 };
 
 export function EpicForm(props: Props) {
-  const { handleFormSubmit, handleClose, status, projectId, setActiveProject, data, isMobile = false } = props;
+  const { handleFormSubmit, handleClose, status, projectId, setActiveProject, data, isMobile = false, workspaceSlug } = props;
   // store hooks
   const { projectsWithCreatePermissions } = useUser();
   // form info
@@ -96,6 +97,7 @@ export function EpicForm(props: Props) {
                     buttonVariant="border-with-text"
                     renderCondition={(projectId) => !!projectsWithCreatePermissions?.[projectId]}
                     tabIndex={getIndex("cover_image")}
+                    workspaceSlug={workspaceSlug}
                   />
                 </div>
               )}

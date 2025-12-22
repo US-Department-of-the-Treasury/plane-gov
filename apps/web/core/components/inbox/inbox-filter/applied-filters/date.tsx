@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { PAST_DURATION_FILTER_OPTIONS } from "@plane/constants";
 import { CloseIcon } from "@plane/propel/icons";
 import type { TInboxIssueFilterDateKeys } from "@plane/types";
@@ -15,9 +14,7 @@ type InboxIssueAppliedFiltersDate = {
   label: string;
 };
 
-export const InboxIssueAppliedFiltersDate = observer(function InboxIssueAppliedFiltersDate(
-  props: InboxIssueAppliedFiltersDate
-) {
+export function InboxIssueAppliedFiltersDate(props: InboxIssueAppliedFiltersDate) {
   const { filterKey, label } = props;
   // hooks
   const { inboxFilters, handleInboxIssueFilters } = useProjectInbox();
@@ -66,4 +63,4 @@ export const InboxIssueAppliedFiltersDate = observer(function InboxIssueAppliedF
       </div>
     </Tag>
   );
-});
+}

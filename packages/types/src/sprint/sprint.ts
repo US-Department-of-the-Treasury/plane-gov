@@ -85,6 +85,7 @@ export interface ISprint extends TProgressSnapshot {
   is_favorite?: boolean;
   name: string;
   number: number;
+  owned_by_id?: string;
   status?: TSprintGroups;
   sort_order: number;
   start_date: string | null;

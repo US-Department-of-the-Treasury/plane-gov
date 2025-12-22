@@ -1,6 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
 import { Fragment } from "react";
-import { observer } from "mobx-react";
 import { Clock } from "lucide-react";
 import { Popover, Transition } from "@headlessui/react";
 // plane imports
@@ -25,9 +24,7 @@ type TNotificationItemSnoozeOption = {
   setCustomSnoozeModal: Dispatch<SetStateAction<boolean>>;
 };
 
-export const NotificationItemSnoozeOption = observer(function NotificationItemSnoozeOption(
-  props: TNotificationItemSnoozeOption
-) {
+export function NotificationItemSnoozeOption(props: TNotificationItemSnoozeOption) {
   const { workspaceSlug, notification, setIsSnoozeStateModalOpen, customSnoozeModal, setCustomSnoozeModal } = props;
   // hooks
   const { isMobile } = usePlatformOS();
@@ -152,4 +149,4 @@ export const NotificationItemSnoozeOption = observer(function NotificationItemSn
       </Popover>
     </>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { PROFILE_SETTINGS_TRACKER_ELEMENTS, PROFILE_SETTINGS_TRACKER_EVENTS } from "@plane/constants";
 import { SUPPORTED_LANGUAGES, useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -7,7 +6,7 @@ import { TimezoneSelect } from "@/components/global";
 import { captureElementAndEvent } from "@/helpers/event-tracker.helper";
 import { useUser, useUserProfile } from "@/hooks/store/user";
 
-export const LanguageTimezone = observer(function LanguageTimezone() {
+export function LanguageTimezone() {
   // store hooks
   const {
     data: user,
@@ -141,4 +140,4 @@ export const LanguageTimezone = observer(function LanguageTimezone() {
       </div>
     </div>
   );
-});
+}

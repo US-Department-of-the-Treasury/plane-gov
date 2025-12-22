@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 import { Pencil, Trash, Link as LinkIcon } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { CloseIcon } from "@plane/propel/icons";
@@ -39,7 +38,7 @@ type Props = {
   issueServiceType?: TIssueServiceType;
 };
 
-export const RelationIssueListItem = observer(function RelationIssueListItem(props: Props) {
+export function RelationIssueListItem(props: Props) {
   const {
     workspaceSlug,
     issueId,
@@ -53,17 +52,13 @@ export const RelationIssueListItem = observer(function RelationIssueListItem(pro
   const { t } = useTranslation();
 
   // store hooks
-  const {
-    removeRelation,
-    toggleCreateIssueModal,
-    toggleDeleteIssueModal,
-  } = useIssueDetail(issueServiceType);
+  const { removeRelation, toggleCreateIssueModal, toggleDeleteIssueModal } = useIssueDetail(issueServiceType);
   const { data: projects } = useProjects(workspaceSlug);
   const { isMobile } = usePlatformOS();
 
   // Get issue data from first available project (we need project_id to fetch)
   // Note: This assumes relationIssueId is in one of the projects
-  const projectId = projects?.find(p => p.id)?.id || "";
+  const projectId = projects?.find((p) => p.id)?.id || "";
   const { data: issue } = useIssue(workspaceSlug, projectId, relationIssueId);
 
   // derived values
@@ -207,4 +202,4 @@ export const RelationIssueListItem = observer(function RelationIssueListItem(pro
       </ControlLink>
     </div>
   );
-});
+}

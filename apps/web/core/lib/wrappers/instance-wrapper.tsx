@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 // components
 import { LogoSpinner } from "@/components/common/logo-spinner";
@@ -11,7 +10,7 @@ type TInstanceWrapper = {
   children: ReactNode;
 };
 
-export const InstanceWrapper = observer(function InstanceWrapper(props: TInstanceWrapper) {
+export function InstanceWrapper(props: TInstanceWrapper) {
   const { children } = props;
   // store
   const { isLoading, instance, error, fetchInstanceInfo } = useInstance();
@@ -39,4 +38,4 @@ export const InstanceWrapper = observer(function InstanceWrapper(props: TInstanc
   if (instance?.is_setup_done === false) return <InstanceNotReady />;
 
   return <>{children}</>;
-});
+}

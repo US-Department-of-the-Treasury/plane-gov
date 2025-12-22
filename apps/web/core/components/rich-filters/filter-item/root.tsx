@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { IFilterInstance } from "@plane/shared-state";
 import type {
@@ -28,9 +27,7 @@ export interface IFilterItemProps<P extends TFilterProperty, E extends TExternal
   showTransition?: boolean;
 }
 
-export const FilterItem = observer(function FilterItem<P extends TFilterProperty, E extends TExternalFilter>(
-  props: IFilterItemProps<P, E>
-) {
+export function FilterItem<P extends TFilterProperty, E extends TExternalFilter>(props: IFilterItemProps<P, E>) {
   const { condition, filter, isDisabled = false, showTransition = true } = props;
   // derived values
   const filterConfig = condition?.property ? filter.configManager.getConfigByProperty(condition.property) : undefined;
@@ -123,4 +120,4 @@ export const FilterItem = observer(function FilterItem<P extends TFilterProperty
       {!isDisabled && <FilterItemCloseButton conditionId={condition.id} filter={filter} />}
     </FilterItemContainer>
   );
-});
+}

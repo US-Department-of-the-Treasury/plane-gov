@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 import { useTranslation } from "@plane/i18n";
 // plane types
@@ -31,7 +30,7 @@ type TRecentWidgetProps = THomeWidgetProps & {
   showFilterSelect?: boolean;
 };
 
-export const RecentActivityWidget = observer(function RecentActivityWidget(props: TRecentWidgetProps) {
+export function RecentActivityWidget(props: TRecentWidgetProps) {
   const { presetFilter, showFilterSelect = true, workspaceSlug } = props;
   // states
   const [filter, setFilter] = useState<TRecentActivityFilterKeys>(presetFilter ?? filters[0].name);
@@ -102,4 +101,4 @@ export const RecentActivityWidget = observer(function RecentActivityWidget(props
       </div>
     </ContentOverflowWrapper>
   );
-});
+}

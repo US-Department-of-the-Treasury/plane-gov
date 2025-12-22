@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { ListFilter } from "lucide-react";
 // plane imports
 import type { ENotificationFilterType } from "@plane/constants";
@@ -12,7 +11,7 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 import { NotificationFilterOptionItem } from "./menu-option-item";
 import { IconButton } from "@plane/propel/icon-button";
 
-export const NotificationFilter = observer(function NotificationFilter() {
+export function NotificationFilter() {
   // hooks
   const { isMobile } = usePlatformOS();
   const { t } = useTranslation();
@@ -34,4 +33,4 @@ export const NotificationFilter = observer(function NotificationFilter() {
       render={(item) => <NotificationFilterOptionItem {...item} />}
     />
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // ui
@@ -18,7 +17,7 @@ import { UserService } from "@/services/user.service";
 
 const userService = new UserService();
 
-export const ProfileActivity = observer(function ProfileActivity() {
+export function ProfileActivity() {
   const { workspaceSlug, userId } = useParams();
   // store hooks
   const { data: currentUser } = useUser();
@@ -91,4 +90,4 @@ export const ProfileActivity = observer(function ProfileActivity() {
       </Card>
     </div>
   );
-});
+}

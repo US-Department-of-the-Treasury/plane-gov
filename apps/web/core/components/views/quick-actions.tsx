@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { MoreHorizontal } from "lucide-react";
 // types
 import { EUserPermissions, EUserPermissionsLevel, PROJECT_VIEW_TRACKER_ELEMENTS } from "@plane/constants";
@@ -28,7 +27,7 @@ type Props = {
   customClassName?: string;
 };
 
-export const ViewQuickActions = observer(function ViewQuickActions(props: Props) {
+export function ViewQuickActions(props: Props) {
   const { parentRef, projectId, view, workspaceSlug, customClassName } = props;
   // states
   const [createUpdateViewModal, setCreateUpdateViewModal] = useState(false);
@@ -141,4 +140,4 @@ export const ViewQuickActions = observer(function ViewQuickActions(props: Props)
       </CustomMenu>
     </>
   );
-});
+}

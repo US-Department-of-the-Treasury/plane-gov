@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { DATE_AFTER_FILTER_OPTIONS } from "@plane/constants";
 import { isInDateFormat } from "@plane/utils";
@@ -13,7 +12,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterEndDate = observer(function FilterEndDate(props: Props) {
+export function FilterEndDate(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
 
   const [previewEnabled, setPreviewEnabled] = useState(true);
@@ -73,4 +72,4 @@ export const FilterEndDate = observer(function FilterEndDate(props: Props) {
       )}
     </>
   );
-});
+}

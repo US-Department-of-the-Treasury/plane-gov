@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane types
 import { EUserPermissionsLevel } from "@plane/constants";
 // components
@@ -14,7 +13,7 @@ type Props = {
   handleSelect: (href: string) => void;
 };
 
-export const PowerKOpenProjectSettingsMenu = observer(function PowerKOpenProjectSettingsMenu(props: Props) {
+export function PowerKOpenProjectSettingsMenu(props: Props) {
   const { context, handleSelect } = props;
   // plane hooks
   const { t } = useTranslation();
@@ -39,4 +38,4 @@ export const PowerKOpenProjectSettingsMenu = observer(function PowerKOpenProject
   }));
 
   return <PowerKSettingsMenu settings={settingsListWithIcons} onSelect={(setting) => handleSelect(setting.href)} />;
-});
+}

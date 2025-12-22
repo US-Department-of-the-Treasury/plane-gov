@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import type { TIssue } from "@plane/types";
@@ -22,7 +21,7 @@ export type TWorkItemLevelModalsProps = {
   workItemIdentifier: string | undefined;
 };
 
-export const WorkItemLevelModals = observer(function WorkItemLevelModals(props: TWorkItemLevelModalsProps) {
+export function WorkItemLevelModals(props: TWorkItemLevelModalsProps) {
   const { workItemIdentifier } = props;
   // router
   const { workspaceSlug, sprintId, epicId } = useParams();
@@ -119,4 +118,4 @@ export const WorkItemLevelModals = observer(function WorkItemLevelModals(props: 
       />
     </>
   );
-});
+}

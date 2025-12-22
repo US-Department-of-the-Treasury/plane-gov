@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams, useSearchParams } from "next/navigation";
 // types
 import { PROJECT_ERROR_MESSAGES, SPRINT_TRACKER_EVENTS } from "@plane/constants";
@@ -22,7 +21,7 @@ interface ISprintDelete {
   projectId: string;
 }
 
-export const SprintDeleteModal = observer(function SprintDeleteModal(props: ISprintDelete) {
+export function SprintDeleteModal(props: ISprintDelete) {
   const { isOpen, handleClose, sprint, workspaceSlug, projectId } = props;
   // states
   const [loader, setLoader] = useState(false);
@@ -103,4 +102,4 @@ export const SprintDeleteModal = observer(function SprintDeleteModal(props: ISpr
       }
     />
   );
-});
+}

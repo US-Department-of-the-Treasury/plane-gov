@@ -95,7 +95,8 @@ export function InstanceOIDCConfigForm(props: Props) {
       key: "OIDC_CLIENT_SECRET",
       type: "password",
       label: "Client secret",
-      description: "The OAuth client secret from your identity provider. Leave empty for public clients using PKCE only.",
+      description:
+        "The OAuth client secret from your identity provider. Leave empty for public clients using PKCE only.",
       placeholder: "Enter your client secret",
       error: Boolean(errors.OIDC_CLIENT_SECRET),
       required: false,
@@ -160,8 +161,8 @@ export function InstanceOIDCConfigForm(props: Props) {
       url: `${originURL}/auth/oidc/callback/`,
       description: (
         <p>
-          We will auto-generate this. Add this to your identity provider&apos;s <CodeBlock darkerShade>Redirect URI</CodeBlock>{" "}
-          configuration.
+          We will auto-generate this. Add this to your identity provider&apos;s{" "}
+          <CodeBlock darkerShade>Redirect URI</CodeBlock> configuration.
         </p>
       ),
     },
@@ -259,7 +260,10 @@ export function InstanceOIDCConfigForm(props: Props) {
                 <div className="text-sm font-medium text-primary mb-2">Login.gov Configuration Tips</div>
                 <ul className="text-sm text-secondary space-y-1 list-disc list-inside">
                   <li>Use PKCE (code challenge) for enhanced security</li>
-                  <li>Login.gov requires the <CodeBlock darkerShade>openid</CodeBlock> and <CodeBlock darkerShade>email</CodeBlock> scopes</li>
+                  <li>
+                    Login.gov requires the <CodeBlock darkerShade>openid</CodeBlock> and{" "}
+                    <CodeBlock darkerShade>email</CodeBlock> scopes
+                  </li>
                   <li>Sandbox environment is for testing only</li>
                   <li>Production access requires agency approval</li>
                 </ul>

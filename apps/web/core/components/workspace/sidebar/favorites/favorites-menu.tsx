@@ -7,7 +7,6 @@ import type {
 } from "@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types";
 import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { orderBy } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { FolderPlus } from "lucide-react";
 import { Disclosure, Transition } from "@headlessui/react";
@@ -32,7 +31,7 @@ import type { TargetData } from "./favorites.helpers";
 import { getInstructionFromPayload } from "./favorites.helpers";
 import { NewFavoriteFolder } from "./new-fav-folder";
 
-export const SidebarFavoritesMenu = observer(function SidebarFavoritesMenu() {
+export function SidebarFavoritesMenu() {
   // states
   const [createNewFolder, setCreateNewFolder] = useState<boolean | string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -280,4 +279,4 @@ export const SidebarFavoritesMenu = observer(function SidebarFavoritesMenu() {
       </Disclosure>
     </>
   );
-});
+}

@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 import { EPIC_STATUS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import type { TEpicStatus } from "@plane/propel/icons";
@@ -14,7 +13,7 @@ type Props = {
   handleEpicDetailsChange: (payload: Partial<IEpic>) => Promise<void>;
 };
 
-export const EpicStatusDropdown = observer(function EpicStatusDropdown(props: Props) {
+export function EpicStatusDropdown(props: Props) {
   const { isDisabled, epicDetails, handleEpicDetailsChange } = props;
   const { t } = useTranslation();
   const epicStatus = EPIC_STATUS.find((status) => status.value === epicDetails.status);
@@ -52,4 +51,4 @@ export const EpicStatusDropdown = observer(function EpicStatusDropdown(props: Pr
       ))}
     </CustomSelect>
   );
-});
+}

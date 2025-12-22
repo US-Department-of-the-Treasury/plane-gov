@@ -1,6 +1,5 @@
 import React from "react";
 import { isEmpty } from "lodash-es";
-import { observer } from "mobx-react";
 import type {
   IIssueDisplayFilterOptions,
   IIssueDisplayProperties,
@@ -28,7 +27,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const DisplayFiltersSelection = observer(function DisplayFiltersSelection(props: Props) {
+export function DisplayFiltersSelection(props: Props) {
   const {
     displayFilters,
     displayProperties,
@@ -136,4 +135,4 @@ export const DisplayFiltersSelection = observer(function DisplayFiltersSelection
       )}
     </div>
   );
-});
+}

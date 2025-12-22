@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { SprintGroupIcon } from "@plane/propel/icons";
 import type { TSprintGroups } from "@plane/types";
@@ -17,7 +16,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterSprint = observer(function FilterSprint(props: Props) {
+export function FilterSprint(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
 
   // hooks
@@ -70,7 +69,10 @@ export const FilterSprint = observer(function FilterSprint(props: Props) {
                     isChecked={appliedFilters?.includes(sprint.id) ? true : false}
                     onClick={() => handleUpdate(sprint.id)}
                     icon={
-                      <SprintGroupIcon sprintGroup={sprintStatus(sprint?.status)} className="h-3.5 w-3.5 flex-shrink-0" />
+                      <SprintGroupIcon
+                        sprintGroup={sprintStatus(sprint?.status)}
+                        className="h-3.5 w-3.5 flex-shrink-0"
+                      />
                     }
                     title={sprint.name}
                     activePulse={sprintStatus(sprint?.status) === "current" ? true : false}
@@ -100,4 +102,4 @@ export const FilterSprint = observer(function FilterSprint(props: Props) {
       )}
     </>
   );
-});
+}

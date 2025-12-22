@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 // plane imports
 import { ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
@@ -34,7 +33,7 @@ const DEFAULT_VALUES: Partial<IWorkspaceView> = {
   }),
 };
 
-export const WorkspaceViewForm = observer(function WorkspaceViewForm(props: Props) {
+export function WorkspaceViewForm(props: Props) {
   const { handleFormSubmit, handleClose, data, preLoadedData, workspaceSlug } = props;
   // i18n
   const { t } = useTranslation();
@@ -195,4 +194,4 @@ export const WorkspaceViewForm = observer(function WorkspaceViewForm(props: Prop
       </div>
     </form>
   );
-});
+}

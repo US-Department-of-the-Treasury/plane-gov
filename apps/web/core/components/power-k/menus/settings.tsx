@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // local imports
 import { PowerKMenuBuilder } from "./builder";
 
@@ -15,7 +14,7 @@ type Props = {
   onSelect: (setting: TSettingItem) => void;
 };
 
-export const PowerKSettingsMenu = observer(function PowerKSettingsMenu({ settings, onSelect }: Props) {
+export function PowerKSettingsMenu({ settings, onSelect }: Props) {
   return (
     <PowerKMenuBuilder
       items={settings}
@@ -27,4 +26,4 @@ export const PowerKSettingsMenu = observer(function PowerKSettingsMenu({ setting
       emptyText="No settings found"
     />
   );
-});
+}

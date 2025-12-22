@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { MEMBER_TRACKER_EVENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -23,7 +22,7 @@ type Props = {
   workspaceSlug: string;
 };
 
-export const ProjectMemberListItem = observer(function ProjectMemberListItem(props: Props) {
+export function ProjectMemberListItem(props: Props) {
   const { memberDetails, projectId, workspaceSlug } = props;
   // router
   const router = useAppRouter();
@@ -62,7 +61,7 @@ export const ProjectMemberListItem = observer(function ProjectMemberListItem(pro
           });
           setToast({
             type: TOAST_TYPE.ERROR,
-            title: "You can’t leave this project yet.",
+            title: "You can't leave this project yet.",
             message: err?.error || "Something went wrong. Please try again.",
           });
         });
@@ -103,4 +102,4 @@ export const ProjectMemberListItem = observer(function ProjectMemberListItem(pro
       />
     </>
   );
-});
+}

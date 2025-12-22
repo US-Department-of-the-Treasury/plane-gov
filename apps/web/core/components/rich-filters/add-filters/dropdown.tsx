@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
 import type { IFilterInstance } from "@plane/shared-state";
@@ -18,10 +17,9 @@ export type TAddFilterDropdownProps<P extends TFilterProperty, E extends TExtern
   handleFilterSelect: (property: P, operator: TSupportedOperators, isNegation: boolean) => void;
 };
 
-export const AddFilterDropdown = observer(function AddFilterDropdown<
-  P extends TFilterProperty,
-  E extends TExternalFilter,
->(props: TAddFilterDropdownProps<P, E>) {
+export function AddFilterDropdown<P extends TFilterProperty, E extends TExternalFilter>(
+  props: TAddFilterDropdownProps<P, E>
+) {
   const { filter, customButton, buttonConfig } = props;
   const { className, defaultOpen = false, isDisabled = false } = buttonConfig || {};
 
@@ -85,4 +83,4 @@ export const AddFilterDropdown = observer(function AddFilterDropdown<
       />
     </div>
   );
-});
+}

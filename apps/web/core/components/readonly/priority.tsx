@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { ISSUE_PRIORITIES } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -13,7 +12,7 @@ export type TReadonlyPriorityProps = {
   placeholder?: string;
 };
 
-export const ReadonlyPriority = observer(function ReadonlyPriority(props: TReadonlyPriorityProps) {
+export function ReadonlyPriority(props: TReadonlyPriorityProps) {
   const { className, hideIcon = false, value, placeholder } = props;
 
   const { t } = useTranslation();
@@ -25,4 +24,4 @@ export const ReadonlyPriority = observer(function ReadonlyPriority(props: TReado
       <span className="flex-grow truncate">{priorityDetails?.title ?? placeholder ?? t("common.none")}</span>
     </div>
   );
-});
+}

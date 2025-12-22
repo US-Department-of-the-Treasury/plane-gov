@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { TDocumentInfo } from "@plane/editor";
 import { useTranslation } from "@plane/i18n";
@@ -17,9 +16,7 @@ const DEFAULT_DOCUMENT_INFO: TDocumentInfo = {
   paragraphs: 0,
 };
 
-export const PageNavigationPaneInfoTabDocumentInfo = observer(function PageNavigationPaneInfoTabDocumentInfo(
-  props: Props
-) {
+export function PageNavigationPaneInfoTabDocumentInfo(props: Props) {
   const { page } = props;
   // states
   const [documentInfo, setDocumentInfo] = useState<TDocumentInfo>(DEFAULT_DOCUMENT_INFO);
@@ -81,4 +78,4 @@ export const PageNavigationPaneInfoTabDocumentInfo = observer(function PageNavig
       ))}
     </div>
   );
-});
+}

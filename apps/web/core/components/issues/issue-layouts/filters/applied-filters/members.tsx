@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { CloseIcon } from "@plane/propel/icons";
 // plane ui
@@ -14,7 +13,7 @@ type Props = {
   editable: boolean | undefined;
 };
 
-export const AppliedMembersFilters = observer(function AppliedMembersFilters(props: Props) {
+export function AppliedMembersFilters(props: Props) {
   const { handleRemove, values, editable } = props;
   // params
   const { workspaceSlug } = useParams();
@@ -52,4 +51,4 @@ export const AppliedMembersFilters = observer(function AppliedMembersFilters(pro
       })}
     </>
   );
-});
+}

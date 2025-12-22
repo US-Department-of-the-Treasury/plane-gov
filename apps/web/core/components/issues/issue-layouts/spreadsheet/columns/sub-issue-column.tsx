@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // types
 import type { TIssue } from "@plane/types";
@@ -14,7 +13,7 @@ type Props = {
   issue: TIssue;
 };
 
-export const SpreadsheetSubIssueColumn = observer(function SpreadsheetSubIssueColumn(props: Props) {
+export function SpreadsheetSubIssueColumn(props: Props) {
   const { issue } = props;
   // router
   const router = useAppRouter();
@@ -45,4 +44,4 @@ export const SpreadsheetSubIssueColumn = observer(function SpreadsheetSubIssueCo
       {isEpic ? <IssueStats issueId={issue.id} /> : label}
     </Row>
   );
-});
+}

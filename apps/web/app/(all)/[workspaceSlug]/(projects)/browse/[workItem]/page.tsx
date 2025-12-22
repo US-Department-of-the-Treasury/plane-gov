@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -24,7 +23,7 @@ import { WorkItemDetailRoot } from "@/plane-web/components/browse/workItem-detai
 
 import type { Route } from "./+types/page";
 
-export const IssueDetailsPage = observer(function IssueDetailsPage({ params }: Route.ComponentProps) {
+export function IssueDetailsPage({ params }: Route.ComponentProps) {
   // router
   const router = useAppRouter();
   const { workspaceSlug, workItem } = params;
@@ -39,11 +38,11 @@ export const IssueDetailsPage = observer(function IssueDetailsPage({ params }: R
   const [projectIdentifier, sequence_id] = workItem.split("-");
 
   // fetching issue details with TanStack Query
-  const { data: issue, isLoading, error } = useIssueByIdentifier(
-    workspaceSlug.toString(),
-    projectIdentifier,
-    sequence_id
-  );
+  const {
+    data: issue,
+    isLoading,
+    error,
+  } = useIssueByIdentifier(workspaceSlug.toString(), projectIdentifier, sequence_id);
 
   // derived values
   const projectDetails = getProjectByIdentifier(projects, projectIdentifier);
@@ -128,6 +127,6 @@ export const IssueDetailsPage = observer(function IssueDetailsPage({ params }: R
       )}
     </>
   );
-});
+}
 
 export default IssueDetailsPage;

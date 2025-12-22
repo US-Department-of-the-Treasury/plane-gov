@@ -1,5 +1,4 @@
 import { Command } from "cmdk";
-import { observer } from "mobx-react";
 import { Triangle } from "lucide-react";
 // plane types
 import { useTranslation } from "@plane/i18n";
@@ -17,7 +16,7 @@ type Props = {
   workItemDetails: TIssue;
 };
 
-export const PowerKWorkItemEstimatesMenu = observer(function PowerKWorkItemEstimatesMenu(props: Props) {
+export function PowerKWorkItemEstimatesMenu(props: Props) {
   const { handleSelect, workItemDetails } = props;
   // store hooks
   const { currentActiveEstimateIdByProjectId, getEstimateById } = useProjectEstimates();
@@ -64,4 +63,4 @@ export const PowerKWorkItemEstimatesMenu = observer(function PowerKWorkItemEstim
       )}
     </Command.Group>
   );
-});
+}

@@ -1,10 +1,9 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { PlusIcon } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import type { TQuickAddIssueButton } from "../root";
 
-export const KanbanQuickAddIssueButton = observer(function KanbanQuickAddIssueButton(props: TQuickAddIssueButton) {
+export function KanbanQuickAddIssueButton(props: TQuickAddIssueButton) {
   const { onClick, isEpic = false } = props;
   const { t } = useTranslation();
   return (
@@ -16,4 +15,4 @@ export const KanbanQuickAddIssueButton = observer(function KanbanQuickAddIssueBu
       <span className="text-13 font-medium">{isEpic ? t("epic.new") : t("issue.new")}</span>
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { observer } from "mobx-react";
 import { Search } from "lucide-react";
 import { CloseIcon } from "@plane/propel/icons";
 import type { TPageFilterProps, TPageFilters } from "@plane/types";
@@ -13,10 +12,11 @@ type Props = {
   filters: TPageFilters;
   handleFiltersUpdate: <T extends keyof TPageFilters>(filterKey: T, filterValue: TPageFilters[T]) => void;
   memberIds?: string[] | undefined;
+  workspaceSlug: string;
 };
 
-export const PageFiltersSelection = observer(function PageFiltersSelection(props: Props) {
-  const { filters, handleFiltersUpdate, memberIds } = props;
+export function PageFiltersSelection(props: Props) {
+  const { filters, handleFiltersUpdate, memberIds, workspaceSlug } = props;
   // states
   const [filtersSearchQuery, setFiltersSearchQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -101,9 +101,10 @@ export const PageFiltersSelection = observer(function PageFiltersSelection(props
             handleUpdate={(val) => handleFilters("created_by", val)}
             searchQuery={filtersSearchQuery}
             memberIds={memberIds}
+            workspaceSlug={workspaceSlug}
           />
         </div>
       </div>
     </div>
   );
-});
+}

@@ -20,18 +20,9 @@ export function InboxIssueFilterSelection() {
   // hooks
   const { workspaceSlug, projectId } = useParams();
   const { isMobile } = usePlatformOS();
-  const { data: projectMembers } = useProjectMembers(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? ""
-  );
-  const { data: projectLabels } = useProjectLabels(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? ""
-  );
-  const { data: projectStates } = useProjectStates(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? ""
-  );
+  const { data: projectMembers } = useProjectMembers(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
+  const { data: projectLabels } = useProjectLabels(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
+  const { data: projectStates } = useProjectStates(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   // states
   const [filtersSearchQuery, setFiltersSearchQuery] = useState("");
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { PanelLeft } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -22,7 +21,7 @@ type TInboxIssueRoot = {
   navigationTab?: EInboxIssueCurrentTab | undefined;
 };
 
-export const InboxIssueRoot = observer(function InboxIssueRoot(props: TInboxIssueRoot) {
+export function InboxIssueRoot(props: TInboxIssueRoot) {
   const { workspaceSlug, projectId, inboxIssueId, inboxAccessible, navigationTab } = props;
   // states
   const [isMobileSidebar, setIsMobileSidebar] = useState(true);
@@ -111,4 +110,4 @@ export const InboxIssueRoot = observer(function InboxIssueRoot(props: TInboxIssu
       </div>
     </>
   );
-});
+}

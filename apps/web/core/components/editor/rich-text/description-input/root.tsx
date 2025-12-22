@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { debounce } from "lodash-es";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 // plane imports
 import type { EditorRefApi, TExtensions } from "@plane/editor";
@@ -88,7 +87,7 @@ type Props = {
  * @description DescriptionInput component for rich text editor with autosave functionality using debounce
  * The component also makes an API call to save the description on unmount
  */
-export const DescriptionInput = observer(function DescriptionInput(props: Props) {
+export function DescriptionInput(props: Props) {
   const {
     containerClassName,
     disabled,
@@ -263,4 +262,4 @@ export const DescriptionInput = observer(function DescriptionInput(props: Props)
       )}
     </>
   );
-});
+}

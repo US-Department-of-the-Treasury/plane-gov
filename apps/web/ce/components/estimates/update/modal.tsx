@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 
 type TUpdateEstimateModal = {
   workspaceSlug: string;
@@ -9,6 +8,6 @@ type TUpdateEstimateModal = {
   handleClose: () => void;
 };
 
-export const UpdateEstimateModal = observer(function UpdateEstimateModal(_props: TUpdateEstimateModal) {
+export function UpdateEstimateModal(_props: TUpdateEstimateModal) {
   return <></>;
-});
+}

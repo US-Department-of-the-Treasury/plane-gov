@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { Check, ExternalLink, Globe2 } from "lucide-react";
@@ -13,7 +12,13 @@ import { Loader, ToggleSwitch, CustomSelect, ModalCore, EModalWidth } from "@pla
 // helpers
 import { copyTextToClipboard } from "@plane/utils";
 // hooks
-import { useProjectPublish } from "@/hooks/store/use-project-publish";
+import {
+  useProjectPublishSettings,
+  usePublishProject,
+  useUpdatePublishSettings,
+  useUnpublishProject,
+  getPublishSettingsByProjectId,
+} from "@/hooks/store/use-project-publish";
 
 type Props = {
   isOpen: boolean;
@@ -40,23 +45,22 @@ const VIEW_OPTIONS: {
   { key: "kanban", label: "Kanban" },
 ];
 
-export const PublishProjectModal = observer(function PublishProjectModal(props: Props) {
+export function PublishProjectModal(props: Props) {
   const { isOpen, onClose, projectId } = props;
   // states
   const [isUnPublishing, setIsUnPublishing] = useState(false);
   // router
   const { workspaceSlug } = useParams();
-  // store hooks
+  // TanStack Query hooks
   const {
-    fetchPublishSettings,
-    getPublishSettingsByProjectID,
-    publishProject,
-    updatePublishSettings,
-    unPublishProject,
-    fetchSettingsLoader,
-  } = useProjectPublish();
+    data: projectPublishSettings,
+    isLoading: fetchSettingsLoader,
+    refetch: fetchPublishSettings,
+  } = useProjectPublishSettings(workspaceSlug?.toString() ?? "", projectId);
+  const publishProjectMutation = usePublishProject();
+  const updatePublishSettingsMutation = useUpdatePublishSettings();
+  const unPublishProjectMutation = useUnpublishProject();
   // derived values
-  const projectPublishSettings = getPublishSettingsByProjectID(projectId);
   const isProjectPublished = !!projectPublishSettings?.anchor;
   // form info
   const {
@@ -78,28 +82,30 @@ export const PublishProjectModal = observer(function PublishProjectModal(props: 
     if (!workspaceSlug || !isOpen) return;
 
     if (!projectPublishSettings) {
-      fetchPublishSettings(workspaceSlug.toString(), projectId);
+      fetchPublishSettings();
     }
-  }, [fetchPublishSettings, isOpen, projectId, projectPublishSettings, workspaceSlug]);
+  }, [fetchPublishSettings, isOpen, projectPublishSettings, workspaceSlug]);
 
   const handlePublishProject = async (payload: Partial<TProjectPublishSettings>) => {
     if (!workspaceSlug) return;
-    await publishProject(workspaceSlug.toString(), projectId, payload);
+    await publishProjectMutation.mutateAsync({ workspaceSlug: workspaceSlug.toString(), projectId, data: payload });
   };
 
   const handleUpdatePublishSettings = async (payload: Partial<TProjectPublishSettings>) => {
     if (!workspaceSlug || !payload.id) return;
 
-    await updatePublishSettings(workspaceSlug.toString(), projectId, payload.id, payload).then((res) => {
-      setToast({
-        type: TOAST_TYPE.SUCCESS,
-        title: "Success!",
-        message: "Publish settings updated successfully!",
-      });
+    await updatePublishSettingsMutation
+      .mutateAsync({ workspaceSlug: workspaceSlug.toString(), projectId, projectPublishId: payload.id, data: payload })
+      .then((res: TProjectPublishSettings) => {
+        setToast({
+          type: TOAST_TYPE.SUCCESS,
+          title: "Success!",
+          message: "Publish settings updated successfully!",
+        });
 
-      handleClose();
-      return res;
-    });
+        handleClose();
+        return res;
+      });
   };
 
   const handleUnPublishProject = async (publishId: string) => {
@@ -107,7 +113,8 @@ export const PublishProjectModal = observer(function PublishProjectModal(props: 
 
     setIsUnPublishing(true);
 
-    await unPublishProject(workspaceSlug.toString(), projectId, publishId)
+    await unPublishProjectMutation
+      .mutateAsync({ workspaceSlug: workspaceSlug.toString(), projectId, projectPublishId: publishId })
       .catch(() =>
         setToast({
           type: TOAST_TYPE.ERROR,
@@ -332,4 +339,4 @@ export const PublishProjectModal = observer(function PublishProjectModal(props: 
       </form>
     </ModalCore>
   );
-});
+}

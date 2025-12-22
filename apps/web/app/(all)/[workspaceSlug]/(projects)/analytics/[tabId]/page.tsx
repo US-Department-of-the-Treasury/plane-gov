@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { observer } from "mobx-react";
+
 import { useRouter } from "next/navigation";
 // plane package imports
 import { EUserPermissions, EUserPermissionsLevel, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
@@ -13,6 +13,7 @@ import { PageHead } from "@/components/core/page-title";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
+import { AnalyticsProvider } from "@/hooks/store/use-analytics";
 import { useProjects, getProjectIds } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAnalyticsTabs } from "@/plane-web/components/analytics/use-analytics-tabs";
@@ -64,7 +65,7 @@ function AnalyticsPage({ params }: Route.ComponentProps) {
   };
 
   return (
-    <>
+    <AnalyticsProvider>
       <PageHead title={pageTitle} />
       {workspaceProjectIds && (
         <>
@@ -131,8 +132,8 @@ function AnalyticsPage({ params }: Route.ComponentProps) {
           )}
         </>
       )}
-    </>
+    </AnalyticsProvider>
   );
 }
 
-export default observer(AnalyticsPage);
+export default AnalyticsPage;

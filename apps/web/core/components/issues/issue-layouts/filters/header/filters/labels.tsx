@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
-import { observer } from "mobx-react";
 import type { IIssueLabel } from "@plane/types";
 // components
 import { Loader } from "@plane/ui";
@@ -20,7 +19,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterLabels = observer(function FilterLabels(props: Props) {
+export function FilterLabels(props: Props) {
   const { appliedFilters, handleUpdate, labels, searchQuery } = props;
 
   const [itemsToRender, setItemsToRender] = useState(5);
@@ -92,4 +91,4 @@ export const FilterLabels = observer(function FilterLabels(props: Props) {
       )}
     </>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -21,7 +20,7 @@ type Props = {
 
 const DATE_FILTERS = ["start_date", "end_date"];
 
-export const SprintAppliedFiltersList = observer(function SprintAppliedFiltersList(props: Props) {
+export function SprintAppliedFiltersList(props: Props) {
   const { appliedFilters, handleClearAllFilters, handleRemoveFilter, alwaysAllowEditing } = props;
   // store hooks
   const { allowPermissions } = useUserPermissions();
@@ -84,4 +83,4 @@ export const SprintAppliedFiltersList = observer(function SprintAppliedFiltersLi
       )}
     </div>
   );
-});
+}

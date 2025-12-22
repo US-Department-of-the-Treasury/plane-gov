@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState, useMemo, useCallback } from "react";
-import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 // Plane imports
 import useSWR from "swr";
@@ -21,7 +20,7 @@ import { useUpdateIssue, useDeleteIssue, useArchiveIssue } from "@/store/queries
 import type { TIssueOperations } from "../issue-detail";
 import { IssueView } from "./view";
 
-export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWorkItemPeekOverview) {
+export function IssuePeekOverview(props: IWorkItemPeekOverview) {
   const {
     embedIssue = false,
     embedRemoveCurrentNotification,
@@ -235,13 +234,7 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
         addEpicIds: string[],
         removeEpicIds: string[]
       ) => {
-        const promise = await issues.changeEpicsInIssue(
-          workspaceSlug,
-          projectId,
-          issueId,
-          addEpicIds,
-          removeEpicIds
-        );
+        const promise = await issues.changeEpicsInIssue(workspaceSlug, projectId, issueId, addEpicIds, removeEpicIds);
         fetchActivities(workspaceSlug, projectId, issueId);
         captureSuccess({
           eventName: WORK_ITEM_TRACKER_EVENTS.update,
@@ -316,4 +309,4 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
       issueOperations={issueOperations}
     />
   );
-});
+}

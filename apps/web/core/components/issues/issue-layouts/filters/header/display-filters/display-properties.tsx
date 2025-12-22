@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane constants
 import { ISSUE_DISPLAY_PROPERTIES } from "@plane/constants";
@@ -21,7 +20,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const FilterDisplayProperties = observer(function FilterDisplayProperties(props: Props) {
+export function FilterDisplayProperties(props: Props) {
   const {
     displayProperties,
     displayPropertiesToRender,
@@ -91,4 +90,4 @@ export const FilterDisplayProperties = observer(function FilterDisplayProperties
       )}
     </>
   );
-});
+}

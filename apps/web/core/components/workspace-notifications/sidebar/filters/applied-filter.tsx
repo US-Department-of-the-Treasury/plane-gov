@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { ENotificationFilterType, FILTER_TYPE_OPTIONS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -11,7 +10,7 @@ type TAppliedFilters = {
   workspaceSlug: string;
 };
 
-export const AppliedFilters = observer(function AppliedFilters(props: TAppliedFilters) {
+export function AppliedFilters(props: TAppliedFilters) {
   const { workspaceSlug } = props;
   // hooks
   const { filters, updateFilters } = useWorkspaceNotifications();
@@ -62,4 +61,4 @@ export const AppliedFilters = observer(function AppliedFilters(props: TAppliedFi
       </Header.LeftItem>
     </Header>
   );
-});
+}

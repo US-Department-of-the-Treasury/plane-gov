@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, GLOBAL_VIEW_TRACKER_ELEMENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -20,7 +19,7 @@ type Props = {
   view: IWorkspaceView;
 };
 
-export const WorkspaceViewQuickActions = observer(function WorkspaceViewQuickActions(props: Props) {
+export function WorkspaceViewQuickActions(props: Props) {
   const { workspaceSlug, view } = props;
   // states
   const [updateViewModal, setUpdateViewModal] = useState(false);
@@ -103,4 +102,4 @@ export const WorkspaceViewQuickActions = observer(function WorkspaceViewQuickAct
       </CustomMenu>
     </>
   );
-});
+}

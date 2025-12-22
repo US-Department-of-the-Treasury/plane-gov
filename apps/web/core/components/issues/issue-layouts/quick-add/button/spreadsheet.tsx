@@ -1,10 +1,9 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { PlusIcon } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import type { TQuickAddIssueButton } from "../root";
 
-export const SpreadsheetAddIssueButton = observer(function SpreadsheetAddIssueButton(props: TQuickAddIssueButton) {
+export function SpreadsheetAddIssueButton(props: TQuickAddIssueButton) {
   const { onClick, isEpic = false } = props;
   const { t } = useTranslation();
   return (
@@ -19,4 +18,4 @@ export const SpreadsheetAddIssueButton = observer(function SpreadsheetAddIssueBu
       </button>
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import { ListFilter } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -27,14 +26,14 @@ type Props = {
   workspaceSlug: string;
 };
 
-export const PagesListHeaderRoot = observer(function PagesListHeaderRoot(props: Props) {
+export function PagesListHeaderRoot(props: Props) {
   const { pageType, projectId, storeType, workspaceSlug } = props;
   const { t } = useTranslation();
   // store hooks
   const { filters, updateFilters, clearAllFilters } = usePageStore(storeType);
   // queries
   const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug);
-  const workspaceMemberIds = workspaceMembers.map((member) => member.member);
+  const workspaceMemberIds = workspaceMembers.map((member) => member.member.id).filter((id): id is string => !!id);
 
   const handleRemoveFilter = useCallback(
     (key: keyof TPageFilterProps, value: string | null) => {
@@ -82,6 +81,7 @@ export const PagesListHeaderRoot = observer(function PagesListHeaderRoot(props: 
               filters={filters}
               handleFiltersUpdate={updateFilters}
               memberIds={workspaceMemberIds ?? undefined}
+              workspaceSlug={workspaceSlug}
             />
           </FiltersDropdown>
         </Header.RightItem>
@@ -93,9 +93,10 @@ export const PagesListHeaderRoot = observer(function PagesListHeaderRoot(props: 
             handleClearAllFilters={clearAllFilters}
             handleRemoveFilter={handleRemoveFilter}
             alwaysAllowEditing
+            workspaceSlug={workspaceSlug}
           />
         </Header>
       )}
     </>
   );
-});
+}

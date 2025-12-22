@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // i18n
 import { useTranslation } from "@plane/i18n";
 // components
@@ -28,4 +27,4 @@ function ProjectIssuesPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ProjectIssuesPage);
+export default ProjectIssuesPage;

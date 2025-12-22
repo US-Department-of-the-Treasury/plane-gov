@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { ParentPropertyIcon } from "@plane/propel/icons";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -7,7 +6,7 @@ import { IssueActivityBlockComponent, IssueLink } from "./";
 
 type TIssueParentActivity = { activityId: string; showIssue?: boolean; ends: "top" | "bottom" | undefined };
 
-export const IssueParentActivity = observer(function IssueParentActivity(props: TIssueParentActivity) {
+export function IssueParentActivity(props: TIssueParentActivity) {
   const { activityId, showIssue = true, ends } = props;
   // hooks
   const {
@@ -35,4 +34,4 @@ export const IssueParentActivity = observer(function IssueParentActivity(props: 
       </>
     </IssueActivityBlockComponent>
   );
-});
+}

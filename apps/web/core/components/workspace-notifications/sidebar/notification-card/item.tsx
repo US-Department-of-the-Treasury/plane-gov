@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Clock } from "lucide-react";
 // plane imports
 import { Avatar, Row } from "@plane/ui";
@@ -18,11 +17,11 @@ type TNotificationItem = {
   notificationId: string;
 };
 
-export const NotificationItem = observer(function NotificationItem(props: TNotificationItem) {
+export function NotificationItem(props: TNotificationItem) {
   const { workspaceSlug, notificationId } = props;
   // hooks
   const { currentSelectedNotificationId, setCurrentSelectedNotificationId } = useWorkspaceNotifications();
-  const { asJson: notification, markNotificationAsRead } = useNotification(notificationId);
+  const { asJson: notification, markNotificationAsRead } = useNotification(workspaceSlug, { snoozed: false, archived: false }, notificationId);
   const { getIsIssuePeeked, setPeekIssue } = useIssueDetail();
   const { data: workspaces } = useWorkspaces();
   // states
@@ -35,7 +34,7 @@ export const NotificationItem = observer(function NotificationItem(props: TNotif
   const workspace = getWorkspaceBySlug(workspaces, workspaceSlug);
 
   const notificationField = notification?.data?.issue_activity.field || undefined;
-  const notificationTriggeredBy = notification.triggered_by_details || undefined;
+  const notificationTriggeredBy = notification?.triggered_by_details || undefined;
 
   const handleNotificationIssuePeekOverview = async () => {
     if (workspaceSlug && projectId && issueId && !isSnoozeStateModalOpen && !customSnoozeModal) {
@@ -43,7 +42,7 @@ export const NotificationItem = observer(function NotificationItem(props: TNotif
       setCurrentSelectedNotificationId(notificationId);
 
       // make the notification as read
-      if (notification.read_at === null) {
+      if (notification?.read_at === null) {
         try {
           await markNotificationAsRead(workspaceSlug);
         } catch (error) {
@@ -135,4 +134,4 @@ export const NotificationItem = observer(function NotificationItem(props: TNotif
       </div>
     </Row>
   );
-});
+}

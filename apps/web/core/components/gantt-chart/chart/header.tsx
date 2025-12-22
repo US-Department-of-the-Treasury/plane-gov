@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { Expand, Shrink } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 // plane
@@ -23,7 +22,7 @@ type Props = {
   showToday: boolean;
 };
 
-export const GanttChartHeader = observer(function GanttChartHeader(props: Props) {
+export function GanttChartHeader(props: Props) {
   const { t } = useTranslation();
   const { blockIds, fullScreenMode, handleChartView, handleToday, loaderTitle, toggleFullScreenMode, showToday } =
     props;
@@ -77,4 +76,4 @@ export const GanttChartHeader = observer(function GanttChartHeader(props: Props)
       </button>
     </Row>
   );
-});
+}

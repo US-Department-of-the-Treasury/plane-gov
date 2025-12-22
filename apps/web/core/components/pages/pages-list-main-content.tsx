@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -28,7 +27,7 @@ type Props = {
   storeType: EPageStoreType;
 };
 
-export const PagesListMainContent = observer(function PagesListMainContent(props: Props) {
+export function PagesListMainContent(props: Props) {
   const { children, pageType, storeType } = props;
   // plane hooks
   const { t } = useTranslation();
@@ -169,4 +168,4 @@ export const PagesListMainContent = observer(function PagesListMainContent(props
     );
 
   return <div className="h-full w-full overflow-hidden">{children}</div>;
-});
+}

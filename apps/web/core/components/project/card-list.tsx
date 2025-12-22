@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissionsLevel, EUserPermissions, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
@@ -23,7 +22,7 @@ type TProjectCardListProps = {
   filteredProjectIds?: string[];
 };
 
-export const ProjectCardList = observer(function ProjectCardList(props: TProjectCardListProps) {
+export function ProjectCardList(props: TProjectCardListProps) {
   const { totalProjectIds: totalProjectIdsProps, filteredProjectIds: filteredProjectIdsProps } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -46,8 +45,7 @@ export const ProjectCardList = observer(function ProjectCardList(props: TProject
     EUserPermissionsLevel.WORKSPACE
   );
 
-  if (!filteredProjectIds || !workspaceProjectIds || isLoading)
-    return <ProjectsLoader />;
+  if (!filteredProjectIds || !workspaceProjectIds || isLoading) return <ProjectsLoader />;
 
   if (workspaceProjectIds?.length === 0 && !currentWorkspaceDisplayFilters?.archived_projects)
     return (
@@ -106,4 +104,4 @@ export const ProjectCardList = observer(function ProjectCardList(props: TProject
       </div>
     </ContentWrapper>
   );
-});
+}

@@ -1,12 +1,11 @@
 import type { ReactNode } from "react";
-import { observer } from "mobx-react";
 import { cn } from "@plane/utils";
 
 type TProps = {
   children: ReactNode;
   size?: "lg" | "md";
 };
-export const SettingsContentWrapper = observer(function SettingsContentWrapper(props: TProps) {
+export function SettingsContentWrapper(props: TProps) {
   const { children, size = "md" } = props;
 
   return (
@@ -19,4 +18,4 @@ export const SettingsContentWrapper = observer(function SettingsContentWrapper(p
       <div className="pb-10 w-full">{children}</div>
     </div>
   );
-});
+}

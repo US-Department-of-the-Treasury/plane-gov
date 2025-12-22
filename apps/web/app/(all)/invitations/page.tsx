@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
+
 import Link from "next/link";
 
 import useSWR, { mutate } from "swr";
@@ -216,4 +216,4 @@ function UserInvitationsPage() {
   );
 }
 
-export default observer(UserInvitationsPage);
+export default UserInvitationsPage;

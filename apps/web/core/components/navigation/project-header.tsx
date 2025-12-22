@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { ProjectIcon } from "@plane/propel/icons";
 import type { ICustomSearchSelectOption } from "@plane/types";
@@ -22,7 +21,7 @@ type TProjectHeaderProps = {
   projectId: string;
 };
 
-export const ProjectHeader = observer(function ProjectHeader(props: TProjectHeaderProps) {
+export function ProjectHeader(props: TProjectHeaderProps) {
   const { workspaceSlug, projectId } = props;
   // router
   const router = useAppRouter();
@@ -106,4 +105,4 @@ export const ProjectHeader = observer(function ProjectHeader(props: TProjectHead
       customButtonClassName="group flex items-center gap-0.5 rounded-sm hover:bg-surface-2 outline-none cursor-pointer h-full"
     />
   );
-});
+}

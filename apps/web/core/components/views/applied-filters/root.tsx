@@ -15,6 +15,7 @@ type Props = {
   handleClearAllFilters: () => void;
   handleRemoveFilter: (key: keyof TViewFilterProps, value: string | EViewAccess | null) => void;
   alwaysAllowEditing?: boolean;
+  workspaceSlug: string;
 };
 
 const MEMBERS_FILTERS = ["owned_by"];
@@ -22,7 +23,7 @@ const DATE_FILTERS = ["created_at"];
 const VIEW_ACCESS_FILTERS = ["view_type"];
 
 export function ViewAppliedFiltersList(props: Props) {
-  const { appliedFilters, handleClearAllFilters, handleRemoveFilter, alwaysAllowEditing } = props;
+  const { appliedFilters, handleClearAllFilters, handleRemoveFilter, alwaysAllowEditing, workspaceSlug } = props;
   const { t } = useTranslation();
 
   if (!appliedFilters) return null;
@@ -60,6 +61,7 @@ export function ViewAppliedFiltersList(props: Props) {
                 editable={isEditingAllowed}
                 handleRemove={(val) => handleRemoveFilter(filterKey, val)}
                 values={Array.isArray(value) ? (value as string[]) : []}
+                workspaceSlug={workspaceSlug}
               />
             )}
             {isEditingAllowed && (

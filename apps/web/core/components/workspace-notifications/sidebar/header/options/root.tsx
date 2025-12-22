@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { CheckCheck, RefreshCw } from "lucide-react";
 // plane imports
 import {
@@ -24,9 +23,7 @@ type TNotificationSidebarHeaderOptions = {
   workspaceSlug: string;
 };
 
-export const NotificationSidebarHeaderOptions = observer(function NotificationSidebarHeaderOptions(
-  props: TNotificationSidebarHeaderOptions
-) {
+export function NotificationSidebarHeaderOptions(props: TNotificationSidebarHeaderOptions) {
   const { workspaceSlug } = props;
   // hooks
   const { isMobile } = usePlatformOS();
@@ -88,4 +85,4 @@ export const NotificationSidebarHeaderOptions = observer(function NotificationSi
       <NotificationHeaderMenuOption />
     </div>
   );
-});
+}

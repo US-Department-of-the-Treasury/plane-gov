@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
@@ -17,7 +16,7 @@ import { CreateUpdateWorkspaceViewModal } from "./modal";
 
 type Props = { viewId: string };
 
-export const GlobalViewListItem = observer(function GlobalViewListItem(props: Props) {
+export function GlobalViewListItem(props: Props) {
   const { viewId } = props;
   // states
   const [updateViewModal, setUpdateViewModal] = useState(false);
@@ -83,4 +82,4 @@ export const GlobalViewListItem = observer(function GlobalViewListItem(props: Pr
       </div>
     </>
   );
-});
+}

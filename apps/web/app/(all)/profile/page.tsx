@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 // components
@@ -14,7 +13,7 @@ function ProfileSettingsPage() {
   // store hooks
   const { data: currentUser, userProfile } = useUser();
 
-  if (!currentUser)
+  if (!currentUser || !userProfile.data)
     return (
       <div className="grid h-full w-full place-items-center px-4 sm:px-0">
         <LogoSpinner />
@@ -31,4 +30,4 @@ function ProfileSettingsPage() {
   );
 }
 
-export default observer(ProfileSettingsPage);
+export default ProfileSettingsPage;

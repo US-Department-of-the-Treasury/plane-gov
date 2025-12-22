@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // components
 import { BulkOperationsUpgradeBanner } from "@/components/issues/bulk-operations/upgrade-banner";
 // hooks
@@ -10,7 +9,7 @@ type Props = {
   selectionHelpers: TSelectionHelper;
 };
 
-export const IssueBulkOperationsRoot = observer(function IssueBulkOperationsRoot(props: Props) {
+export function IssueBulkOperationsRoot(props: Props) {
   const { className, selectionHelpers } = props;
   // store hooks
   const { isSelectionActive } = useMultipleSelectStore();
@@ -18,4 +17,4 @@ export const IssueBulkOperationsRoot = observer(function IssueBulkOperationsRoot
   if (!isSelectionActive || selectionHelpers.isSelectionDisabled) return null;
 
   return <BulkOperationsUpgradeBanner className={className} />;
-});
+}

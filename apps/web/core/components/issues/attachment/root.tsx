@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // hooks
 import { useAttachmentOperations } from "../issue-detail-widgets/attachments/helper";
 // components
@@ -12,7 +11,7 @@ export type TIssueAttachmentRoot = {
   disabled?: boolean;
 };
 
-export const IssueAttachmentRoot = observer(function IssueAttachmentRoot(props: TIssueAttachmentRoot) {
+export function IssueAttachmentRoot(props: TIssueAttachmentRoot) {
   // props
   const { workspaceSlug, projectId, issueId, disabled = false } = props;
   // hooks
@@ -31,4 +30,4 @@ export const IssueAttachmentRoot = observer(function IssueAttachmentRoot(props: 
       </div>
     </div>
   );
-});
+}

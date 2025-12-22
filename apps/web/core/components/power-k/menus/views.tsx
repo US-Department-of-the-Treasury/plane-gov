@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { Layers } from "lucide-react";
 // plane imports
 import type { IProjectView } from "@plane/types";
@@ -11,7 +10,7 @@ type Props = {
   onSelect: (view: IProjectView) => void;
 };
 
-export const PowerKViewsMenu = observer(function PowerKViewsMenu({ views, onSelect }: Props) {
+export function PowerKViewsMenu({ views, onSelect }: Props) {
   return (
     <PowerKMenuBuilder
       items={views}
@@ -23,4 +22,4 @@ export const PowerKViewsMenu = observer(function PowerKViewsMenu({ views, onSele
       emptyText="No views found"
     />
   );
-});
+}

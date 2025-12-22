@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // store hooks
 import { useIssue } from "@/store/queries/issue";
@@ -10,19 +9,15 @@ export type TIssueTypeSwitcherProps = {
   disabled: boolean;
 };
 
-export const IssueTypeSwitcher = observer(function IssueTypeSwitcher(props: TIssueTypeSwitcherProps) {
+export function IssueTypeSwitcher(props: TIssueTypeSwitcherProps) {
   const { issueId } = props;
   // router
   const { workspaceSlug, projectId } = useParams();
 
   // TanStack Query - fetch issue
-  const { data: issue } = useIssue(
-    workspaceSlug?.toString() ?? "",
-    projectId?.toString() ?? "",
-    issueId ?? ""
-  );
+  const { data: issue } = useIssue(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "", issueId ?? "");
 
   if (!issue || !issue.project_id) return <></>;
 
   return <IssueIdentifier issueId={issueId} projectId={issue.project_id} size="md" enableClickToCopyIdentifier />;
-});
+}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 // icons
@@ -51,7 +51,7 @@ function ProjectActionIcons({ type, size, className = "" }: { type: string; size
   return <Icon size={size} className={className} />;
 }
 
-export const ProfileLayoutSidebar = observer(function ProfileLayoutSidebar() {
+export function ProfileLayoutSidebar() {
   // states
   const [isSigningOut, setIsSigningOut] = useState(false);
   // router
@@ -276,4 +276,4 @@ export const ProfileLayoutSidebar = observer(function ProfileLayoutSidebar() {
       </div>
     </div>
   );
-});
+}

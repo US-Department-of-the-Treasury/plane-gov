@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // icons
 import { DATE_AFTER_FILTER_OPTIONS } from "@plane/constants";
 import { CloseIcon } from "@plane/propel/icons";
@@ -11,7 +10,7 @@ type Props = {
   values: string[];
 };
 
-export const AppliedDateFilters = observer(function AppliedDateFilters(props: Props) {
+export function AppliedDateFilters(props: Props) {
   const { handleRemove, values } = props;
 
   const getDateLabel = (value: string): string => {
@@ -49,4 +48,4 @@ export const AppliedDateFilters = observer(function AppliedDateFilters(props: Pr
       ))}
     </>
   );
-});
+}

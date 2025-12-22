@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { isEmpty } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissionsLevel, WORK_ITEM_TRACKER_ELEMENTS } from "@plane/constants";
@@ -18,7 +17,7 @@ import { useIssues } from "@/hooks/store/use-issues";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkItemFilterInstance } from "@/hooks/store/work-item-filters/use-work-item-filter-instance";
 
-export const SprintEmptyState = observer(function SprintEmptyState() {
+export function SprintEmptyState() {
   // router
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId, sprintId: routerSprintId } = useParams();
   const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
@@ -37,7 +36,8 @@ export const SprintEmptyState = observer(function SprintEmptyState() {
   const sprintWorkItemFilter = useWorkItemFilterInstance(EIssuesStoreType.SPRINT, sprintId);
   const sprintDetails = getSprintById(sprints, sprintId);
   const isCompletedSprintSnapshotAvailable = !isEmpty(sprintDetails?.progress_snapshot ?? {});
-  const isCompletedAndEmpty = isCompletedSprintSnapshotAvailable || sprintDetails?.status?.toLowerCase() === "completed";
+  const isCompletedAndEmpty =
+    isCompletedSprintSnapshotAvailable || sprintDetails?.status?.toLowerCase() === "completed";
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
     EUserPermissionsLevel.PROJECT
@@ -127,4 +127,4 @@ export const SprintEmptyState = observer(function SprintEmptyState() {
       </div>
     </div>
   );
-});
+}

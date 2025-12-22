@@ -1,5 +1,4 @@
 import { Fragment } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 // headless ui
@@ -34,7 +33,7 @@ export interface ILeaveProjectModal {
   onClose: () => void;
 }
 
-export const LeaveProjectModal = observer(function LeaveProjectModal(props: ILeaveProjectModal) {
+export function LeaveProjectModal(props: ILeaveProjectModal) {
   const { project, isOpen, onClose } = props;
   // router
   const router = useAppRouter();
@@ -218,4 +217,4 @@ export const LeaveProjectModal = observer(function LeaveProjectModal(props: ILea
       </Dialog>
     </Transition.Root>
   );
-});
+}

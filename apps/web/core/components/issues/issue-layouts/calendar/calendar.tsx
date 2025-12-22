@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
-import { observer } from "mobx-react";
 // plane constants
 import type { TSupportedFilterTypeForUpdate } from "@plane/constants";
 // types
@@ -67,7 +66,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const CalendarChart = observer(function CalendarChart(props: Props) {
+export function CalendarChart(props: Props) {
   const {
     issuesFilterStore,
     issues,
@@ -254,4 +253,4 @@ export const CalendarChart = observer(function CalendarChart(props: Props) {
       </div>
     </>
   );
-});
+}

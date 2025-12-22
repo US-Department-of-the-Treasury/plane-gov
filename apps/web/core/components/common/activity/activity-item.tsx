@@ -1,6 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
-
 import type { TProjectActivity } from "@/plane-web/types";
 import { ActivityBlockComponent } from "./activity-block";
 import { iconsMap, messages } from "./helper";
@@ -9,10 +7,11 @@ type TActivityItem = {
   activity: TProjectActivity;
   showProject?: boolean;
   ends?: "top" | "bottom" | undefined;
+  workspaceSlug: string;
 };
 
-export const ActivityItem = observer(function ActivityItem(props: TActivityItem) {
-  const { activity, showProject = true, ends } = props;
+export function ActivityItem(props: TActivityItem) {
+  const { activity, showProject = true, ends, workspaceSlug } = props;
 
   if (!activity) return null;
 
@@ -23,8 +22,8 @@ export const ActivityItem = observer(function ActivityItem(props: TActivityItem)
   const icon = iconsMap[activityType] || iconsMap.default;
 
   return (
-    <ActivityBlockComponent icon={icon} activity={activity} ends={ends} customUserName={customUserName}>
+    <ActivityBlockComponent icon={icon} activity={activity} ends={ends} customUserName={customUserName} workspaceSlug={workspaceSlug}>
       <>{message}</>
     </ActivityBlockComponent>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { ArchiveIcon, SprintIcon, EpicIcon, WorkItemsIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
@@ -43,7 +42,7 @@ const PROJECT_ARCHIVES_BREADCRUMB_LIST: {
   },
 };
 
-export const ProjectArchivesHeader = observer(function ProjectArchivesHeader(props: TProps) {
+export function ProjectArchivesHeader(props: TProps) {
   const { activeTab } = props;
   // router
   const router = useAppRouter();
@@ -103,4 +102,4 @@ export const ProjectArchivesHeader = observer(function ProjectArchivesHeader(pro
       </Header.LeftItem>
     </Header>
   );
-});
+}

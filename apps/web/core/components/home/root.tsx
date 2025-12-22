@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane imports
@@ -16,7 +15,7 @@ import { TourRoot } from "@/plane-web/components/onboarding/tour/root";
 import { DashboardWidgets } from "./home-dashboard-widgets";
 import { UserGreetingsView } from "./user-greetings";
 
-export const WorkspaceHomeView = observer(function WorkspaceHomeView() {
+export function WorkspaceHomeView() {
   // store hooks
   const { workspaceSlug } = useParams();
   const { data: currentUser } = useUser();
@@ -43,7 +42,7 @@ export const WorkspaceHomeView = observer(function WorkspaceHomeView() {
           },
         });
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         console.error(error);
       });
   };
@@ -67,4 +66,4 @@ export const WorkspaceHomeView = observer(function WorkspaceHomeView() {
       </>
     </>
   );
-});
+}

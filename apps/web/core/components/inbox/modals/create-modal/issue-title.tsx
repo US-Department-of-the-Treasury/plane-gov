@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { ETabIndices } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -16,7 +15,7 @@ type TInboxIssueTitle = {
   isTitleLengthMoreThan255Character?: boolean;
 };
 
-export const InboxIssueTitle = observer(function InboxIssueTitle(props: TInboxIssueTitle) {
+export function InboxIssueTitle(props: TInboxIssueTitle) {
   const { data, handleData, isTitleLengthMoreThan255Character } = props;
   // hooks
   const { isMobile } = usePlatformOS();
@@ -41,4 +40,4 @@ export const InboxIssueTitle = observer(function InboxIssueTitle(props: TInboxIs
       )}
     </div>
   );
-});
+}

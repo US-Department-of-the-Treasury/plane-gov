@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { LinkIcon, Trash2 } from "lucide-react";
 // plane imports
@@ -25,7 +24,7 @@ type Props = {
   invitationId: string;
 };
 
-export const WorkspaceInvitationsListItem = observer(function WorkspaceInvitationsListItem(props: Props) {
+export function WorkspaceInvitationsListItem(props: Props) {
   const { invitationId } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -39,7 +38,7 @@ export const WorkspaceInvitationsListItem = observer(function WorkspaceInvitatio
   const { mutate: updateInvitation } = useUpdateWorkspaceInvitation();
   const { mutate: deleteInvitation } = useDeleteWorkspaceInvitation();
   // derived values
-  const invitationDetails = invitations?.find(inv => inv.id === invitationId);
+  const invitationDetails = invitations?.find((inv) => inv.id === invitationId);
   const currentWorkspaceMemberInfo = workspaceInfoBySlug(workspaceSlug.toString());
   const currentWorkspaceRole = currentWorkspaceMemberInfo?.role;
   // is the current logged in user admin
@@ -254,4 +253,4 @@ export const WorkspaceInvitationsListItem = observer(function WorkspaceInvitatio
       </div>
     </>
   );
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // ui
 import { GANTT_TIMELINE_TYPE } from "@plane/types";
 import type { IBlockUpdateData } from "@plane/types";
@@ -18,7 +17,7 @@ type Props = {
   enableReorder: boolean;
 };
 
-export const EpicGanttSidebar = observer(function EpicGanttSidebar(props: Props) {
+export function EpicGanttSidebar(props: Props) {
   const { blockUpdateHandler, blockIds, enableReorder } = props;
 
   const { getBlockById } = useTimeLineChart(GANTT_TIMELINE_TYPE.EPIC);
@@ -55,4 +54,4 @@ export const EpicGanttSidebar = observer(function EpicGanttSidebar(props: Props)
       )}
     </div>
   );
-});
+}

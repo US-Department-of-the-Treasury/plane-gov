@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { PROJECT_SETTINGS_TRACKER_ELEMENTS, PROJECT_SETTINGS_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -16,7 +15,7 @@ type TEstimateDisableSwitch = {
   isAdmin: boolean;
 };
 
-export const EstimateDisableSwitch = observer(function EstimateDisableSwitch(props: TEstimateDisableSwitch) {
+export function EstimateDisableSwitch(props: TEstimateDisableSwitch) {
   const { workspaceSlug, projectId, isAdmin } = props;
   // i18n
   const { t } = useTranslation();
@@ -31,8 +30,12 @@ export const EstimateDisableSwitch = observer(function EstimateDisableSwitch(pro
     if (!workspaceSlug || !projectId) return;
 
     try {
-      await updateProject(workspaceSlug, projectId, {
-        estimate: currentProjectActiveEstimate ? null : currentActiveEstimateId,
+      await updateProject({
+        workspaceSlug,
+        projectId,
+        data: {
+          estimate: currentProjectActiveEstimate ? null : currentActiveEstimateId,
+        },
       });
       captureElementAndEvent({
         element: {
@@ -78,4 +81,4 @@ export const EstimateDisableSwitch = observer(function EstimateDisableSwitch(pro
       size="sm"
     />
   );
-});
+}

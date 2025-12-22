@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "react-router";
 // components
 import { AppSidebarToggleButton } from "@/components/sidebar/sidebar-toggle-button";
@@ -7,7 +6,7 @@ import { AppSidebarToggleButton } from "@/components/sidebar/sidebar-toggle-butt
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useProjectNavigationPreferences } from "@/hooks/use-navigation-preferences";
 
-export const ExtendedAppHeader = observer(function ExtendedAppHeader(props: { header: ReactNode }) {
+export function ExtendedAppHeader(props: { header: ReactNode }) {
   const { header } = props;
   // params
   const { projectId, workItem } = useParams();
@@ -24,4 +23,4 @@ export const ExtendedAppHeader = observer(function ExtendedAppHeader(props: { he
       <div className="w-full">{header}</div>
     </>
   );
-});
+}

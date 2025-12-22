@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import {
   StatePropertyIcon,
   MembersPropertyIcon,
@@ -33,7 +32,7 @@ type Props = {
   isIntakeAccepted: boolean;
 };
 
-export const InboxIssueContentProperties = observer(function InboxIssueContentProperties(props: Props) {
+export function InboxIssueContentProperties(props: Props) {
   const { workspaceSlug, projectId, issue, issueOperations, isEditable, duplicateIssueDetails, isIntakeAccepted } =
     props;
 
@@ -206,4 +205,4 @@ export const InboxIssueContentProperties = observer(function InboxIssueContentPr
       </div>
     </div>
   );
-});
+}

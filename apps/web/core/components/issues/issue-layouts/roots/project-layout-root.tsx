@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane constants
@@ -36,7 +35,7 @@ function ProjectIssueLayout(props: { activeLayout: EIssueLayoutTypes | undefined
   }
 }
 
-export const ProjectLayoutRoot = observer(function ProjectLayoutRoot() {
+export function ProjectLayoutRoot() {
   // router
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
   const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
@@ -96,4 +95,4 @@ export const ProjectLayoutRoot = observer(function ProjectLayoutRoot() {
       </ProjectLevelWorkItemFiltersHOC>
     </IssuesStoreContext.Provider>
   );
-});
+}

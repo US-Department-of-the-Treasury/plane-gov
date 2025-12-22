@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { AlertOctagon, BarChart4, CircleDashed, Folder, Microscope, Search } from "lucide-react";
 // plane imports
 import { MARKETING_PRICING_PAGE_LINK } from "@plane/constants";
@@ -61,7 +60,7 @@ export const WORKSPACE_ACTIVE_SPRINTS_DETAILS = [
   },
 ];
 
-export const WorkspaceActiveSprintsUpgrade = observer(function WorkspaceActiveSprintsUpgrade() {
+export function WorkspaceActiveSprintsUpgrade() {
   const { t } = useTranslation();
   // store hooks
   const {
@@ -124,4 +123,4 @@ export const WorkspaceActiveSprintsUpgrade = observer(function WorkspaceActiveSp
       </div>
     </ContentWrapper>
   );
-});
+}

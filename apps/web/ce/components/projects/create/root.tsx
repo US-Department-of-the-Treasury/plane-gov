@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { PROJECT_TRACKER_EVENTS, RANDOM_EMOJI_CODES } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -32,7 +31,7 @@ export type TCreateProjectFormProps = {
   updateCoverImageStatus: (projectId: string, coverImage: string) => Promise<void>;
 };
 
-export const CreateProjectForm = observer(function CreateProjectForm(props: TCreateProjectFormProps) {
+export function CreateProjectForm(props: TCreateProjectFormProps) {
   const { setToFavorite, workspaceSlug, data, onClose, handleNextStep, updateCoverImageStatus } = props;
   // store
   const { t } = useTranslation();
@@ -202,4 +201,4 @@ export const CreateProjectForm = observer(function CreateProjectForm(props: TCre
       </form>
     </FormProvider>
   );
-});
+}

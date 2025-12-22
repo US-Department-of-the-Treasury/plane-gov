@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { observer } from "mobx-react";
 import { useDropzone } from "react-dropzone";
 // plane web hooks
 import { useFileSize } from "@/plane-web/hooks/use-file-size";
@@ -14,7 +13,7 @@ type Props = {
   attachmentOperations: TAttachmentOperationsModal;
 };
 
-export const IssueAttachmentUpload = observer(function IssueAttachmentUpload(props: Props) {
+export function IssueAttachmentUpload(props: Props) {
   const { workspaceSlug, disabled = false, attachmentOperations } = props;
   // states
   const [isLoading, setIsLoading] = useState(false);
@@ -63,4 +62,4 @@ export const IssueAttachmentUpload = observer(function IssueAttachmentUpload(pro
       </span>
     </div>
   );
-});
+}

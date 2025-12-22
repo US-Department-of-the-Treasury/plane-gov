@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { createPortal } from "react-dom";
 // plane imports
 // components
@@ -48,7 +47,7 @@ const timelineViewHelpers = {
   quarter: quarterView,
 };
 
-export const ChartViewRoot = observer(function ChartViewRoot(props: ChartViewRootProps) {
+export function ChartViewRoot(props: ChartViewRootProps) {
   const {
     border,
     title,
@@ -216,4 +215,4 @@ export const ChartViewRoot = observer(function ChartViewRoot(props: ChartViewRoo
   );
 
   return fullScreenMode && portalContainer ? createPortal(content, portalContainer) : content;
-});
+}

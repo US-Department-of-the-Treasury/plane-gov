@@ -1,5 +1,4 @@
 import { range } from "lodash-es";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import { EUserPermissionsLevel } from "@plane/constants";
@@ -12,7 +11,7 @@ import { getProjectSettingsPageLabelI18nKey } from "@/plane-web/helpers/project-
 // store queries
 import { useProjects, getProjectById } from "@/store/queries/project";
 
-export const NavItemChildren = observer(function NavItemChildren(props: { projectId: string }) {
+export function NavItemChildren(props: { projectId: string }) {
   const { projectId } = props;
   const { workspaceSlug } = useParams();
   const pathname = usePathname();
@@ -21,7 +20,7 @@ export const NavItemChildren = observer(function NavItemChildren(props: { projec
   const { toggleSidebar } = useUserSettings();
   const { t } = useTranslation();
   // store queries
-  const { data: projects } = useProjects(workspaceSlug as string);
+  const { data: projects } = useProjects(workspaceSlug);
 
   // derived values
   const currentProject = getProjectById(projects, projectId);
@@ -78,4 +77,4 @@ export const NavItemChildren = observer(function NavItemChildren(props: { projec
       </div>
     </div>
   );
-});
+}

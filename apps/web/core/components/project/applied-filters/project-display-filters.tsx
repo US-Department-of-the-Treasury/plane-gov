@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // icons
 // types
 import { PROJECT_DISPLAY_FILTER_OPTIONS } from "@plane/constants";
@@ -13,7 +12,7 @@ type Props = {
   editable: boolean | undefined;
 };
 
-export const AppliedProjectDisplayFilters = observer(function AppliedProjectDisplayFilters(props: Props) {
+export function AppliedProjectDisplayFilters(props: Props) {
   const { handleRemove, values, editable } = props;
   const { t } = useTranslation();
 
@@ -38,4 +37,4 @@ export const AppliedProjectDisplayFilters = observer(function AppliedProjectDisp
       })}
     </>
   );
-});
+}

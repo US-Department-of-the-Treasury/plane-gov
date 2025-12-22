@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 // plane imports
 import type { TDescriptionVersionDetails, TDescriptionVersionsListResponse } from "@plane/types";
@@ -27,7 +26,7 @@ type Props = {
   workspaceSlug: string;
 };
 
-export const DescriptionVersionsRoot = observer(function DescriptionVersionsRoot(props: Props) {
+export function DescriptionVersionsRoot(props: Props) {
   const { className, entityInformation, fetchHandlers, handleRestore, projectId, workspaceSlug } = props;
   // states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -93,8 +92,9 @@ export const DescriptionVersionsRoot = observer(function DescriptionVersionsRoot
             setActiveVersionId(versionId);
           }}
           versions={versions}
+          workspaceSlug={workspaceSlug}
         />
       </div>
     </>
   );
-});
+}

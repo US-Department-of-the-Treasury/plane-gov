@@ -1,7 +1,6 @@
 import type { FC } from "react";
 import { useMemo } from "react";
 import { isEmpty } from "lodash-es";
-import { observer } from "mobx-react";
 import { SlidersHorizontal } from "lucide-react";
 // plane imports
 import type { IIssueDisplayFilterOptions, ILayoutDisplayFiltersOptions, IIssueDisplayProperties } from "@plane/types";
@@ -23,7 +22,7 @@ type TSubIssueDisplayFiltersProps = {
   isEpic?: boolean;
 };
 
-export const SubIssueDisplayFilters = observer(function SubIssueDisplayFilters(props: TSubIssueDisplayFiltersProps) {
+export function SubIssueDisplayFilters(props: TSubIssueDisplayFiltersProps) {
   const {
     isEpic = false,
     displayProperties,
@@ -99,4 +98,4 @@ export const SubIssueDisplayFilters = observer(function SubIssueDisplayFilters(p
       )}
     </>
   );
-});
+}

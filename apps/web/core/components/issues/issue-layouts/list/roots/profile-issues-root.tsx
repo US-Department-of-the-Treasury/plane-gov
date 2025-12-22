@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 // hooks
@@ -8,7 +7,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { ProjectIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseListRoot } from "../base-list-root";
 
-export const ProfileIssuesListLayout = observer(function ProfileIssuesListLayout() {
+export function ProfileIssuesListLayout() {
   // router
   const { workspaceSlug, profileViewId } = useParams();
   // store
@@ -29,4 +28,4 @@ export const ProfileIssuesListLayout = observer(function ProfileIssuesListLayout
       viewId={profileViewId?.toString()}
     />
   );
-});
+}

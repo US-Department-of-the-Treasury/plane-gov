@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { format } from "date-fns";
 import { useTranslation } from "@plane/i18n";
 // ui
@@ -12,12 +11,12 @@ type ResourceMatrixProps = {
   workspaceSlug: string;
 };
 
-export const ResourceMatrix = observer(function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
+export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
   const { t } = useTranslation();
   const { data: members, isLoading: membersLoading } = useWorkspaceMembers(workspaceSlug);
   const { data: sprints, isLoading: sprintsLoading } = useWorkspaceSprints(workspaceSlug);
 
-  const memberIds = members?.map(m => m.id) || [];
+  const memberIds = members?.map((m) => m.id) || [];
   const sprintIds = getSprintIds(sprints);
   const activeSprint = getActiveSprint(sprints);
   const activeSprintId = activeSprint?.id;
@@ -148,4 +147,4 @@ export const ResourceMatrix = observer(function ResourceMatrix({ workspaceSlug }
       </div>
     </div>
   );
-});
+}

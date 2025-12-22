@@ -1,5 +1,4 @@
 import { useCallback, useEffect } from "react";
-import { observer } from "mobx-react";
 import { useParams, usePathname } from "next/navigation";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -15,7 +14,7 @@ import { useWorkspaceDetails } from "@/store/queries/workspace";
 import { ProjectAppliedFiltersList } from "./applied-filters";
 import { ProjectCardList } from "./card-list";
 
-export const ProjectRoot = observer(function ProjectRoot() {
+export function ProjectRoot() {
   const { workspaceSlug } = useParams();
   const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug?.toString());
   const pathname = usePathname();
@@ -94,4 +93,4 @@ export const ProjectRoot = observer(function ProjectRoot() {
       </div>
     </>
   );
-});
+}

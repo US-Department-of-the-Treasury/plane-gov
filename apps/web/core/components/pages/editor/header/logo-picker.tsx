@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { EmojiPicker, EmojiIconPickerTypes, Logo } from "@plane/propel/emoji-icon-picker";
 import { cn } from "@plane/utils";
@@ -11,7 +10,7 @@ type Props = {
   page: TPageInstance;
 };
 
-export const PageEditorHeaderLogoPicker = observer(function PageEditorHeaderLogoPicker(props: Props) {
+export function PageEditorHeaderLogoPicker(props: Props) {
   const { className, page } = props;
   // states
   const [isLogoPickerOpen, setIsLogoPickerOpen] = useState(false);
@@ -48,4 +47,4 @@ export const PageEditorHeaderLogoPicker = observer(function PageEditorHeaderLogo
       />
     </div>
   );
-});
+}

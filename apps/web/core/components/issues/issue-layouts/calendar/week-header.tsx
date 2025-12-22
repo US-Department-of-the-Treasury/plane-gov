@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { EStartOfTheWeek } from "@plane/types";
 import { getOrderedDays } from "@plane/utils";
 import { DAYS_LIST } from "@/constants/calendar";
@@ -11,7 +10,7 @@ type Props = {
   showWeekends: boolean;
 };
 
-export const CalendarWeekHeader = observer(function CalendarWeekHeader(props: Props) {
+export function CalendarWeekHeader(props: Props) {
   const { isLoading, showWeekends } = props;
   // hooks
   const { data } = useUserProfile();
@@ -41,4 +40,4 @@ export const CalendarWeekHeader = observer(function CalendarWeekHeader(props: Pr
       })}
     </div>
   );
-});
+}

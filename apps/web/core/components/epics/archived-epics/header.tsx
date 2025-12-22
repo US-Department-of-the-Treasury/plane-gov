@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useCallback, useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // icons
 import { ListFilter, Search } from "lucide-react";
@@ -19,7 +18,7 @@ import { EpicFiltersSelection, EpicOrderByDropdown } from "@/components/epics";
 import { useEpicFilter } from "@/hooks/store/use-epic-filter";
 import { useWorkspaceMembers, getWorkspaceUserIds } from "@/store/queries/member";
 
-export const ArchivedEpicsHeader = observer(function ArchivedEpicsHeader() {
+export function ArchivedEpicsHeader() {
   // router
   const { workspaceSlug, projectId } = useParams();
   // refs
@@ -154,4 +153,4 @@ export const ArchivedEpicsHeader = observer(function ArchivedEpicsHeader() {
       </div>
     </div>
   );
-});
+}

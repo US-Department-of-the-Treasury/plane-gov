@@ -135,19 +135,20 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
     const sprintId = id ?? this.sprintId;
 
     if (projectId && sprintId) {
-      this.rootIssueStore.rootStore.sprint.fetchSprintDetails(workspaceSlug, projectId, sprintId);
+      this.rootIssueStore.rootStore.sprint.fetchSprintDetails(workspaceSlug, sprintId);
     }
-    // fetch sprint progress
-    const isSidebarCollapsed = storage.get("sprint_sidebar_collapsed");
-    if (
-      projectId &&
-      sprintId &&
-      this.rootIssueStore.rootStore.sprint.getSprintById(sprintId)?.version === 2 &&
-      isSidebarCollapsed &&
-      JSON.parse(isSidebarCollapsed) === false
-    ) {
-      this.rootIssueStore.rootStore.sprint.fetchActiveSprintProgressPro(workspaceSlug, projectId, sprintId);
-    }
+    // fetch sprint progress - migrated to TanStack Query (useSprintProgress hook)
+    // const isSidebarCollapsed = storage.get("sprint_sidebar_collapsed");
+    // if (
+    //   projectId &&
+    //   sprintId &&
+    //   this.rootIssueStore.rootStore.sprint.getSprintById(sprintId)?.version === 2 &&
+    //   isSidebarCollapsed &&
+    //   JSON.parse(isSidebarCollapsed) === false
+    // ) {
+    //   // Note: Sprint progress is now handled by TanStack Query useSprintProgress hook
+    //   // Components should use the hook directly instead of calling this method
+    // }
   };
 
   updateParentStats = (prevIssueState?: TIssue, nextIssueState?: TIssue, id?: string) => {
@@ -323,7 +324,12 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
    * @param sprintId
    * @returns
    */
-  fetchActiveSprintIssues = async (workspaceSlug: string, projectId: string, perPageCount: number, sprintId: string) => {
+  fetchActiveSprintIssues = async (
+    workspaceSlug: string,
+    projectId: string,
+    perPageCount: number,
+    sprintId: string
+  ) => {
     // set loader
     set(this.activeSprintIds, [sprintId], undefined);
 

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import useSWR from "swr";
 import type { TPageNavigationTabs } from "@plane/types";
 // plane web hooks
@@ -16,7 +15,7 @@ type TPageView = {
   workspaceSlug: string;
 };
 
-export const PagesListView = observer(function PagesListView(props: TPageView) {
+export function PagesListView(props: TPageView) {
   const { children, pageType, projectId, storeType, workspaceSlug } = props;
   // store hooks
   const { isAnyPageAvailable, fetchPagesList } = usePageStore(storeType);
@@ -43,4 +42,4 @@ export const PagesListView = observer(function PagesListView(props: TPageView) {
       </PagesListMainContent>
     </div>
   );
-});
+}

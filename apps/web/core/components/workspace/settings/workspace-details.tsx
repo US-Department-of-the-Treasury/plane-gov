@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { Controller, useForm } from "react-hook-form";
 import { useParams } from "next/navigation";
 import { Pencil } from "lucide-react";
@@ -35,7 +34,7 @@ const defaultValues: Partial<IWorkspace> = {
   timezone: "UTC",
 };
 
-export const WorkspaceDetails = observer(function WorkspaceDetails() {
+export function WorkspaceDetails() {
   // states
   const [isLoading, setIsLoading] = useState(false);
   const [isImageUploadModalOpen, setIsImageUploadModalOpen] = useState(false);
@@ -335,4 +334,4 @@ export const WorkspaceDetails = observer(function WorkspaceDetails() {
       </div>
     </>
   );
-});
+}

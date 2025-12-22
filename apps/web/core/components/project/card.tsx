@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArchiveRestoreIcon, Check, ExternalLink, LinkIcon, Lock, Settings, Trash2, UserPlus } from "lucide-react";
@@ -31,7 +30,7 @@ type Props = {
   project: IProject;
 };
 
-export const ProjectCard = observer(function ProjectCard(props: Props) {
+export function ProjectCard(props: Props) {
   const { project } = props;
   // states
   const [deleteProjectModalOpen, setDeleteProjectModal] = useState(false);
@@ -43,7 +42,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
   const router = useAppRouter();
   const { workspaceSlug } = useParams();
   // store hooks
-  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug as string);
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const { mutate: updateProject } = useUpdateProject();
   const { allowPermissions } = useUserPermissions();
   // hooks
@@ -390,4 +389,4 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
       </Link>
     </>
   );
-});
+}

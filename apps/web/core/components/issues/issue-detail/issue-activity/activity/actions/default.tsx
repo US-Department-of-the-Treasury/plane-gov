@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // plane imports
 import { WorkItemsIcon } from "@plane/propel/icons";
 import { EInboxIssueSource } from "@plane/types";
@@ -10,7 +9,7 @@ import { IssueActivityBlockComponent } from "./";
 
 type TIssueDefaultActivity = { activityId: string; ends: "top" | "bottom" | undefined };
 
-export const IssueDefaultActivity = observer(function IssueDefaultActivity(props: TIssueDefaultActivity) {
+export function IssueDefaultActivity(props: TIssueDefaultActivity) {
   const { activityId, ends } = props;
   // hooks
   const {
@@ -44,4 +43,4 @@ export const IssueDefaultActivity = observer(function IssueDefaultActivity(props
       </>
     </IssueActivityBlockComponent>
   );
-});
+}

@@ -2,7 +2,6 @@ import type { FC } from "react";
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { sortBy } from "lodash-es";
-import { observer } from "mobx-react";
 // plane types
 import type { TInboxIssueFilterMemberKeys } from "@plane/types";
 // plane ui
@@ -23,7 +22,7 @@ type Props = {
   searchQuery: string;
 };
 
-export const FilterMember = observer(function FilterMember(props: Props) {
+export function FilterMember(props: Props) {
   const { filterKey, label = "Members", memberIds, searchQuery } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -55,7 +54,7 @@ export const FilterMember = observer(function FilterMember(props: Props) {
       (memberId) => memberId !== currentUser?.id,
       (memberId) => membersMap.get(memberId)?.member?.display_name?.toLowerCase() || "",
     ]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [searchQuery, membersMap, memberIds, filterValue, currentUser?.id]);
 
   const handleViewToggle = () => {
@@ -126,4 +125,4 @@ export const FilterMember = observer(function FilterMember(props: Props) {
       )}
     </>
   );
-});
+}

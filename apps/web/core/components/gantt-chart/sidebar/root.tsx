@@ -1,5 +1,4 @@
 import type { RefObject } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 // components
 import type { IBlockUpdateData } from "@plane/types";
@@ -27,7 +26,7 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const GanttChartSidebar = observer(function GanttChartSidebar(props: Props) {
+export function GanttChartSidebar(props: Props) {
   const { t } = useTranslation();
   const {
     blockIds,
@@ -100,4 +99,4 @@ export const GanttChartSidebar = observer(function GanttChartSidebar(props: Prop
       </Row>
     </Row>
   );
-});
+}

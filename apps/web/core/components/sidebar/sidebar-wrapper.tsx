@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { observer } from "mobx-react";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
 import { PreferencesIcon } from "@plane/propel/icons";
@@ -20,7 +19,7 @@ type TSidebarWrapperProps = {
   quickActions?: React.ReactNode;
 };
 
-export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWrapperProps) {
+export function SidebarWrapper(props: TSidebarWrapperProps) {
   const { title, children, quickActions } = props;
   // state
   const [isCustomizeNavDialogOpen, setIsCustomizeNavDialogOpen] = useState(false);
@@ -87,4 +86,4 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
       </div>
     </>
   );
-});
+}

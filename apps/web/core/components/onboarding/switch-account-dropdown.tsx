@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { Menu, Transition } from "@headlessui/react";
 // ui
 import { cn, getFileURL } from "@plane/utils";
@@ -14,7 +13,7 @@ type TSwitchAccountDropdownProps = {
   fullName?: string;
 };
 
-export const SwitchAccountDropdown = observer(function SwitchAccountDropdown(props: TSwitchAccountDropdownProps) {
+export function SwitchAccountDropdown(props: TSwitchAccountDropdownProps) {
   const { fullName } = props;
   // states
   const [showSwitchAccountModal, setShowSwitchAccountModal] = useState(false);
@@ -73,4 +72,4 @@ export const SwitchAccountDropdown = observer(function SwitchAccountDropdown(pro
       </Menu>
     </>
   );
-});
+}

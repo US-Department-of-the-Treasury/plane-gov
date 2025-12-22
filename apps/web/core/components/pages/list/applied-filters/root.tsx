@@ -13,13 +13,14 @@ type Props = {
   handleClearAllFilters: () => void;
   handleRemoveFilter: (key: keyof TPageFilterProps, value: string | null) => void;
   alwaysAllowEditing?: boolean;
+  workspaceSlug: string;
 };
 
 const MEMBERS_FILTERS = ["created_by"];
 const DATE_FILTERS = ["created_at"];
 
 export function PageAppliedFiltersList(props: Props) {
-  const { appliedFilters, handleClearAllFilters, handleRemoveFilter, alwaysAllowEditing } = props;
+  const { appliedFilters, handleClearAllFilters, handleRemoveFilter, alwaysAllowEditing, workspaceSlug } = props;
   const { t } = useTranslation();
 
   if (!appliedFilters) return null;
@@ -51,6 +52,7 @@ export function PageAppliedFiltersList(props: Props) {
                   editable={isEditingAllowed}
                   handleRemove={(val) => handleRemoveFilter(filterKey, val)}
                   values={Array.isArray(value) ? value : []}
+                  workspaceSlug={workspaceSlug}
                 />
               )}
               {isEditingAllowed && (

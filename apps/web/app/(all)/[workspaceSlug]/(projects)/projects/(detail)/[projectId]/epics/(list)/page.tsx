@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
+
 import { useTheme } from "next-themes";
 // plane imports
 import { EUserPermissionsLevel } from "@plane/constants";
@@ -98,4 +98,4 @@ function ProjectEpicsPage({ params }: Route.ComponentProps) {
   );
 }
 
-export default observer(ProjectEpicsPage);
+export default ProjectEpicsPage;

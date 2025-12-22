@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { observer } from "mobx-react";
 import { stringToEmoji } from "@plane/propel/emoji-icon-picker";
 import { EmojiReactionGroup, EmojiReactionPicker } from "@plane/propel/emoji-reaction";
 import type { EmojiReactionType } from "@plane/propel/emoji-reaction";
@@ -17,7 +16,7 @@ export type TIssueCommentReaction = {
   disabled?: boolean;
 };
 
-export const IssueCommentReaction = observer(function IssueCommentReaction(props: TIssueCommentReaction) {
+export function IssueCommentReaction(props: TIssueCommentReaction) {
   const { workspaceSlug, projectId, commentId, currentUser, disabled = false } = props;
   // state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
@@ -81,7 +80,8 @@ export const IssueCommentReaction = observer(function IssueCommentReaction(props
       .map((reactionId) => {
         const reactionDetails = getCommentReactionById(reactionId);
         return reactionDetails
-          ? getWorkspaceMemberByUserId(workspaceMembers, reactionDetails?.actor)?.member?.display_name || reactionDetails?.display_name
+          ? getWorkspaceMemberByUserId(workspaceMembers, reactionDetails?.actor)?.member?.display_name ||
+              reactionDetails?.display_name
           : null;
       })
       .filter((displayName): displayName is string => !!displayName);
@@ -134,4 +134,4 @@ export const IssueCommentReaction = observer(function IssueCommentReaction(props
       />
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 // components
-import { observer } from "mobx-react";
 import { useParams, usePathname } from "next/navigation";
 import { cn } from "@plane/utils";
 import { TopNavPowerK } from "@/components/navigation";
@@ -15,7 +14,7 @@ import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 // local imports
 import { StarUsOnGitHubLink } from "@/app/(all)/[workspaceSlug]/(projects)/star-us-link";
 
-export const TopNavigationRoot = observer(function TopNavigationRoot() {
+export function TopNavigationRoot() {
   // router
   const { workspaceSlug } = useParams();
   const pathname = usePathname();
@@ -79,4 +78,4 @@ export const TopNavigationRoot = observer(function TopNavigationRoot() {
       </div>
     </div>
   );
-});
+}

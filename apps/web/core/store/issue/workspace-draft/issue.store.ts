@@ -87,12 +87,7 @@ export interface IWorkspaceDraftIssues {
   ) => Promise<void>;
   removeIssueFromSprint: (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => Promise<void>;
 
-  removeIssuesFromEpic: (
-    workspaceSlug: string,
-    projectId: string,
-    epicId: string,
-    issueIds: string[]
-  ) => Promise<void>;
+  removeIssuesFromEpic: (workspaceSlug: string, projectId: string, epicId: string, issueIds: string[]) => Promise<void>;
   changeEpicsInIssue(
     workspaceSlug: string,
     projectId: string,

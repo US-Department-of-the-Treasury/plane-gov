@@ -44,8 +44,7 @@ export function ReadonlyEpic(props: TReadonlyEpicProps) {
   }
 
   if (multiple) {
-    const displayText =
-      showCount && epics.length > 1 ? `${epics[0]?.name} +${epics.length - 1}` : epics[0]?.name;
+    const displayText = showCount && epics.length > 1 ? `${epics[0]?.name} +${epics.length - 1}` : epics[0]?.name;
 
     return (
       <div className={cn("flex items-center gap-1 text-body-xs-regular", className)}>

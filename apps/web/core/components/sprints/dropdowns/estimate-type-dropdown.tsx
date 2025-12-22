@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import type { TSprintEstimateType } from "@plane/types";
 import { EEstimateSystem } from "@plane/types";
 import { CustomSelect } from "@plane/ui";
@@ -17,7 +16,7 @@ type TProps = {
   workspaceSlug?: string;
 };
 
-export const EstimateTypeDropdown = observer(function EstimateTypeDropdown(props: TProps) {
+export function EstimateTypeDropdown(props: TProps) {
   const { value, onChange, projectId, sprintId, showDefault = false, workspaceSlug = "" } = props;
   const { data: sprintData } = useSprintDetails(workspaceSlug, projectId, sprintId);
   const isPointsDataAvailable = !!(sprintData?.estimate_distribution || sprintData?.total_estimate_points);
@@ -43,4 +42,4 @@ export const EstimateTypeDropdown = observer(function EstimateTypeDropdown(props
   ) : showDefault ? (
     <span className="capitalize">{sprintEstimateOptions.find((v) => v.value === value)?.label ?? value}</span>
   ) : null;
-});
+}

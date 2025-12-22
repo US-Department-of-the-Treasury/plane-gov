@@ -107,9 +107,9 @@ export function SprintListItemAction(props: Props) {
   // handlers
   const handleAddToFavorites = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (!workspaceSlug || !projectId) return;
+    if (!workspaceSlug) return;
 
-    const addToFavoritePromise = addSprintToFavorites(workspaceSlug?.toString(), projectId.toString(), sprintId)
+    const addToFavoritePromise = addSprintToFavorites(workspaceSlug?.toString(), sprintId)
       .then(() => {
         if (!isFavoriteMenuOpen) toggleFavoriteMenu(true);
         captureSuccess({
@@ -119,7 +119,7 @@ export function SprintListItemAction(props: Props) {
           },
         });
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         captureError({
           eventName: SPRINT_TRACKER_EVENTS.favorite,
           payload: {
@@ -144,9 +144,9 @@ export function SprintListItemAction(props: Props) {
 
   const handleRemoveFromFavorites = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (!workspaceSlug || !projectId) return;
+    if (!workspaceSlug) return;
 
-    const removeFromFavoritePromise = removeSprintFromFavorites(workspaceSlug?.toString(), projectId.toString(), sprintId)
+    const removeFromFavoritePromise = removeSprintFromFavorites(workspaceSlug?.toString(), sprintId)
       .then(() => {
         captureSuccess({
           eventName: SPRINT_TRACKER_EVENTS.unfavorite,
@@ -155,7 +155,7 @@ export function SprintListItemAction(props: Props) {
           },
         });
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         captureError({
           eventName: SPRINT_TRACKER_EVENTS.unfavorite,
           payload: {

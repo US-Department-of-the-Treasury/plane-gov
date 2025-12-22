@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { observer } from "mobx-react";
 import type { UseFormGetValues, UseFormSetValue } from "react-hook-form";
 // plane imports
 import { useTranslation } from "@plane/i18n";
@@ -13,7 +12,7 @@ type Props = {
   setValue: UseFormSetValue<IUserTheme>;
 };
 
-export const CustomThemeConfigHandler = observer(function CustomThemeConfigHandler(props: Props) {
+export function CustomThemeConfigHandler(props: Props) {
   const { getValues, handleUpdateTheme, setValue } = props;
   // refs
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -132,4 +131,4 @@ export const CustomThemeConfigHandler = observer(function CustomThemeConfigHandl
       </Button>
     </div>
   );
-});
+}

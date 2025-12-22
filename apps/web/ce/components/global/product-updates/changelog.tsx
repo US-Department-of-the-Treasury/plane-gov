@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { observer } from "mobx-react";
 // hooks
 import { Loader } from "@plane/ui";
 import { ProductUpdatesFallback } from "@/components/global/product-updates/fallback";
 import { useInstance } from "@/hooks/store/use-instance";
 
-export const ProductUpdatesChangelog = observer(function ProductUpdatesChangelog() {
+export function ProductUpdatesChangelog() {
   // refs
   const isLoadingRef = useRef(true);
   // states
@@ -80,4 +79,4 @@ export const ProductUpdatesChangelog = observer(function ProductUpdatesChangelog
       />
     </div>
   );
-});
+}

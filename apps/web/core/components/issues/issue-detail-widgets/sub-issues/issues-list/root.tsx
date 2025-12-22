@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { ListFilter } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
@@ -30,7 +29,7 @@ type Props = {
   storeType: EIssuesStoreType;
 };
 
-export const SubIssuesListRoot = observer(function SubIssuesListRoot(props: Props) {
+export function SubIssuesListRoot(props: Props) {
   const {
     workspaceSlug,
     projectId,
@@ -52,7 +51,13 @@ export const SubIssuesListRoot = observer(function SubIssuesListRoot(props: Prop
   } = useIssueDetail(issueServiceType);
   // queries
   const { data: subIssuesData } = useSubIssues(workspaceSlug, projectId, parentIssueId);
-  const subIssueIds = useMemo(() => subIssuesData?.sub_issues?.map((issue) => issue.id) ?? [], [subIssuesData]);
+  const subIssueIds = useMemo(() => {
+    const subIssues = subIssuesData?.sub_issues;
+    if (Array.isArray(subIssues)) {
+      return subIssues.map((issue) => issue.id);
+    }
+    return [];
+  }, [subIssuesData]);
 
   // derived values
   const filters = getSubIssueFilters(rootIssueId);
@@ -124,4 +129,4 @@ export const SubIssuesListRoot = observer(function SubIssuesListRoot(props: Prop
       )}
     </div>
   );
-});
+}

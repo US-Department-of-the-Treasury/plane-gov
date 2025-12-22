@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // assets
 import { cn } from "@plane/utils";
 import ProjectNotAuthorizedImg from "@/app/assets/auth/project-not-authorized.svg?url";
@@ -15,7 +14,7 @@ type Props = {
   className?: string;
 };
 
-export const NotAuthorizedView = observer(function NotAuthorizedView(props: Props) {
+export function NotAuthorizedView(props: Props) {
   const { actionButton, section = "general", isProjectView = false, className } = props;
 
   // assets
@@ -33,4 +32,4 @@ export const NotAuthorizedView = observer(function NotAuthorizedView(props: Prop
       </div>
     </DefaultLayout>
   );
-});
+}

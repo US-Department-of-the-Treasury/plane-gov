@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 // icons
@@ -33,7 +32,7 @@ type TProfileSidebar = {
   className?: string;
 };
 
-export const ProfileSidebar = observer(function ProfileSidebar(props: TProfileSidebar) {
+export function ProfileSidebar(props: TProfileSidebar) {
   const { userProjectsData, className = "" } = props;
   // refs
   const ref = useRef<HTMLDivElement>(null);
@@ -288,4 +287,4 @@ export const ProfileSidebar = observer(function ProfileSidebar(props: TProfileSi
       )}
     </div>
   );
-});
+}

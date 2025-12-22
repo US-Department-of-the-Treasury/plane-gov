@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import type { IBaseLayoutsListItem, IBaseLayoutsListGroupProps } from "@plane/types";
 import { cn } from "@plane/ui";
@@ -6,7 +5,7 @@ import { useGroupDropTarget } from "../hooks/use-group-drop-target";
 import { GroupHeader } from "./group-header";
 import { BaseListItem } from "./item";
 
-export const BaseListGroup = observer(function BaseListGroup<T extends IBaseLayoutsListItem>(
+export function BaseListGroup<T extends IBaseLayoutsListItem>(
   props: IBaseLayoutsListGroupProps<T>
 ) {
   const {
@@ -84,4 +83,4 @@ export const BaseListGroup = observer(function BaseListGroup<T extends IBaseLayo
       )}
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 import { Globe2, Link, Lock, Pencil, Trash2, MoreHorizontal } from "lucide-react";
 // plane imports
 import { EIssueCommentAccessSpecifier } from "@plane/constants";
@@ -20,7 +19,7 @@ type TCommentCard = {
   showCopyLinkOption: boolean;
 };
 
-export const CommentQuickActions = observer(function CommentQuickActions(props: TCommentCard) {
+export function CommentQuickActions(props: TCommentCard) {
   const { activityOperations, comment, setEditMode, showAccessSpecifier, showCopyLinkOption } = props;
   // store hooks
   const { data: currentUser } = useUser();
@@ -112,4 +111,4 @@ export const CommentQuickActions = observer(function CommentQuickActions(props: 
       })}
     </CustomMenu>
   );
-});
+}

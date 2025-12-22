@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { Earth, Lock } from "lucide-react";
 // plane imports
@@ -12,9 +11,9 @@ import { EViewAccess } from "@plane/types";
 import { FavoriteStar } from "@plane/ui";
 import { getPublishViewLink } from "@plane/utils";
 // hooks
-import { useProjectView } from "@/hooks/store/use-project-view";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
+import { useAddViewToFavorites, useRemoveViewFromFavorites } from "@/store/queries/view";
 // plane web imports
 import { PublishViewModal } from "@/plane-web/components/views/publish";
 // local imports
@@ -28,7 +27,7 @@ type Props = {
   view: IProjectView;
 };
 
-export const ViewListItemAction = observer(function ViewListItemAction(props: Props) {
+export function ViewListItemAction(props: Props) {
   const { parentRef, view } = props;
   // states
   const [createUpdateViewModal, setCreateUpdateViewModal] = useState(false);
@@ -38,9 +37,10 @@ export const ViewListItemAction = observer(function ViewListItemAction(props: Pr
   const { workspaceSlug, projectId } = useParams();
   // store
   const { allowPermissions } = useUserPermissions();
-  const { addViewToFavorites, removeViewFromFavorites } = useProjectView();
   // query hooks
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
+  const { mutate: addToFavorites } = useAddViewToFavorites();
+  const { mutate: removeFromFavorites } = useRemoveViewFromFavorites();
 
   // local storage
   const { setValue: toggleFavoriteMenu, storedValue: isFavoriteOpen } = useLocalStorage<boolean>(
@@ -59,17 +59,25 @@ export const ViewListItemAction = observer(function ViewListItemAction(props: Pr
   const publishLink = getPublishViewLink(view?.anchor);
 
   // handlers
-  const handleAddToFavorites = async () => {
+  const handleAddToFavorites = () => {
     if (!workspaceSlug || !projectId) return;
 
-    await addViewToFavorites(workspaceSlug.toString(), projectId.toString(), view.id);
+    addToFavorites({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      viewId: view.id,
+    });
     if (!isFavoriteOpen) toggleFavoriteMenu(true);
   };
 
   const handleRemoveFromFavorites = () => {
     if (!workspaceSlug || !projectId) return;
 
-    removeViewFromFavorites(workspaceSlug.toString(), projectId.toString(), view.id);
+    removeFromFavorites({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      viewId: view.id,
+    });
   };
 
   const ownedByDetails = view.owned_by ? getWorkspaceMemberByUserId(workspaceMembers, view.owned_by) : undefined;
@@ -131,4 +139,4 @@ export const ViewListItemAction = observer(function ViewListItemAction(props: Pr
       )}
     </>
   );
-});
+}

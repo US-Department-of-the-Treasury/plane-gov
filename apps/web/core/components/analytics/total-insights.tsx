@@ -1,5 +1,4 @@
 // plane package imports
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import type { IInsightField } from "@plane/constants";
@@ -44,13 +43,7 @@ const getInsightLabel = (
   return `${prefix}${baseTranslation}${suffix}`;
 };
 
-const TotalInsights = observer(function TotalInsights({
-  analyticsType,
-  peekView,
-}: {
-  analyticsType: TAnalyticsTabsBase;
-  peekView?: boolean;
-}) {
+function TotalInsights({ analyticsType, peekView }: { analyticsType: TAnalyticsTabsBase; peekView?: boolean }) {
   const params = useParams();
   const workspaceSlug = params.workspaceSlug.toString();
   const { t } = useTranslation();
@@ -92,6 +85,6 @@ const TotalInsights = observer(function TotalInsights({
       ))}
     </div>
   );
-});
+}
 
 export default TotalInsights;

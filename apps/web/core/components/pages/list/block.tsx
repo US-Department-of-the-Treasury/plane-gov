@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { observer } from "mobx-react";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { PageIcon } from "@plane/propel/icons";
 // plane imports
@@ -18,7 +17,7 @@ type TPageListBlock = {
   storeType: EPageStoreType;
 };
 
-export const PageListBlock = observer(function PageListBlock(props: TPageListBlock) {
+export function PageListBlock(props: TPageListBlock) {
   const { pageId, storeType } = props;
   // refs
   const parentRef = useRef(null);
@@ -51,4 +50,4 @@ export const PageListBlock = observer(function PageListBlock(props: TPageListBlo
       parentRef={parentRef}
     />
   );
-});
+}

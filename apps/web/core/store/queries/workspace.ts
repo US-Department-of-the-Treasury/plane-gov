@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { IWorkspace, IWorkspaceSidebarNavigationItem, IWorkspaceSidebarNavigation } from "@plane/types";
+import type { IWorkspace, IWorkspaceSidebarNavigationItem, IWorkspaceSidebarNavigation, IWorkspaceView } from "@plane/types";
 import { WorkspaceService } from "@/services/workspace.service";
 import { queryKeys } from "./query-keys";
 
@@ -30,10 +30,10 @@ export function useWorkspaces() {
  * @example
  * const { data: workspace, isLoading } = useWorkspaceDetails(workspaceSlug);
  */
-export function useWorkspaceDetails(workspaceSlug: string) {
+export function useWorkspaceDetails(workspaceSlug: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.workspaces.detail(workspaceSlug),
-    queryFn: () => workspaceService.getWorkspace(workspaceSlug),
+    queryKey: queryKeys.workspaces.detail(workspaceSlug ?? ""),
+    queryFn: () => workspaceService.getWorkspace(workspaceSlug!),
     enabled: !!workspaceSlug,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -458,4 +458,207 @@ export function getWorkspaceIds(workspaces: IWorkspace[] | undefined): string[] 
 export function getWorkspaceSlugs(workspaces: IWorkspace[] | undefined): string[] {
   if (!workspaces) return [];
   return workspaces.map((ws) => ws.slug);
+}
+
+// =============================================================================
+// Workspace Views (Global Views)
+// =============================================================================
+
+/**
+ * Hook to fetch all workspace views (global views) for a workspace.
+ * Replaces MobX GlobalViewStore.fetchAllGlobalViews for read operations.
+ *
+ * @example
+ * const { data: globalViews, isLoading } = useWorkspaceViews(workspaceSlug);
+ */
+export function useWorkspaceViews(workspaceSlug: string) {
+  return useQuery({
+    queryKey: queryKeys.workspaceViews.all(workspaceSlug),
+    queryFn: () => workspaceService.getAllViews(workspaceSlug),
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
+  });
+}
+
+/**
+ * Hook to fetch workspace view details by ID.
+ * Replaces MobX GlobalViewStore.fetchGlobalViewDetails for read operations.
+ *
+ * @example
+ * const { data: view, isLoading } = useWorkspaceViewDetails(workspaceSlug, viewId);
+ */
+export function useWorkspaceViewDetails(workspaceSlug: string, viewId: string) {
+  return useQuery({
+    queryKey: queryKeys.workspaceViews.detail(viewId),
+    queryFn: () => workspaceService.getViewDetails(workspaceSlug, viewId),
+    enabled: !!workspaceSlug && !!viewId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
+
+/**
+ * Helper function to get a specific workspace view from the views list by ID.
+ * Replaces MobX GlobalViewStore.getViewDetailsById.
+ *
+ * @example
+ * const views = queryClient.getQueryData(queryKeys.workspaceViews.all(workspaceSlug));
+ * const view = getWorkspaceViewById(views, viewId);
+ */
+export function getWorkspaceViewById(views: IWorkspaceView[] | undefined, viewId: string): IWorkspaceView | undefined {
+  return views?.find((view) => view.id === viewId);
+}
+
+/**
+ * Helper function to filter workspace views by search query.
+ * Replaces MobX GlobalViewStore.getSearchedViews.
+ *
+ * @example
+ * const { data: views } = useWorkspaceViews(workspaceSlug);
+ * const filteredViews = getSearchedWorkspaceViews(views, "my search");
+ */
+export function getSearchedWorkspaceViews(views: IWorkspaceView[] | undefined, searchQuery: string): IWorkspaceView[] {
+  if (!views) return [];
+  const lowerQuery = searchQuery.toLowerCase();
+  return views.filter((view) => view.name?.toLowerCase().includes(lowerQuery));
+}
+
+interface CreateWorkspaceViewParams {
+  workspaceSlug: string;
+  data: Partial<IWorkspaceView>;
+}
+
+/**
+ * Hook to create a new workspace view with optimistic updates.
+ * Replaces MobX GlobalViewStore.createGlobalView for write operations.
+ *
+ * @example
+ * const { mutate: createView, isPending } = useCreateWorkspaceView();
+ * createView({ workspaceSlug, data: { name: "My View" } });
+ */
+export function useCreateWorkspaceView() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, data }: CreateWorkspaceViewParams) =>
+      workspaceService.createView(workspaceSlug, data),
+    onSuccess: (newView, { workspaceSlug }) => {
+      // Update the views list cache
+      queryClient.setQueryData<IWorkspaceView[]>(queryKeys.workspaceViews.all(workspaceSlug), (oldViews) => {
+        if (!oldViews) return [newView];
+        return [...oldViews, newView];
+      });
+    },
+    onSettled: (_data, _error, { workspaceSlug }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.workspaceViews.all(workspaceSlug) });
+    },
+  });
+}
+
+interface UpdateWorkspaceViewParams {
+  workspaceSlug: string;
+  viewId: string;
+  data: Partial<IWorkspaceView>;
+}
+
+/**
+ * Hook to update a workspace view with optimistic updates.
+ * Replaces MobX GlobalViewStore.updateGlobalView for write operations.
+ *
+ * @example
+ * const { mutate: updateView, isPending } = useUpdateWorkspaceView();
+ * updateView({ workspaceSlug, viewId, data: { name: "Updated View" } });
+ */
+export function useUpdateWorkspaceView() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, viewId, data }: UpdateWorkspaceViewParams) =>
+      workspaceService.updateView(workspaceSlug, viewId, data),
+    onMutate: async ({ workspaceSlug, viewId, data }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: queryKeys.workspaceViews.all(workspaceSlug) });
+
+      // Snapshot previous values
+      const previousViews = queryClient.getQueryData<IWorkspaceView[]>(queryKeys.workspaceViews.all(workspaceSlug));
+      const previousView = queryClient.getQueryData<IWorkspaceView>(queryKeys.workspaceViews.detail(viewId));
+
+      // Optimistically update views list
+      if (previousViews) {
+        queryClient.setQueryData<IWorkspaceView[]>(
+          queryKeys.workspaceViews.all(workspaceSlug),
+          previousViews.map((view) => (view.id === viewId ? { ...view, ...data } : view))
+        );
+      }
+
+      // Optimistically update view detail
+      if (previousView) {
+        queryClient.setQueryData<IWorkspaceView>(queryKeys.workspaceViews.detail(viewId), { ...previousView, ...data });
+      }
+
+      return { previousViews, previousView, workspaceSlug, viewId };
+    },
+    onError: (_error, _variables, context) => {
+      // Rollback on error
+      if (context?.previousViews) {
+        queryClient.setQueryData(queryKeys.workspaceViews.all(context.workspaceSlug), context.previousViews);
+      }
+      if (context?.previousView) {
+        queryClient.setQueryData(queryKeys.workspaceViews.detail(context.viewId), context.previousView);
+      }
+    },
+    onSettled: (_data, _error, { workspaceSlug, viewId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.workspaceViews.all(workspaceSlug) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.workspaceViews.detail(viewId) });
+    },
+  });
+}
+
+interface DeleteWorkspaceViewParams {
+  workspaceSlug: string;
+  viewId: string;
+}
+
+/**
+ * Hook to delete a workspace view with optimistic updates.
+ * Replaces MobX GlobalViewStore.deleteGlobalView for write operations.
+ *
+ * @example
+ * const { mutate: deleteView, isPending } = useDeleteWorkspaceView();
+ * deleteView({ workspaceSlug, viewId });
+ */
+export function useDeleteWorkspaceView() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, viewId }: DeleteWorkspaceViewParams) =>
+      workspaceService.deleteView(workspaceSlug, viewId),
+    onMutate: async ({ workspaceSlug, viewId }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: queryKeys.workspaceViews.all(workspaceSlug) });
+
+      // Snapshot previous value
+      const previousViews = queryClient.getQueryData<IWorkspaceView[]>(queryKeys.workspaceViews.all(workspaceSlug));
+
+      // Optimistically remove the view
+      if (previousViews) {
+        queryClient.setQueryData<IWorkspaceView[]>(
+          queryKeys.workspaceViews.all(workspaceSlug),
+          previousViews.filter((view) => view.id !== viewId)
+        );
+      }
+
+      return { previousViews, workspaceSlug };
+    },
+    onError: (_error, _variables, context) => {
+      // Rollback on error
+      if (context?.previousViews) {
+        queryClient.setQueryData(queryKeys.workspaceViews.all(context.workspaceSlug), context.previousViews);
+      }
+    },
+    onSettled: (_data, _error, { workspaceSlug }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.workspaceViews.all(workspaceSlug) });
+    },
+  });
 }

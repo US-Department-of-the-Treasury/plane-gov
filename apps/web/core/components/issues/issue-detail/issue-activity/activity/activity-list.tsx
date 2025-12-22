@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 // helpers
 import { getValidKeysFromObject } from "@plane/utils";
 // hooks
@@ -33,7 +32,7 @@ type TIssueActivityItem = {
   ends: "top" | "bottom" | undefined;
 };
 
-export const IssueActivityItem = observer(function IssueActivityItem(props: TIssueActivityItem) {
+export function IssueActivityItem(props: TIssueActivityItem) {
   const { activityId, ends } = props;
   // hooks
   const {
@@ -91,4 +90,4 @@ export const IssueActivityItem = observer(function IssueActivityItem(props: TIss
     default:
       return <AdditionalActivityRoot {...componentDefaultProps} field={activityField} />;
   }
-});
+}

@@ -1,4 +1,3 @@
-import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 // i18n
 import { EUserPermissions, EUserPermissionsLevel, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
@@ -17,7 +16,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import HeaderFilters from "./filters";
 import { ProjectSearch } from "./search-projects";
 
-export const ProjectsBaseHeader = observer(function ProjectsBaseHeader() {
+export function ProjectsBaseHeader() {
   // i18n
   const { t } = useTranslation();
   // store hooks
@@ -71,4 +70,4 @@ export const ProjectsBaseHeader = observer(function ProjectsBaseHeader() {
       </Header.RightItem>
     </Header>
   );
-});
+}

@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { Header, EHeaderVariant } from "@plane/ui";
 // hooks
@@ -12,7 +11,7 @@ import { InboxIssueAppliedFiltersPriority } from "./priority";
 import { InboxIssueAppliedFiltersState } from "./state";
 import { InboxIssueAppliedFiltersStatus } from "./status";
 
-export const InboxIssueAppliedFilters = observer(function InboxIssueAppliedFilters() {
+export function InboxIssueAppliedFilters() {
   const { getAppliedFiltersCount } = useProjectInbox();
 
   if (getAppliedFiltersCount === 0) return <></>;
@@ -36,4 +35,4 @@ export const InboxIssueAppliedFilters = observer(function InboxIssueAppliedFilte
       <InboxIssueAppliedFiltersDate filterKey="updated_at" label="Updated date" />
     </Header>
   );
-});
+}

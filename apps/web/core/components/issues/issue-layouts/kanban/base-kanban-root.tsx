@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { EIssueFilterType, EUserPermissions, EUserPermissionsLevel, WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
 import type { EIssuesStoreType } from "@plane/types";
@@ -38,7 +37,7 @@ export type KanbanStoreType =
   | EIssuesStoreType.PROFILE
   | EIssuesStoreType.TEAM
   | EIssuesStoreType.TEAM_VIEW
-  | EIssuesStoreType.EPIC;
+   ;
 
 export interface IBaseKanBanLayout {
   QuickActions: FC<IQuickActionProps>;
@@ -49,7 +48,7 @@ export interface IBaseKanBanLayout {
   isEpic?: boolean;
 }
 
-export const BaseKanBanRoot = observer(function BaseKanBanRoot(props: IBaseKanBanLayout) {
+export function BaseKanBanRoot(props: IBaseKanBanLayout) {
   const {
     QuickActions,
     addIssuesToView,
@@ -77,7 +76,7 @@ export const BaseKanBanRoot = observer(function BaseKanBanRoot(props: IBaseKanBa
   const { data: draggedIssueFromQuery } = useIssue(
     workspaceSlug?.toString() ?? "",
     projectId?.toString() ?? draggedIssueFromMobX?.project_id ?? "",
-    draggedIssueId ?? "",
+    draggedIssueId ?? ""
   );
   const {
     fetchIssues,
@@ -309,4 +308,4 @@ export const BaseKanBanRoot = observer(function BaseKanBanRoot(props: IBaseKanBa
       </IssueLayoutHOC>
     </>
   );
-});
+}

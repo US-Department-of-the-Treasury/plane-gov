@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useEffect } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import type { EditorRefApi } from "@plane/editor";
 import { EFileAssetType } from "@plane/types";
@@ -43,9 +42,18 @@ type Props = {
   setIsSubmitting: (value: TNameDescriptionLoader) => void;
 };
 
-export const PeekOverviewIssueDetails = observer(function PeekOverviewIssueDetails(props: Props) {
-  const { editorRef, workspaceSlug, projectId, issueId, issueOperations, disabled, isArchived, isSubmitting, setIsSubmitting } =
-    props;
+export function PeekOverviewIssueDetails(props: Props) {
+  const {
+    editorRef,
+    workspaceSlug,
+    projectId,
+    issueId,
+    issueOperations,
+    disabled,
+    isArchived,
+    isSubmitting,
+    setIsSubmitting,
+  } = props;
   // hooks
   const { data: currentUser } = useUser();
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
@@ -155,7 +163,8 @@ export const PeekOverviewIssueDetails = observer(function PeekOverviewIssueDetai
             className="flex-shrink-0"
             entityInformation={{
               createdAt: issue.created_at ? new Date(issue.created_at) : new Date(),
-              createdByDisplayName: getWorkspaceMemberByUserId(workspaceMembers, issue.created_by ?? "")?.member?.display_name ?? "",
+              createdByDisplayName:
+                getWorkspaceMemberByUserId(workspaceMembers, issue.created_by ?? "")?.member?.display_name ?? "",
               id: issueId,
               isRestoreDisabled: disabled || isArchived,
             }}
@@ -182,4 +191,4 @@ export const PeekOverviewIssueDetails = observer(function PeekOverviewIssueDetai
       </div>
     </div>
   );
-});
+}

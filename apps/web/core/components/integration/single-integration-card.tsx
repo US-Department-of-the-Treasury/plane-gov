@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR, { mutate } from "swr";
 import { CheckCircle } from "lucide-react";
@@ -43,7 +42,7 @@ const integrationDetails: { [key: string]: any } = {
 // services
 const integrationService = new IntegrationService();
 
-export const SingleIntegrationCard = observer(function SingleIntegrationCard({ integration }: Props) {
+export function SingleIntegrationCard({ integration }: Props) {
   // states
   const [deletingIntegration, setDeletingIntegration] = useState(false);
   // router
@@ -173,4 +172,4 @@ export const SingleIntegrationCard = observer(function SingleIntegrationCard({ i
       )}
     </div>
   );
-});
+}

@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useLocalStorage from "@/hooks/use-local-storage";
 import { AppRailVisibilityContext } from "./context";
@@ -14,10 +13,7 @@ interface AppRailVisibilityProviderProps {
  * AppRailVisibilityProvider - manages app rail visibility state
  * Base provider that accepts isEnabled as a prop
  */
-export const AppRailVisibilityProvider = observer(function AppRailVisibilityProvider({
-  children,
-  isEnabled = false,
-}: AppRailVisibilityProviderProps) {
+export function AppRailVisibilityProvider({ children, isEnabled = false }: AppRailVisibilityProviderProps) {
   const { workspaceSlug } = useParams();
 
   // User preference from localStorage
@@ -44,4 +40,4 @@ export const AppRailVisibilityProvider = observer(function AppRailVisibilityProv
   );
 
   return <AppRailVisibilityContext.Provider value={value}>{children}</AppRailVisibilityContext.Provider>;
-});
+}

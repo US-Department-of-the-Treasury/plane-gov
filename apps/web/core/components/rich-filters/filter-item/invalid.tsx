@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { CircleAlert } from "lucide-react";
 // plane imports
 import type { TExternalFilter, TFilterProperty } from "@plane/types";
@@ -9,10 +8,7 @@ import { FilterItemContainer } from "./container";
 import { FilterItemProperty } from "./property";
 import type { IFilterItemProps } from "./root";
 
-export const InvalidFilterItem = observer(function InvalidFilterItem<
-  P extends TFilterProperty,
-  E extends TExternalFilter,
->(props: IFilterItemProps<P, E>) {
+export function InvalidFilterItem<P extends TFilterProperty, E extends TExternalFilter>(props: IFilterItemProps<P, E>) {
   const { condition, filter, isDisabled = false, showTransition = true } = props;
 
   return (
@@ -34,4 +30,4 @@ export const InvalidFilterItem = observer(function InvalidFilterItem<
       {!isDisabled && <FilterItemCloseButton conditionId={condition.id} filter={filter} />}
     </FilterItemContainer>
   );
-});
+}

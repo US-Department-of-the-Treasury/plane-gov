@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // types
 import { WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
@@ -16,7 +15,7 @@ type Props = {
   disabled: boolean;
 };
 
-export const SpreadsheetSprintColumn = observer(function SpreadsheetSprintColumn(props: Props) {
+export function SpreadsheetSprintColumn(props: Props) {
   const { issue, disabled, onClose } = props;
   // router
   const { workspaceSlug } = useParams();
@@ -55,4 +54,4 @@ export const SpreadsheetSprintColumn = observer(function SpreadsheetSprintColumn
       />
     </div>
   );
-});
+}

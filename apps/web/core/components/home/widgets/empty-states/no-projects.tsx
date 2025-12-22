@@ -1,6 +1,5 @@
 import React from "react";
 // mobx
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Check, Hotel } from "lucide-react";
@@ -19,16 +18,16 @@ import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceDetails } from "@/store/queries/workspace";
 // plane web constants
 
-export const NoProjectsEmptyState = observer(function NoProjectsEmptyState() {
+export function NoProjectsEmptyState() {
   // navigation
   const { workspaceSlug } = useParams();
   // store hooks
   const { allowPermissions } = useUserPermissions();
   const { toggleCreateProjectModal } = useCommandPalette();
   const { data: currentUser } = useUser();
-  const { data: projects } = useProjects(workspaceSlug as string);
+  const { data: projects } = useProjects(workspaceSlug);
   const joinedProjectIds = getJoinedProjectIds(projects);
-  const { data: activeWorkspace } = useWorkspaceDetails(workspaceSlug as string);
+  const { data: activeWorkspace } = useWorkspaceDetails(workspaceSlug);
   // local storage
   const { storedValue, setValue } = useLocalStorage(`quickstart-guide-${workspaceSlug}`, {
     hide: false,
@@ -201,4 +200,4 @@ export const NoProjectsEmptyState = observer(function NoProjectsEmptyState() {
       </div>
     </div>
   );
-});
+}

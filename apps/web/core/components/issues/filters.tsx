@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { observer } from "mobx-react";
 import { ChartNoAxesColumn, SlidersHorizontal } from "lucide-react";
 // plane imports
 import { EIssueFilterType, ISSUE_STORE_TO_FILTERS_MAP } from "@plane/constants";
@@ -36,7 +35,7 @@ const LAYOUTS = [
   EIssueLayoutTypes.GANTT,
 ];
 
-export const HeaderFilters = observer(function HeaderFilters(props: Props) {
+export function HeaderFilters(props: Props) {
   const {
     currentProjectDetails,
     projectId,
@@ -131,4 +130,4 @@ export const HeaderFilters = observer(function HeaderFilters(props: Props) {
       )}
     </>
   );
-});
+}

@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import type { SubmitHandler } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
@@ -26,7 +25,7 @@ type TProps = {
   defaultName?: string;
   favoriteId?: string;
 };
-export const NewFavoriteFolder = observer(function NewFavoriteFolder(props: TProps) {
+export function NewFavoriteFolder(props: TProps) {
   const { setCreateNewFolder, actionType, defaultName, favoriteId } = props;
   const { t } = useTranslation();
   const { workspaceSlug } = useParams();
@@ -149,4 +148,4 @@ export const NewFavoriteFolder = observer(function NewFavoriteFolder(props: TPro
       </form>
     </div>
   );
-});
+}

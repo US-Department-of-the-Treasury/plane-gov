@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { observer } from "mobx-react";
 import { useParams, useRouter } from "next/navigation";
 import { MoreHorizontal, ArchiveIcon, Settings } from "lucide-react";
 import { Disclosure } from "@headlessui/react";
@@ -19,9 +18,7 @@ export type SidebarWorkspaceMenuHeaderProps = {
   toggleWorkspaceMenu: (value: boolean) => void;
 };
 
-export const SidebarWorkspaceMenuHeader = observer(function SidebarWorkspaceMenuHeader(
-  props: SidebarWorkspaceMenuHeaderProps
-) {
+export function SidebarWorkspaceMenuHeader(props: SidebarWorkspaceMenuHeaderProps) {
   const { isWorkspaceMenuOpen, toggleWorkspaceMenu } = props;
   // state
   const [isMenuActive, setIsMenuActive] = useState(false);
@@ -101,4 +98,4 @@ export const SidebarWorkspaceMenuHeader = observer(function SidebarWorkspaceMenu
       </Disclosure.Button>
     </div>
   );
-});
+}

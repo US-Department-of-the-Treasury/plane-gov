@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { usePopper } from "react-popper";
 import { Check, Search } from "lucide-react";
@@ -40,7 +39,7 @@ type DropdownOptions =
     }[]
   | undefined;
 
-export const EstimateDropdown = observer(function EstimateDropdown(props: Props) {
+export function EstimateDropdown(props: Props) {
   const {
     button,
     buttonClassName,
@@ -87,17 +86,13 @@ export const EstimateDropdown = observer(function EstimateDropdown(props: Props)
   // router
   const { workspaceSlug } = useParams();
   // store hooks
-  const { currentActiveEstimateIdByProjectId, getProjectEstimates, getEstimateById } = useProjectEstimates();
-  const { estimatePointIds, estimatePointById } = useEstimate(
-    projectId ? currentActiveEstimateIdByProjectId(projectId) : undefined
-  );
-
+  const { currentActiveEstimateIdByProjectId, getEstimateById } = useProjectEstimates();
   const currentActiveEstimateId = projectId ? currentActiveEstimateIdByProjectId(projectId) : undefined;
-
   const currentActiveEstimate = currentActiveEstimateId ? getEstimateById(currentActiveEstimateId) : undefined;
+  const { estimatePointIds, estimatePointById } = useEstimate(currentActiveEstimateId);
 
   const options: DropdownOptions = (estimatePointIds ?? [])
-    ?.map((estimatePoint) => {
+    ?.map((estimatePoint: string) => {
       const currentEstimatePoint = estimatePointById(estimatePoint);
       if (currentEstimatePoint)
         return {
@@ -116,7 +111,7 @@ export const EstimateDropdown = observer(function EstimateDropdown(props: Props)
         };
       else undefined;
     })
-    .filter((estimatePointDropdownOption) => estimatePointDropdownOption != undefined) as DropdownOptions;
+    .filter((estimatePointDropdownOption): estimatePointDropdownOption is NonNullable<typeof estimatePointDropdownOption> => estimatePointDropdownOption != undefined) as DropdownOptions;
   options?.unshift({
     value: null,
     query: t("project_settings.estimates.no_estimate"),
@@ -133,9 +128,8 @@ export const EstimateDropdown = observer(function EstimateDropdown(props: Props)
 
   const selectedEstimate = value && estimatePointById ? estimatePointById(value) : undefined;
 
-  const onOpen = async () => {
-    if (!currentActiveEstimateId && workspaceSlug && projectId)
-      await getProjectEstimates(workspaceSlug.toString(), projectId);
+  const onOpen = () => {
+    // TanStack Query handles fetching automatically
   };
 
   const { handleClose, handleKeyDown, handleOnClick, searchInputKeyDown } = useDropdown({
@@ -291,4 +285,4 @@ export const EstimateDropdown = observer(function EstimateDropdown(props: Props)
       )}
     </ComboDropDown>
   );
-});
+}
