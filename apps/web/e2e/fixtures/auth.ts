@@ -90,9 +90,15 @@ export const test = base.extend<AuthFixtures>({
     await use(page);
   },
 
-  workspaceSlug: TEST_WORKSPACE_SLUG,
+  // eslint-disable-next-line no-empty-pattern
+  workspaceSlug: async ({}, use) => {
+    await use(TEST_WORKSPACE_SLUG);
+  },
 
-  projectId: TEST_PROJECT_ID,
+  // eslint-disable-next-line no-empty-pattern
+  projectId: async ({}, use) => {
+    await use(TEST_PROJECT_ID);
+  },
 });
 
 export { expect } from "@playwright/test";

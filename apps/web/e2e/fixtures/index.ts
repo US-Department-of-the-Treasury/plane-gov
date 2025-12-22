@@ -40,13 +40,20 @@ export const test = base.extend<CombinedFixtures>({
   },
 
   // Workspace slug
-  workspaceSlug: TEST_WORKSPACE_SLUG,
+  // eslint-disable-next-line no-empty-pattern
+  workspaceSlug: async ({}, use) => {
+    await use(TEST_WORKSPACE_SLUG);
+  },
 
   // Project ID
-  projectId: TEST_PROJECT_ID,
+  // eslint-disable-next-line no-empty-pattern
+  projectId: async ({}, use) => {
+    await use(TEST_PROJECT_ID);
+  },
 
   // URL helpers
-  urls: async (_, use) => {
+  // eslint-disable-next-line no-empty-pattern
+  urls: async ({}, use) => {
     await use(urls);
   },
 });

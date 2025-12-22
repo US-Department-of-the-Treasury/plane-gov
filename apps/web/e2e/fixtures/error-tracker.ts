@@ -31,12 +31,19 @@ const DEFAULT_IGNORE_PATTERNS = [
   /Warning: ReactDOM.render is no longer supported/,
   /Warning: Using UNSAFE_/,
   /Warning: Cannot update a component/,
+  /Warning: An error occurred during hydration/,
+  /Warning: Invalid hook call/,
 
   // React Router SPA mode hydration mismatch - expected in SPA mode
   /Minified React error #418/,
   /error #418/,
   /Hydration failed/,
   /There was an error while hydrating/,
+  /server HTML was replaced with client content/,
+
+  // React context errors during hydration (next-themes and similar)
+  /Cannot read properties of null \(reading 'useContext'\)/,
+  /useContext/,
 
   // Source map and DevTools warnings
   /DevTools failed to load source map/,
@@ -68,6 +75,21 @@ const DEFAULT_IGNORE_PATTERNS = [
   // Browser extensions
   /chrome-extension/,
   /moz-extension/,
+
+  // Dev server HMR request failures (expected during hot reload)
+  /net::ERR_ABORTED/,
+  /Request failed:.*\.(ts|tsx|js|jsx)\?/,
+  /Request failed:.*node_modules/,
+  /Request failed:.*\.vite/,
+  /Request failed:.*@fs\//,
+
+  // Vite/React dev mode errors
+  /React will try to recreate this component tree/,
+  /The above error occurred in the/,
+
+  // Vite dynamic import failures (dev server HMR artifacts)
+  /Failed to fetch dynamically imported module/,
+  /Importing a module script failed/,
 ];
 
 export class ErrorTracker {
