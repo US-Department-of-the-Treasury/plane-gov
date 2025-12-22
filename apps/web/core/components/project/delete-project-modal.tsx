@@ -13,8 +13,9 @@ import { Input } from "@plane/ui";
 // constants
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useProject } from "@/hooks/store/use-project";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useDeleteProject } from "@/store/queries/project";
 
 type DeleteProjectModal = {
   isOpen: boolean;
@@ -29,8 +30,8 @@ const defaultValues = {
 
 export function DeleteProjectModal(props: DeleteProjectModal) {
   const { isOpen, project, onClose } = props;
-  // store hooks
-  const { deleteProject } = useProject();
+  // queries
+  const { mutate: deleteProject, isPending } = useDeleteProject();
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId } = useParams();
@@ -57,36 +58,40 @@ export function DeleteProjectModal(props: DeleteProjectModal) {
   const onSubmit = async () => {
     if (!workspaceSlug || !canDelete) return;
 
-    await deleteProject(workspaceSlug.toString(), project.id)
-      .then(() => {
-        if (projectId && projectId.toString() === project.id) router.push(`/${workspaceSlug}/projects`);
+    deleteProject(
+      { workspaceSlug: workspaceSlug.toString(), projectId: project.id },
+      {
+        onSuccess: () => {
+          if (projectId && projectId.toString() === project.id) router.push(`/${workspaceSlug}/projects`);
 
-        handleClose();
-        captureSuccess({
-          eventName: PROJECT_TRACKER_EVENTS.delete,
-          payload: {
-            id: project.id,
-          },
-        });
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Success!",
-          message: "Project deleted successfully.",
-        });
-      })
-      .catch(() => {
-        captureError({
-          eventName: PROJECT_TRACKER_EVENTS.delete,
-          payload: {
-            id: project.id,
-          },
-        });
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: "Something went wrong. Please try again later.",
-        });
-      });
+          handleClose();
+          captureSuccess({
+            eventName: PROJECT_TRACKER_EVENTS.delete,
+            payload: {
+              id: project.id,
+            },
+          });
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: "Project deleted successfully.",
+          });
+        },
+        onError: () => {
+          captureError({
+            eventName: PROJECT_TRACKER_EVENTS.delete,
+            payload: {
+              id: project.id,
+            },
+          });
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: "Something went wrong. Please try again later.",
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -183,8 +188,8 @@ export function DeleteProjectModal(props: DeleteProjectModal) {
                     <Button variant="secondary" size="lg" onClick={handleClose}>
                       Cancel
                     </Button>
-                    <Button variant="error-fill" size="lg" type="submit" disabled={!canDelete} loading={isSubmitting}>
-                      {isSubmitting ? "Deleting" : "Delete project"}
+                    <Button variant="error-fill" size="lg" type="submit" disabled={!canDelete} loading={isPending}>
+                      {isPending ? "Deleting" : "Delete project"}
                     </Button>
                   </div>
                 </form>

@@ -13,7 +13,7 @@ import { EIssuesStoreType, EUserProjectRoles } from "@plane/types";
 import { ExistingIssuesListModal } from "@/components/core/modals/existing-issues-list-modal";
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkItemFilterInstance } from "@/hooks/store/work-item-filters/use-work-item-filter-instance";
@@ -29,13 +29,13 @@ export const SprintEmptyState = observer(function SprintEmptyState() {
   // plane hooks
   const { t } = useTranslation();
   // store hooks
-  const { getSprintById } = useSprint();
+  const { data: sprints } = useProjectSprints(workspaceSlug ?? "", projectId ?? "");
   const { issues } = useIssues(EIssuesStoreType.SPRINT);
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
   // derived values
   const sprintWorkItemFilter = useWorkItemFilterInstance(EIssuesStoreType.SPRINT, sprintId);
-  const sprintDetails = sprintId ? getSprintById(sprintId) : undefined;
+  const sprintDetails = getSprintById(sprints, sprintId);
   const isCompletedSprintSnapshotAvailable = !isEmpty(sprintDetails?.progress_snapshot ?? {});
   const isCompletedAndEmpty = isCompletedSprintSnapshotAvailable || sprintDetails?.status?.toLowerCase() === "completed";
   const canPerformEmptyStateActions = allowPermissions(

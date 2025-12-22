@@ -13,9 +13,9 @@ import { WorkItemsModal } from "@/components/analytics/work-items/modal";
 import { DisplayFiltersSelection, FiltersDropdown } from "@/components/issues/issue-layouts/filters";
 import { IssueLayoutIcon } from "@/components/issues/issue-layouts/layout-icon";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 
 const SUPPORTED_LAYOUTS = [
   { key: "list", titleTranslationKey: "issue.layouts.list", icon: ListLayoutIcon },
@@ -31,14 +31,20 @@ export const SprintIssuesMobileHeader = observer(function SprintIssuesMobileHead
   // plane hooks
   const { t } = useTranslation();
   // store hooks
-  const { currentProjectDetails } = useProject();
-  const { getSprintById } = useSprint();
   const {
     issuesFilter: { issueFilters, updateFilters },
   } = useIssues(EIssuesStoreType.SPRINT);
+
+  // TanStack Query
+  const { data: sprints } = useProjectSprints(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
+  const { data: currentProjectDetails } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+
   // derived values
   const activeLayout = issueFilters?.displayFilters?.layout;
-  const sprintDetails = sprintId ? getSprintById(sprintId.toString()) : undefined;
+  const sprintDetails = sprintId ? getSprintById(sprints, sprintId.toString()) : undefined;
 
   const handleLayoutChange = useCallback(
     (layout: EIssueLayoutTypes) => {

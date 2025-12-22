@@ -16,12 +16,12 @@ import { FiltersDropdown } from "@/components/issues/issue-layouts/filters";
 import { ModuleFiltersSelection, ModuleOrderByDropdown } from "@/components/modules";
 // helpers
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useModuleFilter } from "@/hooks/store/use-module-filter";
+import { useWorkspaceMembers, getWorkspaceUserIds } from "@/store/queries/member";
 
 export const ArchivedModulesHeader = observer(function ArchivedModulesHeader() {
   // router
-  const { projectId } = useParams();
+  const { workspaceSlug, projectId } = useParams();
   // refs
   const inputRef = useRef<HTMLInputElement>(null);
   // hooks
@@ -33,9 +33,9 @@ export const ArchivedModulesHeader = observer(function ArchivedModulesHeader() {
     updateDisplayFilters,
     updateArchivedModulesSearchQuery,
   } = useModuleFilter();
-  const {
-    workspace: { workspaceMemberIds },
-  } = useMember();
+  // query hooks
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
+  const workspaceMemberIds = getWorkspaceUserIds(workspaceMembers);
   // states
   const [isSearchOpen, setIsSearchOpen] = useState(archivedModulesSearchQuery !== "" ? true : false);
   // outside click detector hook

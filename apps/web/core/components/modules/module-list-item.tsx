@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import { observer } from "mobx-react";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 // icons
 import { Check, Info } from "lucide-react";
@@ -11,15 +10,15 @@ import { ListItem } from "@/components/core/list";
 import { ModuleListItemAction, ModuleQuickActions } from "@/components/modules";
 // helpers
 // hooks
-import { useModule } from "@/hooks/store/use-module";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useProjectModules, getModuleById } from "@/store/queries/module";
 
 type Props = {
   moduleId: string;
 };
 
-export const ModuleListItem = observer(function ModuleListItem(props: Props) {
+export function ModuleListItem(props: Props) {
   const { moduleId } = props;
   // refs
   const parentRef = useRef(null);
@@ -28,12 +27,15 @@ export const ModuleListItem = observer(function ModuleListItem(props: Props) {
   const { workspaceSlug, projectId } = useParams();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  // store hooks
-  const { getModuleById } = useModule();
+  // query hooks
+  const { data: modules } = useProjectModules(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   const { isMobile } = usePlatformOS();
 
   // derived values
-  const moduleDetails = getModuleById(moduleId);
+  const moduleDetails = getModuleById(modules, moduleId);
 
   if (!moduleDetails) return null;
 
@@ -106,4 +108,4 @@ export const ModuleListItem = observer(function ModuleListItem(props: Props) {
       parentRef={parentRef}
     />
   );
-});
+}

@@ -1,4 +1,5 @@
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissionsLevel, EUserPermissions, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -10,9 +11,10 @@ import { ProjectsLoader } from "@/components/ui/loader/projects-loader";
 import { captureClick } from "@/helpers/event-tracker.helper";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
 import { useProjectFilter } from "@/hooks/store/use-project-filter";
 import { useUserPermissions } from "@/hooks/store/user";
+// queries
+import { useProjects, getProjectById } from "@/store/queries/project";
 // local imports
 import { ProjectCard } from "./card";
 
@@ -23,23 +25,20 @@ type TProjectCardListProps = {
 
 export const ProjectCardList = observer(function ProjectCardList(props: TProjectCardListProps) {
   const { totalProjectIds: totalProjectIdsProps, filteredProjectIds: filteredProjectIdsProps } = props;
+  // router
+  const { workspaceSlug } = useParams();
   // plane hooks
   const { t } = useTranslation();
   // store hooks
   const { toggleCreateProjectModal } = useCommandPalette();
-  const {
-    loader,
-    fetchStatus,
-    workspaceProjectIds: storeWorkspaceProjectIds,
-    filteredProjectIds: storeFilteredProjectIds,
-    getProjectById,
-  } = useProject();
   const { currentWorkspaceDisplayFilters, currentWorkspaceFilters } = useProjectFilter();
   const { allowPermissions } = useUserPermissions();
+  // queries
+  const { data: projects, isLoading } = useProjects(workspaceSlug?.toString());
 
   // derived values
-  const workspaceProjectIds = totalProjectIdsProps ?? storeWorkspaceProjectIds;
-  const filteredProjectIds = filteredProjectIdsProps ?? storeFilteredProjectIds;
+  const workspaceProjectIds = totalProjectIdsProps ?? projects?.map((p) => p.id);
+  const filteredProjectIds = filteredProjectIdsProps ?? projects?.map((p) => p.id);
 
   // permissions
   const canPerformEmptyStateActions = allowPermissions(
@@ -47,7 +46,7 @@ export const ProjectCardList = observer(function ProjectCardList(props: TProject
     EUserPermissionsLevel.WORKSPACE
   );
 
-  if (!filteredProjectIds || !workspaceProjectIds || loader === "init-loader" || fetchStatus !== "complete")
+  if (!filteredProjectIds || !workspaceProjectIds || isLoading)
     return <ProjectsLoader />;
 
   if (workspaceProjectIds?.length === 0 && !currentWorkspaceDisplayFilters?.archived_projects)
@@ -100,7 +99,7 @@ export const ProjectCardList = observer(function ProjectCardList(props: TProject
     <ContentWrapper>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {filteredProjectIds.map((projectId) => {
-          const projectDetails = getProjectById(projectId);
+          const projectDetails = getProjectById(projects, projectId);
           if (!projectDetails) return;
           return <ProjectCard key={projectDetails.id} project={projectDetails} />;
         })}

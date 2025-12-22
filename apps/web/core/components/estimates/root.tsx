@@ -6,7 +6,8 @@ import { useTranslation } from "@plane/i18n";
 // hooks
 import { EmptyStateCompact } from "@plane/propel/empty-state";
 import { useProjectEstimates } from "@/hooks/store/estimates";
-import { useProject } from "@/hooks/store/use-project";
+// store hooks
+import { useProjectDetails } from "@/store/queries/project";
 // plane web components
 import { UpdateEstimateModal } from "@/plane-web/components/estimates";
 // local imports
@@ -26,7 +27,7 @@ type TEstimateRoot = {
 export const EstimateRoot = observer(function EstimateRoot(props: TEstimateRoot) {
   const { workspaceSlug, projectId, isAdmin } = props;
   // hooks
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   const { loader, currentActiveEstimateId, archivedEstimateIds, getProjectEstimates } = useProjectEstimates();
   // states
   const [isEstimateCreateModalOpen, setIsEstimateCreateModalOpen] = useState(false);

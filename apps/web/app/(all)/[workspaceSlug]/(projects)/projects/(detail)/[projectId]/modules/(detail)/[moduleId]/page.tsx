@@ -1,5 +1,4 @@
 import { observer } from "mobx-react";
-import useSWR from "swr";
 // plane imports
 import { cn } from "@plane/utils";
 // assets
@@ -10,10 +9,11 @@ import { PageHead } from "@/components/core/page-title";
 import { ModuleLayoutRoot } from "@/components/issues/issue-layouts/roots/module-layout-root";
 import { ModuleAnalyticsSidebar } from "@/components/modules";
 // hooks
-import { useModule } from "@/hooks/store/use-module";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useAppRouter } from "@/hooks/use-app-router";
 import useLocalStorage from "@/hooks/use-local-storage";
+// tanstack query
+import { useModuleDetails } from "@/store/queries/module";
 import type { Route } from "./+types/page";
 
 function ModuleIssuesPage({ params }: Route.ComponentProps) {
@@ -21,19 +21,13 @@ function ModuleIssuesPage({ params }: Route.ComponentProps) {
   const router = useAppRouter();
   const { workspaceSlug, projectId, moduleId } = params;
   // store hooks
-  const { fetchModuleDetails, getModuleById } = useModule();
-  const { getProjectById } = useProject();
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
+  const { data: projectModule, isError } = useModuleDetails(workspaceSlug, projectId, moduleId);
   // const { issuesFilter } = useIssues(EIssuesStoreType.MODULE);
   // local storage
   const { setValue, storedValue } = useLocalStorage("module_sidebar_collapsed", "false");
   const isSidebarCollapsed = storedValue ? (storedValue === "true" ? true : false) : false;
-  // fetching module details
-  const { error } = useSWR(`CURRENT_MODULE_DETAILS_${moduleId}`, () =>
-    fetchModuleDetails(workspaceSlug, projectId, moduleId)
-  );
   // derived values
-  const projectModule = getModuleById(moduleId);
-  const project = getProjectById(projectId);
   const pageTitle = project?.name && projectModule?.name ? `${project?.name} - ${projectModule?.name}` : undefined;
 
   const toggleSidebar = () => {
@@ -44,7 +38,7 @@ function ModuleIssuesPage({ params }: Route.ComponentProps) {
   return (
     <>
       <PageHead title={pageTitle} />
-      {error ? (
+      {isError ? (
         <EmptyState
           image={emptyModule}
           title="Module does not exist"

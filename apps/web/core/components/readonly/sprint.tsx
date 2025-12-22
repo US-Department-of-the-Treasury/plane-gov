@@ -1,11 +1,9 @@
-import { useEffect } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { SprintIcon } from "@plane/propel/icons";
 import { cn } from "@plane/utils";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintNameById } from "@/store/queries/sprint";
 
 export type TReadonlySprintProps = {
   className?: string;
@@ -16,18 +14,12 @@ export type TReadonlySprintProps = {
   workspaceSlug: string;
 };
 
-export const ReadonlySprint = observer(function ReadonlySprint(props: TReadonlySprintProps) {
+export function ReadonlySprint(props: TReadonlySprintProps) {
   const { className, hideIcon = false, value, placeholder, projectId, workspaceSlug } = props;
 
   const { t } = useTranslation();
-  const { getSprintNameById, fetchAllSprints } = useSprint();
-  const sprintName = value ? getSprintNameById(value) : null;
-
-  useEffect(() => {
-    if (projectId) {
-      fetchAllSprints(workspaceSlug, projectId);
-    }
-  }, [projectId, workspaceSlug]);
+  const { data: sprints } = useProjectSprints(workspaceSlug, projectId || "");
+  const sprintName = value ? getSprintNameById(sprints, value) : null;
 
   return (
     <div className={cn("flex items-center gap-1 text-13", className)}>
@@ -35,4 +27,4 @@ export const ReadonlySprint = observer(function ReadonlySprint(props: TReadonlyS
       <span className="flex-grow truncate">{sprintName ?? placeholder ?? t("common.none")}</span>
     </div>
   );
-});
+}

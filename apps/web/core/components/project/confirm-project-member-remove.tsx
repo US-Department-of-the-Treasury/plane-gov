@@ -9,8 +9,9 @@ import { Button } from "@plane/propel/button";
 import type { IUserLite } from "@plane/types";
 // ui
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 
 type Props = {
   data: Partial<IUserLite>;
@@ -22,12 +23,13 @@ type Props = {
 export const ConfirmProjectMemberRemove = observer(function ConfirmProjectMemberRemove(props: Props) {
   const { data, onSubmit, isOpen, onClose } = props;
   // router
-  const { projectId } = useParams();
+  const { workspaceSlug, projectId } = useParams();
   // states
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   // store hooks
   const { data: currentUser } = useUser();
-  const { getProjectById } = useProject();
+  // queries
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug?.toString(), projectId?.toString());
 
   const handleClose = () => {
     onClose();
@@ -45,7 +47,6 @@ export const ConfirmProjectMemberRemove = observer(function ConfirmProjectMember
   if (!projectId) return <></>;
 
   const isCurrentUser = currentUser?.id === data?.id;
-  const currentProjectDetails = getProjectById(projectId.toString());
 
   return (
     <Transition.Root show={isOpen} as={React.Fragment}>

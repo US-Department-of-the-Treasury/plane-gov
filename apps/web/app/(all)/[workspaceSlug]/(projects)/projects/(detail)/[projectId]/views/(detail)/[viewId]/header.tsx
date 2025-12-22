@@ -25,7 +25,7 @@ import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-to
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useProjectView } from "@/hooks/store/use-project-view";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
@@ -46,7 +46,10 @@ export const ProjectViewIssuesHeader = observer(function ProjectViewIssuesHeader
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
 
-  const { currentProjectDetails, loader } = useProject();
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   const { projectViewIds, getViewById } = useProjectView();
 
   const activeLayout = issueFilters?.displayFilters?.layout;
@@ -117,7 +120,7 @@ export const ProjectViewIssuesHeader = observer(function ProjectViewIssuesHeader
   return (
     <Header>
       <Header.LeftItem>
-        <Breadcrumbs isLoading={loader === "init-loader"}>
+        <Breadcrumbs isLoading={isLoading}>
           <CommonProjectBreadcrumbs workspaceSlug={workspaceSlug?.toString()} projectId={projectId?.toString()} />
           <Breadcrumbs.Item
             component={

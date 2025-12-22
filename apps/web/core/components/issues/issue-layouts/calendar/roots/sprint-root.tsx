@@ -3,22 +3,22 @@ import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { EIssuesStoreType } from "@plane/types";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getCompletedSprints } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
 // components
 import { SprintIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseCalendarRoot } from "../base-calendar-root";
 
 export const SprintCalendarLayout = observer(function SprintCalendarLayout() {
-  const { currentProjectCompletedSprintIds } = useSprint();
   const { workspaceSlug, projectId, sprintId } = useParams();
 
   const {
     issues: { addIssueToSprint },
   } = useIssues(EIssuesStoreType.SPRINT);
+  const { data: sprints } = useProjectSprints(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
 
-  const isCompletedSprint =
-    sprintId && currentProjectCompletedSprintIds ? currentProjectCompletedSprintIds.includes(sprintId.toString()) : false;
+  const completedSprintIds = getCompletedSprints(sprints).map((sprint) => sprint.id);
+  const isCompletedSprint = sprintId ? completedSprintIds.includes(sprintId.toString()) : false;
 
   const addIssuesToView = useCallback(
     (issueIds: string[]) => {

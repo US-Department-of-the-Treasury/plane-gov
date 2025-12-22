@@ -1,8 +1,9 @@
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import { CloseIcon, SprintGroupIcon } from "@plane/propel/icons";
 import type { TSprintGroups } from "@plane/types";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 // ui
 // types
 
@@ -15,12 +16,13 @@ type Props = {
 export const AppliedSprintFilters = observer(function AppliedSprintFilters(props: Props) {
   const { handleRemove, values, editable } = props;
   // store hooks
-  const { getSprintById } = useSprint();
+  const { workspaceSlug, projectId } = useParams();
+  const { data: sprints } = useProjectSprints(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
 
   return (
     <>
       {values.map((sprintId) => {
-        const sprintDetails = getSprintById(sprintId) ?? null;
+        const sprintDetails = getSprintById(sprints, sprintId) ?? null;
 
         if (!sprintDetails) return null;
 

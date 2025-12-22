@@ -5,8 +5,8 @@ import { useTranslation } from "@plane/i18n";
 import { Avatar, Loader } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useWorkspaceMembers } from "@/store/queries/member";
+import { useWorkspaceSprints, getSprintIds, getActiveSprint, getSprintById } from "@/store/queries/sprint";
 
 type ResourceMatrixProps = {
   workspaceSlug: string;
@@ -14,14 +14,15 @@ type ResourceMatrixProps = {
 
 export const ResourceMatrix = observer(function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
   const { t } = useTranslation();
-  const { workspace: workspaceMemberStore, getUserDetails } = useMember();
-  const sprintStore = useSprint();
+  const { data: members, isLoading: membersLoading } = useWorkspaceMembers(workspaceSlug);
+  const { data: sprints, isLoading: sprintsLoading } = useWorkspaceSprints(workspaceSlug);
 
-  const memberIds = workspaceMemberStore.getWorkspaceMemberIds(workspaceSlug);
-  const sprintIds = sprintStore.currentWorkspaceSprintIds;
-  const activeSprintId = sprintStore.currentWorkspaceActiveSprintId;
+  const memberIds = members?.map(m => m.id) || [];
+  const sprintIds = getSprintIds(sprints);
+  const activeSprint = getActiveSprint(sprints);
+  const activeSprintId = activeSprint?.id;
 
-  const isLoading = !memberIds || !sprintIds || sprintStore.loader;
+  const isLoading = membersLoading || sprintsLoading;
 
   if (isLoading) {
     return (
@@ -64,7 +65,7 @@ export const ResourceMatrix = observer(function ResourceMatrix({ workspaceSlug }
           </div>
           {/* Sprint column headers */}
           {sprintIds.map((sprintId) => {
-            const sprint = sprintStore.getSprintById(sprintId);
+            const sprint = getSprintById(sprints, sprintId);
             if (!sprint) return null;
 
             const isActive = sprintId === activeSprintId;
@@ -103,12 +104,9 @@ export const ResourceMatrix = observer(function ResourceMatrix({ workspaceSlug }
         </div>
 
         {/* Member rows */}
-        {memberIds.map((memberId) => {
-          const member = getUserDetails(memberId);
-          if (!member) return null;
-
+        {members?.map((member) => {
           return (
-            <div key={memberId} className="flex border-b border-custom-border-100 hover:bg-custom-background-90">
+            <div key={member.id} className="flex border-b border-custom-border-100 hover:bg-custom-background-90">
               {/* Member info */}
               <div className="sticky left-0 z-10 flex w-64 min-w-64 items-center gap-3 bg-custom-background-100 px-4 py-3">
                 <Avatar
@@ -131,7 +129,7 @@ export const ResourceMatrix = observer(function ResourceMatrix({ workspaceSlug }
 
                 return (
                   <div
-                    key={`${memberId}-${sprintId}`}
+                    key={`${member.id}-${sprintId}`}
                     className={cn(
                       "flex w-40 min-w-40 items-center justify-center border-l border-custom-border-100 px-3 py-3",
                       {

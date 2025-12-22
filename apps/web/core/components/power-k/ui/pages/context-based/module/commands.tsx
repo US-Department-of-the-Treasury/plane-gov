@@ -12,7 +12,7 @@ import { copyTextToClipboard } from "@plane/utils";
 // components
 import type { TPowerKCommandConfig } from "@/components/power-k/core/types";
 // hooks
-import { useModule } from "@/hooks/store/use-module";
+import { useModuleDetails, useUpdateModule } from "@/store/queries/module";
 import { useUser } from "@/hooks/store/user";
 
 export const usePowerKModuleContextBasedActions = (): TPowerKCommandConfig[] => {
@@ -22,9 +22,14 @@ export const usePowerKModuleContextBasedActions = (): TPowerKCommandConfig[] => 
   const {
     permission: { allowPermissions },
   } = useUser();
-  const { getModuleById, addModuleToFavorites, removeModuleFromFavorites, updateModuleDetails } = useModule();
+  // queries
+  const { data: moduleDetails } = useModuleDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? "",
+    moduleId?.toString() ?? ""
+  );
+  const { mutate: updateModule } = useUpdateModule();
   // derived values
-  const moduleDetails = moduleId ? getModuleById(moduleId.toString()) : null;
   const isFavorite = !!moduleDetails?.is_favorite;
   // permission
   const isEditingAllowed =
@@ -36,17 +41,25 @@ export const usePowerKModuleContextBasedActions = (): TPowerKCommandConfig[] => 
   const handleUpdateModule = useCallback(
     async (formData: Partial<IModule>) => {
       if (!workspaceSlug || !projectId || !moduleDetails) return;
-      await updateModuleDetails(workspaceSlug.toString(), projectId.toString(), moduleDetails.id, formData).catch(
-        () => {
-          setToast({
-            type: TOAST_TYPE.ERROR,
-            title: "Error!",
-            message: "Module could not be updated. Please try again.",
-          });
+      updateModule(
+        {
+          workspaceSlug: workspaceSlug.toString(),
+          projectId: projectId.toString(),
+          moduleId: moduleDetails.id,
+          data: formData,
+        },
+        {
+          onError: () => {
+            setToast({
+              type: TOAST_TYPE.ERROR,
+              title: "Error!",
+              message: "Module could not be updated. Please try again.",
+            });
+          },
         }
       );
     },
-    [moduleDetails, projectId, updateModuleDetails, workspaceSlug]
+    [moduleDetails, projectId, updateModule, workspaceSlug]
   );
 
   const handleUpdateMember = useCallback(
@@ -63,17 +76,24 @@ export const usePowerKModuleContextBasedActions = (): TPowerKCommandConfig[] => 
   );
 
   const toggleFavorite = useCallback(() => {
-    if (!workspaceSlug || !moduleDetails || !moduleDetails.project_id) return;
-    try {
-      if (isFavorite) removeModuleFromFavorites(workspaceSlug.toString(), moduleDetails.project_id, moduleDetails.id);
-      else addModuleToFavorites(workspaceSlug.toString(), moduleDetails.project_id, moduleDetails.id);
-    } catch {
-      setToast({
-        type: TOAST_TYPE.ERROR,
-        title: "Some error occurred",
-      });
-    }
-  }, [addModuleToFavorites, removeModuleFromFavorites, workspaceSlug, moduleDetails, isFavorite]);
+    if (!workspaceSlug || !projectId || !moduleDetails) return;
+    updateModule(
+      {
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        moduleId: moduleDetails.id,
+        data: { is_favorite: !isFavorite },
+      },
+      {
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Some error occurred",
+          });
+        },
+      }
+    );
+  }, [updateModule, workspaceSlug, projectId, moduleDetails, isFavorite]);
 
   const copyModuleUrlToClipboard = useCallback(() => {
     const url = new URL(window.location.href);

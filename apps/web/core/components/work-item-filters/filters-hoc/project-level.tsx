@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
 import { isEqual, cloneDeep } from "lodash-es";
-import { observer } from "mobx-react";
 // plane imports
 import { EUserPermissionsLevel, PROJECT_VIEW_TRACKER_EVENTS } from "@plane/constants";
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
@@ -11,14 +10,14 @@ import { removeNillKeys } from "@/components/issues/issue-layouts/utils";
 import { CreateUpdateProjectViewModal } from "@/components/views/modal";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useSprint } from "@/hooks/store/use-sprint";
-import { useLabel } from "@/hooks/store/use-label";
-import { useMember } from "@/hooks/store/use-member";
-import { useModule } from "@/hooks/store/use-module";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
 import { useProjectView } from "@/hooks/store/use-project-view";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
+import { useProjectLabels } from "@/store/queries/label";
+import { useProjectMembers } from "@/store/queries/member";
+import { useProjectModules, getModuleIds } from "@/store/queries/module";
+import { useProjectDetails } from "@/store/queries/project";
+import { useProjectStates, getStateIds } from "@/store/queries/state";
+import { useProjectSprints, getSprintIds } from "@/store/queries/sprint";
 // plane web imports
 import { getAdditionalProjectLevelFiltersHOCProps } from "@/plane-web/helpers/work-item-filters/project-level";
 // local imports
@@ -31,26 +30,24 @@ type TProjectLevelWorkItemFiltersHOCProps = TSharedWorkItemFiltersHOCProps & {
 } & TEnableSaveViewProps &
   TEnableUpdateViewProps;
 
-export const ProjectLevelWorkItemFiltersHOC = observer(function ProjectLevelWorkItemFiltersHOC(
-  props: TProjectLevelWorkItemFiltersHOCProps
-) {
+export function ProjectLevelWorkItemFiltersHOC(props: TProjectLevelWorkItemFiltersHOCProps) {
   const { children, enableSaveView, enableUpdateView, entityId, initialWorkItemFilters, projectId, workspaceSlug } =
     props;
   // states
   const [isCreateViewModalOpen, setIsCreateViewModalOpen] = useState(false);
   const [createViewPayload, setCreateViewPayload] = useState<Partial<IProjectView> | null>(null);
   // hooks
-  const { getProjectById } = useProject();
   const { getViewById, updateView } = useProjectView();
   const { data: currentUser } = useUser();
   const { allowPermissions } = useUserPermissions();
-  const { currentWorkspaceSprintIds } = useSprint();
-  const { getProjectLabelIds } = useLabel();
-  const {
-    project: { getProjectMemberIds },
-  } = useMember();
-  const { getProjectModuleIds } = useModule();
-  const { getProjectStateIds } = useProjectState();
+
+  // queries
+  const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId);
+  const { data: projectLabels } = useProjectLabels(workspaceSlug, projectId);
+  const { data: projectMembers = [] } = useProjectMembers(workspaceSlug, projectId);
+  const { data: projectModules } = useProjectModules(workspaceSlug, projectId);
+  const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
+  const { data: projectSprints } = useProjectSprints(workspaceSlug, projectId);
   // derived values
   const hasProjectMemberLevelPermissions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
@@ -58,7 +55,6 @@ export const ProjectLevelWorkItemFiltersHOC = observer(function ProjectLevelWork
     workspaceSlug,
     projectId
   );
-  const projectDetails = getProjectById(projectId);
   const viewDetails = entityId ? getViewById(entityId) : null;
   const isViewLocked = viewDetails ? viewDetails?.is_locked : false;
   const isCurrentUserOwner = viewDetails ? viewDetails.owned_by === currentUser?.id : false;
@@ -215,11 +211,11 @@ export const ProjectLevelWorkItemFiltersHOC = observer(function ProjectLevelWork
           workspaceSlug,
           projectId,
         })}
-        sprintIds={currentWorkspaceSprintIds ?? undefined}
-        labelIds={getProjectLabelIds(projectId)}
-        memberIds={getProjectMemberIds(projectId, false) ?? undefined}
-        moduleIds={getProjectModuleIds(projectId) ?? undefined}
-        stateIds={getProjectStateIds(projectId)}
+        sprintIds={getSprintIds(projectSprints)}
+        labelIds={projectLabels?.map((label) => label.id) ?? []}
+        memberIds={projectMembers.map((member) => member.member)}
+        moduleIds={getModuleIds(projectModules)}
+        stateIds={getStateIds(projectStates)}
         saveViewOptions={saveViewOptions}
         updateViewOptions={updateViewOptions}
       >
@@ -227,4 +223,4 @@ export const ProjectLevelWorkItemFiltersHOC = observer(function ProjectLevelWork
       </WorkItemFiltersHOC>
     </>
   );
-});
+}

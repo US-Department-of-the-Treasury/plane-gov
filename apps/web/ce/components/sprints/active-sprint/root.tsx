@@ -17,7 +17,7 @@ import useSprintsDetails from "@/components/sprints/active-sprint/use-sprints-de
 import { SprintListGroupHeader } from "@/components/sprints/list/sprint-list-group-header";
 import { SprintsListItem } from "@/components/sprints/list/sprints-list-item";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useActiveSprint, getActiveSprint } from "@/store/queries/sprint";
 import type { ActiveSprintIssueDetails } from "@/store/issue/sprint";
 
 interface IActiveSprintDetails {
@@ -97,8 +97,9 @@ export const ActiveSprintRoot = observer(function ActiveSprintRoot(props: IActiv
   const { resolvedTheme } = useTheme();
   // plane hooks
   const { t } = useTranslation();
-  // store hooks
-  const { currentProjectActiveSprintId } = useSprint();
+  // TanStack Query hooks
+  const { data: activeSprints } = useActiveSprint(workspaceSlug, projectId);
+  const currentProjectActiveSprintId = getActiveSprint(activeSprints)?.id || null;
   // derived values
   const sprintId = propsSprintId ?? currentProjectActiveSprintId;
   const activeSprintResolvedPath = resolvedTheme === "light" ? lightActiveSprintAsset : darkActiveSprintAsset;

@@ -12,8 +12,8 @@ import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
 // helpers
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 
@@ -25,17 +25,25 @@ type BlockProps = {
 export const RecentIssue = observer(function RecentIssue(props: BlockProps) {
   const { activity, ref, workspaceSlug } = props;
   // hooks
-  const { getStateById } = useProjectState();
   const { setPeekIssue } = useIssueDetail();
   const { setPeekIssue: setPeekEpic } = useIssueDetail(EIssueServiceType.EPICS);
-  const { getProjectIdentifierById } = useProject();
+
   // derived values
   const issueDetails: TIssueEntityData = activity.entity_data as TIssueEntityData;
-  const projectIdentifier = getProjectIdentifierById(issueDetails?.project_id);
+
+  // queries
+  const { data: projects } = useProjects(workspaceSlug?.toString());
+  const { data: projectStates } = useProjectStates(
+    workspaceSlug?.toString() ?? "",
+    issueDetails?.project_id ?? ""
+  );
+
+  const projectDetails = getProjectById(projects, issueDetails?.project_id);
+  const projectIdentifier = projectDetails?.identifier;
 
   if (!issueDetails) return <></>;
 
-  const state = getStateById(issueDetails?.state);
+  const state = getStateById(projectStates ?? [], issueDetails?.state);
 
   const workItemLink = generateWorkItemLink({
     workspaceSlug: workspaceSlug?.toString(),

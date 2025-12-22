@@ -8,7 +8,7 @@ import { cn } from "@plane/utils";
 import { ModuleDropdown } from "@/components/dropdowns/module/dropdown";
 // ui
 // helpers
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useIssue } from "@/store/queries/issue";
 // types
 import type { TIssueOperations } from "./root";
 
@@ -27,14 +27,11 @@ export const IssueModuleSelect = observer(function IssueModuleSelect(props: TIss
   // states
   const [isUpdating, setIsUpdating] = useState(false);
   // store hooks
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
   // derived values
-  const issue = getIssueById(issueId);
   const disableSelect = disabled || isUpdating;
 
-  const handleIssueModuleChange = async (moduleIds: string[]) => {
+  const handleIssueEpicChange = async (moduleIds: string[]) => {
     if (!issue || !issue.module_ids) return;
 
     setIsUpdating(true);
@@ -60,8 +57,8 @@ export const IssueModuleSelect = observer(function IssueModuleSelect(props: TIss
       <ModuleDropdown
         projectId={projectId}
         value={issue?.module_ids ?? []}
-        onChange={handleIssueModuleChange}
-        placeholder={t("module.no_module")}
+        onChange={handleIssueEpicChange}
+        placeholder={t("epic.no_epic")}
         disabled={disableSelect}
         className="group h-full w-full"
         buttonContainerClassName="w-full text-left h-7.5 rounded-sm"

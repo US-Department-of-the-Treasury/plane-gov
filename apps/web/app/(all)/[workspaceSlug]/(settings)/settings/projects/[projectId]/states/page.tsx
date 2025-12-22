@@ -8,14 +8,14 @@ import { ProjectStateRoot } from "@/components/project-states";
 // hook
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 import { SettingsHeading } from "@/components/settings/heading";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import type { Route } from "./+types/page";
 
 function StatesSettingsPage({ params }: Route.ComponentProps) {
   const { workspaceSlug, projectId } = params;
   // store
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   const { workspaceUserInfo, allowPermissions } = useUserPermissions();
 
   const { t } = useTranslation();

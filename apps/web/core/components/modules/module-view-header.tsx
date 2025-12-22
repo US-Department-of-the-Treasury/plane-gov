@@ -20,9 +20,9 @@ import { ModuleFiltersSelection, ModuleOrderByDropdown } from "@/components/modu
 // constants
 // helpers
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useModuleFilter } from "@/hooks/store/use-module-filter";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useWorkspaceMembers, getWorkspaceUserIds } from "@/store/queries/member";
 import { ModuleLayoutIcon } from "./module-layout-icon";
 import { IconButton } from "@plane/propel/icon-button";
 // i18n
@@ -31,13 +31,10 @@ export const ModuleViewHeader = observer(function ModuleViewHeader() {
   // refs
   const inputRef = useRef<HTMLInputElement>(null);
   // router
-  const { projectId } = useParams();
+  const { workspaceSlug, projectId } = useParams();
   // hooks
   const { isMobile } = usePlatformOS();
   // store hooks
-  const {
-    workspace: { workspaceMemberIds },
-  } = useMember();
   const {
     currentProjectDisplayFilters: displayFilters,
     currentProjectFilters: filters,
@@ -47,6 +44,9 @@ export const ModuleViewHeader = observer(function ModuleViewHeader() {
     updateSearchQuery,
   } = useModuleFilter();
   const { t } = useTranslation();
+  // query hooks
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
+  const workspaceMemberIds = getWorkspaceUserIds(workspaceMembers);
 
   // states
   const [isSearchOpen, setIsSearchOpen] = useState(searchQuery !== "" ? true : false);

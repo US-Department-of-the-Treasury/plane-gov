@@ -398,3 +398,138 @@ export function useCheckProjectIdentifier() {
       projectService.checkProjectIdentifierAvailability(workspaceSlug, identifier),
   });
 }
+
+// ===========================
+// UTILITY FUNCTIONS
+// ===========================
+
+/**
+ * Get project by ID from projects array.
+ *
+ * @example
+ * const { data: projects } = useProjects(workspaceSlug);
+ * const project = getProjectById(projects, projectId);
+ */
+export function getProjectById(
+  projects: TProject[] | undefined,
+  projectId: string | null | undefined
+): TProject | undefined {
+  if (!projects || !projectId) return undefined;
+  return projects.find((p) => p.id === projectId);
+}
+
+/**
+ * Get project by identifier from projects array.
+ *
+ * @example
+ * const { data: projects } = useProjects(workspaceSlug);
+ * const project = getProjectByIdentifier(projects, "PRJ");
+ */
+export function getProjectByIdentifier(
+  projects: TProject[] | undefined,
+  identifier: string | null | undefined
+): TProject | undefined {
+  if (!projects || !identifier) return undefined;
+  return projects.find((p) => p.identifier === identifier);
+}
+
+/**
+ * Get project IDs from projects array.
+ *
+ * @example
+ * const { data: projects } = useProjects(workspaceSlug);
+ * const projectIds = getProjectIds(projects);
+ */
+export function getProjectIds(projects: TProject[] | undefined): string[] {
+  if (!projects) return [];
+  return projects.map((p) => p.id);
+}
+
+/**
+ * Get active (non-archived) projects.
+ *
+ * @example
+ * const { data: projects } = useProjects(workspaceSlug);
+ * const activeProjects = getActiveProjects(projects);
+ */
+export function getActiveProjects(projects: TProject[] | undefined): TProject[] {
+  if (!projects) return [];
+  return projects.filter((p) => !p.archived_at);
+}
+
+/**
+ * Get archived projects.
+ *
+ * @example
+ * const { data: projects } = useProjects(workspaceSlug);
+ * const archivedProjects = getArchivedProjects(projects);
+ */
+export function getArchivedProjects(projects: TProject[] | undefined): TProject[] {
+  if (!projects) return [];
+  return projects.filter((p) => p.archived_at);
+}
+
+/**
+ * Get joined projects (where member_role is not null).
+ *
+ * @example
+ * const { data: projects } = useProjects(workspaceSlug);
+ * const joinedProjects = getJoinedProjects(projects);
+ */
+export function getJoinedProjects(projects: TProject[] | undefined): TProject[] {
+  if (!projects) return [];
+  return projects.filter((p) => p.member_role !== null && !p.archived_at);
+}
+
+/**
+ * Get joined project IDs.
+ *
+ * @example
+ * const { data: projects } = useProjects(workspaceSlug);
+ * const joinedProjectIds = getJoinedProjectIds(projects);
+ */
+export function getJoinedProjectIds(projects: TProject[] | undefined): string[] {
+  return getJoinedProjects(projects).map((p) => p.id);
+}
+
+/**
+ * Get favorite projects.
+ *
+ * @example
+ * const { data: projects } = useProjects(workspaceSlug);
+ * const favoriteProjects = getFavoriteProjects(projects);
+ */
+export function getFavoriteProjects(projects: TProject[] | undefined): TProject[] {
+  if (!projects) return [];
+  return projects.filter((p) => p.is_favorite && !p.archived_at);
+}
+
+/**
+ * Get projects map keyed by project ID for fast lookups.
+ *
+ * @example
+ * const { data: projects } = useProjects(workspaceSlug);
+ * const projectMap = getProjectsMap(projects);
+ * const project = projectMap.get(projectId);
+ */
+export function getProjectsMap(projects: TProject[] | undefined): Map<string, TProject> {
+  const map = new Map<string, TProject>();
+  if (!projects) return map;
+  projects.forEach((p) => map.set(p.id, p));
+  return map;
+}
+
+/**
+ * Get project identifiers map keyed by project ID.
+ *
+ * @example
+ * const { data: projects } = useProjects(workspaceSlug);
+ * const identifiersMap = getProjectIdentifiersMap(projects);
+ * const identifier = identifiersMap.get(projectId);
+ */
+export function getProjectIdentifiersMap(projects: TProject[] | undefined): Map<string, string> {
+  const map = new Map<string, string>();
+  if (!projects) return map;
+  projects.forEach((p) => map.set(p.id, p.identifier));
+  return map;
+}

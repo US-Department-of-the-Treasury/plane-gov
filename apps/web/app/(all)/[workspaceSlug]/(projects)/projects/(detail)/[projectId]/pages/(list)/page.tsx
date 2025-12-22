@@ -15,9 +15,10 @@ import { DetailedEmptyState } from "@/components/empty-state/detailed-empty-stat
 import { PagesListRoot } from "@/components/pages/list/root";
 import { PagesListView } from "@/components/pages/pages-list-view";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 // plane web hooks
 import { EPageStoreType } from "@/plane-web/hooks/store";
 import type { Route } from "./+types/page";
@@ -38,12 +39,12 @@ function ProjectPagesPage({ params }: Route.ComponentProps) {
   const { resolvedTheme } = useTheme();
   // plane hooks
   const { t } = useTranslation();
+  // queries
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   // store hooks
-  const { getProjectById, currentProjectDetails } = useProject();
   const { allowPermissions } = useUserPermissions();
   // derived values
-  const project = getProjectById(projectId);
-  const pageTitle = project?.name ? `${project?.name} - Pages` : undefined;
+  const pageTitle = currentProjectDetails?.name ? `${currentProjectDetails?.name} - Pages` : undefined;
   const canPerformEmptyStateActions = allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT);
   const resolvedPath = resolvedTheme === "light" ? lightPagesAsset : darkPagesAsset;
   const pageType = getPageType(type);

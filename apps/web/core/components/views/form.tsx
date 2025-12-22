@@ -21,8 +21,9 @@ import { getComputedDisplayFilters, getComputedDisplayProperties, getTabIndex } 
 import { DisplayFiltersSelection, FiltersDropdown } from "@/components/issues/issue-layouts/filters";
 import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// store queries
+import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web imports
 import { AccessController } from "@/plane-web/components/views/access-controller";
 // local imports
@@ -53,7 +54,7 @@ export const ProjectViewForm = observer(function ProjectViewForm(props: Props) {
   // state
   const [isOpen, setIsOpen] = useState(false);
   // store hooks
-  const { getProjectById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug);
   const { isMobile } = usePlatformOS();
   // form info
   const defaultValues = {
@@ -73,7 +74,7 @@ export const ProjectViewForm = observer(function ProjectViewForm(props: Props) {
     defaultValues,
   });
   // derived values
-  const projectDetails = getProjectById(projectId);
+  const projectDetails = getProjectById(projects, projectId);
   const logoValue = watch("logo_props");
   const workItemFilters: IIssueFilters = {
     richFilters: getValues("rich_filters"),

@@ -21,9 +21,9 @@ import { SprintCreateUpdateModal } from "@/components/sprints/modal";
 import { DetailedEmptyState } from "@/components/empty-state/detailed-empty-state-root";
 import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintIds } from "@/store/queries/sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import type { Route } from "./+types/page";
@@ -31,12 +31,10 @@ import type { Route } from "./+types/page";
 function ProjectSprintsPage({ params }: Route.ComponentProps) {
   // states
   const [createModal, setCreateModal] = useState(false);
-  // store hooks
-  const { currentProjectSprintIds, loader } = useSprint();
-  const { getProjectById, currentProjectDetails } = useProject();
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId } = params;
+  // store hooks
   // theme hook
   const { resolvedTheme } = useTheme();
   // plane hooks
@@ -44,11 +42,17 @@ function ProjectSprintsPage({ params }: Route.ComponentProps) {
   // sprint filters hook
   const { clearAllFilters, currentProjectFilters, updateFilters } = useSprintFilter();
   const { allowPermissions } = useUserPermissions();
+
+  // TanStack Query
+  const { data: sprints, isLoading } = useProjectSprints(workspaceSlug, projectId);
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
+
   // derived values
   const resolvedEmptyState = resolvedTheme === "light" ? lightEmptyState : darkEmptyState;
-  const totalSprints = currentProjectSprintIds?.length ?? 0;
-  const project = getProjectById(projectId);
-  const pageTitle = project?.name ? `${project?.name} - ${t("common.sprints", { count: 2 })}` : undefined;
+  const totalSprints = sprints?.length ?? 0;
+  const pageTitle = currentProjectDetails?.name
+    ? `${currentProjectDetails?.name} - ${t("common.sprints", { count: 2 })}`
+    : undefined;
   const hasAdminLevelPermission = allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT);
   const hasMemberLevelPermission = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
@@ -83,7 +87,7 @@ function ProjectSprintsPage({ params }: Route.ComponentProps) {
       </div>
     );
 
-  if (loader) return <SprintModuleListLayoutLoader />;
+  if (isLoading) return <SprintModuleListLayoutLoader />;
 
   return (
     <>

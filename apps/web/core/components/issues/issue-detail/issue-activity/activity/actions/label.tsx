@@ -1,24 +1,25 @@
-import { observer } from "mobx-react";
 import { LabelPropertyIcon } from "@plane/propel/icons";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useLabel } from "@/hooks/store/use-label";
+import { useWorkspaceLabels } from "@/store/queries/label";
+import { useParams } from "next/navigation";
 // components
 import { IssueActivityBlockComponent, IssueLink, LabelActivityChip } from "./";
 
 type TIssueLabelActivity = { activityId: string; showIssue?: boolean; ends: "top" | "bottom" | undefined };
 
-export const IssueLabelActivity = observer(function IssueLabelActivity(props: TIssueLabelActivity) {
+export function IssueLabelActivity(props: TIssueLabelActivity) {
   const { activityId, showIssue = true, ends } = props;
   // hooks
   const {
     activity: { getActivityById },
   } = useIssueDetail();
-  const { getLabelById } = useLabel();
+  const { workspaceSlug } = useParams<{ workspaceSlug: string }>();
+  const { data: labels } = useWorkspaceLabels(workspaceSlug);
 
   const activity = getActivityById(activityId);
-  const oldLabelColor = getLabelById(activity?.old_identifier ?? "")?.color;
-  const newLabelColor = getLabelById(activity?.new_identifier ?? "")?.color;
+  const oldLabelColor = labels?.find((l) => l.id === activity?.old_identifier)?.color;
+  const newLabelColor = labels?.find((l) => l.id === activity?.new_identifier)?.color;
 
   if (!activity) return <></>;
   return (
@@ -38,4 +39,4 @@ export const IssueLabelActivity = observer(function IssueLabelActivity(props: TI
       </>
     </IssueActivityBlockComponent>
   );
-});
+}

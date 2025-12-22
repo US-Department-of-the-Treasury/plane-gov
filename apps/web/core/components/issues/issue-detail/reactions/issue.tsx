@@ -10,7 +10,7 @@ import type { IUser } from "@plane/types";
 import { cn } from "@plane/utils";
 // helpers
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // types
 
 export type TIssueReaction = {
@@ -32,7 +32,7 @@ export const IssueReaction = observer(function IssueReaction(props: TIssueReacti
     createReaction,
     removeReaction,
   } = useIssueDetail();
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
 
   const reactionIds = getReactionsByIssueId(issueId);
   const userReactions = reactionsByUser(issueId, currentUser.id).map((r) => r.reaction);
@@ -85,9 +85,9 @@ export const IssueReaction = observer(function IssueReaction(props: TIssueReacti
     const reactionUsers = (reactionIds?.[reaction] || [])
       .map((reactionId) => {
         const reactionDetails = getReactionById(reactionId);
-        return reactionDetails
-          ? getUserDetails(reactionDetails?.actor)?.display_name || reactionDetails?.display_name
-          : null;
+        if (!reactionDetails) return null;
+        const member = getWorkspaceMemberByUserId(workspaceMembers, reactionDetails.actor);
+        return member?.member?.display_name || reactionDetails?.display_name;
       })
       .filter((displayName): displayName is string => !!displayName);
 

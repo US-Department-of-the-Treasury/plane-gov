@@ -207,11 +207,11 @@ export const useMenuItemFactory = (props: MenuItemFactoryProps) => {
     shouldRender: isEditingAllowed,
   });
 
-  const createRemoveFromModuleMenuItem = (): TContextMenuItem => ({
-    key: "remove-from-module",
-    title: "Remove from module",
+  const createRemoveFromEpicMenuItem = (): TContextMenuItem => ({
+    key: "remove-from-epic",
+    title: "Remove from epic",
     icon: XCircle,
-    action: () => handleOptionalAction(handleRemoveFromView, "Remove from module"),
+    action: () => handleOptionalAction(handleRemoveFromView, "Remove from epic"),
     shouldRender: isEditingAllowed,
   });
 
@@ -252,7 +252,7 @@ export const useMenuItemFactory = (props: MenuItemFactoryProps) => {
     createOpenInNewTabMenuItem,
     createCopyLinkMenuItem,
     createRemoveFromSprintMenuItem,
-    createRemoveFromModuleMenuItem,
+    createRemoveFromEpicMenuItem,
     createArchiveMenuItem,
     createRestoreMenuItem,
     createDeleteMenuItem,
@@ -332,7 +332,7 @@ export const useSprintIssueMenuItems = (props: MenuItemFactoryProps): TContextMe
   );
 };
 
-export const useModuleIssueMenuItems = (props: MenuItemFactoryProps): TContextMenuItem[] => {
+export const useEpicIssueMenuItems = (props: MenuItemFactoryProps): TContextMenuItem[] => {
   const factory = useMenuItemFactory(props);
 
   const customEditAction = () => {
@@ -349,7 +349,7 @@ export const useModuleIssueMenuItems = (props: MenuItemFactoryProps): TContextMe
       factory.createCopyMenuItem(),
       factory.createOpenInNewTabMenuItem(),
       factory.createCopyLinkMenuItem(),
-      factory.createRemoveFromModuleMenuItem(),
+      factory.createRemoveFromEpicMenuItem(),
       factory.createArchiveMenuItem(),
       factory.createDeleteMenuItem(),
     ],

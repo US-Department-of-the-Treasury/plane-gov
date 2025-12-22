@@ -13,10 +13,10 @@ import { PageHead } from "@/components/core/page-title";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useProjects, getProjectIds } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAnalyticsTabs } from "@/plane-web/components/analytics/use-analytics-tabs";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 import type { Route } from "./+types/page";
 
 function AnalyticsPage({ params }: Route.ComponentProps) {
@@ -30,8 +30,10 @@ function AnalyticsPage({ params }: Route.ComponentProps) {
 
   // store hooks
   const { toggleCreateProjectModal } = useCommandPalette();
-  const { workspaceProjectIds, loader } = useProject();
-  const { currentWorkspace } = useWorkspace();
+  const { data: projects, isLoading } = useProjects(params.workspaceSlug);
+  const workspaceProjectIds = getProjectIds(projects);
+  const loader = isLoading ? "init-loader" : undefined;
+  const { data: currentWorkspace } = useWorkspaceDetails(params.workspaceSlug);
   const { allowPermissions } = useUserPermissions();
 
   const pageTitle = currentWorkspace?.name

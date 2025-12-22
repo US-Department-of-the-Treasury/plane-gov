@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useCallback } from "react";
+import { useParams } from "next/navigation";
 import { cloneDeep } from "lodash-es";
 import { observer } from "mobx-react";
 import {
@@ -15,8 +16,8 @@ import type {
 } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjectMembers, getProjectMemberIds } from "@/store/queries/member";
+import { useProjectStates } from "@/store/queries/state";
 import { SubIssueDisplayFilters } from "./display-filters";
 import { SubIssueFilters } from "./filters";
 import { SubIssuesActionButton } from "./quick-action-button";
@@ -31,20 +32,20 @@ type TSubWorkItemTitleActionsProps = {
 export const SubWorkItemTitleActions = observer(function SubWorkItemTitleActions(props: TSubWorkItemTitleActionsProps) {
   const { disabled, issueServiceType = EIssueServiceType.ISSUES, parentId, projectId } = props;
 
+  // router
+  const { workspaceSlug } = useParams();
+
   // store hooks
   const {
     subIssues: {
       filters: { getSubIssueFilters, updateSubWorkItemFilters },
     },
   } = useIssueDetail(issueServiceType);
-  const { getProjectStates } = useProjectState();
-  const {
-    project: { getProjectMemberIds },
-  } = useMember();
+  const { data: projectMembers } = useProjectMembers(workspaceSlug as string, projectId);
+  const { data: projectStates } = useProjectStates(workspaceSlug as string, projectId);
 
   // derived values
-  const projectStates = getProjectStates(projectId);
-  const projectMemberIds = getProjectMemberIds(projectId, false);
+  const projectMemberIds = getProjectMemberIds(projectMembers);
   const subIssueFilters = getSubIssueFilters(parentId);
   const layoutDisplayFiltersOptions = ISSUE_DISPLAY_FILTERS_BY_PAGE["sub_work_items"].layoutOptions.list;
 
@@ -106,7 +107,13 @@ export const SubWorkItemTitleActions = observer(function SubWorkItemTitleActions
         availableFilters={SUB_WORK_ITEM_AVAILABLE_FILTERS_FOR_WORK_ITEM_PAGE}
       />
       {!disabled && (
-        <SubIssuesActionButton issueId={parentId} disabled={disabled} issueServiceType={issueServiceType} />
+        <SubIssuesActionButton
+          workspaceSlug={workspaceSlug as string}
+          projectId={projectId}
+          issueId={parentId}
+          disabled={disabled}
+          issueServiceType={issueServiceType}
+        />
       )}
     </div>
   );

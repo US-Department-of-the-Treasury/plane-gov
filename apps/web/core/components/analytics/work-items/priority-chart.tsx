@@ -17,7 +17,7 @@ import type { TBarItem, TChart, TChartDatum, ChartXAxisProperty, ChartYAxisMetri
 import { generateExtendedColors, parseChartData } from "@/components/chart/utils";
 // hooks
 import { useAnalytics } from "@/hooks/store/use-analytics";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useWorkspaceStates } from "@/store/queries/state";
 import { AnalyticsService } from "@/services/analytics.service";
 import { exportCSV } from "../export";
 import { DataTable } from "../insight-table/data-table";
@@ -45,13 +45,13 @@ const analyticsService = new AnalyticsService();
 const PriorityChart = observer(function PriorityChart(props: Props) {
   const { x_axis, y_axis, group_by } = props;
   const { t } = useTranslation();
-  // store hooks
-  const { selectedDuration, selectedProjects, selectedSprint, selectedModule, isPeekView, isEpic } = useAnalytics();
-  const { workspaceStates } = useProjectState();
-  const { resolvedTheme } = useTheme();
   // router
   const params = useParams();
   const workspaceSlug = params.workspaceSlug.toString();
+  // store hooks
+  const { selectedDuration, selectedProjects, selectedSprint, selectedModule, isPeekView, isEpic } = useAnalytics();
+  const { data: workspaceStates } = useWorkspaceStates(workspaceSlug);
+  const { resolvedTheme } = useTheme();
 
   const { data: priorityChartData, isLoading: priorityChartLoading } = useSWR(
     `customized-insights-chart-${workspaceSlug}-${selectedDuration}-

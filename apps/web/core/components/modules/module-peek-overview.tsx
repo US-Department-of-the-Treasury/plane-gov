@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
-import { observer } from "mobx-react";
+import React from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 // hooks
 import { generateQueryParams } from "@plane/utils";
-import { useModule } from "@/hooks/store/use-module";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useModuleDetails, useArchivedModules } from "@/store/queries/module";
 // components
 import { ModuleAnalyticsSidebar } from "./";
 
@@ -14,7 +13,7 @@ type Props = {
   isArchived?: boolean;
 };
 
-export const ModulePeekOverview = observer(function ModulePeekOverview({
+export function ModulePeekOverview({
   projectId,
   workspaceSlug,
   isArchived = false,
@@ -26,19 +25,18 @@ export const ModulePeekOverview = observer(function ModulePeekOverview({
   const peekModule = searchParams.get("peekModule");
   // refs
   const ref = React.useRef(null);
-  // store hooks
-  const { fetchModuleDetails, fetchArchivedModuleDetails } = useModule();
+
+  // TanStack Query hooks - fetch module details automatically when peekModule changes
+  // The hooks have built-in enabled logic based on parameter truthiness
+  // For archived modules, fetch all archived modules (the specific module will be in the list)
+  useArchivedModules(workspaceSlug, projectId);
+  // For non-archived modules, fetch specific module details
+  useModuleDetails(workspaceSlug, projectId, peekModule?.toString() ?? "");
 
   const handleClose = () => {
     const query = generateQueryParams(searchParams, ["peekModule"]);
     router.push(`${pathname}?${query}`);
   };
-
-  useEffect(() => {
-    if (!peekModule) return;
-    if (isArchived) fetchArchivedModuleDetails(workspaceSlug, projectId, peekModule.toString());
-    else fetchModuleDetails(workspaceSlug, projectId, peekModule.toString());
-  }, [fetchArchivedModuleDetails, fetchModuleDetails, isArchived, peekModule, projectId, workspaceSlug]);
 
   return (
     <>
@@ -60,4 +58,4 @@ export const ModulePeekOverview = observer(function ModulePeekOverview({
       )}
     </>
   );
-});
+}

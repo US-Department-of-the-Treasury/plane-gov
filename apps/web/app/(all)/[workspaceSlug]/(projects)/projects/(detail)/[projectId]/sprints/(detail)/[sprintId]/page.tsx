@@ -10,8 +10,8 @@ import useSprintsDetails from "@/components/sprints/active-sprint/use-sprints-de
 import { SprintDetailsSidebar } from "@/components/sprints/analytics-sidebar";
 import { SprintLayoutRoot } from "@/components/issues/issue-layouts/roots/sprint-layout-root";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
-import { useProject } from "@/hooks/store/use-project";
+import { useSprintDetails } from "@/store/queries/sprint";
+import { useProjectDetails } from "@/store/queries/project";
 import { useAppRouter } from "@/hooks/use-app-router";
 import useLocalStorage from "@/hooks/use-local-storage";
 import type { Route } from "./+types/page";
@@ -20,12 +20,12 @@ function SprintDetailPage({ params }: Route.ComponentProps) {
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId, sprintId } = params;
-  // store hooks
-  const { getSprintById, loader } = useSprint();
-  const { getProjectById } = useProject();
-  // const { issuesFilter } = useIssues(EIssuesStoreType.SPRINT);
   // hooks
   const { setValue, storedValue } = useLocalStorage("sprint_sidebar_collapsed", false);
+
+  // TanStack Query
+  const { data: sprint, isLoading } = useSprintDetails(workspaceSlug, projectId, sprintId);
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
 
   useSprintsDetails({
     workspaceSlug,
@@ -34,8 +34,6 @@ function SprintDetailPage({ params }: Route.ComponentProps) {
   });
   // derived values
   const isSidebarCollapsed = storedValue ? (storedValue === true ? true : false) : false;
-  const sprint = getSprintById(sprintId);
-  const project = getProjectById(projectId);
   const pageTitle = project?.name && sprint?.name ? `${project?.name} - ${sprint?.name}` : undefined;
 
   /**
@@ -47,7 +45,7 @@ function SprintDetailPage({ params }: Route.ComponentProps) {
   return (
     <>
       <PageHead title={pageTitle} />
-      {!sprint && !loader ? (
+      {!sprint && !isLoading ? (
         <EmptyState
           image={emptySprint}
           title="Sprint does not exist"

@@ -23,7 +23,7 @@ import { IssueLabelSelect } from "@/components/issues/select";
 // helpers
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web components
@@ -62,11 +62,9 @@ export const IssueDefaultProperties = observer(function IssueDefaultProperties(p
   // store hooks
   const { t } = useTranslation();
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
-  const { getProjectById } = useProject();
+  const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId ?? undefined);
   const { isMobile } = usePlatformOS();
   const { allowPermissions } = useUserPermissions();
-  // derived values
-  const projectDetails = getProjectById(projectId);
 
   const { getIndex } = getTabIndex(ETabIndices.ISSUE_FORM, isMobile);
 
@@ -228,7 +226,7 @@ export const IssueDefaultProperties = observer(function IssueDefaultProperties(p
                   onChange(moduleIds);
                   handleFormChange();
                 }}
-                placeholder={t("modules")}
+                placeholder={t("workspace_actions.epics")}
                 buttonVariant="border-with-text"
                 tabIndex={getIndex("module_ids")}
                 multiple

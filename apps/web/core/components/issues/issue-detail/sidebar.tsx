@@ -26,9 +26,9 @@ import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
+import { useProjectDetails } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 // plane web components
 // components
 import { WorkItemAdditionalSidebarProperties } from "@/plane-web/components/issues/issue-details/additional-properties";
@@ -54,21 +54,20 @@ export const IssueDetailsSidebar = observer(function IssueDetailsSidebar(props: 
   const { t } = useTranslation();
   const { workspaceSlug, projectId, issueId, issueOperations, isEditable } = props;
   // store hooks
-  const { getProjectById } = useProject();
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
   const {
     issue: { getIssueById },
   } = useIssueDetail();
-  const { getUserDetails } = useMember();
-  const { getStateById } = useProjectState();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
+  const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId);
+  const { data: states } = useProjectStates(workspaceSlug, projectId);
   const issue = getIssueById(issueId);
   if (!issue) return <></>;
 
-  const createdByDetails = getUserDetails(issue.created_by);
+  const createdByDetails = getWorkspaceMemberByUserId(workspaceMembers, issue.created_by)?.member;
 
   // derived values
-  const projectDetails = getProjectById(issue.project_id);
-  const stateDetails = getStateById(issue.state_id);
+  const stateDetails = getStateById(states ?? [], issue.state_id);
 
   const minDate = issue.start_date ? getDate(issue.start_date) : null;
   minDate?.setDate(minDate.getDate());

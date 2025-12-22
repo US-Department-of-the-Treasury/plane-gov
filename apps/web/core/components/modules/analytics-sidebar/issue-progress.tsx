@@ -20,6 +20,7 @@ import { ModuleProgressStats } from "@/components/modules";
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useModule } from "@/hooks/store/use-module";
 import { useWorkItemFilters } from "@/hooks/store/work-item-filters/use-work-item-filters";
+import { useModuleDetails } from "@/store/queries/module";
 // plane web constants
 type TModuleAnalyticsProgress = {
   workspaceSlug: string;
@@ -42,8 +43,8 @@ export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress
   const { t } = useTranslation();
   // hooks
   const { areEstimateEnabledByProjectId, currentActiveEstimateId, estimateById } = useProjectEstimates();
-  const { getPlotTypeByModuleId, setPlotType, getModuleById, fetchModuleDetails, fetchArchivedModuleDetails } =
-    useModule();
+  const { getPlotTypeByModuleId, setPlotType } = useModule();
+  const { data: moduleDetails, refetch } = useModuleDetails(workspaceSlug, projectId, moduleId);
   const { getFilter, updateFilterValueFromSidebar } = useWorkItemFilters();
   // state
   const [loader, setLoader] = useState(false);
@@ -52,7 +53,6 @@ export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress
   const selectedAssignees = moduleFilter?.findFirstConditionByPropertyAndOperator("assignee_id", "in");
   const selectedLabels = moduleFilter?.findFirstConditionByPropertyAndOperator("label_id", "in");
   const selectedStateGroups = moduleFilter?.findFirstConditionByPropertyAndOperator("state_group", "in");
-  const moduleDetails = getModuleById(moduleId);
   const plotType: TModulePlotType = getPlotTypeByModuleId(moduleId);
   const isCurrentProjectEstimateEnabled = projectId && areEstimateEnabledByProjectId(projectId) ? true : false;
   const estimateDetails =
@@ -100,11 +100,7 @@ export const ModuleAnalyticsProgress = observer(function ModuleAnalyticsProgress
     if (!workspaceSlug || !projectId || !moduleId) return;
     try {
       setLoader(true);
-      if (isArchived) {
-        await fetchArchivedModuleDetails(workspaceSlug, projectId, moduleId);
-      } else {
-        await fetchModuleDetails(workspaceSlug, projectId, moduleId);
-      }
+      await refetch();
       setLoader(false);
     } catch (error) {
       setLoader(false);

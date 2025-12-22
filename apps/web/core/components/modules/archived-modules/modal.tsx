@@ -4,8 +4,9 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 // hooks
-import { useModule } from "@/hooks/store/use-module";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useModuleDetails, useArchiveModule } from "@/store/queries/module";
 
 type Props = {
   workspaceSlug: string;
@@ -22,10 +23,11 @@ export function ArchiveModuleModal(props: Props) {
   const router = useAppRouter();
   // states
   const [isArchiving, setIsArchiving] = useState(false);
-  // store hooks
-  const { getModuleNameById, archiveModule } = useModule();
+  // queries
+  const { data: moduleDetails } = useModuleDetails(workspaceSlug, projectId, moduleId);
+  const { mutateAsync: archiveModule } = useArchiveModule();
 
-  const moduleName = getModuleNameById(moduleId);
+  const moduleName = moduleDetails?.name;
 
   const onClose = () => {
     setIsArchiving(false);
@@ -34,7 +36,7 @@ export function ArchiveModuleModal(props: Props) {
 
   const handleArchiveModule = async () => {
     setIsArchiving(true);
-    await archiveModule(workspaceSlug, projectId, moduleId)
+    await archiveModule({ workspaceSlug, projectId, moduleId })
       .then(() => {
         setToast({
           type: TOAST_TYPE.SUCCESS,

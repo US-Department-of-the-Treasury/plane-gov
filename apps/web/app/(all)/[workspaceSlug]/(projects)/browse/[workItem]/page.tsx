@@ -1,10 +1,8 @@
 import { useEffect } from "react";
 import { observer } from "mobx-react";
 import { useTheme } from "next-themes";
-import useSWR from "swr";
 // plane imports
 import { useTranslation } from "@plane/i18n";
-import type { TIssue } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 import { Loader } from "@plane/ui";
 // assets
@@ -15,9 +13,10 @@ import { EmptyState } from "@/components/common/empty-state";
 import { PageHead } from "@/components/core/page-title";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById, getProjectByIdentifier } from "@/store/queries/project";
 import { useAppRouter } from "@/hooks/use-app-router";
+// tanstack query
+import { useIssueByIdentifier } from "@/store/queries/issue";
 // plane web imports
 import { useWorkItemProperties } from "@/plane-web/hooks/use-issue-properties";
 import { ProjectAuthWrapper } from "@/plane-web/layouts/project-wrapper";
@@ -31,29 +30,26 @@ export const IssueDetailsPage = observer(function IssueDetailsPage({ params }: R
   const { workspaceSlug, workItem } = params;
   // hooks
   const { resolvedTheme } = useTheme();
+  // queries
+  const { data: projects } = useProjects(workspaceSlug.toString());
   // store hooks
   const { t } = useTranslation();
-  const {
-    fetchIssueWithIdentifier,
-    issue: { getIssueById },
-  } = useIssueDetail();
-  const { getProjectById, getProjectByIdentifier } = useProject();
   const { toggleIssueDetailSidebar, issueDetailSidebarCollapsed } = useAppTheme();
 
   const [projectIdentifier, sequence_id] = workItem.split("-");
 
-  // fetching issue details
-  const { data, isLoading, error } = useSWR<TIssue, Error>(
-    `ISSUE_DETAIL_${workspaceSlug}_${projectIdentifier}_${sequence_id}`,
-    () => fetchIssueWithIdentifier(workspaceSlug.toString(), projectIdentifier, sequence_id)
+  // fetching issue details with TanStack Query
+  const { data: issue, isLoading, error } = useIssueByIdentifier(
+    workspaceSlug.toString(),
+    projectIdentifier,
+    sequence_id
   );
 
   // derived values
-  const projectDetails = getProjectByIdentifier(projectIdentifier);
-  const issueId = data?.id;
-  const projectId = data?.project_id ?? projectDetails?.id ?? "";
-  const issue = getIssueById(issueId?.toString() || "") || undefined;
-  const project = (issue?.project_id && getProjectById(issue?.project_id)) || undefined;
+  const projectDetails = getProjectByIdentifier(projects, projectIdentifier);
+  const issueId = issue?.id;
+  const projectId = issue?.project_id ?? projectDetails?.id ?? "";
+  const project = (issue?.project_id && getProjectById(projects, issue?.project_id)) || undefined;
   const issueLoader = !issue || isLoading;
   const pageTitle = project && issue ? `${project?.identifier}-${issue?.sequence_id} ${issue?.name}` : undefined;
 
@@ -79,10 +75,10 @@ export const IssueDetailsPage = observer(function IssueDetailsPage({ params }: R
   }, [issueDetailSidebarCollapsed, toggleIssueDetailSidebar]);
 
   useEffect(() => {
-    if (data?.is_intake) {
-      router.push(`/${workspaceSlug}/projects/${data.project_id}/intake/?currentTab=open&inboxIssueId=${data?.id}`);
+    if (issue?.is_intake) {
+      router.push(`/${workspaceSlug}/projects/${issue.project_id}/intake/?currentTab=open&inboxIssueId=${issue?.id}`);
     }
-  }, [workspaceSlug, data, router]);
+  }, [workspaceSlug, issue, router]);
 
   if (error && !isLoading) {
     return (

@@ -1,4 +1,5 @@
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissionsLevel, WORK_ITEM_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -7,14 +8,17 @@ import { EIssuesStoreType, EUserWorkspaceRoles } from "@plane/types";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 
 export const GlobalViewEmptyState = observer(function GlobalViewEmptyState() {
   // plane imports
   const { t } = useTranslation();
+  // router
+  const { workspaceSlug } = useParams();
   // store hooks
-  const { workspaceProjectIds } = useProject();
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
+  const workspaceProjectIds = getJoinedProjectIds(projects);
   const { toggleCreateIssueModal, toggleCreateProjectModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
   // derived values

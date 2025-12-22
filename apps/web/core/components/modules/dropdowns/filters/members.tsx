@@ -8,8 +8,9 @@ import { getFileURL } from "@plane/utils";
 import { FilterHeader, FilterOption } from "@/components/issues/issue-layouts/filters";
 // helpers
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useUser } from "@/hooks/store/user";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
+import { useParams } from "next/navigation";
 
 type Props = {
   appliedFilters: string[] | null;
@@ -20,27 +21,31 @@ type Props = {
 
 export const FilterMembers = observer(function FilterMembers(props: Props) {
   const { appliedFilters, handleUpdate, memberIds, searchQuery } = props;
+  // router
+  const { workspaceSlug } = useParams();
   // states
   const [itemsToRender, setItemsToRender] = useState(5);
   const [previewEnabled, setPreviewEnabled] = useState(true);
   // store hooks
-  const { getUserDetails } = useMember();
   const { data: currentUser } = useUser();
+  // query hooks
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
 
   const appliedFiltersCount = appliedFilters?.length ?? 0;
 
   const sortedOptions = useMemo(() => {
-    const filteredOptions = (memberIds || []).filter((memberId) =>
-      getUserDetails(memberId)?.display_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredOptions = (memberIds || []).filter((memberId) => {
+      const member = getWorkspaceMemberByUserId(workspaceMembers, memberId);
+      return member?.display_name.toLowerCase().includes(searchQuery.toLowerCase());
+    });
 
     return sortBy(filteredOptions, [
       (memberId) => !(appliedFilters ?? []).includes(memberId),
       (memberId) => memberId !== currentUser?.id,
-      (memberId) => getUserDetails(memberId)?.display_name.toLowerCase(),
+      (memberId) => getWorkspaceMemberByUserId(workspaceMembers, memberId)?.display_name.toLowerCase(),
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
+  }, [searchQuery, workspaceMembers]);
 
   const handleViewToggle = () => {
     if (!sortedOptions) return;
@@ -62,7 +67,7 @@ export const FilterMembers = observer(function FilterMembers(props: Props) {
             sortedOptions.length > 0 ? (
               <>
                 {sortedOptions.slice(0, itemsToRender).map((memberId) => {
-                  const member = getUserDetails(memberId);
+                  const member = getWorkspaceMemberByUserId(workspaceMembers, memberId);
 
                   if (!member) return null;
                   return (

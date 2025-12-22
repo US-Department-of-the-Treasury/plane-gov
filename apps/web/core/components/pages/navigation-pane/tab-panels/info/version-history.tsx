@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
@@ -11,7 +10,7 @@ import { cn, getFileURL, renderFormattedDate, renderFormattedTime } from "@plane
 // components
 import type { TPageRootHandlers } from "@/components/pages/editor/page-root";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
 import { useQueryParams } from "@/hooks/use-query-params";
 // store
 import type { TPageInstance } from "@/store/pages/base-page";
@@ -21,20 +20,22 @@ import { PAGE_NAVIGATION_PANE_VERSION_QUERY_PARAM } from "../..";
 type Props = {
   page: TPageInstance;
   versionHistory: Pick<TPageRootHandlers, "fetchAllVersions" | "fetchVersionDetails">;
+  workspaceSlug: string;
 };
 
 type VersionHistoryItemProps = {
   getVersionLink: (versionID: string) => string;
   isVersionActive: boolean;
   version: TPageVersion;
+  workspaceSlug: string;
 };
 
-const VersionHistoryItem = observer(function VersionHistoryItem(props: VersionHistoryItemProps) {
-  const { getVersionLink, isVersionActive, version } = props;
+function VersionHistoryItem(props: VersionHistoryItemProps) {
+  const { getVersionLink, isVersionActive, version, workspaceSlug } = props;
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: members } = useWorkspaceMembers(workspaceSlug);
   // derived values
-  const versionCreator = getUserDetails(version.owned_by);
+  const versionCreator = getWorkspaceMemberByUserId(members, version.owned_by);
   // translation
   const { t } = useTranslation();
 
@@ -58,20 +59,18 @@ const VersionHistoryItem = observer(function VersionHistoryItem(props: VersionHi
           <Avatar
             size="sm"
             src={getFileURL(versionCreator?.avatar_url ?? "")}
-            name={versionCreator?.display_name}
+            name={versionCreator ? getMemberDisplayName(versionCreator) : undefined}
             className="shrink-0"
           />
-          <span>{versionCreator?.display_name ?? t("common.deactivated_user")}</span>
+          <span>{versionCreator ? getMemberDisplayName(versionCreator) : t("common.deactivated_user")}</span>
         </p>
       </Link>
     </li>
   );
-});
+}
 
-export const PageNavigationPaneInfoTabVersionHistory = observer(function PageNavigationPaneInfoTabVersionHistory(
-  props: Props
-) {
-  const { page, versionHistory } = props;
+export function PageNavigationPaneInfoTabVersionHistory(props: Props) {
+  const { page, versionHistory, workspaceSlug } = props;
   // navigation
   const searchParams = useSearchParams();
   const activeVersion = searchParams.get(PAGE_NAVIGATION_PANE_VERSION_QUERY_PARAM);
@@ -133,10 +132,11 @@ export const PageNavigationPaneInfoTabVersionHistory = observer(function PageNav
               getVersionLink={getVersionLink}
               isVersionActive={activeVersion === version.id}
               version={version}
+              workspaceSlug={workspaceSlug}
             />
           ))}
         </ul>
       </div>
     </div>
   );
-});
+}

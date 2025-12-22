@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { LIVE_BASE_PATH, LIVE_BASE_URL } from "@plane/constants";
 import { CollaborativeDocumentEditorWithRef } from "@plane/editor";
@@ -21,8 +20,7 @@ import { cn, generateRandomColor, hslToHex } from "@plane/utils";
 import { EditorMentionsRoot } from "@/components/editor/embeds/mentions";
 // hooks
 import { useEditorMention } from "@/hooks/editor";
-import { useMember } from "@/hooks/store/use-member";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
 import { useUser } from "@/hooks/store/user";
 import { usePageFilters } from "@/hooks/use-page-filters";
 import { useParseEditorContent } from "@/hooks/use-parse-editor-content";
@@ -35,6 +33,7 @@ import type { EPageStoreType } from "@/plane-web/hooks/store";
 import { useEditorFlagging } from "@/plane-web/hooks/use-editor-flagging";
 // store
 import type { TPageInstance } from "@/store/pages/base-page";
+import { useWorkspaces, getWorkspaceBySlug } from "@/store/queries/workspace";
 // local imports
 import { PageContentLoader } from "../loaders/page-content-loader";
 import { PageEditorHeaderRoot } from "./header";
@@ -69,7 +68,7 @@ type Props = {
   onCollaborationStateChange?: (state: CollaborationState) => void;
 };
 
-export const PageEditorBody = observer(function PageEditorBody(props: Props) {
+export function PageEditorBody(props: Props) {
   const {
     config,
     editorForwardRef,
@@ -90,8 +89,8 @@ export const PageEditorBody = observer(function PageEditorBody(props: Props) {
   const titleEditorRef = useRef<EditorTitleRefApi>(null);
   // store hooks
   const { data: currentUser } = useUser();
-  const { getWorkspaceBySlug } = useWorkspace();
-  const { getUserDetails } = useMember();
+  const { data: workspaces } = useWorkspaces();
+  const { data: members } = useWorkspaceMembers(workspaceSlug);
   // derived values
   const {
     id: pageId,
@@ -99,7 +98,7 @@ export const PageEditorBody = observer(function PageEditorBody(props: Props) {
     editor: { editorRef, updateAssetsList },
     setSyncingStatus,
   } = page;
-  const workspaceId = getWorkspaceBySlug(workspaceSlug)?.id ?? "";
+  const workspaceId = getWorkspaceBySlug(workspaces ?? [], workspaceSlug)?.id ?? "";
   // use editor mention
   const { fetchMentions } = useEditorMention({
     enableAdvancedMentions: true,
@@ -131,10 +130,18 @@ export const PageEditorBody = observer(function PageEditorBody(props: Props) {
   );
 
   // Use the new hook to handle page events
+  const getUserDetailsCallback = useCallback(
+    (userId: string) => {
+      const member = getWorkspaceMemberByUserId(members, userId);
+      return member ? { display_name: getMemberDisplayName(member) } : undefined;
+    },
+    [members]
+  );
+
   const { updatePageProperties } = useRealtimePageEvents({
     storeType,
     page,
-    getUserDetails,
+    getUserDetails: getUserDetailsCallback,
     handlers,
   });
 
@@ -277,7 +284,10 @@ export const PageEditorBody = observer(function PageEditorBody(props: Props) {
                 return res;
               },
               renderComponent: (props) => <EditorMentionsRoot {...props} />,
-              getMentionedEntityDetails: (id: string) => ({ display_name: getUserDetails(id)?.display_name ?? "" }),
+              getMentionedEntityDetails: (id: string) => {
+                const member = getWorkspaceMemberByUserId(members, id);
+                return { display_name: member ? getMemberDisplayName(member) : "" };
+              },
             }}
             updatePageProperties={updatePageProperties}
             realtimeConfig={realtimeConfig}
@@ -296,4 +306,4 @@ export const PageEditorBody = observer(function PageEditorBody(props: Props) {
       </div>
     </Row>
   );
-});
+}

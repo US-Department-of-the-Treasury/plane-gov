@@ -11,11 +11,11 @@ import { getTextContent } from "@plane/utils";
 import { DescriptionVersionsRoot } from "@/components/core/description-versions";
 import { DescriptionInput } from "@/components/editor/rich-text/description-input";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
-import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
 import useReloadConfirmations from "@/hooks/use-reload-confirmation";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
+import { useProjectDetails } from "@/store/queries/project";
+import { useIssue } from "@/store/queries/issue";
 // plane web components
 import { DeDupeIssuePopoverRoot } from "@/plane-web/components/de-dupe/duplicate-popover";
 import { IssueTypeSwitcher } from "@/plane-web/components/issues/issue-details/issue-type-switcher";
@@ -44,15 +44,13 @@ type Props = {
 };
 
 export const PeekOverviewIssueDetails = observer(function PeekOverviewIssueDetails(props: Props) {
-  const { editorRef, workspaceSlug, issueId, issueOperations, disabled, isArchived, isSubmitting, setIsSubmitting } =
+  const { editorRef, workspaceSlug, projectId, issueId, issueOperations, disabled, isArchived, isSubmitting, setIsSubmitting } =
     props;
-  // store hooks
+  // hooks
   const { data: currentUser } = useUser();
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
-  const { getProjectById } = useProject();
-  const { getUserDetails } = useMember();
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
+  const { data: projectDetails } = useProjectDetails(workspaceSlug, issue?.project_id ?? "");
   // reload confirmation
   const { setShowAlert } = useReloadConfirmations(isSubmitting === "submitting");
 
@@ -66,10 +64,6 @@ export const PeekOverviewIssueDetails = observer(function PeekOverviewIssueDetai
       setShowAlert(true);
     }
   }, [isSubmitting, setShowAlert, setIsSubmitting]);
-
-  // derived values
-  const issue = issueId ? getIssueById(issueId) : undefined;
-  const projectDetails = issue?.project_id ? getProjectById(issue?.project_id) : undefined;
   // debounced duplicate issues swr
   const { duplicateIssues } = useDebouncedDuplicateIssues(
     workspaceSlug,
@@ -161,7 +155,7 @@ export const PeekOverviewIssueDetails = observer(function PeekOverviewIssueDetai
             className="flex-shrink-0"
             entityInformation={{
               createdAt: issue.created_at ? new Date(issue.created_at) : new Date(),
-              createdByDisplayName: getUserDetails(issue.created_by ?? "")?.display_name ?? "",
+              createdByDisplayName: getWorkspaceMemberByUserId(workspaceMembers, issue.created_by ?? "")?.member?.display_name ?? "",
               id: issueId,
               isRestoreDisabled: disabled || isArchived,
             }}

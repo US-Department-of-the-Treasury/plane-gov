@@ -1,5 +1,4 @@
 import { Fragment, useState } from "react";
-import { observer } from "mobx-react";
 import { usePopper } from "react-popper";
 import { Check, Loader, Plus, Search } from "lucide-react";
 import { Combobox } from "@headlessui/react";
@@ -12,7 +11,7 @@ import { EUserProjectRoles } from "@plane/types";
 // helpers
 import { getTabIndex } from "@plane/utils";
 // hooks
-import { useLabel } from "@/hooks/store/use-label";
+import { useProjectLabels } from "@/store/queries/label";
 import { useUserPermissions } from "@/hooks/store/user";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 //constants
@@ -25,32 +24,23 @@ export interface IIssueLabelSelect {
   onAddLabel: (workspaceSlug: string, projectId: string, data: Partial<IIssueLabel>) => Promise<any>;
 }
 
-export const IssueLabelSelect = observer(function IssueLabelSelect(props: IIssueLabelSelect) {
+export function IssueLabelSelect(props: IIssueLabelSelect) {
   const { workspaceSlug, projectId, issueId, values, onSelect, onAddLabel } = props;
   const { t } = useTranslation();
   // store hooks
   const { isMobile } = usePlatformOS();
-  const { fetchProjectLabels, getProjectLabels } = useLabel();
+  const { data: projectLabels, isLoading } = useProjectLabels(workspaceSlug, projectId);
   const { allowPermissions } = useUserPermissions();
   // states
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [query, setQuery] = useState("");
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const canCreateLabel =
     projectId && allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug, projectId);
 
-  const projectLabels = getProjectLabels(projectId);
-
   const { baseTabIndex } = getTabIndex(undefined, isMobile);
-
-  const fetchLabels = () => {
-    setIsLoading(true);
-    if (!projectLabels && workspaceSlug && projectId)
-      fetchProjectLabels(workspaceSlug, projectId).then(() => setIsLoading(false));
-  };
 
   const options = (projectLabels ?? []).map((label) => ({
     value: label.id,
@@ -126,7 +116,6 @@ export const IssueLabelSelect = observer(function IssueLabelSelect(props: IIssue
             variant="tertiary"
             size="sm"
             prependIcon={<Plus />}
-            onClick={() => !projectLabels && fetchLabels()}
           >
             {label}
           </Button>
@@ -210,4 +199,4 @@ export const IssueLabelSelect = observer(function IssueLabelSelect(props: IIssue
       </Combobox>
     </>
   );
-});
+}

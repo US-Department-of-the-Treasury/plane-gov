@@ -488,3 +488,65 @@ export function useDeleteModuleLink() {
     },
   });
 }
+
+// Utility functions for derived data
+
+/**
+ * Get module by ID from a modules array.
+ *
+ * @example
+ * const { data: modules } = useProjectModules(workspaceSlug, projectId);
+ * const module = getModuleById(modules, moduleId);
+ */
+export function getModuleById(modules: IModule[] | undefined, moduleId: string | null | undefined): IModule | undefined {
+  if (!modules || !moduleId) return undefined;
+  return modules.find((mod) => mod.id === moduleId);
+}
+
+/**
+ * Get module name by ID from a modules array.
+ *
+ * @example
+ * const { data: modules } = useProjectModules(workspaceSlug, projectId);
+ * const name = getModuleNameById(modules, moduleId);
+ */
+export function getModuleNameById(modules: IModule[] | undefined, moduleId: string | null | undefined): string | undefined {
+  if (!modules || !moduleId) return undefined;
+  return modules.find((mod) => mod.id === moduleId)?.name;
+}
+
+/**
+ * Get module IDs from modules array.
+ *
+ * @example
+ * const { data: modules } = useProjectModules(workspaceSlug, projectId);
+ * const moduleIds = getModuleIds(modules);
+ */
+export function getModuleIds(modules: IModule[] | undefined): string[] {
+  if (!modules) return [];
+  return modules.map((mod) => mod.id);
+}
+
+/**
+ * Get active modules (not archived) from modules array.
+ *
+ * @example
+ * const { data: modules } = useProjectModules(workspaceSlug, projectId);
+ * const activeModules = getActiveModules(modules);
+ */
+export function getActiveModules(modules: IModule[] | undefined): IModule[] {
+  if (!modules) return [];
+  return modules.filter((mod) => !mod.archived_at);
+}
+
+/**
+ * Get favorite modules from modules array.
+ *
+ * @example
+ * const { data: modules } = useProjectModules(workspaceSlug, projectId);
+ * const favoriteModules = getFavoriteModules(modules);
+ */
+export function getFavoriteModules(modules: IModule[] | undefined): IModule[] {
+  if (!modules) return [];
+  return modules.filter((mod) => mod.is_favorite);
+}

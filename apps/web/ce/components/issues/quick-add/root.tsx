@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { useEffect, useRef } from "react";
 import { observer } from "mobx-react";
 import type { UseFormRegister, UseFormSetFocus } from "react-hook-form";
+import { useParams } from "next/navigation";
 // plane constants
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -18,7 +19,7 @@ import {
   SpreadsheetQuickAddIssueForm,
 } from "@/components/issues/issue-layouts/quick-add";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
 import useKeypress from "@/hooks/use-keypress";
 
 export type TQuickAddIssueFormRoot = {
@@ -37,9 +38,10 @@ export type TQuickAddIssueFormRoot = {
 export const QuickAddIssueFormRoot = observer(function QuickAddIssueFormRoot(props: TQuickAddIssueFormRoot) {
   const { isOpen, layout, projectId, hasError = false, setFocus, register, onSubmit, onClose, isEpic } = props;
   // store hooks
-  const { getProjectById } = useProject();
+  const { workspaceSlug } = useParams();
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
   // derived values
-  const projectDetail = getProjectById(projectId);
+  const projectDetail = getProjectById(projects, projectId);
   // refs
   const ref = useRef<HTMLFormElement>(null);
   // click detection

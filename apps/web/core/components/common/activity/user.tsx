@@ -1,38 +1,39 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
 import Link from "next/link";
 // types
 import type { TWorkspaceBaseActivity } from "@plane/types";
 // store hooks
-import { useMember } from "@/hooks/store/use-member";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
+import { useWorkspaces, getWorkspaceById } from "@/store/queries/workspace";
 
 type TUser = {
   activity: TWorkspaceBaseActivity;
   customUserName?: string;
+  workspaceSlug: string;
 };
 
-export const User = observer(function User(props: TUser) {
-  const { activity, customUserName } = props;
+export function User(props: TUser) {
+  const { activity, customUserName, workspaceSlug } = props;
   // store hooks
-  const { getUserDetails } = useMember();
-  const { getWorkspaceById } = useWorkspace();
+  const { data: members } = useWorkspaceMembers(workspaceSlug);
+  const { data: workspaces } = useWorkspaces();
   // derived values
-  const actorDetail = getUserDetails(activity.actor);
-  const workspaceDetail = getWorkspaceById(activity.workspace);
+  const actorDetail = getWorkspaceMemberByUserId(members, activity.actor);
+  const workspaceDetail = getWorkspaceById(workspaces, activity.workspace);
+  const displayName = actorDetail ? getMemberDisplayName(actorDetail) : "";
 
   return (
     <>
-      {customUserName || actorDetail?.display_name.includes("-intake") ? (
+      {customUserName || displayName.includes("-intake") ? (
         <span className="text-primary font-medium">{customUserName || "Plane"}</span>
       ) : (
         <Link
           href={`/${workspaceDetail?.slug}/profile/${actorDetail?.id}`}
           className="hover:underline text-primary font-medium"
         >
-          {actorDetail?.display_name}
+          {displayName}
         </Link>
       )}
     </>
   );
-});
+}

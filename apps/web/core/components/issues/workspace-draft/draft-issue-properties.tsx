@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // icons
 import { DueDatePropertyIcon, StartDatePropertyIcon } from "@plane/propel/icons";
@@ -17,11 +16,11 @@ import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 // helpers
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
-import { useLabel } from "@/hooks/store/use-label";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
 import { useWorkspaceDraftIssues } from "@/hooks/store/workspace-draft";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useProjectLabels } from "@/store/queries/label";
+import { useProjectDetails } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 import { IssuePropertyLabels } from "../issue-layouts/properties";
 // local components
 
@@ -33,25 +32,29 @@ export interface IIssueProperties {
   className: string;
 }
 
-export const DraftIssueProperties = observer(function DraftIssueProperties(props: IIssueProperties) {
+export function DraftIssueProperties(props: IIssueProperties) {
   const { issue, updateIssue, className } = props;
-  // store hooks
-  const { getProjectById } = useProject();
-  const { labelMap } = useLabel();
-  const { addSprintToIssue, addModulesToIssue } = useWorkspaceDraftIssues();
-  const { areEstimateEnabledByProjectId } = useProjectEstimates();
-  const { getStateById } = useProjectState();
-  const { isMobile } = usePlatformOS();
-  const projectDetails = getProjectById(issue.project_id);
-
   // router
   const { workspaceSlug } = useParams();
+
+  // store hooks
+  const { addSprintToIssue, addModulesToIssue } = useWorkspaceDraftIssues();
+  const { areEstimateEnabledByProjectId } = useProjectEstimates();
+  const { isMobile } = usePlatformOS();
+
+  // queries
+  const { data: projectDetails } = useProjectDetails(workspaceSlug as string, issue.project_id);
+
+  // queries
+  const { data: projectLabels } = useProjectLabels(workspaceSlug as string, issue.project_id);
+  const { data: projectStates } = useProjectStates(workspaceSlug as string, issue.project_id);
+
   // derived values
-  const stateDetails = getStateById(issue.state_id);
+  const stateDetails = getStateById(projectStates, issue.state_id);
 
   const issueOperations = useMemo(
     () => ({
-      updateIssueModules: async (moduleIds: string[]) => {
+      updateIssueEpics: async (moduleIds: string[]) => {
         if (!workspaceSlug || !issue.id) return;
         await addModulesToIssue(workspaceSlug.toString(), issue.id, moduleIds);
       },
@@ -83,7 +86,7 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
   const handleModule = useCallback(
     (moduleIds: string[] | null) => {
       if (!issue || !issue.module_ids || !moduleIds) return;
-      issueOperations.updateIssueModules(moduleIds);
+      issueOperations.updateIssueEpics(moduleIds);
     },
     [issueOperations, issue]
   );
@@ -116,7 +119,9 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
 
   if (!issue.project_id) return null;
 
-  const defaultLabelOptions = issue?.label_ids?.map((id) => labelMap[id]) || [];
+  const defaultLabelOptions = issue?.label_ids
+    ?.map((id) => projectLabels?.find((label) => label.id === id))
+    .filter(Boolean) || [];
 
   const minDate = getDate(issue.start_date);
   minDate?.setDate(minDate.getDate());
@@ -266,4 +271,4 @@ export const DraftIssueProperties = observer(function DraftIssueProperties(props
       )}
     </div>
   );
-});
+}

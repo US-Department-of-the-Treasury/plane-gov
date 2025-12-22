@@ -10,8 +10,8 @@ import { ActivityIcon, ActivityMessage, IssueLink } from "@/components/core/acti
 import { RichTextEditor } from "@/components/editor/rich-text";
 import { ActivitySettingsLoader } from "@/components/ui/loader/settings/activity";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUser } from "@/hooks/store/user";
+import { useWorkspaces, getWorkspaceBySlug } from "@/store/queries/workspace";
 
 type Props = {
   activity: IUserActivityResponse | undefined;
@@ -23,9 +23,9 @@ export const ActivityList = observer(function ActivityList(props: Props) {
   const { workspaceSlug } = useParams();
   // store hooks
   const { data: currentUser } = useUser();
-  const { getWorkspaceBySlug } = useWorkspace();
+  const { data: workspaces } = useWorkspaces();
   // derived values
-  const workspaceId = getWorkspaceBySlug(workspaceSlug?.toString() ?? "")?.id ?? "";
+  const workspaceId = getWorkspaceBySlug(workspaces, workspaceSlug?.toString() ?? "")?.id ?? "";
 
   // TODO: refactor this component
   return (

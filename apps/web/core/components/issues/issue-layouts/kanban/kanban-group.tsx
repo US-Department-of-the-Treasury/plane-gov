@@ -30,9 +30,10 @@ import {
 } from "@/components/issues/issue-layouts/utils";
 import { KanbanIssueBlockLoader } from "@/components/ui/loader/layouts/kanban-layout-loader";
 // hooks
-import { useProjectState } from "@/hooks/store/use-project-state";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useIssuesStore } from "@/hooks/use-issue-layout-store";
+// queries
+import { useProjectStates, getDefaultStateId } from "@/store/queries/state";
 // Plane-web
 import { useWorkFlowFDragNDrop } from "@/plane-web/components/workflow";
 //
@@ -91,8 +92,21 @@ export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
   } = props;
   // i18n
   const { t } = useTranslation();
-  // hooks
-  const projectState = useProjectState();
+
+  // Get project ID from first issue in the group
+  const isSubGroup = !!sub_group_id && sub_group_id !== "null";
+  const issueIds = isSubGroup
+    ? ((groupedIssueIds as TSubGroupedIssues)?.[groupId]?.[sub_group_id] ?? [])
+    : ((groupedIssueIds as TGroupedIssues)?.[groupId] ?? []);
+  const firstIssueId = issueIds?.[0];
+  const projectId = firstIssueId ? issuesMap?.[firstIssueId]?.project_id : undefined;
+
+  // Extract workspaceSlug from window location
+  const workspaceSlug = typeof window !== 'undefined'
+    ? window.location.pathname.split('/')[1]
+    : undefined;
+
+  const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
 
   const {
     issues: { getGroupIssueCount, getPaginationData, getIssueLoader },
@@ -195,8 +209,8 @@ export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
     groupValue: string,
     subGroupValue: string
   ) => {
-    const defaultState = projectState.projectStates?.find((state) => state.default);
-    let preloadedData: object = { state_id: defaultState?.id };
+    const defaultStateId = projectStates ? getDefaultStateId(projectStates) : undefined;
+    let preloadedData: object = { state_id: defaultStateId };
 
     if (groupByKey) {
       if (groupByKey === "state") {
@@ -240,12 +254,6 @@ export const KanbanGroup = observer(function KanbanGroup(props: IKanbanGroup) {
 
     return preloadedData;
   };
-
-  const isSubGroup = !!sub_group_id && sub_group_id !== "null";
-
-  const issueIds = isSubGroup
-    ? ((groupedIssueIds as TSubGroupedIssues)?.[groupId]?.[sub_group_id] ?? [])
-    : ((groupedIssueIds as TGroupedIssues)?.[groupId] ?? []);
 
   const groupIssueCount = getGroupIssueCount(groupId, sub_group_id, false) ?? 0;
 

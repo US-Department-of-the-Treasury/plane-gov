@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // types
 import { PROJECT_ERROR_MESSAGES } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -9,7 +10,7 @@ import type { TIssue } from "@plane/types";
 import { AlertModalCore } from "@plane/ui";
 // constants
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
 
 type Props = {
   data: Partial<TIssue>;
@@ -24,13 +25,15 @@ export const DeleteInboxIssueModal = observer(function DeleteInboxIssueModal({
   onSubmit,
   data,
 }: Props) {
+  // router
+  const { workspaceSlug } = useParams();
   // states
   const [isDeleting, setIsDeleting] = useState(false);
-  // store hooks
-  const { getProjectById } = useProject();
+  // hooks
+  const { data: projects = [] } = useProjects(workspaceSlug?.toString());
   const { t } = useTranslation();
   // derived values
-  const projectDetails = data.project_id ? getProjectById(data?.project_id) : undefined;
+  const projectDetails = data.project_id ? getProjectById(projects, data?.project_id) : undefined;
 
   const handleClose = () => {
     setIsDeleting(false);

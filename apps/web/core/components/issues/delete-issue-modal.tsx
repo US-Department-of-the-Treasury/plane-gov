@@ -10,9 +10,9 @@ import type { TDeDupeIssue, TIssue } from "@plane/types";
 import { AlertModalCore } from "@plane/ui";
 // constants
 // hooks
-import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
+// queries
+import { useProjects, getProjectById } from "@/store/queries/project";
 // plane-web
 
 type Props = {
@@ -31,22 +31,22 @@ export const DeleteIssueModal = observer(function DeleteIssueModal(props: Props)
   const [isDeleting, setIsDeleting] = useState(false);
   // store hooks
   const { workspaceSlug } = useParams();
-  const { issueMap } = useIssues();
-  const { getProjectById } = useProject();
   const { allowPermissions } = useUserPermissions();
   const { t } = useTranslation();
 
   const { data: currentUser } = useUser();
+  // queries
+  const { data: projects = [] } = useProjects(workspaceSlug?.toString() || "");
 
   useEffect(() => {
     setIsDeleting(false);
   }, [isOpen]);
 
-  if (!dataId && !data) return null;
+  if (!data) return null;
 
   // derived values
-  const issue = data ? data : issueMap[dataId!];
-  const projectDetails = getProjectById(issue?.project_id);
+  const issue = data;
+  const projectDetails = getProjectById(projects, issue?.project_id);
   const isIssueCreator = issue?.created_by === currentUser?.id;
 
   const canPerformProjectAdminActions = allowPermissions(

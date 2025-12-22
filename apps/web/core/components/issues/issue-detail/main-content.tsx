@@ -10,11 +10,12 @@ import { DescriptionVersionsRoot } from "@/components/core/description-versions"
 import { DescriptionInput } from "@/components/editor/rich-text/description-input";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
-import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
 import useReloadConfirmations from "@/hooks/use-reload-confirmation";
 import useSize from "@/hooks/use-window-size";
+import { useIssue } from "@/store/queries/issue";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
+import { useProjectDetails } from "@/store/queries/project";
 // plane web components
 import { DeDupeIssuePopoverRoot } from "@/plane-web/components/de-dupe/duplicate-popover";
 import { IssueTypeSwitcher } from "@/plane-web/components/issues/issue-details/issue-type-switcher";
@@ -51,16 +52,11 @@ export const IssueMainContent = observer(function IssueMainContent(props: Props)
   // hooks
   const windowSize = useSize();
   const { data: currentUser } = useUser();
-  const { getUserDetails } = useMember();
-  const {
-    issue: { getIssueById },
-    peekIssue,
-  } = useIssueDetail();
-  const { getProjectById } = useProject();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
+  const { peekIssue } = useIssueDetail();
   const { setShowAlert } = useReloadConfirmations(isSubmitting === "submitting");
-  // derived values
-  const projectDetails = getProjectById(projectId);
-  const issue = issueId ? getIssueById(issueId) : undefined;
+  const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId);
   // debounced duplicate issues swr
   const { duplicateIssues } = useDebouncedDuplicateIssues(
     workspaceSlug,
@@ -162,7 +158,7 @@ export const IssueMainContent = observer(function IssueMainContent(props: Props)
               className="flex-shrink-0"
               entityInformation={{
                 createdAt: issue.created_at ? new Date(issue.created_at) : new Date(),
-                createdByDisplayName: getUserDetails(issue.created_by ?? "")?.display_name ?? "",
+                createdByDisplayName: getWorkspaceMemberByUserId(workspaceMembers, issue.created_by ?? "")?.member?.display_name ?? "",
                 id: issueId,
                 isRestoreDisabled: !isEditable || isArchived,
               }}

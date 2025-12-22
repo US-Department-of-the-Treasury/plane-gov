@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { ModuleIcon } from "@plane/propel/icons";
 import { Loader } from "@plane/ui";
 import { FilterHeader, FilterOption } from "@/components/issues/issue-layouts/filters";
-import { useModule } from "@/hooks/store/use-module";
+import { useProjectModules } from "@/store/queries/module";
 // ui
 
 type Props = {
@@ -18,14 +18,16 @@ type Props = {
 export const FilterModule = observer(function FilterModule(props: Props) {
   const { appliedFilters, handleUpdate, searchQuery } = props;
   // hooks
-  const { projectId } = useParams();
-  const { getModuleById, getProjectModuleIds } = useModule();
+  const { projectId, workspaceSlug } = useParams();
+  // fetch modules using TanStack Query
+  const { data: modules, isLoading } = useProjectModules(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   // states
   const [itemsToRender, setItemsToRender] = useState(5);
   const [previewEnabled, setPreviewEnabled] = useState(true);
 
-  const moduleIds = projectId ? getProjectModuleIds(projectId.toString()) : undefined;
-  const modules = moduleIds?.map((moduleId) => getModuleById(moduleId)!) ?? null;
   const appliedFiltersCount = appliedFilters?.length ?? 0;
 
   const sortedOptions = useMemo(() => {
@@ -56,7 +58,7 @@ export const FilterModule = observer(function FilterModule(props: Props) {
       />
       {previewEnabled && (
         <div>
-          {sortedOptions ? (
+          {!isLoading && sortedOptions ? (
             sortedOptions.length > 0 ? (
               <>
                 {sortedOptions.slice(0, itemsToRender).map((sprint) => (

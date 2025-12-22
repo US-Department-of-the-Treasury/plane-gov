@@ -14,8 +14,9 @@ import { DisplayFiltersSelection, FiltersDropdown } from "@/components/issues/is
 import { IssueLayoutIcon } from "@/components/issues/issue-layouts/layout-icon";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useModule } from "@/hooks/store/use-module";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
+// tanstack query
+import { useProjectModules, getModuleById } from "@/store/queries/module";
 
 const SUPPORTED_LAYOUTS = [
   { key: "list", i18n_title: "issue.layouts.list", icon: ListLayoutIcon },
@@ -31,14 +32,14 @@ export const ModuleIssuesMobileHeader = observer(function ModuleIssuesMobileHead
   // plane hooks
   const { t } = useTranslation();
   // store hooks
-  const { currentProjectDetails } = useProject();
-  const { getModuleById } = useModule();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
+  const { data: modules } = useProjectModules(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   const {
     issuesFilter: { issueFilters, updateFilters },
   } = useIssues(EIssuesStoreType.MODULE);
   // derived values
   const activeLayout = issueFilters?.displayFilters?.layout;
-  const moduleDetails = moduleId ? getModuleById(moduleId.toString()) : undefined;
+  const moduleDetails = moduleId ? getModuleById(modules, moduleId.toString()) : undefined;
 
   const handleLayoutChange = useCallback(
     (layout: EIssueLayoutTypes) => {

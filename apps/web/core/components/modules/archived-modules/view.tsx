@@ -1,15 +1,19 @@
 import type { FC } from "react";
+import { useMemo } from "react";
 import { observer } from "mobx-react";
 // assets
 import AllFiltersImage from "@/app/assets/empty-state/module/all-filters.svg?url";
 import NameFilterImage from "@/app/assets/empty-state/module/name-filter.svg?url";
+// plane utils
+import { shouldFilterModule, orderModules } from "@plane/utils";
 // components
 import { ModuleListItem, ModulePeekOverview } from "@/components/modules";
 // ui
 import { SprintModuleListLayoutLoader } from "@/components/ui/loader/sprint-module-list-loader";
 // hooks
-import { useModule } from "@/hooks/store/use-module";
 import { useModuleFilter } from "@/hooks/store/use-module-filter";
+// queries
+import { useArchivedModules } from "@/store/queries/module";
 
 export interface IArchivedModulesView {
   workspaceSlug: string;
@@ -19,12 +23,24 @@ export interface IArchivedModulesView {
 export const ArchivedModulesView = observer(function ArchivedModulesView(props: IArchivedModulesView) {
   const { workspaceSlug, projectId } = props;
   // store hooks
-  const { getFilteredArchivedModuleIds, loader } = useModule();
-  const { archivedModulesSearchQuery } = useModuleFilter();
-  // derived values
-  const filteredArchivedModuleIds = getFilteredArchivedModuleIds(projectId);
+  const { data: archivedModules, isLoading } = useArchivedModules(workspaceSlug, projectId);
+  const { archivedModulesSearchQuery, currentProjectDisplayFilters, currentProjectArchivedFilters } = useModuleFilter();
 
-  if (loader || !filteredArchivedModuleIds) return <SprintModuleListLayoutLoader />;
+  // derived values - apply filtering and ordering
+  const filteredArchivedModuleIds = useMemo(() => {
+    if (!archivedModules) return null;
+
+    let modules = archivedModules.filter(
+      (m) =>
+        m.name.toLowerCase().includes(archivedModulesSearchQuery.toLowerCase()) &&
+        shouldFilterModule(m, currentProjectDisplayFilters ?? {}, currentProjectArchivedFilters ?? {})
+    );
+
+    modules = orderModules(modules, currentProjectDisplayFilters?.order_by);
+    return modules.map((m) => m.id);
+  }, [archivedModules, archivedModulesSearchQuery, currentProjectDisplayFilters, currentProjectArchivedFilters]);
+
+  if (isLoading || !filteredArchivedModuleIds) return <SprintModuleListLayoutLoader />;
 
   if (filteredArchivedModuleIds.length === 0)
     return (

@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 // icons
 import { CirclePlus, LogOut, Mails } from "lucide-react";
 // ui
@@ -16,8 +17,8 @@ import { orderWorkspacesList, cn } from "@plane/utils";
 import { AppSidebarItem } from "@/components/sidebar/sidebar-item";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUser, useUserProfile } from "@/hooks/store/user";
+import { useWorkspaces, useWorkspaceDetails } from "@/store/queries/workspace";
 // plane web helpers
 import { getIsWorkspaceCreationDisabled } from "@/plane-web/helpers/instance.helper";
 // components
@@ -30,12 +31,15 @@ type WorkspaceMenuRootProps = {
 
 export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: WorkspaceMenuRootProps) {
   const { variant } = props;
+  // router params
+  const { workspaceSlug } = useParams();
   // store hooks
   const { toggleSidebar, toggleAnySidebarDropdown } = useAppTheme();
   const { data: currentUser } = useUser();
   const { signOut } = useUser();
   const { updateUserProfile } = useUserProfile();
-  const { currentWorkspace: activeWorkspace, workspaces } = useWorkspace();
+  const { data: workspaces } = useWorkspaces();
+  const { data: activeWorkspace } = useWorkspaceDetails(workspaceSlug?.toString() || "");
   // derived values
   const isWorkspaceCreationEnabled = getIsWorkspaceCreationDisabled() === false;
   // translation
@@ -60,7 +64,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
       toggleSidebar();
     }
   };
-  const workspacesList = orderWorkspacesList(Object.values(workspaces ?? {}));
+  const workspacesList = orderWorkspacesList(workspaces ?? []);
   // TODO: fix workspaces list scroll
 
   // Toggle sidebar dropdown state when either menu is open

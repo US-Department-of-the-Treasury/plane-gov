@@ -20,9 +20,9 @@ import { IssueProperties } from "@/components/issues/issue-layouts/properties";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 import { IssueStats } from "@/plane-web/components/issues/issue-layouts/issue-stats";
@@ -32,8 +32,7 @@ import { calculateIdentifierWidth } from "../utils";
 import type { TRenderQuickActions } from "./list-view-types";
 
 interface IssueBlockProps {
-  issueId: string;
-  issuesMap: TIssueMap;
+  issue: TIssue;
   groupId: string;
   updateIssue: ((projectId: string | null, issueId: string, data: Partial<TIssue>) => Promise<void>) | undefined;
   quickActions: TRenderQuickActions;
@@ -52,8 +51,7 @@ interface IssueBlockProps {
 
 export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
   const {
-    issuesMap,
-    issueId,
+    issue,
     groupId,
     updateIssue,
     quickActions,
@@ -77,7 +75,8 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
   const projectId = routerProjectId?.toString();
   // hooks
   const { sidebarCollapsed: isSidebarCollapsed } = useAppTheme();
-  const { getProjectIdentifierById, currentProjectNextSequenceId } = useProject();
+  const { data: projects } = useProjects(workspaceSlug ?? "");
+  const currentProject = getProjectById(projects, projectId);
   const {
     getIsIssuePeeked,
     peekIssue,
@@ -85,22 +84,22 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
     subIssues: subIssuesStore,
   } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
 
-  const handleIssuePeekOverview = (issue: TIssue) =>
+  const handleIssuePeekOverview = (issueToOpen: TIssue) =>
     workspaceSlug &&
-    issue &&
-    issue.project_id &&
-    issue.id &&
-    !getIsIssuePeeked(issue.id) &&
+    issueToOpen &&
+    issueToOpen.project_id &&
+    issueToOpen.id &&
+    !getIsIssuePeeked(issueToOpen.id) &&
     setPeekIssue({
       workspaceSlug,
-      projectId: issue.project_id,
-      issueId: issue.id,
+      projectId: issueToOpen.project_id,
+      issueId: issueToOpen.id,
       nestingLevel: nestingLevel,
-      isArchived: !!issue.archived_at,
+      isArchived: !!issueToOpen.archived_at,
     });
 
   // derived values
-  const issue = issuesMap[issueId];
+  const issueId = issue.id;
   const subIssuesCount = issue?.sub_issues_count ?? 0;
   const canEditIssueProperties = canEditProperties(issue?.project_id ?? undefined);
   const isDraggingAllowed = canDrag && canEditIssueProperties;
@@ -129,7 +128,7 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
 
   if (!issue) return null;
 
-  const projectIdentifier = getProjectIdentifierById(issue.project_id);
+  const projectIdentifier = getProjectById(projects, issue.project_id)?.identifier;
   const isIssueSelected = selectionHelpers.getIsEntitySelected(issue.id);
   const isIssueActive = selectionHelpers.getIsEntityActive(issue.id);
   const isSubIssue = nestingLevel !== 0;
@@ -153,7 +152,7 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
 
   // Calculate width for: projectIdentifier + "-" + dynamic sequence number digits
   // Use next_work_item_sequence from backend (static value from project endpoint)
-  const maxSequenceId = currentProjectNextSequenceId ?? 1;
+  const maxSequenceId = currentProject?.next_work_item_sequence ?? 1;
   const keyMinWidth = displayProperties?.key
     ? calculateIdentifierWidth(projectIdentifier?.length ?? 0, maxSequenceId)
     : 0;

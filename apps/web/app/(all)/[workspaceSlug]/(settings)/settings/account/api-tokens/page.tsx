@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import useSWR from "swr";
 // plane imports
 import { PROFILE_SETTINGS_TRACKER_ELEMENTS } from "@plane/constants";
@@ -15,18 +14,20 @@ import { APITokenSettingsLoader } from "@/components/ui/loader/settings/api-toke
 import { API_TOKENS_LIST } from "@/constants/fetch-keys";
 // store hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
+import type { Route } from "./+types/page";
 
 const apiTokenService = new APITokenService();
 
-function ApiTokensPage() {
+function ApiTokensPage({ params }: Route.ComponentProps) {
   // states
   const [isCreateTokenModalOpen, setIsCreateTokenModalOpen] = useState(false);
   // router
+  const { workspaceSlug } = params;
   // plane hooks
   const { t } = useTranslation();
   // store hooks
-  const { currentWorkspace } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
 
   const { data: tokens } = useSWR(API_TOKENS_LIST, () => apiTokenService.list());
 
@@ -106,4 +107,4 @@ function ApiTokensPage() {
   );
 }
 
-export default observer(ApiTokensPage);
+export default ApiTokensPage;

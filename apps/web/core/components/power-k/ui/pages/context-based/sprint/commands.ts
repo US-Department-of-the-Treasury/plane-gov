@@ -11,6 +11,7 @@ import type { TPowerKCommandConfig } from "@/components/power-k/core/types";
 // hooks
 import { useSprint } from "@/hooks/store/use-sprint";
 import { useUser } from "@/hooks/store/user";
+import { useWorkspaceSprints, getSprintById } from "@/store/queries/sprint";
 
 export const usePowerKSprintContextBasedActions = (): TPowerKCommandConfig[] => {
   // navigation
@@ -19,9 +20,12 @@ export const usePowerKSprintContextBasedActions = (): TPowerKCommandConfig[] => 
   const {
     permission: { allowPermissions },
   } = useUser();
-  const { getSprintById, addSprintToFavorites, removeSprintFromFavorites } = useSprint();
+  // Keep MobX favorites methods until TanStack Query mutations are available
+  const { addSprintToFavorites, removeSprintFromFavorites } = useSprint();
+  // queries
+  const { data: sprints } = useWorkspaceSprints(workspaceSlug?.toString() ?? "");
   // derived values
-  const sprintDetails = sprintId ? getSprintById(sprintId.toString()) : null;
+  const sprintDetails = sprintId ? getSprintById(sprints, sprintId.toString()) : null;
   const isFavorite = !!sprintDetails?.is_favorite;
   // permission
   const isEditingAllowed =

@@ -29,11 +29,12 @@ import { ModuleStatusDropdown } from "@/components/modules/module-status-dropdow
 // helpers
 import { captureElementAndEvent } from "@/helpers/event-tracker.helper";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useModule } from "@/hooks/store/use-module";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useProjectModules, getModuleById, useUpdateModule } from "@/store/queries/module";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 
 type Props = {
   moduleId: string;
@@ -50,12 +51,19 @@ export const ModuleCardItem = observer(function ModuleCardItem(props: Props) {
   const pathname = usePathname();
   // store hooks
   const { allowPermissions } = useUserPermissions();
-  const { getModuleById, addModuleToFavorites, removeModuleFromFavorites, updateModuleDetails } = useModule();
-  const { getUserDetails } = useMember();
+  const { addModuleToFavorites, removeModuleFromFavorites } = useModule();
+  // query hooks
+  const { data: modules } = useProjectModules(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
+  // mutation hooks
+  const { mutate: updateModule } = useUpdateModule();
   // local storage
   const { setValue: toggleFavoriteMenu, storedValue } = useLocalStorage<boolean>(IS_FAVORITE_MENU_OPEN, false);
   // derived values
-  const moduleDetails = getModuleById(moduleId);
+  const moduleDetails = getModuleById(modules, moduleId);
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT
@@ -138,24 +146,33 @@ export const ModuleCardItem = observer(function ModuleCardItem(props: Props) {
     e.preventDefault();
   };
 
-  const handleModuleDetailsChange = async (payload: Partial<IModule>) => {
+  const handleModuleDetailsChange = (payload: Partial<IModule>) => {
     if (!workspaceSlug || !projectId) return;
 
-    await updateModuleDetails(workspaceSlug.toString(), projectId.toString(), moduleId, payload)
-      .then(() => {
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Success!",
-          message: "Module updated successfully.",
-        });
-      })
-      .catch((err) => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: err?.detail ?? "Module could not be updated. Please try again.",
-        });
-      });
+    updateModule(
+      {
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        moduleId,
+        data: payload,
+      },
+      {
+        onSuccess: () => {
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: "Module updated successfully.",
+          });
+        },
+        onError: (err: any) => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: err?.detail ?? "Module could not be updated. Please try again.",
+          });
+        },
+      }
+    );
   };
 
   const openModuleOverview = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -193,7 +210,7 @@ export const ModuleCardItem = observer(function ModuleCardItem(props: Props) {
         : `${moduleCompletedIssues}/${moduleTotalIssues} Work items`
     : `0 work items`;
 
-  const moduleLeadDetails = moduleDetails.lead_id ? getUserDetails(moduleDetails.lead_id) : undefined;
+  const moduleLeadDetails = moduleDetails.lead_id ? getWorkspaceMemberByUserId(workspaceMembers, moduleDetails.lead_id) : undefined;
 
   const progressIndicatorData = PROGRESS_STATE_GROUPS_DETAILS.map((group, index) => ({
     id: index,

@@ -9,26 +9,20 @@ import { USER_WORKSPACES_LIST } from "@/constants/fetch-keys";
 // helpers
 import { EPageTypes } from "@/helpers/authentication.helper";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUser } from "@/hooks/store/user";
 // wrappers
 import { AuthenticationWrapper } from "@/lib/wrappers/authentication-wrapper";
 // services
 import { WorkspaceService } from "@/plane-web/services";
+import { useWorkspaces } from "@/store/queries/workspace";
 
 const workspaceService = new WorkspaceService();
 
 function OnboardingPage() {
   // store hooks
   const { data: user } = useUser();
-  const { fetchWorkspaces } = useWorkspace();
-
-  // fetching workspaces list
-  useSWR(USER_WORKSPACES_LIST, () => {
-    if (user?.id) {
-      fetchWorkspaces();
-    }
-  });
+  // TanStack Query automatically fetches workspaces
+  useWorkspaces();
 
   // fetching user workspace invitations
   const { isLoading: invitationsLoader, data: invitations } = useSWR(

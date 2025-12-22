@@ -10,7 +10,8 @@ import { EModalPosition, EModalWidth, ModalCore } from "@plane/ui";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useEstimate } from "@/hooks/store/estimates/use-estimate";
-import { useProject } from "@/hooks/store/use-project";
+// store hooks
+import { useUpdateProject } from "@/store/queries/project";
 
 type TDeleteEstimateModal = {
   workspaceSlug: string;
@@ -26,7 +27,7 @@ export const DeleteEstimateModal = observer(function DeleteEstimateModal(props: 
   // hooks
   const { areEstimateEnabledByProjectId, deleteEstimate } = useProjectEstimates();
   const { asJson: estimate } = useEstimate(estimateId);
-  const { updateProject } = useProject();
+  const { mutate: updateProject } = useUpdateProject();
   // states
   const [buttonLoader, setButtonLoader] = useState(false);
 

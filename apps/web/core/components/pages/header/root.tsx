@@ -8,11 +8,11 @@ import { Header, EHeaderVariant } from "@plane/ui";
 import { calculateTotalFilters } from "@plane/utils";
 // components
 import { FiltersDropdown } from "@/components/issues/issue-layouts/filters";
-// hooks
-import { useMember } from "@/hooks/store/use-member";
 // plane web hooks
 import type { EPageStoreType } from "@/plane-web/hooks/store";
 import { usePageStore } from "@/plane-web/hooks/store";
+// store
+import { useWorkspaceMembers } from "@/store/queries/member";
 // local imports
 import { PageAppliedFiltersList } from "../list/applied-filters";
 import { PageFiltersSelection } from "../list/filters";
@@ -32,9 +32,9 @@ export const PagesListHeaderRoot = observer(function PagesListHeaderRoot(props: 
   const { t } = useTranslation();
   // store hooks
   const { filters, updateFilters, clearAllFilters } = usePageStore(storeType);
-  const {
-    workspace: { workspaceMemberIds },
-  } = useMember();
+  // queries
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug);
+  const workspaceMemberIds = workspaceMembers.map((member) => member.member);
 
   const handleRemoveFilter = useCallback(
     (key: keyof TPageFilterProps, value: string | null) => {

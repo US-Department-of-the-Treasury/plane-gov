@@ -28,7 +28,7 @@ import { PublishProjectModal } from "@/components/project/publish-project/modal"
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useProjectNavigationPreferences } from "@/hooks/use-navigation-preferences";
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -66,7 +66,7 @@ export const SidebarProjectsListItem = observer(function SidebarProjectsListItem
   } = props;
   // store hooks
   const { t } = useTranslation();
-  const { getPartialProjectById } = useProject();
+  const { data: project } = useProjectDetails(workspaceSlug?.toString(), projectId);
   const { isMobile } = usePlatformOS();
   const { allowPermissions } = useUserPermissions();
   const { getIsProjectListOpen, toggleProjectListOpen } = useCommandPalette();
@@ -87,8 +87,6 @@ export const SidebarProjectsListItem = observer(function SidebarProjectsListItem
   // router
   const { workspaceSlug, projectId: URLProjectId } = useParams();
   const router = useRouter();
-  // derived values
-  const project = getPartialProjectById(projectId);
 
   // Get available navigation items for this project
   const navigationItems = useNavigationItems({

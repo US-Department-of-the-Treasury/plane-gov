@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useMemo, useState } from "react";
+import { useParams } from "next/navigation";
 import { sortBy } from "lodash-es";
 import { observer } from "mobx-react";
 // plane types
@@ -11,9 +12,9 @@ import { getFileURL } from "@plane/utils";
 import { FilterHeader, FilterOption } from "@/components/issues/issue-layouts/filters";
 // helpers
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import { useUser } from "@/hooks/store/user";
+import { useWorkspaceMembers, getWorkspaceMembersMap } from "@/store/queries/member";
 
 type Props = {
   filterKey: TInboxIssueFilterMemberKeys;
@@ -24,10 +25,12 @@ type Props = {
 
 export const FilterMember = observer(function FilterMember(props: Props) {
   const { filterKey, label = "Members", memberIds, searchQuery } = props;
+  // router
+  const { workspaceSlug } = useParams();
   // hooks
   const { inboxFilters, handleInboxIssueFilters } = useProjectInbox();
-  const { getUserDetails } = useMember();
   const { data: currentUser } = useUser();
+  const { data: workspaceMembers, isLoading } = useWorkspaceMembers(workspaceSlug?.toString());
   // states
   const [itemsToRender, setItemsToRender] = useState(5);
   const [previewEnabled, setPreviewEnabled] = useState(true);
@@ -35,18 +38,25 @@ export const FilterMember = observer(function FilterMember(props: Props) {
   const filterValue = inboxFilters?.[filterKey] || [];
   const appliedFiltersCount = filterValue?.length ?? 0;
 
+  // create members map for quick lookup
+  const membersMap = useMemo(() => {
+    if (!workspaceMembers) return new Map();
+    return getWorkspaceMembersMap(workspaceMembers);
+  }, [workspaceMembers]);
+
   const sortedOptions = useMemo(() => {
-    const filteredOptions = (memberIds || []).filter((memberId) =>
-      getUserDetails(memberId)?.display_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredOptions = (memberIds || []).filter((memberId) => {
+      const member = membersMap.get(memberId);
+      return member?.member?.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    });
 
     return sortBy(filteredOptions, [
       (memberId) => !filterValue.includes(memberId),
       (memberId) => memberId !== currentUser?.id,
-      (memberId) => getUserDetails(memberId)?.display_name.toLowerCase(),
+      (memberId) => membersMap.get(memberId)?.member?.display_name?.toLowerCase() || "",
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
+  }, [searchQuery, membersMap, memberIds, filterValue, currentUser?.id]);
 
   const handleViewToggle = () => {
     if (!sortedOptions) return;
@@ -67,18 +77,19 @@ export const FilterMember = observer(function FilterMember(props: Props) {
       />
       {previewEnabled && (
         <div>
-          {sortedOptions ? (
+          {!isLoading && sortedOptions ? (
             sortedOptions.length > 0 ? (
               <>
                 {sortedOptions.slice(0, itemsToRender).map((memberId) => {
-                  const member = getUserDetails(memberId);
+                  const workspaceMember = membersMap.get(memberId);
+                  const member = workspaceMember?.member;
 
                   if (!member) return null;
                   return (
                     <FilterOption
-                      key={`members-${member.id}`}
-                      isChecked={filterValue?.includes(member.id) ? true : false}
-                      onClick={() => handleInboxIssueFilters(filterKey, handleFilterValue(member.id))}
+                      key={`members-${memberId}`}
+                      isChecked={filterValue?.includes(memberId) ? true : false}
+                      onClick={() => handleInboxIssueFilters(filterKey, handleFilterValue(memberId))}
                       icon={
                         <Avatar
                           name={member.display_name}
@@ -87,7 +98,7 @@ export const FilterMember = observer(function FilterMember(props: Props) {
                           size="md"
                         />
                       }
-                      title={currentUser?.id === member.id ? "You" : member?.display_name}
+                      title={currentUser?.id === memberId ? "You" : member?.display_name}
                     />
                   );
                 })}

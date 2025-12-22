@@ -8,7 +8,7 @@ import { cn, findHowManyDaysLeft, generateWorkItemLink } from "@plane/utils";
 // components
 import { NameDescriptionUpdateStatus } from "@/components/issues/issue-update-status";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
 import { useAppRouter } from "@/hooks/use-app-router";
 // store types
 import type { IInboxIssueStore } from "@/store/inbox/inbox-issue.store";
@@ -64,7 +64,7 @@ export const InboxIssueActionsMobileHeader = observer(function InboxIssueActions
     handleActionWithPermission,
   } = props;
   const router = useAppRouter();
-  const { getProjectIdentifierById } = useProject();
+  const { data: projects = [] } = useProjects(workspaceSlug);
 
   const issue = inboxIssue?.issue;
   const currentInboxIssueId = issue?.id;
@@ -73,7 +73,7 @@ export const InboxIssueActionsMobileHeader = observer(function InboxIssueActions
 
   if (!issue || !inboxIssue) return null;
 
-  const projectIdentifier = getProjectIdentifierById(issue?.project_id);
+  const projectIdentifier = getProjectById(projects, issue?.project_id)?.identifier;
 
   const workItemLink = generateWorkItemLink({
     workspaceSlug: workspaceSlug?.toString(),

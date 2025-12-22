@@ -1,4 +1,5 @@
 import { useState, Fragment } from "react";
+import { useParams } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
 // i18n
 import { useTranslation } from "@plane/i18n";
@@ -6,9 +7,9 @@ import { useTranslation } from "@plane/i18n";
 import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { TDeDupeIssue, TIssue } from "@plane/types";
-// hooks
-import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
+// queries
+import { useIssue } from "@/store/queries/issue";
+import { useProjects, getProjectById } from "@/store/queries/project";
 
 type Props = {
   data?: TIssue | TDeDupeIssue;
@@ -23,14 +24,23 @@ export function ArchiveIssueModal(props: Props) {
   const { t } = useTranslation();
   // states
   const [isArchiving, setIsArchiving] = useState(false);
-  // store hooks
-  const { getProjectById } = useProject();
-  const { issueMap } = useIssues();
+  const { workspaceSlug, projectId } = useParams();
+  // queries
+  const { data: projects = [] } = useProjects(workspaceSlug?.toString() || "");
+  // Only fetch issue if dataId is provided but data is not
+  const shouldFetchIssue = !data && !!dataId;
+  const { data: fetchedIssue } = useIssue(
+    workspaceSlug?.toString() || "",
+    projectId?.toString() || "",
+    shouldFetchIssue ? dataId : ""
+  );
 
   if (!dataId && !data) return null;
 
-  const issue = data ? data : issueMap[dataId!];
-  const projectDetails = getProjectById(issue.project_id);
+  const issue = data || fetchedIssue;
+  if (!issue) return null;
+
+  const projectDetails = getProjectById(projects, issue.project_id);
 
   const onClose = () => {
     setIsArchiving(false);

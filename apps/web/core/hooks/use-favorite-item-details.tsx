@@ -8,9 +8,9 @@ import {
 } from "@/components/workspace/sidebar/favorites/favorite-items/common";
 // helpers
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
-import { useModule } from "@/hooks/store/use-module";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectModules, getModuleById } from "@/store/queries/module";
+import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
+import { useProjects, getProjectById } from "@/store/queries/project";
 import { useProjectView } from "@/hooks/store/use-project-view";
 // plane web hooks
 import { EPageStoreType, usePage } from "@/plane-web/hooks/store";
@@ -25,9 +25,9 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
   const favoriteItemName = favorite?.entity_data?.name || favorite?.name;
   // store hooks
   const { getViewById } = useProjectView();
-  const { getProjectById } = useProject();
-  const { getSprintById } = useSprint();
-  const { getModuleById } = useModule();
+  const { data: sprints } = useProjectSprints(workspaceSlug, favorite.project_id ?? "");
+  const { data: projectModules } = useProjectModules(workspaceSlug, favorite.project_id ?? "");
+  const { data: projects } = useProjects(workspaceSlug);
   // additional details
   const { getAdditionalFavoriteItemDetails } = useAdditionalFavoriteItemDetails();
   // derived values
@@ -36,9 +36,9 @@ export const useFavoriteItemDetails = (workspaceSlug: string, favorite: IFavorit
     storeType: EPageStoreType.PROJECT,
   });
   const viewDetails = getViewById(favoriteItemId ?? "");
-  const sprintDetail = getSprintById(favoriteItemId ?? "");
-  const moduleDetail = getModuleById(favoriteItemId ?? "");
-  const currentProjectDetails = getProjectById(favorite.project_id ?? "");
+  const sprintDetail = getSprintById(sprints, favoriteItemId ?? "");
+  const moduleDetail = getModuleById(projectModules, favoriteItemId ?? "");
+  const currentProjectDetails = getProjectById(projects, favorite.project_id ?? "");
 
   let itemIcon;
   let itemTitle;

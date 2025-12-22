@@ -7,7 +7,7 @@ import type { TSticky } from "@plane/types";
 import { cn, isCommentEmpty } from "@plane/utils";
 import { StickyEditor } from "@/components/editor/sticky-editor";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaces, getWorkspaceBySlug } from "@/store/queries/workspace";
 
 // const StickyEditor = dynamic(() => import("../../editor/sticky-editor").then((mod) => mod.StickyEditor), {
 //   ssr: false,
@@ -30,9 +30,9 @@ export function StickyInput(props: TProps) {
   // navigation
   const pathname = usePathname();
   // store hooks
-  const { getWorkspaceBySlug } = useWorkspace();
+  const { data: workspaces } = useWorkspaces();
   // derived values
-  const workspaceId = getWorkspaceBySlug(workspaceSlug)?.id?.toString() ?? "";
+  const workspaceId = getWorkspaceBySlug(workspaces, workspaceSlug)?.id?.toString() ?? "";
   const isStickiesPage = pathname?.includes("stickies");
   // form info
   const { handleSubmit, reset, control } = useForm<TSticky>({

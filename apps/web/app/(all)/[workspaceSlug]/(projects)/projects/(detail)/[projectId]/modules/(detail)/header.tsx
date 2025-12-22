@@ -33,8 +33,7 @@ import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-to
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useModule } from "@/hooks/store/use-module";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -43,6 +42,8 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 import { IconButton } from "@plane/propel/icon-button";
+// tanstack query
+import { useProjectModules, getModuleById, getModuleIds } from "@/store/queries/module";
 
 export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
   // refs
@@ -61,16 +62,21 @@ export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
     issues: { getGroupIssueCount },
   } = useIssues(EIssuesStoreType.MODULE);
   const { updateFilters } = useIssuesActions(EIssuesStoreType.MODULE);
-  const { projectModuleIds, getModuleById } = useModule();
+  const { data: modules } = useProjectModules(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
-  const { currentProjectDetails, loader } = useProject();
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+  const loader = isLoading ? "init-loader" : undefined;
   // local storage
   const { setValue, storedValue } = useLocalStorage("module_sidebar_collapsed", "false");
   // derived values
   const isSidebarCollapsed = storedValue ? (storedValue === "true" ? true : false) : false;
   const activeLayout = issueFilters?.displayFilters?.layout;
-  const moduleDetails = moduleId ? getModuleById(moduleId) : undefined;
+  const moduleDetails = moduleId ? getModuleById(modules, moduleId) : undefined;
+  const projectModuleIds = getModuleIds(modules);
   const canUserCreateIssue = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT
@@ -107,7 +113,7 @@ export const ModuleIssuesHeader = observer(function ModuleIssuesHeader() {
 
   const switcherOptions = projectModuleIds
     ?.map((id) => {
-      const _module = id === moduleId ? moduleDetails : getModuleById(id);
+      const _module = id === moduleId ? moduleDetails : getModuleById(modules, id);
       if (!_module) return;
       return {
         value: _module.id,

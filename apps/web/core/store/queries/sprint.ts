@@ -399,3 +399,93 @@ export function useRestoreSprint() {
     },
   });
 }
+
+// Utility functions for derived data
+
+/**
+ * Get sprint by ID from a sprints array.
+ *
+ * @example
+ * const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
+ * const sprint = getSprintById(sprints, sprintId);
+ */
+export function getSprintById(sprints: ISprint[] | undefined, sprintId: string | null | undefined): ISprint | undefined {
+  if (!sprints || !sprintId) return undefined;
+  return sprints.find((sprint) => sprint.id === sprintId);
+}
+
+/**
+ * Get sprint name by ID from a sprints array.
+ *
+ * @example
+ * const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
+ * const name = getSprintNameById(sprints, sprintId);
+ */
+export function getSprintNameById(sprints: ISprint[] | undefined, sprintId: string | null | undefined): string | undefined {
+  if (!sprints || !sprintId) return undefined;
+  return sprints.find((sprint) => sprint.id === sprintId)?.name;
+}
+
+/**
+ * Get sprint IDs from sprints array.
+ *
+ * @example
+ * const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
+ * const sprintIds = getSprintIds(sprints);
+ */
+export function getSprintIds(sprints: ISprint[] | undefined): string[] {
+  if (!sprints) return [];
+  return sprints.map((sprint) => sprint.id);
+}
+
+/**
+ * Get active/current sprint from sprints array.
+ *
+ * @example
+ * const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
+ * const activeSprint = getActiveSprint(sprints);
+ */
+export function getActiveSprint(sprints: ISprint[] | undefined): ISprint | undefined {
+  if (!sprints) return undefined;
+  const now = new Date();
+  return sprints.find((sprint) => {
+    if (!sprint.start_date || !sprint.end_date) return false;
+    const startDate = new Date(sprint.start_date);
+    const endDate = new Date(sprint.end_date);
+    return startDate <= now && now <= endDate;
+  });
+}
+
+/**
+ * Get completed sprints from sprints array.
+ *
+ * @example
+ * const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
+ * const completedSprints = getCompletedSprints(sprints);
+ */
+export function getCompletedSprints(sprints: ISprint[] | undefined): ISprint[] {
+  if (!sprints) return [];
+  const now = new Date();
+  return sprints.filter((sprint) => {
+    if (!sprint.end_date) return false;
+    const endDate = new Date(sprint.end_date);
+    return endDate < now;
+  });
+}
+
+/**
+ * Get upcoming sprints from sprints array.
+ *
+ * @example
+ * const { data: sprints } = useProjectSprints(workspaceSlug, projectId);
+ * const upcomingSprints = getUpcomingSprints(sprints);
+ */
+export function getUpcomingSprints(sprints: ISprint[] | undefined): ISprint[] {
+  if (!sprints) return [];
+  const now = new Date();
+  return sprints.filter((sprint) => {
+    if (!sprint.start_date) return false;
+    const startDate = new Date(sprint.start_date);
+    return startDate > now;
+  });
+}

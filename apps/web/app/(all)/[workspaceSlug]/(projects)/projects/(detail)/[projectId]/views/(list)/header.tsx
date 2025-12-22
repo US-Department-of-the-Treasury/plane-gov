@@ -10,7 +10,8 @@ import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { ViewListHeader } from "@/components/views/view-list-header";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
+// queries
+import { useProjects } from "@/store/queries/project";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 
@@ -18,13 +19,14 @@ export const ProjectViewsHeader = observer(function ProjectViewsHeader() {
   const { workspaceSlug, projectId } = useParams();
   // store hooks
   const { toggleCreateViewModal } = useCommandPalette();
-  const { loader } = useProject();
+  // queries
+  const { isLoading } = useProjects(workspaceSlug?.toString() ?? "");
 
   return (
     <>
       <Header>
         <Header.LeftItem>
-          <Breadcrumbs isLoading={loader === "init-loader"}>
+          <Breadcrumbs isLoading={isLoading}>
             <CommonProjectBreadcrumbs workspaceSlug={workspaceSlug?.toString()} projectId={projectId?.toString()} />
             <Breadcrumbs.Item
               component={

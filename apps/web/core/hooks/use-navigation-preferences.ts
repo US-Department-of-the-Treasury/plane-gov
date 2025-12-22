@@ -16,7 +16,7 @@ import {
   DEFAULT_WORKSPACE_PREFERENCES,
   DEFAULT_APP_RAIL_PREFERENCES,
 } from "@/types/navigation-preferences";
-import { useWorkspace } from "./store/use-workspace";
+import { useSidebarNavigationPreferences, useUpdateBulkSidebarPreferences } from "@/store/queries/workspace";
 import useLocalStorage from "./use-local-storage";
 
 const PROJECT_PREFERENCES_KEY = "navigation_preferences_projects";
@@ -24,10 +24,8 @@ const APP_RAIL_PREFERENCES_KEY = "app_rail_preferences";
 
 export const usePersonalNavigationPreferences = () => {
   const { workspaceSlug } = useParams();
-  const { getNavigationPreferences, updateBulkSidebarPreferences } = useWorkspace();
-
-  // Get preferences from the store
-  const storePreferences = getNavigationPreferences(workspaceSlug?.toString() || "");
+  const { data: storePreferences } = useSidebarNavigationPreferences(workspaceSlug?.toString() || "");
+  const { mutateAsync: updateBulkSidebarPreferences } = useUpdateBulkSidebarPreferences();
 
   // Convert store format to hook format for personal items
   const preferences: TPersonalNavigationPreferences = useMemo(() => {
@@ -62,13 +60,16 @@ export const usePersonalNavigationPreferences = () => {
 
       const currentItem = preferences.items[key] || { enabled: false, sort_order: 0 };
 
-      await updateBulkSidebarPreferences(workspaceSlug.toString(), [
-        {
-          key,
-          is_pinned: enabled,
-          sort_order: currentItem.sort_order,
-        },
-      ]);
+      await updateBulkSidebarPreferences({
+        workspaceSlug: workspaceSlug.toString(),
+        data: [
+          {
+            key,
+            is_pinned: enabled,
+            sort_order: currentItem.sort_order,
+          },
+        ],
+      });
     },
     [workspaceSlug, preferences, updateBulkSidebarPreferences]
   );
@@ -86,7 +87,10 @@ export const usePersonalNavigationPreferences = () => {
         };
       });
 
-      await updateBulkSidebarPreferences(workspaceSlug.toString(), bulkData);
+      await updateBulkSidebarPreferences({
+        workspaceSlug: workspaceSlug.toString(),
+        data: bulkData,
+      });
     },
     [workspaceSlug, preferences, updateBulkSidebarPreferences]
   );
@@ -156,10 +160,8 @@ export const useProjectNavigationPreferences = () => {
 
 export const useWorkspaceNavigationPreferences = () => {
   const { workspaceSlug } = useParams();
-  const { getNavigationPreferences, updateBulkSidebarPreferences } = useWorkspace();
-
-  // Get preferences from the store
-  const storePreferences = getNavigationPreferences(workspaceSlug?.toString() || "");
+  const { data: storePreferences } = useSidebarNavigationPreferences(workspaceSlug?.toString() || "");
+  const { mutateAsync: updateBulkSidebarPreferences } = useUpdateBulkSidebarPreferences();
 
   // Convert store format to hook format
   const preferences: TWorkspaceNavigationPreferences = useMemo(() => {
@@ -178,13 +180,16 @@ export const useWorkspaceNavigationPreferences = () => {
 
       const currentItem = preferences.items[key] || { is_pinned: false, sort_order: 0 };
 
-      await updateBulkSidebarPreferences(workspaceSlug.toString(), [
-        {
-          key,
-          is_pinned: isPinned,
-          sort_order: currentItem.sort_order,
-        },
-      ]);
+      await updateBulkSidebarPreferences({
+        workspaceSlug: workspaceSlug.toString(),
+        data: [
+          {
+            key,
+            is_pinned: isPinned,
+            sort_order: currentItem.sort_order,
+          },
+        ],
+      });
     },
     [workspaceSlug, preferences, updateBulkSidebarPreferences]
   );
@@ -202,7 +207,10 @@ export const useWorkspaceNavigationPreferences = () => {
         };
       });
 
-      await updateBulkSidebarPreferences(workspaceSlug.toString(), bulkData);
+      await updateBulkSidebarPreferences({
+        workspaceSlug: workspaceSlug.toString(),
+        data: bulkData,
+      });
     },
     [workspaceSlug, preferences, updateBulkSidebarPreferences]
   );
@@ -226,13 +234,16 @@ export const useWorkspaceNavigationPreferences = () => {
 
       const currentItem = preferences.items[key] || { is_pinned: false, sort_order: 0 };
 
-      await updateBulkSidebarPreferences(workspaceSlug.toString(), [
-        {
-          key,
-          is_pinned: currentItem.is_pinned,
-          sort_order: sortOrder,
-        },
-      ]);
+      await updateBulkSidebarPreferences({
+        workspaceSlug: workspaceSlug.toString(),
+        data: [
+          {
+            key,
+            is_pinned: currentItem.is_pinned,
+            sort_order: sortOrder,
+          },
+        ],
+      });
     },
     [workspaceSlug, preferences, updateBulkSidebarPreferences]
   );

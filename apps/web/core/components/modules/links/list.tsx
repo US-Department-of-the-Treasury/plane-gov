@@ -1,11 +1,11 @@
 import { useCallback } from "react";
-import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane types
 import type { ILinkDetails } from "@plane/types";
 // components
 import { ModulesLinksListItem } from "@/components/modules";
 // hooks
-import { useModule } from "@/hooks/store/use-module";
+import { useProjectModules, getModuleById } from "@/store/queries/module";
 
 type Props = {
   disabled?: boolean;
@@ -14,12 +14,17 @@ type Props = {
   moduleId: string;
 };
 
-export const ModuleLinksList = observer(function ModuleLinksList(props: Props) {
+export function ModuleLinksList(props: Props) {
   const { moduleId, handleDeleteLink, handleEditLink, disabled } = props;
-  // store hooks
-  const { getModuleById } = useModule();
+  // router
+  const { workspaceSlug, projectId } = useParams();
+  // query hooks
+  const { data: modules } = useProjectModules(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   // derived values
-  const currentModule = getModuleById(moduleId);
+  const currentModule = getModuleById(modules, moduleId);
   const moduleLinks = currentModule?.link_module;
   // memoized link handlers
   const memoizedDeleteLink = useCallback((id: string) => handleDeleteLink(id), [handleDeleteLink]);
@@ -40,4 +45,4 @@ export const ModuleLinksList = observer(function ModuleLinksList(props: Props) {
       ))}
     </>
   );
-});
+}

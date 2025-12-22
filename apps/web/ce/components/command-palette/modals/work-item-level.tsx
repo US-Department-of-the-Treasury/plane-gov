@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useMemo } from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
@@ -14,6 +15,8 @@ import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useUser } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
+// queries
+import { useIssueByIdentifier } from "@/store/queries/issue";
 
 export type TWorkItemLevelModalsProps = {
   workItemIdentifier: string | undefined;
@@ -26,12 +29,26 @@ export const WorkItemLevelModals = observer(function WorkItemLevelModals(props: 
   const router = useAppRouter();
   // store hooks
   const { data: currentUser } = useUser();
-  const {
-    issue: { getIssueById, getIssueIdByIdentifier },
-  } = useIssueDetail();
-  // derived values
-  const workItemId = workItemIdentifier ? getIssueIdByIdentifier(workItemIdentifier) : undefined;
-  const workItemDetails = workItemId ? getIssueById(workItemId) : undefined;
+
+  // Parse identifier to get projectIdentifier and sequenceId
+  const { projectIdentifier, sequenceId } = useMemo(() => {
+    if (!workItemIdentifier) return { projectIdentifier: "", sequenceId: "" };
+    const parts = workItemIdentifier.split("-");
+    if (parts.length < 2) return { projectIdentifier: "", sequenceId: "" };
+    return {
+      projectIdentifier: parts[0],
+      sequenceId: parts.slice(1).join("-"),
+    };
+  }, [workItemIdentifier]);
+
+  // TanStack Query - fetch issue by identifier
+  const { data: workItemDetails } = useIssueByIdentifier(
+    workspaceSlug?.toString() ?? "",
+    projectIdentifier,
+    sequenceId
+  );
+
+  const workItemId = workItemDetails?.id;
 
   const { removeIssue: removeEpic } = useIssuesActions(EIssuesStoreType.EPIC);
   const { removeIssue: removeWorkItem } = useIssuesActions(EIssuesStoreType.PROJECT);

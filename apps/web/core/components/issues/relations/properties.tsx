@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import React from "react";
-import { observer } from "mobx-react";
 // components
 import type { TIssuePriorities, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
@@ -8,27 +7,23 @@ import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
 import { PriorityDropdown } from "@/components/dropdowns/priority";
 import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useIssue } from "@/store/queries/issue";
 // types
 import type { TRelationIssueOperations } from "../issue-detail-widgets/relations/helper";
 
 type Props = {
   workspaceSlug: string;
+  projectId: string;
   issueId: string;
   disabled: boolean;
   issueOperations: TRelationIssueOperations;
   issueServiceType?: TIssueServiceType;
 };
 
-export const RelationIssueProperty = observer(function RelationIssueProperty(props: Props) {
-  const { workspaceSlug, issueId, disabled, issueOperations, issueServiceType = EIssueServiceType.ISSUES } = props;
+export function RelationIssueProperty(props: Props) {
+  const { workspaceSlug, projectId, issueId, disabled, issueOperations, issueServiceType = EIssueServiceType.ISSUES } = props;
   // hooks
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail(issueServiceType);
-
-  // derived value
-  const issue = getIssueById(issueId);
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
 
   // if issue is not found, return empty
   if (!issue) return <></>;
@@ -87,4 +82,4 @@ export const RelationIssueProperty = observer(function RelationIssueProperty(pro
       </div>
     </div>
   );
-});
+}

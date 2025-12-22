@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // hooks
-import { useModule } from "@/hooks/store/use-module";
+import { useProjectModules, getModuleById, getModuleIds } from "@/store/queries/module";
 // types
 import type { TDropdownProps } from "../types";
 // local imports
@@ -34,21 +34,20 @@ export const ModuleDropdown = observer(function ModuleDropdown(props: TModuleDro
   const { projectId } = props;
   // router
   const { workspaceSlug } = useParams();
-  // store hooks
-  const { getModuleById, getProjectModuleIds, fetchModules } = useModule();
+  // fetch modules using TanStack Query
+  const { data: modules } = useProjectModules(
+    workspaceSlug?.toString() ?? "",
+    projectId ?? ""
+  );
   // derived values
-  const moduleIds = projectId ? getProjectModuleIds(projectId) : [];
-
-  const onDropdownOpen = () => {
-    if (!moduleIds && projectId && workspaceSlug) fetchModules(workspaceSlug.toString(), projectId);
-  };
+  const moduleIds = modules ? getModuleIds(modules) : [];
 
   return (
     <ModuleDropdownBase
       {...props}
-      getModuleById={getModuleById}
-      moduleIds={moduleIds ?? []}
-      onDropdownOpen={onDropdownOpen}
+      getModuleById={(moduleId: string) => getModuleById(modules, moduleId)}
+      moduleIds={moduleIds}
+      onDropdownOpen={() => {}} // TanStack Query handles fetching automatically
     />
   );
 });

@@ -5,7 +5,9 @@ import { Spinner } from "@plane/ui";
 // components
 import { PowerKProjectsMenu } from "@/components/power-k/menus/projects";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useParams } from "next/navigation";
+// queries
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 
 type Props = {
   handleSelect: (project: IPartialProject) => void;
@@ -13,14 +15,17 @@ type Props = {
 
 export const PowerKOpenProjectMenu = observer(function PowerKOpenProjectMenu(props: Props) {
   const { handleSelect } = props;
-  // store hooks
-  const { loader, joinedProjectIds, getPartialProjectById } = useProject();
+  // router
+  const { workspaceSlug } = useParams();
+  // queries
+  const { data: projects, isLoading } = useProjects(workspaceSlug?.toString());
   // derived values
+  const joinedProjectIds = getJoinedProjectIds(projects);
   const projectsList = joinedProjectIds
-    ? joinedProjectIds.map((id) => getPartialProjectById(id)).filter((project) => project !== undefined)
+    ? joinedProjectIds.map((id) => projects?.find((p) => p.id === id)).filter((project) => project !== undefined)
     : [];
 
-  if (loader === "init-loader") return <Spinner />;
+  if (isLoading) return <Spinner />;
 
   return <PowerKProjectsMenu projects={projectsList} onSelect={handleSelect} />;
 });

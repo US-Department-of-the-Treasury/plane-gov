@@ -15,8 +15,8 @@ import { WebhooksList, CreateWebhookModal } from "@/components/web-hooks";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useWebhook } from "@/hooks/store/use-webhook";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 import type { Route } from "./+types/page";
 
 function WebhooksListPage({ params }: Route.ComponentProps) {
@@ -29,7 +29,7 @@ function WebhooksListPage({ params }: Route.ComponentProps) {
   // mobx store
   const { workspaceUserInfo, allowPermissions } = useUserPermissions();
   const { fetchWebhooks, webhooks, clearSecretKey, webhookSecretKey, createWebhook } = useWebhook();
-  const { currentWorkspace } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   // derived values
   const canPerformWorkspaceAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
 

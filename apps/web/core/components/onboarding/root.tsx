@@ -9,8 +9,9 @@ import { EOnboardingSteps } from "@plane/types";
 // helpers
 import { captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUser, useUserProfile } from "@/hooks/store/user";
+// store
+import { useWorkspaces } from "@/store/queries/workspace";
 // local components
 import { OnboardingHeader } from "./header";
 import { OnboardingStepRoot } from "./steps";
@@ -24,9 +25,9 @@ export const OnboardingRoot = observer(function OnboardingRoot({ invitations = [
   // store hooks
   const { data: user } = useUser();
   const { data: userProfile, updateUserProfile, finishUserOnboarding } = useUserProfile();
-  const { workspaces } = useWorkspace();
+  const { data: workspaces } = useWorkspaces();
 
-  const workspacesList = Object.values(workspaces ?? {});
+  const workspacesList = workspaces ?? [];
 
   // Calculate total steps based on whether invitations are available
   const hasInvitations = invitations.length > 0;

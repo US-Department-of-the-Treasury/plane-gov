@@ -5,7 +5,8 @@ import type { TIssue } from "@plane/types";
 // ui
 import { AlertModalCore } from "@plane/ui";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useParams } from "next/navigation";
 
 type Props = {
   data: Partial<TIssue>;
@@ -16,13 +17,15 @@ type Props = {
 
 export function DeclineIssueModal(props: Props) {
   const { isOpen, onClose, data, onSubmit } = props;
+  // router
+  const { workspaceSlug } = useParams();
   // states
   const [isDeclining, setIsDeclining] = useState(false);
-  // store hooks
-  const { getProjectById } = useProject();
+  // hooks
+  const { data: projects = [] } = useProjects(workspaceSlug?.toString());
   const { t } = useTranslation();
   // derived values
-  const projectDetails = data.project_id ? getProjectById(data?.project_id) : undefined;
+  const projectDetails = data.project_id ? getProjectById(projects, data?.project_id) : undefined;
 
   const handleClose = () => {
     setIsDeclining(false);

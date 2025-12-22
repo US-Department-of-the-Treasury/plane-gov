@@ -3,7 +3,8 @@ import { CloseIcon, ModuleIcon, ChevronDownIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import { cn } from "@plane/utils";
 // hooks
-import { useModule } from "@/hooks/store/use-module";
+import { useParams } from "next/navigation";
+import { useWorkspaceModules, getModuleById } from "@/store/queries/module";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 
 type ModuleButtonContentProps = {
@@ -34,8 +35,10 @@ export function ModuleButtonContent(props: ModuleButtonContentProps) {
     value,
     className,
   } = props;
-  // store hooks
-  const { getModuleById } = useModule();
+  // router
+  const { workspaceSlug } = useParams();
+  // fetch workspace modules using TanStack Query
+  const { data: modules } = useWorkspaceModules(workspaceSlug?.toString() ?? "");
   const { isMobile } = usePlatformOS();
 
   if (Array.isArray(value))
@@ -48,7 +51,7 @@ export function ModuleButtonContent(props: ModuleButtonContentProps) {
               <div className="max-w-40 flex-grow truncate">
                 {value.length > 0
                   ? value.length === 1
-                    ? `${getModuleById(value[0])?.name || "module"}`
+                    ? `${getModuleById(modules, value[0])?.name || "module"}`
                     : `${value.length} Module${value.length === 1 ? "" : "s"}`
                   : placeholder}
               </div>
@@ -57,7 +60,7 @@ export function ModuleButtonContent(props: ModuleButtonContentProps) {
         ) : value.length > 0 ? (
           <div className="flex max-w-full flex-grow flex-wrap items-center gap-2 truncate py-0.5 ">
             {value.map((moduleId) => {
-              const moduleDetails = getModuleById(moduleId);
+              const moduleDetails = getModuleById(modules, moduleId);
               return (
                 <div
                   key={moduleId}
@@ -117,7 +120,7 @@ export function ModuleButtonContent(props: ModuleButtonContentProps) {
       <>
         {!hideIcon && <ModuleIcon className="h-3 w-3 flex-shrink-0" />}
         {!hideText && (
-          <span className="flex-grow truncate text-left">{value ? getModuleById(value)?.name : placeholder}</span>
+          <span className="flex-grow truncate text-left">{value ? getModuleById(modules, value)?.name : placeholder}</span>
         )}
         {dropdownArrow && (
           <ChevronDownIcon className={cn("h-2.5 w-2.5 flex-shrink-0", dropdownArrowClassName)} aria-hidden="true" />

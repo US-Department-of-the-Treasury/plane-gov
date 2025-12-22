@@ -29,9 +29,10 @@ import { ModuleStatusDropdown } from "@/components/modules/module-status-dropdow
 // helpers
 import { captureElementAndEvent, captureError } from "@/helpers/event-tracker.helper";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useModule } from "@/hooks/store/use-module";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useUpdateModule } from "@/store/queries/module";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { ButtonAvatars } from "../dropdowns/member/avatar";
 
 type Props = {
@@ -46,8 +47,11 @@ export const ModuleListItemAction = observer(function ModuleListItemAction(props
   const { workspaceSlug, projectId } = useParams();
   //   store hooks
   const { allowPermissions } = useUserPermissions();
-  const { addModuleToFavorites, removeModuleFromFavorites, updateModuleDetails } = useModule();
-  const { getUserDetails } = useMember();
+  const { addModuleToFavorites, removeModuleFromFavorites } = useModule();
+  // query hooks
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
+  // mutation hooks
+  const { mutate: updateModule } = useUpdateModule();
 
   const { t } = useTranslation();
 
@@ -148,27 +152,36 @@ export const ModuleListItemAction = observer(function ModuleListItemAction(props
     });
   };
 
-  const handleModuleDetailsChange = async (payload: Partial<IModule>) => {
+  const handleModuleDetailsChange = (payload: Partial<IModule>) => {
     if (!workspaceSlug || !projectId) return;
 
-    await updateModuleDetails(workspaceSlug.toString(), projectId.toString(), moduleId, payload)
-      .then(() => {
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Success!",
-          message: "Module updated successfully.",
-        });
-      })
-      .catch((err) => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: err?.detail ?? "Module could not be updated. Please try again.",
-        });
-      });
+    updateModule(
+      {
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        moduleId,
+        data: payload,
+      },
+      {
+        onSuccess: () => {
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: "Module updated successfully.",
+          });
+        },
+        onError: (err: any) => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: err?.detail ?? "Module could not be updated. Please try again.",
+          });
+        },
+      }
+    );
   };
 
-  const moduleLeadDetails = moduleDetails.lead_id ? getUserDetails(moduleDetails.lead_id) : undefined;
+  const moduleLeadDetails = moduleDetails.lead_id ? getWorkspaceMemberByUserId(workspaceMembers, moduleDetails.lead_id) : undefined;
 
   return (
     <>

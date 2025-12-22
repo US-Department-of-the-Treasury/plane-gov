@@ -48,12 +48,12 @@ import {
   isLoaderReady,
 } from "@plane/utils";
 // store hooks
-import { useSprint } from "@/hooks/store/use-sprint";
-import { useLabel } from "@/hooks/store/use-label";
-import { useMember } from "@/hooks/store/use-member";
-import { useModule } from "@/hooks/store/use-module";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjectLabels } from "@/store/queries/label";
+import { useProjectMembers } from "@/store/queries/member";
+import { useProjectModules, getModuleById } from "@/store/queries/module";
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
+import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 // plane web imports
 import { useFiltersOperatorConfigs } from "@/plane-web/hooks/rich-filters/use-filters-operator-configs";
 
@@ -85,53 +85,71 @@ export type TWorkItemFiltersConfig = {
 export const useWorkItemFiltersConfig = (props: TUseWorkItemFiltersConfigProps): TWorkItemFiltersConfig => {
   const { allowedFilters, sprintIds, labelIds, memberIds, moduleIds, projectId, projectIds, stateIds, workspaceSlug } =
     props;
-  // store hooks
-  const { loader: projectLoader, getProjectById } = useProject();
-  const { getSprintById } = useSprint();
-  const { getLabelById } = useLabel();
-  const { getModuleById } = useModule();
-  const { getStateById } = useProjectState();
-  const { getUserDetails } = useMember();
+  // TanStack Query
+  const { data: allProjects, isLoading: isProjectsLoading } = useProjects(workspaceSlug);
+  const { data: allLabels } = useProjectLabels(workspaceSlug, projectId || "");
+  const { data: projectModules } = useProjectModules(workspaceSlug, projectId || "");
+  const { data: allStates } = useProjectStates(workspaceSlug, projectId || "");
+  const { data: projectSprints } = useProjectSprints(workspaceSlug, projectId || "");
+  const { data: projectMembers = [] } = useProjectMembers(workspaceSlug, projectId || "");
   // derived values
   const operatorConfigs = useFiltersOperatorConfigs({ workspaceSlug });
   const filtersToShow = useMemo(() => new Set(allowedFilters), [allowedFilters]);
-  const project = useMemo(() => getProjectById(projectId), [projectId, getProjectById]);
+  const project = useMemo(() => projectId ? getProjectById(allProjects, projectId) : undefined, [projectId, allProjects]);
   const members: IUserLite[] | undefined = useMemo(
     () =>
       memberIds
-        ? (memberIds.map((memberId) => getUserDetails(memberId)).filter((member) => member) as IUserLite[])
+        ? (memberIds
+            .map((memberId) => {
+              const projectMember = projectMembers.find((m) => m.member === memberId);
+              if (!projectMember) return undefined;
+              return {
+                id: projectMember.member,
+                display_name: projectMember.member_display_name || projectMember.member_email || "",
+                email: projectMember.member_email,
+                avatar_url: projectMember.member_avatar_url,
+                first_name: projectMember.member_first_name || "",
+                last_name: projectMember.member_last_name || "",
+              } as IUserLite;
+            })
+            .filter((member) => member) as IUserLite[])
         : undefined,
-    [memberIds, getUserDetails]
+    [memberIds, projectMembers]
   );
   const workItemStates: IState[] | undefined = useMemo(
     () =>
-      stateIds ? (stateIds.map((stateId) => getStateById(stateId)).filter((state) => state) as IState[]) : undefined,
-    [stateIds, getStateById]
+      stateIds ? (stateIds.map((stateId) => getStateById(allStates, stateId)).filter((state) => state) as IState[]) : undefined,
+    [stateIds, allStates]
   );
   const workItemLabels: IIssueLabel[] | undefined = useMemo(
     () =>
-      labelIds
-        ? (labelIds.map((labelId) => getLabelById(labelId)).filter((label) => label) as IIssueLabel[])
+      labelIds && allLabels
+        ? (labelIds.map((labelId) => allLabels.find((l) => l.id === labelId)).filter((label) => label) as IIssueLabel[])
         : undefined,
-    [labelIds, getLabelById]
+    [labelIds, allLabels]
   );
   const sprints = useMemo(
-    () => (sprintIds ? (sprintIds.map((sprintId) => getSprintById(sprintId)).filter((sprint) => sprint) as ISprint[]) : []),
-    [sprintIds, getSprintById]
+    () =>
+      sprintIds && projectSprints
+        ? (sprintIds.map((sprintId) => getSprintById(projectSprints, sprintId)).filter((sprint) => sprint) as ISprint[])
+        : [],
+    [sprintIds, projectSprints]
   );
   const modules = useMemo(
     () =>
-      moduleIds ? (moduleIds.map((moduleId) => getModuleById(moduleId)).filter((module) => module) as IModule[]) : [],
-    [moduleIds, getModuleById]
+      moduleIds && projectModules
+        ? (moduleIds.map((moduleId) => getModuleById(projectModules, moduleId)).filter((module) => module) as IModule[])
+        : [],
+    [moduleIds, projectModules]
   );
   const projects = useMemo(
     () =>
-      projectIds
-        ? (projectIds.map((projectId) => getProjectById(projectId)).filter((project) => project) as IProject[])
+      projectIds && allProjects
+        ? (projectIds.map((projectId) => getProjectById(allProjects, projectId)).filter((project) => project) as IProject[])
         : [],
-    [projectIds, getProjectById]
+    [projectIds, allProjects]
   );
-  const areAllConfigsInitialized = useMemo(() => isLoaderReady(projectLoader), [projectLoader]);
+  const areAllConfigsInitialized = useMemo(() => !isProjectsLoading, [isProjectsLoading]);
 
   /**
    * Checks if a filter is enabled based on the filters to show.

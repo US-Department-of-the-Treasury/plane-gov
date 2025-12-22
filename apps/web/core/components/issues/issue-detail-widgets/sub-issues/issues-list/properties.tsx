@@ -1,7 +1,6 @@
 // plane imports
 import type { SyntheticEvent } from "react";
 import { useMemo } from "react";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import { StartDatePropertyIcon, DueDatePropertyIcon } from "@plane/propel/icons";
 import type { IIssueDisplayProperties, TIssue } from "@plane/types";
@@ -14,7 +13,7 @@ import { PriorityDropdown } from "@/components/dropdowns/priority";
 import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 // hooks
 import { WithDisplayPropertiesHOC } from "@/components/issues/issue-layouts/properties/with-display-properties-HOC";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 
 type Props = {
   workspaceSlug: string;
@@ -33,10 +32,10 @@ type Props = {
   issue: TIssue;
 };
 
-export const SubIssuesListItemProperties = observer(function SubIssuesListItemProperties(props: Props) {
+export function SubIssuesListItemProperties(props: Props) {
   const { workspaceSlug, parentIssueId, issueId, canEdit, updateSubIssue, displayProperties, issue } = props;
   const { t } = useTranslation();
-  const { getStateById } = useProjectState();
+  const { data: states } = useProjectStates(workspaceSlug, issue.project_id ?? "");
 
   const handleEventPropagation = (e: SyntheticEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -60,7 +59,7 @@ export const SubIssuesListItemProperties = observer(function SubIssuesListItemPr
   };
 
   //derived values
-  const stateDetails = useMemo(() => getStateById(issue.state_id), [getStateById, issue.state_id]);
+  const stateDetails = useMemo(() => getStateById(states ?? [], issue.state_id), [states, issue.state_id]);
   const shouldHighlight = useMemo(
     () => shouldHighlightIssueDueDate(issue.target_date, stateDetails?.group),
     [issue.target_date, stateDetails?.group]
@@ -216,4 +215,4 @@ export const SubIssuesListItemProperties = observer(function SubIssuesListItemPr
       </WithDisplayPropertiesHOC>
     </div>
   );
-});
+}

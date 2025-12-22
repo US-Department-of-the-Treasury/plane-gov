@@ -16,9 +16,10 @@ import { DetailedEmptyState } from "@/components/empty-state/detailed-empty-stat
 import { ModuleAppliedFiltersList, ModulesListView } from "@/components/modules";
 // hooks
 import { useModuleFilter } from "@/hooks/store/use-module-filter";
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 import type { Route } from "./+types/page";
 
 function ProjectModulesPage({ params }: Route.ComponentProps) {
@@ -29,8 +30,9 @@ function ProjectModulesPage({ params }: Route.ComponentProps) {
   const { resolvedTheme } = useTheme();
   // plane hooks
   const { t } = useTranslation();
+  // queries
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   // store
-  const { getProjectById, currentProjectDetails } = useProject();
   const {
     currentProjectFilters = {},
     currentProjectDisplayFilters,
@@ -40,8 +42,7 @@ function ProjectModulesPage({ params }: Route.ComponentProps) {
   } = useModuleFilter();
   const { allowPermissions } = useUserPermissions();
   // derived values
-  const project = getProjectById(projectId);
-  const pageTitle = project?.name ? `${project?.name} - Modules` : undefined;
+  const pageTitle = currentProjectDetails?.name ? `${currentProjectDetails?.name} - Modules` : undefined;
   const canPerformEmptyStateActions = allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT);
   const resolvedPath = resolvedTheme === "light" ? lightModulesAsset : darkModulesAsset;
 

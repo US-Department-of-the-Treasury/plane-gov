@@ -10,29 +10,41 @@ import { ModuleGanttBlock } from "@/components/modules";
 // hooks
 import { useModule } from "@/hooks/store/use-module";
 import { useModuleFilter } from "@/hooks/store/use-module-filter";
-import { useProject } from "@/hooks/store/use-project";
+import { useUpdateModule } from "@/store/queries/module";
+import { useProjectDetails } from "@/store/queries/project";
 
 export const ModulesListGanttChartView = observer(function ModulesListGanttChartView() {
   // router
   const { workspaceSlug, projectId } = useParams();
   // store
-  const { currentProjectDetails } = useProject();
-  const { getFilteredModuleIds, updateModuleDetails } = useModule();
+  const { getFilteredModuleIds } = useModule();
   const { currentProjectDisplayFilters: displayFilters } = useModuleFilter();
+  // mutation hooks
+  const { mutate: updateModule } = useUpdateModule();
+  // query hooks
+  const { data: currentProjectDetails } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
 
   // derived values
   const filteredModuleIds = projectId ? getFilteredModuleIds(projectId.toString()) : undefined;
 
-  const handleModuleUpdate = async (module: IModule, data: IBlockUpdateData) => {
+  const handleModuleUpdate = (module: IModule, data: IBlockUpdateData) => {
     if (!workspaceSlug || !module) return;
 
     const payload: any = { ...data };
     if (data.sort_order) payload.sort_order = data.sort_order.newSortOrder;
 
-    await updateModuleDetails(workspaceSlug.toString(), module.project_id, module.id, payload);
+    updateModule({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: module.project_id,
+      moduleId: module.id,
+      data: payload,
+    });
   };
 
-  const updateBlockDates = async (blockUpdates: IBlockUpdateDependencyData[]) => {
+  const updateBlockDates = (blockUpdates: IBlockUpdateDependencyData[]) => {
     const blockUpdate = blockUpdates[0];
 
     if (!blockUpdate) return;
@@ -42,7 +54,12 @@ export const ModulesListGanttChartView = observer(function ModulesListGanttChart
     if (blockUpdate.start_date) payload.start_date = blockUpdate.start_date;
     if (blockUpdate.target_date) payload.target_date = blockUpdate.target_date;
 
-    await updateModuleDetails(workspaceSlug.toString(), projectId.toString(), blockUpdate.id, payload);
+    updateModule({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      moduleId: blockUpdate.id,
+      data: payload,
+    });
   };
 
   const isAllowed = currentProjectDetails?.member_role === 20 || currentProjectDetails?.member_role === 15;

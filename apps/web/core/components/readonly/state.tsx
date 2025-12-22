@@ -1,12 +1,9 @@
-import { useEffect, useState } from "react";
-import { observer } from "mobx-react";
-// plane imports
 import { useTranslation } from "@plane/i18n";
 import { StateGroupIcon } from "@plane/propel/icons";
 import { Loader } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 
 export type TReadonlyStateProps = {
   className?: string;
@@ -18,33 +15,17 @@ export type TReadonlyStateProps = {
   workspaceSlug: string;
 };
 
-export const ReadonlyState = observer(function ReadonlyState(props: TReadonlyStateProps) {
+export function ReadonlyState(props: TReadonlyStateProps) {
   const { className, iconSize = "size-4", hideIcon = false, value, placeholder, projectId, workspaceSlug } = props;
-  // states
-  const [stateLoader, setStateLoader] = useState(false);
   const { t } = useTranslation();
-  const { getStateById, getProjectStateIds, fetchProjectStates } = useProjectState();
+
+  // TanStack Query - auto-fetches project states
+  const { data: states, isLoading } = useProjectStates(workspaceSlug, projectId || "");
+
   // derived values
-  const stateIds = getProjectStateIds(projectId);
-  const state = getStateById(value);
+  const state = getStateById(states, value);
 
-  // fetch states if not provided
-  const fetchStates = async () => {
-    if ((stateIds === undefined || stateIds.length === 0) && projectId) {
-      setStateLoader(true);
-      try {
-        await fetchProjectStates(workspaceSlug, projectId);
-      } finally {
-        setStateLoader(false);
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchStates();
-  }, [projectId, workspaceSlug]);
-
-  if (stateLoader) {
+  if (isLoading) {
     return (
       <Loader className={cn("flex items-center gap-1 text-body-xs-regular", className)}>
         <Loader.Item height="16px" width="16px" className="rounded-full" />
@@ -65,4 +46,4 @@ export const ReadonlyState = observer(function ReadonlyState(props: TReadonlySta
       <span className="flex-grow truncate">{state?.name ?? placeholder ?? t("common.none")}</span>
     </div>
   );
-});
+}

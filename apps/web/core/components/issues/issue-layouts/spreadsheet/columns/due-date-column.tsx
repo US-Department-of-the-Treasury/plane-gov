@@ -1,14 +1,12 @@
 import React from "react";
-import { observer } from "mobx-react";
 import { DueDatePropertyIcon } from "@plane/propel/icons";
 // types
 import type { TIssue } from "@plane/types";
 import { cn, getDate, renderFormattedPayloadDate, shouldHighlightIssueDueDate } from "@plane/utils";
 // components
 import { DateDropdown } from "@/components/dropdowns/date";
-// helpers
-// hooks
-import { useProjectState } from "@/hooks/store/use-project-state";
+// queries
+import { useProjectStates, getStateById } from "@/store/queries/state";
 
 type Props = {
   issue: TIssue;
@@ -17,12 +15,18 @@ type Props = {
   disabled: boolean;
 };
 
-export const SpreadsheetDueDateColumn = observer(function SpreadsheetDueDateColumn(props: Props) {
+export function SpreadsheetDueDateColumn(props: Props) {
   const { issue, onChange, disabled, onClose } = props;
-  // store hooks
-  const { getStateById } = useProjectState();
-  // derived values
-  const stateDetails = getStateById(issue.state_id);
+
+  // Extract workspaceSlug from window location
+  const workspaceSlug = typeof window !== 'undefined'
+    ? window.location.pathname.split('/')[1]
+    : undefined;
+
+  const { data: projectStates } = useProjectStates(workspaceSlug, issue.project_id);
+  const stateDetails = projectStates && issue.state_id
+    ? getStateById(projectStates, issue.state_id)
+    : undefined;
 
   return (
     <div className="h-11 border-b-[0.5px] border-subtle">
@@ -57,4 +61,4 @@ export const SpreadsheetDueDateColumn = observer(function SpreadsheetDueDateColu
       />
     </div>
   );
-});
+}

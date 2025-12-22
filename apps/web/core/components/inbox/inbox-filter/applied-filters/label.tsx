@@ -1,22 +1,26 @@
 import type { FC } from "react";
-import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // hooks
 import { CloseIcon } from "@plane/propel/icons";
 import { Tag } from "@plane/ui";
-import { useLabel } from "@/hooks/store/use-label";
+import { useProjectLabels } from "@/store/queries/label";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 
 function LabelIcons({ color }: { color: string }) {
   return <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />;
 }
 
-export const InboxIssueAppliedFiltersLabel = observer(function InboxIssueAppliedFiltersLabel() {
+export function InboxIssueAppliedFiltersLabel() {
   // hooks
+  const { workspaceSlug, projectId } = useParams();
   const { inboxFilters, handleInboxIssueFilters } = useProjectInbox();
-  const { getLabelById } = useLabel();
+  const { data: projectLabels } = useProjectLabels(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   // derived values
   const filteredValues = inboxFilters?.labels || [];
-  const currentOptionDetail = (labelId: string) => getLabelById(labelId) || undefined;
+  const currentOptionDetail = (labelId: string) => projectLabels?.find(l => l.id === labelId) || undefined;
 
   const handleFilterValue = (value: string): string[] =>
     filteredValues?.includes(value) ? filteredValues.filter((v) => v !== value) : [...filteredValues, value];
@@ -54,4 +58,4 @@ export const InboxIssueAppliedFiltersLabel = observer(function InboxIssueApplied
       </div>
     </Tag>
   );
-});
+}

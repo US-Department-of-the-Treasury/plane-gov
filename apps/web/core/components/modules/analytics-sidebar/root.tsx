@@ -35,8 +35,14 @@ import { CreateUpdateModuleLinkModal, ModuleAnalyticsProgress, ModuleLinksList }
 import { captureElementAndEvent, captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
-import { useModule } from "@/hooks/store/use-module";
 import { useUserPermissions } from "@/hooks/store/user";
+import {
+  useModuleDetails,
+  useUpdateModule,
+  useCreateModuleLink,
+  useUpdateModuleLink,
+  useDeleteModuleLink,
+} from "@/store/queries/module";
 // plane web constants
 const defaultValues: Partial<IModule> = {
   lead_id: "",
@@ -65,11 +71,18 @@ export const ModuleAnalyticsSidebar = observer(function ModuleAnalyticsSidebar(p
   const { t } = useTranslation();
   const { allowPermissions } = useUserPermissions();
 
-  const { getModuleById, updateModuleDetails, createModuleLink, updateModuleLink, deleteModuleLink } = useModule();
+  const { data: moduleDetails } = useModuleDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? "",
+    moduleId
+  );
+  const { mutateAsync: updateModule } = useUpdateModule();
+  const { mutateAsync: createLink } = useCreateModuleLink();
+  const { mutateAsync: updateLink } = useUpdateModuleLink();
+  const { mutateAsync: deleteLink } = useDeleteModuleLink();
   const { areEstimateEnabledByProjectId, currentActiveEstimateId, estimateById } = useProjectEstimates();
 
   // derived values
-  const moduleDetails = getModuleById(moduleId);
   const areEstimateEnabled = projectId && areEstimateEnabledByProjectId(projectId.toString());
   const estimateType = areEstimateEnabled && currentActiveEstimateId && estimateById(currentActiveEstimateId);
   const isEstimatePointValid = estimateType && estimateType?.type == EEstimateSystem.POINTS ? true : false;
@@ -80,7 +93,12 @@ export const ModuleAnalyticsSidebar = observer(function ModuleAnalyticsSidebar(p
 
   const submitChanges = (data: Partial<IModule>) => {
     if (!workspaceSlug || !projectId || !moduleId) return;
-    updateModuleDetails(workspaceSlug.toString(), projectId.toString(), moduleId.toString(), data)
+    updateModule({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      moduleId: moduleId.toString(),
+      data,
+    })
       .then((res) => {
         captureElementAndEvent({
           element: {
@@ -107,7 +125,12 @@ export const ModuleAnalyticsSidebar = observer(function ModuleAnalyticsSidebar(p
 
     const payload = { metadata: {}, ...formData };
 
-    await createModuleLink(workspaceSlug.toString(), projectId.toString(), moduleId.toString(), payload)
+    await createLink({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      moduleId: moduleId.toString(),
+      data: payload,
+    })
       .then(() =>
         captureSuccess({
           eventName: MODULE_TRACKER_EVENTS.link.create,
@@ -128,7 +151,13 @@ export const ModuleAnalyticsSidebar = observer(function ModuleAnalyticsSidebar(p
 
     const payload = { metadata: {}, ...formData };
 
-    await updateModuleLink(workspaceSlug.toString(), projectId.toString(), moduleId.toString(), linkId, payload)
+    await updateLink({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      moduleId: moduleId.toString(),
+      linkId,
+      data: payload,
+    })
       .then(() =>
         captureSuccess({
           eventName: MODULE_TRACKER_EVENTS.link.update,
@@ -147,7 +176,12 @@ export const ModuleAnalyticsSidebar = observer(function ModuleAnalyticsSidebar(p
   const handleDeleteLink = async (linkId: string) => {
     if (!workspaceSlug || !projectId) return;
 
-    deleteModuleLink(workspaceSlug.toString(), projectId.toString(), moduleId.toString(), linkId)
+    deleteLink({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      moduleId: moduleId.toString(),
+      linkId,
+    })
       .then(() => {
         captureSuccess({
           eventName: MODULE_TRACKER_EVENTS.link.delete,

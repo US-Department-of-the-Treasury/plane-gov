@@ -7,7 +7,8 @@ import { ToggleSwitch } from "@plane/ui";
 // hooks
 import { captureElementAndEvent } from "@/helpers/event-tracker.helper";
 import { useProjectEstimates } from "@/hooks/store/estimates";
-import { useProject } from "@/hooks/store/use-project";
+// store hooks
+import { useProjectDetails, useUpdateProject } from "@/store/queries/project";
 // i18n
 type TEstimateDisableSwitch = {
   workspaceSlug: string;
@@ -20,7 +21,8 @@ export const EstimateDisableSwitch = observer(function EstimateDisableSwitch(pro
   // i18n
   const { t } = useTranslation();
   // hooks
-  const { updateProject, currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
+  const { mutate: updateProject } = useUpdateProject();
   const { currentActiveEstimateId } = useProjectEstimates();
 
   const currentProjectActiveEstimate = currentProjectDetails?.estimate || undefined;

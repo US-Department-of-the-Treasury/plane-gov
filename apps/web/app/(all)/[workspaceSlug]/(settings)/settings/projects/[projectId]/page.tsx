@@ -12,7 +12,7 @@ import { ArchiveProjectSelection } from "@/components/project/settings/archive-p
 import { DeleteProjectSection } from "@/components/project/settings/delete-project-section";
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import type { Route } from "./+types/page";
 
@@ -23,7 +23,7 @@ function ProjectSettingsPage({ params }: Route.ComponentProps) {
   // router
   const { workspaceSlug, projectId } = params;
   // store hooks
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   const { allowPermissions } = useUserPermissions();
   // derived values
   const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug, projectId);

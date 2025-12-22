@@ -13,10 +13,10 @@ import { ModuleForm } from "@/components/modules";
 // helpers
 import { captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
-import { useModule } from "@/hooks/store/use-module";
-import { useProject } from "@/hooks/store/use-project";
 import useKeypress from "@/hooks/use-keypress";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useCreateModule, useUpdateModule } from "@/store/queries/module";
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 
 type Props = {
   isOpen: boolean;
@@ -39,9 +39,13 @@ export const CreateUpdateModuleModal = observer(function CreateUpdateModuleModal
   // states
   const [activeProject, setActiveProject] = useState<string | null>(null);
   // store hooks
-  const { workspaceProjectIds } = useProject();
-  const { createModule, updateModuleDetails } = useModule();
+  const createModuleMutation = useCreateModule();
+  const updateModuleMutation = useUpdateModule();
   const { isMobile } = usePlatformOS();
+  // query hooks
+  const { data: projects } = useProjects(workspaceSlug);
+  // derived values
+  const workspaceProjectIds = getJoinedProjectIds(projects);
 
   const handleClose = () => {
     reset(defaultValues);
@@ -56,7 +60,12 @@ export const CreateUpdateModuleModal = observer(function CreateUpdateModuleModal
     if (!workspaceSlug || !projectId) return;
 
     const selectedProjectId = payload.project_id ?? projectId.toString();
-    await createModule(workspaceSlug.toString(), selectedProjectId, payload)
+    await createModuleMutation
+      .mutateAsync({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: selectedProjectId,
+        data: payload,
+      })
       .then((res) => {
         handleClose();
         setToast({
@@ -87,7 +96,13 @@ export const CreateUpdateModuleModal = observer(function CreateUpdateModuleModal
     if (!workspaceSlug || !projectId || !data) return;
 
     const selectedProjectId = payload.project_id ?? projectId.toString();
-    await updateModuleDetails(workspaceSlug.toString(), selectedProjectId, data.id, payload)
+    await updateModuleMutation
+      .mutateAsync({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: selectedProjectId,
+        moduleId: data.id,
+        data: payload,
+      })
       .then((res) => {
         handleClose();
 

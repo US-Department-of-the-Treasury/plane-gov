@@ -11,11 +11,12 @@ import { cn, generateWorkItemLink } from "@plane/utils";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// queries
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 // local components
@@ -40,16 +41,23 @@ export const CalendarIssueBlock = observer(
     const menuActionRef = useRef<HTMLDivElement | null>(null);
     // hooks
     const { workspaceSlug } = useParams();
-    const { getProjectStates } = useProjectState();
     const { getIsIssuePeeked } = useIssueDetail();
     const { handleRedirection } = useIssuePeekOverviewRedirection(isEpic);
     const { isMobile } = usePlatformOS();
     const storeType = useIssueStoreType() as CalendarStoreType;
     const { issuesFilter } = useIssues(storeType);
-    const { getProjectIdentifierById } = useProject();
 
-    const stateColor = getProjectStates(issue?.project_id)?.find((state) => state?.id == issue?.state_id)?.color || "";
-    const projectIdentifier = getProjectIdentifierById(issue?.project_id);
+    // queries
+    const { data: projects } = useProjects(workspaceSlug?.toString());
+    const { data: projectStates } = useProjectStates(workspaceSlug?.toString(), issue?.project_id);
+
+    // derived values
+    const stateDetails = projectStates && issue?.state_id
+      ? getStateById(projectStates, issue.state_id)
+      : undefined;
+    const stateColor = stateDetails?.color || "";
+    const projectDetails = getProjectById(projects, issue?.project_id);
+    const projectIdentifier = projectDetails?.identifier;
 
     // handlers
     const handleIssuePeekOverview = (issue: TIssue) => handleRedirection(workspaceSlug.toString(), issue, isMobile);

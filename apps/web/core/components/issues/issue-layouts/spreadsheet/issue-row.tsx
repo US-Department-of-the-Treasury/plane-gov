@@ -20,11 +20,10 @@ import RenderIfVisible from "@/components/core/render-if-visible-HOC";
 // helper
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 // local components
@@ -71,8 +70,9 @@ export const SpreadsheetIssueRow = observer(function SpreadsheetIssueRow(props: 
   // states
   const [isExpanded, setExpanded] = useState<boolean>(false);
   // store hooks
-  const { subIssues: subIssuesStore } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
-  const { issueMap } = useIssues();
+  const { subIssues: subIssuesStore, issue: issueStore } = useIssueDetail(
+    isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES
+  );
 
   // derived values
   const subIssues = subIssuesStore.subIssuesByIssueId(issueId);
@@ -98,7 +98,7 @@ export const SpreadsheetIssueRow = observer(function SpreadsheetIssueRow(props: 
         })}
         verticalOffset={100}
         shouldRecordHeights={false}
-        defaultValue={shouldRenderByDefault || isIssueNew(issueMap[issueId])}
+        defaultValue={shouldRenderByDefault || isIssueNew(issueStore.getIssueById(issueId))}
       >
         <IssueRowDetails
           issueId={issueId}
@@ -188,7 +188,7 @@ const IssueRowDetails = observer(function IssueRowDetails(props: IssueRowDetails
   // router
   const { workspaceSlug, projectId } = useParams();
   // hooks
-  const { getProjectIdentifierById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
   const { getIsIssuePeeked, peekIssue } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
   const { handleRedirection } = useIssuePeekOverviewRedirection(isEpic);
   const { isMobile } = usePlatformOS();
@@ -235,7 +235,7 @@ const IssueRowDetails = observer(function IssueRowDetails(props: IssueRowDetails
   const disableUserActions = !canEditProperties(issueDetail.project_id ?? undefined);
   const subIssuesCount = issueDetail?.sub_issues_count ?? 0;
   const isIssueSelected = selectionHelpers.getIsEntitySelected(issueDetail.id);
-  const projectIdentifier = getProjectIdentifierById(issueDetail.project_id);
+  const projectIdentifier = getProjectById(projects, issueDetail.project_id)?.identifier;
 
   const canSelectIssues = !disableUserActions && !selectionHelpers.isSelectionDisabled;
 

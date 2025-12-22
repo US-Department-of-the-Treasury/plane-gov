@@ -14,8 +14,9 @@ import { Avatar } from "@plane/ui";
 import { getFileURL } from "@plane/utils";
 // hooks
 import { useAnalytics } from "@/hooks/store/use-analytics";
-import { useProject } from "@/hooks/store/use-project";
 import { AnalyticsService } from "@/services/analytics.service";
+// store hooks
+import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
 import { exportCSV } from "../export";
 import { InsightTable } from "../insight-table";
@@ -38,7 +39,7 @@ const WorkItemsInsightTable = observer(function WorkItemsInsightTable() {
   const workspaceSlug = params.workspaceSlug.toString();
   const { t } = useTranslation();
   // store hooks
-  const { getProjectById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug);
   const { selectedDuration, selectedProjects, selectedSprint, selectedModule, isPeekView, isEpic } = useAnalytics();
   const { data: workItemsData, isLoading } = useSWR(
     `insights-table-work-items-${workspaceSlug}-${selectedDuration}-${selectedProjects}-${selectedSprint}-${selectedModule}-${isPeekView}-${isEpic}`,
@@ -77,7 +78,7 @@ const WorkItemsInsightTable = observer(function WorkItemsInsightTable() {
             accessorKey: "project__name",
             header: () => <div className="text-left">{columnsLabels["project__name"]}</div>,
             cell: ({ row }) => {
-              const project = getProjectById(row.original.project_id);
+              const project = getProjectById(projects || [], row.original.project_id);
               return (
                 <div className="flex items-center gap-2">
                   {project?.logo_props ? (
@@ -185,7 +186,7 @@ const WorkItemsInsightTable = observer(function WorkItemsInsightTable() {
         },
       },
     ],
-    [columnsLabels, getProjectById, isPeekView, t]
+    [columnsLabels, projects, isPeekView, t]
   );
   return (
     <InsightTable<"work-items">

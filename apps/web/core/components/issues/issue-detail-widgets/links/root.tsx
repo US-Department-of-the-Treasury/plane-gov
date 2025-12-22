@@ -32,6 +32,8 @@ export const LinksCollapsible = observer(function LinksCollapsible(props: Props)
       title={
         <IssueLinksCollapsibleTitle
           isOpen={isCollapsibleOpen}
+          workspaceSlug={workspaceSlug}
+          projectId={projectId}
           issueId={issueId}
           disabled={disabled}
           issueServiceType={issueServiceType}

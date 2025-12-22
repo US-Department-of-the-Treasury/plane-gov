@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import { Trash } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { Tooltip } from "@plane/propel/tooltip";
@@ -15,7 +16,7 @@ import { getFileIcon } from "@/components/icons";
 // helpers
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 
 type TIssueAttachmentsListItem = {
@@ -28,8 +29,10 @@ export const IssueAttachmentsListItem = observer(function IssueAttachmentsListIt
   const { t } = useTranslation();
   // props
   const { attachmentId, disabled, issueServiceType = EIssueServiceType.ISSUES } = props;
+  // params
+  const { workspaceSlug } = useParams();
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
   const {
     attachment: { getAttachmentById },
     toggleDeleteAttachmentModal,
@@ -70,7 +73,7 @@ export const IssueAttachmentsListItem = observer(function IssueAttachmentsListIt
                 <Tooltip
                   isMobile={isMobile}
                   tooltipContent={`${
-                    getUserDetails(attachment?.created_by)?.display_name ?? ""
+                    getWorkspaceMemberByUserId(workspaceMembers, attachment.created_by)?.member?.display_name ?? ""
                   } uploaded on ${renderFormattedDate(attachment.updated_at)}`}
                 >
                   <div className="flex items-center justify-center">

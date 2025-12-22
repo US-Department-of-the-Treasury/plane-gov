@@ -10,8 +10,9 @@ import type { EUserProjectRoles, IUser, IWorkspaceMember, TProjectMembership } f
 import { CustomMenu, CustomSelect } from "@plane/ui";
 import { getFileURL } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
+// queries
+import { useWorkspaceMembers, useUpdateProjectMemberRole, getWorkspaceMemberByUserId } from "@/store/queries/member";
 
 export interface RowData extends Pick<TProjectMembership, "original_role"> {
   member: IWorkspaceMember;
@@ -91,12 +92,11 @@ export function NameColumn(props: NameProps) {
 export const AccountTypeColumn = observer(function AccountTypeColumn(props: AccountTypeProps) {
   const { rowData, projectId, workspaceSlug } = props;
   // store hooks
-  const {
-    project: { updateMemberRole },
-    workspace: { getWorkspaceMemberDetails },
-  } = useMember();
   const { data: currentUser } = useUser();
   const { getProjectRoleByWorkspaceSlugAndProjectId } = useUserPermissions();
+  // queries
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug);
+  const { mutateAsync: updateMemberRole } = useUpdateProjectMemberRole();
   // form info
   const {
     control,
@@ -105,13 +105,13 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
   // derived values
   const roleLabel = ROLE[rowData.original_role ?? EUserPermissions.GUEST];
   const isCurrentUser = currentUser?.id === rowData.member.id;
+  const rowWorkspaceMember = getWorkspaceMemberByUserId(workspaceMembers, rowData.member.id);
+  const currentWorkspaceMember = currentUser ? getWorkspaceMemberByUserId(workspaceMembers, currentUser.id) : null;
   const isRowDataWorkspaceAdmin = [EUserPermissions.ADMIN].includes(
-    Number(getWorkspaceMemberDetails(rowData.member.id)?.role) ?? EUserPermissions.GUEST
+    Number(rowWorkspaceMember?.role) ?? EUserPermissions.GUEST
   );
   const isCurrentUserWorkspaceAdmin = currentUser
-    ? [EUserPermissions.ADMIN].includes(
-        Number(getWorkspaceMemberDetails(currentUser.id)?.role) ?? EUserPermissions.GUEST
-      )
+    ? [EUserPermissions.ADMIN].includes(Number(currentWorkspaceMember?.role) ?? EUserPermissions.GUEST)
     : false;
   const currentProjectRole = getProjectRoleByWorkspaceSlugAndProjectId(workspaceSlug, projectId);
 
@@ -125,9 +125,10 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
   const isRoleEditable =
     (isCurrentUserWorkspaceAdmin && isCurrentUser) ||
     (isCurrentUserProjectAdmin && !isRowDataWorkspaceAdmin && !isCurrentUser);
-  const checkCurrentOptionWorkspaceRole = (value: string) => {
-    const currentMemberWorkspaceRole = getWorkspaceMemberDetails(value)?.role as EUserPermissions | undefined;
-    if (!value || !currentMemberWorkspaceRole) return ROLE;
+  const checkCurrentOptionWorkspaceRole = (userId: string) => {
+    const memberData = getWorkspaceMemberByUserId(workspaceMembers, userId);
+    const currentMemberWorkspaceRole = memberData?.role as EUserPermissions | undefined;
+    if (!userId || !currentMemberWorkspaceRole) return ROLE;
 
     const isGuest = [EUserPermissions.GUEST].includes(currentMemberWorkspaceRole);
 
@@ -148,19 +149,22 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
               value={rowData.original_role}
               onChange={async (value: EUserProjectRoles) => {
                 if (!workspaceSlug) return;
-                await updateMemberRole(workspaceSlug.toString(), projectId.toString(), rowData.member.id, value).catch(
-                  (err) => {
-                    console.log(err, "err");
-                    const error = err.error;
-                    const errorString = Array.isArray(error) ? error[0] : error;
+                await updateMemberRole({
+                  workspaceSlug: workspaceSlug.toString(),
+                  projectId: projectId.toString(),
+                  memberId: rowData.member.id,
+                  role: value,
+                }).catch((err) => {
+                  console.log(err, "err");
+                  const error = err.error;
+                  const errorString = Array.isArray(error) ? error[0] : error;
 
-                    setToast({
-                      type: TOAST_TYPE.ERROR,
-                      title: "You can’t change this role yet.",
-                      message: errorString ?? "An error occurred while updating member role. Please try again.",
-                    });
-                  }
-                );
+                  setToast({
+                    type: TOAST_TYPE.ERROR,
+                    title: "You can't change this role yet.",
+                    message: errorString ?? "An error occurred while updating member role. Please try again.",
+                  });
+                });
               }}
               label={
                 <div className="flex ">

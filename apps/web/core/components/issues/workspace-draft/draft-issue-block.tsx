@@ -12,8 +12,9 @@ import { Row } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useProject } from "@/hooks/store/use-project";
 import { useWorkspaceDraftIssues } from "@/hooks/store/workspace-draft";
+// queries
+import { useProjects } from "@/store/queries/project";
 // plane-web imports
 import { IssueTypeIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 // local imports
@@ -39,12 +40,14 @@ export const DraftIssueBlock = observer(function DraftIssueBlock(props: Props) {
   // hooks
   const { getIssueById, updateIssue, deleteIssue } = useWorkspaceDraftIssues();
   const { sidebarCollapsed: isSidebarCollapsed } = useAppTheme();
-  const { getProjectIdentifierById } = useProject();
+  // queries
+  const { data: projects } = useProjects(workspaceSlug);
   // ref
   const issueRef = useRef<HTMLDivElement | null>(null);
   // derived values
   const issue = getIssueById(issueId);
-  const projectIdentifier = (issue && issue.project_id && getProjectIdentifierById(issue.project_id)) || undefined;
+  const project = issue?.project_id ? projects?.find((p) => p.id === issue.project_id) : undefined;
+  const projectIdentifier = project?.identifier;
   if (!issue || !projectIdentifier) return null;
 
   const duplicateIssuePayload = omit(
