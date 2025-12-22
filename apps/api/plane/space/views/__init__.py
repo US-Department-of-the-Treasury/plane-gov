@@ -27,3 +27,5 @@ from .label import ProjectLabelsEndpoint
 from .asset import EntityAssetEndpoint, AssetRestoreEndpoint, EntityBulkAssetEndpoint
 
 from .meta import ProjectMetaDataEndpoint
+
+from .roadmap import RoadmapPublicEndpoint, RoadmapSettingsEndpoint

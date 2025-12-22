@@ -17,7 +17,6 @@ import {
   usePublishProject,
   useUpdatePublishSettings,
   useUnpublishProject,
-  getPublishSettingsByProjectId,
 } from "@/hooks/store/use-project-publish";
 
 type Props = {
@@ -30,6 +29,7 @@ const defaultValues: Partial<TProjectPublishSettings> = {
   is_comments_enabled: false,
   is_reactions_enabled: false,
   is_votes_enabled: false,
+  is_roadmap_view: false,
   inbox: null,
   view_props: {
     list: true,
@@ -82,7 +82,7 @@ export function PublishProjectModal(props: Props) {
     if (!workspaceSlug || !isOpen) return;
 
     if (!projectPublishSettings) {
-      fetchPublishSettings();
+      void fetchPublishSettings();
     }
   }, [fetchPublishSettings, isOpen, projectPublishSettings, workspaceSlug]);
 
@@ -147,6 +147,7 @@ export function PublishProjectModal(props: Props) {
       is_comments_enabled: formData.is_comments_enabled,
       is_reactions_enabled: formData.is_reactions_enabled,
       is_votes_enabled: formData.is_votes_enabled,
+      is_roadmap_view: formData.is_roadmap_view,
       view_props: formData.view_props,
     };
 
@@ -166,26 +167,28 @@ export function PublishProjectModal(props: Props) {
 
   const SPACE_APP_URL = (SPACE_BASE_URL.trim() === "" ? window.location.origin : SPACE_BASE_URL) + SPACE_BASE_PATH;
   const publishLink = `${SPACE_APP_URL}/issues/${projectPublishSettings?.anchor}`;
+  const roadmapLink = `${SPACE_APP_URL}/roadmap/${projectPublishSettings?.anchor}`;
 
-  const handleCopyLink = () =>
-    copyTextToClipboard(publishLink).then(() =>
+  const handleCopyLink = (link: string, message: string) =>
+    copyTextToClipboard(link).then(() =>
       setToast({
         type: TOAST_TYPE.SUCCESS,
         title: "",
-        message: "Published page link copied successfully.",
+        message,
       })
     );
 
   return (
     <ModalCore isOpen={isOpen} handleClose={handleClose} width={EModalWidth.XXL}>
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
+      <form onSubmit={(e) => void handleSubmit(handleFormSubmit)(e)}>
         <div className="flex items-center justify-between gap-2 p-5">
           <h5 className="text-18 font-medium text-secondary">Publish project</h5>
           {isProjectPublished && (
             <Button
               variant="error-fill"
               size="lg"
-              onClick={() => handleUnPublishProject(watch("id") ?? "")}
+              // eslint-disable-next-line react-hooks/incompatible-library -- watch() is safe here, component re-renders on form state change
+              onClick={() => void handleUnPublishProject(watch("id") ?? "")}
               loading={isUnPublishing}
             >
               {isUnPublishing ? "Unpublishing" : "Unpublish"}
@@ -205,32 +208,63 @@ export function PublishProjectModal(props: Props) {
           <div className="px-5 space-y-4">
             {isProjectPublished && projectPublishSettings && (
               <>
-                <div className="border border-strong rounded-md py-1.5 pl-4 pr-1 flex items-center justify-between gap-2">
-                  <a
-                    href={publishLink}
-                    className="text-13 text-secondary truncate"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {publishLink}
-                  </a>
-                  <div className="flex-shrink-0 flex items-center gap-1">
+                <div className="space-y-2">
+                  <div className="border border-strong rounded-md py-1.5 pl-4 pr-1 flex items-center justify-between gap-2">
                     <a
                       href={publishLink}
-                      className="size-8 grid place-items-center bg-layer-3 hover:bg-layer-3-hover rounded-sm"
+                      className="text-13 text-secondary truncate"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <ExternalLink className="size-4" />
+                      {publishLink}
                     </a>
-                    <button
-                      type="button"
-                      className="h-8 bg-layer-3 hover:bg-layer-3-hover rounded-sm text-11 font-medium py-2 px-3"
-                      onClick={handleCopyLink}
-                    >
-                      Copy link
-                    </button>
+                    <div className="flex-shrink-0 flex items-center gap-1">
+                      <a
+                        href={publishLink}
+                        className="size-8 grid place-items-center bg-layer-3 hover:bg-layer-3-hover rounded-sm"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="size-4" />
+                      </a>
+                      <button
+                        type="button"
+                        className="h-8 bg-layer-3 hover:bg-layer-3-hover rounded-sm text-11 font-medium py-2 px-3"
+                        onClick={() => void handleCopyLink(publishLink, "Published page link copied successfully.")}
+                      >
+                        Copy link
+                      </button>
+                    </div>
                   </div>
+                  {projectPublishSettings.is_roadmap_view && (
+                    <div className="border border-strong rounded-md py-1.5 pl-4 pr-1 flex items-center justify-between gap-2">
+                      <a
+                        href={roadmapLink}
+                        className="text-13 text-secondary truncate"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {roadmapLink}
+                      </a>
+                      <div className="flex-shrink-0 flex items-center gap-1">
+                        <a
+                          href={roadmapLink}
+                          className="size-8 grid place-items-center bg-layer-3 hover:bg-layer-3-hover rounded-sm"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="size-4" />
+                        </a>
+                        <button
+                          type="button"
+                          className="h-8 bg-layer-3 hover:bg-layer-3-hover rounded-sm text-11 font-medium py-2 px-3"
+                          onClick={() => void handleCopyLink(roadmapLink, "Roadmap link copied successfully.")}
+                        >
+                          Copy link
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <p className="text-13 font-medium text-accent-primary flex items-center gap-1 mt-3">
                   <span className="relative grid place-items-center size-2.5">
@@ -302,6 +336,16 @@ export function PublishProjectModal(props: Props) {
                 <Controller
                   control={control}
                   name="is_votes_enabled"
+                  render={({ field: { onChange, value } }) => (
+                    <ToggleSwitch value={!!value} onChange={onChange} size="sm" />
+                  )}
+                />
+              </div>
+              <div className="relative flex items-center justify-between gap-2">
+                <div className="text-13">Enable public roadmap</div>
+                <Controller
+                  control={control}
+                  name="is_roadmap_view"
                   render={({ field: { onChange, value } }) => (
                     <ToggleSwitch value={!!value} onChange={onChange} size="sm" />
                   )}

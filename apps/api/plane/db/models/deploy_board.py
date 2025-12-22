@@ -33,6 +33,7 @@ class DeployBoard(WorkspaceBaseModel):
     view_props = models.JSONField(default=dict)
     is_activity_enabled = models.BooleanField(default=True)
     is_disabled = models.BooleanField(default=False)
+    is_roadmap_view = models.BooleanField(default=False)
 
     def __str__(self):
         """Return name of the deploy board"""
