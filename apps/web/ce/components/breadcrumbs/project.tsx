@@ -6,7 +6,7 @@ import type { ICustomSearchSelectOption } from "@plane/types";
 import { BreadcrumbNavigationSearchDropdown, Breadcrumbs } from "@plane/ui";
 import { SwitcherLabel } from "@/components/common/switcher-label";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById, getJoinedProjectIds } from "@/store/queries/project";
 import { useAppRouter } from "@/hooks/use-app-router";
 import type { TProject } from "@/plane-web/types";
 
@@ -21,17 +21,16 @@ export const ProjectBreadcrumb = observer(function ProjectBreadcrumb(props: TPro
   // router
   const router = useAppRouter();
   // store hooks
-  const { joinedProjectIds, getPartialProjectById } = useProject();
-  const currentProjectDetails = getPartialProjectById(projectId);
-
-  // store hooks
+  const { data: projects } = useProjects(workspaceSlug);
+  const joinedProjectIds = getJoinedProjectIds(projects);
+  const currentProjectDetails = getProjectById(projects, projectId);
 
   if (!currentProjectDetails) return null;
 
   // derived values
   const switcherOptions = joinedProjectIds
     .map((projectId) => {
-      const project = getPartialProjectById(projectId);
+      const project = getProjectById(projects, projectId);
       return {
         value: projectId,
         query: project?.name,

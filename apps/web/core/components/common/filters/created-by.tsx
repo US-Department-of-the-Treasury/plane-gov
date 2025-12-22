@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { sortBy } from "lodash-es";
-import { observer } from "mobx-react";
 // ui
 import { Avatar, Loader } from "@plane/ui";
 // components
@@ -8,7 +7,7 @@ import { getFileURL } from "@plane/utils";
 import { FilterHeader, FilterOption } from "@/components/issues/issue-layouts/filters";
 // helpers
 // hooks
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
 import { useUser } from "@/hooks/store/user";
 
 type Props = {
@@ -16,31 +15,36 @@ type Props = {
   handleUpdate: (val: string) => void;
   memberIds: string[] | undefined;
   searchQuery: string;
+  workspaceSlug: string;
 };
 
-export const FilterCreatedBy = observer(function FilterCreatedBy(props: Props) {
-  const { appliedFilters, handleUpdate, memberIds, searchQuery } = props;
+export function FilterCreatedBy(props: Props) {
+  const { appliedFilters, handleUpdate, memberIds, searchQuery, workspaceSlug } = props;
   // states
   const [itemsToRender, setItemsToRender] = useState(5);
   const [previewEnabled, setPreviewEnabled] = useState(true);
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: members } = useWorkspaceMembers(workspaceSlug);
   const { data: currentUser } = useUser();
 
   const appliedFiltersCount = appliedFilters?.length ?? 0;
 
   const sortedOptions = useMemo(() => {
-    const filteredOptions = (memberIds || []).filter((memberId) =>
-      getUserDetails(memberId)?.display_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredOptions = (memberIds || []).filter((memberId) => {
+      const member = getWorkspaceMemberByUserId(members, memberId);
+      return member && getMemberDisplayName(member).toLowerCase().includes(searchQuery.toLowerCase());
+    });
 
     return sortBy(filteredOptions, [
       (memberId) => !(appliedFilters ?? []).includes(memberId),
       (memberId) => memberId !== currentUser?.id,
-      (memberId) => getUserDetails(memberId)?.display_name.toLowerCase(),
+      (memberId) => {
+        const member = getWorkspaceMemberByUserId(members, memberId);
+        return member ? getMemberDisplayName(member).toLowerCase() : "";
+      },
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
+  }, [searchQuery, members]);
 
   const handleViewToggle = () => {
     if (!sortedOptions) return;
@@ -62,9 +66,12 @@ export const FilterCreatedBy = observer(function FilterCreatedBy(props: Props) {
             sortedOptions.length > 0 ? (
               <>
                 {sortedOptions.slice(0, itemsToRender).map((memberId) => {
-                  const member = getUserDetails(memberId);
+                  const member = getWorkspaceMemberByUserId(members, memberId);
 
                   if (!member) return null;
+
+                  const displayName = getMemberDisplayName(member);
+
                   return (
                     <FilterOption
                       key={`member-${member.id}`}
@@ -72,13 +79,13 @@ export const FilterCreatedBy = observer(function FilterCreatedBy(props: Props) {
                       onClick={() => handleUpdate(member.id)}
                       icon={
                         <Avatar
-                          name={member.display_name}
+                          name={displayName}
                           src={getFileURL(member.avatar_url)}
                           showTooltip={false}
                           size="md"
                         />
                       }
-                      title={currentUser?.id === member.id ? "You" : member?.display_name}
+                      title={currentUser?.id === member.id ? "You" : displayName}
                     />
                   );
                 })}
@@ -106,4 +113,4 @@ export const FilterCreatedBy = observer(function FilterCreatedBy(props: Props) {
       )}
     </>
   );
-});
+}

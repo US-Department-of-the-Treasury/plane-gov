@@ -14,7 +14,7 @@ import { CreateProjectModal } from "@/components/project/create-project-modal";
 import { SidebarProjectsListItem } from "@/components/workspace/sidebar/projects-list-item";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getJoinedProjectIds, getProjectById, useUpdateProjectView } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import type { TProject } from "@/plane-web/types";
 import { ExtendedSidebarWrapper } from "./extended-sidebar-wrapper";
@@ -27,10 +27,13 @@ export const ExtendedProjectSidebar = observer(function ExtendedProjectSidebar()
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   // routers
   const { workspaceSlug } = useParams();
+  // queries
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
+  const joinedProjects = getJoinedProjectIds(projects);
+  const { mutate: updateProjectView } = useUpdateProjectView();
   // store hooks
   const { t } = useTranslation();
   const { isExtendedProjectSidebarOpened, toggleExtendedProjectSidebar } = useAppTheme();
-  const { getPartialProjectById, joinedProjectIds: joinedProjects, updateProjectView } = useProject();
   const { allowPermissions } = useUserPermissions();
 
   const handleOnProjectDrop = (
@@ -43,7 +46,7 @@ export const ExtendedProjectSidebar = observer(function ExtendedProjectSidebar()
 
     const joinedProjectsList: TProject[] = [];
     joinedProjects.map((projectId) => {
-      const projectDetails = getPartialProjectById(projectId);
+      const projectDetails = getProjectById(projects, projectId);
       if (projectDetails) joinedProjectsList.push(projectDetails);
     });
 
@@ -54,18 +57,23 @@ export const ExtendedProjectSidebar = observer(function ExtendedProjectSidebar()
 
     const updatedSortOrder = orderJoinedProjects(sourceIndex, destinationIndex, sourceId, joinedProjectsList);
     if (updatedSortOrder != undefined)
-      updateProjectView(workspaceSlug.toString(), sourceId, { sort_order: updatedSortOrder }).catch(() => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: t("error"),
-          message: t("something_went_wrong"),
-        });
-      });
+      updateProjectView(
+        { workspaceSlug: workspaceSlug.toString(), projectId: sourceId, data: { sort_order: updatedSortOrder } },
+        {
+          onError: () => {
+            setToast({
+              type: TOAST_TYPE.ERROR,
+              title: t("error"),
+              message: t("something_went_wrong"),
+            });
+          },
+        }
+      );
   };
 
   // filter projects based on search query
   const filteredProjects = joinedProjects.filter((projectId) => {
-    const project = getPartialProjectById(projectId);
+    const project = getProjectById(projects, projectId);
     if (!project) return false;
     return project.name.toLowerCase().includes(searchQuery.toLowerCase()) || project.identifier.includes(searchQuery);
   });

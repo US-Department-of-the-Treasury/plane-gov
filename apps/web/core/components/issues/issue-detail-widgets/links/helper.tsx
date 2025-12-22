@@ -4,7 +4,7 @@ import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { TIssueLink, TIssueServiceType } from "@plane/types";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useCreateIssueLink, useUpdateIssueLink, useDeleteIssueLink } from "@/store/queries/issue";
 // local imports
 import type { TLinkOperations } from "../../issue-detail/links";
 
@@ -14,7 +14,9 @@ export const useLinkOperations = (
   issueId: string,
   issueServiceType: TIssueServiceType
 ): TLinkOperations => {
-  const { createLink, updateLink, removeLink } = useIssueDetail(issueServiceType);
+  const { mutateAsync: createLink } = useCreateIssueLink();
+  const { mutateAsync: updateLink } = useUpdateIssueLink();
+  const { mutateAsync: removeLink } = useDeleteIssueLink();
   // i18n
   const { t } = useTranslation();
 
@@ -23,7 +25,7 @@ export const useLinkOperations = (
       create: async (data: Partial<TIssueLink>) => {
         try {
           if (!workspaceSlug || !projectId || !issueId) throw new Error("Missing required fields");
-          await createLink(workspaceSlug, projectId, issueId, data);
+          await createLink({ workspaceSlug, projectId, issueId, data });
           setToast({
             message: t("links.toasts.created.message"),
             type: TOAST_TYPE.SUCCESS,
@@ -41,7 +43,7 @@ export const useLinkOperations = (
       update: async (linkId: string, data: Partial<TIssueLink>) => {
         try {
           if (!workspaceSlug || !projectId || !issueId) throw new Error("Missing required fields");
-          await updateLink(workspaceSlug, projectId, issueId, linkId, data);
+          await updateLink({ workspaceSlug, projectId, issueId, linkId, data });
           setToast({
             message: t("links.toasts.updated.message"),
             type: TOAST_TYPE.SUCCESS,
@@ -59,7 +61,7 @@ export const useLinkOperations = (
       remove: async (linkId: string) => {
         try {
           if (!workspaceSlug || !projectId || !issueId) throw new Error("Missing required fields");
-          await removeLink(workspaceSlug, projectId, issueId, linkId);
+          await removeLink({ workspaceSlug, projectId, issueId, linkId });
           setToast({
             message: t("links.toasts.removed.message"),
             type: TOAST_TYPE.SUCCESS,

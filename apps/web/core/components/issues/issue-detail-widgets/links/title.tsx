@@ -6,29 +6,27 @@ import { useTranslation } from "@plane/i18n";
 import type { TIssueServiceType } from "@plane/types";
 import { CollapsibleButton } from "@plane/ui";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useIssue } from "@/store/queries/issue";
 // local imports
 import { IssueLinksActionButton } from "./quick-action-button";
 
 type Props = {
   isOpen: boolean;
+  workspaceSlug: string;
+  projectId: string;
   issueId: string;
   disabled: boolean;
   issueServiceType: TIssueServiceType;
 };
 
 export const IssueLinksCollapsibleTitle = observer(function IssueLinksCollapsibleTitle(props: Props) {
-  const { isOpen, issueId, disabled, issueServiceType } = props;
+  const { isOpen, workspaceSlug, projectId, issueId, disabled, issueServiceType } = props;
   // translation
   const { t } = useTranslation();
-  // store hooks
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail(issueServiceType);
+  // query hooks
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
 
   // derived values
-  const issue = getIssueById(issueId);
-
   const linksCount = issue?.link_count ?? 0;
 
   // indicator element

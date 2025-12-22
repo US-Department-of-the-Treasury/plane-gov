@@ -17,10 +17,11 @@ import { copyUrlToClipboard, generateWorkItemLink } from "@plane/utils";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
 // hooks
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useIssue } from "@/store/queries/issue";
 // local imports
 import { IssueSubscription } from "../issue-detail/subscription";
 import { WorkItemDetailQuickActions } from "../issue-layouts/quick-action-dropdowns";
@@ -86,24 +87,23 @@ export const IssuePeekOverviewHeader = observer(function IssuePeekOverviewHeader
   // ref
   const parentRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
-  // store hooks
+  // hooks
   const { data: currentUser } = useUser();
   const {
-    issue: { getIssueById },
     setPeekIssue,
     removeIssue,
     archiveIssue,
     getIsIssuePeeked,
   } = useIssueDetail();
   const { isMobile } = usePlatformOS();
-  const { getProjectIdentifierById } = useProject();
-  // derived values
-  const issueDetails = getIssueById(issueId);
-  const currentMode = PEEK_OPTIONS.find((m) => m.key === peekMode);
-  const projectIdentifier = getProjectIdentifierById(issueDetails?.project_id);
+  const { data: projects } = useProjects(workspaceSlug);
+  const { data: issueDetails } = useIssue(workspaceSlug, projectId, issueId);
   const {
     issues: { removeIssue: removeArchivedIssue },
   } = useIssues(EIssuesStoreType.ARCHIVED);
+  // derived values
+  const currentMode = PEEK_OPTIONS.find((m) => m.key === peekMode);
+  const projectIdentifier = getProjectById(projects, issueDetails?.project_id)?.identifier;
 
   const workItemLink = generateWorkItemLink({
     workspaceSlug,

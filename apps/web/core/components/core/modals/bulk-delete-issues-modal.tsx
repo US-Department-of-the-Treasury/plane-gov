@@ -11,7 +11,6 @@ import { useTranslation } from "@plane/i18n";
 import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { ISearchIssueResponse, IUser } from "@plane/types";
-import { EIssuesStoreType } from "@plane/types";
 import { Loader } from "@plane/ui";
 // assets
 import darkIssuesAsset from "@/app/assets/empty-state/search/issues-dark.webp?url";
@@ -21,8 +20,9 @@ import lightSearchAsset from "@/app/assets/empty-state/search/search-light.webp?
 // components
 import { SimpleEmptyState } from "@/components/empty-state/simple-empty-state-root";
 // hooks
-import { useIssues } from "@/hooks/store/use-issues";
 import useDebounce from "@/hooks/use-debounce";
+// queries
+import { useBulkDeleteIssues } from "@/store/queries/issue";
 // services
 import { ProjectService } from "@/services/project";
 // local components
@@ -51,10 +51,9 @@ export const BulkDeleteIssuesModal = observer(function BulkDeleteIssuesModal(pro
   // theme hook
   const { resolvedTheme } = useTheme();
   // hooks
-  const {
-    issues: { removeBulkIssues },
-  } = useIssues(EIssuesStoreType.PROJECT);
   const { t } = useTranslation();
+  // mutations
+  const { mutateAsync: bulkDeleteIssues } = useBulkDeleteIssues();
   // derived values
   const debouncedSearchTerm: string = useDebounce(query, 500);
   const searchResolvedPath = resolvedTheme === "light" ? lightSearchAsset : darkSearchAsset;
@@ -105,7 +104,11 @@ export const BulkDeleteIssuesModal = observer(function BulkDeleteIssuesModal(pro
 
     if (!Array.isArray(data.delete_issue_ids)) data.delete_issue_ids = [data.delete_issue_ids];
 
-    await removeBulkIssues(workspaceSlug, projectId, data.delete_issue_ids)
+    await bulkDeleteIssues({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      issueIds: data.delete_issue_ids,
+    })
       .then(() => {
         setToast({
           type: TOAST_TYPE.SUCCESS,

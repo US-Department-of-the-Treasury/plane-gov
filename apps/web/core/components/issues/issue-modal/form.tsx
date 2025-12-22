@@ -34,11 +34,12 @@ import {
 // hooks
 import { useIssueModal } from "@/hooks/context/use-issue-modal";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
 import { useWorkspaceDraftIssues } from "@/hooks/store/workspace-draft";
+import { useProjectDetails } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 import { useProjectIssueProperties } from "@/hooks/use-project-issue-properties";
+import { useIssue } from "@/store/queries/issue";
 // plane web imports
 import { DeDupeButtonRoot } from "@/plane-web/components/de-dupe/de-dupe-button";
 import { DuplicateModalRoot } from "@/plane-web/components/de-dupe/duplicate-modal";
@@ -112,7 +113,6 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
   const { workspaceSlug, projectId: routeProjectId } = useParams();
 
   // store hooks
-  const { getProjectById } = useProject();
   const {
     workItemTemplateId,
     isApplyingTemplate,
@@ -127,12 +127,21 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
   } = useIssueModal();
   const { isMobile } = usePlatformOS();
   const { moveIssue } = useWorkspaceDraftIssues();
-
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
   const { fetchSprints } = useProjectIssueProperties();
-  const { getStateById } = useProjectState();
+
+  // Get parent issue data if parentId exists
+  const parentId = watch("parent_id");
+  const { data: parentIssue } = useIssue(
+    workspaceSlug?.toString() ?? "",
+    projectId ?? "",
+    parentId ?? "",
+  );
+
+  // queries
+  const { data: projectStates } = useProjectStates(
+    workspaceSlug?.toString() ?? "",
+    projectId ?? ""
+  );
 
   // form info
   const methods = useForm<TIssue>({
@@ -157,8 +166,13 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
     watch: watch,
   });
 
+  // queries
+  const { data: projectDetails } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId ?? ""
+  );
+
   // derived values
-  const projectDetails = projectId ? getProjectById(projectId) : undefined;
   const isDisabled = isSubmitting || isApplyingTemplate;
 
   const { getIndex } = getTabIndex(ETabIndices.ISSUE_FORM, isMobile);
@@ -323,22 +337,22 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
 
   // executing this useEffect when the parent_id coming from the component prop
   useEffect(() => {
-    const parentId = watch("parent_id") || undefined;
-    if (!parentId) return;
-    if (parentId === selectedParentIssue?.id || selectedParentIssue) return;
+    const currentParentId = watch("parent_id") || undefined;
+    if (!currentParentId) return;
+    if (currentParentId === selectedParentIssue?.id || selectedParentIssue) return;
 
-    const issue = getIssueById(parentId);
-    if (!issue) return;
+    if (!parentIssue) return;
 
-    const projectDetails = getProjectById(issue.project_id);
+    const stateDetails = getStateById(projectStates, parentIssue.state_id);
+
+    // Fetch project details separately if needed, or use projectDetails from the hook
+    // For now, we'll skip this conversion if project details aren't available
     if (!projectDetails) return;
 
-    const stateDetails = getStateById(issue.state_id);
-
     setSelectedParentIssue(
-      convertWorkItemDataToSearchResponse(workspaceSlug?.toString(), issue, projectDetails, stateDetails)
+      convertWorkItemDataToSearchResponse(workspaceSlug?.toString(), parentIssue, projectDetails, stateDetails)
     );
-  }, [watch, getIssueById, getProjectById, selectedParentIssue, getStateById]);
+  }, [watch, parentIssue, selectedParentIssue, projectStates, projectDetails, workspaceSlug, setSelectedParentIssue]);
 
   // executing this useEffect when isDirty changes
   useEffect(() => {

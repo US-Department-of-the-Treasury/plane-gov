@@ -16,6 +16,8 @@ import { IssueLayoutIcon } from "@/components/issues/issue-layouts/layout-icon";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useEpic } from "@/hooks/store/use-epic";
 import { useProject } from "@/hooks/store/use-project";
+// tanstack query
+import { useProjectDetails } from "@/store/queries/project";
 
 const SUPPORTED_LAYOUTS = [
   { key: "list", i18n_title: "issue.layouts.list", icon: ListLayoutIcon },
@@ -31,7 +33,7 @@ export const EpicIssuesMobileHeader = observer(function EpicIssuesMobileHeader()
   // plane hooks
   const { t } = useTranslation();
   // store hooks
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   const { getEpicById } = useEpic();
   const {
     issuesFilter: { issueFilters, updateFilters },

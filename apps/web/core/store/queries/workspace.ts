@@ -403,3 +403,59 @@ export function useLastActiveWorkspace() {
     gcTime: 30 * 60 * 1000,
   });
 }
+
+// Utility functions for derived data (used inline by components)
+
+/**
+ * Get workspace by slug from a workspaces array.
+ *
+ * @example
+ * const { data: workspaces } = useWorkspaces();
+ * const workspace = getWorkspaceBySlug(workspaces, workspaceSlug);
+ */
+export function getWorkspaceBySlug(
+  workspaces: IWorkspace[] | undefined,
+  slug: string | null | undefined
+): IWorkspace | undefined {
+  if (!workspaces || !slug) return undefined;
+  return workspaces.find((ws) => ws.slug === slug);
+}
+
+/**
+ * Get workspace by ID from a workspaces array.
+ *
+ * @example
+ * const { data: workspaces } = useWorkspaces();
+ * const workspace = getWorkspaceById(workspaces, workspaceId);
+ */
+export function getWorkspaceById(
+  workspaces: IWorkspace[] | undefined,
+  workspaceId: string | null | undefined
+): IWorkspace | undefined {
+  if (!workspaces || !workspaceId) return undefined;
+  return workspaces.find((ws) => ws.id === workspaceId);
+}
+
+/**
+ * Get workspace IDs from workspaces array.
+ *
+ * @example
+ * const { data: workspaces } = useWorkspaces();
+ * const workspaceIds = getWorkspaceIds(workspaces);
+ */
+export function getWorkspaceIds(workspaces: IWorkspace[] | undefined): string[] {
+  if (!workspaces) return [];
+  return workspaces.map((ws) => ws.id);
+}
+
+/**
+ * Get workspace slugs from workspaces array.
+ *
+ * @example
+ * const { data: workspaces } = useWorkspaces();
+ * const workspaceSlugs = getWorkspaceSlugs(workspaces);
+ */
+export function getWorkspaceSlugs(workspaces: IWorkspace[] | undefined): string[] {
+  if (!workspaces) return [];
+  return workspaces.map((ws) => ws.slug);
+}

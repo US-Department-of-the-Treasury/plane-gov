@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { omit } from "lodash-es";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { ARCHIVABLE_STATE_GROUPS, WORK_ITEM_TRACKER_ELEMENTS } from "@plane/constants";
@@ -11,8 +10,8 @@ import { ContextMenu, CustomMenu } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 // plane-web components
 import { DuplicateWorkItemModal } from "@/plane-web/components/issues/issue-layouts/quick-action-dropdowns";
 // helper
@@ -23,7 +22,7 @@ import type { IQuickActionProps } from "../list/list-view-types";
 import type { MenuItemFactoryProps } from "./helper";
 import { useAllIssueMenuItems } from "./helper";
 
-export const AllIssueQuickActions = observer(function AllIssueQuickActions(props: IQuickActionProps) {
+export function AllIssueQuickActions(props: IQuickActionProps) {
   const {
     issue,
     handleDelete,
@@ -43,12 +42,16 @@ export const AllIssueQuickActions = observer(function AllIssueQuickActions(props
   const [duplicateWorkItemModal, setDuplicateWorkItemModal] = useState(false);
   // router
   const { workspaceSlug } = useParams();
-  const { getStateById } = useProjectState();
-  const { getProjectIdentifierById } = useProject();
+
+  // queries
+  const { data: projects } = useProjects(workspaceSlug?.toString());
+  const { data: projectStates } = useProjectStates(workspaceSlug?.toString(), issue.project_id);
+
   // derived values
-  const stateDetails = getStateById(issue.state_id);
+  const stateDetails = getStateById(projectStates, issue.state_id);
   const isEditingAllowed = !readOnly;
-  const projectIdentifier = getProjectIdentifierById(issue?.project_id);
+  const projectDetails = getProjectById(projects, issue?.project_id);
+  const projectIdentifier = projectDetails?.identifier;
   // auth
   const isArchivingAllowed = handleArchive && isEditingAllowed;
   const isInArchivableGroup = !!stateDetails && ARCHIVABLE_STATE_GROUPS.includes(stateDetails?.group);
@@ -247,4 +250,4 @@ export const AllIssueQuickActions = observer(function AllIssueQuickActions(props
       </CustomMenu>
     </>
   );
-});
+}

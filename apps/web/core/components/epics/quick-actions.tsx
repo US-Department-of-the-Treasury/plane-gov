@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { observer } from "mobx-react";
 import { MoreHorizontal } from "lucide-react";
 
 // plane imports
@@ -21,9 +20,9 @@ import { ArchiveEpicModal, CreateUpdateEpicModal, DeleteEpicModal } from "@/comp
 // helpers
 import { captureClick, captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useProjectEpics, getEpicById, useRestoreEpic } from "@/store/queries/epic";
 
 type Props = {
   parentRef: React.RefObject<HTMLDivElement>;
@@ -33,7 +32,7 @@ type Props = {
   customClassName?: string;
 };
 
-export const EpicQuickActions = observer(function EpicQuickActions(props: Props) {
+export function EpicQuickActions(props: Props) {
   const { parentRef, epicId, projectId, workspaceSlug, customClassName } = props;
   // router
   const router = useAppRouter();
@@ -43,12 +42,14 @@ export const EpicQuickActions = observer(function EpicQuickActions(props: Props)
   const [deleteModal, setDeleteModal] = useState(false);
   // store hooks
   const { allowPermissions } = useUserPermissions();
-
-  const { getEpicById, restoreEpic } = useEpic();
-
   const { t } = useTranslation();
+
+  // TanStack Query hooks
+  const { data: epics } = useProjectEpics(workspaceSlug, projectId);
+  const restoreEpicMutation = useRestoreEpic();
+
   // derived values
-  const epicDetails = getEpicById(epicId);
+  const epicDetails = getEpicById(epics, epicId);
   // auth
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
@@ -69,7 +70,12 @@ export const EpicQuickActions = observer(function EpicQuickActions(props: Props)
   const handleOpenInNewTab = () => window.open(`/${epicLink}`, "_blank");
 
   const handleRestoreEpic = async () =>
-    await restoreEpic(workspaceSlug, projectId, epicId)
+    await restoreEpicMutation
+      .mutateAsync({
+        workspaceSlug,
+        projectId,
+        epicId,
+      })
       .then(() => {
         setToast({
           type: TOAST_TYPE.SUCCESS,
@@ -195,4 +201,4 @@ export const EpicQuickActions = observer(function EpicQuickActions(props: Props)
       </CustomMenu>
     </>
   );
-});
+}

@@ -7,21 +7,23 @@ import { useTranslation } from "@plane/i18n";
 import { Loader } from "@plane/ui";
 // plane web hooks
 import { useAnalytics } from "@/hooks/store/use-analytics";
-import { useProject } from "@/hooks/store/use-project";
+// services
+import { ProjectService } from "@/services/project";
 // plane web components
 import AnalyticsSectionWrapper from "../analytics-section-wrapper";
 import ActiveProjectItem from "./active-project-item";
 
+const projectService = new ProjectService();
+
 const ActiveProjects = observer(function ActiveProjects() {
   const { t } = useTranslation();
-  const { fetchProjectAnalyticsCount } = useProject();
   const { workspaceSlug } = useParams();
   const { selectedDurationLabel } = useAnalytics();
   const { data: projectAnalyticsCount, isLoading: isProjectAnalyticsCountLoading } = useSWR(
     workspaceSlug ? ["projectAnalyticsCount", workspaceSlug] : null,
     workspaceSlug
       ? () =>
-          fetchProjectAnalyticsCount(workspaceSlug.toString(), {
+          projectService.getProjectAnalyticsCount(workspaceSlug.toString(), {
             fields: "total_work_items,total_completed_work_items",
           })
       : null

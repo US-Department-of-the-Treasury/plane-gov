@@ -1,14 +1,17 @@
 // plane web components
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // hooks
 import { useAnalytics } from "@/hooks/store/use-analytics";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 // components
 import { ProjectSelect } from "./select/project";
 
 const AnalyticsFilterActions = observer(function AnalyticsFilterActions() {
   const { selectedProjects, updateSelectedProjects } = useAnalytics();
-  const { joinedProjectIds } = useProject();
+  const { workspaceSlug } = useParams();
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
+  const joinedProjectIds = getJoinedProjectIds(projects);
   return (
     <div className="flex items-center justify-end gap-2">
       <ProjectSelect

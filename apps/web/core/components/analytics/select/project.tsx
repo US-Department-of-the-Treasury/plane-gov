@@ -1,4 +1,5 @@
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane package imports
 import { getButtonStyling } from "@plane/propel/button";
 import { Logo } from "@plane/propel/emoji-icon-picker";
@@ -6,7 +7,7 @@ import { ChevronDownIcon, ProjectIcon } from "@plane/propel/icons";
 import { CustomSearchSelect } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
 
 type Props = {
   value: string[] | undefined;
@@ -16,10 +17,11 @@ type Props = {
 
 export const ProjectSelect = observer(function ProjectSelect(props: Props) {
   const { value, onChange, projectIds } = props;
-  const { getProjectById } = useProject();
+  const { workspaceSlug } = useParams();
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
 
   const options = projectIds?.map((projectId) => {
-    const projectDetails = getProjectById(projectId);
+    const projectDetails = getProjectById(projects, projectId);
 
     return {
       value: projectDetails?.id,
@@ -51,7 +53,7 @@ export const ProjectSelect = observer(function ProjectSelect(props: Props) {
             : value && value.length > 0
               ? projectIds
                   ?.filter((p) => value.includes(p))
-                  .map((p) => getProjectById(p)?.name)
+                  .map((p) => getProjectById(projects, p)?.name)
                   .join(", ")
               : "All projects"}
           <ChevronDownIcon className="h-3 w-3" aria-hidden="true" />

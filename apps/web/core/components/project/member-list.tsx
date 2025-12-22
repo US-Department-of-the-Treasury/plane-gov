@@ -8,8 +8,9 @@ import { Button } from "@plane/propel/button";
 // components
 import { MembersSettingsLoader } from "@/components/ui/loader/settings/members";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useUserPermissions } from "@/hooks/store/user";
+// queries
+import { useProjectMembers } from "@/store/queries/member";
 // local imports
 import { MemberListFiltersDropdown } from "./dropdowns/filters/member-list";
 import { ProjectMemberListItem } from "./member-list-item";
@@ -25,47 +26,38 @@ export const ProjectMemberList = observer(function ProjectMemberList(props: TPro
   // states
   const [inviteModal, setInviteModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const {
-    project: { projectMemberIds, getFilteredProjectMemberDetails, filters },
-  } = useMember();
+  const [roleFilters, setRoleFilters] = useState<string[]>([]);
+  // hooks
   const { allowPermissions } = useUserPermissions();
-
   const { t } = useTranslation();
+  // queries
+  const { data: projectMembers = [], isLoading } = useProjectMembers(workspaceSlug, projectId);
 
-  const searchedProjectMembers = (projectMemberIds ?? []).filter((userId) => {
-    const memberDetails = projectId ? getFilteredProjectMemberDetails(userId, projectId.toString()) : null;
+  const filteredMembers = projectMembers.filter((member) => {
+    // Search filter
+    const fullName = `${member.member.first_name} ${member.member.last_name}`.toLowerCase();
+    const displayName = member.member.display_name.toLowerCase();
+    const matchesSearch =
+      displayName?.includes(searchQuery.toLowerCase()) || fullName.includes(searchQuery.toLowerCase());
 
-    if (!memberDetails?.member || !memberDetails.original_role) return false;
+    // Role filter
+    const matchesRole = roleFilters.length === 0 || roleFilters.includes(member.role?.toString() || "");
 
-    const fullName = `${memberDetails?.member.first_name} ${memberDetails?.member.last_name}`.toLowerCase();
-    const displayName = memberDetails?.member.display_name.toLowerCase();
-
-    return displayName?.includes(searchQuery.toLowerCase()) || fullName.includes(searchQuery.toLowerCase());
+    return matchesSearch && matchesRole;
   });
-
-  const memberDetails = searchedProjectMembers?.map((memberId) =>
-    projectId ? getFilteredProjectMemberDetails(memberId, projectId.toString()) : null
-  );
 
   const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT);
 
   // Handler for role filter updates
   const handleRoleFilterUpdate = (role: string) => {
-    if (projectId) {
-      const currentFilters = filters.getFilters(projectId);
-      const currentRoles = currentFilters?.roles || [];
-      const updatedRoles = currentRoles.includes(role)
-        ? currentRoles.filter((r) => r !== role)
-        : [...currentRoles, role];
-
-      filters.updateFilters(projectId, {
-        roles: updatedRoles.length > 0 ? updatedRoles : undefined,
-      });
-    }
+    setRoleFilters((prev) => {
+      if (prev.includes(role)) {
+        return prev.filter((r) => r !== role);
+      } else {
+        return [...prev, role];
+      }
+    });
   };
-
-  // Get current role filters
-  const appliedRoleFilters = projectId ? filters.getFilters(projectId)?.roles || [] : [];
 
   return (
     <>
@@ -89,7 +81,7 @@ export const ProjectMemberList = observer(function ProjectMemberList(props: TPro
             />
           </div>
           <MemberListFiltersDropdown
-            appliedFilters={appliedRoleFilters}
+            appliedFilters={roleFilters}
             handleUpdate={handleRoleFilterUpdate}
             memberType="project"
           />
@@ -106,18 +98,14 @@ export const ProjectMemberList = observer(function ProjectMemberList(props: TPro
           )}
         </div>
       </div>
-      {!projectMemberIds ? (
+      {isLoading ? (
         <MembersSettingsLoader />
       ) : (
         <div className="divide-y divide-subtle overflow-scroll">
-          {searchedProjectMembers.length !== 0 && (
-            <ProjectMemberListItem
-              memberDetails={memberDetails ?? []}
-              projectId={projectId}
-              workspaceSlug={workspaceSlug}
-            />
+          {filteredMembers.length !== 0 && (
+            <ProjectMemberListItem memberDetails={filteredMembers} projectId={projectId} workspaceSlug={workspaceSlug} />
           )}
-          {searchedProjectMembers.length === 0 && (
+          {filteredMembers.length === 0 && (
             <h4 className="text-13 mt-16 text-center text-placeholder">{t("no_matching_members")}</h4>
           )}
         </div>

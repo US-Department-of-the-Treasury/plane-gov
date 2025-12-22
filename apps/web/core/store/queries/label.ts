@@ -154,34 +154,117 @@ export function useUpdateLabel() {
 interface UpdateLabelPositionParams {
   workspaceSlug: string;
   projectId: string;
-  labelId: string;
-  data: Partial<IIssueLabel>;
+  draggingLabelId: string;
+  droppedParentId: string | null;
+  droppedLabelId: string | undefined;
+  dropAtEndOfList: boolean;
 }
 
 /**
- * Hook to update a label's position (sort order) with optimistic updates.
+ * Compute the sort order and parent for a label being dropped.
+ * Replicates the MobX LabelStore.updateLabelPosition logic.
+ */
+function computeLabelPositionData(
+  labels: IIssueLabel[],
+  draggingLabelId: string,
+  droppedParentId: string | null,
+  droppedLabelId: string | undefined,
+  dropAtEndOfList: boolean
+): { labelId: string; data: Partial<IIssueLabel> } | null {
+  const currLabel = labels.find((l) => l.id === draggingLabelId);
+  if (!currLabel) return null;
+
+  // Build tree structure
+  const labelTree = buildLabelTree(labels);
+
+  // If dropped in the same parent without a specific target, keep original position
+  if (currLabel.parent === droppedParentId && !droppedLabelId) return null;
+
+  const data: Partial<IIssueLabel> = { parent: droppedParentId };
+
+  // Find array in which the label is to be added
+  let currentArray: IIssueLabel[];
+  if (!droppedParentId) {
+    currentArray = labelTree;
+  } else {
+    const parentLabel = labelTree.find((label) => label.id === droppedParentId) as IIssueLabel & { children?: IIssueLabel[] };
+    currentArray = parentLabel?.children || [];
+  }
+
+  let droppedLabelIndex = currentArray.findIndex((label) => label.id === droppedLabelId);
+  // If the position cannot be determined, drop at the end of the list
+  if (dropAtEndOfList || droppedLabelIndex === -1) {
+    droppedLabelIndex = currentArray.length;
+  }
+
+  // If currently adding to an existing array, compute sort order
+  if (currentArray.length > 0) {
+    let prevSortOrder: number | undefined;
+    let nextSortOrder: number | undefined;
+
+    if (typeof currentArray[droppedLabelIndex - 1] !== "undefined") {
+      prevSortOrder = currentArray[droppedLabelIndex - 1].sort_order;
+    }
+    if (typeof currentArray[droppedLabelIndex] !== "undefined") {
+      nextSortOrder = currentArray[droppedLabelIndex].sort_order;
+    }
+
+    let sortOrder: number = 65535;
+    // Based on the next and previous labels, calculate current sort order
+    if (prevSortOrder && nextSortOrder) {
+      sortOrder = (prevSortOrder + nextSortOrder) / 2;
+    } else if (nextSortOrder) {
+      sortOrder = nextSortOrder / 2;
+    } else if (prevSortOrder) {
+      sortOrder = prevSortOrder + 10000;
+    }
+    data.sort_order = sortOrder;
+  }
+
+  return { labelId: draggingLabelId, data };
+}
+
+/**
+ * Hook to update a label's position (drag-and-drop reordering) with optimistic updates.
  * Replaces MobX LabelStore.updateLabelPosition for write operations.
  *
  * @example
  * const { mutate: updatePosition, isPending } = useUpdateLabelPosition();
- * updatePosition({ workspaceSlug, projectId, labelId, data: { sort_order: 3 } });
+ * updatePosition({ workspaceSlug, projectId, draggingLabelId, droppedParentId, droppedLabelId, dropAtEndOfList });
  */
 export function useUpdateLabelPosition() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, projectId, labelId, data }: UpdateLabelPositionParams) =>
-      labelService.patchIssueLabel(workspaceSlug, projectId, labelId, data),
-    onMutate: async ({ workspaceSlug, projectId, labelId, data }) => {
+    mutationFn: async ({
+      workspaceSlug,
+      projectId,
+      draggingLabelId,
+      droppedParentId,
+      droppedLabelId,
+      dropAtEndOfList,
+    }: UpdateLabelPositionParams) => {
+      // Get current labels to compute position
+      const labels = queryClient.getQueryData<IIssueLabel[]>(queryKeys.labels.all(workspaceSlug, projectId)) || [];
+      const result = computeLabelPositionData(labels, draggingLabelId, droppedParentId, droppedLabelId, dropAtEndOfList);
+
+      if (!result) return; // No update needed
+
+      return labelService.patchIssueLabel(workspaceSlug, projectId, result.labelId, result.data);
+    },
+    onMutate: async ({ workspaceSlug, projectId, draggingLabelId, droppedParentId, droppedLabelId, dropAtEndOfList }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.labels.all(workspaceSlug, projectId) });
 
       const previousLabels = queryClient.getQueryData<IIssueLabel[]>(queryKeys.labels.all(workspaceSlug, projectId));
 
       if (previousLabels) {
-        queryClient.setQueryData<IIssueLabel[]>(
-          queryKeys.labels.all(workspaceSlug, projectId),
-          previousLabels.map((label) => (label.id === labelId ? { ...label, ...data } : label))
-        );
+        const result = computeLabelPositionData(previousLabels, draggingLabelId, droppedParentId, droppedLabelId, dropAtEndOfList);
+        if (result) {
+          queryClient.setQueryData<IIssueLabel[]>(
+            queryKeys.labels.all(workspaceSlug, projectId),
+            previousLabels.map((label) => (label.id === result.labelId ? { ...label, ...result.data } : label))
+          );
+        }
       }
 
       return { previousLabels, workspaceSlug, projectId };

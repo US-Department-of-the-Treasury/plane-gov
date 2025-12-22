@@ -12,8 +12,9 @@ import { Loader, ToggleSwitch } from "@plane/ui";
 // constants
 import { PROJECT_DETAILS } from "@/constants/fetch-keys";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
+// queries
+import { useProjectDetails, useUpdateProject } from "@/store/queries/project";
 // local imports
 import { MemberSelect } from "./member-select";
 
@@ -53,8 +54,9 @@ export const ProjectSettingsMemberDefaults = observer(function ProjectSettingsMe
   const { t } = useTranslation();
   // store hooks
   const { allowPermissions } = useUserPermissions();
-
-  const { currentProjectDetails, fetchProjectDetails, updateProject } = useProject();
+  // queries
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(workspaceSlug, projectId);
+  const { mutateAsync: updateProject } = useUpdateProject();
   // derived values
   const isAdmin = allowPermissions(
     [EUserPermissions.ADMIN],
@@ -64,11 +66,6 @@ export const ProjectSettingsMemberDefaults = observer(function ProjectSettingsMe
   );
   // form info
   const { reset, control } = useForm<IProject>({ defaultValues });
-  // fetching user members
-  useSWR(
-    workspaceSlug && projectId ? PROJECT_DETAILS(workspaceSlug, projectId) : null,
-    workspaceSlug && projectId ? () => fetchProjectDetails(workspaceSlug, projectId) : null
-  );
 
   useEffect(() => {
     if (!currentProjectDetails) return;

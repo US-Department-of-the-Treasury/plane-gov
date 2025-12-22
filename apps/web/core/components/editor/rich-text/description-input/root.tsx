@@ -11,7 +11,7 @@ import { getDescriptionPlaceholderI18n } from "@plane/utils";
 import { RichTextEditor } from "@/components/editor/rich-text";
 // hooks
 import { useEditorAsset } from "@/hooks/store/use-editor-asset";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // plane web services
 import { WorkspaceService } from "@/plane-web/services";
 // local imports
@@ -114,10 +114,8 @@ export const DescriptionInput = observer(function DescriptionInput(props: Props)
   // ref to track if there are unsaved changes
   const hasUnsavedChanges = useRef(false);
   // store hooks
-  const { getWorkspaceBySlug } = useWorkspace();
+  const { data: workspaceDetails } = useWorkspaceDetails(workspaceSlug);
   const { uploadEditorAsset, duplicateEditorAsset } = useEditorAsset();
-  // derived values
-  const workspaceDetails = getWorkspaceBySlug(workspaceSlug);
   // translation
   const { t } = useTranslation();
   // form info

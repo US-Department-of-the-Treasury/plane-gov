@@ -1,9 +1,8 @@
-import { observer } from "mobx-react";
 import { Pencil, Trash2, Copy, Link } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { Tooltip } from "@plane/propel/tooltip";
-import type { TIssueServiceType } from "@plane/types";
+import type { TIssueServiceType, TIssueLink } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 // ui
 import { CustomMenu } from "@plane/ui";
@@ -15,25 +14,20 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 import type { TLinkOperationsModal } from "./create-update-link-modal";
 
 type TIssueLinkItem = {
-  linkId: string;
+  link: TIssueLink;
   linkOperations: TLinkOperationsModal;
   isNotAllowed: boolean;
   issueServiceType?: TIssueServiceType;
 };
 
-export const IssueLinkItem = observer(function IssueLinkItem(props: TIssueLinkItem) {
+export function IssueLinkItem(props: TIssueLinkItem) {
   // props
-  const { linkId, linkOperations, isNotAllowed, issueServiceType = EIssueServiceType.ISSUES } = props;
+  const { link: linkDetail, linkOperations, isNotAllowed, issueServiceType = EIssueServiceType.ISSUES } = props;
   // hooks
   const { t } = useTranslation();
-  const {
-    toggleIssueLinkModal: toggleIssueLinkModalStore,
-    setIssueLinkData,
-    link: { getLinkById },
-  } = useIssueDetail(issueServiceType);
+  // keep modal state from useIssueDetail
+  const { toggleIssueLinkModal: toggleIssueLinkModalStore, setIssueLinkData } = useIssueDetail(issueServiceType);
   const { isMobile } = usePlatformOS();
-  const linkDetail = getLinkById(linkId);
-  if (!linkDetail) return <></>;
 
   // const Icon = getIconForLink(linkDetail.url);
   const faviconUrl: string | undefined = linkDetail.metadata?.favicon;
@@ -46,7 +40,7 @@ export const IssueLinkItem = observer(function IssueLinkItem(props: TIssueLinkIt
   return (
     <>
       <div
-        key={linkId}
+        key={linkDetail.id}
         className="group col-span-12 lg:col-span-6 xl:col-span-4 2xl:col-span-3 3xl:col-span-2 flex items-center justify-between gap-3 h-10 flex-shrink-0 px-3 bg-surface-2 hover:bg-layer-1 border-[0.5px] border-subtle rounded-sm"
       >
         <div className="flex items-center gap-2.5 truncate flex-grow">
@@ -117,4 +111,4 @@ export const IssueLinkItem = observer(function IssueLinkItem(props: TIssueLinkIt
       </div>
     </>
   );
-});
+}

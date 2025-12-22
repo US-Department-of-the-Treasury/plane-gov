@@ -1,8 +1,9 @@
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { CloseIcon } from "@plane/propel/icons";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById } from "@/store/queries/project";
 
 type Props = {
   handleRemove: (val: string) => void;
@@ -12,13 +13,15 @@ type Props = {
 
 export const AppliedProjectFilters = observer(function AppliedProjectFilters(props: Props) {
   const { handleRemove, values, editable } = props;
+  // router
+  const { workspaceSlug } = useParams();
   // store hooks
-  const { projectMap } = useProject();
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
 
   return (
     <>
       {values.map((projectId) => {
-        const projectDetails = projectMap?.[projectId] ?? null;
+        const projectDetails = getProjectById(projects, projectId);
 
         if (!projectDetails) return null;
 

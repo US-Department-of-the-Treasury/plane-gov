@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react";
 // plane imports
 import { Loader } from "@plane/ui";
 // local imports
@@ -16,10 +15,10 @@ type Props = {
   workspaceSlug: string;
 };
 
-export const SprintDetailsSidebar = observer(function SprintDetailsSidebar(props: Props) {
+export function SprintDetailsSidebar(props: Props) {
   const { handleClose, isArchived, projectId, workspaceSlug, sprintId } = props;
 
-  // store hooks
+  // hooks
   const { sprint: sprintDetails } = useSprintsDetails({
     workspaceSlug,
     projectId,
@@ -59,4 +58,4 @@ export const SprintDetailsSidebar = observer(function SprintDetailsSidebar(props
       )}
     </div>
   );
-});
+}

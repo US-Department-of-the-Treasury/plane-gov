@@ -10,11 +10,13 @@ import { SIDEBAR_WIDTH } from "@/components/gantt-chart/constants";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// queries
+import { useIssue } from "@/store/queries/issue";
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useProjectStates, getStateById } from "@/store/queries/state";
 // plane web imports
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 import { IssueStats } from "@/plane-web/components/issues/issue-layouts/issue-stats";
@@ -31,10 +33,10 @@ type Props = {
 export const IssueGanttBlock = observer(function IssueGanttBlock(props: Props) {
   const { issueId, isEpic } = props;
   // router
-  const { workspaceSlug: routerWorkspaceSlug } = useParams();
+  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
   const workspaceSlug = routerWorkspaceSlug?.toString();
-  // store hooks
-  const { getProjectStates } = useProjectState();
+  const projectId = routerProjectId?.toString();
+  // store hooks - keeping for fallback in cross-project views
   const {
     issue: { getIssueById },
   } = useIssueDetail();
@@ -42,10 +44,20 @@ export const IssueGanttBlock = observer(function IssueGanttBlock(props: Props) {
   const { isMobile } = usePlatformOS();
   const { handleRedirection } = useIssuePeekOverviewRedirection(isEpic);
 
+  // Try TanStack Query first (for single-project views), fallback to MobX
+  const issueFromMobX = getIssueById(issueId);
+  const { data: issueFromQuery } = useIssue(
+    workspaceSlug ?? "",
+    projectId ?? issueFromMobX?.project_id ?? "",
+    issueId
+  );
+
   // derived values
-  const issueDetails = getIssueById(issueId);
-  const stateDetails =
-    issueDetails && getProjectStates(issueDetails?.project_id)?.find((state) => state?.id == issueDetails?.state_id);
+  const issueDetails = issueFromQuery ?? issueFromMobX;
+  const { data: projectStates } = useProjectStates(workspaceSlug, issueDetails?.project_id);
+  const stateDetails = projectStates && issueDetails?.state_id
+    ? getStateById(projectStates, issueDetails.state_id)
+    : undefined;
 
   const { blockStyle } = getBlockViewDetails(issueDetails, stateDetails?.color ?? "");
 
@@ -102,23 +114,35 @@ export const IssueGanttBlock = observer(function IssueGanttBlock(props: Props) {
 export const IssueGanttSidebarBlock = observer(function IssueGanttSidebarBlock(props: Props) {
   const { issueId, isEpic = false } = props;
   // router
-  const { workspaceSlug: routerWorkspaceSlug } = useParams();
+  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
   const workspaceSlug = routerWorkspaceSlug?.toString();
-  // store hooks
+  const projectId = routerProjectId?.toString();
+  // store hooks - keeping for fallback in cross-project views
   const {
     issue: { getIssueById },
   } = useIssueDetail();
   const { isMobile } = usePlatformOS();
   const storeType = useIssueStoreType() as GanttStoreType;
   const { issuesFilter } = useIssues(storeType);
-  const { getProjectIdentifierById } = useProject();
 
   // handlers
   const { handleRedirection } = useIssuePeekOverviewRedirection(isEpic);
 
+  // Try TanStack Query first (for single-project views), fallback to MobX
+  const issueFromMobX = getIssueById(issueId);
+  const { data: issueFromQuery } = useIssue(
+    workspaceSlug ?? "",
+    projectId ?? issueFromMobX?.project_id ?? "",
+    issueId
+  );
+
+  // queries
+  const { data: projects } = useProjects(workspaceSlug);
+
   // derived values
-  const issueDetails = getIssueById(issueId);
-  const projectIdentifier = getProjectIdentifierById(issueDetails?.project_id);
+  const issueDetails = issueFromQuery ?? issueFromMobX;
+  const projectDetails = getProjectById(projects, issueDetails?.project_id);
+  const projectIdentifier = projectDetails?.identifier;
 
   const handleIssuePeekOverview = (e: any) => {
     e.stopPropagation(true);

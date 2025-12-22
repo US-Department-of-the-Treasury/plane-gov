@@ -8,8 +8,9 @@ import { TabNavigationList, TabNavigationItem } from "@plane/propel/tab-navigati
 import type { EUserProjectRoles } from "@plane/types";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
+// queries
+import { useProjects } from "@/store/queries/project";
 // plane web imports
 import { useNavigationItems } from "@/plane-web/components/navigations";
 // local imports
@@ -51,8 +52,9 @@ export const TabNavigationRoot = observer(function TabNavigationRoot(props: TTab
   const { t } = useTranslation();
 
   // Store hooks
-  const { getPartialProjectById } = useProject();
   const { allowPermissions } = useUserPermissions();
+  // queries
+  const { data: projects } = useProjects(workspaceSlug);
   const {
     issue: { getIssueIdByIdentifier, getIssueById },
   } = useIssueDetail();
@@ -68,7 +70,7 @@ export const TabNavigationRoot = observer(function TabNavigationRoot(props: TTab
     ? getIssueIdByIdentifier(workItemIdentifierFromRoute?.toString())
     : undefined;
   const workItem = workItemId ? getIssueById(workItemId) : undefined;
-  const project = getPartialProjectById(projectId);
+  const project = projects?.find((p) => p.id === projectId);
 
   // Navigation items hook
   const navigationItems = useNavigationItems({

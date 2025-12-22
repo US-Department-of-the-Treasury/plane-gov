@@ -6,12 +6,14 @@ import { ContentWrapper } from "@/components/core/content-wrapper";
 import { PageHead } from "@/components/core/page-title";
 import { WorkspaceHomeView } from "@/components/home";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // local components
 import { WorkspaceDashboardHeader } from "./header";
+import type { Route } from "./+types/page";
 
-function WorkspaceDashboardPage() {
-  const { currentWorkspace } = useWorkspace();
+function WorkspaceDashboardPage({ params }: Route.ComponentProps) {
+  const { workspaceSlug } = params;
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   const { t } = useTranslation();
   // derived values
   const pageTitle = currentWorkspace?.name ? `${currentWorkspace?.name} - ${t("home.title")}` : undefined;

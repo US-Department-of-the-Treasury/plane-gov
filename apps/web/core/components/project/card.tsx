@@ -16,11 +16,11 @@ import { Avatar, AvatarGroup, ContextMenu, FavoriteStar } from "@plane/ui";
 import { copyUrlToClipboard, cn, getFileURL, renderFormattedDate } from "@plane/utils";
 // components
 // hooks
-import { useMember } from "@/hooks/store/use-member";
-import { useProject } from "@/hooks/store/use-project";
+import { useUpdateProject } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // local imports
 import { DeleteProjectModal } from "./delete-project-modal";
 import { JoinProjectModal } from "./join-project-modal";
@@ -43,8 +43,8 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
   const router = useAppRouter();
   const { workspaceSlug } = useParams();
   // store hooks
-  const { getUserDetails } = useMember();
-  const { addProjectToFavorites, removeProjectFromFavorites } = useProject();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug as string);
+  const { mutate: updateProject } = useUpdateProject();
   const { allowPermissions } = useUserPermissions();
   // hooks
   const { isMobile } = usePlatformOS();
@@ -69,7 +69,19 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
   const handleAddToFavorites = () => {
     if (!workspaceSlug) return;
 
-    const addToFavoritePromise = addProjectToFavorites(workspaceSlug.toString(), project.id);
+    const addToFavoritePromise = new Promise((resolve, reject) => {
+      updateProject(
+        {
+          workspaceSlug: workspaceSlug.toString(),
+          projectId: project.id,
+          data: { is_favorite: true },
+        },
+        {
+          onSuccess: resolve,
+          onError: reject,
+        }
+      );
+    });
     setPromiseToast(addToFavoritePromise, {
       loading: "Adding project to favorites...",
       success: {
@@ -90,7 +102,19 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
   const handleRemoveFromFavorites = () => {
     if (!workspaceSlug) return;
 
-    const removeFromFavoritePromise = removeProjectFromFavorites(workspaceSlug.toString(), project.id);
+    const removeFromFavoritePromise = new Promise((resolve, reject) => {
+      updateProject(
+        {
+          workspaceSlug: workspaceSlug.toString(),
+          projectId: project.id,
+          data: { is_favorite: false },
+        },
+        {
+          onSuccess: resolve,
+          onError: reject,
+        }
+      );
+    });
     setPromiseToast(removeFromFavoritePromise, {
       loading: "Removing project from favorites...",
       success: {
@@ -283,7 +307,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
                   <div className="flex cursor-pointer items-center gap-2 text-secondary">
                     <AvatarGroup showTooltip={false}>
                       {projectMembersIds.map((memberId) => {
-                        const member = getUserDetails(memberId);
+                        const member = getWorkspaceMemberByUserId(workspaceMembers, memberId)?.member;
                         if (!member) return null;
                         return (
                           <Avatar key={member.id} name={member.display_name} src={getFileURL(member.avatar_url)} />

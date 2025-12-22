@@ -13,9 +13,11 @@ import { useSubIssueOperations } from "@/components/issues/issue-detail-widgets/
 import { WithDisplayPropertiesHOC } from "@/components/issues/issue-layouts/properties/with-display-properties-HOC";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// queries
+import { useProjects, getProjectById } from "@/store/queries/project";
+import { useIssue, useSubIssues } from "@/store/queries/issue";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 // local components
@@ -56,7 +58,6 @@ export const SubIssuesListItem = observer(function SubIssuesListItem(props: Prop
   } = props;
   const { t } = useTranslation();
   const {
-    issue: { getIssueById },
     subIssues: {
       filters: { getSubIssueFilters },
     },
@@ -66,13 +67,14 @@ export const SubIssuesListItem = observer(function SubIssuesListItem(props: Prop
   } = useIssueDetail();
   const { fetchSubIssues } = useSubIssueOperations(EIssueServiceType.ISSUES);
   const { toggleCreateIssueModal, toggleDeleteIssueModal } = useIssueDetail(issueServiceType);
-  const project = useProject();
   const { handleRedirection } = useIssuePeekOverviewRedirection();
   const { isMobile } = usePlatformOS();
-  const issue = getIssueById(issueId);
+  // queries
+  const { data: projects = [] } = useProjects(workspaceSlug);
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
 
   // derived values
-  const projectDetail = (issue && issue.project_id && project.getProjectById(issue.project_id)) || undefined;
+  const projectDetail = (issue && issue.project_id && getProjectById(projects, issue.project_id)) || undefined;
 
   const subIssueHelpers = subIssueHelpersByIssueId(parentIssueId);
   const subIssueCount = issue?.sub_issues_count ?? 0;

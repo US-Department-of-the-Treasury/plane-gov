@@ -1,18 +1,17 @@
-import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane imports
 import { getUserRole } from "@plane/utils";
 // components
 import { WorkspaceLogo } from "@/components/workspace/logo";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // plane web imports
 import { SubscriptionPill } from "@/plane-web/components/common/subscription/subscription-pill";
 
-export const SettingsSidebarHeader = observer(function SettingsSidebarHeader(props: {
-  customHeader?: React.ReactNode;
-}) {
+export function SettingsSidebarHeader(props: { customHeader?: React.ReactNode }) {
   const { customHeader } = props;
-  const { currentWorkspace } = useWorkspace();
+  const { workspaceSlug } = useParams();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug?.toString());
   return customHeader
     ? customHeader
     : currentWorkspace && (
@@ -37,4 +36,4 @@ export const SettingsSidebarHeader = observer(function SettingsSidebarHeader(pro
           </div>
         </div>
       );
-});
+}

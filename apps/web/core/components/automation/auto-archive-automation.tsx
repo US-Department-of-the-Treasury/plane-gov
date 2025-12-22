@@ -19,8 +19,9 @@ import { SelectMonthModal } from "@/components/automation";
 // constants
 // hooks
 import { captureElementAndEvent } from "@/helpers/event-tracker.helper";
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
+// store hooks
+import { useProjectDetails } from "@/store/queries/project";
 
 type Props = {
   handleChange: (formData: Partial<IProject>) => Promise<void>;
@@ -31,14 +32,13 @@ const initialValues: Partial<IProject> = { archive_in: 1 };
 export const AutoArchiveAutomation = observer(function AutoArchiveAutomation(props: Props) {
   const { handleChange } = props;
   // router
-  const { workspaceSlug } = useParams();
+  const { workspaceSlug, projectId } = useParams();
   // states
   const [monthModal, setmonthModal] = useState(false);
   // store hooks
   const { allowPermissions } = useUserPermissions();
   const { t } = useTranslation();
-
-  const { currentProjectDetails } = useProject();
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug?.toString(), projectId?.toString());
 
   const isAdmin = allowPermissions(
     [EUserPermissions.ADMIN],

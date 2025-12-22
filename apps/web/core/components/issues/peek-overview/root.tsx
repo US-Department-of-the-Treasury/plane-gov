@@ -16,6 +16,7 @@ import { useIssues } from "@/hooks/store/use-issues";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useWorkItemProperties } from "@/plane-web/hooks/use-issue-properties";
+import { useUpdateIssue, useDeleteIssue, useArchiveIssue } from "@/store/queries/issue";
 // local imports
 import type { TIssueOperations } from "../issue-detail";
 import { IssueView } from "./view";
@@ -46,6 +47,11 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
   const storeType = issueStoreFromProps ?? issueStoreType;
   const { issues } = useIssues(storeType);
 
+  // TanStack Query mutations
+  const { mutateAsync: updateIssue } = useUpdateIssue();
+  const { mutateAsync: deleteIssue } = useDeleteIssue();
+  const { mutateAsync: archiveIssue } = useArchiveIssue();
+
   useWorkItemProperties(
     peekIssue?.projectId,
     peekIssue?.workspaceSlug,
@@ -72,41 +78,34 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
         }
       },
       update: async (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssue>) => {
-        if (issues?.updateIssue) {
-          await issues
-            .updateIssue(workspaceSlug, projectId, issueId, data)
-            .then(async () => {
-              fetchActivities(workspaceSlug, projectId, issueId);
-              captureSuccess({
-                eventName: WORK_ITEM_TRACKER_EVENTS.update,
-                payload: { id: issueId },
-              });
-              return;
-            })
-            .catch((error) => {
-              captureError({
-                eventName: WORK_ITEM_TRACKER_EVENTS.update,
-                payload: { id: issueId },
-                error: error as Error,
-              });
-              setToast({
-                title: t("toast.error"),
-                type: TOAST_TYPE.ERROR,
-                message: t("entity.update.failed", { entity: t("issue.label", { count: 1 }) }),
-              });
-            });
+        try {
+          await updateIssue({ workspaceSlug, projectId, issueId, data });
+          fetchActivities(workspaceSlug, projectId, issueId);
+          captureSuccess({
+            eventName: WORK_ITEM_TRACKER_EVENTS.update,
+            payload: { id: issueId },
+          });
+        } catch (error) {
+          captureError({
+            eventName: WORK_ITEM_TRACKER_EVENTS.update,
+            payload: { id: issueId },
+            error: error as Error,
+          });
+          setToast({
+            title: t("toast.error"),
+            type: TOAST_TYPE.ERROR,
+            message: t("entity.update.failed", { entity: t("issue.label", { count: 1 }) }),
+          });
         }
       },
       remove: async (workspaceSlug: string, projectId: string, issueId: string) => {
         try {
-          return issues?.removeIssue(workspaceSlug, projectId, issueId).then(() => {
-            captureSuccess({
-              eventName: WORK_ITEM_TRACKER_EVENTS.delete,
-              payload: { id: issueId },
-            });
-            removeRoutePeekId();
-            return;
+          await deleteIssue({ workspaceSlug, projectId, issueId });
+          captureSuccess({
+            eventName: WORK_ITEM_TRACKER_EVENTS.delete,
+            payload: { id: issueId },
           });
+          removeRoutePeekId();
         } catch (error) {
           setToast({
             title: t("toast.error"),
@@ -122,8 +121,7 @@ export const IssuePeekOverview = observer(function IssuePeekOverview(props: IWor
       },
       archive: async (workspaceSlug: string, projectId: string, issueId: string) => {
         try {
-          if (!issues?.archiveIssue) return;
-          await issues.archiveIssue(workspaceSlug, projectId, issueId);
+          await archiveIssue({ workspaceSlug, projectId, issueId });
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.archive,
             payload: { id: issueId },

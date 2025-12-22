@@ -14,8 +14,15 @@ import { Avatar, CustomSelect, CustomSearchSelect } from "@plane/ui";
 import { getFileURL } from "@plane/utils";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useMember } from "@/hooks/store/use-member";
 import { useUserPermissions } from "@/hooks/store/user";
+// queries
+import {
+  useWorkspaceMembers,
+  useProjectMembers,
+  useBulkAddProjectMembers,
+  getWorkspaceMemberByUserId,
+  getProjectMemberByUserId,
+} from "@/store/queries/member";
 
 type Props = {
   isOpen: boolean;
@@ -49,13 +56,13 @@ export const SendProjectInvitationModal = observer(function SendProjectInvitatio
   const { t } = useTranslation();
   // store hooks
   const { getProjectRoleByWorkspaceSlugAndProjectId } = useUserPermissions();
-  const {
-    project: { getProjectMemberDetails, bulkAddMembersToProject },
-    workspace: { workspaceMemberIds, getWorkspaceMemberDetails },
-  } = useMember();
+  // queries
+  const { data: workspaceMembers = [] } = useWorkspaceMembers(workspaceSlug);
+  const { data: projectMembers = [] } = useProjectMembers(workspaceSlug, projectId);
+  const { mutateAsync: bulkAddMembersToProject, isPending: isSubmitting } = useBulkAddProjectMembers();
   // form info
   const {
-    formState: { errors, isSubmitting },
+    formState: { errors },
     watch,
     setValue,
     reset,
@@ -68,9 +75,10 @@ export const SendProjectInvitationModal = observer(function SendProjectInvitatio
   });
   // derived values
   const currentProjectRole = getProjectRoleByWorkspaceSlugAndProjectId(workspaceSlug, projectId);
+  const workspaceMemberIds = workspaceMembers.map((m) => m.member.id);
   const uninvitedPeople = workspaceMemberIds?.filter((userId) => {
-    const projectMemberDetails = getProjectMemberDetails(userId, projectId);
-    const isInvited = projectMemberDetails?.member.id && projectMemberDetails?.original_role;
+    const projectMemberDetails = getProjectMemberByUserId(projectMembers, userId);
+    const isInvited = projectMemberDetails?.member.id && projectMemberDetails?.role;
     return !isInvited;
   });
 
@@ -79,7 +87,11 @@ export const SendProjectInvitationModal = observer(function SendProjectInvitatio
 
     const payload = { ...formData };
 
-    await bulkAddMembersToProject(workspaceSlug.toString(), projectId.toString(), payload)
+    await bulkAddMembersToProject({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      data: payload,
+    })
       .then(() => {
         if (onSuccess) onSuccess();
         onClose();
@@ -140,7 +152,7 @@ export const SendProjectInvitationModal = observer(function SendProjectInvitatio
 
   const options = uninvitedPeople
     ?.map((userId) => {
-      const memberDetails = getWorkspaceMemberDetails(userId);
+      const memberDetails = getWorkspaceMemberByUserId(workspaceMembers, userId);
 
       if (!memberDetails?.member) return;
       return {
@@ -170,7 +182,7 @@ export const SendProjectInvitationModal = observer(function SendProjectInvitatio
     | undefined;
 
   const checkCurrentOptionWorkspaceRole = (value: string) => {
-    const currentMemberWorkspaceRole = getWorkspaceMemberDetails(value)?.role;
+    const currentMemberWorkspaceRole = getWorkspaceMemberByUserId(workspaceMembers, value)?.role;
     if (!value || !currentMemberWorkspaceRole) return ROLE;
 
     const isGuestOROwner = [EUserPermissions.ADMIN, EUserPermissions.GUEST].includes(
@@ -232,7 +244,7 @@ export const SendProjectInvitationModal = observer(function SendProjectInvitatio
                               name={`members.${index}.member_id`}
                               rules={{ required: "Please select a member" }}
                               render={({ field: { value, onChange } }) => {
-                                const selectedMember = getWorkspaceMemberDetails(value);
+                                const selectedMember = getWorkspaceMemberByUserId(workspaceMembers, value);
                                 return (
                                   <CustomSearchSelect
                                     value={value}
@@ -255,7 +267,7 @@ export const SendProjectInvitationModal = observer(function SendProjectInvitatio
                                     onChange={(val: string) => {
                                       onChange(val);
                                       // Update the role to the workspace role when member ID changes
-                                      const workspaceMemberDetails = getWorkspaceMemberDetails(val);
+                                      const workspaceMemberDetails = getWorkspaceMemberByUserId(workspaceMembers, val);
                                       const workspaceRole = workspaceMemberDetails?.role ?? 5;
                                       const newValue = ROLE[workspaceRole].toUpperCase();
                                       setValue(

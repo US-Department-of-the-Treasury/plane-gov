@@ -5,9 +5,10 @@ import { ProjectIcon } from "@plane/propel/icons";
 import type { ICustomSearchSelectOption } from "@plane/types";
 import { CustomSearchSelect } from "@plane/ui";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 // plane web imports
 import { useNavigationItems } from "@/plane-web/components/navigations";
 // local imports
@@ -26,11 +27,13 @@ export const ProjectHeader = observer(function ProjectHeader(props: TProjectHead
   // router
   const router = useAppRouter();
   // store hooks
-  const { joinedProjectIds, getPartialProjectById } = useProject();
   const { allowPermissions } = useUserPermissions();
+  // queries
+  const { data: projects } = useProjects(workspaceSlug);
 
   // Get current project details
-  const currentProjectDetails = getPartialProjectById(projectId);
+  const currentProjectDetails = projects?.find((p) => p.id === projectId);
+  const joinedProjectIds = getJoinedProjectIds(projects);
 
   // Get available navigation items for this project
   const navigationItems = useNavigationItems({
@@ -60,7 +63,7 @@ export const ProjectHeader = observer(function ProjectHeader(props: TProjectHead
     () =>
       joinedProjectIds
         .map((id): ICustomSearchSelectOption | null => {
-          const project = getPartialProjectById(id);
+          const project = projects?.find((p) => p.id === id);
           if (!project) return null;
 
           return {
@@ -77,7 +80,7 @@ export const ProjectHeader = observer(function ProjectHeader(props: TProjectHead
           };
         })
         .filter((option): option is ICustomSearchSelectOption => option !== null),
-    [joinedProjectIds, getPartialProjectById]
+    [joinedProjectIds, projects]
   );
 
   // Memoize onChange handler

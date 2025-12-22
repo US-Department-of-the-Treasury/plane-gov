@@ -20,6 +20,7 @@ import { EpicProgressStats } from "@/components/epics";
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useEpic } from "@/hooks/store/use-epic";
 import { useWorkItemFilters } from "@/hooks/store/work-item-filters/use-work-item-filters";
+import { useEpicDetails } from "@/store/queries/epic";
 // plane web constants
 type TEpicAnalyticsProgress = {
   workspaceSlug: string;
@@ -44,6 +45,7 @@ export const EpicAnalyticsProgress = observer(function EpicAnalyticsProgress(pro
   const { areEstimateEnabledByProjectId, currentActiveEstimateId, estimateById } = useProjectEstimates();
   const { getPlotTypeByEpicId, setPlotType, getEpicById, fetchEpicDetails, fetchArchivedEpicDetails } =
     useEpic();
+  const { data: epicDetails, refetch } = useEpicDetails(workspaceSlug, projectId, epicId);
   const { getFilter, updateFilterValueFromSidebar } = useWorkItemFilters();
   // state
   const [loader, setLoader] = useState(false);
@@ -52,7 +54,6 @@ export const EpicAnalyticsProgress = observer(function EpicAnalyticsProgress(pro
   const selectedAssignees = epicFilter?.findFirstConditionByPropertyAndOperator("assignee_id", "in");
   const selectedLabels = epicFilter?.findFirstConditionByPropertyAndOperator("label_id", "in");
   const selectedStateGroups = epicFilter?.findFirstConditionByPropertyAndOperator("state_group", "in");
-  const epicDetails = getEpicById(epicId);
   const plotType: TEpicPlotType = getPlotTypeByEpicId(epicId);
   const isCurrentProjectEstimateEnabled = projectId && areEstimateEnabledByProjectId(projectId) ? true : false;
   const estimateDetails =
@@ -100,11 +101,7 @@ export const EpicAnalyticsProgress = observer(function EpicAnalyticsProgress(pro
     if (!workspaceSlug || !projectId || !epicId) return;
     try {
       setLoader(true);
-      if (isArchived) {
-        await fetchArchivedEpicDetails(workspaceSlug, projectId, epicId);
-      } else {
-        await fetchEpicDetails(workspaceSlug, projectId, epicId);
-      }
+      await refetch();
       setLoader(false);
     } catch (error) {
       setLoader(false);

@@ -12,8 +12,9 @@ import { SwitcherIcon, SwitcherLabel } from "@/components/common/switcher-label"
 import { PageHeaderActions } from "@/components/pages/header/actions";
 import { PageSyncingBadge } from "@/components/pages/header/syncing-badge";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useProjects } from "@/store/queries/project";
 // plane web imports
 import { CommonProjectBreadcrumbs } from "@/plane-web/components/breadcrumbs/common";
 import { PageDetailsHeaderExtraActions } from "@/plane-web/components/pages";
@@ -29,8 +30,9 @@ export const PageDetailsHeader = observer(function PageDetailsHeader() {
   // router
   const router = useAppRouter();
   const { workspaceSlug, pageId, projectId } = useParams();
+  // queries
+  const { isLoading } = useProjects(workspaceSlug?.toString() ?? "");
   // store hooks
-  const { loader } = useProject();
   const { getPageById, getCurrentProjectPageIds } = usePageStore(storeType);
   const page = usePage({
     pageId: pageId?.toString() ?? "",
@@ -62,7 +64,7 @@ export const PageDetailsHeader = observer(function PageDetailsHeader() {
     <Header>
       <Header.LeftItem>
         <div>
-          <Breadcrumbs isLoading={loader === "init-loader"}>
+          <Breadcrumbs isLoading={isLoading}>
             <CommonProjectBreadcrumbs workspaceSlug={workspaceSlug?.toString()} projectId={projectId?.toString()} />
             <Breadcrumbs.Item
               component={

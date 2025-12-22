@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { Search } from "lucide-react";
 // plane imports
 import { DEFAULT_GLOBAL_VIEWS_LIST } from "@plane/constants";
@@ -10,12 +9,15 @@ import { PageHead } from "@/components/core/page-title";
 import { GlobalDefaultViewListItem } from "@/components/workspace/views/default-view-list-item";
 import { GlobalViewsList } from "@/components/workspace/views/views-list";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
+import type { Route } from "./+types/page";
 
-function WorkspaceViewsPage() {
+function WorkspaceViewsPage({ params }: Route.ComponentProps) {
   const [query, setQuery] = useState("");
+  // router
+  const { workspaceSlug } = params;
   // store
-  const { currentWorkspace } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   const { t } = useTranslation();
   // derived values
   const pageTitle = currentWorkspace?.name ? `${currentWorkspace?.name} - All Views` : undefined;
@@ -47,4 +49,4 @@ function WorkspaceViewsPage() {
   );
 }
 
-export default observer(WorkspaceViewsPage);
+export default WorkspaceViewsPage;

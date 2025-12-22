@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { xor } from "lodash-es";
-import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 // hooks
 // components
@@ -8,7 +7,7 @@ import { cn } from "@plane/utils";
 import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
 // ui
 // helpers
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useIssue } from "@/store/queries/issue";
 // types
 import type { TIssueOperations } from "./root";
 
@@ -21,17 +20,14 @@ type TIssueEpicSelect = {
   disabled?: boolean;
 };
 
-export const IssueEpicSelect = observer(function IssueEpicSelect(props: TIssueEpicSelect) {
+export function IssueEpicSelect(props: TIssueEpicSelect) {
   const { className = "", workspaceSlug, projectId, issueId, issueOperations, disabled = false } = props;
   const { t } = useTranslation();
   // states
   const [isUpdating, setIsUpdating] = useState(false);
   // store hooks
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
   // derived values
-  const issue = getIssueById(issueId);
   const disableSelect = disabled || isUpdating;
 
   const handleIssueEpicChange = async (epicIds: string[]) => {
@@ -75,4 +71,4 @@ export const IssueEpicSelect = observer(function IssueEpicSelect(props: TIssueEp
       />
     </div>
   );
-});
+}

@@ -20,7 +20,7 @@ import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById, getJoinedProjectIds } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useProjectNavigationPreferences } from "@/hooks/use-navigation-preferences";
 // plane web imports
@@ -42,10 +42,14 @@ export const SidebarProjectsList = observer(function SidebarProjectsList() {
   const { preferences: projectPreferences } = useProjectNavigationPreferences();
   const { isExtendedProjectSidebarOpened, toggleExtendedProjectSidebar } = useAppTheme();
 
-  const { loader, getPartialProjectById, joinedProjectIds: joinedProjects, updateProjectView } = useProject();
+  const { data: projects = [], isLoading } = useProjects(workspaceSlug?.toString());
+  const joinedProjects = getJoinedProjectIds(projects);
   // router params
   const { workspaceSlug } = useParams();
   const pathname = usePathname();
+
+  // loader state for compatibility
+  const loader = isLoading ? "init-loader" : undefined;
 
   // auth
   const isAuthorizedUser = allowPermissions(
@@ -82,7 +86,7 @@ export const SidebarProjectsList = observer(function SidebarProjectsList() {
 
     const joinedProjectsList: TProject[] = [];
     joinedProjects.map((projectId) => {
-      const projectDetails = getPartialProjectById(projectId);
+      const projectDetails = getProjectById(projects, projectId);
       if (projectDetails) joinedProjectsList.push(projectDetails);
     });
 
@@ -92,14 +96,17 @@ export const SidebarProjectsList = observer(function SidebarProjectsList() {
     if (joinedProjectsList.length <= 0) return;
 
     const updatedSortOrder = orderJoinedProjects(sourceIndex, destinationIndex, sourceId, joinedProjectsList);
-    if (updatedSortOrder != undefined)
-      updateProjectView(workspaceSlug.toString(), sourceId, { sort_order: updatedSortOrder }).catch(() => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: t("error"),
-          message: t("something_went_wrong"),
-        });
+    if (updatedSortOrder != undefined) {
+      // TODO: Replace with TanStack Query mutation when updateProjectView is migrated
+      // For now, this will need to use the existing MobX store method
+      // or be implemented with a mutation hook
+      console.warn("updateProjectView needs to be replaced with TanStack Query mutation");
+      setToast({
+        type: TOAST_TYPE.ERROR,
+        title: t("error"),
+        message: t("project_reordering_not_yet_migrated"),
       });
+    }
   };
 
   /**

@@ -1,33 +1,31 @@
 import { Pencil, Trash2, ExternalLink } from "lucide-react";
+import { useParams } from "next/navigation";
+import type { TIssueLink } from "@plane/types";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { Tooltip } from "@plane/propel/tooltip";
 import { getIconForLink, copyTextToClipboard, calculateTimeAgo } from "@plane/utils";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // types
 import type { TLinkOperationsModal } from "./create-update-link-modal";
 
 export type TIssueLinkDetail = {
-  linkId: string;
+  link: TIssueLink;
   linkOperations: TLinkOperationsModal;
   isNotAllowed: boolean;
 };
 
 export function IssueLinkDetail(props: TIssueLinkDetail) {
   // props
-  const { linkId, linkOperations, isNotAllowed } = props;
-  // hooks
-  const {
-    toggleIssueLinkModal: toggleIssueLinkModalStore,
-    link: { getLinkById },
-    setIssueLinkData,
-  } = useIssueDetail();
-  const { getUserDetails } = useMember();
+  const { link: linkDetail, linkOperations, isNotAllowed } = props;
+  // router
+  const { workspaceSlug } = useParams();
+  // hooks - keep modal state from useIssueDetail
+  const { toggleIssueLinkModal: toggleIssueLinkModalStore, setIssueLinkData } = useIssueDetail();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug as string);
   const { isMobile } = usePlatformOS();
-  const linkDetail = getLinkById(linkId);
-  if (!linkDetail) return <></>;
 
   const Icon = getIconForLink(linkDetail.url);
 
@@ -36,10 +34,10 @@ export function IssueLinkDetail(props: TIssueLinkDetail) {
     setIssueLinkData(linkDetail);
   };
 
-  const createdByDetails = getUserDetails(linkDetail.created_by_id);
+  const createdByDetails = getWorkspaceMemberByUserId(workspaceMembers, linkDetail.created_by_id)?.member;
 
   return (
-    <div key={linkId}>
+    <div key={linkDetail.id}>
       <div className="relative flex flex-col rounded-md bg-surface-2 p-2.5">
         <div
           className="flex w-full cursor-pointer items-start justify-between gap-2"

@@ -30,6 +30,7 @@ export const EpicsListView = observer(function EpicsListView() {
   const { getProjectEpicIds, getFilteredEpicIds, loader } = useEpic();
   const { currentProjectDisplayFilters: displayFilters } = useEpicFilter();
   const { allowPermissions } = useUserPermissions();
+
   // derived values
   const projectEpicIds = projectId ? getProjectEpicIds(projectId.toString()) : undefined;
   const filteredEpicIds = projectId ? getFilteredEpicIds(projectId.toString()) : undefined;

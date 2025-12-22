@@ -1,11 +1,10 @@
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // components
 import type { TPowerKPageType } from "@/components/power-k/core/types";
 import { PowerKMembersMenu } from "@/components/power-k/menus/members";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
-import { useEpic } from "@/hooks/store/use-epic";
+import { useEpicDetails } from "@/store/queries/epic";
+import { useProjectMembers } from "@/store/queries/member";
 // local imports
 import { PowerKEpicStatusMenu } from "./status-menu";
 
@@ -14,18 +13,20 @@ type Props = {
   handleSelection: (data: unknown) => void;
 };
 
-export const PowerKEpicContextBasedPages = observer(function PowerKEpicContextBasedPages(props: Props) {
+export function PowerKEpicContextBasedPages(props: Props) {
   const { activePage, handleSelection } = props;
   // navigation
-  const { epicId } = useParams();
-  // store hooks
-  const { getEpicById } = useEpic();
-  const {
-    project: { getProjectMemberIds },
-  } = useMember();
-  // derived values
-  const epicDetails = epicId ? getEpicById(epicId.toString()) : null;
-  const projectMemberIds = epicDetails?.project_id ? getProjectMemberIds(epicDetails.project_id, false) : [];
+  const { workspaceSlug, projectId, epicId } = useParams();
+  // queries
+  const { data: epicDetails } = useEpicDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? "",
+    epicId?.toString() ?? ""
+  );
+  const { data: projectMembers = [] } = useProjectMembers(
+    workspaceSlug?.toString() ?? "",
+    epicDetails?.project_id ?? ""
+  );
 
   if (!epicDetails) return null;
 
@@ -35,7 +36,11 @@ export const PowerKEpicContextBasedPages = observer(function PowerKEpicContextBa
       {activePage === "update-epic-member" && epicDetails && (
         <PowerKMembersMenu
           handleSelect={handleSelection}
-          userIds={projectMemberIds ?? undefined}
+          members={projectMembers.map((m) => ({
+            id: m.member,
+            display_name: m.member_display_name || m.member_email || "",
+            avatar_url: m.member_avatar_url,
+          }))}
           value={epicDetails.member_ids}
         />
       )}
@@ -45,4 +50,4 @@ export const PowerKEpicContextBasedPages = observer(function PowerKEpicContextBa
       )}
     </>
   );
-});
+}

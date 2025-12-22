@@ -12,7 +12,7 @@ import { TransferIssuesModal } from "@/components/sprints/transfer-issues-modal"
 // hooks
 import { ProjectLevelWorkItemFiltersHOC } from "@/components/work-item-filters/filters-hoc/project-level";
 import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
 // local imports
@@ -51,7 +51,7 @@ export const SprintLayoutRoot = observer(function SprintLayoutRoot() {
   const sprintId = routerSprintId ? routerSprintId.toString() : undefined;
   // store hooks
   const { issuesFilter } = useIssues(EIssuesStoreType.SPRINT);
-  const { getSprintById } = useSprint();
+  const { data: sprints } = useProjectSprints(workspaceSlug ?? "", projectId ?? "");
   // state
   const [transferIssuesModal, setTransferIssuesModal] = useState(false);
   // derived values
@@ -68,7 +68,7 @@ export const SprintLayoutRoot = observer(function SprintLayoutRoot() {
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 
-  const sprintDetails = sprintId ? getSprintById(sprintId) : undefined;
+  const sprintDetails = getSprintById(sprints, sprintId);
   const sprintStatus = sprintDetails?.status?.toLocaleLowerCase() ?? "draft";
   const isCompletedSprint = sprintStatus === "completed";
   const isProgressSnapshotEmpty = isEmpty(sprintDetails?.progress_snapshot);

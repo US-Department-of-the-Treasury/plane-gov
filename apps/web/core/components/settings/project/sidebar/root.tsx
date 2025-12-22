@@ -6,7 +6,8 @@ import { Logo } from "@plane/propel/emoji-icon-picker";
 import { getUserRole } from "@plane/utils";
 // components
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+// store queries
+import { useProjects, getJoinedProjectIds } from "@/store/queries/project";
 // local imports
 import { SettingsSidebar } from "../../sidebar";
 import { NavItemChildren } from "./nav-item-children";
@@ -19,7 +20,14 @@ export const ProjectSettingsSidebar = observer(function ProjectSettingsSidebar(p
   const { isMobile = false } = props;
   const { workspaceSlug } = useParams();
   // store hooks
-  const { joinedProjectIds, projectMap } = useProject();
+  const { data: projects } = useProjects(workspaceSlug as string);
+
+  // derived values
+  const joinedProjectIds = getJoinedProjectIds(projects);
+  const projectMap = (projects || []).reduce((acc, project) => {
+    acc[project.id] = project;
+    return acc;
+  }, {} as Record<string, typeof projects[0]>);
 
   const groupedProject = joinedProjectIds.map((projectId) => ({
     key: projectId,

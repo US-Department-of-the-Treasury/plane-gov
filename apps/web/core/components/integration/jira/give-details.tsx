@@ -1,6 +1,7 @@
 import React from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useFormContext, Controller } from "react-hook-form";
 import { Plus } from "lucide-react";
 import { PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
@@ -12,13 +13,17 @@ import { CustomSelect, Input } from "@plane/ui";
 import { checkEmailValidity } from "@plane/utils";
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
+// queries
+import { useProjects, getProjectById, getJoinedProjectIds } from "@/store/queries/project";
 // types
 
 export const JiraGetImportDetail = observer(function JiraGetImportDetail() {
   // store hooks
+  const { workspaceSlug } = useParams();
   const { toggleCreateProjectModal } = useCommandPalette();
-  const { workspaceProjectIds, getProjectById } = useProject();
+  // queries
+  const { data: projects = [] } = useProjects(workspaceSlug?.toString() || "");
+  const workspaceProjectIds = getJoinedProjectIds(projects);
   // form info
   const {
     control,
@@ -169,7 +174,7 @@ export const JiraGetImportDetail = observer(function JiraGetImportDetail() {
                 label={
                   <span>
                     {value && value.trim() !== "" ? (
-                      getProjectById(value)?.name
+                      getProjectById(projects, value)?.name
                     ) : (
                       <span className="text-secondary">Select a project</span>
                     )}
@@ -178,7 +183,7 @@ export const JiraGetImportDetail = observer(function JiraGetImportDetail() {
               >
                 {workspaceProjectIds && workspaceProjectIds.length > 0 ? (
                   workspaceProjectIds.map((projectId) => {
-                    const projectDetails = getProjectById(projectId);
+                    const projectDetails = getProjectById(projects, projectId);
 
                     if (!projectDetails) return;
 

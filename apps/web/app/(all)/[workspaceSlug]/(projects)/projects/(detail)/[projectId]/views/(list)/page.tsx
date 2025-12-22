@@ -17,10 +17,11 @@ import { DetailedEmptyState } from "@/components/empty-state/detailed-empty-stat
 import { ViewAppliedFiltersList } from "@/components/views/applied-filters";
 import { ProjectViewsList } from "@/components/views/views-list";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { useProjectView } from "@/hooks/store/use-project-view";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 import type { Route } from "./+types/page";
 
 function ProjectViewsPage({ params }: Route.ComponentProps) {
@@ -32,12 +33,12 @@ function ProjectViewsPage({ params }: Route.ComponentProps) {
   // plane hooks
   const { t } = useTranslation();
   // store
-  const { getProjectById, currentProjectDetails } = useProject();
   const { filters, updateFilters, clearAllFilters } = useProjectView();
   const { allowPermissions } = useUserPermissions();
+  // queries
+  const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   // derived values
-  const project = getProjectById(projectId);
-  const pageTitle = project?.name ? `${project?.name} - Views` : undefined;
+  const pageTitle = currentProjectDetails?.name ? `${currentProjectDetails?.name} - Views` : undefined;
   const canPerformEmptyStateActions = allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT);
   const resolvedPath = resolvedTheme === "light" ? lightViewsAsset : darkViewsAsset;
 

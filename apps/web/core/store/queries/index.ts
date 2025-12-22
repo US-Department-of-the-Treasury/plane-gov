@@ -72,21 +72,26 @@ export {
   useRestoreSprint,
 } from "./sprint";
 
-// Module hooks (TanStack Query)
+// Epic hooks (TanStack Query)
 export {
-  useProjectModules,
-  useWorkspaceModules,
-  useModuleDetails,
-  useArchivedModules,
-  useCreateModule,
-  useUpdateModule,
-  useDeleteModule,
-  useArchiveModule,
-  useRestoreModule,
-  useCreateModuleLink,
-  useUpdateModuleLink,
-  useDeleteModuleLink,
-} from "./module";
+  useProjectEpics,
+  useWorkspaceEpics,
+  useEpicDetails,
+  useArchivedEpics,
+  useCreateEpic,
+  useUpdateEpic,
+  useDeleteEpic,
+  useArchiveEpic,
+  useRestoreEpic,
+  useCreateEpicLink,
+  useUpdateEpicLink,
+  useDeleteEpicLink,
+  getEpicById,
+  getEpicNameById,
+  getEpicIds,
+  getActiveEpics,
+  getFavoriteEpics,
+} from "./epic";
 
 // Project hooks (TanStack Query)
 export {

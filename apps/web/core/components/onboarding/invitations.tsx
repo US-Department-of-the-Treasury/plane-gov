@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 // plane imports
 import { ROLE, MEMBER_TRACKER_EVENTS, MEMBER_TRACKER_ELEMENTS } from "@plane/constants";
 // types
@@ -12,7 +13,6 @@ import { truncateText } from "@plane/utils";
 import { WorkspaceLogo } from "@/components/workspace/logo";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserSettings } from "@/hooks/store/user";
 // services
 import { WorkspaceService } from "@/plane-web/services";
@@ -29,8 +29,8 @@ export function Invitations(props: Props) {
   // states
   const [isJoiningWorkspaces, setIsJoiningWorkspaces] = useState(false);
   const [invitationsRespond, setInvitationsRespond] = useState<string[]>([]);
-  // store hooks
-  const { fetchWorkspaces } = useWorkspace();
+  // hooks
+  const queryClient = useQueryClient();
   const { fetchCurrentUserSettings } = useUserSettings();
 
   const handleInvitation = (workspace_invitation: IWorkspaceMemberInvitation, action: "accepted" | "withdraw") => {
@@ -56,7 +56,7 @@ export function Invitations(props: Props) {
           member_id: invitation?.id,
         },
       });
-      await fetchWorkspaces();
+      await queryClient.invalidateQueries({ queryKey: ["WORKSPACES"] });
       await fetchCurrentUserSettings();
       await handleNextStep();
     } catch (error: any) {

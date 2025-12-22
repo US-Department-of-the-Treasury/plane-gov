@@ -11,7 +11,7 @@ import lightWidgetsAsset from "@/app/assets/empty-state/dashboard/widgets-light.
 import { SimpleEmptyState } from "@/components/empty-state/simple-empty-state-root";
 // hooks
 import { useHome } from "@/hooks/store/use-home";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects } from "@/store/queries/project";
 // plane web components
 import { HomePageHeader } from "@/plane-web/components/home/header";
 // local imports
@@ -64,7 +64,7 @@ export const DashboardWidgets = observer(function DashboardWidgets() {
   // store hooks
   const { toggleWidgetSettings, widgetsMap, showWidgetSettings, orderedWidgets, isAnyWidgetEnabled, loading } =
     useHome();
-  const { loader } = useProject();
+  const { isLoading: isProjectsLoading } = useProjects(workspaceSlug?.toString());
   // plane hooks
   const { t } = useTranslation();
   // derived values
@@ -73,7 +73,7 @@ export const DashboardWidgets = observer(function DashboardWidgets() {
   // derived values
   const isWikiApp = pathname.includes(`/${workspaceSlug.toString()}/pages`);
   if (!workspaceSlug) return null;
-  if (loading || loader !== "loaded") return <HomeLoader />;
+  if (loading || isProjectsLoading) return <HomeLoader />;
 
   return (
     <div className="h-full w-full relative flex flex-col gap-7">

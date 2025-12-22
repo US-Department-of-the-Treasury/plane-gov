@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Placement } from "@popperjs/core";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
@@ -14,9 +14,9 @@ import type { IUserLite } from "@plane/types";
 import { Avatar } from "@plane/ui";
 import { cn, getFileURL } from "@plane/utils";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useUser } from "@/hooks/store/user";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useWorkspaceMembers, getWorkspaceMembersMap } from "@/store/queries/member";
 
 interface Props {
   className?: string;
@@ -50,10 +50,20 @@ export const MemberOptions = observer(function MemberOptions(props: Props) {
   const { t } = useTranslation();
   // store hooks
   const { data: currentUser } = useUser();
-  const {
-    workspace: { isUserSuspended },
-  } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString());
   const { isMobile } = usePlatformOS();
+
+  // Create members map for checking suspension status
+  const membersMap = useMemo(() => {
+    if (!workspaceMembers) return new Map();
+    return getWorkspaceMembersMap(workspaceMembers);
+  }, [workspaceMembers]);
+
+  // Helper function to check if user is suspended
+  const isUserSuspended = (userId: string) => {
+    const workspaceMember = membersMap.get(userId);
+    return workspaceMember?.is_active === false;
+  };
   // popper-js init
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: placement ?? "bottom-start",
@@ -92,7 +102,7 @@ export const MemberOptions = observer(function MemberOptions(props: Props) {
         content: (
           <div className="flex items-center gap-2">
             <div className="w-4">
-              {isUserSuspended(userId, workspaceSlug?.toString()) ? (
+              {isUserSuspended(userId) ? (
                 <SuspendedUserIcon className="h-3.5 w-3.5 text-placeholder" />
               ) : (
                 <Avatar name={userDetails?.display_name} src={getFileURL(userDetails?.avatar_url ?? "")} />
@@ -101,7 +111,7 @@ export const MemberOptions = observer(function MemberOptions(props: Props) {
             <span
               className={cn(
                 "flex-grow truncate",
-                isUserSuspended(userId, workspaceSlug?.toString()) ? "text-placeholder" : ""
+                isUserSuspended(userId) ? "text-placeholder" : ""
               )}
             >
               {currentUser?.id === userId ? t("you") : userDetails?.display_name}
@@ -155,18 +165,18 @@ export const MemberOptions = observer(function MemberOptions(props: Props) {
                           "flex w-full select-none items-center justify-between gap-2 truncate rounded-sm px-1 py-1.5",
                           active && "bg-layer-transparent-hover",
                           selected ? "text-primary" : "text-secondary",
-                          isUserSuspended(option.value, workspaceSlug?.toString())
+                          isUserSuspended(option.value)
                             ? "cursor-not-allowed"
                             : "cursor-pointer"
                         )
                       }
-                      disabled={isUserSuspended(option.value, workspaceSlug?.toString())}
+                      disabled={isUserSuspended(option.value)}
                     >
                       {({ selected }) => (
                         <>
                           <span className="flex-grow truncate">{option.content}</span>
                           {selected && <Check className="h-3.5 w-3.5 flex-shrink-0" />}
-                          {isUserSuspended(option.value, workspaceSlug?.toString()) && (
+                          {isUserSuspended(option.value) && (
                             <Pill variant={EPillVariant.DEFAULT} size={EPillSize.XS} className="border-none">
                               Suspended
                             </Pill>

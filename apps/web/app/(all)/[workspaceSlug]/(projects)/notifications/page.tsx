@@ -5,7 +5,7 @@ import { useTranslation } from "@plane/i18n";
 import { PageHead } from "@/components/core/page-title";
 import { NotificationsRoot } from "@/components/workspace-notifications";
 // hooks
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 import type { Route } from "./+types/page";
 
 function WorkspaceDashboardPage({ params }: Route.ComponentProps) {
@@ -13,7 +13,7 @@ function WorkspaceDashboardPage({ params }: Route.ComponentProps) {
   // plane hooks
   const { t } = useTranslation();
   // hooks
-  const { currentWorkspace } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   // derived values
   const pageTitle = currentWorkspace?.name
     ? t("notification.page_label", { workspace: currentWorkspace?.name })

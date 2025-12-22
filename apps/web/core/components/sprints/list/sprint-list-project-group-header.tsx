@@ -1,13 +1,15 @@
 import type { FC } from "react";
 import React from "react";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { ChevronRightIcon } from "@plane/propel/icons";
 // icons
 import { Row } from "@plane/ui";
 // helpers
 import { cn } from "@plane/utils";
-import { useProject } from "@/hooks/store/use-project";
+// store queries
+import { useProjects, getProjectById } from "@/store/queries/project";
 
 type Props = {
   projectId: string;
@@ -18,10 +20,12 @@ type Props = {
 
 export const SprintListProjectGroupHeader = observer(function SprintListProjectGroupHeader(props: Props) {
   const { projectId, count, showCount = false, isExpanded = false } = props;
+  // router
+  const { workspaceSlug } = useParams();
   // store hooks
-  const { getProjectById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug as string);
   // derived values
-  const project = getProjectById(projectId);
+  const project = getProjectById(projects, projectId);
 
   if (!project) return null;
   return (

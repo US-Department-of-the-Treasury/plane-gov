@@ -1,12 +1,12 @@
 import type { FC } from "react";
 import React, { useState } from "react";
-import { observer } from "mobx-react";
 import { copyUrlToClipboard, generateWorkItemLink } from "@plane/utils";
 // plane imports
 // helpers
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
+// queries
+import { useIssue } from "@/store/queries/issue";
+import { useProjects, getProjectById } from "@/store/queries/project";
 
 type TCreateIssueToastActionItems = {
   workspaceSlug: string;
@@ -15,21 +15,17 @@ type TCreateIssueToastActionItems = {
   isEpic?: boolean;
 };
 
-export const CreateIssueToastActionItems = observer(function CreateIssueToastActionItems(
-  props: TCreateIssueToastActionItems
-) {
+export function CreateIssueToastActionItems(props: TCreateIssueToastActionItems) {
   const { workspaceSlug, projectId, issueId, isEpic = false } = props;
   // state
   const [copied, setCopied] = useState(false);
-  // store hooks
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
-  const { getProjectIdentifierById } = useProject();
+  // queries
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
+  const { data: projects = [] } = useProjects(workspaceSlug);
 
   // derived values
-  const issue = getIssueById(issueId);
-  const projectIdentifier = getProjectIdentifierById(issue?.project_id);
+  const project = issue?.project_id ? getProjectById(projects, issue.project_id) : undefined;
+  const projectIdentifier = project?.identifier;
 
   if (!issue) return null;
 
@@ -81,4 +77,4 @@ export const CreateIssueToastActionItems = observer(function CreateIssueToastAct
       )}
     </div>
   );
-});
+}

@@ -11,6 +11,7 @@ import type { ISprint, TSprintPlotType, TProgressSnapshot } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
 import { getDate } from "@plane/utils";
 // hooks
+import { useSprintDetails } from "@/store/queries/sprint";
 import { useSprint } from "@/hooks/store/use-sprint";
 // plane web components
 import { useWorkItemFilters } from "@/hooks/store/work-item-filters/use-work-item-filters";
@@ -60,15 +61,16 @@ export const SprintAnalyticsProgress = observer(function SprintAnalyticsProgress
   const peekSprint = searchParams.get("peekSprint") || undefined;
   // plane hooks
   const { t } = useTranslation();
-  // store hooks
-  const { getPlotTypeBySprintId, getEstimateTypeBySprintId, getSprintById } = useSprint();
+  // hooks
+  const { data: sprintData } = useSprintDetails(workspaceSlug, projectId, sprintId);
+  const { getPlotTypeBySprintId, getEstimateTypeBySprintId } = useSprint();
   const { getFilter, updateFilterValueFromSidebar } = useWorkItemFilters();
   // derived values
   const sprintFilter = getFilter(EIssuesStoreType.SPRINT, sprintId);
   const selectedAssignees = sprintFilter?.findFirstConditionByPropertyAndOperator("assignee_id", "in");
   const selectedLabels = sprintFilter?.findFirstConditionByPropertyAndOperator("label_id", "in");
   const selectedStateGroups = sprintFilter?.findFirstConditionByPropertyAndOperator("state_group", "in");
-  const sprintDetails = validateSprintSnapshot(getSprintById(sprintId));
+  const sprintDetails = validateSprintSnapshot(sprintData || null);
   const plotType: TSprintPlotType = getPlotTypeBySprintId(sprintId);
   const estimateType = getEstimateTypeBySprintId(sprintId);
   const totalIssues = sprintDetails?.total_issues || 0;

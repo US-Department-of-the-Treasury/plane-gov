@@ -12,8 +12,8 @@ import { EditorMentionsRoot } from "@/components/editor/embeds/mentions";
 import { IssueCommentToolbar } from "@/components/editor/lite-text/toolbar";
 // hooks
 import { useEditorConfig, useEditorMention } from "@/hooks/editor";
-import { useMember } from "@/hooks/store/use-member";
 import { useParseEditorContent } from "@/hooks/use-parse-editor-content";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
 // plane web hooks
 import { useEditorFlagging } from "@/plane-web/hooks/use-editor-flagging";
 // plane web service
@@ -88,7 +88,7 @@ export const LiteTextEditor = React.forwardRef(function LiteTextEditor(
     projectId,
   });
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   // parse content
   const { getEditorMetaData } = useParseEditorContent({
     projectId,
@@ -153,7 +153,7 @@ export const LiteTextEditor = React.forwardRef(function LiteTextEditor(
               },
               renderComponent: EditorMentionsRoot,
               getMentionedEntityDetails: (id) => ({
-                display_name: getUserDetails(id)?.display_name ?? "",
+                display_name: getMemberDisplayName(getWorkspaceMemberByUserId(workspaceMembers || [], id)) ?? "",
               }),
             }}
             placeholder={placeholder}

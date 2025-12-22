@@ -11,11 +11,12 @@ import type { IUser, IImporterService } from "@plane/types";
 // ui
 import { Checkbox, CustomSearchSelect } from "@plane/ui";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 // services
 import { ProjectExportService } from "@/services/project";
+// store hooks
+import { useProjects, getProjectById, getProjectIds } from "@/store/queries/project";
 type Props = {
   isOpen: boolean;
   handleClose: () => void;
@@ -36,16 +37,18 @@ export const Exporter = observer(function Exporter(props: Props) {
   const router = useAppRouter();
   const { workspaceSlug } = useParams();
   // store hooks
-  const { workspaceProjectIds, getProjectById } = useProject();
+  const { data: projects } = useProjects(workspaceSlug?.toString());
   const { projectsWithCreatePermissions } = useUser();
   const { t } = useTranslation();
 
+  // derived values
+  const workspaceProjectIds = projects ? getProjectIds(projects) : [];
   const wsProjectIdsWithCreatePermisisons = projectsWithCreatePermissions
     ? intersection(workspaceProjectIds, Object.keys(projectsWithCreatePermissions))
     : [];
 
   const options = wsProjectIdsWithCreatePermisisons?.map((projectId) => {
-    const projectDetails = getProjectById(projectId);
+    const projectDetails = getProjectById(projects || [], projectId);
 
     return {
       value: projectDetails?.id,
@@ -150,7 +153,7 @@ export const Exporter = observer(function Exporter(props: Props) {
                         value && value.length > 0
                           ? value
                               .map((projectId) => {
-                                const projectDetails = getProjectById(projectId);
+                                const projectDetails = getProjectById(projects || [], projectId);
 
                                 return projectDetails?.identifier;
                               })

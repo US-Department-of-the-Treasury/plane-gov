@@ -22,8 +22,8 @@ import { SelectMonthModal } from "@/components/automation";
 // constants
 // hooks
 import { captureElementAndEvent } from "@/helpers/event-tracker.helper";
-import { useProject } from "@/hooks/store/use-project";
-import { useProjectState } from "@/hooks/store/use-project-state";
+import { useProjectDetails } from "@/store/queries/project";
+import { useProjectStates } from "@/store/queries/state";
 import { useUserPermissions } from "@/hooks/store/user";
 
 type Props = {
@@ -33,12 +33,21 @@ type Props = {
 export const AutoCloseAutomation = observer(function AutoCloseAutomation(props: Props) {
   const { handleChange } = props;
   // router
-  const { workspaceSlug } = useParams();
+  const { workspaceSlug, projectId } = useParams();
   // states
   const [monthModal, setmonthModal] = useState(false);
+
+  // queries
+  const { data: currentProjectDetails } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+  const { data: projectStates } = useProjectStates(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
+
   // store hooks
-  const { currentProjectDetails } = useProject();
-  const { projectStates } = useProjectState();
   const { allowPermissions } = useUserPermissions();
   const { t } = useTranslation();
 

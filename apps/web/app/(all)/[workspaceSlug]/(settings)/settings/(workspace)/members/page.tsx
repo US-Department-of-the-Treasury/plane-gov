@@ -25,8 +25,9 @@ import { DevGenerateFakeUsers } from "@/components/workspace/settings/dev-genera
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
 import { useMember } from "@/hooks/store/use-member";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useWorkspaceMembers, useInviteWorkspaceMembers } from "@/store/queries/member";
 // plane web components
 import { SendWorkspaceInvitationModal, MembersActivityButton } from "@/plane-web/components/workspace/members";
 import type { Route } from "./+types/page";
@@ -40,10 +41,15 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
   // store hooks
   const { workspaceUserInfo, allowPermissions } = useUserPermissions();
   const {
-    workspace: { workspaceMemberIds, inviteMembersToWorkspace, filtersStore },
+    workspace: { filtersStore },
   } = useMember();
-  const { currentWorkspace, mutateWorkspaceMembersActivity } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
+  const { mutate: inviteWorkspaceMembers } = useInviteWorkspaceMembers();
   const { t } = useTranslation();
+
+  // derived values
+  const workspaceMemberIds = workspaceMembers?.map(m => m.id);
 
   // derived values
   const canPerformWorkspaceAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
@@ -54,43 +60,51 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
 
   const handleWorkspaceInvite = async (data: IWorkspaceBulkInviteFormData) => {
     try {
-      await inviteMembersToWorkspace(workspaceSlug, data);
-      void mutateWorkspaceMembersActivity(workspaceSlug);
-
-      setInviteModal(false);
-
-      captureSuccess({
-        eventName: MEMBER_TRACKER_EVENTS.invite,
-        payload: {
-          emails: data.emails.map((email) => email.email),
+      inviteWorkspaceMembers(
+        {
+          workspaceSlug,
+          data,
         },
-      });
+        {
+          onSuccess: () => {
+            setInviteModal(false);
 
-      setToast({
-        type: TOAST_TYPE.SUCCESS,
-        title: "Success!",
-        message: t("workspace_settings.settings.members.invitations_sent_successfully"),
-      });
+            captureSuccess({
+              eventName: MEMBER_TRACKER_EVENTS.invite,
+              payload: {
+                emails: data.emails.map((email) => email.email),
+              },
+            });
+
+            setToast({
+              type: TOAST_TYPE.SUCCESS,
+              title: "Success!",
+              message: t("workspace_settings.settings.members.invitations_sent_successfully"),
+            });
+          },
+          onError: (error: unknown) => {
+            let message = undefined;
+            if (error instanceof Error) {
+              const err = error as Error & { error?: string };
+              message = err.error;
+            }
+            captureError({
+              eventName: MEMBER_TRACKER_EVENTS.invite,
+              payload: {
+                emails: data.emails.map((email) => email.email),
+              },
+              error: error as Error,
+            });
+
+            setToast({
+              type: TOAST_TYPE.ERROR,
+              title: "Error!",
+              message: `${message ?? t("something_went_wrong_please_try_again")}`,
+            });
+          },
+        }
+      );
     } catch (error: unknown) {
-      let message = undefined;
-      if (error instanceof Error) {
-        const err = error as Error & { error?: string };
-        message = err.error;
-      }
-      captureError({
-        eventName: MEMBER_TRACKER_EVENTS.invite,
-        payload: {
-          emails: data.emails.map((email) => email.email),
-        },
-        error: error as Error,
-      });
-
-      setToast({
-        type: TOAST_TYPE.ERROR,
-        title: "Error!",
-        message: `${message ?? t("something_went_wrong_please_try_again")}`,
-      });
-
       throw error;
     }
   };

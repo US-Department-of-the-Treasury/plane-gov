@@ -151,6 +151,7 @@ export const IssueDetailRoot = observer(function IssueDetailRoot(props: TIssueDe
           });
         }
       },
+      // Sprint operations still use MobX for now - they handle complex bridge ID logic
       addSprintToIssue: async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => {
         try {
           await addSprintToIssue(workspaceSlug, projectId, sprintId, issueId);

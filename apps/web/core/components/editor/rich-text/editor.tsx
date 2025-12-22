@@ -8,8 +8,8 @@ import { cn } from "@plane/utils";
 import { EditorMentionsRoot } from "@/components/editor/embeds/mentions";
 // hooks
 import { useEditorConfig, useEditorMention } from "@/hooks/editor";
-import { useMember } from "@/hooks/store/use-member";
 import { useParseEditorContent } from "@/hooks/use-parse-editor-content";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId, getMemberDisplayName } from "@/store/queries/member";
 // plane web hooks
 import { useEditorFlagging } from "@/plane-web/hooks/use-editor-flagging";
 
@@ -47,7 +47,7 @@ export const RichTextEditor = forwardRef(function RichTextEditor(
     ...rest
   } = props;
   // store hooks
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   // editor flaggings
   const { richText: richTextEditorExtensions } = useEditorFlagging({
     workspaceSlug,
@@ -87,7 +87,7 @@ export const RichTextEditor = forwardRef(function RichTextEditor(
         },
         renderComponent: EditorMentionsRoot,
         getMentionedEntityDetails: (id) => ({
-          display_name: getUserDetails(id)?.display_name ?? "",
+          display_name: getMemberDisplayName(getWorkspaceMemberByUserId(workspaceMembers || [], id)) ?? "",
         }),
       }}
       extendedEditorProps={{}}

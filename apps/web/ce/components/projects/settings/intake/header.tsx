@@ -11,7 +11,7 @@ import { Breadcrumbs, Header } from "@plane/ui";
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { InboxIssueCreateModalRoot } from "@/components/inbox/modals/create-modal";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import { useUserPermissions } from "@/hooks/store/user";
 // plane web imports
@@ -27,7 +27,10 @@ export const ProjectInboxHeader = observer(function ProjectInboxHeader() {
   const { allowPermissions } = useUserPermissions();
   const { t } = useTranslation();
 
-  const { currentProjectDetails, loader: currentProjectDetailsLoader } = useProject();
+  const { data: currentProjectDetails, isLoading } = useProjectDetails(
+    workspaceSlug?.toString() ?? "",
+    projectId?.toString() ?? ""
+  );
   const { loader } = useProjectInbox();
 
   // derived value
@@ -40,7 +43,7 @@ export const ProjectInboxHeader = observer(function ProjectInboxHeader() {
     <Header>
       <Header.LeftItem>
         <div className="flex items-center gap-4 flex-grow">
-          <Breadcrumbs isLoading={currentProjectDetailsLoader === "init-loader"}>
+          <Breadcrumbs isLoading={isLoading}>
             <CommonProjectBreadcrumbs workspaceSlug={workspaceSlug?.toString()} projectId={projectId?.toString()} />
             <Breadcrumbs.Item
               component={

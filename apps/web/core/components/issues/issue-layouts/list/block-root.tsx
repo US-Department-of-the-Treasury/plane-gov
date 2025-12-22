@@ -4,6 +4,7 @@ import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { attachInstruction, extractInstruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
 // types
@@ -17,6 +18,8 @@ import { ListLoaderItemRow } from "@/components/ui/loader/layouts/list-layout-lo
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// queries
+import { useIssue } from "@/store/queries/issue";
 // types
 import { HIGHLIGHT_CLASS, getIssueBlockId, isIssueNew } from "../utils";
 import { IssueBlock } from "./block";
@@ -24,7 +27,6 @@ import type { TRenderQuickActions } from "./list-view-types";
 
 type Props = {
   issueId: string;
-  issuesMap: TIssueMap;
   updateIssue: ((projectId: string | null, issueId: string, data: Partial<TIssue>) => Promise<void>) | undefined;
   quickActions: TRenderQuickActions;
   canEditProperties: (projectId: string | undefined) => boolean;
@@ -45,7 +47,6 @@ type Props = {
 export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
   const {
     issueId,
-    issuesMap,
     groupId,
     updateIssue,
     quickActions,
@@ -68,10 +69,25 @@ export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
   const [isCurrentBlockDragging, setIsCurrentBlockDragging] = useState(false);
   // ref
   const issueBlockRef = useRef<HTMLDivElement | null>(null);
+  // router
+  const { workspaceSlug, projectId } = useParams();
   // hooks
   const { isMobile } = usePlatformOS();
   // store hooks
-  const { subIssues: subIssuesStore } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
+  const {
+    issue: { getIssueById },
+    subIssues: subIssuesStore,
+  } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
+
+  // Try to get from MobX cache first, fallback to TanStack Query
+  const cachedIssue = getIssueById(issueId);
+  const { data: queriedIssue } = useIssue(
+    workspaceSlug?.toString() || "",
+    projectId?.toString() || cachedIssue?.project_id || "",
+    issueId
+  );
+
+  const issue = cachedIssue || queriedIssue;
 
   const isSubIssue = nestingLevel !== 0;
 
@@ -121,7 +137,7 @@ export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
     issueBlockRef?.current?.classList?.remove(HIGHLIGHT_CLASS);
   });
 
-  if (!issueId || !issuesMap[issueId]?.created_at) return null;
+  if (!issue || !issue.created_at) return null;
 
   const subIssues = subIssuesStore.subIssuesByIssueId(issueId);
   return (
@@ -132,13 +148,12 @@ export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
         root={containerRef}
         classNames={`relative ${isLastChild && !isExpanded ? "" : "border-b border-b-subtle"}`}
         verticalOffset={100}
-        defaultValue={shouldRenderByDefault || isIssueNew(issuesMap[issueId])}
+        defaultValue={shouldRenderByDefault || isIssueNew(issue)}
         placeholderChildren={<ListLoaderItemRow shouldAnimate={false} renderForPlaceHolder defaultPropertyCount={4} />}
         shouldRecordHeights={isMobile}
       >
         <IssueBlock
-          issueId={issueId}
-          issuesMap={issuesMap}
+          issue={issue}
           groupId={groupId}
           updateIssue={updateIssue}
           quickActions={quickActions}
@@ -162,7 +177,6 @@ export const IssueBlockRoot = observer(function IssueBlockRoot(props: Props) {
           <IssueBlockRoot
             key={`${subIssueId}`}
             issueId={subIssueId}
-            issuesMap={issuesMap}
             updateIssue={updateIssue}
             quickActions={quickActions}
             canEditProperties={canEditProperties}

@@ -4,7 +4,8 @@ import { ProjectIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import { cn } from "@plane/utils";
 // plane web hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useParams } from "next/navigation";
+import { useProjects, getProjectById } from "@/store/queries/project";
 
 type Props = {
   project: {
@@ -26,10 +27,11 @@ function CompletionPercentage({ percentage }: { percentage: number }) {
 
 function ActiveProjectItem(props: Props) {
   const { project } = props;
-  const { getProjectById } = useProject();
+  const { workspaceSlug } = useParams();
+  const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
   const { id, completed_issues, total_issues } = project;
 
-  const projectDetails = getProjectById(id);
+  const projectDetails = getProjectById(projects, id);
 
   if (!projectDetails) return null;
 

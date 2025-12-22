@@ -12,7 +12,7 @@ import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 
 export type TNavigationItem = {
@@ -38,7 +38,7 @@ export const ProjectNavigation = observer(function ProjectNavigation(props: TPro
   // store hooks
   const { t } = useTranslation();
   const { toggleSidebar } = useAppTheme();
-  const { getPartialProjectById } = useProject();
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
   const { allowPermissions } = useUserPermissions();
   const {
     issue: { getIssueIdByIdentifier, getIssueById },
@@ -50,7 +50,6 @@ export const ProjectNavigation = observer(function ProjectNavigation(props: TPro
     ? getIssueIdByIdentifier(workItemIdentifierFromRoute?.toString())
     : undefined;
   const workItem = workItemId ? getIssueById(workItemId) : undefined;
-  const project = getPartialProjectById(projectId);
   // handlers
   const handleProjectClick = () => {
     if (window.innerWidth < 768) {

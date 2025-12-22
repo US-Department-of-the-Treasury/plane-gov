@@ -14,9 +14,12 @@ import { cn, copyTextToClipboard } from "@plane/utils";
 import { ConfirmWorkspaceMemberRemove } from "@/components/workspace/confirm-workspace-member-remove";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { useMember } from "@/hooks/store/use-member";
 import { useUserPermissions } from "@/hooks/store/user";
-import { useWorkspace } from "@/hooks/store/use-workspace";
+import {
+  useWorkspaceInvitations,
+  useUpdateWorkspaceInvitation,
+  useDeleteWorkspaceInvitation,
+} from "@/store/queries/member";
 
 type Props = {
   invitationId: string;
@@ -32,12 +35,11 @@ export const WorkspaceInvitationsListItem = observer(function WorkspaceInvitatio
   const { t } = useTranslation();
   // store hooks
   const { allowPermissions, workspaceInfoBySlug } = useUserPermissions();
-  const { mutateWorkspaceMembersActivity } = useWorkspace();
-  const {
-    workspace: { updateMemberInvitation, deleteMemberInvitation, getWorkspaceInvitationDetails },
-  } = useMember();
+  const { data: invitations } = useWorkspaceInvitations(workspaceSlug.toString());
+  const { mutate: updateInvitation } = useUpdateWorkspaceInvitation();
+  const { mutate: deleteInvitation } = useDeleteWorkspaceInvitation();
   // derived values
-  const invitationDetails = getWorkspaceInvitationDetails(invitationId);
+  const invitationDetails = invitations?.find(inv => inv.id === invitationId);
   const currentWorkspaceMemberInfo = workspaceInfoBySlug(workspaceSlug.toString());
   const currentWorkspaceRole = currentWorkspaceMemberInfo?.role;
   // is the current logged in user admin
@@ -55,13 +57,29 @@ export const WorkspaceInvitationsListItem = observer(function WorkspaceInvitatio
     try {
       if (!workspaceSlug || !invitationDetails) return;
 
-      await deleteMemberInvitation(workspaceSlug.toString(), invitationDetails.id);
-      setToast({
-        type: TOAST_TYPE.SUCCESS,
-        title: "Success!",
-        message: "Invitation removed successfully.",
-      });
-      void mutateWorkspaceMembersActivity(workspaceSlug);
+      deleteInvitation(
+        {
+          workspaceSlug: workspaceSlug.toString(),
+          invitationId: invitationDetails.id,
+        },
+        {
+          onSuccess: () => {
+            setToast({
+              type: TOAST_TYPE.SUCCESS,
+              title: "Success!",
+              message: "Invitation removed successfully.",
+            });
+          },
+          onError: (err: unknown) => {
+            const error = err as { error?: string };
+            setToast({
+              type: TOAST_TYPE.ERROR,
+              title: "Error!",
+              message: error?.error || "Something went wrong. Please try again.",
+            });
+          },
+        }
+      );
     } catch (err: unknown) {
       const error = err as { error?: string };
       setToast({
@@ -157,16 +175,25 @@ export const WorkspaceInvitationsListItem = observer(function WorkspaceInvitatio
             onChange={(value: EUserPermissions) => {
               if (!workspaceSlug || !value) return;
 
-              updateMemberInvitation(workspaceSlug.toString(), invitationDetails.id, {
-                role: value,
-              }).catch((err: unknown) => {
-                const error = err as { error?: string };
-                setToast({
-                  type: TOAST_TYPE.ERROR,
-                  title: "Error!",
-                  message: error?.error || "An error occurred while updating member role. Please try again.",
-                });
-              });
+              updateInvitation(
+                {
+                  workspaceSlug: workspaceSlug.toString(),
+                  invitationId: invitationDetails.id,
+                  data: {
+                    role: value,
+                  },
+                },
+                {
+                  onError: (err: unknown) => {
+                    const error = err as { error?: string };
+                    setToast({
+                      type: TOAST_TYPE.ERROR,
+                      title: "Error!",
+                      message: error?.error || "An error occurred while updating member role. Please try again.",
+                    });
+                  },
+                }
+              );
             }}
             disabled={!hasRoleChangeAccess}
             placement="bottom-end"

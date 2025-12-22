@@ -7,7 +7,7 @@ import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IUser } from "@plane/types";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useMember } from "@/hooks/store/use-member";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 
 export type TIssueCommentReaction = {
   workspaceSlug: string;
@@ -27,7 +27,7 @@ export const IssueCommentReaction = observer(function IssueCommentReaction(props
     createCommentReaction,
     removeCommentReaction,
   } = useIssueDetail();
-  const { getUserDetails } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
 
   const reactionIds = getCommentReactionsByCommentId(commentId);
   const userReactions = commentReactionsByUser(commentId, currentUser.id).map((r) => r.reaction);
@@ -81,7 +81,7 @@ export const IssueCommentReaction = observer(function IssueCommentReaction(props
       .map((reactionId) => {
         const reactionDetails = getCommentReactionById(reactionId);
         return reactionDetails
-          ? getUserDetails(reactionDetails?.actor)?.display_name || reactionDetails?.display_name
+          ? getWorkspaceMemberByUserId(workspaceMembers, reactionDetails?.actor)?.member?.display_name || reactionDetails?.display_name
           : null;
       })
       .filter((displayName): displayName is string => !!displayName);

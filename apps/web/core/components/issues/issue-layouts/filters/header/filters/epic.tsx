@@ -47,6 +47,8 @@ export const FilterEpic = observer(function FilterEpic(props: Props) {
     else setItemsToRender(sortedOptions.length);
   };
 
+  const isLoading = !epics;
+
   return (
     <>
       <FilterHeader
@@ -56,7 +58,7 @@ export const FilterEpic = observer(function FilterEpic(props: Props) {
       />
       {previewEnabled && (
         <div>
-          {sortedOptions ? (
+          {!isLoading && sortedOptions ? (
             sortedOptions.length > 0 ? (
               <>
                 {sortedOptions.slice(0, itemsToRender).map((epic) => (

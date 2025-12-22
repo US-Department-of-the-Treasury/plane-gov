@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
-import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // hooks
-import { useEpic } from "@/hooks/store/use-epic";
+import { useProjectEpics, getEpicById, getEpicIds } from "@/store/queries/epic";
 // types
 import type { TDropdownProps } from "../types";
 // local imports
@@ -30,25 +29,24 @@ type TEpicDropdownProps = TDropdownProps & {
       }
   );
 
-export const EpicDropdown = observer(function EpicDropdown(props: TEpicDropdownProps) {
+export function EpicDropdown(props: TEpicDropdownProps) {
   const { projectId } = props;
   // router
   const { workspaceSlug } = useParams();
-  // store hooks
-  const { getEpicById, getProjectEpicIds, fetchEpics } = useEpic();
+  // fetch epics using TanStack Query
+  const { data: epics } = useProjectEpics(
+    workspaceSlug?.toString() ?? "",
+    projectId ?? ""
+  );
   // derived values
-  const epicIds = projectId ? getProjectEpicIds(projectId) : [];
-
-  const onDropdownOpen = () => {
-    if (!epicIds && projectId && workspaceSlug) fetchEpics(workspaceSlug.toString(), projectId);
-  };
+  const epicIds = epics ? getEpicIds(epics) : [];
 
   return (
     <EpicDropdownBase
       {...props}
-      getEpicById={getEpicById}
-      epicIds={epicIds ?? []}
-      onDropdownOpen={onDropdownOpen}
+      getEpicById={(epicId: string) => getEpicById(epics, epicId)}
+      epicIds={epicIds}
+      onDropdownOpen={() => {}} // TanStack Query handles fetching automatically
     />
   );
-});
+}

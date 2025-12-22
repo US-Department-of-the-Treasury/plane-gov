@@ -12,8 +12,8 @@ import { FiltersDropdown } from "@/components/issues/issue-layouts/filters";
 import { ProjectFiltersSelection } from "@/components/project/dropdowns/filters";
 import { ProjectOrderByDropdown } from "@/components/project/dropdowns/order-by";
 // hooks
-import { useMember } from "@/hooks/store/use-member";
 import { useProjectFilter } from "@/hooks/store/use-project-filter";
+import { useWorkspaceMembers, getWorkspaceMemberIds } from "@/store/queries/member";
 
 export const ProjectsListMobileHeader = observer(function ProjectsListMobileHeader() {
   // i18n
@@ -27,9 +27,8 @@ export const ProjectsListMobileHeader = observer(function ProjectsListMobileHead
     updateFilters,
   } = useProjectFilter();
 
-  const {
-    workspace: { workspaceMemberIds },
-  } = useMember();
+  const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
+  const workspaceMemberIds = getWorkspaceMemberIds(workspaceMembers);
 
   const handleFilters = useCallback(
     (key: keyof TProjectFilters, value: string | string[]) => {

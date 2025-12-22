@@ -4,16 +4,15 @@ import { PageHead } from "@/components/core/page-title";
 import { ArchivedIssuesHeader } from "@/components/issues/archived-issues-header";
 import { ArchivedIssueLayoutRoot } from "@/components/issues/issue-layouts/roots/archived-issue-layout-root";
 // hooks
-import { useProject } from "@/hooks/store/use-project";
+import { useProjectDetails } from "@/store/queries/project";
 import type { Route } from "./+types/page";
 
 function ProjectArchivedIssuesPage({ params }: Route.ComponentProps) {
   // router
-  const { projectId } = params;
-  // store hooks
-  const { getProjectById } = useProject();
+  const { workspaceSlug, projectId } = params;
+  // queries
+  const { data: project } = useProjectDetails(workspaceSlug, projectId);
   // derived values
-  const project = getProjectById(projectId);
   const pageTitle = project?.name && `${project?.name} - Archived work items`;
 
   return (

@@ -13,8 +13,8 @@ import { DeleteWebhookModal, WebhookDeleteSection, WebhookForm } from "@/compone
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useWebhook } from "@/hooks/store/use-webhook";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserPermissions } from "@/hooks/store/user";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 import type { Route } from "./+types/page";
 
 function WebhookDetailsPage({ params }: Route.ComponentProps) {
@@ -24,7 +24,7 @@ function WebhookDetailsPage({ params }: Route.ComponentProps) {
   const { workspaceSlug, webhookId } = params;
   // mobx store
   const { currentWebhook, fetchWebhookById, updateWebhook } = useWebhook();
-  const { currentWorkspace } = useWorkspace();
+  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
   const { allowPermissions } = useUserPermissions();
 
   // TODO: fix this error

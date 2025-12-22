@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { observer } from "mobx-react";
+import { useMemo } from "react";
 // assets
 import AllFiltersImage from "@/app/assets/empty-state/sprint/all-filters.svg?url";
 import NameFilterImage from "@/app/assets/empty-state/sprint/name-filter.svg?url";
@@ -8,7 +9,7 @@ import { SprintsList } from "@/components/sprints/list";
 // ui
 import { SprintEpicListLayoutLoader } from "@/components/ui/loader/sprint-epic-list-loader";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useArchivedSprints, getSprintIds } from "@/store/queries/sprint";
 import { useSprintFilter } from "@/hooks/store/use-sprint-filter";
 
 export interface IArchivedSprintsView {
@@ -18,13 +19,24 @@ export interface IArchivedSprintsView {
 
 export const ArchivedSprintsView = observer(function ArchivedSprintsView(props: IArchivedSprintsView) {
   const { workspaceSlug, projectId } = props;
-  // store hooks
-  const { getFilteredArchivedSprintIds, loader } = useSprint();
+  // query hooks
+  const { data: archivedSprints, isLoading } = useArchivedSprints(workspaceSlug, projectId);
+  // store hooks (for filtering)
   const { archivedSprintsSearchQuery } = useSprintFilter();
-  // derived values
-  const filteredArchivedSprintIds = getFilteredArchivedSprintIds(projectId);
 
-  if (loader || !filteredArchivedSprintIds) return <SprintEpicListLayoutLoader />;
+  // derived values - apply search filter
+  const filteredArchivedSprintIds = useMemo(() => {
+    if (!archivedSprints) return [];
+
+    const filtered = archivedSprints.filter((sprint) => {
+      if (!archivedSprintsSearchQuery.trim()) return true;
+      return sprint.name.toLowerCase().includes(archivedSprintsSearchQuery.toLowerCase());
+    });
+
+    return getSprintIds(filtered);
+  }, [archivedSprints, archivedSprintsSearchQuery]);
+
+  if (isLoading || !archivedSprints) return <SprintEpicListLayoutLoader />;
 
   if (filteredArchivedSprintIds.length === 0)
     return (

@@ -6,6 +6,8 @@ import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 // hooks
 import { useEpic } from "@/hooks/store/use-epic";
 import { useAppRouter } from "@/hooks/use-app-router";
+// queries
+import { useEpicDetails, useArchiveEpic } from "@/store/queries/epic";
 
 type Props = {
   workspaceSlug: string;
@@ -22,10 +24,11 @@ export function ArchiveEpicModal(props: Props) {
   const router = useAppRouter();
   // states
   const [isArchiving, setIsArchiving] = useState(false);
-  // store hooks
-  const { getEpicNameById, archiveEpic } = useEpic();
+  // queries
+  const { data: epicDetails } = useEpicDetails(workspaceSlug, projectId, epicId);
+  const { mutateAsync: archiveEpic } = useArchiveEpic();
 
-  const epicName = getEpicNameById(epicId);
+  const epicName = epicDetails?.name;
 
   const onClose = () => {
     setIsArchiving(false);
@@ -34,7 +37,7 @@ export function ArchiveEpicModal(props: Props) {
 
   const handleArchiveEpic = async () => {
     setIsArchiving(true);
-    await archiveEpic(workspaceSlug, projectId, epicId)
+    await archiveEpic({ workspaceSlug, projectId, epicId })
       .then(() => {
         setToast({
           type: TOAST_TYPE.SUCCESS,

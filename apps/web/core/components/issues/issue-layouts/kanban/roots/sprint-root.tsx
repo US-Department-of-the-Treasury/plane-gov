@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { EIssuesStoreType } from "@plane/types";
 // hooks
-import { useSprint } from "@/hooks/store/use-sprint";
+import { useProjectSprints, getCompletedSprints } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useUserPermissions } from "@/hooks/store/user";
 // local imports
@@ -17,11 +17,11 @@ export const SprintKanBanLayout = observer(function SprintKanBanLayout() {
 
   // store
   const { issues } = useIssues(EIssuesStoreType.SPRINT);
-  const { currentProjectCompletedSprintIds } = useSprint();
+  const { data: sprints } = useProjectSprints(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   const { allowPermissions } = useUserPermissions();
 
-  const isCompletedSprint =
-    sprintId && currentProjectCompletedSprintIds ? currentProjectCompletedSprintIds.includes(sprintId.toString()) : false;
+  const completedSprintIds = getCompletedSprints(sprints).map((sprint) => sprint.id);
+  const isCompletedSprint = sprintId ? completedSprintIds.includes(sprintId.toString()) : false;
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT

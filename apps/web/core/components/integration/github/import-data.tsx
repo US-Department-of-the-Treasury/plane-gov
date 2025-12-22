@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { observer } from "mobx-react";
+import { useParams } from "next/navigation";
 import type { Control, UseFormWatch } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { Button } from "@plane/propel/button";
@@ -12,7 +13,7 @@ import type { TFormValues, TIntegrationSteps } from "@/components/integration";
 import { SelectRepository } from "@/components/integration";
 // ui
 // helpers
-import { useProject } from "@/hooks/store/use-project";
+import { useProjects, getProjectById, getProjectIds } from "@/store/queries/project";
 // types
 
 type Props = {
@@ -24,11 +25,14 @@ type Props = {
 
 export const GithubImportData = observer(function GithubImportData(props: Props) {
   const { handleStepChange, integration, control, watch } = props;
+  // hooks
+  const { workspaceSlug } = useParams();
   // store hooks
-  const { workspaceProjectIds, getProjectById } = useProject();
+  const { data: projects = [] } = useProjects(workspaceSlug?.toString());
+  const workspaceProjectIds = getProjectIds(projects);
 
   const options = workspaceProjectIds?.map((projectId) => {
-    const projectDetails = getProjectById(projectId);
+    const projectDetails = getProjectById(projects, projectId);
 
     return {
       value: `${projectDetails?.id}`,
@@ -78,7 +82,7 @@ export const GithubImportData = observer(function GithubImportData(props: Props)
                 render={({ field: { value, onChange } }) => (
                   <CustomSearchSelect
                     value={value}
-                    label={value ? getProjectById(value)?.name : <span className="text-secondary">Select Project</span>}
+                    label={value ? getProjectById(projects, value)?.name : <span className="text-secondary">Select Project</span>}
                     onChange={onChange}
                     options={options}
                     optionsClassName="w-48"
