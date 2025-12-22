@@ -106,4 +106,4 @@ export const EpicListItem = observer(function EpicListItem(props: Props) {
       parentRef={parentRef}
     />
   );
-}
+});
