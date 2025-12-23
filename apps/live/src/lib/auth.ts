@@ -5,6 +5,7 @@ import { logger } from "@plane/logger";
 import { AppError } from "@/lib/errors";
 // services
 import { UserService } from "@/services/user.service";
+import { WorkspaceService } from "@/services/workspace.service";
 // types
 import type { HocusPocusServerContext, TDocumentTypes } from "@/types";
 
@@ -60,10 +61,21 @@ export const onAuthenticate = async ({
   context.userId = userId;
   context.workspaceSlug = requestParameters.get("workspaceSlug");
 
-  return await handleAuthentication({
+  // Authenticate the user
+  const authResult = await handleAuthentication({
     cookie: context.cookie,
     userId: context.userId,
   });
+
+  // For wiki pages, validate workspace membership
+  if (context.documentType === "wiki_page" && context.workspaceSlug) {
+    await validateWorkspaceAccess({
+      workspaceSlug: context.workspaceSlug,
+      cookie: context.cookie,
+    });
+  }
+
+  return authResult;
 };
 
 export const handleAuthentication = async ({ cookie, userId }: { cookie: string; userId: string }) => {
@@ -87,5 +99,33 @@ export const handleAuthentication = async ({ cookie, userId }: { cookie: string;
     });
     logger.error("Authentication failed", appError);
     throw new AppError("Authentication unsuccessful", { code: appError.code });
+  }
+};
+
+/**
+ * Validate that the user has access to the workspace
+ * @param workspaceSlug - The workspace slug
+ * @param cookie - The user's session cookie
+ * @throws AppError if the user is not a member of the workspace
+ */
+export const validateWorkspaceAccess = async ({
+  workspaceSlug,
+  cookie,
+}: {
+  workspaceSlug: string;
+  cookie: string;
+}): Promise<void> => {
+  try {
+    const workspaceService = new WorkspaceService();
+    await workspaceService.validateMembership(workspaceSlug, cookie);
+    logger.info(`Workspace access validated for workspace: ${workspaceSlug}`);
+  } catch (error) {
+    const appError = new AppError(error, {
+      context: { operation: "validateWorkspaceAccess", workspaceSlug },
+    });
+    logger.error("Workspace access denied", appError);
+    throw new AppError("Access denied: You are not a member of this workspace", {
+      code: "WORKSPACE_ACCESS_DENIED",
+    });
   }
 };
