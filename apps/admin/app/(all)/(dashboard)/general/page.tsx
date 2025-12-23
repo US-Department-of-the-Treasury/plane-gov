@@ -14,8 +14,7 @@ function GeneralPage() {
         <div className="border-b border-subtle mx-4 py-4 space-y-1 flex-shrink-0">
           <div className="text-18 font-medium text-primary">General settings</div>
           <div className="text-13 font-regular text-tertiary">
-            Change the name of your instance and instance admin e-mail addresses. Enable or disable telemetry in your
-            instance.
+            Change the name of your instance and view instance admin details.
           </div>
         </div>
         <div className="flex-grow overflow-hidden overflow-y-scroll vertical-scrollbar scrollbar-md px-4">

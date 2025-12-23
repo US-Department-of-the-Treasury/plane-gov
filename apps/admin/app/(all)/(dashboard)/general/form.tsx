@@ -1,15 +1,13 @@
-import { Controller, useForm } from "react-hook-form";
-import { Telescope } from "lucide-react";
+import { useForm } from "react-hook-form";
 // types
 import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IInstance, IInstanceAdmin } from "@plane/types";
 // ui
-import { Input, ToggleSwitch } from "@plane/ui";
+import { Input } from "@plane/ui";
 // components
 import { ControllerInput } from "@/components/common/controller-input";
-import { useInstanceConfigurations, useUpdateInstance, useUpdateInstanceConfigurations, computeFormattedConfig } from "@/store/queries";
-import { IntercomConfig } from "./intercom";
+import { useUpdateInstance } from "@/store/queries";
 // hooks
 
 export interface IGeneralConfigurationForm {
@@ -20,38 +18,24 @@ export interface IGeneralConfigurationForm {
 export function GeneralConfigurationForm(props: IGeneralConfigurationForm) {
   const { instance, instanceAdmins } = props;
   // hooks
-  const { data: instanceConfigurations } = useInstanceConfigurations();
   const updateInstanceInfo = useUpdateInstance();
-  const updateInstanceConfigurations = useUpdateInstanceConfigurations();
 
   // form data
   const {
     handleSubmit,
     control,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<Partial<IInstance>>({
     defaultValues: {
       instance_name: instance?.instance_name,
-      is_telemetry_enabled: instance?.is_telemetry_enabled,
     },
   });
 
   const onSubmit = async (formData: Partial<IInstance>) => {
     const payload: Partial<IInstance> = { ...formData };
 
-    // update the intercom configuration
-    const isIntercomEnabled =
-      instanceConfigurations?.find((config) => config.key === "IS_INTERCOM_ENABLED")?.value === "1";
-    if (!payload.is_telemetry_enabled && isIntercomEnabled) {
-      try {
-        await updateInstanceConfigurations.mutateAsync({ IS_INTERCOM_ENABLED: "0" });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    await updateInstanceInfo.mutateAsync(payload)
+    await updateInstanceInfo
+      .mutateAsync(payload)
       .then(() =>
         setToast({
           type: TOAST_TYPE.SUCCESS,
@@ -106,38 +90,8 @@ export function GeneralConfigurationForm(props: IGeneralConfigurationForm) {
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="text-16 font-medium text-primary">Chat + telemetry</div>
-        <IntercomConfig isTelemetryEnabled={watch("is_telemetry_enabled") ?? false} />
-        <div className="flex items-center gap-14 px-4 py-3 border border-subtle rounded-sm">
-          <div className="grow flex items-center gap-4">
-            <div className="shrink-0">
-              <div className="flex items-center justify-center w-10 h-10 bg-layer-1 rounded-full">
-                <Telescope className="w-6 h-6 text-tertiary/80 p-0.5" />
-              </div>
-            </div>
-            <div className="grow">
-              <div className="text-13 font-medium text-primary leading-5">Let Plane collect anonymous usage data</div>
-              <div className="text-11 font-regular text-tertiary leading-5">
-                No PII is collected.This anonymized data is used to understand how you use Plane and build new features
-                in line with our Telemetry Policy.
-              </div>
-            </div>
-          </div>
-          <div className={`shrink-0 ${isSubmitting && "opacity-70"}`}>
-            <Controller
-              control={control}
-              name="is_telemetry_enabled"
-              render={({ field: { value, onChange } }) => (
-                <ToggleSwitch value={value ?? false} onChange={onChange} size="sm" disabled={isSubmitting} />
-              )}
-            />
-          </div>
-        </div>
-      </div>
-
       <div>
-        <Button variant="primary" size="lg" onClick={handleSubmit(onSubmit)} loading={isSubmitting}>
+        <Button variant="primary" size="lg" onClick={() => void handleSubmit(onSubmit)()} loading={isSubmitting}>
           {isSubmitting ? "Saving..." : "Save changes"}
         </Button>
       </div>
