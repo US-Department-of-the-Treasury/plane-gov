@@ -7,8 +7,8 @@ interface AppRailVisibilityProviderProps {
 
 /**
  * CE AppRailVisibilityProvider
- * Wraps core provider with isEnabled hardcoded to false
+ * Wraps core provider with isEnabled to show mode switcher
  */
 export function AppRailVisibilityProvider({ children }: AppRailVisibilityProviderProps) {
-  return <CoreProvider isEnabled={false}>{children}</CoreProvider>;
+  return <CoreProvider isEnabled={true}>{children}</CoreProvider>;
 }

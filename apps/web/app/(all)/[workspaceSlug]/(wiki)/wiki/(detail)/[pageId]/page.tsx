@@ -18,10 +18,11 @@ export default function WikiDetailPage() {
   const { workspaceSlug, pageId } = useParams();
 
   // Queries
-  const { data: page, error, isLoading } = useWikiPageDetails(
-    workspaceSlug?.toString() ?? "",
-    pageId?.toString() ?? ""
-  );
+  const {
+    data: page,
+    error,
+    isLoading,
+  } = useWikiPageDetails(workspaceSlug?.toString() ?? "", pageId?.toString() ?? "");
 
   const pageTitle = page?.name ? `Wiki - ${page.name}` : "Wiki";
 

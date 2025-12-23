@@ -126,15 +126,7 @@ export const coreRoutes: RouteConfigEntry[] = [
           route(":workspaceSlug/stickies", "./(all)/[workspaceSlug]/(projects)/stickies/page.tsx"),
         ]),
 
-        // Wiki List
-        layout("./(all)/[workspaceSlug]/(projects)/wiki/(list)/layout.tsx", [
-          route(":workspaceSlug/wiki", "./(all)/[workspaceSlug]/(projects)/wiki/(list)/page.tsx"),
-        ]),
-
-        // Wiki Detail
-        layout("./(all)/[workspaceSlug]/(projects)/wiki/(detail)/[pageId]/layout.tsx", [
-          route(":workspaceSlug/wiki/:pageId", "./(all)/[workspaceSlug]/(projects)/wiki/(detail)/[pageId]/page.tsx"),
-        ]),
+        // NOTE: Wiki routes have moved to (wiki) route group - see below
 
         // Workspace Views
         layout("./(all)/[workspaceSlug]/(projects)/workspace-views/layout.tsx", [
@@ -280,6 +272,31 @@ export const coreRoutes: RouteConfigEntry[] = [
             ":workspaceSlug/projects/:projectId/archives/epics",
             "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/archives/epics/page.tsx"
           ),
+        ]),
+      ]),
+
+      // ====================================================================
+      // WIKI MODE SECTION
+      // ====================================================================
+      layout("./(all)/[workspaceSlug]/(wiki)/layout.tsx", [
+        // Wiki List
+        layout("./(all)/[workspaceSlug]/(wiki)/wiki/(list)/layout.tsx", [
+          route(":workspaceSlug/wiki", "./(all)/[workspaceSlug]/(wiki)/wiki/(list)/page.tsx"),
+        ]),
+
+        // Wiki Detail
+        layout("./(all)/[workspaceSlug]/(wiki)/wiki/(detail)/[pageId]/layout.tsx", [
+          route(":workspaceSlug/wiki/:pageId", "./(all)/[workspaceSlug]/(wiki)/wiki/(detail)/[pageId]/page.tsx"),
+        ]),
+      ]),
+
+      // ====================================================================
+      // RESOURCES MODE SECTION
+      // ====================================================================
+      layout("./(all)/[workspaceSlug]/(resources)/layout.tsx", [
+        // Resources
+        layout("./(all)/[workspaceSlug]/(resources)/resources/layout.tsx", [
+          route(":workspaceSlug/resources", "./(all)/[workspaceSlug]/(resources)/resources/page.tsx"),
         ]),
       ]),
 

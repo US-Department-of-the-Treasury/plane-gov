@@ -6,6 +6,50 @@ import type { IUser, IUserLite } from "./users";
 import type { TLoginMediums } from "./instance";
 import type { IWorkspaceViewProps } from "./view-props";
 
+// =============================================================================
+// Workspace Modes
+// =============================================================================
+
+/**
+ * Workspace modes represent the primary navigation contexts within a workspace.
+ * Mode is derived from URL path, not stored in state.
+ */
+export type TWorkspaceMode = "projects" | "wiki" | "resources";
+
+/**
+ * Configuration for a workspace mode
+ */
+export interface IWorkspaceModeConfig {
+  key: TWorkspaceMode;
+  label: string;
+  /** URL path segment that identifies this mode (e.g., "wiki", "resources") */
+  pathSegment: string | null;
+  /** Keyboard shortcut number (1, 2, 3) */
+  shortcutKey: number;
+}
+
+/**
+ * Ordered list of workspace modes
+ */
+export const WORKSPACE_MODES: IWorkspaceModeConfig[] = [
+  { key: "projects", label: "Projects", pathSegment: null, shortcutKey: 1 },
+  { key: "wiki", label: "Wiki", pathSegment: "wiki", shortcutKey: 2 },
+  { key: "resources", label: "Resources", pathSegment: "resources", shortcutKey: 3 },
+];
+
+/**
+ * Last visited paths for each mode, stored per workspace
+ */
+export interface IWorkspaceModeLastVisited {
+  projects: string | null;
+  wiki: string | null;
+  resources: string | null;
+}
+
+// =============================================================================
+// Workspace Roles
+// =============================================================================
+
 export enum EUserWorkspaceRoles {
   ADMIN = 20,
   MEMBER = 15,

@@ -12,6 +12,10 @@ const STORAGE_KEYS = {
   epicDetailSidebar: "epic_detail_sidebar_collapsed",
   initiativesSidebar: "initiatives_sidebar_collapsed",
   projectOverviewSidebar: "project_overview_sidebar_collapsed",
+  // Per-mode sidebar states
+  wikiSidebar: "wiki_sidebar_collapsed",
+  resourcesSidebar: "resources_sidebar_collapsed",
+  projectsSidebar: "projects_sidebar_collapsed",
 } as const;
 
 interface ThemeState {
@@ -27,6 +31,10 @@ interface ThemeState {
   epicDetailSidebarCollapsed: boolean;
   initiativesSidebarCollapsed: boolean;
   projectOverviewSidebarCollapsed: boolean;
+  // Per-mode sidebar states
+  wikiSidebarCollapsed: boolean;
+  resourcesSidebarCollapsed: boolean;
+  projectsSidebarCollapsed: boolean;
 }
 
 interface ThemeActions {
@@ -42,6 +50,10 @@ interface ThemeActions {
   toggleEpicDetailSidebar: (collapsed?: boolean) => void;
   toggleInitiativesSidebar: (collapsed?: boolean) => void;
   toggleProjectOverviewSidebar: (collapsed?: boolean) => void;
+  // Per-mode sidebar actions
+  toggleWikiSidebar: (collapsed?: boolean) => void;
+  toggleResourcesSidebar: (collapsed?: boolean) => void;
+  toggleProjectsSidebar: (collapsed?: boolean) => void;
 }
 
 export type ThemeStore = ThemeState & ThemeActions;
@@ -67,6 +79,10 @@ const getInitialState = (): ThemeState => ({
   epicDetailSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.epicDetailSidebar, false),
   initiativesSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.initiativesSidebar, false),
   projectOverviewSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.projectOverviewSidebar, false),
+  // Per-mode sidebar states
+  wikiSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.wikiSidebar, false),
+  resourcesSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.resourcesSidebar, false),
+  projectsSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.projectsSidebar, false),
 });
 
 // Legacy interface for backward compatibility with MobX store
@@ -82,6 +98,10 @@ export interface IThemeStore {
   epicDetailSidebarCollapsed: boolean | undefined;
   initiativesSidebarCollapsed: boolean | undefined;
   projectOverviewSidebarCollapsed: boolean | undefined;
+  // Per-mode sidebar states
+  wikiSidebarCollapsed: boolean | undefined;
+  resourcesSidebarCollapsed: boolean | undefined;
+  projectsSidebarCollapsed: boolean | undefined;
   toggleAnySidebarDropdown: (open?: boolean) => void;
   toggleSidebar: (collapsed?: boolean) => void;
   toggleSidebarPeek: (peek?: boolean) => void;
@@ -93,6 +113,10 @@ export interface IThemeStore {
   toggleEpicDetailSidebar: (collapsed?: boolean) => void;
   toggleInitiativesSidebar: (collapsed?: boolean) => void;
   toggleProjectOverviewSidebar: (collapsed?: boolean) => void;
+  // Per-mode sidebar actions
+  toggleWikiSidebar: (collapsed?: boolean) => void;
+  toggleResourcesSidebar: (collapsed?: boolean) => void;
+  toggleProjectsSidebar: (collapsed?: boolean) => void;
 }
 
 export const useThemeStore = create<ThemeStore>()(
@@ -173,6 +197,28 @@ export const useThemeStore = create<ThemeStore>()(
           localStorage.setItem(STORAGE_KEYS.projectOverviewSidebar, newValue.toString());
           return { projectOverviewSidebarCollapsed: newValue };
         }),
+
+      // Per-mode sidebar toggle actions
+      toggleWikiSidebar: (collapsed) =>
+        set((state) => {
+          const newValue = collapsed ?? !state.wikiSidebarCollapsed;
+          localStorage.setItem(STORAGE_KEYS.wikiSidebar, newValue.toString());
+          return { wikiSidebarCollapsed: newValue };
+        }),
+
+      toggleResourcesSidebar: (collapsed) =>
+        set((state) => {
+          const newValue = collapsed ?? !state.resourcesSidebarCollapsed;
+          localStorage.setItem(STORAGE_KEYS.resourcesSidebar, newValue.toString());
+          return { resourcesSidebarCollapsed: newValue };
+        }),
+
+      toggleProjectsSidebar: (collapsed) =>
+        set((state) => {
+          const newValue = collapsed ?? !state.projectsSidebarCollapsed;
+          localStorage.setItem(STORAGE_KEYS.projectsSidebar, newValue.toString());
+          return { projectsSidebarCollapsed: newValue };
+        }),
     }),
     {
       name: "plane-theme-storage",
@@ -188,6 +234,10 @@ export const useThemeStore = create<ThemeStore>()(
         epicDetailSidebarCollapsed: state.epicDetailSidebarCollapsed,
         initiativesSidebarCollapsed: state.initiativesSidebarCollapsed,
         projectOverviewSidebarCollapsed: state.projectOverviewSidebarCollapsed,
+        // Per-mode sidebar states
+        wikiSidebarCollapsed: state.wikiSidebarCollapsed,
+        resourcesSidebarCollapsed: state.resourcesSidebarCollapsed,
+        projectsSidebarCollapsed: state.projectsSidebarCollapsed,
       }),
     }
   )
@@ -232,16 +282,33 @@ export class ThemeStoreLegacy implements IThemeStore {
   get projectOverviewSidebarCollapsed() {
     return useThemeStore.getState().projectOverviewSidebarCollapsed;
   }
+  // Per-mode sidebar state getters
+  get wikiSidebarCollapsed() {
+    return useThemeStore.getState().wikiSidebarCollapsed;
+  }
+  get resourcesSidebarCollapsed() {
+    return useThemeStore.getState().resourcesSidebarCollapsed;
+  }
+  get projectsSidebarCollapsed() {
+    return useThemeStore.getState().projectsSidebarCollapsed;
+  }
 
   toggleAnySidebarDropdown = (open?: boolean) => useThemeStore.getState().toggleAnySidebarDropdown(open);
   toggleSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleSidebar(collapsed);
   toggleSidebarPeek = (peek?: boolean) => useThemeStore.getState().toggleSidebarPeek(peek);
   toggleExtendedSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleExtendedSidebar(collapsed);
-  toggleExtendedProjectSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleExtendedProjectSidebar(collapsed);
+  toggleExtendedProjectSidebar = (collapsed?: boolean) =>
+    useThemeStore.getState().toggleExtendedProjectSidebar(collapsed);
   toggleProfileSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleProfileSidebar(collapsed);
-  toggleWorkspaceAnalyticsSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleWorkspaceAnalyticsSidebar(collapsed);
+  toggleWorkspaceAnalyticsSidebar = (collapsed?: boolean) =>
+    useThemeStore.getState().toggleWorkspaceAnalyticsSidebar(collapsed);
   toggleIssueDetailSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleIssueDetailSidebar(collapsed);
   toggleEpicDetailSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleEpicDetailSidebar(collapsed);
   toggleInitiativesSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleInitiativesSidebar(collapsed);
-  toggleProjectOverviewSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleProjectOverviewSidebar(collapsed);
+  toggleProjectOverviewSidebar = (collapsed?: boolean) =>
+    useThemeStore.getState().toggleProjectOverviewSidebar(collapsed);
+  // Per-mode sidebar toggle actions
+  toggleWikiSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleWikiSidebar(collapsed);
+  toggleResourcesSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleResourcesSidebar(collapsed);
+  toggleProjectsSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleProjectsSidebar(collapsed);
 }
