@@ -36,6 +36,12 @@ resource "aws_iam_role_policy_attachment" "eb_multicontainer_docker" {
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker"
 }
 
+# SSM access for running management commands
+resource "aws_iam_role_policy_attachment" "eb_ssm" {
+  role       = aws_iam_role.eb_ec2.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 # Custom policy for Secrets Manager access
 resource "aws_iam_policy" "secrets_access" {
   name        = "${var.project_name}-secrets-access"

@@ -2,7 +2,8 @@
 
 # Web App Bucket
 resource "aws_s3_bucket" "web" {
-  bucket = "${var.project_name}-web-frontend"
+  bucket        = "${var.project_name}-web-frontend"
+  force_destroy = true # Allow terraform destroy to delete bucket with contents
 
   tags = {
     Name = "${var.project_name}-web-frontend"
@@ -38,7 +39,8 @@ resource "aws_s3_bucket_public_access_block" "web" {
 
 # Admin App Bucket
 resource "aws_s3_bucket" "admin" {
-  bucket = "${var.project_name}-admin-frontend"
+  bucket        = "${var.project_name}-admin-frontend"
+  force_destroy = true # Allow terraform destroy to delete bucket with contents
 
   tags = {
     Name = "${var.project_name}-admin-frontend"
@@ -74,7 +76,8 @@ resource "aws_s3_bucket_public_access_block" "admin" {
 
 # Space App Bucket
 resource "aws_s3_bucket" "space" {
-  bucket = "${var.project_name}-space-frontend"
+  bucket        = "${var.project_name}-space-frontend"
+  force_destroy = true # Allow terraform destroy to delete bucket with contents
 
   tags = {
     Name = "${var.project_name}-space-frontend"

@@ -16,7 +16,7 @@ import type { ICustomSelectItemProps, ICustomSelectProps } from "./helper";
 // Context to share the close handler with option components
 const DropdownContext = createContext<() => void>(() => {});
 
-function CustomSelect(props: ICustomSelectProps) {
+function CustomSelect<T = unknown>(props: ICustomSelectProps<T>) {
   const {
     customButtonClassName = "",
     buttonClassName = "",
@@ -41,8 +41,9 @@ function CustomSelect(props: ICustomSelectProps) {
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
     placement: placement ?? "bottom-start",
+    strategy: "fixed",
     modifiers: [
       {
         name: "offset",
@@ -65,6 +66,13 @@ function CustomSelect(props: ICustomSelectProps) {
       },
     ],
   });
+
+  // Force popper to recalculate position when dropdown opens
+  React.useEffect(() => {
+    if (isOpen && update) {
+      void update();
+    }
+  }, [isOpen, update]);
 
   const openDropdown = useCallback(() => {
     setIsOpen(true);
@@ -159,7 +167,7 @@ function CustomSelect(props: ICustomSelectProps) {
   );
 }
 
-function Option(props: ICustomSelectItemProps) {
+function Option<T = unknown>(props: ICustomSelectItemProps<T>) {
   const { children, value, className } = props;
   const closeDropdown = useContext(DropdownContext);
 

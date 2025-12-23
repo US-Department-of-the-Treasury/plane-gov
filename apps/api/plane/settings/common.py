@@ -41,7 +41,9 @@ DEBUG = int(os.environ.get("DEBUG", "0"))
 IS_SELF_MANAGED = True
 
 # Allowed Hosts
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
+# Always include localhost for ELB health checks (see HealthCheckMiddleware)
+_allowed_hosts = os.environ.get("ALLOWED_HOSTS", "*").split(",")
+ALLOWED_HOSTS = list(set(_allowed_hosts + ["localhost"]))
 
 # Application definition
 INSTALLED_APPS = [
@@ -73,6 +75,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "plane.authentication.middleware.session.SessionMiddleware",
+    "plane.middleware.health_check.HealthCheckMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",

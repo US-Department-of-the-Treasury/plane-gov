@@ -1,4 +1,3 @@
-// FIXME: fix this!!!
 import type { ICustomSearchSelectOption } from "@plane/types";
 
 type Placement =
@@ -46,7 +45,7 @@ export interface ICustomMenuDropdownProps extends IDropdownProps {
   ellipsis?: boolean;
   noBorder?: boolean;
   verticalEllipsis?: boolean;
-  menuButtonOnClick?: (...args: any) => void;
+  menuButtonOnClick?: (...args: unknown[]) => void;
   menuItemsClassName?: string;
   onMenuClose?: () => void;
   closeOnSelect?: boolean;
@@ -55,28 +54,28 @@ export interface ICustomMenuDropdownProps extends IDropdownProps {
   ariaLabel?: string;
 }
 
-export interface ICustomSelectProps extends IDropdownProps {
+export interface ICustomSelectProps<T = unknown> extends IDropdownProps {
   children: React.ReactNode;
-  value: any;
-  onChange: any;
+  value: T;
+  onChange: ((value: T) => void) | undefined;
 }
 
-interface CustomSearchSelectProps {
+interface CustomSearchSelectProps<T = unknown> {
   footerOption?: React.ReactNode;
-  onChange: any;
+  onChange: (value: T) => void;
   onClose?: () => void;
   noResultsMessage?: string;
   options?: ICustomSearchSelectOption[];
 }
 
-interface SingleValueProps {
+interface SingleValueProps<T = unknown> {
   multiple?: false;
-  value: any;
+  value: T;
 }
 
-interface MultipleValuesProps {
+interface MultipleValuesProps<T = unknown> {
   multiple?: true;
-  value: any[] | null;
+  value: T[] | null;
 }
 
 export type ICustomSearchSelectProps = IDropdownProps &
@@ -86,13 +85,13 @@ export type ICustomSearchSelectProps = IDropdownProps &
 export interface ICustomMenuItemProps {
   children: React.ReactNode;
   disabled?: boolean;
-  onClick?: (args?: any) => void;
+  onClick?: (args?: unknown) => void;
   className?: string;
 }
 
-export interface ICustomSelectItemProps {
+export interface ICustomSelectItemProps<T = unknown> {
   children: React.ReactNode;
-  value: any;
+  value: T;
   className?: string;
 }
 

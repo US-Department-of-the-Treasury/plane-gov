@@ -6,7 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { API_BASE_URL, E_PASSWORD_STRENGTH } from "@plane/constants";
 import { Button } from "@plane/propel/button";
 import { AuthService } from "@plane/services";
-import { Checkbox, Input, PasswordStrengthIndicator, Spinner } from "@plane/ui";
+import { Input, PasswordStrengthIndicator, Spinner } from "@plane/ui";
 import { getPasswordStrength } from "@plane/utils";
 // components
 import { AuthHeader } from "@/app/(all)/(home)/auth-header";
@@ -80,38 +80,36 @@ export function InstanceSetupForm() {
     setFormData((prev) => ({ ...prev, [key]: value }));
 
   useEffect(() => {
-    if (csrfToken === undefined)
-      authService.requestCSRFToken().then((data) => data?.csrf_token && setCsrfToken(data.csrf_token));
+    if (csrfToken === undefined) {
+      void authService.requestCSRFToken().then((data) => {
+        if (data?.csrf_token) setCsrfToken(data.csrf_token);
+      });
+    }
   }, [csrfToken]);
 
   useEffect(() => {
-    if (firstNameParam) setFormData((prev) => ({ ...prev, first_name: firstNameParam }));
-    if (lastNameParam) setFormData((prev) => ({ ...prev, last_name: lastNameParam }));
-    if (companyParam) setFormData((prev) => ({ ...prev, company_name: companyParam }));
-    if (emailParam) setFormData((prev) => ({ ...prev, email: emailParam }));
-    if (isTelemetryEnabledParam) setFormData((prev) => ({ ...prev, is_telemetry_enabled: isTelemetryEnabledParam }));
+    // Consolidate all param updates into a single setState to avoid cascading renders
+    setFormData((prev) => ({
+      ...prev,
+      ...(firstNameParam && { first_name: firstNameParam }),
+      ...(lastNameParam && { last_name: lastNameParam }),
+      ...(companyParam && { company_name: companyParam }),
+      ...(emailParam && { email: emailParam }),
+      ...(isTelemetryEnabledParam && { is_telemetry_enabled: isTelemetryEnabledParam }),
+    }));
   }, [firstNameParam, lastNameParam, companyParam, emailParam, isTelemetryEnabledParam]);
 
   // derived values
   const errorData: TError = useMemo(() => {
     if (errorCode && errorMessage) {
-      switch (errorCode) {
-        case EErrorCodes.INSTANCE_NOT_CONFIGURED:
-          return { type: EErrorCodes.INSTANCE_NOT_CONFIGURED, message: errorMessage };
-        case EErrorCodes.ADMIN_ALREADY_EXIST:
-          return { type: EErrorCodes.ADMIN_ALREADY_EXIST, message: errorMessage };
-        case EErrorCodes.REQUIRED_EMAIL_PASSWORD_FIRST_NAME:
-          return { type: EErrorCodes.REQUIRED_EMAIL_PASSWORD_FIRST_NAME, message: errorMessage };
-        case EErrorCodes.INVALID_EMAIL:
-          return { type: EErrorCodes.INVALID_EMAIL, message: errorMessage };
-        case EErrorCodes.INVALID_PASSWORD:
-          return { type: EErrorCodes.INVALID_PASSWORD, message: errorMessage };
-        case EErrorCodes.USER_ALREADY_EXISTS:
-          return { type: EErrorCodes.USER_ALREADY_EXISTS, message: errorMessage };
-        default:
-          return { type: undefined, message: undefined };
+      // Type-safe check if errorCode is a valid EErrorCodes value
+      const validCodes = Object.values(EErrorCodes) as string[];
+      if (validCodes.includes(errorCode)) {
+        return { type: errorCode as EErrorCodes, message: errorMessage };
       }
-    } else return { type: undefined, message: undefined };
+      return { type: undefined, message: undefined };
+    }
+    return { type: undefined, message: undefined };
   }, [errorCode, errorMessage]);
 
   const isButtonDisabled = useMemo(
@@ -150,7 +148,6 @@ export function InstanceSetupForm() {
             method="POST"
             action={`${API_BASE_URL}/api/instances/admins/sign-up/`}
             onSubmit={() => setIsSubmitting(true)}
-            onError={() => setIsSubmitting(false)}
           >
             <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
             <input type="hidden" name="is_telemetry_enabled" value={formData.is_telemetry_enabled ? "True" : "False"} />
@@ -170,7 +167,6 @@ export function InstanceSetupForm() {
                   value={formData.first_name}
                   onChange={(e) => handleFormChange("first_name", e.target.value)}
                   autoComplete="on"
-                  autoFocus
                 />
               </div>
               <div className="w-full space-y-1">
@@ -315,21 +311,7 @@ export function InstanceSetupForm() {
                 renderPasswordMatchError && <span className="text-13 text-red-500">Passwords don{"'"}t match</span>}
             </div>
 
-            {/* Telemetry option - external link removed for government deployment */}
-            <div className="relative flex gap-2">
-              <div>
-                <Checkbox
-                  className="w-4 h-4"
-                  iconClassName="w-3 h-3"
-                  id="is_telemetry_enabled"
-                  onChange={() => handleFormChange("is_telemetry_enabled", !formData.is_telemetry_enabled)}
-                  checked={formData.is_telemetry_enabled}
-                />
-              </div>
-              <label className="text-13 text-tertiary font-medium cursor-pointer" htmlFor="is_telemetry_enabled">
-                Allow Plane to anonymously collect usage events.
-              </label>
-            </div>
+            {/* Telemetry disabled for government deployment - checkbox removed */}
 
             <div className="py-2">
               <Button type="submit" size="xl" className="w-full" disabled={isButtonDisabled}>

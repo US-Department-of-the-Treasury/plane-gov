@@ -52,9 +52,9 @@ from plane.db.models.webhook import Webhook
 from plane.db.models.intake import SourceType
 
 
-# Default test user credentials
-DEFAULT_EMAIL = "test@example.com"
-DEFAULT_PASSWORD = "password123"
+# Default test user credentials (matches UI hint in terms-and-conditions.tsx)
+DEFAULT_EMAIL = "admin@admin.gov"
+DEFAULT_PASSWORD = "admin123"
 DEFAULT_WORKSPACE = "Test Workspace"
 DEFAULT_WORKSPACE_SLUG = "test-workspace"
 
