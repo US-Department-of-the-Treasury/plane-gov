@@ -2,6 +2,7 @@ import { AppError } from "@/lib/errors";
 import type { HocusPocusServerContext, TDocumentTypes } from "@/types";
 // services
 import { ProjectPageService } from "./project-page.service";
+import { WikiPageService } from "./wiki-page.service";
 
 export const getPageService = (documentType: TDocumentTypes, context: HocusPocusServerContext) => {
   if (documentType === "project_page") {
@@ -12,5 +13,12 @@ export const getPageService = (documentType: TDocumentTypes, context: HocusPocus
     });
   }
 
-  throw new AppError(`Invalid document type ${documentType} provided.`);
+  if (documentType === "wiki_page") {
+    return new WikiPageService({
+      workspaceSlug: context.workspaceSlug,
+      cookie: context.cookie,
+    });
+  }
+
+  throw new AppError(`Invalid document type ${String(documentType)} provided.`);
 };

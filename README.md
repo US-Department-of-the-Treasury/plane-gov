@@ -33,6 +33,8 @@ Plane is an open-source project management tool to track issues, run sprints, an
 
 - **Pages** - Capture and organize ideas with a rich text editor. Convert notes into actionable items.
 
+- **Wiki** - Collaborative workspace-level knowledge base with real-time editing, collections, and granular access controls.
+
 - **Analytics** - Access real-time insights across project data. Visualize trends and track progress.
 
 ## Deployment
@@ -77,9 +79,11 @@ See `docs/solutions/security/ssm-secrets-management.md` for detailed documentati
 
 ## Tech Stack
 
-- **Frontend**: React Router, TypeScript
+- **Frontend**: React Router, TypeScript, TanStack Query, Zustand
 - **Backend**: Django, Python
 - **Database**: PostgreSQL
+- **Real-time Collaboration**: Hocuspocus (WebSocket server), Yjs (CRDT), TipTap (rich text editor)
+- **Cache & Pub/Sub**: Redis
 
 ## Testing
 
