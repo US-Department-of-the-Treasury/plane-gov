@@ -46,7 +46,8 @@ export function useRecentSticky(workspaceSlug: string) {
     queryKey: queryKeys.stickies.recent(workspaceSlug),
     queryFn: async () => {
       const response = await stickyService.getStickies(workspaceSlug, "1:0:0", undefined, 1);
-      return response.results[0];
+      // TanStack Query requires non-undefined return values - return null if no stickies
+      return response.results[0] ?? null;
     },
     enabled: !!workspaceSlug,
     staleTime: 1 * 60 * 1000, // 1 minute

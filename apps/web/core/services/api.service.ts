@@ -22,7 +22,15 @@ export abstract class APIService {
       (error) => {
         if (error.response && error.response.status === 401) {
           const currentPath = window.location.pathname;
-          window.location.replace(`/${currentPath ? `?next_path=${currentPath}` : ``}`);
+          // Don't redirect if already on a non-authenticated route (login, sign-up, etc.)
+          // This prevents infinite reload loops when API calls fail on public pages
+          const nonAuthRoutes = ["/", "/sign-up", "/sign-in", "/forgot-password", "/reset-password", "/onboarding"];
+          const isNonAuthRoute = nonAuthRoutes.some(
+            (route) => currentPath === route || currentPath === `${route}/` || currentPath.startsWith(`${route}?`)
+          );
+          if (!isNonAuthRoute) {
+            window.location.replace(`/${currentPath ? `?next_path=${currentPath}` : ``}`);
+          }
         }
         return Promise.reject(error);
       }

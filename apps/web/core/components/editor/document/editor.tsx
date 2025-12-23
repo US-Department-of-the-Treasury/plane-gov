@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import type React from "react";
 // plane imports
 import { DocumentEditorWithRef } from "@plane/editor";
 import type { IEditorPropsExtended, EditorRefApi, IDocumentEditorProps, TFileHandler } from "@plane/editor";
@@ -33,9 +33,8 @@ type DocumentEditorWrapperProps = MakeOptional<
       }
   );
 
-export const DocumentEditor = forwardRef(function DocumentEditor(
-  props: DocumentEditorWrapperProps,
-  ref: React.ForwardedRef<EditorRefApi>
+export function DocumentEditor(
+  props: DocumentEditorWrapperProps & { ref?: React.Ref<EditorRefApi> }
 ) {
   const {
     containerClassName,
@@ -45,6 +44,7 @@ export const DocumentEditor = forwardRef(function DocumentEditor(
     workspaceId,
     projectId,
     disabledExtensions: additionalDisabledExtensions = [],
+    ref,
     ...rest
   } = props;
   // store hooks
@@ -97,6 +97,4 @@ export const DocumentEditor = forwardRef(function DocumentEditor(
       containerClassName={cn("relative pl-3 pb-3", containerClassName)}
     />
   );
-});
-
-DocumentEditor.displayName = "DocumentEditor";
+}

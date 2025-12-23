@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Check, MessageSquare, MoreVertical } from "lucide-react";
 import { Menu, Transition, TransitionChild } from "@headlessui/react";
@@ -184,17 +184,17 @@ export function CommentCard(props: Props) {
             <MoreVertical className="size-4" strokeWidth={2} />
           </Menu.Button>
 
-          <Transition as={React.Fragment}>
+          <Transition>
             <TransitionChild
-              as={React.Fragment}
+              as={Menu.Items}
               enter="transition ease-out duration-100"
               enterFrom="transform opacity-0 scale-95"
               enterTo="transform opacity-100 scale-100"
               leave="transition ease-in duration-75"
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
+              className="absolute right-0 z-10 mt-1 max-h-36 min-w-[8rem] origin-top-right overflow-auto overflow-y-scroll whitespace-nowrap rounded-md border border-strong bg-surface-1 p-1 text-11 shadow-lg focus:outline-none"
             >
-              <Menu.Items className="absolute right-0 z-10 mt-1 max-h-36 min-w-[8rem] origin-top-right overflow-auto overflow-y-scroll whitespace-nowrap rounded-md border border-strong bg-surface-1 p-1 text-11 shadow-lg focus:outline-none">
                 <Menu.Item>
                   {({ active }) => (
                     <div className="py-1">
@@ -227,7 +227,6 @@ export function CommentCard(props: Props) {
                     </div>
                   )}
                 </Menu.Item>
-              </Menu.Items>
             </TransitionChild>
           </Transition>
         </Menu>

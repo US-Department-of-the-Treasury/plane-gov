@@ -76,38 +76,34 @@ function CustomSelect(props: ICustomSelectProps) {
       >
         <>
           {customButton ? (
-            <Combobox.Button as={React.Fragment}>
-              <button
-                ref={setReferenceElement}
-                type="button"
-                className={`flex items-center justify-between gap-1 text-11 rounded ${
-                  disabled ? "cursor-not-allowed text-secondary" : "cursor-pointer hover:bg-layer-transparent-hover"
-                } ${customButtonClassName}`}
-                onClick={toggleDropdown}
-              >
-                {customButton}
-              </button>
+            <Combobox.Button
+              ref={setReferenceElement}
+              type="button"
+              className={`flex items-center justify-between gap-1 text-11 rounded ${
+                disabled ? "cursor-not-allowed text-secondary" : "cursor-pointer hover:bg-layer-transparent-hover"
+              } ${customButtonClassName}`}
+              onClick={toggleDropdown}
+            >
+              {customButton}
             </Combobox.Button>
           ) : (
-            <Combobox.Button as={React.Fragment}>
-              <button
-                ref={setReferenceElement}
-                type="button"
-                className={cn(
-                  "flex w-full items-center justify-between gap-1 rounded border border-strong",
-                  {
-                    "px-3 py-2 text-13": input,
-                    "px-2 py-1 text-11": !input,
-                    "cursor-not-allowed text-secondary": disabled,
-                    "cursor-pointer hover:bg-layer-transparent-hover": !disabled,
-                  },
-                  buttonClassName
-                )}
-                onClick={toggleDropdown}
-              >
-                {label}
-                {!noChevron && !disabled && <ChevronDownIcon className="h-3 w-3" aria-hidden="true" />}
-              </button>
+            <Combobox.Button
+              ref={setReferenceElement}
+              type="button"
+              className={cn(
+                "flex w-full items-center justify-between gap-1 rounded border border-strong",
+                {
+                  "px-3 py-2 text-13": input,
+                  "px-2 py-1 text-11": !input,
+                  "cursor-not-allowed text-secondary": disabled,
+                  "cursor-pointer hover:bg-layer-transparent-hover": !disabled,
+                },
+                buttonClassName
+              )}
+              onClick={toggleDropdown}
+            >
+              {label}
+              {!noChevron && !disabled && <ChevronDownIcon className="h-3 w-3" aria-hidden="true" />}
             </Combobox.Button>
           )}
         </>

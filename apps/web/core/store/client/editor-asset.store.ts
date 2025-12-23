@@ -37,6 +37,26 @@ interface EditorAssetActions {
 
 export type EditorAssetStore = EditorAssetState & EditorAssetActions;
 
+// Legacy interface for backward compatibility with MobX store
+export interface IEditorAssetStore {
+  assetsUploadPercentage: Record<string, number>;
+  getAssetUploadStatusByEditorBlockId: (blockId: string) => TAttachmentUploadStatus | undefined;
+  uploadEditorAsset: (args: {
+    blockId: string;
+    data: TFileEntityInfo;
+    file: File;
+    projectId?: string;
+    workspaceSlug: string;
+  }) => Promise<TFileSignedURLResponse>;
+  duplicateEditorAsset: (args: {
+    assetId: string;
+    entityId?: string;
+    entityType: EFileAssetType;
+    projectId?: string;
+    workspaceSlug: string;
+  }) => Promise<{ asset_id: string }>;
+}
+
 // Selector for computed percentage values
 export const selectAssetsUploadPercentage = (state: EditorAssetStore): Record<string, number> => {
   const assetsStatus = state.assetsUploadStatus;
@@ -168,3 +188,33 @@ export const useEditorAssetStore = create<EditorAssetStore>()((set, get) => ({
     return { asset_id };
   },
 }));
+
+/**
+ * Legacy class wrapper for backward compatibility with MobX patterns.
+ * Used by root.store.ts to maintain API compatibility during migration.
+ * @deprecated Use useEditorAssetStore hook directly in React components
+ */
+export class EditorAssetStoreLegacy implements IEditorAssetStore {
+  get assetsUploadPercentage() {
+    return selectAssetsUploadPercentage(useEditorAssetStore.getState());
+  }
+
+  getAssetUploadStatusByEditorBlockId = (blockId: string) =>
+    useEditorAssetStore.getState().getAssetUploadStatusByEditorBlockId(blockId);
+
+  uploadEditorAsset = (args: {
+    blockId: string;
+    data: TFileEntityInfo;
+    file: File;
+    projectId?: string;
+    workspaceSlug: string;
+  }) => useEditorAssetStore.getState().uploadEditorAsset(args);
+
+  duplicateEditorAsset = (args: {
+    assetId: string;
+    entityId?: string;
+    entityType: EFileAssetType;
+    projectId?: string;
+    workspaceSlug: string;
+  }) => useEditorAssetStore.getState().duplicateEditorAsset(args);
+}

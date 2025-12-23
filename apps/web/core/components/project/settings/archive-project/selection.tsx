@@ -24,6 +24,7 @@ export function ArchiveProjectSelection(props: IArchiveProject) {
             {open ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronRightIcon className="h-5 w-5" />}
           </Disclosure.Button>
           <Transition
+            as="div"
             show={open}
             enter="transition duration-100 ease-out"
             enterFrom="transform opacity-0"

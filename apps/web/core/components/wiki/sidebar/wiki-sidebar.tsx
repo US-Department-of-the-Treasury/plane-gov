@@ -82,7 +82,7 @@ const WikiPageItem = memo(function WikiPageItem({
             )}
           </div>
           {hasChildren && (
-            <Transition show={open}>
+            <Transition show={open} as="div">
               <TransitionChild
                 as="div"
                 enter="transition duration-100 ease-out"
@@ -149,7 +149,7 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
             </span>
           </Disclosure.Button>
           {hasContent && (
-            <Transition show={open}>
+            <Transition show={open} as="div">
               <TransitionChild
                 as="div"
                 enter="transition duration-100 ease-out"

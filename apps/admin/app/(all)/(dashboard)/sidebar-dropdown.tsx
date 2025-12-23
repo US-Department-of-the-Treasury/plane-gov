@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme as useNextTheme } from "next-themes";
 import { LogOut, UserCog2, Palette } from "lucide-react";
 import { Menu, Transition, TransitionChild } from "@headlessui/react";
@@ -6,7 +6,7 @@ import { Menu, Transition, TransitionChild } from "@headlessui/react";
 import { API_BASE_URL } from "@plane/constants";
 import { AuthService } from "@plane/services";
 import { Avatar } from "@plane/ui";
-import { getFileURL, cn } from "@plane/utils";
+import { cn, getFileURL } from "@plane/utils";
 // hooks
 import { useThemeStore, useCurrentUser, useSignOut } from "@/store/queries";
 
@@ -29,45 +29,6 @@ export function AdminSidebarDropdown() {
   };
 
   const handleSignOut = () => signOut();
-
-  const getSidebarMenuItems = () => (
-    <Menu.Items
-      className={cn(
-        "absolute left-0 z-20 mt-1.5 flex w-52 flex-col divide-y divide-subtle rounded-md border border-subtle bg-surface-1 px-1 py-2 text-11 shadow-lg outline-none",
-        {
-          "left-4": isSidebarCollapsed,
-        }
-      )}
-    >
-      <div className="flex flex-col gap-2.5 pb-2">
-        <span className="px-2 text-secondary truncate">{currentUser?.email}</span>
-      </div>
-      <div className="py-2">
-        <Menu.Item
-          as="button"
-          type="button"
-          className="flex w-full items-center gap-2 rounded-sm px-2 py-1 hover:bg-layer-1-hover"
-          onClick={handleThemeSwitch}
-        >
-          <Palette className="h-4 w-4 stroke-[1.5]" />
-          Switch to {resolvedTheme === "dark" ? "light" : "dark"} mode
-        </Menu.Item>
-      </div>
-      <div className="py-2">
-        <form method="POST" action={`${API_BASE_URL}/api/instances/admins/sign-out/`} onSubmit={handleSignOut}>
-          <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
-          <Menu.Item
-            as="button"
-            type="submit"
-            className="flex w-full items-center gap-2 rounded-sm px-2 py-1 hover:bg-layer-1-hover"
-          >
-            <LogOut className="h-4 w-4 stroke-[1.5]" />
-            Sign out
-          </Menu.Item>
-        </form>
-      </div>
-    </Menu.Items>
-  );
 
   useEffect(() => {
     if (csrfToken === undefined)
@@ -93,17 +54,44 @@ export function AdminSidebarDropdown() {
               </div>
             </Menu.Button>
             {isSidebarCollapsed && (
-              <Transition as={Fragment}>
+              <Transition>
                 <TransitionChild
-                  as={Fragment}
+                  as={Menu.Items}
                   enter="transition ease-out duration-100"
                   enterFrom="transform opacity-0 scale-95"
                   enterTo="transform opacity-100 scale-100"
                   leave="transition ease-in duration-75"
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
+                  className={`absolute left-0 z-20 mt-1.5 flex w-52 flex-col divide-y divide-subtle rounded-md border border-subtle bg-surface-1 px-1 py-2 text-11 shadow-lg outline-none ${isSidebarCollapsed ? "left-4" : ""}`}
                 >
-                  {getSidebarMenuItems()}
+                  <div className="flex flex-col gap-2.5 pb-2">
+                    <span className="px-2 text-secondary truncate">{currentUser?.email}</span>
+                  </div>
+                  <div className="py-2">
+                    <Menu.Item
+                      as="button"
+                      type="button"
+                      className="flex w-full items-center gap-2 rounded-sm px-2 py-1 hover:bg-layer-1-hover"
+                      onClick={handleThemeSwitch}
+                    >
+                      <Palette className="h-4 w-4 stroke-[1.5]" />
+                      Switch to {resolvedTheme === "dark" ? "light" : "dark"} mode
+                    </Menu.Item>
+                  </div>
+                  <div className="py-2">
+                    <form method="POST" action={`${API_BASE_URL}/api/instances/admins/sign-out/`} onSubmit={handleSignOut}>
+                      <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
+                      <Menu.Item
+                        as="button"
+                        type="submit"
+                        className="flex w-full items-center gap-2 rounded-sm px-2 py-1 hover:bg-layer-1-hover"
+                      >
+                        <LogOut className="h-4 w-4 stroke-[1.5]" />
+                        Sign out
+                      </Menu.Item>
+                    </form>
+                  </div>
                 </TransitionChild>
               </Transition>
             )}
@@ -129,17 +117,44 @@ export function AdminSidebarDropdown() {
             />
           </Menu.Button>
 
-          <Transition as={Fragment}>
+          <Transition>
             <TransitionChild
-              as={Fragment}
+              as={Menu.Items}
               enter="transition ease-out duration-100"
               enterFrom="transform opacity-0 scale-95"
               enterTo="transform opacity-100 scale-100"
               leave="transition ease-in duration-75"
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
+              className="absolute left-0 z-20 mt-1.5 flex w-52 flex-col divide-y divide-subtle rounded-md border border-subtle bg-surface-1 px-1 py-2 text-11 shadow-lg outline-none"
             >
-              {getSidebarMenuItems()}
+              <div className="flex flex-col gap-2.5 pb-2">
+                <span className="px-2 text-secondary truncate">{currentUser?.email}</span>
+              </div>
+              <div className="py-2">
+                <Menu.Item
+                  as="button"
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-sm px-2 py-1 hover:bg-layer-1-hover"
+                  onClick={handleThemeSwitch}
+                >
+                  <Palette className="h-4 w-4 stroke-[1.5]" />
+                  Switch to {resolvedTheme === "dark" ? "light" : "dark"} mode
+                </Menu.Item>
+              </div>
+              <div className="py-2">
+                <form method="POST" action={`${API_BASE_URL}/api/instances/admins/sign-out/`} onSubmit={handleSignOut}>
+                  <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
+                  <Menu.Item
+                    as="button"
+                    type="submit"
+                    className="flex w-full items-center gap-2 rounded-sm px-2 py-1 hover:bg-layer-1-hover"
+                  >
+                    <LogOut className="h-4 w-4 stroke-[1.5]" />
+                    Sign out
+                  </Menu.Item>
+                </form>
+              </div>
             </TransitionChild>
           </Transition>
         </Menu>

@@ -1,6 +1,4 @@
 import { set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
 // plane imports
 import { EMPTY_OPERATOR_LABEL } from "@plane/constants";
 import type {
@@ -47,7 +45,7 @@ export class FilterConfig<P extends TFilterProperty, V extends TFilterValue = TF
   P,
   V
 > {
-  // observables
+  // properties
   id: IFilterConfig<P, V>["id"];
   label: IFilterConfig<P, V>["label"];
   icon?: IFilterConfig<P, V>["icon"];
@@ -66,20 +64,6 @@ export class FilterConfig<P extends TFilterProperty, V extends TFilterValue = TF
     this.isEnabled = params.isEnabled;
     this.supportedOperatorConfigsMap = params.supportedOperatorConfigsMap;
     this.allowMultipleFilters = params.allowMultipleFilters;
-
-    makeObservable(this, {
-      id: observable,
-      label: observable,
-      icon: observable,
-      isEnabled: observable,
-      supportedOperatorConfigsMap: observable,
-      allowMultipleFilters: observable,
-      // computed
-      allEnabledSupportedOperators: computed,
-      firstOperator: computed,
-      // actions
-      mutate: action,
-    });
   }
 
   // ------------ computed ------------
@@ -109,16 +93,15 @@ export class FilterConfig<P extends TFilterProperty, V extends TFilterValue = TF
    * @param operator - The operator.
    * @returns The operator config.
    */
-  getOperatorConfig: IFilterConfig<P, V>["getOperatorConfig"] = computedFn((operator) =>
-    this.supportedOperatorConfigsMap.get(getOperatorForPayload(operator).operator)
-  );
+  getOperatorConfig: IFilterConfig<P, V>["getOperatorConfig"] = (operator) =>
+    this.supportedOperatorConfigsMap.get(getOperatorForPayload(operator).operator);
 
   /**
    * Returns the label for an operator.
    * @param operator - The operator.
    * @returns The label for the operator.
    */
-  getLabelForOperator: IFilterConfig<P, V>["getLabelForOperator"] = computedFn((operator) => {
+  getLabelForOperator: IFilterConfig<P, V>["getLabelForOperator"] = (operator) => {
     if (!operator) return EMPTY_OPERATOR_LABEL;
 
     const operatorConfig = this.getOperatorConfig(operator);
@@ -132,20 +115,20 @@ export class FilterConfig<P extends TFilterProperty, V extends TFilterValue = TF
     }
 
     return getOperatorLabel(operator);
-  });
+  };
 
   /**
    * Returns the operator for a value.
    * @param value - The value.
    * @returns The operator for the value.
    */
-  getDisplayOperatorByValue: IFilterConfig<P, V>["getDisplayOperatorByValue"] = computedFn((operator, value) => {
+  getDisplayOperatorByValue: IFilterConfig<P, V>["getDisplayOperatorByValue"] = (operator, value) => {
     const operatorConfig = this.getOperatorConfig(operator);
     if (operatorConfig?.type === FILTER_FIELD_TYPE.MULTI_SELECT && (Array.isArray(value) ? value.length : 0) <= 1) {
       return operatorConfig.singleValueOperator as typeof operator;
     }
     return operator;
-  });
+  };
 
   /**
    * Returns all supported operator options for display in the filter UI.
@@ -155,8 +138,7 @@ export class FilterConfig<P extends TFilterProperty, V extends TFilterValue = TF
    * @param value - The current filter value used to determine the appropriate operator variant
    * @returns Array of operator options with their display labels and values
    */
-  getAllDisplayOperatorOptionsByValue: IFilterConfig<P, V>["getAllDisplayOperatorOptionsByValue"] = computedFn(
-    (value) => {
+  getAllDisplayOperatorOptionsByValue: IFilterConfig<P, V>["getAllDisplayOperatorOptionsByValue"] = (value) => {
       const operatorOptions: TOperatorOptionForDisplay[] = [];
 
       // Process each supported operator to build display options
@@ -175,8 +157,7 @@ export class FilterConfig<P extends TFilterProperty, V extends TFilterValue = TF
       }
 
       return operatorOptions;
-    }
-  );
+    };
 
   // ------------ actions ------------
 
@@ -184,16 +165,14 @@ export class FilterConfig<P extends TFilterProperty, V extends TFilterValue = TF
    * Mutates the config.
    * @param updates - The updates to apply to the config.
    */
-  mutate: IFilterConfig<P, V>["mutate"] = action((updates) => {
-    runInAction(() => {
-      for (const key in updates) {
-        if (updates.hasOwnProperty(key)) {
-          const configKey = key as keyof TFilterConfig<P, V>;
-          set(this, configKey, updates[configKey]);
-        }
+  mutate: IFilterConfig<P, V>["mutate"] = (updates) => {
+    for (const key in updates) {
+      if (updates.hasOwnProperty(key)) {
+        const configKey = key as keyof TFilterConfig<P, V>;
+        set(this, configKey, updates[configKey]);
       }
-    });
-  });
+    }
+  };
 
   // ------------ private helpers ------------
 

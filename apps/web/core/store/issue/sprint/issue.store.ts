@@ -1,6 +1,6 @@
-import { get, set, concat, uniq, update } from "lodash-es";
-import { action, observable, makeObservable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { get as lodashGet, set as lodashSet, concat, uniq, update as lodashUpdate } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // plane imports
 import { ALL_ISSUES } from "@plane/constants";
 import type {
@@ -94,36 +94,85 @@ export interface ISprintIssues extends IBaseIssuesStore {
   ) => Promise<TIssue>;
 }
 
+// Zustand Store
+interface SprintIssuesState {
+  activeSprintIds: Record<string, ActiveSprintIssueDetails>;
+  viewFlags: ViewFlags;
+}
+
+interface SprintIssuesActions {
+  setActiveSprintId: (sprintId: string, details: ActiveSprintIssueDetails | undefined) => void;
+  updateActiveSprintId: (sprintId: string, path: string[], value: any) => void;
+  updateActiveSprintIdIssueIds: (
+    sprintId: string,
+    updater: (issueIds: string[]) => string[]
+  ) => void;
+}
+
+type SprintIssuesStoreType = SprintIssuesState & SprintIssuesActions;
+
+export const createSprintIssuesStore = () =>
+  create<SprintIssuesStoreType>()(
+    immer((set) => ({
+      // State
+      activeSprintIds: {},
+      viewFlags: {
+        enableQuickAdd: true,
+        enableIssueCreation: true,
+        enableInlineEditing: true,
+      },
+
+      // Actions
+      setActiveSprintId: (sprintId: string, details: ActiveSprintIssueDetails | undefined) => {
+        set((state) => {
+          if (details === undefined) {
+            state.activeSprintIds[sprintId] = undefined as any;
+          } else {
+            state.activeSprintIds[sprintId] = details;
+          }
+        });
+      },
+      updateActiveSprintId: (sprintId: string, path: string[], value: any) => {
+        set((state) => {
+          lodashSet(state.activeSprintIds, [sprintId, ...path], value);
+        });
+      },
+      updateActiveSprintIdIssueIds: (
+        sprintId: string,
+        updater: (issueIds: string[]) => string[]
+      ) => {
+        set((state) => {
+          const currentIssueIds = state.activeSprintIds[sprintId]?.issueIds ?? [];
+          state.activeSprintIds[sprintId].issueIds = updater(currentIssueIds);
+        });
+      },
+    }))
+  );
+
 export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
-  activeSprintIds: Record<string, ActiveSprintIssueDetails> = {};
-  viewFlags = {
-    enableQuickAdd: true,
-    enableIssueCreation: true,
-    enableInlineEditing: true,
-  };
   // filter store
   issueFilterStore;
+  // Zustand store
+  private sprintStore: ReturnType<typeof createSprintIssuesStore>;
 
   constructor(_rootStore: IIssueRootStore, issueFilterStore: ISprintIssuesFilter) {
     super(_rootStore, issueFilterStore);
-    makeObservable(this, {
-      // observable
-      activeSprintIds: observable,
-      // action
-      fetchIssues: action,
-      fetchNextIssues: action,
-      fetchIssuesWithExistingPagination: action,
-
-      transferIssuesFromSprint: action,
-      fetchActiveSprintIssues: action,
-
-      quickAddIssue: action,
-    });
     // filter store
     this.issueFilterStore = issueFilterStore;
+    // Initialize Zustand store
+    this.sprintStore = createSprintIssuesStore();
   }
 
-  getActiveSprintById = computedFn((sprintId: string) => this.activeSprintIds[sprintId]);
+  // Zustand store accessors
+  get activeSprintIds() {
+    return this.sprintStore.getState().activeSprintIds;
+  }
+
+  get viewFlags() {
+    return this.sprintStore.getState().viewFlags;
+  }
+
+  getActiveSprintById = (sprintId: string) => this.activeSprintIds[sprintId];
 
   /**
    * Fetches the sprint details
@@ -188,10 +237,8 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
   ) => {
     try {
       // set loader and clear store
-      runInAction(() => {
-        this.setLoader(loadType);
-        this.clear(!isExistingPaginationOptions); // clear while fetching from server.
-      });
+      this.setLoader(loadType);
+      this.clear(!isExistingPaginationOptions); // clear while fetching from server.
 
       // get params from pagination options
       const params = this.issueFilterStore?.getFilterParams(options, sprintId, undefined, undefined, undefined);
@@ -331,7 +378,7 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
     sprintId: string
   ) => {
     // set loader
-    set(this.activeSprintIds, [sprintId], undefined);
+    this.sprintStore.getState().setActiveSprintId(sprintId, undefined);
 
     // set params for urgent and high
     const params = { priority: `urgent,high`, cursor: `${perPageCount}:0:0`, per_page: perPageCount };
@@ -346,7 +393,7 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
     const activeIssueIds = groupedIssues[ALL_ISSUES] as string[];
 
     // store the processed data in the current store
-    set(this.activeSprintIds, [sprintId], {
+    this.sprintStore.getState().setActiveSprintId(sprintId, {
       issueIds: activeIssueIds,
       issueCount: response.total_count,
       nextCursor: response.next_cursor,
@@ -367,7 +414,7 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
    */
   fetchNextActiveSprintIssues = async (workspaceSlug: string, projectId: string, sprintId: string) => {
     //get the previous pagination data for the sprint id
-    const activeSprint = get(this.activeSprintIds, [sprintId]);
+    const activeSprint = lodashGet(this.activeSprintIds, [sprintId]);
 
     // if there is no active sprint and the next pages does not exist return
     if (!activeSprint || !activeSprint.nextPageResults) return;
@@ -386,11 +433,10 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
     const activeIssueIds = groupedIssues[ALL_ISSUES] as string[];
 
     // store the processed data for subsequent pages
-    set(this.activeSprintIds, [sprintId, "issueCount"], response.total_count);
-    set(this.activeSprintIds, [sprintId, "nextCursor"], response.next_cursor);
-    set(this.activeSprintIds, [sprintId, "nextPageResults"], response.next_page_results);
-    set(this.activeSprintIds, [sprintId, "issueCount"], response.total_count);
-    update(this.activeSprintIds, [sprintId, "issueIds"], (issueIds: string[] = []) =>
+    this.sprintStore.getState().updateActiveSprintId(sprintId, ["issueCount"], response.total_count);
+    this.sprintStore.getState().updateActiveSprintId(sprintId, ["nextCursor"], response.next_cursor);
+    this.sprintStore.getState().updateActiveSprintId(sprintId, ["nextPageResults"], response.next_page_results);
+    this.sprintStore.getState().updateActiveSprintIdIssueIds(sprintId, (issueIds: string[] = []) =>
       this.issuesSortWithOrderBy(uniq(concat(issueIds, activeIssueIds)), this.orderBy)
     );
 
@@ -413,10 +459,8 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
     const response = await this.createIssue(workspaceSlug, projectId, data, sprintId);
 
     // remove temp Issue from store list
-    runInAction(() => {
-      this.removeIssueFromList(data.id);
-      this.rootIssueStore.issues.removeIssue(data.id);
-    });
+    this.removeIssueFromList(data.id);
+    this.rootIssueStore.issues.removeIssue(data.id);
 
     const currentEpicIds =
       data.epic_ids && data.epic_ids.length > 0 ? data.epic_ids.filter((epicId) => epicId != "None") : [];

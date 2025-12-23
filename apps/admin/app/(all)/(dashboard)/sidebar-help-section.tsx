@@ -71,7 +71,7 @@ export function AdminSidebarHelpSection() {
       </div>
 
       <div className="relative">
-        <Transition show={isNeedHelpOpen}>
+        <Transition show={isNeedHelpOpen} as="div">
           <TransitionChild
             as="div"
             enter="transition ease-out duration-100"

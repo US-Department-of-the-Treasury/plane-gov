@@ -37,7 +37,7 @@ export function Collapsible(props: TCollapsibleProps) {
       <Disclosure.Button ref={buttonRef} className={buttonClassName} onClick={handleOnClick}>
         {title}
       </Disclosure.Button>
-      <Transition show={localIsOpen}>
+      <Transition show={localIsOpen} as="div">
         <TransitionChild
           as="div"
           enter="transition-all duration-300 ease-in-out"

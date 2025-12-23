@@ -183,7 +183,7 @@ export function ProfileSidebar(props: TProfileSidebar) {
                             <ChevronDownIcon className="h-4 w-4" />
                           </div>
                         </Disclosure.Button>
-                        <Transition show={open}>
+                        <Transition show={open} as="div">
                           <TransitionChild
                             as="div"
                             enter="transition duration-100 ease-out"

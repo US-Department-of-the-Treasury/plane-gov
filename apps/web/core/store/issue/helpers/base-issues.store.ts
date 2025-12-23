@@ -1,6 +1,18 @@
-import { isEqual, concat, get, indexOf, isEmpty, orderBy, pull, set, uniq, update, clone } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import {
+  isEqual,
+  concat,
+  get,
+  indexOf,
+  isEmpty,
+  orderBy,
+  pull,
+  set as lodashSet,
+  uniq,
+  update,
+  clone,
+} from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // plane constants
 import { ALL_ISSUES, ISSUE_PRIORITIES } from "@plane/constants";
 // types
@@ -163,15 +175,107 @@ const ISSUE_ORDERBY_KEY: Record<TIssueOrderByOptions, keyof TIssue> = {
   "-sub_issues_count": "sub_issues_count",
 };
 
+// Zustand Store
+interface BaseIssuesState {
+  loader: Record<string, TLoader>;
+  groupedIssueIds: TIssues | undefined;
+  issuePaginationData: TIssuePaginationData;
+  groupedIssueCount: TGroupedIssueCount;
+  paginationOptions: IssuePaginationOptions | undefined;
+}
+
+interface BaseIssuesActions {
+  setLoader: (key: string, value: TLoader) => void;
+  setGroupedIssueIds: (groupedIssueIds: TIssues | undefined) => void;
+  setIssuePaginationData: (data: TIssuePaginationData) => void;
+  setGroupedIssueCount: (count: TGroupedIssueCount) => void;
+  setPaginationOptions: (options: IssuePaginationOptions | undefined) => void;
+  updateLoader: (updates: Partial<Record<string, TLoader>>) => void;
+  clearStore: (shouldClearPaginationOptions?: boolean) => void;
+  updateNestedGroupedIssueCount: (path: string[], value: any) => void;
+  updateNestedIssuePaginationData: (path: string[], value: any) => void;
+  updateNestedGroupedIssueIds: (path: string[], value: any) => void;
+  mutateState: (mutator: (draft: BaseIssuesState) => void) => void;
+}
+
+type BaseIssuesStoreType = BaseIssuesState & BaseIssuesActions;
+
+export const createBaseIssuesStore = () =>
+  create<BaseIssuesStoreType>()(
+    immer((set) => ({
+      // State
+      loader: {},
+      groupedIssueIds: undefined,
+      issuePaginationData: {},
+      groupedIssueCount: {},
+      paginationOptions: undefined,
+
+      // Actions
+      setLoader: (key: string, value: TLoader) => {
+        set((state) => {
+          state.loader[key] = value;
+        });
+      },
+      setGroupedIssueIds: (groupedIssueIds: TIssues | undefined) => {
+        set((state) => {
+          state.groupedIssueIds = groupedIssueIds;
+        });
+      },
+      setIssuePaginationData: (data: TIssuePaginationData) => {
+        set((state) => {
+          state.issuePaginationData = data;
+        });
+      },
+      setGroupedIssueCount: (count: TGroupedIssueCount) => {
+        set((state) => {
+          state.groupedIssueCount = count;
+        });
+      },
+      setPaginationOptions: (options: IssuePaginationOptions | undefined) => {
+        set((state) => {
+          state.paginationOptions = options;
+        });
+      },
+      updateLoader: (updates: Partial<Record<string, TLoader>>) => {
+        set((state) => {
+          Object.assign(state.loader, updates);
+        });
+      },
+      clearStore: (shouldClearPaginationOptions = false) => {
+        set((state) => {
+          state.loader = {};
+          state.groupedIssueIds = undefined;
+          state.issuePaginationData = {};
+          state.groupedIssueCount = {};
+          if (shouldClearPaginationOptions) {
+            state.paginationOptions = undefined;
+          }
+        });
+      },
+      updateNestedGroupedIssueCount: (path: string[], value: any) => {
+        set((state) => {
+          lodashSet(state.groupedIssueCount, path, value);
+        });
+      },
+      updateNestedIssuePaginationData: (path: string[], value: any) => {
+        set((state) => {
+          lodashSet(state.issuePaginationData, path, value);
+        });
+      },
+      updateNestedGroupedIssueIds: (path: string[], value: any) => {
+        set((state) => {
+          lodashSet(state, ["groupedIssueIds", ...path], value);
+        });
+      },
+      mutateState: (mutator: (draft: BaseIssuesState) => void) => {
+        set((state) => {
+          mutator(state);
+        });
+      },
+    }))
+  );
+
 export abstract class BaseIssuesStore implements IBaseIssuesStore {
-  loader: Record<string, TLoader> = {};
-  groupedIssueIds: TIssues | undefined = undefined;
-  issuePaginationData: TIssuePaginationData = {};
-
-  groupedIssueCount: TGroupedIssueCount = {};
-  //
-  paginationOptions: IssuePaginationOptions | undefined = undefined;
-
   isArchived: boolean;
 
   // services
@@ -184,6 +288,8 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
   issueFilterStore;
   // API Abort controller
   controller: AbortController;
+  // Zustand store
+  protected baseStore: ReturnType<typeof createBaseIssuesStore>;
 
   constructor(
     _rootStore: IIssueRootStore,
@@ -191,52 +297,6 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     isArchived = false,
     serviceType = EIssueServiceType.ISSUES
   ) {
-    makeObservable(this, {
-      // observable
-      loader: observable,
-      groupedIssueIds: observable,
-      issuePaginationData: observable,
-      groupedIssueCount: observable,
-
-      paginationOptions: observable,
-      // computed
-      epicId: computed,
-      sprintId: computed,
-      orderBy: computed,
-      groupBy: computed,
-      subGroupBy: computed,
-      orderByKey: computed,
-      issueGroupKey: computed,
-      issueSubGroupKey: computed,
-      // action
-      storePreviousPaginationValues: action.bound,
-
-      onfetchIssues: action.bound,
-      onfetchNexIssues: action.bound,
-      clear: action.bound,
-      setLoader: action.bound,
-      addIssue: action.bound,
-      removeIssueFromList: action.bound,
-
-      createIssue: action,
-      issueUpdate: action,
-      updateIssueDates: action,
-      issueQuickAdd: action.bound,
-      removeIssue: action.bound,
-      issueArchive: action.bound,
-      removeBulkIssues: action.bound,
-      bulkArchiveIssues: action.bound,
-      bulkUpdateProperties: action.bound,
-
-      addIssueToSprint: action.bound,
-      removeIssueFromSprint: action.bound,
-      addSprintToIssue: action.bound,
-      removeSprintFromIssue: action.bound,
-
-      addIssuesToEpic: action.bound,
-      removeIssuesFromEpic: action.bound,
-      changeEpicsInIssue: action.bound,
-    });
     this.rootIssueStore = _rootStore;
     this.issueFilterStore = issueFilterStore;
 
@@ -248,6 +308,32 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     this.sprintService = new SprintService();
 
     this.controller = new AbortController();
+    this.baseStore = createBaseIssuesStore();
+  }
+
+  // Zustand store accessors
+  get loader() {
+    return this.baseStore.getState().loader;
+  }
+
+  get groupedIssueIds() {
+    return this.baseStore.getState().groupedIssueIds;
+  }
+
+  get issuePaginationData() {
+    return this.baseStore.getState().issuePaginationData;
+  }
+
+  get groupedIssueCount() {
+    return this.baseStore.getState().groupedIssueCount;
+  }
+
+  get paginationOptions() {
+    return this.baseStore.getState().paginationOptions;
+  }
+
+  set paginationOptions(value: IssuePaginationOptions | undefined) {
+    this.baseStore.getState().setPaginationOptions(value);
   }
 
   // Abstract class to be implemented to fetch parent stats such as project, epic or sprint details
@@ -363,7 +449,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       nextPageResults,
     };
 
-    set(this.issuePaginationData, [getGroupKey(groupId, subGroupId)], cursorObject);
+    this.baseStore.getState().updateNestedIssuePaginationData([getGroupKey(groupId, subGroupId)], cursorObject);
   }
 
   /**
@@ -373,8 +459,8 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    * @param subGroupId
    */
   setLoader(loaderValue: TLoader, groupId?: string, subGroupId?: string) {
-    runInAction(() => {
-      set(this.loader, getGroupKey(groupId, subGroupId), loaderValue);
+    this.baseStore.setState((state) => {
+      lodashSet(state.loader, getGroupKey(groupId, subGroupId), loaderValue);
     });
   }
 
@@ -386,36 +472,32 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
   /**
    * gets the pagination data of particular group/subgroup/ALL_ISSUES
    */
-  getPaginationData = computedFn(
-    (groupId: string | undefined, subGroupId: string | undefined): TPaginationData | undefined =>
-      get(this.issuePaginationData, [getGroupKey(groupId, subGroupId)])
-  );
+  getPaginationData = (groupId: string | undefined, subGroupId: string | undefined): TPaginationData | undefined =>
+    get(this.issuePaginationData, [getGroupKey(groupId, subGroupId)]);
 
   /**
    * gets the issue count of particular group/subgroup/ALL_ISSUES
    *
    * if isSubGroupCumulative is true, sum up all the issueCount of the subGroupId, across all the groupIds
    */
-  getGroupIssueCount = computedFn(
-    (
-      groupId: string | undefined,
-      subGroupId: string | undefined,
-      isSubGroupCumulative: boolean
-    ): number | undefined => {
-      if (isSubGroupCumulative && subGroupId) {
-        const groupIssuesKeys = Object.keys(this.groupedIssueCount);
-        let subGroupCumulativeCount = 0;
+  getGroupIssueCount = (
+    groupId: string | undefined,
+    subGroupId: string | undefined,
+    isSubGroupCumulative: boolean
+  ): number | undefined => {
+    if (isSubGroupCumulative && subGroupId) {
+      const groupIssuesKeys = Object.keys(this.groupedIssueCount);
+      let subGroupCumulativeCount = 0;
 
-        for (const groupKey of groupIssuesKeys) {
-          if (groupKey.includes(`_${subGroupId}`)) subGroupCumulativeCount += this.groupedIssueCount[groupKey];
-        }
-
-        return subGroupCumulativeCount;
+      for (const groupKey of groupIssuesKeys) {
+        if (groupKey.includes(`_${subGroupId}`)) subGroupCumulativeCount += this.groupedIssueCount[groupKey];
       }
 
-      return get(this.groupedIssueCount, [getGroupKey(groupId, subGroupId)]);
+      return subGroupCumulativeCount;
     }
-  );
+
+    return get(this.groupedIssueCount, [getGroupKey(groupId, subGroupId)]);
+  };
 
   /**
    * Gets the next page cursor based on number of issues currently available
@@ -461,10 +543,10 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     this.rootIssueStore.issues.addIssue(issueList);
 
     // Update all the GroupIds to this Store's groupedIssueIds and update Individual group issue counts
-    runInAction(() => {
-      this.clear(shouldClearPaginationOptions);
-      this.updateGroupedIssueIds(groupedIssues, groupedIssueCount);
-      this.loader[getGroupKey()] = undefined;
+    this.clear(shouldClearPaginationOptions);
+    this.updateGroupedIssueIds(groupedIssues, groupedIssueCount);
+    this.baseStore.setState((state) => {
+      lodashSet(state.loader, getGroupKey(), undefined);
     });
 
     // fetch parent stats if required, to be handled in the Implemented class
@@ -492,9 +574,9 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     this.rootIssueStore.issues.addIssue(issueList);
 
     // Update all the GroupIds to this Store's groupedIssueIds and update Individual group issue counts
-    runInAction(() => {
-      this.updateGroupedIssueIds(groupedIssues, groupedIssueCount, groupId, subGroupId);
-      this.loader[getGroupKey(groupId, subGroupId)] = undefined;
+    this.updateGroupedIssueIds(groupedIssues, groupedIssueCount, groupId, subGroupId);
+    this.baseStore.setState((state) => {
+      lodashSet(state.loader, getGroupKey(groupId, subGroupId), undefined);
     });
 
     this.rootIssueStore.issueDetail.relation.extractRelationsFromIssues(issueList);
@@ -591,9 +673,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     // Male API call
     await this.issueService.deleteIssue(workspaceSlug, projectId, issueId);
     // Remove from Respective issue Id list
-    runInAction(() => {
-      this.removeIssueFromList(issueId);
-    });
+    this.removeIssueFromList(issueId);
     // call fetch Parent stats
     this.fetchParentStats(workspaceSlug, projectId);
     // Remove issue from main issue Map store
@@ -636,10 +716,8 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     this.addIssue(data);
     // call Create issue method
     const response = await this.createIssue(workspaceSlug, projectId, data);
-    runInAction(() => {
-      this.removeIssueFromList(data.id);
-      this.rootIssueStore.issues.removeIssue(data.id);
-    });
+    this.removeIssueFromList(data.id);
+    this.rootIssueStore.issues.removeIssue(data.id);
     const currentSprintId = data.sprint_id !== "" && data.sprint_id === "None" ? undefined : data.sprint_id;
     const currentEpicIds =
       data.epic_ids && data.epic_ids.length > 0 ? data.epic_ids.filter((epicId) => epicId != "None") : [];
@@ -1140,14 +1218,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    * Method called to clear out the current store
    */
   clear(shouldClearPaginationOptions = true) {
-    runInAction(() => {
-      this.groupedIssueIds = undefined;
-      this.issuePaginationData = {};
-      this.groupedIssueCount = {};
-      if (shouldClearPaginationOptions) {
-        this.paginationOptions = undefined;
-      }
-    });
+    this.baseStore.getState().clearStore(shouldClearPaginationOptions);
     this.controller.abort();
     this.controller = new AbortController();
   }
@@ -1271,7 +1342,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     const groupedIssueCount: TGroupedIssueCount = {};
 
     // update total issue count to ALL_ISSUES
-    set(groupedIssueCount, [ALL_ISSUES], issueResponse.total_count);
+    lodashSet(groupedIssueCount, [ALL_ISSUES], issueResponse.total_count);
 
     // loop through all the groupIds from issue Result
     for (const groupId in issueResult) {
@@ -1282,14 +1353,14 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       if (!groupIssueResult) continue;
 
       // set grouped Issue count of the current groupId
-      set(groupedIssueCount, [groupId], groupIssuesObject.total_results);
+      lodashSet(groupedIssueCount, [groupId], groupIssuesObject.total_results);
 
       // if groupIssueResult, the it is not subGrouped
       if (Array.isArray(groupIssueResult)) {
         // add the result to issueList
         issueList.push(...groupIssueResult);
         // set the issue Ids to the groupId path
-        set(
+        lodashSet(
           groupedIssues,
           [groupId],
           groupIssueResult.map((issue) => issue.id)
@@ -1306,13 +1377,13 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
         if (!subGroupIssueResult) continue;
 
         // set sub grouped Issue count of the current groupId
-        set(groupedIssueCount, [getGroupKey(groupId, subGroupId)], subGroupIssuesObject.total_results);
+        lodashSet(groupedIssueCount, [getGroupKey(groupId, subGroupId)], subGroupIssuesObject.total_results);
 
         if (Array.isArray(subGroupIssueResult)) {
           // add the result to issueList
           issueList.push(...subGroupIssueResult);
           // set the issue Ids to the [groupId, subGroupId] path
-          set(
+          lodashSet(
             groupedIssues,
             [groupId, subGroupId],
             subGroupIssueResult.map((issue) => issue.id)
@@ -1351,7 +1422,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       if (subGroupId) issuesPath.push(subGroupId);
 
       // update the issue Count of the particular group/subGroup
-      set(this.groupedIssueCount, [getGroupKey(groupId, subGroupId)], issueGroupCount);
+      this.baseStore.getState().updateNestedGroupedIssueCount([getGroupKey(groupId, subGroupId)], issueGroupCount);
 
       // update the issue list in the issuePath
       this.updateIssueGroup(issueGroup, issuesPath);
@@ -1360,7 +1431,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
 
     // if not in the above condition the it's a complete grouped pagination not individual group/subgroup pagination
     // update total issue count as ALL_ISSUES count in `groupedIssueCount` object
-    set(this.groupedIssueCount, [ALL_ISSUES], groupedIssueCount[ALL_ISSUES]);
+    this.baseStore.getState().updateNestedGroupedIssueCount([ALL_ISSUES], groupedIssueCount[ALL_ISSUES]);
 
     // loop through the groups of groupedIssues.
     for (const groupId in groupedIssues) {
@@ -1368,7 +1439,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       const issueGroupCount = groupedIssueCount[groupId];
 
       // update the groupId's issue count
-      set(this.groupedIssueCount, [groupId], issueGroupCount);
+      this.baseStore.getState().updateNestedGroupedIssueCount([groupId], issueGroupCount);
 
       // This updates the group issue list in the store, if the issueGroup is a string
       const storeUpdated = this.updateIssueGroup(issueGroup, [groupId]);
@@ -1381,7 +1452,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
         const issueSubGroupCount = groupedIssueCount[getGroupKey(groupId, subGroupId)];
 
         // update the subGroupId's issue count
-        set(this.groupedIssueCount, [getGroupKey(groupId, subGroupId)], issueSubGroupCount);
+        this.baseStore.getState().updateNestedGroupedIssueCount([getGroupKey(groupId, subGroupId)], issueSubGroupCount);
         // This updates the subgroup issue list in the store
         this.updateIssueGroup(issueSubGroup, [groupId, subGroupId]);
       }
@@ -1485,7 +1556,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       // get current count at the key
       const issueCount = get(this.groupedIssueCount, updateKey) ?? 0;
       // update the count at the key
-      set(this.groupedIssueCount, updateKey, issueCount + increment);
+      lodashSet(this.groupedIssueCount, updateKey, issueCount + increment);
     }
   }
 

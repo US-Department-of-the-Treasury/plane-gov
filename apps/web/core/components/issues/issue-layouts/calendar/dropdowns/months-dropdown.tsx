@@ -75,20 +75,19 @@ export function CalendarMonthsDropdown(props: Props) {
 
   return (
     <Popover className="relative">
-      <Popover.Button as={React.Fragment}>
-        <button
-          type="button"
-          ref={setReferenceElement}
-          className="text-18 font-semibold outline-none"
-          disabled={calendarLayout === "week"}
-        >
-          {calendarLayout === "month"
-            ? `${MONTHS_LIST[activeMonthDate.getMonth() + 1].title} ${activeMonthDate.getFullYear()}`
-            : getWeekLayoutHeader()}
-        </button>
+      <Popover.Button
+        type="button"
+        ref={setReferenceElement}
+        className="text-18 font-semibold outline-none"
+        disabled={calendarLayout === "week"}
+      >
+        {calendarLayout === "month"
+          ? `${MONTHS_LIST[activeMonthDate.getMonth() + 1].title} ${activeMonthDate.getFullYear()}`
+          : getWeekLayoutHeader()}
       </Popover.Button>
       <Transition
-        as={React.Fragment}
+        as={Popover.Panel}
+        className="fixed z-50"
         enter="transition ease-out duration-200"
         enterFrom="opacity-0 translate-y-1"
         enterTo="opacity-100 translate-y-0"
@@ -96,7 +95,6 @@ export function CalendarMonthsDropdown(props: Props) {
         leaveFrom="opacity-100 translate-y-0"
         leaveTo="opacity-0 translate-y-1"
       >
-        <Popover.Panel className="fixed z-50">
           <div
             ref={setPopperElement}
             style={styles.popper}
@@ -142,7 +140,6 @@ export function CalendarMonthsDropdown(props: Props) {
               ))}
             </div>
           </div>
-        </Popover.Panel>
       </Transition>
     </Popover>
   );

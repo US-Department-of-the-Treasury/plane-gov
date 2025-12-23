@@ -5,6 +5,10 @@ set -e
 # Usage: ./deploy-frontend.sh [web|admin]
 #
 # Note: 'space' app has SSR enabled and requires server deployment (not S3)
+#
+# Troubleshooting:
+# - If the build runs out of memory, increase Node's heap size:
+#   NODE_OPTIONS="--max-old-space-size=16384" ./deploy-frontend.sh web
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 // plane constants
 import type { EIssueCommentAccessSpecifier } from "@plane/constants";
 // plane editor
@@ -36,9 +36,8 @@ interface StickyEditorWrapperProps extends Omit<
   handleDelete: () => void;
 }
 
-export const StickyEditor = React.forwardRef(function StickyEditor(
-  props: StickyEditorWrapperProps,
-  ref: React.ForwardedRef<EditorRefApi>
+export function StickyEditor(
+  props: StickyEditorWrapperProps & { ref?: React.Ref<EditorRefApi> }
 ) {
   const {
     containerClassName,
@@ -52,6 +51,7 @@ export const StickyEditor = React.forwardRef(function StickyEditor(
     parentClassName = "",
     uploadFile,
     duplicateFile,
+    ref,
     ...rest
   } = props;
   // states
@@ -68,7 +68,7 @@ export const StickyEditor = React.forwardRef(function StickyEditor(
   });
   // editor config
   const { getEditorFileHandlers } = useEditorConfig();
-  function isMutableRefObject<T>(ref: React.ForwardedRef<T>): ref is React.MutableRefObject<T | null> {
+  function isMutableRefObject<T>(ref: React.Ref<T> | undefined): ref is React.MutableRefObject<T | null> {
     return !!ref && typeof ref === "object" && "current" in ref;
   }
   // derived values
@@ -124,6 +124,4 @@ export const StickyEditor = React.forwardRef(function StickyEditor(
       )}
     </div>
   );
-});
-
-StickyEditor.displayName = "StickyEditor";
+}

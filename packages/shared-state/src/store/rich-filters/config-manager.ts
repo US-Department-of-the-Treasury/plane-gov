@@ -1,5 +1,3 @@
-import { action, computed, makeObservable, observable } from "mobx";
-import { computedFn } from "mobx-utils";
 // plane imports
 import type { TConfigOptions } from "@plane/constants";
 import { DEFAULT_FILTER_CONFIG_OPTIONS } from "@plane/constants";
@@ -59,7 +57,7 @@ export class FilterConfigManager<
   P extends TFilterProperty,
   E extends TExternalFilter = TExternalFilter,
 > implements IFilterConfigManager<P> {
-  // observables
+  // properties
   filterConfigs: IFilterConfigManager<P>["filterConfigs"];
   configOptions: IFilterConfigManager<P>["configOptions"];
   areConfigsReady: IFilterConfigManager<P>["areConfigsReady"];
@@ -78,19 +76,6 @@ export class FilterConfigManager<
     this.areConfigsReady = true;
     // parent filter instance
     this._filterInstance = filterInstance;
-
-    makeObservable(this, {
-      filterConfigs: observable,
-      configOptions: observable,
-      areConfigsReady: observable,
-      // computed
-      allAvailableConfigs: computed,
-      // helpers
-      register: action,
-      registerAll: action,
-      updateConfigByProperty: action,
-      setAreConfigsReady: action,
-    });
   }
 
   // ------------ computed ------------
@@ -114,9 +99,8 @@ export class FilterConfigManager<
    * @param property - The property to get the config for.
    * @returns The config for the property, or undefined if not found.
    */
-  getConfigByProperty: IFilterConfigManager<P>["getConfigByProperty"] = computedFn(
-    (property) => this.filterConfigs.get(property) as IFilterConfig<P, TFilterValue>
-  );
+  getConfigByProperty: IFilterConfigManager<P>["getConfigByProperty"] = (property) =>
+    this.filterConfigs.get(property) as IFilterConfig<P, TFilterValue>;
 
   // ------------ helpers ------------
 
@@ -126,7 +110,7 @@ export class FilterConfigManager<
    * Otherwise, a new config will be created.
    * @param configUpdates - The config updates to register.
    */
-  register: IFilterConfigManager<P>["register"] = action((configUpdates) => {
+  register: IFilterConfigManager<P>["register"] = (configUpdates) => {
     if (this.filterConfigs.has(configUpdates.id)) {
       // Update existing config if it has differences
       const existingConfig = this.filterConfigs.get(configUpdates.id)!;
@@ -135,33 +119,33 @@ export class FilterConfigManager<
       // Create new config if it doesn't exist
       this.filterConfigs.set(configUpdates.id, new FilterConfig(configUpdates));
     }
-  });
+  };
 
   /**
    * Register all configs.
    * @param configs - The configs to register.
    */
-  registerAll: IFilterConfigManager<P>["registerAll"] = action((configs) => {
+  registerAll: IFilterConfigManager<P>["registerAll"] = (configs) => {
     configs.forEach((config) => this.register(config));
-  });
+  };
 
   /**
    * Updates a config by filter property.
    * @param property - The property of the config to update.
    * @param configUpdates - The updates to apply to the config.
    */
-  updateConfigByProperty: IFilterConfigManager<P>["updateConfigByProperty"] = action((property, configUpdates) => {
+  updateConfigByProperty: IFilterConfigManager<P>["updateConfigByProperty"] = (property, configUpdates) => {
     const prevConfig = this.filterConfigs.get(property);
     prevConfig?.mutate(configUpdates);
-  });
+  };
 
   /**
    * Updates the configs ready state.
    * @param value - The new configs ready state.
    */
-  setAreConfigsReady: IFilterConfigManager<P>["setAreConfigsReady"] = action((value) => {
+  setAreConfigsReady: IFilterConfigManager<P>["setAreConfigsReady"] = (value) => {
     this.areConfigsReady = value;
-  });
+  };
 
   // ------------ private computed ------------
 

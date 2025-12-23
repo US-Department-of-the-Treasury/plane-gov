@@ -22,7 +22,13 @@
     "prepare": "husky",
     "postinstall": "command -v gitleaks >/dev/null 2>&1 || echo '\\n⚠️  gitleaks not installed - run: ./scripts/setup-security.sh\\n'",
     "security:setup": "./scripts/setup-security.sh",
-    "security:scan": "gitleaks detect --source . --verbose"
+    "security:scan": "gitleaks detect --source . --verbose",
+    "test:e2e": "./scripts/test-e2e.sh",
+    "test:e2e:headed": "./scripts/test-e2e.sh --headed",
+    "test:e2e:ui": "./scripts/test-e2e.sh --ui",
+    "test:smoke": "./scripts/test-e2e.sh --project=smoke",
+    "db:seed": "./scripts/db-seed.sh",
+    "db:reset": "./scripts/db-reset.sh"
   },
   "devDependencies": {
     "@eslint/js": "9.39.1",

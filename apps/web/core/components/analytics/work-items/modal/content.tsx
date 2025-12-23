@@ -68,7 +68,7 @@ export function WorkItemsModalMainContent(props: Props) {
     );
 
   return (
-    <Tab.Group as={React.Fragment}>
+    <Tab.Group>
       <div className="flex flex-col gap-14 overflow-y-auto p-6">
         <TotalInsights analyticsType="work-items" peekView={!fullScreen} />
         <CreatedVsResolved />

@@ -1,4 +1,5 @@
-import { action, observable, makeObservable, computed, runInAction } from "mobx";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // base class
 import type {
   TIssue,
@@ -17,6 +18,31 @@ import type { IBaseIssuesStore } from "../helpers/base-issues.store";
 import { BaseIssuesStore } from "../helpers/base-issues.store";
 import type { IIssueRootStore } from "../root.store";
 import type { IProfileIssuesFilter } from "./filter.store";
+
+// Zustand Store
+interface ProfileIssuesState {
+  currentView: TProfileViews;
+}
+
+interface ProfileIssuesActions {
+  setCurrentView: (view: TProfileViews) => void;
+}
+
+type ProfileIssuesStoreType = ProfileIssuesState & ProfileIssuesActions;
+
+export const useProfileIssuesStore = create<ProfileIssuesStoreType>()(
+  immer((set) => ({
+    // State
+    currentView: "assigned",
+
+    // Actions
+    setCurrentView: (view) => {
+      set((state) => {
+        state.currentView = view;
+      });
+    },
+  }))
+);
 
 export interface IProfileIssues extends IBaseIssuesStore {
   // observable
@@ -55,8 +81,8 @@ export interface IProfileIssues extends IBaseIssuesStore {
   quickAddIssue: undefined;
 }
 
+// Legacy class wrapper for backward compatibility
 export class ProfileIssues extends BaseIssuesStore implements IProfileIssues {
-  currentView: TProfileViews = "assigned";
   // filter store
   issueFilterStore: IProfileIssuesFilter;
   // services
@@ -64,21 +90,18 @@ export class ProfileIssues extends BaseIssuesStore implements IProfileIssues {
 
   constructor(_rootStore: IIssueRootStore, issueFilterStore: IProfileIssuesFilter) {
     super(_rootStore, issueFilterStore);
-    makeObservable(this, {
-      // observable
-      currentView: observable.ref,
-      // computed
-      viewFlags: computed,
-      // action
-      setViewId: action.bound,
-      fetchIssues: action,
-      fetchNextIssues: action,
-      fetchIssuesWithExistingPagination: action,
-    });
     // filter store
     this.issueFilterStore = issueFilterStore;
     // services
     this.userService = new UserService();
+  }
+
+  private get store() {
+    return useProfileIssuesStore.getState();
+  }
+
+  get currentView() {
+    return this.store.currentView;
   }
 
   get viewFlags() {
@@ -96,7 +119,7 @@ export class ProfileIssues extends BaseIssuesStore implements IProfileIssues {
   }
 
   setViewId(viewId: TProfileViews) {
-    this.currentView = viewId;
+    this.store.setCurrentView(viewId);
   }
 
   fetchParentStats = () => {};
@@ -123,9 +146,7 @@ export class ProfileIssues extends BaseIssuesStore implements IProfileIssues {
   ) => {
     try {
       // set loader and clear store
-      runInAction(() => {
-        this.setLoader(loadType);
-      });
+      this.setLoader(loadType);
       this.clear(!isExistingPaginationOptions);
 
       // set ViewId

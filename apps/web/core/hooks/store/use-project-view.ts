@@ -91,7 +91,7 @@ export function useProjectView() {
 
       if (!cachedViews) return undefined;
 
-      let filteredViews = cachedViews.filter(
+      const filteredViews = cachedViews.filter(
         (view) =>
           view.project === targetProjectId &&
           getViewName(view.name).toLowerCase().includes(filters.searchQuery.toLowerCase()) &&
@@ -148,7 +148,8 @@ export function useProjectView() {
   const fetchViews = useCallback(
     async (ws: string, pid: string) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.views.all(ws, pid) });
-      return queryClient.getQueryData<IProjectView[]>(queryKeys.views.all(ws, pid));
+      // Return empty array instead of undefined to satisfy TanStack Query requirement
+      return queryClient.getQueryData<IProjectView[]>(queryKeys.views.all(ws, pid)) ?? [];
     },
     [queryClient]
   );

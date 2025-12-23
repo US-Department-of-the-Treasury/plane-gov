@@ -456,7 +456,7 @@ export function SidebarProjectsListItem(props: Props) {
             </>
           </div>
           {isAccordionMode && (
-            <Transition show={isProjectListOpen}>
+            <Transition show={isProjectListOpen} as="div">
               <TransitionChild
                 as="div"
                 enter="transition duration-100 ease-out"

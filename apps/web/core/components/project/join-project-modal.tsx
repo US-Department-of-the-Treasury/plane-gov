@@ -1,5 +1,4 @@
-import { useState, Fragment } from "react";
-
+import { useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 // types
 import { Button } from "@plane/propel/button";
@@ -40,32 +39,30 @@ export function JoinProjectModal(props: TJoinProjectModalProps) {
   };
 
   return (
-    <Transition.Root show={isOpen} as={Fragment}>
+    <Transition.Root show={isOpen} as="div">
       <Dialog as="div" className="relative z-20" onClose={handleClose}>
         <Transition.Child
-          as={Fragment}
+          as="div"
           enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
           leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-backdrop transition-opacity" />
-        </Transition.Child>
+          className="fixed inset-0 bg-backdrop transition-opacity"
+        />
 
         <div className="fixed inset-0 z-20 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <Transition.Child
-              as={Fragment}
+              as={Dialog.Panel}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-surface-1 px-5 py-8 text-left shadow-raised-200 transition-all sm:w-full sm:max-w-xl sm:p-6">
+              className="relative transform overflow-hidden rounded-lg bg-surface-1 px-5 py-8 text-left shadow-raised-200 transition-all sm:w-full sm:max-w-xl sm:p-6">
                 <div className="space-y-5">
                   <Dialog.Title as="h3" className="text-16 font-medium leading-6 text-primary">
                     Join Project?
@@ -92,8 +89,7 @@ export function JoinProjectModal(props: TJoinProjectModalProps) {
                     {isJoiningLoading ? "Joining..." : "Join Project"}
                   </Button>
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </Transition.Child>
           </div>
         </div>
       </Dialog>

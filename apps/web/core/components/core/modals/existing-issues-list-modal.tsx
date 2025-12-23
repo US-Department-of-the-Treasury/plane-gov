@@ -132,31 +132,29 @@ export function ExistingIssuesListModal(props: Props) {
 
   return (
     <>
-      <Transition.Root show={isOpen} as={React.Fragment} afterLeave={() => setSearchTerm("")} appear>
+      <Transition.Root show={isOpen} afterLeave={() => setSearchTerm("")} appear as="div">
         <Dialog as="div" className="relative z-30" onClose={handleClose}>
           <Transition.Child
-            as={React.Fragment}
+            as="div"
             enter="ease-out duration-300"
             enterFrom="opacity-0"
             enterTo="opacity-100"
             leave="ease-in duration-200"
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-backdrop transition-opacity" />
-          </Transition.Child>
+            className="fixed inset-0 bg-backdrop transition-opacity"
+          />
 
           <div className="fixed inset-0 z-30 overflow-y-auto p-4 sm:p-6 md:p-20">
             <Transition.Child
-              as={React.Fragment}
+              as={Dialog.Panel}
               enter="ease-out duration-300"
               enterFrom="opacity-0 scale-95"
               enterTo="opacity-100 scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
-            >
-              <Dialog.Panel className="relative mx-auto max-w-2xl transform rounded-lg bg-surface-1 shadow-raised-200 transition-all">
+              className="relative mx-auto max-w-2xl transform rounded-lg bg-surface-1 shadow-raised-200 transition-all">
                 <Combobox
                   as="div"
                   onChange={(val: ISearchIssueResponse | null) => {
@@ -355,7 +353,6 @@ export function ExistingIssuesListModal(props: Props) {
                     </Button>
                   </div>
                 </div>
-              </Dialog.Panel>
             </Transition.Child>
           </div>
         </Dialog>

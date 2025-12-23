@@ -56,6 +56,12 @@ const DEFAULT_IGNORE_PATTERNS = [
   /Failed to load resource.*401/,
   /Failed to load resource.*403/,
 
+  // Rate limiting during parallel tests (expected)
+  /429 Too Many Requests/,
+  /429/,
+  /Failed to load resource.*429/,
+  /Too Many Requests/,
+
   // React Router lazy loading errors
   /React Router caught the following error during render/,
 
@@ -90,6 +96,15 @@ const DEFAULT_IGNORE_PATTERNS = [
   // Vite dynamic import failures (dev server HMR artifacts)
   /Failed to fetch dynamically imported module/,
   /Importing a module script failed/,
+
+  // Vite dependency optimization race condition (504 errors during parallel test startup)
+  /Outdated Optimize Dep/,
+  /504.*Outdated Optimize Dep/,
+  /504 \(Outdated Optimize Dep\)/,
+
+  // Backend server not running (expected in frontend-only smoke tests)
+  /ERR_CONNECTION_REFUSED/,
+  /net::ERR_CONNECTION_REFUSED/,
 ];
 
 export class ErrorTracker {

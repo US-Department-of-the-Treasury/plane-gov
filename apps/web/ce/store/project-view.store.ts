@@ -1,1 +1,1 @@
-export * from "@/store/project-view.store";
+export * from "@/store/client/project-view.store";

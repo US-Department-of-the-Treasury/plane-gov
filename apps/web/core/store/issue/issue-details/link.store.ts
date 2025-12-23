@@ -1,165 +1,199 @@
 import { set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
-// services
-import type { TIssueLink, TIssueLinkMap, TIssueLinkIdMap, TIssueServiceType } from "@plane/types";
-import { IssueService } from "@/services/issue";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // types
-import type { IIssueDetail } from "./root.store";
+import type { TIssueLink, TIssueLinkMap, TIssueLinkIdMap, TIssueServiceType } from "@plane/types";
+// services
+import { IssueService } from "@/services/issue";
 
-export interface IIssueLinkStoreActions {
+export interface IIssueLinkStore {
+  // state
+  links: TIssueLinkIdMap;
+  linkMap: TIssueLinkMap;
+  // helper methods
+  getLinksByIssueId: (issueId: string) => string[] | undefined;
+  getLinkById: (linkId: string) => TIssueLink | undefined;
+  // actions
   addLinks: (issueId: string, links: TIssueLink[]) => void;
   fetchLinks: (workspaceSlug: string, projectId: string, issueId: string) => Promise<TIssueLink[]>;
   createLink: (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    data: Partial<TIssueLink>
+    data: Partial<TIssueLink>,
+    onIssueUpdate?: (issueId: string, data: { link_count: number }) => void,
+    onFetchActivity?: () => void
   ) => Promise<TIssueLink>;
   updateLink: (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
     linkId: string,
-    data: Partial<TIssueLink>
+    data: Partial<TIssueLink>,
+    onFetchActivity?: () => void
   ) => Promise<TIssueLink>;
-  removeLink: (workspaceSlug: string, projectId: string, issueId: string, linkId: string) => Promise<void>;
-}
-
-export interface IIssueLinkStore extends IIssueLinkStoreActions {
-  // observables
-  links: TIssueLinkIdMap;
-  linkMap: TIssueLinkMap;
-  // computed
-  issueLinks: string[] | undefined;
-  // helper methods
-  getLinksByIssueId: (issueId: string) => string[] | undefined;
-  getLinkById: (linkId: string) => TIssueLink | undefined;
-}
-
-export class IssueLinkStore implements IIssueLinkStore {
-  // observables
-  links: TIssueLinkIdMap = {};
-  linkMap: TIssueLinkMap = {};
-  // root store
-  rootIssueDetailStore: IIssueDetail;
-  // services
-  issueService;
-  serviceType;
-
-  constructor(rootStore: IIssueDetail, serviceType: TIssueServiceType) {
-    makeObservable(this, {
-      // observables
-      links: observable,
-      linkMap: observable,
-      // computed
-      issueLinks: computed,
-      // actions
-      addLinks: action.bound,
-      fetchLinks: action,
-      createLink: action,
-      updateLink: action,
-      removeLink: action,
-    });
-    this.serviceType = serviceType;
-    // root store
-    this.rootIssueDetailStore = rootStore;
-    // services
-    this.issueService = new IssueService(serviceType);
-  }
-
-  // computed
-  get issueLinks() {
-    const issueId = this.rootIssueDetailStore.peekIssue?.issueId;
-    if (!issueId) return undefined;
-    return this.links[issueId] ?? undefined;
-  }
-
-  // helper methods
-  getLinksByIssueId = (issueId: string) => {
-    if (!issueId) return undefined;
-    return this.links[issueId] ?? undefined;
-  };
-
-  getLinkById = (linkId: string) => {
-    if (!linkId) return undefined;
-    return this.linkMap[linkId] ?? undefined;
-  };
-
-  // actions
-  addLinks = (issueId: string, links: TIssueLink[]) => {
-    runInAction(() => {
-      this.links[issueId] = links.map((link) => link.id);
-      links.forEach((link) => set(this.linkMap, link.id, link));
-    });
-  };
-
-  fetchLinks = async (workspaceSlug: string, projectId: string, issueId: string) => {
-    const response = await this.issueService.fetchIssueLinks(workspaceSlug, projectId, issueId);
-    this.addLinks(issueId, response);
-    return response;
-  };
-
-  createLink = async (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssueLink>) => {
-    const response = await this.issueService.createIssueLink(workspaceSlug, projectId, issueId, data);
-    const issueLinkCount = this.getLinksByIssueId(issueId)?.length ?? 0;
-    runInAction(() => {
-      this.links[issueId].push(response.id);
-      set(this.linkMap, response.id, response);
-      this.rootIssueDetailStore.rootIssueStore.issues.updateIssue(issueId, {
-        link_count: issueLinkCount + 1, // increment link count
-      });
-    });
-    // fetching activity
-    this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
-    return response;
-  };
-
-  updateLink = async (
+  removeLink: (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
     linkId: string,
-    data: Partial<TIssueLink>
-  ) => {
-    const initialData = { ...this.linkMap[linkId] };
-    try {
-      runInAction(() => {
-        Object.keys(data).forEach((key) => {
-          set(this.linkMap, [linkId, key], data[key as keyof TIssueLink]);
+    onIssueUpdate?: (issueId: string, data: { link_count: number }) => void,
+    onFetchActivity?: () => void
+  ) => Promise<void>;
+}
+
+// Store factory for different service types
+const linkServiceMap = new Map<TIssueServiceType, IssueService>();
+
+const getLinkService = (serviceType: TIssueServiceType): IssueService => {
+  if (!linkServiceMap.has(serviceType)) {
+    linkServiceMap.set(serviceType, new IssueService(serviceType));
+  }
+  return linkServiceMap.get(serviceType)!;
+};
+
+export const useIssueLinkStore = create<IIssueLinkStore>()(
+  immer((set, get) => ({
+    // state
+    links: {},
+    linkMap: {},
+
+    // helper methods
+    getLinksByIssueId: (issueId: string) => {
+      if (!issueId) return undefined;
+      return get().links[issueId] ?? undefined;
+    },
+
+    getLinkById: (linkId: string) => {
+      if (!linkId) return undefined;
+      return get().linkMap[linkId] ?? undefined;
+    },
+
+    // actions
+    addLinks: (issueId: string, links: TIssueLink[]) => {
+      set((state) => {
+        state.links[issueId] = links.map((link) => link.id);
+        links.forEach((link) => {
+          state.linkMap[link.id] = link;
         });
       });
+    },
 
-      const response = await this.issueService.updateIssueLink(workspaceSlug, projectId, issueId, linkId, data);
+    fetchLinks: async (workspaceSlug: string, projectId: string, issueId: string) => {
+      const service = getLinkService("WORKSPACE");
+      const response = await service.fetchIssueLinks(workspaceSlug, projectId, issueId);
+      get().addLinks(issueId, response);
+      return response;
+    },
+
+    createLink: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      data: Partial<TIssueLink>,
+      onIssueUpdate?: (issueId: string, data: { link_count: number }) => void,
+      onFetchActivity?: () => void
+    ) => {
+      const service = getLinkService("WORKSPACE");
+      const response = await service.createIssueLink(workspaceSlug, projectId, issueId, data);
+      const issueLinkCount = get().getLinksByIssueId(issueId)?.length ?? 0;
+
+      set((state) => {
+        if (!state.links[issueId]) {
+          state.links[issueId] = [];
+        }
+        state.links[issueId].push(response.id);
+        state.linkMap[response.id] = response;
+      });
+
+      if (onIssueUpdate) {
+        onIssueUpdate(issueId, {
+          link_count: issueLinkCount + 1,
+        });
+      }
 
       // fetching activity
-      this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
+      if (onFetchActivity) {
+        onFetchActivity();
+      }
+
       return response;
-    } catch (error) {
-      console.error("error", error);
-      runInAction(() => {
-        Object.keys(initialData).forEach((key) => {
-          set(this.linkMap, [linkId, key], initialData[key as keyof TIssueLink]);
+    },
+
+    updateLink: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      linkId: string,
+      data: Partial<TIssueLink>,
+      onFetchActivity?: () => void
+    ) => {
+      const service = getLinkService("WORKSPACE");
+      const initialData = { ...get().linkMap[linkId] };
+
+      try {
+        // Optimistic update
+        set((state) => {
+          Object.keys(data).forEach((key) => {
+            if (state.linkMap[linkId]) {
+              (state.linkMap[linkId] as Record<string, unknown>)[key] = data[key as keyof TIssueLink];
+            }
+          });
         });
-      });
-      throw error;
-    }
-  };
 
-  removeLink = async (workspaceSlug: string, projectId: string, issueId: string, linkId: string) => {
-    const issueLinkCount = this.getLinksByIssueId(issueId)?.length ?? 0;
-    await this.issueService.deleteIssueLink(workspaceSlug, projectId, issueId, linkId);
+        const response = await service.updateIssueLink(workspaceSlug, projectId, issueId, linkId, data);
 
-    const linkIndex = this.links[issueId].findIndex((_comment) => _comment === linkId);
-    if (linkIndex >= 0)
-      runInAction(() => {
-        this.links[issueId].splice(linkIndex, 1);
-        delete this.linkMap[linkId];
-        this.rootIssueDetailStore.rootIssueStore.issues.updateIssue(issueId, {
-          link_count: issueLinkCount - 1, // decrement link count
+        // fetching activity
+        if (onFetchActivity) {
+          onFetchActivity();
+        }
+
+        return response;
+      } catch (error) {
+        console.error("Error updating link:", error);
+        // Revert on error
+        set((state) => {
+          Object.keys(initialData).forEach((key) => {
+            if (state.linkMap[linkId]) {
+              (state.linkMap[linkId] as Record<string, unknown>)[key] = initialData[key as keyof TIssueLink];
+            }
+          });
         });
+        throw error;
+      }
+    },
+
+    removeLink: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      linkId: string,
+      onIssueUpdate?: (issueId: string, data: { link_count: number }) => void,
+      onFetchActivity?: () => void
+    ) => {
+      const service = getLinkService("WORKSPACE");
+      const issueLinkCount = get().getLinksByIssueId(issueId)?.length ?? 0;
+
+      await service.deleteIssueLink(workspaceSlug, projectId, issueId, linkId);
+
+      set((state) => {
+        const linkIndex = state.links[issueId]?.findIndex((_linkId) => _linkId === linkId) ?? -1;
+        if (linkIndex >= 0) {
+          state.links[issueId].splice(linkIndex, 1);
+          delete state.linkMap[linkId];
+        }
       });
 
-    // fetching activity
-    this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
-  };
-}
+      if (onIssueUpdate) {
+        onIssueUpdate(issueId, {
+          link_count: issueLinkCount - 1,
+        });
+      }
+
+      // fetching activity
+      if (onFetchActivity) {
+        onFetchActivity();
+      }
+    },
+  }))
+);

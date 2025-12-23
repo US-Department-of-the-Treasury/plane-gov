@@ -1,6 +1,6 @@
-import { unset, set } from "lodash-es";
-import { action, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { unset as lodashUnset, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // plane imports
 import type { TUserPermissions, TUserPermissionsLevel } from "@plane/constants";
 import {
@@ -54,34 +54,162 @@ export interface IBaseUserPermissionStore {
   hasPageAccess: (workspaceSlug: string, key: string) => boolean;
 }
 
+// Zustand Store
+interface BaseUserPermissionState {
+  loader: boolean;
+  workspaceUserInfo: Record<string, IWorkspaceMemberMe>;
+  projectUserInfo: Record<string, Record<string, TProjectMembership>>;
+  workspaceProjectsPermissions: Record<string, IUserProjectsRole>;
+}
+
+interface BaseUserPermissionActions {
+  fetchUserWorkspaceInfo: (workspaceSlug: string) => Promise<IWorkspaceMemberMe>;
+  leaveWorkspace: (workspaceSlug: string, store: RootStore) => Promise<void>;
+  fetchUserProjectInfo: (workspaceSlug: string, projectId: string) => Promise<TProjectMembership>;
+  fetchUserProjectPermissions: (workspaceSlug: string) => Promise<IUserProjectsRole>;
+  joinProject: (
+    workspaceSlug: string,
+    projectId: string,
+    getWorkspaceRoleByWorkspaceSlug: (slug: string) => TUserPermissions | EUserWorkspaceRoles | undefined,
+    fetchWorkspaceLevelProjectEntities: (workspaceSlug: string, projectId: string) => void
+  ) => Promise<void>;
+  leaveProject: (workspaceSlug: string, projectId: string, store: RootStore) => Promise<void>;
+}
+
+type BaseUserPermissionStoreType = BaseUserPermissionState & BaseUserPermissionActions;
+
+export const useBaseUserPermissionStore = create<BaseUserPermissionStoreType>()(
+  immer((set, get) => ({
+    // State
+    loader: false,
+    workspaceUserInfo: {},
+    projectUserInfo: {},
+    workspaceProjectsPermissions: {},
+
+    // Actions
+    fetchUserWorkspaceInfo: async (workspaceSlug) => {
+      try {
+        set((state) => {
+          state.loader = true;
+        });
+        const response = await workspaceService.workspaceMemberMe(workspaceSlug);
+        if (response) {
+          set((state) => {
+            lodashSet(state.workspaceUserInfo, [workspaceSlug], response);
+            state.loader = false;
+          });
+        }
+        return response;
+      } catch (error) {
+        console.error("Error fetching user workspace information", error);
+        set((state) => {
+          state.loader = false;
+        });
+        throw error;
+      }
+    },
+
+    leaveWorkspace: async (workspaceSlug, store) => {
+      try {
+        await userService.leaveWorkspace(workspaceSlug);
+        set((state) => {
+          lodashUnset(state.workspaceUserInfo, workspaceSlug);
+          lodashUnset(state.projectUserInfo, workspaceSlug);
+          lodashUnset(state.workspaceProjectsPermissions, workspaceSlug);
+        });
+      } catch (error) {
+        console.error("Error user leaving the workspace", error);
+        throw error;
+      }
+    },
+
+    fetchUserProjectInfo: async (workspaceSlug, projectId) => {
+      try {
+        const response = await projectMemberService.projectMemberMe(workspaceSlug, projectId);
+        if (response) {
+          set((state) => {
+            lodashSet(state.projectUserInfo, [workspaceSlug, projectId], response);
+            lodashSet(state.workspaceProjectsPermissions, [workspaceSlug, projectId], response.role);
+          });
+        }
+        return response;
+      } catch (error) {
+        console.error("Error fetching user project information", error);
+        throw error;
+      }
+    },
+
+    fetchUserProjectPermissions: async (workspaceSlug) => {
+      try {
+        const response = await workspaceService.getWorkspaceUserProjectsRole(workspaceSlug);
+        set((state) => {
+          lodashSet(state.workspaceProjectsPermissions, [workspaceSlug], response);
+        });
+        return response;
+      } catch (error) {
+        console.error("Error fetching user project permissions", error);
+        throw error;
+      }
+    },
+
+    joinProject: async (workspaceSlug, projectId, getWorkspaceRoleByWorkspaceSlug, fetchWorkspaceLevelProjectEntities) => {
+      try {
+        const response = await userService.joinProject(workspaceSlug, [projectId]);
+        const projectMemberRole = getWorkspaceRoleByWorkspaceSlug(workspaceSlug) ?? (EUserPermissions.MEMBER as EUserPermissions);
+        if (response) {
+          set((state) => {
+            lodashSet(state.workspaceProjectsPermissions, [workspaceSlug, projectId], projectMemberRole);
+          });
+          void fetchWorkspaceLevelProjectEntities(workspaceSlug, projectId);
+        }
+      } catch (error) {
+        console.error("Error user joining the project", error);
+        throw error;
+      }
+    },
+
+    leaveProject: async (workspaceSlug, projectId, store) => {
+      try {
+        await userService.leaveProject(workspaceSlug, projectId);
+        set((state) => {
+          lodashUnset(state.workspaceProjectsPermissions, [workspaceSlug, projectId]);
+          lodashUnset(state.projectUserInfo, [workspaceSlug, projectId]);
+        });
+        // Also remove from project store
+        lodashUnset(store.projectRoot.project.projectMap, [projectId]);
+      } catch (error) {
+        console.error("Error user leaving the project", error);
+        throw error;
+      }
+    },
+  }))
+);
+
 /**
  * @description This store is used to handle permission layer for the currently logged user.
  * It manages workspace and project level permissions, roles and access control.
  */
 export abstract class BaseUserPermissionStore implements IBaseUserPermissionStore {
-  loader: boolean = false;
-  // constants
-  workspaceUserInfo: Record<string, IWorkspaceMemberMe> = {};
-  projectUserInfo: Record<string, Record<string, TProjectMembership>> = {};
-  workspaceProjectsPermissions: Record<string, IUserProjectsRole> = {};
-  // observables
+  constructor(protected store: RootStore) {}
 
-  constructor(protected store: RootStore) {
-    makeObservable(this, {
-      // observables
-      loader: observable.ref,
-      workspaceUserInfo: observable,
-      projectUserInfo: observable,
-      workspaceProjectsPermissions: observable,
-      // computed
-      // actions
-      fetchUserWorkspaceInfo: action,
-      leaveWorkspace: action,
-      fetchUserProjectInfo: action,
-      fetchUserProjectPermissions: action,
-      joinProject: action,
-      leaveProject: action,
-    });
+  protected get permissionStore() {
+    return useBaseUserPermissionStore.getState();
+  }
+
+  get loader() {
+    return this.permissionStore.loader;
+  }
+
+  get workspaceUserInfo() {
+    return this.permissionStore.workspaceUserInfo;
+  }
+
+  get projectUserInfo() {
+    return this.permissionStore.projectUserInfo;
+  }
+
+  get workspaceProjectsPermissions() {
+    return this.permissionStore.workspaceProjectsPermissions;
   }
 
   // computed helpers
@@ -90,22 +218,20 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
    * @param { string } workspaceSlug
    * @returns { IWorkspaceMemberMe | undefined }
    */
-  workspaceInfoBySlug = computedFn((workspaceSlug: string): IWorkspaceMemberMe | undefined => {
+  workspaceInfoBySlug = (workspaceSlug: string): IWorkspaceMemberMe | undefined => {
     if (!workspaceSlug) return undefined;
     return this.workspaceUserInfo[workspaceSlug] || undefined;
-  });
+  };
 
   /**
    * @description Returns the workspace role by slug
    * @param { string } workspaceSlug
    * @returns { TUserPermissions | EUserWorkspaceRoles | undefined }
    */
-  getWorkspaceRoleByWorkspaceSlug = computedFn(
-    (workspaceSlug: string): TUserPermissions | EUserWorkspaceRoles | undefined => {
-      if (!workspaceSlug) return undefined;
-      return this.workspaceUserInfo[workspaceSlug]?.role as TUserPermissions | EUserWorkspaceRoles | undefined;
-    }
-  );
+  getWorkspaceRoleByWorkspaceSlug = (workspaceSlug: string): TUserPermissions | EUserWorkspaceRoles | undefined => {
+    if (!workspaceSlug) return undefined;
+    return this.workspaceUserInfo[workspaceSlug]?.role as TUserPermissions | EUserWorkspaceRoles | undefined;
+  };
 
   /**
    * @description Returns the project membership permission
@@ -113,21 +239,21 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
    * @param { string } projectId
    * @returns { EUserPermissions | undefined }
    */
-  protected getProjectRole = computedFn((workspaceSlug: string, projectId?: string): EUserPermissions | undefined => {
+  protected getProjectRole = (workspaceSlug: string, projectId?: string): EUserPermissions | undefined => {
     if (!workspaceSlug || !projectId) return undefined;
     const projectRole = this.workspaceProjectsPermissions?.[workspaceSlug]?.[projectId];
     if (!projectRole) return undefined;
     const workspaceRole = this.workspaceUserInfo?.[workspaceSlug]?.role;
-    if (workspaceRole === EUserWorkspaceRoles.ADMIN) return EUserPermissions.ADMIN;
-    else return projectRole;
-  });
+    if (workspaceRole === EUserWorkspaceRoles.ADMIN) return EUserPermissions.ADMIN as EUserPermissions;
+    else return projectRole as EUserPermissions;
+  };
 
   /**
    * @description Returns the project permissions by workspace slug
    * @param { string } workspaceSlug
    * @returns { IUserProjectsRole }
    */
-  getProjectRolesByWorkspaceSlug = computedFn((workspaceSlug: string): IUserProjectsRole => {
+  getProjectRolesByWorkspaceSlug = (workspaceSlug: string): IUserProjectsRole => {
     const projectPermissions = this.workspaceProjectsPermissions[workspaceSlug] || {};
     return Object.keys(projectPermissions).reduce((acc, projectId) => {
       const projectRole = this.getProjectRoleByWorkspaceSlugAndProjectId(workspaceSlug, projectId);
@@ -136,7 +262,7 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
       }
       return acc;
     }, {} as IUserProjectsRole);
-  });
+  };
 
   /**
    * @description Returns the current project permissions
@@ -163,14 +289,14 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
    * @param { string } page
    * @returns { boolean }
    */
-  hasPageAccess = computedFn((workspaceSlug: string, key: string): boolean => {
+  hasPageAccess = (workspaceSlug: string, key: string): boolean => {
     if (!workspaceSlug || !key) return false;
     const settings = WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS_LINKS.find((item) => item.key === key);
     if (settings) {
       return this.allowPermissions(settings.access, EUserPermissionsLevel.WORKSPACE, workspaceSlug);
     }
     return false;
-  });
+  };
 
   // action helpers
   /**
@@ -229,21 +355,7 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
    * @returns { Promise<IWorkspaceMemberMe | undefined> }
    */
   fetchUserWorkspaceInfo = async (workspaceSlug: string): Promise<IWorkspaceMemberMe> => {
-    try {
-      this.loader = true;
-      const response = await workspaceService.workspaceMemberMe(workspaceSlug);
-      if (response) {
-        runInAction(() => {
-          set(this.workspaceUserInfo, [workspaceSlug], response);
-          this.loader = false;
-        });
-      }
-      return response;
-    } catch (error) {
-      console.error("Error fetching user workspace information", error);
-      this.loader = false;
-      throw error;
-    }
+    return this.permissionStore.fetchUserWorkspaceInfo(workspaceSlug);
   };
 
   /**
@@ -252,17 +364,7 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
    * @returns { Promise<void | undefined> }
    */
   leaveWorkspace = async (workspaceSlug: string): Promise<void> => {
-    try {
-      await userService.leaveWorkspace(workspaceSlug);
-      runInAction(() => {
-        unset(this.workspaceUserInfo, workspaceSlug);
-        unset(this.projectUserInfo, workspaceSlug);
-        unset(this.workspaceProjectsPermissions, workspaceSlug);
-      });
-    } catch (error) {
-      console.error("Error user leaving the workspace", error);
-      throw error;
-    }
+    return this.permissionStore.leaveWorkspace(workspaceSlug, this.store);
   };
 
   /**
@@ -272,19 +374,7 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
    * @returns { Promise<TProjectMembership | undefined> }
    */
   fetchUserProjectInfo = async (workspaceSlug: string, projectId: string): Promise<TProjectMembership> => {
-    try {
-      const response = await projectMemberService.projectMemberMe(workspaceSlug, projectId);
-      if (response) {
-        runInAction(() => {
-          set(this.projectUserInfo, [workspaceSlug, projectId], response);
-          set(this.workspaceProjectsPermissions, [workspaceSlug, projectId], response.role);
-        });
-      }
-      return response;
-    } catch (error) {
-      console.error("Error fetching user project information", error);
-      throw error;
-    }
+    return this.permissionStore.fetchUserProjectInfo(workspaceSlug, projectId);
   };
 
   /**
@@ -293,16 +383,7 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
    * @returns { Promise<IUserProjectsRole | undefined> }
    */
   fetchUserProjectPermissions = async (workspaceSlug: string): Promise<IUserProjectsRole> => {
-    try {
-      const response = await workspaceService.getWorkspaceUserProjectsRole(workspaceSlug);
-      runInAction(() => {
-        set(this.workspaceProjectsPermissions, [workspaceSlug], response);
-      });
-      return response;
-    } catch (error) {
-      console.error("Error fetching user project permissions", error);
-      throw error;
-    }
+    return this.permissionStore.fetchUserProjectPermissions(workspaceSlug);
   };
 
   /**
@@ -312,19 +393,12 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
    * @returns { Promise<void> }
    */
   joinProject = async (workspaceSlug: string, projectId: string): Promise<void> => {
-    try {
-      const response = await userService.joinProject(workspaceSlug, [projectId]);
-      const projectMemberRole = this.getWorkspaceRoleByWorkspaceSlug(workspaceSlug) ?? EUserPermissions.MEMBER;
-      if (response) {
-        runInAction(() => {
-          set(this.workspaceProjectsPermissions, [workspaceSlug, projectId], projectMemberRole);
-        });
-        void this.fetchWorkspaceLevelProjectEntities(workspaceSlug, projectId);
-      }
-    } catch (error) {
-      console.error("Error user joining the project", error);
-      throw error;
-    }
+    return this.permissionStore.joinProject(
+      workspaceSlug,
+      projectId,
+      this.getWorkspaceRoleByWorkspaceSlug,
+      this.fetchWorkspaceLevelProjectEntities
+    );
   };
 
   /**
@@ -334,16 +408,6 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
    * @returns { Promise<void> }
    */
   leaveProject = async (workspaceSlug: string, projectId: string): Promise<void> => {
-    try {
-      await userService.leaveProject(workspaceSlug, projectId);
-      runInAction(() => {
-        unset(this.workspaceProjectsPermissions, [workspaceSlug, projectId]);
-        unset(this.projectUserInfo, [workspaceSlug, projectId]);
-        unset(this.store.projectRoot.project.projectMap, [projectId]);
-      });
-    } catch (error) {
-      console.error("Error user leaving the project", error);
-      throw error;
-    }
+    return this.permissionStore.leaveProject(workspaceSlug, projectId, this.store);
   };
 }

@@ -30,7 +30,7 @@ export class StickyService extends APIService {
         query,
       },
     })
-      .then((res) => res?.data)
+      .then((res) => res?.data ?? { results: [], total_pages: 0 })
       .catch((err) => {
         throw err?.response?.data;
       });

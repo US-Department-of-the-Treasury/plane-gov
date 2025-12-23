@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { debounce } from "lodash-es";
 import { useParams } from "next/navigation";
 import { Search } from "lucide-react";
@@ -39,10 +39,11 @@ export function StickySearch() {
     await fetchWorkspaceStickies();
   };
 
-  const debouncedSearch = useCallback(
-    debounce(async () => {
-      await fetchStickies();
-    }, 500),
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(async () => {
+        await fetchStickies();
+      }, 500),
     [fetchWorkspaceStickies]
   );
 

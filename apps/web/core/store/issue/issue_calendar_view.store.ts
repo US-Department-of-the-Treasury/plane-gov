@@ -1,7 +1,6 @@
-import { observable, action, makeObservable, runInAction, computed, reaction } from "mobx";
-
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // helpers
-import { computedFn } from "mobx-utils";
 import type { ICalendarPayload, ICalendarWeek } from "@plane/types";
 import { EStartOfTheWeek } from "@plane/types";
 import { generateCalendarData, getWeekNumberOfDate } from "@plane/utils";
@@ -31,63 +30,154 @@ export interface ICalendarStore {
   getStartAndEndDate: (layout: "week" | "month") => { startDate: string; endDate: string } | undefined;
 }
 
-export class CalendarStore implements ICalendarStore {
-  loader: boolean = false;
+// Zustand Store
+interface CalendarState {
+  loader: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any | null = null;
-
-  // observables
-  calendarFilters: { activeMonthDate: Date; activeWeekDate: Date } = {
-    activeMonthDate: new Date(),
-    activeWeekDate: new Date(),
+  error: any | null;
+  calendarFilters: {
+    activeMonthDate: Date;
+    activeWeekDate: Date;
   };
-  calendarPayload: ICalendarPayload | null = null;
-  // root store
-  rootStore;
+  calendarPayload: ICalendarPayload | null;
+  rootStore: IIssueRootStore | null;
+}
+
+interface CalendarActions {
+  setRootStore: (rootStore: IIssueRootStore) => void;
+  updateCalendarFilters: (filters: Partial<{ activeMonthDate: Date; activeWeekDate: Date }>) => void;
+  updateCalendarPayload: (date: Date) => void;
+  regenerateCalendar: () => void;
+  initCalendar: () => void;
+}
+
+type CalendarStoreType = CalendarState & CalendarActions;
+
+export const useCalendarStore = create<CalendarStoreType>()(
+  immer((set, get) => ({
+    // State
+    loader: false,
+    error: null,
+    calendarFilters: {
+      activeMonthDate: new Date(),
+      activeWeekDate: new Date(),
+    },
+    calendarPayload: null,
+    rootStore: null,
+
+    // Actions
+    setRootStore: (rootStore) => {
+      set((state) => {
+        state.rootStore = rootStore;
+      });
+    },
+
+    updateCalendarFilters: (filters) => {
+      const date = filters.activeMonthDate || filters.activeWeekDate || new Date();
+      get().updateCalendarPayload(date);
+
+      set((state) => {
+        state.calendarFilters = {
+          ...state.calendarFilters,
+          ...filters,
+        };
+      });
+    },
+
+    updateCalendarPayload: (date) => {
+      const state = get();
+      if (!state.calendarPayload) return;
+
+      const nextDate = new Date(date);
+      const startOfWeek = state.rootStore?.rootStore?.user?.userProfile?.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
+
+      set((draftState) => {
+        draftState.calendarPayload = generateCalendarData(state.calendarPayload, nextDate, startOfWeek);
+      });
+    },
+
+    initCalendar: () => {
+      const state = get();
+      const startOfWeek = state.rootStore?.rootStore?.user?.userProfile?.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
+      const newCalendarPayload = generateCalendarData(null, new Date(), startOfWeek);
+
+      set((draftState) => {
+        draftState.calendarPayload = newCalendarPayload;
+      });
+    },
+
+    regenerateCalendar: () => {
+      const state = get();
+      const startOfWeek = state.rootStore?.rootStore?.user?.userProfile?.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
+      const { activeMonthDate } = state.calendarFilters;
+
+      // Force complete regeneration by passing null to clear all cached data
+      const newCalendarPayload = generateCalendarData(null, activeMonthDate, startOfWeek);
+
+      set((draftState) => {
+        draftState.calendarPayload = newCalendarPayload;
+      });
+    },
+  }))
+);
+
+// Legacy class wrapper for backward compatibility
+export class CalendarStore implements ICalendarStore {
+  private rootStoreRef: IIssueRootStore;
+  private unsubscribe?: () => void;
 
   constructor(_rootStore: IIssueRootStore) {
-    makeObservable(this, {
-      loader: observable.ref,
-      error: observable.ref,
-
-      // observables
-      calendarFilters: observable.ref,
-      calendarPayload: observable.ref,
-
-      // actions
-      updateCalendarFilters: action,
-      updateCalendarPayload: action,
-      regenerateCalendar: action,
-
-      //computed
-      allWeeksOfActiveMonth: computed,
-      activeWeekNumber: computed,
-      allDaysOfActiveWeek: computed,
-    });
-
-    this.rootStore = _rootStore;
-    this.initCalendar();
+    this.rootStoreRef = _rootStore;
+    const store = useCalendarStore.getState();
+    store.setRootStore(_rootStore);
+    store.initCalendar();
 
     // Watch for changes in startOfWeek preference and regenerate calendar
-    reaction(
-      () => this.rootStore.rootStore.user.userProfile.data?.start_of_the_week,
-      () => {
-        // Regenerate calendar when startOfWeek preference changes
+    let previousStartOfWeek = _rootStore.rootStore.user.userProfile.data?.start_of_the_week;
+    this.unsubscribe = useCalendarStore.subscribe(() => {
+      const currentStartOfWeek = this.rootStoreRef.rootStore.user.userProfile.data?.start_of_the_week;
+      if (currentStartOfWeek !== previousStartOfWeek) {
+        previousStartOfWeek = currentStartOfWeek;
         this.regenerateCalendar();
       }
-    );
+    });
+  }
+
+  private get store() {
+    return useCalendarStore.getState();
+  }
+
+  get loader() {
+    return this.store.loader;
+  }
+
+  get error() {
+    return this.store.error;
+  }
+
+  get calendarFilters() {
+    return this.store.calendarFilters;
+  }
+
+  get calendarPayload() {
+    return this.store.calendarPayload;
+  }
+
+  get rootStore() {
+    return this.rootStoreRef;
   }
 
   get allWeeksOfActiveMonth() {
-    if (!this.calendarPayload) return undefined;
+    const state = this.store;
+    if (!state.calendarPayload) return undefined;
 
-    const { activeMonthDate } = this.calendarFilters;
+    const { activeMonthDate } = state.calendarFilters;
 
     const year = activeMonthDate.getFullYear();
     const month = activeMonthDate.getMonth();
 
     // Get the weeks for the current month
-    const weeks = this.calendarPayload[`y-${year}`][`m-${month}`];
+    const weeks = state.calendarPayload[`y-${year}`][`m-${month}`];
 
     // If no weeks exist, return undefined
     if (!weeks) return undefined;
@@ -109,26 +199,27 @@ export class CalendarStore implements ICalendarStore {
   }
 
   get activeWeekNumber() {
-    return getWeekNumberOfDate(this.calendarFilters.activeWeekDate);
+    return getWeekNumberOfDate(this.store.calendarFilters.activeWeekDate);
   }
 
   get allDaysOfActiveWeek() {
-    if (!this.calendarPayload) return undefined;
+    const state = this.store;
+    if (!state.calendarPayload) return undefined;
 
-    const { activeWeekDate } = this.calendarFilters;
+    const { activeWeekDate } = state.calendarFilters;
     const year = activeWeekDate.getFullYear();
     const month = activeWeekDate.getMonth();
     const dayOfMonth = activeWeekDate.getDate();
 
     // Check if calendar data exists for this year and month
-    const yearData = this.calendarPayload[`y-${year}`];
+    const yearData = state.calendarPayload[`y-${year}`];
     if (!yearData) return undefined;
 
     const monthData = yearData[`m-${month}`];
     if (!monthData) return undefined;
 
     // Calculate firstDayOfMonth offset (same logic as calendar generation)
-    const startOfWeek = this.rootStore?.rootStore?.user?.userProfile?.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
+    const startOfWeek = this.rootStoreRef?.rootStore?.user?.userProfile?.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
     const firstDayOfMonthRaw = new Date(year, month, 1).getDay();
     const firstDayOfMonth = (firstDayOfMonthRaw - startOfWeek + 7) % 7;
 
@@ -142,7 +233,7 @@ export class CalendarStore implements ICalendarStore {
     return monthData[weekKey];
   }
 
-  getStartAndEndDate = computedFn((layout: "week" | "month") => {
+  getStartAndEndDate = (layout: "week" | "month") => {
     switch (layout) {
       case "week": {
         if (!this.allDaysOfActiveWeek) return;
@@ -158,52 +249,14 @@ export class CalendarStore implements ICalendarStore {
         return { startDate: firstWeekDates[0], endDate: lastWeekDates[lastWeekDates.length - 1] };
       }
     }
-  });
-
-  updateCalendarFilters = (filters: Partial<{ activeMonthDate: Date; activeWeekDate: Date }>) => {
-    this.updateCalendarPayload(filters.activeMonthDate || filters.activeWeekDate || new Date());
-
-    runInAction(() => {
-      this.calendarFilters = {
-        ...this.calendarFilters,
-        ...filters,
-      };
-    });
   };
 
-  updateCalendarPayload = (date: Date) => {
-    if (!this.calendarPayload) return null;
+  updateCalendarFilters = (filters: Partial<{ activeMonthDate: Date; activeWeekDate: Date }>) =>
+    this.store.updateCalendarFilters(filters);
 
-    const nextDate = new Date(date);
-    const startOfWeek = this.rootStore.rootStore.user.userProfile.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
+  updateCalendarPayload = (date: Date) => this.store.updateCalendarPayload(date);
 
-    runInAction(() => {
-      this.calendarPayload = generateCalendarData(this.calendarPayload, nextDate, startOfWeek);
-    });
-  };
+  regenerateCalendar = () => this.store.regenerateCalendar();
 
-  initCalendar = () => {
-    const startOfWeek = this.rootStore.rootStore.user.userProfile.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
-    const newCalendarPayload = generateCalendarData(null, new Date(), startOfWeek);
-
-    runInAction(() => {
-      this.calendarPayload = newCalendarPayload;
-    });
-  };
-
-  /**
-   * Force complete regeneration of calendar data
-   * This should be called when startOfWeek preference changes
-   */
-  regenerateCalendar = () => {
-    const startOfWeek = this.rootStore.rootStore.user.userProfile.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
-    const { activeMonthDate } = this.calendarFilters;
-
-    // Force complete regeneration by passing null to clear all cached data
-    const newCalendarPayload = generateCalendarData(null, activeMonthDate, startOfWeek);
-
-    runInAction(() => {
-      this.calendarPayload = newCalendarPayload;
-    });
-  };
+  initCalendar = () => this.store.initCalendar();
 }

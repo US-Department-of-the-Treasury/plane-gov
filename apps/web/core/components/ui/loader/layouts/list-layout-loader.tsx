@@ -1,4 +1,4 @@
-import { Fragment, forwardRef } from "react";
+import { Fragment } from "react";
 import { range } from "lodash-es";
 // plane ui
 import { Row } from "@plane/ui";
@@ -6,14 +6,12 @@ import { Row } from "@plane/ui";
 import { cn } from "@plane/utils";
 import { getRandomInt, getRandomLength } from "../utils";
 
-export const ListLoaderItemRow = forwardRef(function ListLoaderItemRow(
-  {
-    shouldAnimate = true,
-    renderForPlaceHolder = false,
-    defaultPropertyCount = 6,
-  }: { shouldAnimate?: boolean; renderForPlaceHolder?: boolean; defaultPropertyCount?: number },
-  ref: React.ForwardedRef<HTMLDivElement>
-) {
+export function ListLoaderItemRow({
+  shouldAnimate = true,
+  renderForPlaceHolder = false,
+  defaultPropertyCount = 6,
+  ref,
+}: { shouldAnimate?: boolean; renderForPlaceHolder?: boolean; defaultPropertyCount?: number; ref?: React.Ref<HTMLDivElement> }) {
   return (
     <Row
       ref={ref}
@@ -60,9 +58,7 @@ export const ListLoaderItemRow = forwardRef(function ListLoaderItemRow(
       </div>
     </Row>
   );
-});
-
-ListLoaderItemRow.displayName = "ListLoaderItemRow";
+}
 
 function ListSection({ itemCount }: { itemCount: number }) {
   return (

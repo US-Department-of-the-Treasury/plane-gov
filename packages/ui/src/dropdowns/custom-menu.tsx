@@ -80,7 +80,7 @@ function CustomMenu(props: ICustomMenuDropdownProps) {
     useCaptureForOutsideClick = false,
   } = props;
 
-  const [referenceElement, setReferenceElement] = React.useState<HTMLButtonElement | null>(null);
+  const [referenceElement, setReferenceElement] = React.useState<HTMLButtonElement | HTMLDivElement | null>(null);
   const [popperElement, setPopperElement] = React.useState<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = React.useState(false);
   // refs
@@ -235,55 +235,52 @@ function CustomMenu(props: ICustomMenuDropdownProps) {
       {({ open }) => (
         <>
           {customButton ? (
-            <Menu.Button as={React.Fragment}>
-              <button
-                ref={setReferenceElement}
-                type="button"
-                onClick={handleMenuButtonClick}
-                className={customButtonClassName}
-                tabIndex={customButtonTabIndex}
-                disabled={disabled}
-                aria-label={ariaLabel}
-              >
-                {customButton}
-              </button>
+            // Use div instead of button to avoid button-inside-button HTML validation error
+            // when customButton is already a button element (e.g., IconButton)
+            <Menu.Button
+              as="div"
+              ref={setReferenceElement}
+              role="button"
+              onClick={handleMenuButtonClick}
+              className={cn("grid place-items-center", customButtonClassName)}
+              tabIndex={customButtonTabIndex}
+              aria-disabled={disabled}
+              aria-label={ariaLabel}
+            >
+              {customButton}
             </Menu.Button>
           ) : (
             <>
               {ellipsis || verticalEllipsis ? (
-                <Menu.Button as={React.Fragment}>
-                  <button
-                    ref={setReferenceElement}
-                    type="button"
-                    onClick={handleMenuButtonClick}
-                    disabled={disabled}
-                    className={`relative grid place-items-center rounded-sm p-1 text-secondary outline-none hover:text-primary ${
-                      disabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-layer-transparent-hover"
-                    } ${buttonClassName}`}
-                    tabIndex={customButtonTabIndex}
-                    aria-label={ariaLabel}
-                  >
-                    <MoreHorizontal className={`h-3.5 w-3.5 ${verticalEllipsis ? "rotate-90" : ""}`} />
-                  </button>
+                <Menu.Button
+                  ref={setReferenceElement}
+                  type="button"
+                  onClick={handleMenuButtonClick}
+                  disabled={disabled}
+                  className={`relative grid place-items-center rounded-sm p-1 text-secondary outline-none hover:text-primary ${
+                    disabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-layer-transparent-hover"
+                  } ${buttonClassName}`}
+                  tabIndex={customButtonTabIndex}
+                  aria-label={ariaLabel}
+                >
+                  <MoreHorizontal className={`h-3.5 w-3.5 ${verticalEllipsis ? "rotate-90" : ""}`} />
                 </Menu.Button>
               ) : (
-                <Menu.Button as={React.Fragment}>
-                  <button
-                    ref={setReferenceElement}
-                    type="button"
-                    className={`flex items-center justify-between gap-1 whitespace-nowrap rounded-md px-2.5 py-1 text-11 duration-300 ${
-                      open ? "text-primary" : "text-secondary"
-                    } ${noBorder ? "" : "border border-strong shadow-sm focus:outline-none"} ${
-                      disabled ? "cursor-not-allowed text-secondary" : "cursor-pointer hover:bg-layer-transparent-hover"
-                    } ${buttonClassName}`}
-                    onClick={handleMenuButtonClick}
-                    tabIndex={customButtonTabIndex}
-                    disabled={disabled}
-                    aria-label={ariaLabel}
-                  >
-                    {label}
-                    {!noChevron && <ChevronDownIcon className="h-3.5 w-3.5" />}
-                  </button>
+                <Menu.Button
+                  ref={setReferenceElement}
+                  type="button"
+                  className={`flex items-center justify-between gap-1 whitespace-nowrap rounded-md px-2.5 py-1 text-11 duration-300 ${
+                    open ? "text-primary" : "text-secondary"
+                  } ${noBorder ? "" : "border border-strong shadow-sm focus:outline-none"} ${
+                    disabled ? "cursor-not-allowed text-secondary" : "cursor-pointer hover:bg-layer-transparent-hover"
+                  } ${buttonClassName}`}
+                  onClick={handleMenuButtonClick}
+                  tabIndex={customButtonTabIndex}
+                  disabled={disabled}
+                  aria-label={ariaLabel}
+                >
+                  {label}
+                  {!noChevron && <ChevronDownIcon className="h-3.5 w-3.5" />}
                 </Menu.Button>
               )}
             </>

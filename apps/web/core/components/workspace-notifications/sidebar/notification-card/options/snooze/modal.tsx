@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import React from "react";
 import { useParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { Transition, Dialog } from "@headlessui/react";
@@ -110,32 +110,31 @@ export function NotificationSnoozeModal(props: TNotificationSnoozeModal) {
   };
 
   return (
-    <Transition.Root show={isOpen} as={Fragment}>
+    <Transition.Root show={isOpen} as="div">
       <Dialog as="div" className="relative z-20" onClose={handleClose}>
         <Transition.Child
-          as={Fragment}
+          as="div"
           enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
           leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-backdrop transition-opacity" />
-        </Transition.Child>
+          className="fixed inset-0 bg-backdrop transition-opacity"
+        />
 
         <div className="fixed inset-0 z-20 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child
-              as={Fragment}
+              as={Dialog.Panel}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              className="relative w-full transform rounded-lg bg-surface-1 p-5 text-left shadow-raised-200 transition-all sm:w-full sm:max-w-2xl"
             >
-              <Dialog.Panel className="relative w-full transform rounded-lg bg-surface-1 p-5 text-left shadow-raised-200 transition-all sm:w-full sm:max-w-2xl">
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <div className="flex items-center justify-between">
                     <Dialog.Title as="h3" className="text-h5-medium leading-6 text-primary">
@@ -254,7 +253,6 @@ export function NotificationSnoozeModal(props: TNotificationSnoozeModal) {
                     </div>
                   </div>
                 </form>
-              </Dialog.Panel>
             </Transition.Child>
           </div>
         </div>

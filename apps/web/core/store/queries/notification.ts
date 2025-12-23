@@ -20,10 +20,16 @@ import { queryKeys } from "./query-keys";
 export function useUnreadNotificationsCount(workspaceSlug: string) {
   return useQuery({
     queryKey: queryKeys.notifications.unreadCount(workspaceSlug),
-    queryFn: () => workspaceNotificationService.fetchUnreadNotificationsCount(workspaceSlug),
+    queryFn: async () => {
+      const result = await workspaceNotificationService.fetchUnreadNotificationsCount(workspaceSlug);
+      // Ensure we never return undefined to TanStack Query
+      return result ?? { total_unread_notifications_count: 0, mention_unread_notifications_count: 0 };
+    },
     enabled: !!workspaceSlug,
     staleTime: 1 * 60 * 1000, // 1 minute - notifications change frequently
     gcTime: 5 * 60 * 1000, // 5 minutes
+    // Provide initial data to prevent undefined state
+    placeholderData: { total_unread_notifications_count: 0, mention_unread_notifications_count: 0 },
   });
 }
 

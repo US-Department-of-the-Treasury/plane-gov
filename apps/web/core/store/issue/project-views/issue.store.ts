@@ -1,4 +1,3 @@
-import { action, makeObservable, runInAction } from "mobx";
 // base class
 import type {
   TIssue,
@@ -59,12 +58,6 @@ export class ProjectViewIssues extends BaseIssuesStore implements IProjectViewIs
 
   constructor(_rootStore: IIssueRootStore, issueFilterStore: IProjectViewIssuesFilter) {
     super(_rootStore, issueFilterStore);
-    makeObservable(this, {
-      // action
-      fetchIssues: action,
-      fetchNextIssues: action,
-      fetchIssuesWithExistingPagination: action,
-    });
     //filter store
     this.issueFilterStore = issueFilterStore;
   }
@@ -92,10 +85,8 @@ export class ProjectViewIssues extends BaseIssuesStore implements IProjectViewIs
   ) => {
     try {
       // set loader and clear store
-      runInAction(() => {
-        this.setLoader(loadType);
-        this.clear(!isExistingPaginationOptions); // clear while fetching from server.
-      });
+      this.setLoader(loadType);
+      this.clear(!isExistingPaginationOptions); // clear while fetching from server.
 
       // get params from pagination options
       const params = this.issueFilterStore?.getFilterParams(options, viewId, undefined, undefined, undefined);

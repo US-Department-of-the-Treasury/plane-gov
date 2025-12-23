@@ -1,5 +1,4 @@
 import { cloneDeep } from "lodash-es";
-import { action, makeObservable, observable, toJS } from "mobx";
 // plane imports
 import type { TAutoVisibilityOptions, TExpressionOptions } from "@plane/constants";
 import { DEFAULT_FILTER_EXPRESSION_OPTIONS } from "@plane/constants";
@@ -90,12 +89,6 @@ export class FilterInstanceHelper<
     this._filterInstance = filterInstance;
     this.adapter = params.adapter;
     this.isVisible = false;
-
-    makeObservable(this, {
-      isVisible: observable,
-      setInitialVisibility: action,
-      toggleVisibility: action,
-    });
   }
 
   // ------------ initialization ------------
@@ -107,7 +100,8 @@ export class FilterInstanceHelper<
    */
   initializeExpression: IFilterInstanceHelper<P, E>["initializeExpression"] = (initialExpression) => {
     if (!initialExpression) return null;
-    return this.adapter.toInternal(toJS(cloneDeep(initialExpression)));
+    // Convert to plain object to ensure no MobX observables
+    return this.adapter.toInternal(cloneDeep(initialExpression));
   };
 
   /**
@@ -125,7 +119,7 @@ export class FilterInstanceHelper<
    * @param visibilityOption - The visibility options for the filter instance.
    * @returns The initial visibility state
    */
-  setInitialVisibility: IFilterInstanceHelper<P, E>["setInitialVisibility"] = action((visibilityOption) => {
+  setInitialVisibility: IFilterInstanceHelper<P, E>["setInitialVisibility"] = (visibilityOption) => {
     // If explicit initial visibility is provided, use it
     if (visibilityOption.autoSetVisibility === false) {
       this.isVisible = visibilityOption.isVisibleOnMount;
@@ -141,19 +135,19 @@ export class FilterInstanceHelper<
     // Default to hidden if no active filters
     this.isVisible = false;
     return;
-  });
+  };
 
   /**
    * Toggles the visibility of the filter.
    * @param isVisible - The visibility to set.
    */
-  toggleVisibility: IFilterInstanceHelper<P, E>["toggleVisibility"] = action((isVisible) => {
+  toggleVisibility: IFilterInstanceHelper<P, E>["toggleVisibility"] = (isVisible) => {
     if (isVisible !== undefined) {
       this.isVisible = isVisible;
       return;
     }
     this.isVisible = !this.isVisible;
-  });
+  };
 
   // ------------ condition operations ------------
 

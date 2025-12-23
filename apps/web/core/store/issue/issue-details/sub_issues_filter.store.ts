@@ -1,6 +1,6 @@
-import { set } from "lodash-es";
-import { action, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 import type { EIssueFilterType } from "@plane/constants";
 import type {
   IIssueDisplayFilterOptions,
@@ -11,9 +11,8 @@ import type {
   TIssue,
 } from "@plane/types";
 import { getFilteredWorkItems, getGroupedWorkItemIds, updateSubWorkItemFilters } from "../helpers/base-issues-utils";
-import type { IssueSubIssuesStore } from "./sub_issues.store";
 
-export const DEFAULT_DISPLAY_PROPERTIES = {
+export const DEFAULT_DISPLAY_PROPERTIES: IIssueDisplayProperties = {
   key: true,
   issue_type: true,
   assignee: true,
@@ -23,116 +22,83 @@ export const DEFAULT_DISPLAY_PROPERTIES = {
   priority: true,
   state: true,
 };
+
 export interface IWorkItemSubIssueFiltersStore {
   subIssueFilters: Record<string, Partial<ISubWorkItemFilters>>;
   // helpers methods
+  getSubIssueFilters: (workItemId: string) => Partial<ISubWorkItemFilters>;
+  initializeFilters: (workItemId: string) => void;
   updateSubWorkItemFilters: (
     filterType: EIssueFilterType,
     filters: IIssueDisplayFilterOptions | IIssueDisplayProperties | IIssueFilterOptions,
     workItemId: string
   ) => void;
-  getGroupedSubWorkItems: (workItemId: string) => TGroupedIssues;
-  getFilteredSubWorkItems: (workItemId: string, filters: IIssueFilterOptions) => TIssue[];
-  getSubIssueFilters: (workItemId: string) => Partial<ISubWorkItemFilters>;
+  getGroupedSubWorkItems: (
+    parentWorkItemId: string,
+    getFilteredSubWorkItems: (workItemId: string, filters: IIssueFilterOptions) => TIssue[]
+  ) => TGroupedIssues;
   resetFilters: (workItemId: string) => void;
 }
 
-export class WorkItemSubIssueFiltersStore implements IWorkItemSubIssueFiltersStore {
-  // observables
-  subIssueFilters: Record<string, Partial<ISubWorkItemFilters>> = {};
+export const useWorkItemSubIssueFiltersStore = create<IWorkItemSubIssueFiltersStore>()(
+  immer((set, get) => ({
+    // state
+    subIssueFilters: {},
 
-  // root store
-  subIssueStore: IssueSubIssuesStore;
+    // helpers methods
+    getSubIssueFilters: (workItemId: string) => {
+      const state = get();
+      if (!state.subIssueFilters[workItemId]) {
+        state.initializeFilters(workItemId);
+      }
+      return get().subIssueFilters[workItemId] || {
+        displayProperties: DEFAULT_DISPLAY_PROPERTIES,
+        filters: {},
+        displayFilters: {},
+      };
+    },
 
-  constructor(subIssueStore: IssueSubIssuesStore) {
-    makeObservable(this, {
-      subIssueFilters: observable,
-      updateSubWorkItemFilters: action,
-      getSubIssueFilters: action,
-    });
+    initializeFilters: (workItemId: string) => {
+      set((state) => {
+        if (!state.subIssueFilters[workItemId]) {
+          state.subIssueFilters[workItemId] = {};
+        }
+        state.subIssueFilters[workItemId].displayProperties = DEFAULT_DISPLAY_PROPERTIES;
+        state.subIssueFilters[workItemId].filters = {};
+        state.subIssueFilters[workItemId].displayFilters = {};
+      });
+    },
 
-    // root store
-    this.subIssueStore = subIssueStore;
-  }
+    updateSubWorkItemFilters: (
+      filterType: EIssueFilterType,
+      filters: IIssueDisplayFilterOptions | IIssueDisplayProperties | IIssueFilterOptions,
+      workItemId: string
+    ) => {
+      set((state) => {
+        updateSubWorkItemFilters(state.subIssueFilters, filterType, filters, workItemId);
+      });
+    },
 
-  /**
-   * @description This method is used to get the sub issue filters
-   * @param workItemId
-   * @returns
-   */
-  getSubIssueFilters = (workItemId: string) => {
-    if (!this.subIssueFilters[workItemId]) {
-      this.initializeFilters(workItemId);
-    }
-    return this.subIssueFilters[workItemId];
-  };
+    getGroupedSubWorkItems: (
+      parentWorkItemId: string,
+      getFilteredSubWorkItems: (workItemId: string, filters: IIssueFilterOptions) => TIssue[]
+    ) => {
+      const subIssueFilters = get().getSubIssueFilters(parentWorkItemId);
+      const filteredWorkItems = getFilteredSubWorkItems(parentWorkItemId, subIssueFilters.filters ?? {});
 
-  /**
-   * @description This method is used to initialize the sub issue filters
-   * @param workItemId
-   */
-  initializeFilters = (workItemId: string) => {
-    set(this.subIssueFilters, [workItemId, "displayProperties"], DEFAULT_DISPLAY_PROPERTIES);
-    set(this.subIssueFilters, [workItemId, "filters"], {});
-    set(this.subIssueFilters, [workItemId, "displayFilters"], {});
-  };
+      // get group by and order by
+      const groupByKey = subIssueFilters.displayFilters?.group_by;
+      const orderByKey = subIssueFilters.displayFilters?.order_by;
 
-  /**
-   * @description This method updates filters for sub issues.
-   * @param filterType
-   * @param filters
-   */
-  updateSubWorkItemFilters = (
-    filterType: EIssueFilterType,
-    filters: IIssueDisplayFilterOptions | IIssueDisplayProperties | IIssueFilterOptions,
-    workItemId: string
-  ) => {
-    runInAction(() => {
-      updateSubWorkItemFilters(this.subIssueFilters, filterType, filters, workItemId);
-    });
-  };
+      const groupedWorkItemIds = getGroupedWorkItemIds(filteredWorkItems, groupByKey, orderByKey);
+      return groupedWorkItemIds;
+    },
 
-  /**
-   * @description This method is used to get the grouped sub work items
-   * @param parentWorkItemId
-   * @returns
-   */
-  getGroupedSubWorkItems = computedFn((parentWorkItemId: string) => {
-    const subIssueFilters = this.getSubIssueFilters(parentWorkItemId);
+    resetFilters: (workItemId: string) => {
+      get().initializeFilters(workItemId);
+    },
+  }))
+);
 
-    const filteredWorkItems = this.getFilteredSubWorkItems(parentWorkItemId, subIssueFilters.filters ?? {});
-
-    // get group by and order by
-    const groupByKey = subIssueFilters.displayFilters?.group_by;
-    const orderByKey = subIssueFilters.displayFilters?.order_by;
-
-    const groupedWorkItemIds = getGroupedWorkItemIds(filteredWorkItems, groupByKey, orderByKey);
-
-    return groupedWorkItemIds;
-  });
-
-  /**
-   * @description This method is used to get the filtered sub work items
-   * @param workItemId
-   * @returns
-   */
-  getFilteredSubWorkItems = computedFn((workItemId: string, filters: IIssueFilterOptions) => {
-    const subIssueIds = this.subIssueStore.subIssuesByIssueId(workItemId);
-    const workItems = this.subIssueStore.rootIssueDetailStore.rootIssueStore.issues.getIssuesByIds(
-      subIssueIds,
-      "un-archived"
-    );
-
-    const filteredWorkItems = getFilteredWorkItems(workItems, filters);
-
-    return filteredWorkItems;
-  });
-
-  /**
-   * @description This method is used to reset the filters
-   * @param workItemId
-   */
-  resetFilters = (workItemId: string) => {
-    this.initializeFilters(workItemId);
-  };
-}
+// Export factory function for backwards compatibility
+export const createWorkItemSubIssueFiltersStore = () => useWorkItemSubIssueFiltersStore.getState();

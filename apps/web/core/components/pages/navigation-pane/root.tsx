@@ -106,7 +106,7 @@ export function PageNavigationPaneRoot(props: Props) {
         {ActiveExtension ? (
           <ActiveExtension.component page={page} extensionData={ActiveExtension.data} storeType={storeType} />
         ) : showNavigationTabs ? (
-          <Tab.Group as={React.Fragment} selectedIndex={selectedIndex} onChange={handleTabChange}>
+          <Tab.Group selectedIndex={selectedIndex} onChange={handleTabChange}>
             <PageNavigationPaneTabsList />
             <PageNavigationPaneTabPanelsRoot page={page} versionHistory={versionHistory} workspaceSlug={workspaceSlug} />
           </Tab.Group>

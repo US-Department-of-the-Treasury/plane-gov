@@ -1,5 +1,6 @@
-import { set } from "lodash-es";
-import { action, computed, makeObservable, observable, reaction, runInAction } from "mobx";
+import { set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // plane imports
 import { EPageAccess } from "@plane/constants";
 import type { TChangeHandlerProps } from "@plane/propel/emoji-icon-picker";
@@ -72,10 +73,11 @@ export type TPageInstance = TBasePage &
     getRedirectionLink: () => string;
   };
 
-export class BasePage extends ExtendedBasePage implements TBasePage {
+// Zustand Store
+interface BasePageState {
   // loaders
-  isSubmitting: TNameDescriptionLoader = "saved";
-  isSyncingWithServer: "syncing" | "synced" | "error" = "syncing";
+  isSubmitting: TNameDescriptionLoader;
+  isSyncingWithServer: "syncing" | "synced" | "error";
   // page properties
   id: string | undefined;
   name: string | undefined;
@@ -97,7 +99,85 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
   updated_at: Date | undefined;
   deleted_at: Date | undefined;
   // helpers
-  oldName: string = "";
+  oldName: string;
+}
+
+interface BasePageActions {
+  setIsSubmitting: (value: TNameDescriptionLoader) => void;
+  setSyncingStatus: (status: "syncing" | "synced" | "error") => void;
+  updateTitle: (title: string) => void;
+  mutateProperties: (data: Partial<TPage>, shouldUpdateName?: boolean) => void;
+  updateState: (updates: Partial<BasePageState>) => void;
+}
+
+type BasePageStoreType = BasePageState & BasePageActions;
+
+const createBasePageStore = (page: TPage) =>
+  create<BasePageStoreType>()(
+    immer((set) => ({
+      // State
+      isSubmitting: "saved" as TNameDescriptionLoader,
+      isSyncingWithServer: "syncing" as "syncing" | "synced" | "error",
+      id: page?.id || undefined,
+      name: page?.name,
+      logo_props: page?.logo_props || undefined,
+      description: page?.description || undefined,
+      description_html: page?.description_html || undefined,
+      color: page?.color || undefined,
+      label_ids: page?.label_ids || undefined,
+      owned_by: page?.owned_by || undefined,
+      access: page?.access || EPageAccess.PUBLIC,
+      is_favorite: page?.is_favorite || false,
+      is_locked: page?.is_locked || false,
+      archived_at: page?.archived_at || undefined,
+      workspace: page?.workspace || undefined,
+      project_ids: page?.project_ids || undefined,
+      created_by: page?.created_by || undefined,
+      updated_by: page?.updated_by || undefined,
+      created_at: page?.created_at || undefined,
+      updated_at: page?.updated_at || undefined,
+      deleted_at: page?.deleted_at || undefined,
+      oldName: page?.name || "",
+
+      // Actions
+      setIsSubmitting: (value) => {
+        set((state) => {
+          state.isSubmitting = value;
+        });
+      },
+
+      setSyncingStatus: (status) => {
+        set((state) => {
+          state.isSyncingWithServer = status;
+        });
+      },
+
+      updateTitle: (title) => {
+        set((state) => {
+          state.oldName = state.name ?? "";
+          state.name = title;
+        });
+      },
+
+      mutateProperties: (data, shouldUpdateName = true) => {
+        set((state) => {
+          Object.keys(data).forEach((key) => {
+            const value = data[key as keyof TPage];
+            if (key === "name" && !shouldUpdateName) return;
+            lodashSet(state, key, value);
+          });
+        });
+      },
+
+      updateState: (updates) => {
+        set((state) => {
+          Object.assign(state, updates);
+        });
+      },
+    }))
+  );
+
+export class BasePage extends ExtendedBasePage implements TBasePage {
   // services
   services: TBasePageServices;
   // reactions
@@ -106,6 +186,9 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
   rootStore: RootStore;
   // sub-store
   editor: PageEditorInstance;
+  // zustand store
+  private pageStore: ReturnType<typeof createBasePageStore>;
+  private titleUpdateTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private store: RootStore,
@@ -114,126 +197,149 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
   ) {
     super(store, page, services);
 
-    this.id = page?.id || undefined;
-    this.name = page?.name;
-    this.logo_props = page?.logo_props || undefined;
-    this.description = page?.description || undefined;
-    this.description_html = page?.description_html || undefined;
-    this.color = page?.color || undefined;
-    this.label_ids = page?.label_ids || undefined;
-    this.owned_by = page?.owned_by || undefined;
-    this.access = page?.access || EPageAccess.PUBLIC;
-    this.is_favorite = page?.is_favorite || false;
-    this.is_locked = page?.is_locked || false;
-    this.archived_at = page?.archived_at || undefined;
-    this.workspace = page?.workspace || undefined;
-    this.project_ids = page?.project_ids || undefined;
-    this.created_by = page?.created_by || undefined;
-    this.updated_by = page?.updated_by || undefined;
-    this.created_at = page?.created_at || undefined;
-    this.updated_at = page?.updated_at || undefined;
-    this.oldName = page?.name || "";
-    this.deleted_at = page?.deleted_at || undefined;
-
-    makeObservable(this, {
-      // loaders
-      isSubmitting: observable.ref,
-      // page properties
-      id: observable.ref,
-      name: observable.ref,
-      logo_props: observable.ref,
-      description: observable,
-      description_html: observable.ref,
-      color: observable.ref,
-      label_ids: observable,
-      owned_by: observable.ref,
-      access: observable.ref,
-      is_favorite: observable.ref,
-      is_locked: observable.ref,
-      archived_at: observable.ref,
-      workspace: observable.ref,
-      project_ids: observable,
-      created_by: observable.ref,
-      updated_by: observable.ref,
-      created_at: observable.ref,
-      updated_at: observable.ref,
-      deleted_at: observable.ref,
-      isSyncingWithServer: observable.ref,
-      // helpers
-      oldName: observable.ref,
-      setIsSubmitting: action,
-      cleanup: action,
-      // computed
-      asJSON: computed,
-      isCurrentUserOwner: computed,
-      // actions
-      update: action,
-      updateTitle: action,
-      updateDescription: action,
-      makePublic: action,
-      makePrivate: action,
-      lock: action,
-      unlock: action,
-      archive: action,
-      restore: action,
-      updatePageLogo: action,
-      addToFavorites: action,
-      removePageFromFavorites: action,
-      duplicate: action,
-      mutateProperties: action,
-    });
-
     // init
     this.services = services;
     this.rootStore = store;
     this.editor = new PageEditorInstance();
+    this.pageStore = createBasePageStore(page);
 
-    const titleDisposer = reaction(
-      () => this.name,
-      (name) => {
-        this.isSubmitting = "submitting";
-        this.services
-          .update({
-            name,
-          })
-          .catch(() =>
-            runInAction(() => {
-              this.name = this.oldName;
+    // Setup title update reaction with 2 second delay
+    this.pageStore.subscribe((state, prevState) => {
+      if (state.name !== prevState.name) {
+        if (this.titleUpdateTimer) {
+          clearTimeout(this.titleUpdateTimer);
+        }
+        this.titleUpdateTimer = setTimeout(() => {
+          const currentName = this.pageStore.getState().name;
+          const oldName = this.pageStore.getState().oldName;
+          this.pageStore.getState().setIsSubmitting("submitting");
+          this.services
+            .update({
+              name: currentName,
             })
-          )
-          .finally(() =>
-            runInAction(() => {
-              this.isSubmitting = "submitted";
+            .catch(() => {
+              this.pageStore.getState().updateState({ name: oldName });
             })
-          );
-      },
-      { delay: 2000 }
-    );
-    this.disposers.push(titleDisposer);
+            .finally(() => {
+              this.pageStore.getState().setIsSubmitting("submitted");
+            });
+        }, 2000);
+      }
+    });
   }
 
-  // computed
+  // Property getters
+  get isSubmitting() {
+    return this.pageStore.getState().isSubmitting;
+  }
+
+  get isSyncingWithServer() {
+    return this.pageStore.getState().isSyncingWithServer;
+  }
+
+  get id() {
+    return this.pageStore.getState().id;
+  }
+
+  get name() {
+    return this.pageStore.getState().name;
+  }
+
+  get logo_props() {
+    return this.pageStore.getState().logo_props;
+  }
+
+  get description() {
+    return this.pageStore.getState().description;
+  }
+
+  get description_html() {
+    return this.pageStore.getState().description_html;
+  }
+
+  get color() {
+    return this.pageStore.getState().color;
+  }
+
+  get label_ids() {
+    return this.pageStore.getState().label_ids;
+  }
+
+  get owned_by() {
+    return this.pageStore.getState().owned_by;
+  }
+
+  get access() {
+    return this.pageStore.getState().access;
+  }
+
+  get is_favorite() {
+    return this.pageStore.getState().is_favorite;
+  }
+
+  get is_locked() {
+    return this.pageStore.getState().is_locked;
+  }
+
+  get archived_at() {
+    return this.pageStore.getState().archived_at;
+  }
+
+  get workspace() {
+    return this.pageStore.getState().workspace;
+  }
+
+  get project_ids() {
+    return this.pageStore.getState().project_ids;
+  }
+
+  get created_by() {
+    return this.pageStore.getState().created_by;
+  }
+
+  get updated_by() {
+    return this.pageStore.getState().updated_by;
+  }
+
+  get created_at() {
+    return this.pageStore.getState().created_at;
+  }
+
+  get updated_at() {
+    return this.pageStore.getState().updated_at;
+  }
+
+  get deleted_at() {
+    return this.pageStore.getState().deleted_at;
+  }
+
+  get oldName() {
+    return this.pageStore.getState().oldName;
+  }
+
+  // Computed properties
   get asJSON() {
+    const state = this.pageStore.getState();
     return {
-      id: this.id,
-      name: this.name,
-      description: this.description,
-      description_html: this.description_html,
-      color: this.color,
-      label_ids: this.label_ids,
-      owned_by: this.owned_by,
-      access: this.access,
-      logo_props: this.logo_props,
-      is_favorite: this.is_favorite,
-      is_locked: this.is_locked,
-      archived_at: this.archived_at,
-      workspace: this.workspace,
-      project_ids: this.project_ids,
-      created_by: this.created_by,
-      updated_by: this.updated_by,
-      created_at: this.created_at,
-      updated_at: this.updated_at,
-      deleted_at: this.deleted_at,
+      id: state.id,
+      name: state.name,
+      description: state.description,
+      description_html: state.description_html,
+      color: state.color,
+      label_ids: state.label_ids,
+      owned_by: state.owned_by,
+      access: state.access,
+      logo_props: state.logo_props,
+      is_favorite: state.is_favorite,
+      is_locked: state.is_locked,
+      archived_at: state.archived_at,
+      workspace: state.workspace,
+      project_ids: state.project_ids,
+      created_by: state.created_by,
+      updated_by: state.updated_by,
+      created_at: state.created_at,
+      updated_at: state.updated_at,
+      deleted_at: state.deleted_at,
       ...this.asJSONExtended,
     };
   }
@@ -241,7 +347,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
   get isCurrentUserOwner() {
     const currentUserId = this.store.user.data?.id;
     if (!currentUserId) return false;
-    return this.owned_by === currentUserId;
+    return this.pageStore.getState().owned_by === currentUserId;
   }
 
   /**
@@ -249,12 +355,13 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @param value
    */
   setIsSubmitting = (value: TNameDescriptionLoader) => {
-    runInAction(() => {
-      this.isSubmitting = value;
-    });
+    this.pageStore.getState().setIsSubmitting(value);
   };
 
   cleanup = () => {
+    if (this.titleUpdateTimer) {
+      clearTimeout(this.titleUpdateTimer);
+    }
     this.disposers.forEach((disposer) => {
       disposer();
     });
@@ -267,21 +374,21 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
   update = async (pageData: Partial<TPage>) => {
     const currentPage = this.asJSON;
     try {
-      runInAction(() => {
-        Object.keys(pageData).forEach((key) => {
-          const currentPageKey = key as keyof TPage;
-          set(this, key, pageData[currentPageKey] || undefined);
-        });
+      const updates: Partial<BasePageState> = {};
+      Object.keys(pageData).forEach((key) => {
+        const currentPageKey = key as keyof TPage;
+        updates[currentPageKey as keyof BasePageState] = pageData[currentPageKey] as any;
       });
+      this.pageStore.getState().updateState(updates);
 
       return await this.services.update(currentPage);
     } catch (error) {
-      runInAction(() => {
-        Object.keys(pageData).forEach((key) => {
-          const currentPageKey = key as keyof TPage;
-          set(this, key, currentPage?.[currentPageKey] || undefined);
-        });
+      const rollback: Partial<BasePageState> = {};
+      Object.keys(pageData).forEach((key) => {
+        const currentPageKey = key as keyof TPage;
+        rollback[currentPageKey as keyof BasePageState] = currentPage?.[currentPageKey] as any;
       });
+      this.pageStore.getState().updateState(rollback);
       throw error;
     }
   };
@@ -291,8 +398,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @param title
    */
   updateTitle = (title: string) => {
-    this.oldName = this.name ?? "";
-    this.name = title;
+    this.pageStore.getState().updateTitle(title);
   };
 
   /**
@@ -300,17 +406,13 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @param {TDocumentPayload} document
    */
   updateDescription = async (document: TDocumentPayload) => {
-    const currentDescription = this.description_html;
-    runInAction(() => {
-      this.description_html = document.description_html;
-    });
+    const currentDescription = this.pageStore.getState().description_html;
+    this.pageStore.getState().updateState({ description_html: document.description_html });
 
     try {
       await this.services.updateDescription(document);
     } catch (error) {
-      runInAction(() => {
-        this.description_html = currentDescription;
-      });
+      this.pageStore.getState().updateState({ description_html: currentDescription });
       throw error;
     }
   };
@@ -319,10 +421,8 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @description make the page public
    */
   makePublic = async ({ shouldSync = true }) => {
-    const pageAccess = this.access;
-    runInAction(() => {
-      this.access = EPageAccess.PUBLIC;
-    });
+    const pageAccess = this.pageStore.getState().access;
+    this.pageStore.getState().updateState({ access: EPageAccess.PUBLIC });
 
     if (shouldSync) {
       try {
@@ -330,9 +430,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
           access: EPageAccess.PUBLIC,
         });
       } catch (error) {
-        runInAction(() => {
-          this.access = pageAccess;
-        });
+        this.pageStore.getState().updateState({ access: pageAccess });
         throw error;
       }
     }
@@ -342,10 +440,8 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @description make the page private
    */
   makePrivate = async ({ shouldSync = true }) => {
-    const pageAccess = this.access;
-    runInAction(() => {
-      this.access = EPageAccess.PRIVATE;
-    });
+    const pageAccess = this.pageStore.getState().access;
+    this.pageStore.getState().updateState({ access: EPageAccess.PRIVATE });
 
     if (shouldSync) {
       try {
@@ -353,9 +449,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
           access: EPageAccess.PRIVATE,
         });
       } catch (error) {
-        runInAction(() => {
-          this.access = pageAccess;
-        });
+        this.pageStore.getState().updateState({ access: pageAccess });
         throw error;
       }
     }
@@ -365,14 +459,12 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @description lock the page
    */
   lock = async ({ shouldSync = true }) => {
-    const pageIsLocked = this.is_locked;
-    runInAction(() => (this.is_locked = true));
+    const pageIsLocked = this.pageStore.getState().is_locked;
+    this.pageStore.getState().updateState({ is_locked: true });
 
     if (shouldSync) {
       await this.services.lock().catch((error) => {
-        runInAction(() => {
-          this.is_locked = pageIsLocked;
-        });
+        this.pageStore.getState().updateState({ is_locked: pageIsLocked });
         throw error;
       });
     }
@@ -382,14 +474,12 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @description unlock the page
    */
   unlock = async ({ shouldSync = true }) => {
-    const pageIsLocked = this.is_locked;
-    runInAction(() => (this.is_locked = false));
+    const pageIsLocked = this.pageStore.getState().is_locked;
+    this.pageStore.getState().updateState({ is_locked: false });
 
     if (shouldSync) {
       await this.services.unlock().catch((error) => {
-        runInAction(() => {
-          this.is_locked = pageIsLocked;
-        });
+        this.pageStore.getState().updateState({ is_locked: pageIsLocked });
         throw error;
       });
     }
@@ -399,26 +489,23 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @description archive the page
    */
   archive = async ({ shouldSync = true, archived_at }: { shouldSync?: boolean; archived_at?: string | null }) => {
-    if (!this.id) return undefined;
+    const pageId = this.pageStore.getState().id;
+    if (!pageId) return undefined;
 
     try {
-      runInAction(() => {
-        this.archived_at = archived_at ?? new Date().toISOString();
+      this.pageStore.getState().updateState({
+        archived_at: archived_at ?? new Date().toISOString()
       });
 
-      if (this.rootStore.favorite.entityMap[this.id]) this.rootStore.favorite.removeFavoriteFromStore(this.id);
+      if (this.rootStore.favorite.entityMap[pageId]) this.rootStore.favorite.removeFavoriteFromStore(pageId);
 
       if (shouldSync) {
         const response = await this.services.archive();
-        runInAction(() => {
-          this.archived_at = response.archived_at;
-        });
+        this.pageStore.getState().updateState({ archived_at: response.archived_at });
       }
     } catch (error) {
       console.error(error);
-      runInAction(() => {
-        this.archived_at = null;
-      });
+      this.pageStore.getState().updateState({ archived_at: null });
     }
   };
 
@@ -426,27 +513,23 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @description restore the page
    */
   restore = async ({ shouldSync = true }: { shouldSync?: boolean }) => {
-    const archivedAtBeforeRestore = this.archived_at;
+    const archivedAtBeforeRestore = this.pageStore.getState().archived_at;
 
     try {
-      runInAction(() => {
-        this.archived_at = null;
-      });
+      this.pageStore.getState().updateState({ archived_at: null });
 
       if (shouldSync) {
         await this.services.restore();
       }
     } catch (error) {
       console.error(error);
-      runInAction(() => {
-        this.archived_at = archivedAtBeforeRestore;
-      });
+      this.pageStore.getState().updateState({ archived_at: archivedAtBeforeRestore });
       throw error;
     }
   };
 
   updatePageLogo = async (value: TChangeHandlerProps) => {
-    const originalLogoProps = { ...this.logo_props };
+    const originalLogoProps = { ...this.pageStore.getState().logo_props };
     try {
       let logoValue = {};
       if (value?.type === "emoji")
@@ -461,17 +544,13 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
         [value?.type]: logoValue,
       };
 
-      runInAction(() => {
-        this.logo_props = logoProps;
-      });
+      this.pageStore.getState().updateState({ logo_props: logoProps });
       await this.services.update({
         logo_props: logoProps,
       });
     } catch (error) {
       console.error("Error in updating page logo", error);
-      runInAction(() => {
-        this.logo_props = originalLogoProps as TLogoProps;
-      });
+      this.pageStore.getState().updateState({ logo_props: originalLogoProps as TLogoProps });
       throw error;
     }
   };
@@ -481,24 +560,21 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    */
   addToFavorites = async () => {
     const { workspaceSlug } = this.store.router;
-    const projectId = this.project_ids?.[0] ?? null;
-    if (!workspaceSlug || !this.id) return undefined;
+    const state = this.pageStore.getState();
+    const projectId = state.project_ids?.[0] ?? null;
+    if (!workspaceSlug || !state.id) return undefined;
 
-    const pageIsFavorite = this.is_favorite;
-    runInAction(() => {
-      this.is_favorite = true;
-    });
+    const pageIsFavorite = state.is_favorite;
+    this.pageStore.getState().updateState({ is_favorite: true });
     await this.rootStore.favorite
       .addFavorite(workspaceSlug.toString(), {
         entity_type: "page",
-        entity_identifier: this.id,
+        entity_identifier: state.id,
         project_id: projectId,
-        entity_data: { name: this.name || "" },
+        entity_data: { name: state.name || "" },
       })
       .catch((error) => {
-        runInAction(() => {
-          this.is_favorite = pageIsFavorite;
-        });
+        this.pageStore.getState().updateState({ is_favorite: pageIsFavorite });
         throw error;
       });
   };
@@ -508,17 +584,14 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    */
   removePageFromFavorites = async () => {
     const { workspaceSlug } = this.store.router;
-    if (!workspaceSlug || !this.id) return undefined;
+    const pageId = this.pageStore.getState().id;
+    if (!workspaceSlug || !pageId) return undefined;
 
-    const pageIsFavorite = this.is_favorite;
-    runInAction(() => {
-      this.is_favorite = false;
-    });
+    const pageIsFavorite = this.pageStore.getState().is_favorite;
+    this.pageStore.getState().updateState({ is_favorite: false });
 
-    await this.rootStore.favorite.removeFavoriteEntity(workspaceSlug, this.id).catch((error) => {
-      runInAction(() => {
-        this.is_favorite = pageIsFavorite;
-      });
+    await this.rootStore.favorite.removeFavoriteEntity(workspaceSlug, pageId).catch((error) => {
+      this.pageStore.getState().updateState({ is_favorite: pageIsFavorite });
       throw error;
     });
   };
@@ -533,16 +606,10 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @param data Partial<TPage>
    */
   mutateProperties = (data: Partial<TPage>, shouldUpdateName: boolean = true) => {
-    Object.keys(data).forEach((key) => {
-      const value = data[key as keyof TPage];
-      if (key === "name" && !shouldUpdateName) return;
-      set(this, key, value);
-    });
+    this.pageStore.getState().mutateProperties(data, shouldUpdateName);
   };
 
   setSyncingStatus = (status: "syncing" | "synced" | "error") => {
-    runInAction(() => {
-      this.isSyncingWithServer = status;
-    });
+    this.pageStore.getState().setSyncingStatus(status);
   };
 }

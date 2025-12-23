@@ -1,5 +1,5 @@
-import { action, computed, makeObservable, observable } from "mobx";
-import { computedFn } from "mobx-utils";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 import { DRAG_ALLOWED_GROUPS } from "@plane/constants";
 // types
 import type { TIssueGroupByOptions } from "@plane/types";
@@ -25,44 +25,94 @@ export interface IIssueKanBanViewStore {
   setIsDragging: (isDragging: boolean) => void;
 }
 
-export class IssueKanBanViewStore implements IIssueKanBanViewStore {
+// Zustand Store
+interface KanbanState {
   kanBanToggle: {
     groupByHeaderMinMax: string[];
     subgroupByIssuesVisibility: string[];
-  } = { groupByHeaderMinMax: [], subgroupByIssuesVisibility: [] };
-  isDragging = false;
-  // root store
-  rootStore;
+  };
+  isDragging: boolean;
+  rootStore: IssueRootStore | null;
+}
+
+interface KanbanActions {
+  setRootStore: (rootStore: IssueRootStore) => void;
+  handleKanBanToggle: (toggle: "groupByHeaderMinMax" | "subgroupByIssuesVisibility", value: string) => void;
+  setIsDragging: (isDragging: boolean) => void;
+}
+
+type KanbanStoreType = KanbanState & KanbanActions;
+
+export const useKanbanStore = create<KanbanStoreType>()(
+  immer((set) => ({
+    // State
+    kanBanToggle: {
+      groupByHeaderMinMax: [],
+      subgroupByIssuesVisibility: [],
+    },
+    isDragging: false,
+    rootStore: null,
+
+    // Actions
+    setRootStore: (rootStore) => {
+      set((state) => {
+        state.rootStore = rootStore;
+      });
+    },
+
+    setIsDragging: (isDragging) => {
+      set((state) => {
+        state.isDragging = isDragging;
+      });
+    },
+
+    handleKanBanToggle: (toggle, value) => {
+      set((state) => {
+        const currentToggle = state.kanBanToggle[toggle];
+        state.kanBanToggle[toggle] = currentToggle.includes(value)
+          ? currentToggle.filter((v) => v !== value)
+          : [...currentToggle, value];
+      });
+    },
+  }))
+);
+
+// Legacy class wrapper for backward compatibility
+export class IssueKanBanViewStore implements IIssueKanBanViewStore {
+  private rootStoreRef: IssueRootStore;
 
   constructor(_rootStore: IssueRootStore) {
-    makeObservable(this, {
-      kanBanToggle: observable,
-      isDragging: observable.ref,
-      // computed
-      canUserDragDropVertically: computed,
-      canUserDragDropHorizontally: computed,
-
-      // actions
-      handleKanBanToggle: action,
-      setIsDragging: action.bound,
-    });
-
-    this.rootStore = _rootStore;
+    this.rootStoreRef = _rootStore;
+    const store = useKanbanStore.getState();
+    store.setRootStore(_rootStore);
   }
 
-  setIsDragging = (isDragging: boolean) => {
-    this.isDragging = isDragging;
-  };
+  private get store() {
+    return useKanbanStore.getState();
+  }
 
-  getCanUserDragDrop = computedFn(
-    (group_by: TIssueGroupByOptions | undefined, sub_group_by: TIssueGroupByOptions | undefined) => {
-      if (group_by && DRAG_ALLOWED_GROUPS.includes(group_by)) {
-        if (!sub_group_by) return true;
-        if (sub_group_by && DRAG_ALLOWED_GROUPS.includes(sub_group_by)) return true;
-      }
-      return false;
+  get kanBanToggle() {
+    return this.store.kanBanToggle;
+  }
+
+  get isDragging() {
+    return this.store.isDragging;
+  }
+
+  get rootStore() {
+    return this.rootStoreRef;
+  }
+
+  getCanUserDragDrop = (
+    group_by: TIssueGroupByOptions | undefined,
+    sub_group_by: TIssueGroupByOptions | undefined
+  ): boolean => {
+    if (group_by && DRAG_ALLOWED_GROUPS.includes(group_by)) {
+      if (!sub_group_by) return true;
+      if (sub_group_by && DRAG_ALLOWED_GROUPS.includes(sub_group_by)) return true;
     }
-  );
+    return false;
+  };
 
   get canUserDragDropVertically() {
     return false;
@@ -72,12 +122,8 @@ export class IssueKanBanViewStore implements IIssueKanBanViewStore {
     return false;
   }
 
-  handleKanBanToggle = (toggle: "groupByHeaderMinMax" | "subgroupByIssuesVisibility", value: string) => {
-    this.kanBanToggle = {
-      ...this.kanBanToggle,
-      [toggle]: this.kanBanToggle[toggle].includes(value)
-        ? this.kanBanToggle[toggle].filter((v) => v !== value)
-        : [...this.kanBanToggle[toggle], value],
-    };
-  };
+  handleKanBanToggle = (toggle: "groupByHeaderMinMax" | "subgroupByIssuesVisibility", value: string) =>
+    this.store.handleKanBanToggle(toggle, value);
+
+  setIsDragging = (isDragging: boolean) => this.store.setIsDragging(isDragging);
 }

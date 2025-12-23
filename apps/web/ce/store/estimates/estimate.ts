@@ -1,6 +1,6 @@
-import { orderBy, set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { orderBy, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // types
 import type {
   IEstimate as IEstimateType,
@@ -35,107 +35,210 @@ export interface IEstimate extends Omit<IEstimateType, "points"> {
   ) => Promise<IEstimatePointType | undefined>;
 }
 
-export class Estimate implements IEstimate {
-  // data model observables
-  id: string | undefined = undefined;
-  name: string | undefined = undefined;
-  description: string | undefined = undefined;
-  type: TEstimateSystemKeys | undefined = undefined;
-  workspace: string | undefined = undefined;
-  project: string | undefined = undefined;
-  last_used: boolean | undefined = undefined;
-  created_at: Date | undefined = undefined;
-  updated_at: Date | undefined = undefined;
-  created_by: string | undefined = undefined;
-  updated_by: string | undefined = undefined;
+// Zustand store state
+interface EstimateStoreState {
+  // data model properties
+  id: string | undefined;
+  name: string | undefined;
+  description: string | undefined;
+  type: TEstimateSystemKeys | undefined;
+  workspace: string | undefined;
+  project: string | undefined;
+  last_used: boolean | undefined;
+  created_at: Date | undefined;
+  updated_at: Date | undefined;
+  created_by: string | undefined;
+  updated_by: string | undefined;
   // observables
-  error: TErrorCodes | undefined = undefined;
-  estimatePoints: Record<string, IEstimatePoint> = {};
+  error: TErrorCodes | undefined;
+  estimatePoints: Record<string, IEstimatePoint>;
+}
+
+// Zustand store actions
+interface EstimateStoreActions {
+  initialize: (data: IEstimateType) => void;
+  addEstimatePoint: (estimatePointId: string, estimatePoint: IEstimatePoint) => void;
+  getAsJson: () => Omit<IEstimateType, "points">;
+  getEstimatePointIds: () => string[] | undefined;
+  estimatePointById: (estimatePointId: string) => IEstimatePointType | undefined;
+}
+
+type EstimateStoreType = EstimateStoreState & EstimateStoreActions;
+
+// Create a store factory function since we need separate instances per estimate
+const createEstimateStore = () =>
+  create<EstimateStoreType>()(
+    immer((set, get) => ({
+      // State
+      id: undefined,
+      name: undefined,
+      description: undefined,
+      type: undefined,
+      workspace: undefined,
+      project: undefined,
+      last_used: undefined,
+      created_at: undefined,
+      updated_at: undefined,
+      created_by: undefined,
+      updated_by: undefined,
+      error: undefined,
+      estimatePoints: {},
+
+      // Initialize with data
+      initialize: (data: IEstimateType) => {
+        set((state) => {
+          state.id = data.id;
+          state.name = data.name;
+          state.description = data.description;
+          state.type = data.type;
+          state.workspace = data.workspace;
+          state.project = data.project;
+          state.last_used = data.last_used;
+          state.created_at = data.created_at;
+          state.updated_at = data.updated_at;
+          state.created_by = data.created_by;
+          state.updated_by = data.updated_by;
+        });
+      },
+
+      // Actions
+      addEstimatePoint: (estimatePointId: string, estimatePoint: IEstimatePoint) => {
+        set((state) => {
+          lodashSet(state.estimatePoints, [estimatePointId], estimatePoint);
+        });
+      },
+
+      // Computed methods
+      getAsJson: () => {
+        const state = get();
+        return {
+          id: state.id,
+          name: state.name,
+          description: state.description,
+          type: state.type,
+          workspace: state.workspace,
+          project: state.project,
+          last_used: state.last_used,
+          created_at: state.created_at,
+          updated_at: state.updated_at,
+          created_by: state.created_by,
+          updated_by: state.updated_by,
+        };
+      },
+
+      getEstimatePointIds: () => {
+        const state = get();
+        const { estimatePoints } = state;
+        if (!estimatePoints) return undefined;
+        let currentEstimatePoints = Object.values(estimatePoints).filter(
+          (estimatePoint) => estimatePoint?.estimate === state.id
+        );
+        currentEstimatePoints = orderBy(currentEstimatePoints, ["key"], "asc");
+        const estimatePointIds = currentEstimatePoints.map((estimatePoint) => estimatePoint.id) as string[];
+        return estimatePointIds ?? undefined;
+      },
+
+      estimatePointById: (estimatePointId: string) => {
+        if (!estimatePointId) return undefined;
+        const state = get();
+        return state.estimatePoints[estimatePointId] ?? undefined;
+      },
+    }))
+  );
+
+// Legacy class wrapper for backward compatibility
+export class Estimate implements IEstimate {
+  // Store instance for this estimate
+  private useEstimateStore: ReturnType<typeof createEstimateStore>;
 
   constructor(
     public store: CoreRootStore,
     public data: IEstimateType
   ) {
-    makeObservable(this, {
-      // data model observables
-      id: observable.ref,
-      name: observable.ref,
-      description: observable.ref,
-      type: observable.ref,
-      workspace: observable.ref,
-      project: observable.ref,
-      last_used: observable.ref,
-      created_at: observable.ref,
-      updated_at: observable.ref,
-      created_by: observable.ref,
-      updated_by: observable.ref,
-      // observables
-      error: observable.ref,
-      estimatePoints: observable,
-      // computed
-      asJson: computed,
-      estimatePointIds: computed,
-      // actions
-      creteEstimatePoint: action,
-    });
-    this.id = this.data.id;
-    this.name = this.data.name;
-    this.description = this.data.description;
-    this.type = this.data.type;
-    this.workspace = this.data.workspace;
-    this.project = this.data.project;
-    this.last_used = this.data.last_used;
-    this.created_at = this.data.created_at;
-    this.updated_at = this.data.updated_at;
-    this.created_by = this.data.created_by;
-    this.updated_by = this.data.updated_by;
-    this.data.points?.forEach((estimationPoint) => {
-      if (estimationPoint.id)
-        set(this.estimatePoints, [estimationPoint.id], new EstimatePoint(this.store, this.data, estimationPoint));
+    // Create a new store instance for this estimate
+    this.useEstimateStore = createEstimateStore();
+    // Initialize the store with data
+    this.useEstimateStore.getState().initialize(data);
+    // Initialize estimate points
+    data.points?.forEach((estimationPoint) => {
+      if (estimationPoint.id) {
+        const estimatePoint = new EstimatePoint(this.store, this.data, estimationPoint);
+        this.useEstimateStore.getState().addEstimatePoint(estimationPoint.id, estimatePoint);
+      }
     });
   }
 
-  // computed
+  private get state() {
+    return this.useEstimateStore.getState();
+  }
+
+  // Data model observables (getters that read from Zustand store)
+  get id() {
+    return this.state.id;
+  }
+
+  get name() {
+    return this.state.name;
+  }
+
+  get description() {
+    return this.state.description;
+  }
+
+  get type() {
+    return this.state.type;
+  }
+
+  get workspace() {
+    return this.state.workspace;
+  }
+
+  get project() {
+    return this.state.project;
+  }
+
+  get last_used() {
+    return this.state.last_used;
+  }
+
+  get created_at() {
+    return this.state.created_at;
+  }
+
+  get updated_at() {
+    return this.state.updated_at;
+  }
+
+  get created_by() {
+    return this.state.created_by;
+  }
+
+  get updated_by() {
+    return this.state.updated_by;
+  }
+
+  get error() {
+    return this.state.error;
+  }
+
+  get estimatePoints() {
+    return this.state.estimatePoints;
+  }
+
+  // Computed properties (delegate to Zustand store)
   get asJson() {
-    return {
-      id: this.id,
-      name: this.name,
-      description: this.description,
-      type: this.type,
-      workspace: this.workspace,
-      project: this.project,
-      last_used: this.last_used,
-      created_at: this.created_at,
-      updated_at: this.updated_at,
-      created_by: this.created_by,
-      updated_by: this.updated_by,
-    };
+    return this.state.getAsJson();
   }
 
   get estimatePointIds() {
-    const { estimatePoints } = this;
-    if (!estimatePoints) return undefined;
-    let currentEstimatePoints = Object.values(estimatePoints).filter(
-      (estimatePoint) => estimatePoint?.estimate === this.id
-    );
-    currentEstimatePoints = orderBy(currentEstimatePoints, ["key"], "asc");
-    const estimatePointIds = currentEstimatePoints.map((estimatePoint) => estimatePoint.id) as string[];
-    return estimatePointIds ?? undefined;
+    return this.state.getEstimatePointIds();
   }
 
-  estimatePointById = computedFn((estimatePointId: string) => {
-    if (!estimatePointId) return undefined;
-    return this.estimatePoints[estimatePointId] ?? undefined;
-  });
+  estimatePointById = (estimatePointId: string) => {
+    return this.state.estimatePointById(estimatePointId);
+  };
 
-  // actions
-  /**
-   * @description create an estimate point
-   * @param { string } workspaceSlug
-   * @param { string } projectId
-   * @param { Partial<IEstimatePointType> } payload
-   * @returns { IEstimatePointType | undefined }
-   */
+  // Actions
   creteEstimatePoint = async (
     workspaceSlug: string,
     projectId: string,
@@ -144,12 +247,10 @@ export class Estimate implements IEstimate {
     if (!this.id || !payload) return;
 
     const estimatePoint = await estimateService.createEstimatePoint(workspaceSlug, projectId, this.id, payload);
-    if (estimatePoint) {
-      runInAction(() => {
-        if (estimatePoint.id) {
-          set(this.estimatePoints, [estimatePoint.id], new EstimatePoint(this.store, this.data, estimatePoint));
-        }
-      });
+    if (estimatePoint && estimatePoint.id) {
+      const newEstimatePoint = new EstimatePoint(this.store, this.data, estimatePoint);
+      this.state.addEstimatePoint(estimatePoint.id, newEstimatePoint);
     }
+    return estimatePoint;
   };
 }

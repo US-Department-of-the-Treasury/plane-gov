@@ -1,5 +1,6 @@
-import { cloneDeep, set } from "lodash-es";
-import { action, makeObservable, observable, runInAction, computed } from "mobx";
+import { cloneDeep, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // plane imports
 import { EUserPermissions, API_BASE_URL } from "@plane/constants";
 import type { IUser, TUserPermissions } from "@plane/types";
@@ -50,208 +51,241 @@ export interface IUserStore {
   projectsWithCreatePermissions: { [projectId: string]: number } | null;
 }
 
+// Zustand Store
+interface UserState {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: TUserErrorStatus | undefined;
+  data: IUser | undefined;
+}
+
+interface UserActions {
+  fetchCurrentUser: (
+    userService: UserService,
+    userProfile: IUserProfileStore,
+    userSettings: IUserSettingsStore,
+    store: RootStore
+  ) => Promise<IUser>;
+  updateCurrentUser: (userService: UserService, data: Partial<IUser>) => Promise<IUser>;
+  handleSetPassword: (authService: AuthService, csrfToken: string, data: { password: string }) => Promise<IUser | undefined>;
+  changePassword: (
+    userService: UserService,
+    csrfToken: string,
+    payload: { old_password?: string; new_password: string }
+  ) => Promise<IUser | undefined>;
+  deactivateAccount: (userService: UserService, store: RootStore) => Promise<void>;
+  reset: () => void;
+  signOut: (authService: AuthService, store: RootStore) => Promise<void>;
+}
+
+type UserStoreType = UserState & UserActions;
+
+export const useUserStore = create<UserStoreType>()(
+  immer((set, get) => ({
+    // State
+    isAuthenticated: false,
+    isLoading: false,
+    error: undefined,
+    data: undefined,
+
+    // Actions
+    fetchCurrentUser: async (userService, userProfile, userSettings, store) => {
+      try {
+        set((state) => {
+          state.isLoading = true;
+          state.error = undefined;
+        });
+        const user = await userService.currentUser();
+        if (user && user?.id) {
+          await Promise.all([
+            userProfile.fetchUserProfile(),
+            userSettings.fetchCurrentUserSettings(),
+            store.workspaceRoot.fetchWorkspaces(),
+          ]);
+          set((state) => {
+            state.data = user;
+            state.isLoading = false;
+            state.isAuthenticated = true;
+          });
+        } else {
+          set((state) => {
+            state.data = user;
+            state.isLoading = false;
+            state.isAuthenticated = false;
+          });
+        }
+        return user;
+      } catch (error) {
+        set((state) => {
+          state.isLoading = false;
+          state.isAuthenticated = false;
+          state.error = {
+            status: "user-fetch-error",
+            message: "Failed to fetch current user",
+          };
+        });
+        throw error;
+      }
+    },
+
+    updateCurrentUser: async (userService, data) => {
+      const currentUserData = get().data;
+      try {
+        if (currentUserData) {
+          set((state) => {
+            Object.keys(data).forEach((key: string) => {
+              const userKey: keyof IUser = key as keyof IUser;
+              if (state.data) lodashSet(state.data, userKey, data[userKey]);
+            });
+          });
+        }
+        const user = await userService.updateUser(data);
+        return user;
+      } catch (error) {
+        if (currentUserData) {
+          set((state) => {
+            Object.keys(currentUserData).forEach((key: string) => {
+              const userKey: keyof IUser = key as keyof IUser;
+              if (state.data) lodashSet(state.data, userKey, currentUserData[userKey]);
+            });
+          });
+        }
+        set((state) => {
+          state.error = {
+            status: "user-update-error",
+            message: "Failed to update current user",
+          };
+        });
+        throw error;
+      }
+    },
+
+    handleSetPassword: async (authService, csrfToken, data) => {
+      const currentUserData = cloneDeep(get().data);
+      try {
+        if (currentUserData && currentUserData.is_password_autoset && get().data) {
+          const user = await authService.setPassword(csrfToken, { password: data.password });
+          set((state) => {
+            if (state.data) lodashSet(state.data, ["is_password_autoset"], false);
+          });
+          return user;
+        }
+        return undefined;
+      } catch (error) {
+        set((state) => {
+          if (state.data) lodashSet(state.data, ["is_password_autoset"], true);
+          state.error = {
+            status: "user-update-error",
+            message: "Failed to update current user",
+          };
+        });
+        throw error;
+      }
+    },
+
+    changePassword: async (userService, csrfToken, payload) => {
+      try {
+        const user = await userService.changePassword(csrfToken, payload);
+        set((state) => {
+          if (state.data) lodashSet(state.data, ["is_password_autoset"], false);
+        });
+        return user;
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    },
+
+    deactivateAccount: async (userService, store) => {
+      await userService.deactivateAccount();
+      store.resetOnSignOut();
+    },
+
+    reset: () => {
+      set((state) => {
+        state.isAuthenticated = false;
+        state.isLoading = false;
+        state.error = undefined;
+        state.data = undefined;
+      });
+    },
+
+    signOut: async (authService, store) => {
+      await authService.signOut(API_BASE_URL);
+      store.resetOnSignOut();
+    },
+  }))
+);
+
+// Legacy class wrapper for backward compatibility
 export class UserStore implements IUserStore {
-  // observables
-  isAuthenticated: boolean = false;
-  isLoading: boolean = false;
-  error: TUserErrorStatus | undefined = undefined;
-  data: IUser | undefined = undefined;
-  // store observables
   userProfile: IUserProfileStore;
   userSettings: IUserSettingsStore;
   accounts: Record<string, IAccountStore> = {};
   permission: IUserPermissionStore;
-  // service
   userService: UserService;
   authService: AuthService;
 
   constructor(private store: RootStore) {
-    // stores
     this.userProfile = new ProfileStore(store);
     this.userSettings = new UserSettingsStore();
     this.permission = new UserPermissionStore(store);
-    // service
     this.userService = new UserService();
     this.authService = new AuthService();
-    // observables
-    makeObservable(this, {
-      // observables
-      isAuthenticated: observable.ref,
-      isLoading: observable.ref,
-      error: observable,
-      // model observables
-      data: observable,
-      userProfile: observable,
-      userSettings: observable,
-      accounts: observable,
-      permission: observable,
-      // actions
-      fetchCurrentUser: action,
-      updateCurrentUser: action,
-      handleSetPassword: action,
-      deactivateAccount: action,
-      changePassword: action,
-      reset: action,
-      signOut: action,
-      // computed
-      canPerformAnyCreateAction: computed,
-      projectsWithCreatePermissions: computed,
-    });
   }
 
-  /**
-   * @description fetches the current user
-   * @returns {Promise<IUser>}
-   */
-  fetchCurrentUser = async (): Promise<IUser> => {
-    try {
-      runInAction(() => {
-        this.isLoading = true;
-        this.error = undefined;
-      });
-      const user = await this.userService.currentUser();
-      if (user && user?.id) {
-        await Promise.all([
-          this.userProfile.fetchUserProfile(),
-          this.userSettings.fetchCurrentUserSettings(),
-          this.store.workspaceRoot.fetchWorkspaces(),
-        ]);
-        runInAction(() => {
-          this.data = user;
-          this.isLoading = false;
-          this.isAuthenticated = true;
-        });
-      } else
-        runInAction(() => {
-          this.data = user;
-          this.isLoading = false;
-          this.isAuthenticated = false;
-        });
-      return user;
-    } catch (error) {
-      runInAction(() => {
-        this.isLoading = false;
-        this.isAuthenticated = false;
-        this.error = {
-          status: "user-fetch-error",
-          message: "Failed to fetch current user",
-        };
-      });
-      throw error;
-    }
+  private get userStore() {
+    return useUserStore.getState();
+  }
+
+  get isAuthenticated() {
+    return this.userStore.isAuthenticated;
+  }
+
+  get isLoading() {
+    return this.userStore.isLoading;
+  }
+
+  get error() {
+    return this.userStore.error;
+  }
+
+  get data() {
+    return this.userStore.data;
+  }
+
+  fetchCurrentUser = () => {
+    return this.userStore.fetchCurrentUser(this.userService, this.userProfile, this.userSettings, this.store);
   };
 
-  /**
-   * @description updates the current user
-   * @param data
-   * @returns {Promise<IUser>}
-   */
-  updateCurrentUser = async (data: Partial<IUser>): Promise<IUser> => {
-    const currentUserData = this.data;
-    try {
-      if (currentUserData) {
-        Object.keys(data).forEach((key: string) => {
-          const userKey: keyof IUser = key as keyof IUser;
-          if (this.data) set(this.data, userKey, data[userKey]);
-        });
-      }
-      const user = await this.userService.updateUser(data);
-      return user;
-    } catch (error) {
-      if (currentUserData) {
-        Object.keys(currentUserData).forEach((key: string) => {
-          const userKey: keyof IUser = key as keyof IUser;
-          if (this.data) set(this.data, userKey, currentUserData[userKey]);
-        });
-      }
-      runInAction(() => {
-        this.error = {
-          status: "user-update-error",
-          message: "Failed to update current user",
-        };
-      });
-      throw error;
-    }
+  updateCurrentUser = (data: Partial<IUser>) => {
+    return this.userStore.updateCurrentUser(this.userService, data);
   };
 
-  /**
-   * @description update the user password
-   * @param data
-   * @returns {Promise<IUser>}
-   */
-  handleSetPassword = async (csrfToken: string, data: { password: string }): Promise<IUser | undefined> => {
-    const currentUserData = cloneDeep(this.data);
-    try {
-      if (currentUserData && currentUserData.is_password_autoset && this.data) {
-        const user = await this.authService.setPassword(csrfToken, { password: data.password });
-        set(this.data, ["is_password_autoset"], false);
-        return user;
-      }
-      return undefined;
-    } catch (error) {
-      if (this.data) set(this.data, ["is_password_autoset"], true);
-      runInAction(() => {
-        this.error = {
-          status: "user-update-error",
-          message: "Failed to update current user",
-        };
-      });
-      throw error;
-    }
+  handleSetPassword = (csrfToken: string, data: { password: string }) => {
+    return this.userStore.handleSetPassword(this.authService, csrfToken, data);
   };
 
-  changePassword = async (
-    csrfToken: string,
-    payload: {
-      old_password?: string;
-      new_password: string;
-    }
-  ): Promise<IUser | undefined> => {
-    try {
-      const user = await this.userService.changePassword(csrfToken, payload);
-      if (this.data) set(this.data, ["is_password_autoset"], false);
-      return user;
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
+  changePassword = (csrfToken: string, payload: { old_password?: string; new_password: string }) => {
+    return this.userStore.changePassword(this.userService, csrfToken, payload);
   };
 
-  /**
-   * @description deactivates the current user
-   * @returns {Promise<void>}
-   */
-  deactivateAccount = async (): Promise<void> => {
-    await this.userService.deactivateAccount();
-    this.store.resetOnSignOut();
+  deactivateAccount = () => {
+    return this.userStore.deactivateAccount(this.userService, this.store);
   };
 
-  /**
-   * @description resets the user store
-   * @returns {void}
-   */
-  reset = (): void => {
-    runInAction(() => {
-      this.isAuthenticated = false;
-      this.isLoading = false;
-      this.error = undefined;
-      this.data = undefined;
-      this.userProfile = new ProfileStore(this.store);
-      this.userSettings = new UserSettingsStore();
-      this.permission = new UserPermissionStore(this.store);
-    });
+  reset = () => {
+    this.userStore.reset();
+    this.userProfile = new ProfileStore(this.store);
+    this.userSettings = new UserSettingsStore();
+    this.permission = new UserPermissionStore(this.store);
   };
 
-  /**
-   * @description signs out the current user
-   * @returns {Promise<void>}
-   */
-  signOut = async (): Promise<void> => {
-    await this.authService.signOut(API_BASE_URL);
-    this.store.resetOnSignOut();
+  signOut = () => {
+    return this.userStore.signOut(this.authService, this.store);
   };
 
-  // helper actions
+  // helper methods
   /**
    * @description fetches the projects with write permissions
    * @returns {{[projectId: string]: number} || null}

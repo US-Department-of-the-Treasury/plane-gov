@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, useMemo, useCallback, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { createContext, useContext, useState, useMemo, useCallback } from "react";
 import { ANALYTICS_DURATION_FILTER_OPTIONS } from "@plane/constants";
 import type { TAnalyticsTabsBase } from "@plane/types";
 

@@ -1,11 +1,122 @@
-import { set } from "lodash-es";
-import { action, computed, observable, makeObservable, runInAction, reaction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // types
 import type { TProjectDisplayFilters, TProjectFilters, TProjectAppliedDisplayFilterKeys } from "@plane/types";
 // store
 import type { CoreRootStore } from "../root.store";
 
+// Zustand Store
+interface ProjectFilterState {
+  displayFilters: Record<string, TProjectDisplayFilters>;
+  filters: Record<string, TProjectFilters>;
+  searchQuery: string;
+}
+
+interface ProjectFilterActions {
+  getDisplayFiltersByWorkspaceSlug: (workspaceSlug: string) => TProjectDisplayFilters | undefined;
+  getFiltersByWorkspaceSlug: (workspaceSlug: string) => TProjectFilters | undefined;
+  initWorkspaceFilters: (workspaceSlug: string) => void;
+  updateDisplayFilters: (workspaceSlug: string, displayFilters: TProjectDisplayFilters) => void;
+  updateFilters: (workspaceSlug: string, filters: TProjectFilters) => void;
+  updateSearchQuery: (query: string) => void;
+  clearAllFilters: (workspaceSlug: string) => void;
+  clearAllAppliedDisplayFilters: (workspaceSlug: string, appliedFilters: TProjectAppliedDisplayFilterKeys[]) => void;
+}
+
+type ProjectFilterStoreType = ProjectFilterState & ProjectFilterActions;
+
+export const useProjectFilterStore = create<ProjectFilterStoreType>()(
+  immer((set, get) => ({
+    // State
+    displayFilters: {},
+    filters: {},
+    searchQuery: "",
+
+    // Actions
+    getDisplayFiltersByWorkspaceSlug: (workspaceSlug: string) => {
+      return get().displayFilters[workspaceSlug];
+    },
+
+    getFiltersByWorkspaceSlug: (workspaceSlug: string) => {
+      return get().filters[workspaceSlug];
+    },
+
+    /**
+     * @description initialize display filters and filters of a workspace
+     * @param {string} workspaceSlug
+     */
+    initWorkspaceFilters: (workspaceSlug: string) => {
+      const displayFilters = get().displayFilters[workspaceSlug];
+      set((state) => {
+        state.displayFilters[workspaceSlug] = {
+          order_by: displayFilters?.order_by || "created_at",
+        };
+        state.filters[workspaceSlug] = state.filters[workspaceSlug] ?? {};
+      });
+    },
+
+    /**
+     * @description update display filters of a workspace
+     * @param {string} workspaceSlug
+     * @param {TProjectDisplayFilters} displayFilters
+     */
+    updateDisplayFilters: (workspaceSlug: string, displayFilters: TProjectDisplayFilters) => {
+      set((state) => {
+        Object.keys(displayFilters).forEach((key) => {
+          lodashSet(state.displayFilters, [workspaceSlug, key], displayFilters[key as keyof TProjectDisplayFilters]);
+        });
+      });
+    },
+
+    /**
+     * @description update filters of a workspace
+     * @param {string} workspaceSlug
+     * @param {TProjectFilters} filters
+     */
+    updateFilters: (workspaceSlug: string, filters: TProjectFilters) => {
+      set((state) => {
+        Object.keys(filters).forEach((key) => {
+          lodashSet(state.filters, [workspaceSlug, key], filters[key as keyof TProjectFilters]);
+        });
+      });
+    },
+
+    /**
+     * @description update search query
+     * @param {string} query
+     */
+    updateSearchQuery: (query: string) => {
+      set((state) => {
+        state.searchQuery = query;
+      });
+    },
+
+    /**
+     * @description clear all filters of a workspace
+     * @param {string} workspaceSlug
+     */
+    clearAllFilters: (workspaceSlug: string) => {
+      set((state) => {
+        state.filters[workspaceSlug] = {};
+      });
+    },
+
+    /**
+     * @description clear project display filters of a workspace
+     * @param {string} workspaceSlug
+     */
+    clearAllAppliedDisplayFilters: (workspaceSlug: string, appliedFilters: TProjectAppliedDisplayFilterKeys[]) => {
+      set((state) => {
+        appliedFilters.forEach((key) => {
+          lodashSet(state.displayFilters, [workspaceSlug, key], false);
+        });
+      });
+    },
+  }))
+);
+
+// Legacy interface
 export interface IProjectFilterStore {
   // observables
   displayFilters: Record<string, TProjectDisplayFilters>;
@@ -26,42 +137,40 @@ export interface IProjectFilterStore {
   clearAllAppliedDisplayFilters: (workspaceSlug: string) => void;
 }
 
+// Legacy class wrapper for backward compatibility
 export class ProjectFilterStore implements IProjectFilterStore {
-  // observables
-  displayFilters: Record<string, TProjectDisplayFilters> = {};
-  filters: Record<string, TProjectFilters> = {};
-  searchQuery: string = "";
   // root store
   rootStore: CoreRootStore;
 
   constructor(_rootStore: CoreRootStore) {
-    makeObservable(this, {
-      // observables
-      displayFilters: observable,
-      filters: observable,
-      searchQuery: observable.ref,
-      // computed
-      currentWorkspaceDisplayFilters: computed,
-      currentWorkspaceAppliedDisplayFilters: computed,
-      currentWorkspaceFilters: computed,
-      // actions
-      updateDisplayFilters: action,
-      updateFilters: action,
-      updateSearchQuery: action,
-      clearAllFilters: action,
-      clearAllAppliedDisplayFilters: action,
-    });
-    // root store
     this.rootStore = _rootStore;
-    // initialize display filters of the current workspace
-    reaction(
-      () => this.rootStore.router.workspaceSlug,
-      (workspaceSlug) => {
-        if (!workspaceSlug) return;
-        this.initWorkspaceFilters(workspaceSlug);
-        this.searchQuery = "";
+
+    // Set up reaction equivalent using subscription
+    let previousWorkspaceSlug: string | undefined;
+    useProjectFilterStore.subscribe((state) => {
+      const currentWorkspaceSlug = this.rootStore.router.workspaceSlug;
+      if (currentWorkspaceSlug && currentWorkspaceSlug !== previousWorkspaceSlug) {
+        this.initWorkspaceFilters(currentWorkspaceSlug);
+        state.searchQuery = "";
       }
-    );
+      previousWorkspaceSlug = currentWorkspaceSlug;
+    });
+  }
+
+  private get store() {
+    return useProjectFilterStore.getState();
+  }
+
+  get displayFilters() {
+    return this.store.displayFilters;
+  }
+
+  get filters() {
+    return this.store.filters;
+  }
+
+  get searchQuery() {
+    return this.store.searchQuery;
   }
 
   /**
@@ -70,7 +179,7 @@ export class ProjectFilterStore implements IProjectFilterStore {
   get currentWorkspaceDisplayFilters() {
     const workspaceSlug = this.rootStore.router.workspaceSlug;
     if (!workspaceSlug) return;
-    return this.displayFilters[workspaceSlug];
+    return this.store.displayFilters[workspaceSlug];
   }
 
   /**
@@ -81,7 +190,8 @@ export class ProjectFilterStore implements IProjectFilterStore {
   get currentWorkspaceAppliedDisplayFilters() {
     const workspaceSlug = this.rootStore.router.workspaceSlug;
     if (!workspaceSlug) return;
-    const displayFilters = this.displayFilters[workspaceSlug];
+    const displayFilters = this.store.displayFilters[workspaceSlug];
+    if (!displayFilters) return;
     return Object.keys(displayFilters).filter(
       (key): key is TProjectAppliedDisplayFilterKeys =>
         ["my_projects", "archived_projects"].includes(key) && !!displayFilters[key as keyof TProjectDisplayFilters]
@@ -94,33 +204,31 @@ export class ProjectFilterStore implements IProjectFilterStore {
   get currentWorkspaceFilters() {
     const workspaceSlug = this.rootStore.router.workspaceSlug;
     if (!workspaceSlug) return;
-    return this.filters[workspaceSlug];
+    return this.store.filters[workspaceSlug];
   }
 
   /**
    * @description get display filters of a workspace by workspaceSlug
    * @param {string} workspaceSlug
    */
-  getDisplayFiltersByWorkspaceSlug = computedFn((workspaceSlug: string) => this.displayFilters[workspaceSlug]);
+  getDisplayFiltersByWorkspaceSlug = (workspaceSlug: string) => {
+    return this.store.getDisplayFiltersByWorkspaceSlug(workspaceSlug);
+  };
 
   /**
    * @description get filters of a workspace by workspaceSlug
    * @param {string} workspaceSlug
    */
-  getFiltersByWorkspaceSlug = computedFn((workspaceSlug: string) => this.filters[workspaceSlug]);
+  getFiltersByWorkspaceSlug = (workspaceSlug: string) => {
+    return this.store.getFiltersByWorkspaceSlug(workspaceSlug);
+  };
 
   /**
    * @description initialize display filters and filters of a workspace
    * @param {string} workspaceSlug
    */
   initWorkspaceFilters = (workspaceSlug: string) => {
-    const displayFilters = this.getDisplayFiltersByWorkspaceSlug(workspaceSlug);
-    runInAction(() => {
-      this.displayFilters[workspaceSlug] = {
-        order_by: displayFilters?.order_by || "created_at",
-      };
-      this.filters[workspaceSlug] = this.filters[workspaceSlug] ?? {};
-    });
+    this.store.initWorkspaceFilters(workspaceSlug);
   };
 
   /**
@@ -129,11 +237,7 @@ export class ProjectFilterStore implements IProjectFilterStore {
    * @param {TProjectDisplayFilters} displayFilters
    */
   updateDisplayFilters = (workspaceSlug: string, displayFilters: TProjectDisplayFilters) => {
-    runInAction(() => {
-      Object.keys(displayFilters).forEach((key) => {
-        set(this.displayFilters, [workspaceSlug, key], displayFilters[key as keyof TProjectDisplayFilters]);
-      });
-    });
+    this.store.updateDisplayFilters(workspaceSlug, displayFilters);
   };
 
   /**
@@ -142,27 +246,23 @@ export class ProjectFilterStore implements IProjectFilterStore {
    * @param {TProjectFilters} filters
    */
   updateFilters = (workspaceSlug: string, filters: TProjectFilters) => {
-    runInAction(() => {
-      Object.keys(filters).forEach((key) => {
-        set(this.filters, [workspaceSlug, key], filters[key as keyof TProjectFilters]);
-      });
-    });
+    this.store.updateFilters(workspaceSlug, filters);
   };
 
   /**
    * @description update search query
    * @param {string} query
    */
-  updateSearchQuery = (query: string) => (this.searchQuery = query);
+  updateSearchQuery = (query: string) => {
+    this.store.updateSearchQuery(query);
+  };
 
   /**
    * @description clear all filters of a workspace
    * @param {string} workspaceSlug
    */
   clearAllFilters = (workspaceSlug: string) => {
-    runInAction(() => {
-      this.filters[workspaceSlug] = {};
-    });
+    this.store.clearAllFilters(workspaceSlug);
   };
 
   /**
@@ -170,11 +270,7 @@ export class ProjectFilterStore implements IProjectFilterStore {
    * @param {string} workspaceSlug
    */
   clearAllAppliedDisplayFilters = (workspaceSlug: string) => {
-    runInAction(() => {
-      if (!this.currentWorkspaceAppliedDisplayFilters) return;
-      this.currentWorkspaceAppliedDisplayFilters.forEach((key) => {
-        set(this.displayFilters, [workspaceSlug, key], false);
-      });
-    });
+    if (!this.currentWorkspaceAppliedDisplayFilters) return;
+    this.store.clearAllAppliedDisplayFilters(workspaceSlug, this.currentWorkspaceAppliedDisplayFilters);
   };
 }
