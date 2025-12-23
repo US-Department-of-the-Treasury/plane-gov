@@ -17,7 +17,7 @@
     "fix:format": "prettier . --cache --write",
     "test:smoke": "playwright test --project=smoke",
     "test:e2e": "playwright test --project=smoke --project=crud",
-    "test:comprehensive": "playwright test",
+    "test:comprehensive": "playwright test --project=smoke --project=crud --project=interactions --project=chromium",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed"
   },

@@ -20,14 +20,18 @@ async function globalSetup(config: FullConfig) {
     fs.mkdirSync(authDir, { recursive: true });
   }
 
-  // Check if we already have valid auth state
-  if (fs.existsSync(AUTH_STATE_PATH)) {
-    const stats = fs.statSync(AUTH_STATE_PATH);
-    const hoursSinceModified = (Date.now() - stats.mtimeMs) / (1000 * 60 * 60);
+  // Check if we already have valid auth state AND project ID
+  const hasValidAuth = fs.existsSync(AUTH_STATE_PATH) && fs.existsSync(PROJECT_ID_PATH);
+  if (hasValidAuth) {
+    const authStats = fs.statSync(AUTH_STATE_PATH);
+    const projectStats = fs.statSync(PROJECT_ID_PATH);
+    const hoursSinceModified = (Date.now() - authStats.mtimeMs) / (1000 * 60 * 60);
+    const projectHoursSinceModified = (Date.now() - projectStats.mtimeMs) / (1000 * 60 * 60);
 
-    // Reuse auth state if less than 24 hours old
-    if (hoursSinceModified < 24) {
-      console.log("Using existing auth state (less than 24 hours old)");
+    // Reuse auth state if both are less than 24 hours old
+    if (hoursSinceModified < 24 && projectHoursSinceModified < 24) {
+      const projectId = fs.readFileSync(PROJECT_ID_PATH, "utf-8").trim();
+      console.log(`Using existing auth state and project ID: ${projectId}`);
       return;
     }
   }
@@ -67,17 +71,28 @@ async function globalSetup(config: FullConfig) {
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(2000);
 
-      // Find first project link and extract project ID from href
-      const projectLink = page.locator('a[href*="/projects/"]').first();
-      const href = await projectLink.getAttribute("href");
-      if (href) {
-        // Extract UUID from href like /test-workspace/projects/59f71e93-e63d-4cf2-b5d3-3673d5f5b04f/issues
-        const match = href.match(/\/projects\/([a-f0-9-]{36})/);
-        if (match) {
-          const projectId = match[1];
-          fs.writeFileSync(PROJECT_ID_PATH, projectId);
-          console.log(`Project ID discovered and saved: ${projectId}`);
+      // Find project links that contain a UUID in the href (not just /projects/)
+      // Pattern: /workspace/projects/UUID/... where UUID is 36 chars
+      const projectLinks = page.locator('a[href*="/projects/"]');
+      const count = await projectLinks.count();
+
+      for (let i = 0; i < count; i++) {
+        const href = await projectLinks.nth(i).getAttribute("href");
+        if (href) {
+          // Extract UUID from href like /test-workspace/projects/59f71e93-e63d-4cf2-b5d3-3673d5f5b04f/issues
+          const match = href.match(/\/projects\/([a-f0-9-]{36})/);
+          if (match) {
+            const projectId = match[1];
+            fs.writeFileSync(PROJECT_ID_PATH, projectId);
+            console.log(`Project ID discovered and saved: ${projectId}`);
+            break;
+          }
         }
+      }
+
+      // Verify file was written
+      if (!fs.existsSync(PROJECT_ID_PATH)) {
+        console.warn("Could not find any project with UUID in href. Links found:", count);
       }
     } catch (projectError) {
       console.warn("Could not discover project ID:", projectError);

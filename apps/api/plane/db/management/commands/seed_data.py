@@ -148,29 +148,35 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.NOTICE(f"Seeding database in '{mode}' mode..."))
 
+        # Create workspace slug from name
+        workspace_slug = workspace_name.lower().replace(" ", "-")
+
+        # Handle --force deletion OUTSIDE the main transaction
+        # This ensures the unique constraint is released before we try to create
+        # Use all_objects to bypass soft-delete filtering
+        existing = Workspace.all_objects.filter(slug=workspace_slug).first()
+        if existing:
+            if not force:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"  Workspace '{workspace_slug}' already exists. Use --force to overwrite."
+                    )
+                )
+                return
+            else:
+                self.stdout.write(
+                    self.style.WARNING(f"  Deleting existing workspace '{workspace_slug}'...")
+                )
+                # Use hard_delete to bypass soft-delete and actually remove the record
+                # This handles both active and soft-deleted workspaces
+                Workspace.all_objects.filter(slug=workspace_slug).delete()
+                self.stdout.write(self.style.SUCCESS(f"  Deleted existing workspace."))
+
         try:
             with transaction.atomic():
                 # Create or get user
                 user = self._get_or_create_user(email, password)
                 self.stdout.write(self.style.SUCCESS(f"  User: {user.email}"))
-
-                # Create workspace slug from name
-                workspace_slug = workspace_name.lower().replace(" ", "-")
-
-                # Check for existing workspace
-                if Workspace.objects.filter(slug=workspace_slug).exists():
-                    if not force:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"  Workspace '{workspace_slug}' already exists. Use --force to overwrite."
-                            )
-                        )
-                        return
-                    else:
-                        self.stdout.write(
-                            self.style.WARNING(f"  Deleting existing workspace '{workspace_slug}'...")
-                        )
-                        Workspace.objects.filter(slug=workspace_slug).delete()
 
                 # Create workspace
                 workspace = self._create_workspace(workspace_name, workspace_slug, user)

@@ -1274,15 +1274,19 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
         //if update is add, add it at a particular path
         if (issueUpdate.action === EIssueGroupedAction.ADD) {
           // add issue Id at the path
-          update(this, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) =>
-            this.issuesSortWithOrderBy(uniq(concat(issueIds, issueId)), this.orderBy)
-          );
+          this.baseStore.getState().mutateState((state) => {
+            update(state, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) =>
+              this.issuesSortWithOrderBy(uniq(concat(issueIds, issueId)), this.orderBy)
+            );
+          });
         }
 
         //if update is delete, remove it at a particular path
         if (issueUpdate.action === EIssueGroupedAction.DELETE) {
           // remove issue Id from the path
-          update(this, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) => pull(issueIds, issueId));
+          this.baseStore.getState().mutateState((state) => {
+            update(state, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) => pull(issueIds, issueId));
+          });
         }
 
         // accumulate the updates so that we don't end up updating the count twice for the same issue
@@ -1291,9 +1295,11 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
         //if update is reorder, reorder it at a particular path
         if (issueUpdate.action === EIssueGroupedAction.REORDER) {
           // re-order/re-sort the issue Ids at the path
-          update(this, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) =>
-            this.issuesSortWithOrderBy(issueIds, this.orderBy)
-          );
+          this.baseStore.getState().mutateState((state) => {
+            update(state, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) =>
+              this.issuesSortWithOrderBy(issueIds, this.orderBy)
+            );
+          });
         }
       }
 
@@ -1470,9 +1476,11 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
 
     // if groupedIssueIds is an array, update the `groupedIssueIds` store at the issuePath
     if (groupedIssueIds && Array.isArray(groupedIssueIds)) {
-      update(this, ["groupedIssueIds", ...issuePath], (issueIds: string[] = []) =>
-        this.issuesSortWithOrderBy(uniq(concat(issueIds, groupedIssueIds)), this.orderBy)
-      );
+      this.baseStore.getState().mutateState((state) => {
+        update(state, ["groupedIssueIds", ...issuePath], (issueIds: string[] = []) =>
+          this.issuesSortWithOrderBy(uniq(concat(issueIds, groupedIssueIds)), this.orderBy)
+        );
+      });
       // return true to indicate the store has been updated
       return true;
     }

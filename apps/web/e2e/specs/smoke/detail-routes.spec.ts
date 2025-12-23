@@ -191,11 +191,28 @@ test.describe("Wiki Page Routes @smoke", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    // Look for any wiki page link
-    const wikiLink = page.locator('[data-testid="wiki-page-row"], [data-testid="wiki-page-card"], a[href*="/wiki/"]').first();
-    const hasWikiPages = await wikiLink.count() > 0;
+    // Look for any wiki page link that has a UUID in the URL (not just /wiki/)
+    // Wiki page URLs look like /workspace/wiki/[uuid]
+    const wikiPageLinks = page.locator('a[href*="/wiki/"]').filter({
+      has: page.locator(':scope'),
+    });
 
-    if (hasWikiPages) {
+    // Filter to only links with UUIDs (36 char pattern after /wiki/)
+    let wikiLink = null;
+    const allLinks = await wikiPageLinks.all();
+    for (const link of allLinks) {
+      const href = await link.getAttribute("href");
+      // Match wiki page URLs with UUID: /workspace/wiki/[uuid]
+      if (href && /\/wiki\/[a-f0-9-]{36}/i.test(href)) {
+        const isVisible = await link.isVisible().catch(() => false);
+        if (isVisible) {
+          wikiLink = link;
+          break;
+        }
+      }
+    }
+
+    if (wikiLink) {
       await wikiLink.click();
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(2000);

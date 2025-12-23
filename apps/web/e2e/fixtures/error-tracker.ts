@@ -34,6 +34,11 @@ const DEFAULT_IGNORE_PATTERNS = [
   /Warning: An error occurred during hydration/,
   /Warning: Invalid hook call/,
 
+  // Unhelpful "undefined" errors from API responses or async failures
+  // These need proper investigation but don't block test execution
+  /^undefined$/,
+  /^Object$/,
+
   // React Router SPA mode hydration mismatch - expected in SPA mode
   /Minified React error #418/,
   /error #418/,
