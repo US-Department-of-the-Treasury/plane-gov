@@ -30,8 +30,6 @@
     "@plane/types": "workspace:*",
     "@plane/utils": "workspace:*",
     "lodash-es": "catalog:",
-    "mobx": "catalog:",
-    "mobx-utils": "catalog:",
     "uuid": "catalog:",
     "zod": "^3.22.2"
   },

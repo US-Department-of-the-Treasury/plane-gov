@@ -66,15 +66,6 @@ catalogs:
     lucide-react:
       specifier: 0.469.0
       version: 0.469.0
-    mobx:
-      specifier: 6.12.0
-      version: 6.12.0
-    mobx-react:
-      specifier: 9.1.1
-      version: 9.1.1
-    mobx-utils:
-      specifier: 6.0.8
-      version: 6.0.8
     react:
       specifier: 19.0.0
       version: 19.0.0
@@ -684,15 +675,6 @@ importers:
       lucide-react:
         specifier: 'catalog:'
         version: 0.469.0(react@19.0.0)
-      mobx:
-        specifier: 'catalog:'
-        version: 6.12.0
-      mobx-react:
-        specifier: 'catalog:'
-        version: 9.1.1(mobx@6.12.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      mobx-utils:
-        specifier: 'catalog:'
-        version: 6.0.8(mobx@6.12.0)
       next-themes:
         specifier: 0.4.6
         version: 0.4.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -1262,12 +1244,6 @@ importers:
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
-      mobx:
-        specifier: 'catalog:'
-        version: 6.12.0
-      mobx-utils:
-        specifier: 'catalog:'
-        version: 6.0.8(mobx@6.12.0)
       uuid:
         specifier: 'catalog:'
         version: 13.0.0
@@ -7224,40 +7200,6 @@ packages:
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
-
-  mobx-react-lite@4.1.0:
-    resolution: {integrity: sha512-QEP10dpHHBeQNv1pks3WnHRCem2Zp636lq54M2nKO2Sarr13pL4u6diQXf65yzXUn0mkk18SyIDCm9UOJYTi1w==}
-    peerDependencies:
-      mobx: ^6.9.0
-      react: ^16.8.0 || ^17 || ^18 || ^19
-      react-dom: '*'
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-
-  mobx-react@9.1.1:
-    resolution: {integrity: sha512-gVV7AdSrAAxqXOJ2bAbGa5TkPqvITSzaPiiEkzpW4rRsMhSec7C2NBCJYILADHKp2tzOAIETGRsIY0UaCV5aEw==}
-    peerDependencies:
-      mobx: ^6.9.0
-      react: ^16.8.0 || ^17 || ^18
-      react-dom: '*'
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-
-  mobx-utils@6.0.8:
-    resolution: {integrity: sha512-fPNt0vJnHwbQx9MojJFEnJLfM3EMGTtpy4/qOOW6xueh1mPofMajrbYAUvByMYAvCJnpy1A5L0t+ZVB5niKO4g==}
-    peerDependencies:
-      mobx: ^6.0.0
-
-  mobx@6.12.0:
-    resolution: {integrity: sha512-Mn6CN6meXEnMa0a5u6a5+RKrqRedHBhZGd15AWLk9O6uFY4KYHzImdt8JI8WODo1bjTSRnwXhJox+FCUZhCKCQ==}
 
   module-details-from-path@1.0.4:
     resolution: {integrity: sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w==}
@@ -16092,28 +16034,6 @@ snapshots:
   minimist@1.2.8: {}
 
   minipass@7.1.2: {}
-
-  mobx-react-lite@4.1.0(mobx@6.12.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
-    dependencies:
-      mobx: 6.12.0
-      react: 19.0.0
-      use-sync-external-store: 1.5.0(react@19.0.0)
-    optionalDependencies:
-      react-dom: 19.0.0(react@19.0.0)
-
-  mobx-react@9.1.1(mobx@6.12.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
-    dependencies:
-      mobx: 6.12.0
-      mobx-react-lite: 4.1.0(mobx@6.12.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      react: 19.0.0
-    optionalDependencies:
-      react-dom: 19.0.0(react@19.0.0)
-
-  mobx-utils@6.0.8(mobx@6.12.0):
-    dependencies:
-      mobx: 6.12.0
-
-  mobx@6.12.0: {}
 
   module-details-from-path@1.0.4: {}
 
