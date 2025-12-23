@@ -2,14 +2,70 @@ import { chromium, FullConfig } from "@playwright/test";
 import { loginViaUI, AUTH_STATE_PATH, TEST_WORKSPACE_SLUG } from "./fixtures/auth";
 import fs from "fs";
 import path from "path";
+import { execSync } from "child_process";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Path to store discovered project ID
 const PROJECT_ID_PATH = path.join(path.dirname(AUTH_STATE_PATH), "project-id.txt");
 
+// Path to project root (for running db seed)
+// __dirname is apps/web/e2e, so go up 3 levels to reach project root
+const PROJECT_ROOT = path.resolve(__dirname, "../../../");
+
+/**
+ * Seed the database with test data
+ * Uses the Django management command directly for non-interactive execution
+ */
+function seedDatabase(): boolean {
+  const apiDir = path.join(PROJECT_ROOT, "apps/api");
+  const venvPath = path.join(apiDir, "venv");
+
+  // Check if venv exists
+  if (!fs.existsSync(venvPath)) {
+    console.warn("Python venv not found - skipping database seed");
+    console.warn("Run ./scripts/dev.sh first to set up the environment");
+    return false;
+  }
+
+  // Check if .env exists
+  const envPath = path.join(apiDir, ".env");
+  if (!fs.existsSync(envPath)) {
+    console.warn(".env not found - skipping database seed");
+    return false;
+  }
+
+  console.log("Seeding database with test data...");
+
+  try {
+    // Run the db_reset command with --confirm to skip interactive prompt
+    // Using shell to properly activate venv and source .env
+    execSync(
+      `cd "${apiDir}" && source venv/bin/activate && set -a && source .env && set +a && python manage.py db_reset --confirm`,
+      {
+        stdio: "inherit",
+        shell: "/bin/bash",
+        timeout: 120000, // 2 minute timeout
+      }
+    );
+    console.log("Database seeded successfully");
+    return true;
+  } catch (error) {
+    console.error("Failed to seed database:", error);
+    return false;
+  }
+}
+
 /**
  * Global Setup
  *
- * Runs once before all tests to set up authentication state.
+ * Runs once before all tests to:
+ * 1. Seed the database with test data (if needed)
+ * 2. Set up authentication state
+ *
  * The auth state is saved and reused by all tests.
  */
 
@@ -19,6 +75,9 @@ async function globalSetup(config: FullConfig) {
   if (!fs.existsSync(authDir)) {
     fs.mkdirSync(authDir, { recursive: true });
   }
+
+  // Check if we should skip seeding (E2E_SKIP_SEED=1)
+  const skipSeed = process.env.E2E_SKIP_SEED === "1";
 
   // Check if we already have valid auth state AND project ID
   const hasValidAuth = fs.existsSync(AUTH_STATE_PATH) && fs.existsSync(PROJECT_ID_PATH);
@@ -34,6 +93,11 @@ async function globalSetup(config: FullConfig) {
       console.log(`Using existing auth state and project ID: ${projectId}`);
       return;
     }
+  }
+
+  // Seed database before creating auth state (unless skipped)
+  if (!skipSeed) {
+    seedDatabase();
   }
 
   console.log("Creating new auth state...");

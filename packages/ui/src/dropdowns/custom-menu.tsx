@@ -331,13 +331,14 @@ function SubMenu(props: ICustomSubMenuProps) {
   } = props;
 
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isPositioned, setIsPositioned] = React.useState(false);
   const [referenceElement, setReferenceElement] = React.useState<HTMLSpanElement | null>(null);
   const [popperElement, setPopperElement] = React.useState<HTMLDivElement | null>(null);
   const submenuRef = React.useRef<HTMLDivElement | null>(null);
 
   const menuContext = React.useContext(MenuContext);
 
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
     placement,
     strategy: "fixed", // Use fixed positioning to escape overflow constraints
     modifiers: [
@@ -361,6 +362,44 @@ function SubMenu(props: ICustomSubMenuProps) {
       },
     ],
   });
+
+  // Force popper to recalculate position when submenu opens or popper element mounts
+  React.useEffect(() => {
+    if (isOpen && popperElement) {
+      let cancelled = false;
+      const rafId1 = requestAnimationFrame(() => {
+        if (cancelled) return;
+        const rafId2 = requestAnimationFrame(() => {
+          if (cancelled) return;
+          const updatePromise = update?.();
+          if (updatePromise) {
+            updatePromise
+              .then(() => {
+                if (!cancelled) setIsPositioned(true);
+                return undefined;
+              })
+              .catch(() => {
+                if (!cancelled) setIsPositioned(true);
+              });
+          } else {
+            setIsPositioned(true);
+          }
+        });
+        return () => cancelAnimationFrame(rafId2);
+      });
+      return () => {
+        cancelled = true;
+        cancelAnimationFrame(rafId1);
+      };
+    }
+  }, [isOpen, update, popperElement]);
+
+  // Reset positioned state when submenu closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setIsPositioned(false);
+    }
+  }, [isOpen]);
 
   const closeSubmenu = React.useCallback(() => {
     setIsOpen(false);
@@ -432,10 +471,14 @@ function SubMenu(props: ICustomSubMenuProps) {
         <Portal>
           <div
             ref={setPopperElement}
-            style={styles.popper}
+            style={{
+              ...styles.popper,
+              opacity: isPositioned ? 1 : 0,
+              pointerEvents: isPositioned ? "auto" : "none",
+            }}
             {...attributes.popper}
             className={cn(
-              "fixed z-30 min-w-[12rem] overflow-hidden rounded-md border-[0.5px] border-subtle-1 bg-surface-1 p-1 text-11",
+              "fixed z-30 min-w-[12rem] overflow-hidden rounded-md border-[0.5px] border-subtle-1 bg-surface-1 p-1 text-11 transition-opacity duration-75",
               contentClassName
             )}
             data-prevent-outside-click="true"

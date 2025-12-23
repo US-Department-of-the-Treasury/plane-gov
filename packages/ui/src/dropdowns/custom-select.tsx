@@ -38,6 +38,7 @@ function CustomSelect<T = unknown>(props: ICustomSelectProps<T>) {
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isPositioned, setIsPositioned] = useState(false);
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -67,12 +68,47 @@ function CustomSelect<T = unknown>(props: ICustomSelectProps<T>) {
     ],
   });
 
-  // Force popper to recalculate position when dropdown opens
+  // Force popper to recalculate position when dropdown opens or popper element mounts
   React.useEffect(() => {
-    if (isOpen && update) {
-      void update();
+    if (isOpen && popperElement) {
+      // Use double rAF to ensure browser has laid out the element before showing
+      // First rAF: element is in DOM but not yet painted
+      // Second rAF: element is painted, position can be calculated correctly
+      let cancelled = false;
+      const rafId1 = requestAnimationFrame(() => {
+        if (cancelled) return;
+        const rafId2 = requestAnimationFrame(() => {
+          if (cancelled) return;
+          // Now update popper position and show
+          const updatePromise = update?.();
+          if (updatePromise) {
+            updatePromise
+              .then(() => {
+                if (!cancelled) setIsPositioned(true);
+                return undefined;
+              })
+              .catch(() => {
+                if (!cancelled) setIsPositioned(true);
+              });
+          } else {
+            setIsPositioned(true);
+          }
+        });
+        return () => cancelAnimationFrame(rafId2);
+      });
+      return () => {
+        cancelled = true;
+        cancelAnimationFrame(rafId1);
+      };
     }
-  }, [isOpen, update]);
+  }, [isOpen, update, popperElement]);
+
+  // Reset positioned state when dropdown closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setIsPositioned(false);
+    }
+  }, [isOpen]);
 
   const openDropdown = useCallback(() => {
     setIsOpen(true);
@@ -138,15 +174,22 @@ function CustomSelect<T = unknown>(props: ICustomSelectProps<T>) {
         </>
         {isOpen &&
           createPortal(
-            <Combobox.Options data-prevent-outside-click>
-              <div
+            <div
+              ref={setPopperElement}
+              style={{
+                ...styles.popper,
+                opacity: isPositioned ? 1 : 0,
+                pointerEvents: isPositioned ? "auto" : "none",
+              }}
+              {...attributes.popper}
+              data-prevent-outside-click
+            >
+              <Combobox.Options
+                static
                 className={cn(
-                  "my-1 overflow-y-scroll rounded-md border-[0.5px] border-subtle-1 bg-surface-1 px-2 py-2.5 text-11 focus:outline-none min-w-48 whitespace-nowrap z-30",
+                  "my-1 overflow-y-scroll rounded-md border-[0.5px] border-subtle-1 bg-surface-1 px-2 py-2.5 text-11 focus:outline-none min-w-48 whitespace-nowrap z-30 transition-opacity duration-75",
                   optionsClassName
                 )}
-                ref={setPopperElement}
-                style={styles.popper}
-                {...attributes.popper}
               >
                 <div
                   className={cn("space-y-1 overflow-y-scroll", {
@@ -158,8 +201,8 @@ function CustomSelect<T = unknown>(props: ICustomSelectProps<T>) {
                 >
                   {children}
                 </div>
-              </div>
-            </Combobox.Options>,
+              </Combobox.Options>
+            </div>,
             document.body
           )}
       </Combobox>

@@ -20,8 +20,8 @@ export const AUTH_STATE_PATH = join(__dirname, "../.auth/user.json");
 
 // Test user credentials (should match seed_data defaults)
 export const TEST_USER = {
-  email: process.env.E2E_TEST_USER_EMAIL ?? "test@example.com",
-  password: process.env.E2E_TEST_USER_PASSWORD ?? "password123",
+  email: process.env.E2E_TEST_USER_EMAIL ?? "admin@admin.gov",
+  password: process.env.E2E_TEST_USER_PASSWORD ?? "admin123",
 };
 
 // Default workspace slug for testing (matches seed_data default)
@@ -72,8 +72,22 @@ export async function loginViaUI(page: Page): Promise<void> {
   // Submit login
   await page.click('button[type="submit"]');
 
-  // Wait for navigation to workspace or dashboard
-  await page.waitForURL(/\/(workspace|test-workspace)/, { timeout: 30000 });
+  // Wait for navigation - could be workspace, profile setup, or create-workspace
+  // Use a broad pattern that matches any post-login state
+  await page.waitForURL(
+    (url) => {
+      const path = url.pathname;
+      // Successful login destinations
+      return (
+        path.includes(`/${TEST_WORKSPACE_SLUG}`) || // Our workspace
+        path.includes("/workspace") || // Generic workspace
+        path.includes("/profile") || // Profile setup
+        path.includes("/create-workspace") || // New user needs workspace
+        path.includes("/invitations") // Pending invitations
+      );
+    },
+    { timeout: 30000 }
+  );
 }
 
 /**

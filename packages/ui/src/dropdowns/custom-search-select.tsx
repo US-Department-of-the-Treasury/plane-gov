@@ -42,10 +42,11 @@ export function CustomSearchSelect(props: ICustomSearchSelectProps) {
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [isPositioned, setIsPositioned] = useState(false);
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
     placement: placement ?? "bottom-start",
     modifiers: [
       {
@@ -69,6 +70,45 @@ export function CustomSearchSelect(props: ICustomSearchSelectProps) {
       },
     ],
   });
+
+  // Force popper to recalculate position when dropdown opens or popper element mounts
+  React.useEffect(() => {
+    if (isOpen && popperElement) {
+      // Use double rAF to ensure browser has laid out the element before showing
+      let cancelled = false;
+      const rafId1 = requestAnimationFrame(() => {
+        if (cancelled) return;
+        const rafId2 = requestAnimationFrame(() => {
+          if (cancelled) return;
+          const updatePromise = update?.();
+          if (updatePromise) {
+            updatePromise
+              .then(() => {
+                if (!cancelled) setIsPositioned(true);
+                return undefined;
+              })
+              .catch(() => {
+                if (!cancelled) setIsPositioned(true);
+              });
+          } else {
+            setIsPositioned(true);
+          }
+        });
+        return () => cancelAnimationFrame(rafId2);
+      });
+      return () => {
+        cancelled = true;
+        cancelAnimationFrame(rafId1);
+      };
+    }
+  }, [isOpen, update, popperElement]);
+
+  // Reset positioned state when dropdown closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setIsPositioned(false);
+    }
+  }, [isOpen]);
 
   const filteredOptions =
     query === "" ? options : options?.filter((option) => option.query.toLowerCase().includes(query.toLowerCase()));
@@ -154,16 +194,23 @@ export function CustomSearchSelect(props: ICustomSearchSelectProps) {
             )}
             {isOpen &&
               createPortal(
-                <Combobox.Options data-prevent-outside-click static>
-                  <div
-                    className={cn(
-                      "my-1 overflow-y-scroll rounded-md border-[0.5px] border-subtle-1 bg-surface-1 py-2.5 text-11 focus:outline-none min-w-48 whitespace-nowrap z-30",
-                      optionsClassName
-                    )}
-                    ref={setPopperElement}
-                    style={styles.popper}
-                    {...attributes.popper}
-                  >
+                <div
+                  ref={setPopperElement}
+                  style={{
+                    ...styles.popper,
+                    opacity: isPositioned ? 1 : 0,
+                    pointerEvents: isPositioned ? "auto" : "none",
+                  }}
+                  {...attributes.popper}
+                  data-prevent-outside-click
+                >
+                  <Combobox.Options static>
+                    <div
+                      className={cn(
+                        "my-1 overflow-y-scroll rounded-md border-[0.5px] border-subtle-1 bg-surface-1 py-2.5 text-11 focus:outline-none min-w-48 whitespace-nowrap z-30 transition-opacity duration-75",
+                        optionsClassName
+                      )}
+                    >
                     <div className="flex items-center gap-1.5 rounded-sm border border-subtle px-2 mx-2">
                       <Search className="h-3.5 w-3.5 text-placeholder" strokeWidth={1.5} />
                       <Combobox.Input
@@ -229,10 +276,11 @@ export function CustomSearchSelect(props: ICustomSearchSelectProps) {
                       ) : (
                         <p className="text-placeholder italic py-1 px-1.5">Loading...</p>
                       )}
+                      </div>
+                      {footerOption}
                     </div>
-                    {footerOption}
-                  </div>
-                </Combobox.Options>,
+                  </Combobox.Options>
+                </div>,
                 document.body
               )}
           </>

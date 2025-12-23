@@ -3,6 +3,7 @@
   "globalDependencies": [".npmrc", ".prettierrc", "eslint.config.mjs"],
   "globalEnv": [
     "APP_VERSION",
+    "E2E_SKIP_SEED",
     "DEV",
     "LOG_LEVEL",
     "NODE_ENV",
