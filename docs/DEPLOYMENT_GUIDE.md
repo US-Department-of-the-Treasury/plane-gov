@@ -293,31 +293,27 @@ eb ssh
 
 ### Configure Frontend Environment
 
-Each React app needs environment variables. Create `.env.production` files:
+All apps are served from a single domain with path-based routing:
 
-**web/.env.production:**
+| Path | App |
+|------|-----|
+| `/` | Web app |
+| `/god-mode/*` | Admin app |
+| `/spaces/*` | Space app |
+| `/api/*` | API |
+| `/live/*` | WebSocket |
 
-```bash
-REACT_APP_API_URL=https://api.plane.treasury.gov
-REACT_APP_WS_URL=wss://api.plane.treasury.gov/ws
-REACT_APP_ENV=production
-REACT_APP_ENABLE_PIV_AUTH=true
-```
+The deploy script automatically configures environment variables from Terraform outputs.
+No manual `.env.production` files are needed.
 
-**admin/.env.production:**
-
-```bash
-REACT_APP_API_URL=https://api.plane.treasury.gov
-REACT_APP_WS_URL=wss://api.plane.treasury.gov/ws
-REACT_APP_ENV=production
-```
-
-**space/.env.production:**
+**Key environment variables set by deploy script:**
 
 ```bash
-REACT_APP_API_URL=https://api.plane.treasury.gov
-REACT_APP_WS_URL=wss://api.plane.treasury.gov/ws
-REACT_APP_ENV=production
+VITE_API_BASE_URL=https://plane.treasury.gov/api
+VITE_WEB_BASE_URL=https://plane.treasury.gov
+VITE_ADMIN_BASE_URL=https://plane.treasury.gov/god-mode
+VITE_SPACE_BASE_URL=https://plane.treasury.gov/spaces
+VITE_LIVE_BASE_URL=wss://plane.treasury.gov/live
 ```
 
 ### Deploy Frontend Apps
@@ -329,8 +325,8 @@ REACT_APP_ENV=production
 # Deploy admin app
 ./scripts/deploy-frontend.sh admin
 
-# Deploy space app
-./scripts/deploy-frontend.sh space
+# Note: Space app requires SSR and is deployed with the backend
+# See deploy-backend.sh for space app deployment
 ```
 
 **Deployment process per app:**
@@ -384,7 +380,7 @@ exit
 
 ### Test PIV Authentication
 
-1. Navigate to API endpoint: `https://api.plane.treasury.gov/api/users/me/`
+1. Navigate to API endpoint: `https://plane.treasury.gov/api/users/me/`
 2. Browser prompts for certificate selection
 3. Choose PIV Authentication certificate
 4. Enter PIN
@@ -392,7 +388,7 @@ exit
 
 ### Test OIDC Authentication (Login.gov)
 
-1. Navigate to: `https://web.plane.treasury.gov/login`
+1. Navigate to: `https://plane.treasury.gov/login`
 2. Click "Login with Login.gov"
 3. Redirects to Login.gov sandbox
 4. Authenticate with test account
@@ -459,7 +455,7 @@ terraform apply
 | EB (2x t3.small)   | $30  | Use t3.micro for dev                |
 | ALB                | $23  | Required for mTLS                   |
 | ElastiCache Redis  | $0   | Not enabled (using PostgreSQL)      |
-| CloudFront (3)     | $5   | Pay-as-you-go                       |
+| CloudFront (1)     | $2   | Pay-as-you-go                       |
 | S3                 | $3   | Lifecycle policies for old versions |
 
 **Dev environment optimizations:**
@@ -510,7 +506,7 @@ terraform apply
 1. Verify Daphne process is running: `eb ssh` → `ps aux | grep daphne`
 2. Check nginx WebSocket configuration in `.platform/nginx/conf.d/`
 3. Verify ALB sticky sessions enabled
-4. Test WebSocket endpoint: `wscat -c wss://api.plane.treasury.gov/ws/`
+4. Test WebSocket endpoint: `wscat -c wss://plane.treasury.gov/live/`
 
 ## Security and Compliance
 
@@ -560,8 +556,8 @@ aws s3api copy-object \
   --bucket treasury-plane-web-frontend \
   --key index.html
 
-# Invalidate CloudFront
-CLOUDFRONT_ID=$(cd terraform && terraform output -raw web_cloudfront_id)
+# Invalidate CloudFront (unified distribution)
+CLOUDFRONT_ID=$(cd terraform && terraform output -raw cloudfront_id)
 aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_ID" --paths "/*"
 ```
 

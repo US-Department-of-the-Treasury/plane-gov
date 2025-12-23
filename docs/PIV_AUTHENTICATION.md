@@ -258,7 +258,7 @@ openssl req -x509 -newkey rsa:2048 -nodes \
 
 # Test with curl
 curl -v --cert test-piv.crt --key test-piv.key \
-  https://api.plane.treasury.gov/api/users/me/
+  https://plane.treasury.gov/api/users/me/
 ```
 
 For local Django testing without ALB:
@@ -271,7 +271,7 @@ cert_pem = request.META.get('HTTP_X_CLIENT_CERT') or request.META.get('HTTP_X_TE
 ### Production Testing (with actual PIV card)
 
 1. **Insert PIV card** into smart card reader
-2. **Navigate to protected endpoint:** `https://api.plane.treasury.gov/api/users/me/`
+2. **Navigate to protected endpoint:** `https://plane.treasury.gov/api/users/me/`
 3. **Browser prompts for certificate selection** - choose PIV Auth certificate
 4. **Enter PIN** when prompted
 5. **Django logs show:** `PIV authentication successful for user@treasury.gov`

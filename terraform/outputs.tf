@@ -100,56 +100,59 @@ output "space_bucket" {
   value       = aws_s3_bucket.space.id
 }
 
-# CloudFront Distributions
-output "web_cloudfront_domain" {
-  description = "CloudFront domain for web app"
-  value       = aws_cloudfront_distribution.web.domain_name
+# ==============================================================================
+# Unified CloudFront Distribution Outputs
+# ==============================================================================
+
+output "cloudfront_domain" {
+  description = "CloudFront domain for unified distribution"
+  value       = aws_cloudfront_distribution.unified.domain_name
 }
 
-output "web_cloudfront_id" {
-  description = "CloudFront distribution ID for web app"
-  value       = aws_cloudfront_distribution.web.id
+output "cloudfront_id" {
+  description = "CloudFront distribution ID"
+  value       = aws_cloudfront_distribution.unified.id
 }
 
-output "admin_cloudfront_domain" {
-  description = "CloudFront domain for admin app"
-  value       = aws_cloudfront_distribution.admin.domain_name
+# ==============================================================================
+# Single-Domain URL Outputs
+# ==============================================================================
+# All apps are served from the same domain with path-based routing:
+#   /           → Web app
+#   /god-mode/* → Admin app
+#   /spaces/*   → Space app
+#   /api/*      → API
+#   /live/*     → WebSocket
+# ==============================================================================
+
+output "base_url" {
+  description = "Base URL for all Plane apps (single domain)"
+  value       = var.domain_name != "" ? "https://${var.domain_name}" : "https://${aws_cloudfront_distribution.unified.domain_name}"
 }
 
-output "admin_cloudfront_id" {
-  description = "CloudFront distribution ID for admin app"
-  value       = aws_cloudfront_distribution.admin.id
-}
-
-output "space_cloudfront_domain" {
-  description = "CloudFront domain for space app"
-  value       = aws_cloudfront_distribution.space.domain_name
-}
-
-output "space_cloudfront_id" {
-  description = "CloudFront distribution ID for space app"
-  value       = aws_cloudfront_distribution.space.id
-}
-
-# DNS Outputs
 output "api_url" {
   description = "API endpoint URL"
-  value       = var.domain_name != "" ? "https://api.${var.domain_name}" : "https://${aws_lb.main.dns_name}"
+  value       = var.domain_name != "" ? "https://${var.domain_name}/api" : "https://${aws_cloudfront_distribution.unified.domain_name}/api"
 }
 
 output "web_url" {
   description = "Web app URL"
-  value       = var.domain_name != "" ? "https://web.${var.domain_name}" : "https://${aws_cloudfront_distribution.web.domain_name}"
+  value       = var.domain_name != "" ? "https://${var.domain_name}" : "https://${aws_cloudfront_distribution.unified.domain_name}"
 }
 
 output "admin_url" {
   description = "Admin app URL"
-  value       = var.domain_name != "" ? "https://admin.${var.domain_name}" : "https://${aws_cloudfront_distribution.admin.domain_name}"
+  value       = var.domain_name != "" ? "https://${var.domain_name}/god-mode" : "https://${aws_cloudfront_distribution.unified.domain_name}/god-mode"
 }
 
 output "space_url" {
   description = "Space app URL"
-  value       = var.domain_name != "" ? "https://space.${var.domain_name}" : "https://${aws_cloudfront_distribution.space.domain_name}"
+  value       = var.domain_name != "" ? "https://${var.domain_name}/spaces" : "https://${aws_cloudfront_distribution.unified.domain_name}/spaces"
+}
+
+output "live_url" {
+  description = "WebSocket (live) URL"
+  value       = var.domain_name != "" ? "wss://${var.domain_name}/live" : "wss://${aws_cloudfront_distribution.unified.domain_name}/live"
 }
 
 # Secrets Manager ARNs

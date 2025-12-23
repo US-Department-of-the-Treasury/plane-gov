@@ -1,110 +1,270 @@
-# CloudFront Origin Access Control
-resource "aws_cloudfront_origin_access_control" "web" {
-  name                              = "${var.project_name}-web-oac"
+# ==============================================================================
+# Single-Domain CloudFront Distribution
+# ==============================================================================
+# Routes all apps through plane.awsdev.treasury.gov:
+#   /           → S3 (web app, default)
+#   /god-mode/* → S3 (admin app)
+#   /spaces/*   → S3 (space app)
+#   /api/*      → ALB (Django API)
+#   /live/*     → ALB (WebSocket)
+# ==============================================================================
+
+# Single Origin Access Control for unified distribution
+resource "aws_cloudfront_origin_access_control" "unified" {
+  name                              = "${var.project_name}-unified-oac"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
 }
 
-resource "aws_cloudfront_origin_access_control" "admin" {
-  name                              = "${var.project_name}-admin-oac"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
+# CloudFront Function to strip /god-mode prefix and handle SPA routing
+resource "aws_cloudfront_function" "admin_path_rewrite" {
+  name    = "${var.project_name}-admin-path-rewrite"
+  runtime = "cloudfront-js-2.0"
+  comment = "Strip /god-mode prefix for admin app requests"
+  publish = true
+  code    = <<-EOF
+    function handler(event) {
+      var request = event.request;
+      var uri = request.uri;
+
+      // Strip /god-mode prefix
+      uri = uri.replace(/^\/god-mode/, '') || '/';
+
+      // SPA routing: if no extension, serve index.html
+      if (!uri.includes('.') || uri === '/') {
+        uri = '/index.html';
+      }
+
+      request.uri = uri;
+      return request;
+    }
+  EOF
 }
 
-resource "aws_cloudfront_origin_access_control" "space" {
-  name                              = "${var.project_name}-space-oac"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
+# CloudFront Function to strip /spaces prefix and handle SPA routing
+resource "aws_cloudfront_function" "space_path_rewrite" {
+  name    = "${var.project_name}-space-path-rewrite"
+  runtime = "cloudfront-js-2.0"
+  comment = "Strip /spaces prefix for space app requests"
+  publish = true
+  code    = <<-EOF
+    function handler(event) {
+      var request = event.request;
+      var uri = request.uri;
+
+      // Strip /spaces prefix
+      uri = uri.replace(/^\/spaces/, '') || '/';
+
+      // SPA routing: if no extension, serve index.html
+      if (!uri.includes('.') || uri === '/') {
+        uri = '/index.html';
+      }
+
+      request.uri = uri;
+      return request;
+    }
+  EOF
 }
 
-# Web App CloudFront Distribution
-resource "aws_cloudfront_distribution" "web" {
+# CloudFront Function for web app SPA routing
+resource "aws_cloudfront_function" "web_spa_routing" {
+  name    = "${var.project_name}-web-spa-routing"
+  runtime = "cloudfront-js-2.0"
+  comment = "Handle SPA routing for web app"
+  publish = true
+  code    = <<-EOF
+    function handler(event) {
+      var request = event.request;
+      var uri = request.uri;
+
+      // SPA routing: if no extension, serve index.html
+      if (!uri.includes('.')) {
+        request.uri = '/index.html';
+      }
+
+      return request;
+    }
+  EOF
+}
+
+# Cache policy for API (no caching)
+resource "aws_cloudfront_cache_policy" "api_no_cache" {
+  name        = "${var.project_name}-api-no-cache"
+  comment     = "No caching for API requests"
+  min_ttl     = 0
+  default_ttl = 0
+  max_ttl     = 0
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    cookies_config {
+      cookie_behavior = "all"
+    }
+    headers_config {
+      header_behavior = "whitelist"
+      headers {
+        items = ["Host", "Origin", "Authorization", "Accept", "Content-Type"]
+      }
+    }
+    query_strings_config {
+      query_string_behavior = "all"
+    }
+  }
+}
+
+# Origin request policy for API (forward all)
+resource "aws_cloudfront_origin_request_policy" "api_forward_all" {
+  name    = "${var.project_name}-api-forward-all"
+  comment = "Forward all request data to API origin"
+
+  cookies_config {
+    cookie_behavior = "all"
+  }
+  headers_config {
+    header_behavior = "allViewer"
+  }
+  query_strings_config {
+    query_string_behavior = "all"
+  }
+}
+
+# Unified CloudFront Distribution
+resource "aws_cloudfront_distribution" "unified" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
   price_class         = "PriceClass_100" # US, Canada, Europe
-  comment             = "Treasury Plane - Web App"
-  aliases             = var.domain_name != "" ? ["web.${var.domain_name}"] : []
+  comment             = "Treasury Plane - Unified Distribution"
+  aliases             = var.domain_name != "" ? [var.domain_name] : []
 
+  # ===========================================================================
+  # Origins
+  # ===========================================================================
+
+  # Web App S3 Origin (default)
   origin {
     domain_name              = aws_s3_bucket.web.bucket_regional_domain_name
-    origin_id                = "S3-${aws_s3_bucket.web.id}"
-    origin_access_control_id = aws_cloudfront_origin_access_control.web.id
+    origin_id                = "S3-web"
+    origin_access_control_id = aws_cloudfront_origin_access_control.unified.id
   }
 
-  default_cache_behavior {
+  # Admin App S3 Origin
+  origin {
+    domain_name              = aws_s3_bucket.admin.bucket_regional_domain_name
+    origin_id                = "S3-admin"
+    origin_access_control_id = aws_cloudfront_origin_access_control.unified.id
+  }
+
+  # Space App S3 Origin
+  origin {
+    domain_name              = aws_s3_bucket.space.bucket_regional_domain_name
+    origin_id                = "S3-space"
+    origin_access_control_id = aws_cloudfront_origin_access_control.unified.id
+  }
+
+  # ALB Origin for API
+  origin {
+    domain_name = aws_lb.main.dns_name
+    origin_id   = "ALB-api"
+
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+  }
+
+  # ===========================================================================
+  # Cache Behaviors
+  # ===========================================================================
+
+  # /api/* → ALB (no caching, forward all)
+  ordered_cache_behavior {
+    path_pattern           = "/api/*"
+    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "ALB-api"
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+
+    cache_policy_id          = aws_cloudfront_cache_policy.api_no_cache.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.api_forward_all.id
+
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
+  }
+
+  # /live/* → ALB (WebSocket support, no caching)
+  ordered_cache_behavior {
+    path_pattern           = "/live/*"
+    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "ALB-api"
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = false # Don't compress WebSocket
+
+    cache_policy_id          = aws_cloudfront_cache_policy.api_no_cache.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.api_forward_all.id
+
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
+  }
+
+  # /god-mode/* → Admin S3 (with path rewrite)
+  ordered_cache_behavior {
+    path_pattern           = "/god-mode/*"
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "S3-${aws_s3_bucket.web.id}"
+    target_origin_id       = "S3-admin"
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
     cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
 
-    # Response headers policy (Security Headers)
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.admin_path_rewrite.arn
+    }
+
     response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
   }
 
-  # Custom error response for SPA routing
-  custom_error_response {
-    error_code            = 404
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 0
-  }
+  # /spaces/* → Space S3 (with path rewrite)
+  ordered_cache_behavior {
+    path_pattern           = "/spaces/*"
+    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "S3-space"
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
 
-  custom_error_response {
-    error_code            = 403
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 0
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.space_path_rewrite.arn
     }
+
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
   }
 
-  viewer_certificate {
-    acm_certificate_arn      = var.domain_name != "" ? aws_acm_certificate_validation.main[0].certificate_arn : null
-    cloudfront_default_certificate = var.domain_name == ""
-    ssl_support_method       = var.domain_name != "" ? "sni-only" : null
-    minimum_protocol_version = "TLSv1.2_2021"
-  }
-
-  tags = {
-    Name = "${var.project_name}-web-distribution"
-  }
-}
-
-# Admin App CloudFront Distribution
-resource "aws_cloudfront_distribution" "admin" {
-  enabled             = true
-  is_ipv6_enabled     = true
-  default_root_object = "index.html"
-  price_class         = "PriceClass_100"
-  comment             = "Treasury Plane - Admin App"
-  aliases             = var.domain_name != "" ? ["admin.${var.domain_name}"] : []
-
-  origin {
-    domain_name              = aws_s3_bucket.admin.bucket_regional_domain_name
-    origin_id                = "S3-${aws_s3_bucket.admin.id}"
-    origin_access_control_id = aws_cloudfront_origin_access_control.admin.id
-  }
-
+  # Default → Web S3 (with SPA routing)
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "S3-${aws_s3_bucket.admin.id}"
+    target_origin_id       = "S3-web"
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
-    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.web_spa_routing.arn
+    }
+
     response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
   }
 
+  # Custom error responses for SPA routing fallback
+  # Note: These only apply to the default behavior (web app)
+  # Other apps use CloudFront Functions for SPA routing
   custom_error_response {
     error_code            = 404
     response_code         = 200
@@ -126,71 +286,14 @@ resource "aws_cloudfront_distribution" "admin" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = var.domain_name != "" ? aws_acm_certificate_validation.main[0].certificate_arn : null
+    acm_certificate_arn            = var.domain_name != "" ? aws_acm_certificate_validation.main[0].certificate_arn : null
     cloudfront_default_certificate = var.domain_name == ""
-    ssl_support_method       = var.domain_name != "" ? "sni-only" : null
-    minimum_protocol_version = "TLSv1.2_2021"
+    ssl_support_method             = var.domain_name != "" ? "sni-only" : null
+    minimum_protocol_version       = "TLSv1.2_2021"
   }
 
   tags = {
-    Name = "${var.project_name}-admin-distribution"
-  }
-}
-
-# Space App CloudFront Distribution
-resource "aws_cloudfront_distribution" "space" {
-  enabled             = true
-  is_ipv6_enabled     = true
-  default_root_object = "index.html"
-  price_class         = "PriceClass_100"
-  comment             = "Treasury Plane - Space App"
-  aliases             = var.domain_name != "" ? ["space.${var.domain_name}"] : []
-
-  origin {
-    domain_name              = aws_s3_bucket.space.bucket_regional_domain_name
-    origin_id                = "S3-${aws_s3_bucket.space.id}"
-    origin_access_control_id = aws_cloudfront_origin_access_control.space.id
-  }
-
-  default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "S3-${aws_s3_bucket.space.id}"
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
-    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
-    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
-  }
-
-  custom_error_response {
-    error_code            = 404
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 0
-  }
-
-  custom_error_response {
-    error_code            = 403
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 0
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-
-  viewer_certificate {
-    acm_certificate_arn      = var.domain_name != "" ? aws_acm_certificate_validation.main[0].certificate_arn : null
-    cloudfront_default_certificate = var.domain_name == ""
-    ssl_support_method       = var.domain_name != "" ? "sni-only" : null
-    minimum_protocol_version = "TLSv1.2_2021"
-  }
-
-  tags = {
-    Name = "${var.project_name}-space-distribution"
+    Name = "${var.project_name}-unified-distribution"
   }
 }
 
@@ -227,8 +330,9 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
       override        = true
     }
 
+    # Updated CSP to work with single domain
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.${var.domain_name != "" ? var.domain_name : "localhost"};"
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' wss://${var.domain_name != "" ? var.domain_name : "localhost"};"
       override                = true
     }
   }
@@ -242,42 +346,36 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
   }
 }
 
-# DNS Records for Frontend Apps
-resource "aws_route53_record" "web" {
+# ==============================================================================
+# DNS Record - Single domain pointing to unified distribution
+# ==============================================================================
+
+resource "aws_route53_record" "unified" {
   count   = var.domain_name != "" && var.route53_zone_id != "" ? 1 : 0
   zone_id = var.route53_zone_id
-  name    = "web.${var.domain_name}"
+  name    = var.domain_name
   type    = "A"
 
   alias {
-    name                   = aws_cloudfront_distribution.web.domain_name
-    zone_id                = aws_cloudfront_distribution.web.hosted_zone_id
+    name                   = aws_cloudfront_distribution.unified.domain_name
+    zone_id                = aws_cloudfront_distribution.unified.hosted_zone_id
     evaluate_target_health = false
   }
 }
 
-resource "aws_route53_record" "admin" {
-  count   = var.domain_name != "" && var.route53_zone_id != "" ? 1 : 0
-  zone_id = var.route53_zone_id
-  name    = "admin.${var.domain_name}"
-  type    = "A"
+# ==============================================================================
+# Legacy Resources (commented out - to be removed after migration)
+# ==============================================================================
 
-  alias {
-    name                   = aws_cloudfront_distribution.admin.domain_name
-    zone_id                = aws_cloudfront_distribution.admin.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
+# These resources are being replaced by the unified distribution above.
+# Keep them commented for reference during migration, then delete.
 
-resource "aws_route53_record" "space" {
-  count   = var.domain_name != "" && var.route53_zone_id != "" ? 1 : 0
-  zone_id = var.route53_zone_id
-  name    = "space.${var.domain_name}"
-  type    = "A"
-
-  alias {
-    name                   = aws_cloudfront_distribution.space.domain_name
-    zone_id                = aws_cloudfront_distribution.space.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
+# resource "aws_cloudfront_origin_access_control" "web" { ... }
+# resource "aws_cloudfront_origin_access_control" "admin" { ... }
+# resource "aws_cloudfront_origin_access_control" "space" { ... }
+# resource "aws_cloudfront_distribution" "web" { ... }
+# resource "aws_cloudfront_distribution" "admin" { ... }
+# resource "aws_cloudfront_distribution" "space" { ... }
+# resource "aws_route53_record" "web" { ... }
+# resource "aws_route53_record" "admin" { ... }
+# resource "aws_route53_record" "space" { ... }

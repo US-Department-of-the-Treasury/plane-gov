@@ -1,7 +1,13 @@
 #!/bin/bash
 set -e
 
-# Deploy Frontend Apps to S3 + CloudFront
+# Deploy Frontend Apps to S3 + CloudFront (Single Domain Architecture)
+# =====================================================================
+# All apps are served from a single domain with path-based routing:
+#   /           → Web app
+#   /god-mode/* → Admin app
+#   /spaces/*   → Space app
+#
 # Usage: ./deploy-frontend.sh [web|admin]
 #
 # Note: 'space' app has SSR enabled and requires server deployment (not S3)
@@ -44,14 +50,16 @@ BUCKET=$(terraform output -raw "${APP}_bucket" 2>/dev/null) || {
     exit 1
 }
 
-CLOUDFRONT_ID=$(terraform output -raw "${APP}_cloudfront_id" 2>/dev/null) || {
-    echo "Error: Could not get ${APP}_cloudfront_id from Terraform outputs"
+# Single CloudFront distribution for all apps
+CLOUDFRONT_ID=$(terraform output -raw cloudfront_id 2>/dev/null) || {
+    echo "Error: Could not get cloudfront_id from Terraform outputs"
     exit 1
 }
 
-APP_URL=$(terraform output -raw "${APP}_url" 2>/dev/null) || {
-    echo "Warning: Could not get ${APP}_url from Terraform outputs"
-    APP_URL="(unknown)"
+# Get base URL (single domain)
+BASE_URL=$(terraform output -raw base_url 2>/dev/null) || {
+    echo "Error: Could not get base_url from Terraform outputs"
+    exit 1
 }
 
 API_URL=$(terraform output -raw api_url 2>/dev/null) || {
@@ -61,26 +69,32 @@ API_URL=$(terraform output -raw api_url 2>/dev/null) || {
 
 ADMIN_URL=$(terraform output -raw admin_url 2>/dev/null) || {
     echo "Warning: Could not get admin_url from Terraform outputs"
-    ADMIN_URL=""
+    ADMIN_URL="${BASE_URL}/god-mode"
 }
 
 SPACE_URL=$(terraform output -raw space_url 2>/dev/null) || {
     echo "Warning: Could not get space_url from Terraform outputs"
-    SPACE_URL=""
+    SPACE_URL="${BASE_URL}/spaces"
 }
 
 WEB_URL=$(terraform output -raw web_url 2>/dev/null) || {
     echo "Warning: Could not get web_url from Terraform outputs"
-    WEB_URL=""
+    WEB_URL="$BASE_URL"
+}
+
+LIVE_URL=$(terraform output -raw live_url 2>/dev/null) || {
+    echo "Warning: Could not get live_url from Terraform outputs"
+    LIVE_URL="${BASE_URL/https:/wss:}/live"
 }
 
 echo "Bucket: $BUCKET"
 echo "CloudFront: $CLOUDFRONT_ID"
-echo "URL: $APP_URL"
+echo "Base URL: $BASE_URL"
 echo "API URL: $API_URL"
 echo "Admin URL: $ADMIN_URL"
 echo "Space URL: $SPACE_URL"
 echo "Web URL: $WEB_URL"
+echo "Live URL: $LIVE_URL"
 
 # Navigate to app directory
 APP_DIR="$REPO_ROOT/apps/$APP"
@@ -91,20 +105,40 @@ fi
 
 cd "$APP_DIR"
 
-# Set environment variables for build (all apps need these URLs)
+# ==============================================================================
+# Set environment variables for build
+# ==============================================================================
+
+# All apps use the same base domain
 export VITE_API_BASE_URL="$API_URL"
 export VITE_ADMIN_BASE_URL="$ADMIN_URL"
 export VITE_SPACE_BASE_URL="$SPACE_URL"
 export VITE_WEB_BASE_URL="$WEB_URL"
+export VITE_LIVE_BASE_URL="$LIVE_URL"
 
-# App-specific configuration
-# Since each app has its own domain, they're all served at root "/"
-# The /god-mode/ path is only used when admin shares a domain with web
-# Override any local .env BASE_PATH settings
-export VITE_ADMIN_BASE_PATH="/"
-export VITE_SPACE_BASE_PATH="/"
-export VITE_LIVE_BASE_PATH="/"
-S3_PREFIX=""
+# Path-based routing configuration
+# Each app runs at a specific path prefix
+case "$APP" in
+    "web")
+        # Web app is at root
+        export VITE_BASE_PATH="/"
+        export VITE_ADMIN_BASE_PATH="/god-mode/"
+        export VITE_SPACE_BASE_PATH="/spaces/"
+        export VITE_LIVE_BASE_PATH="/live/"
+        S3_PREFIX=""
+        INVALIDATION_PATH="/*"
+        ;;
+    "admin")
+        # Admin app is at /god-mode
+        export VITE_BASE_PATH="/god-mode/"
+        export VITE_ADMIN_BASE_PATH="/god-mode/"
+        export VITE_SPACE_BASE_PATH="/spaces/"
+        export VITE_LIVE_BASE_PATH="/live/"
+        S3_PREFIX=""
+        # Only invalidate admin paths
+        INVALIDATION_PATH="/god-mode/*"
+        ;;
+esac
 
 echo ""
 echo "Build environment:"
@@ -112,6 +146,8 @@ echo "  VITE_API_BASE_URL=$VITE_API_BASE_URL"
 echo "  VITE_ADMIN_BASE_URL=$VITE_ADMIN_BASE_URL"
 echo "  VITE_SPACE_BASE_URL=$VITE_SPACE_BASE_URL"
 echo "  VITE_WEB_BASE_URL=$VITE_WEB_BASE_URL"
+echo "  VITE_LIVE_BASE_URL=$VITE_LIVE_BASE_URL"
+echo "  VITE_BASE_PATH=$VITE_BASE_PATH"
 
 echo ""
 echo "Installing dependencies (pnpm workspace)..."
@@ -130,7 +166,7 @@ if [ ! -d "$BUILD_DIR" ]; then
     exit 1
 fi
 
-# Sync to S3 with appropriate prefix
+# Sync to S3
 echo ""
 echo "Uploading to S3..."
 
@@ -152,12 +188,12 @@ aws s3 sync "$BUILD_DIR/" "s3://${BUCKET}/${S3_PREFIX}" \
     --include "manifest.json" \
     --include "robots.txt"
 
-# Invalidate CloudFront cache
+# Invalidate CloudFront cache for this app's paths
 echo ""
-echo "Invalidating CloudFront cache..."
+echo "Invalidating CloudFront cache for $INVALIDATION_PATH..."
 INVALIDATION_ID=$(aws cloudfront create-invalidation \
     --distribution-id "$CLOUDFRONT_ID" \
-    --paths "/*" \
+    --paths "$INVALIDATION_PATH" \
     --query 'Invalidation.Id' \
     --output text)
 
@@ -167,6 +203,16 @@ echo "Waiting for invalidation to complete..."
 aws cloudfront wait invalidation-completed \
     --distribution-id "$CLOUDFRONT_ID" \
     --id "$INVALIDATION_ID"
+
+# Determine the app URL based on app type
+case "$APP" in
+    "web")
+        APP_URL="$WEB_URL"
+        ;;
+    "admin")
+        APP_URL="$ADMIN_URL"
+        ;;
+esac
 
 echo ""
 echo "========================================="
