@@ -59,10 +59,28 @@ API_URL=$(terraform output -raw api_url 2>/dev/null) || {
     exit 1
 }
 
+ADMIN_URL=$(terraform output -raw admin_url 2>/dev/null) || {
+    echo "Warning: Could not get admin_url from Terraform outputs"
+    ADMIN_URL=""
+}
+
+SPACE_URL=$(terraform output -raw space_url 2>/dev/null) || {
+    echo "Warning: Could not get space_url from Terraform outputs"
+    SPACE_URL=""
+}
+
+WEB_URL=$(terraform output -raw web_url 2>/dev/null) || {
+    echo "Warning: Could not get web_url from Terraform outputs"
+    WEB_URL=""
+}
+
 echo "Bucket: $BUCKET"
 echo "CloudFront: $CLOUDFRONT_ID"
 echo "URL: $APP_URL"
 echo "API URL: $API_URL"
+echo "Admin URL: $ADMIN_URL"
+echo "Space URL: $SPACE_URL"
+echo "Web URL: $WEB_URL"
 
 # Navigate to app directory
 APP_DIR="$REPO_ROOT/apps/$APP"
@@ -73,24 +91,27 @@ fi
 
 cd "$APP_DIR"
 
-# Set environment variables for build
+# Set environment variables for build (all apps need these URLs)
 export VITE_API_BASE_URL="$API_URL"
+export VITE_ADMIN_BASE_URL="$ADMIN_URL"
+export VITE_SPACE_BASE_URL="$SPACE_URL"
+export VITE_WEB_BASE_URL="$WEB_URL"
 
 # App-specific configuration
+# Since each app has its own domain, they're all served at root "/"
+# The /god-mode/ path is only used when admin shares a domain with web
+# Override any local .env BASE_PATH settings
+export VITE_ADMIN_BASE_PATH="/"
+export VITE_SPACE_BASE_PATH="/"
+export VITE_LIVE_BASE_PATH="/"
 S3_PREFIX=""
-case "$APP" in
-    admin)
-        # Admin app is served at /god-mode/ path
-        export VITE_ADMIN_BASE_PATH="/god-mode"
-        S3_PREFIX="god-mode/"
-        echo "Admin basename: /god-mode"
-        echo "S3 prefix: $S3_PREFIX"
-        ;;
-    web)
-        # Web app is served at root
-        S3_PREFIX=""
-        ;;
-esac
+
+echo ""
+echo "Build environment:"
+echo "  VITE_API_BASE_URL=$VITE_API_BASE_URL"
+echo "  VITE_ADMIN_BASE_URL=$VITE_ADMIN_BASE_URL"
+echo "  VITE_SPACE_BASE_URL=$VITE_SPACE_BASE_URL"
+echo "  VITE_WEB_BASE_URL=$VITE_WEB_BASE_URL"
 
 echo ""
 echo "Installing dependencies (pnpm workspace)..."

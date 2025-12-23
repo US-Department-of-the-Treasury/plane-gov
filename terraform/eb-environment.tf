@@ -270,3 +270,52 @@ resource "aws_elastic_beanstalk_environment" "main" {
     ]
   }
 }
+
+# Fix ALB listener to point to EB-managed target group
+# When using SharedLoadBalancer, EB creates its own target group with the instances.
+# We need to update our HTTPS listener to forward to EB's target group.
+resource "null_resource" "fix_alb_listener" {
+  count = var.domain_name != "" ? 1 : 0
+
+  triggers = {
+    eb_environment = aws_elastic_beanstalk_environment.main.id
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOF
+      # Wait for EB to create its target group
+      sleep 30
+
+      # Find EB's target group (starts with awseb-)
+      EB_TG_ARN=$(aws elbv2 describe-target-groups \
+        --query 'TargetGroups[?starts_with(TargetGroupName, `awseb-`) && VpcId==`${aws_vpc.main.id}`].TargetGroupArn | [0]' \
+        --output text 2>/dev/null)
+
+      if [ "$EB_TG_ARN" != "None" ] && [ -n "$EB_TG_ARN" ]; then
+        # Get HTTPS listener ARN (port 443)
+        LISTENER_ARN=$(aws elbv2 describe-listeners \
+          --load-balancer-arn ${aws_lb.main.arn} \
+          --query 'Listeners[?Port==`443`].ListenerArn | [0]' \
+          --output text 2>/dev/null)
+
+        if [ -n "$LISTENER_ARN" ] && [ "$LISTENER_ARN" != "None" ]; then
+          # Update listener to forward to EB's target group
+          aws elbv2 modify-listener \
+            --listener-arn "$LISTENER_ARN" \
+            --default-actions Type=forward,TargetGroupArn="$EB_TG_ARN" \
+            --output json > /dev/null 2>&1
+          echo "Updated HTTPS listener to use EB target group: $EB_TG_ARN"
+        else
+          echo "HTTPS listener not found"
+        fi
+      else
+        echo "EB target group not found yet"
+      fi
+    EOF
+  }
+
+  depends_on = [
+    aws_elastic_beanstalk_environment.main,
+    aws_lb_listener.https
+  ]
+}

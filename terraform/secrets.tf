@@ -54,10 +54,12 @@ resource "aws_secretsmanager_secret_version" "app_config" {
   secret_string = jsonencode({
     environment          = var.environment
     debug                = var.environment == "dev" ? "True" : "False"
-    allowed_hosts        = var.domain_name != "" ? "*.${var.domain_name}" : "localhost"
+    allowed_hosts        = var.domain_name != "" ? ".${var.domain_name}" : "localhost"
     cors_allowed_origins = var.domain_name != "" ? "https://web.${var.domain_name},https://admin.${var.domain_name},https://space.${var.domain_name}" : "http://localhost:3000"
     api_url              = var.domain_name != "" ? "https://api.${var.domain_name}" : "http://localhost:8000"
     web_url              = var.domain_name != "" ? "https://web.${var.domain_name}" : "http://localhost:3000"
+    admin_url            = var.domain_name != "" ? "https://admin.${var.domain_name}" : "http://localhost:3001"
+    space_url            = var.domain_name != "" ? "https://space.${var.domain_name}" : "http://localhost:3002"
     enable_piv_auth      = var.enable_piv_mtls ? "True" : "False"
     admin_email          = "admin@treasury.gov"
     log_level            = var.environment == "prod" ? "INFO" : "DEBUG"
