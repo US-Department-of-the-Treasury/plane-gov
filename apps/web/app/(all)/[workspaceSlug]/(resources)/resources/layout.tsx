@@ -1,16 +1,14 @@
-import type { ReactNode } from "react";
+import { Outlet } from "react-router";
 // local imports
 import { ResourcesHeader } from "./header";
 
-interface ResourcesLayoutProps {
-  children: ReactNode;
-}
-
-export default function ResourcesLayout({ children }: ResourcesLayoutProps) {
+export default function ResourcesLayout() {
   return (
     <div className="flex flex-col h-full">
       <ResourcesHeader />
-      <div className="flex-1 overflow-y-auto">{children}</div>
+      <div className="flex-1 overflow-y-auto">
+        <Outlet />
+      </div>
     </div>
   );
 }
