@@ -30,10 +30,7 @@ export function WikiDetailHeader() {
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
 
   // Queries
-  const { data: page } = useWikiPageDetails(
-    workspaceSlug?.toString() ?? "",
-    pageId?.toString() ?? ""
-  );
+  const { data: page } = useWikiPageDetails(workspaceSlug?.toString() ?? "", pageId?.toString() ?? "");
 
   // Mutations
   const lockMutation = useLockWikiPage();
@@ -103,11 +100,7 @@ export function WikiDetailHeader() {
                 component={
                   <BreadcrumbLink
                     label={page?.name || "Untitled"}
-                    icon={
-                      page?.is_locked ? (
-                        <Lock className="size-4 text-custom-text-400" />
-                      ) : undefined
-                    }
+                    icon={page?.is_locked ? <Lock className="size-4 text-custom-text-400" /> : undefined}
                   />
                 }
               />
@@ -129,11 +122,7 @@ export function WikiDetailHeader() {
             </button>
           </Tooltip>
 
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setIsShareModalOpen(true)}
-          >
+          <Button variant="secondary" size="sm" onClick={() => setIsShareModalOpen(true)}>
             <Share2 className="size-4 mr-1" />
             Share
           </Button>
@@ -165,10 +154,7 @@ export function WikiDetailHeader() {
                 <span>Archive</span>
               </div>
             </CustomMenu.MenuItem>
-            <CustomMenu.MenuItem
-              onClick={() => setIsDeleteModalOpen(true)}
-              className="text-red-500"
-            >
+            <CustomMenu.MenuItem onClick={() => setIsDeleteModalOpen(true)} className="text-red-500">
               <div className="flex items-center gap-2">
                 <Trash2 className="size-4" />
                 <span>Delete</span>

@@ -21,23 +21,14 @@ export function WikiListHeader() {
           <div className="flex items-center gap-2.5">
             <Breadcrumbs>
               <Breadcrumbs.Item
-                component={
-                  <BreadcrumbLink
-                    label="Wiki"
-                    icon={<BookOpen className="size-5 text-secondary" />}
-                  />
-                }
+                component={<BreadcrumbLink label="Wiki" icon={<BookOpen className="size-5 text-secondary" />} />}
               />
             </Breadcrumbs>
           </div>
         </Header.LeftItem>
 
         <Header.RightItem>
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={() => setIsCreateModalOpen(true)}
-          >
+          <Button variant="primary" size="lg" onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="size-4 mr-1" />
             New Page
           </Button>
