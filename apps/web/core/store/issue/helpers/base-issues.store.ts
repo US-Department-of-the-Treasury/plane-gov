@@ -694,14 +694,12 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     const response = await this.issueArchiveService.archiveIssue(workspaceSlug, projectId, issueId);
     // call fetch Parent stats
     this.fetchParentStats(workspaceSlug, projectId);
-    runInAction(() => {
-      // Update the Archived at of the issue from store
-      this.rootIssueStore.issues.updateIssue(issueId, {
-        archived_at: response.archived_at,
-      });
-      // Since Archived remove the issue Id from the current store
-      this.removeIssueFromList(issueId);
+    // Update the Archived at of the issue from store
+    this.rootIssueStore.issues.updateIssue(issueId, {
+      archived_at: response.archived_at,
     });
+    // Since Archived remove the issue Id from the current store
+    this.removeIssueFromList(issueId);
   }
 
   /**
@@ -747,11 +745,9 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     // call fetch parent stats
     this.fetchParentStats(workspaceSlug, projectId);
     // Remove issues from the store
-    runInAction(() => {
-      issueIds.forEach((issueId) => {
-        this.removeIssueFromList(issueId);
-        this.rootIssueStore.issues.removeIssue(issueId);
-      });
+    issueIds.forEach((issueId) => {
+      this.removeIssueFromList(issueId);
+      this.rootIssueStore.issues.removeIssue(issueId);
     });
     return response;
   }
@@ -765,19 +761,17 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
   bulkArchiveIssues = async (workspaceSlug: string, projectId: string, issueIds: string[]) => {
     const response = await this.issueService.bulkArchiveIssues(workspaceSlug, projectId, { issue_ids: issueIds });
 
-    runInAction(() => {
-      issueIds.forEach((issueId) => {
-        this.issueUpdate(
-          workspaceSlug,
-          projectId,
-          issueId,
-          {
-            archived_at: response.archived_at,
-          },
-          false
-        );
-        this.removeIssueFromList(issueId);
-      });
+    issueIds.forEach((issueId) => {
+      this.issueUpdate(
+        workspaceSlug,
+        projectId,
+        issueId,
+        {
+          archived_at: response.archived_at,
+        },
+        false
+      );
+      this.removeIssueFromList(issueId);
     });
   };
 
@@ -790,32 +784,30 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     // make request to update issue properties
     await this.issueService.bulkOperations(workspaceSlug, projectId, data);
     // update issues in the store
-    runInAction(() => {
-      issueIds.forEach((issueId) => {
-        const issueBeforeUpdate = clone(this.rootIssueStore.issues.getIssueById(issueId));
-        if (!issueBeforeUpdate) throw new Error("Work item not found");
-        Object.keys(data.properties).forEach((key) => {
-          const property = key as keyof TBulkOperationsPayload["properties"];
-          const propertyValue = data.properties[property];
-          // update root issue map properties
-          if (Array.isArray(propertyValue)) {
-            // if property value is array, append it to the existing values
-            const existingValue = issueBeforeUpdate[property];
-            // convert existing value to an array
-            const newExistingValue = Array.isArray(existingValue) ? existingValue : [];
-            this.rootIssueStore.issues.updateIssue(issueId, {
-              [property]: uniq([...newExistingValue, ...propertyValue]),
-            });
-          } else {
-            // if property value is not an array, simply update the value
-            this.rootIssueStore.issues.updateIssue(issueId, {
-              [property]: propertyValue,
-            });
-          }
-        });
-        const issueDetails = this.rootIssueStore.issues.getIssueById(issueId);
-        this.updateIssueList(issueDetails, issueBeforeUpdate);
+    issueIds.forEach((issueId) => {
+      const issueBeforeUpdate = clone(this.rootIssueStore.issues.getIssueById(issueId));
+      if (!issueBeforeUpdate) throw new Error("Work item not found");
+      Object.keys(data.properties).forEach((key) => {
+        const property = key as keyof TBulkOperationsPayload["properties"];
+        const propertyValue = data.properties[property];
+        // update root issue map properties
+        if (Array.isArray(propertyValue)) {
+          // if property value is array, append it to the existing values
+          const existingValue = issueBeforeUpdate[property];
+          // convert existing value to an array
+          const newExistingValue = Array.isArray(existingValue) ? existingValue : [];
+          this.rootIssueStore.issues.updateIssue(issueId, {
+            [property]: uniq([...newExistingValue, ...propertyValue]),
+          });
+        } else {
+          // if property value is not an array, simply update the value
+          this.rootIssueStore.issues.updateIssue(issueId, {
+            [property]: propertyValue,
+          });
+        }
       });
+      const issueDetails = this.rootIssueStore.issues.getIssueById(issueId);
+      this.updateIssueList(issueDetails, issueBeforeUpdate);
     });
   };
 
@@ -828,37 +820,33 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     const issueDatesBeforeChange: { id: string; start_date?: string; target_date?: string }[] = [];
     try {
       const getIssueById = this.rootIssueStore.issues.getIssueById;
-      runInAction(() => {
-        for (const update of updates) {
-          const dates: Partial<TIssue> = {};
-          if (update.start_date) dates.start_date = update.start_date;
-          if (update.target_date) dates.target_date = update.target_date;
+      for (const update of updates) {
+        const dates: Partial<TIssue> = {};
+        if (update.start_date) dates.start_date = update.start_date;
+        if (update.target_date) dates.target_date = update.target_date;
 
-          const currIssue = getIssueById(update.id);
+        const currIssue = getIssueById(update.id);
 
-          if (currIssue) {
-            issueDatesBeforeChange.push({
-              id: update.id,
-              start_date: currIssue.start_date ?? undefined,
-              target_date: currIssue.target_date ?? undefined,
-            });
-          }
-
-          this.issueUpdate(workspaceSlug, projectId, update.id, dates, false);
+        if (currIssue) {
+          issueDatesBeforeChange.push({
+            id: update.id,
+            start_date: currIssue.start_date ?? undefined,
+            target_date: currIssue.target_date ?? undefined,
+          });
         }
-      });
+
+        this.issueUpdate(workspaceSlug, projectId, update.id, dates, false);
+      }
 
       await this.issueService.updateIssueDates(workspaceSlug, projectId, updates);
     } catch (e) {
-      runInAction(() => {
-        for (const update of issueDatesBeforeChange) {
-          const dates: Partial<TIssue> = {};
-          if (update.start_date) dates.start_date = update.start_date;
-          if (update.target_date) dates.target_date = update.target_date;
+      for (const update of issueDatesBeforeChange) {
+        const dates: Partial<TIssue> = {};
+        if (update.start_date) dates.start_date = update.start_date;
+        if (update.target_date) dates.target_date = update.target_date;
 
-          this.issueUpdate(workspaceSlug, projectId, update.id, dates, false);
-        }
-      });
+        this.issueUpdate(workspaceSlug, projectId, update.id, dates, false);
+      }
       console.error("error while updating Timeline dependencies");
       throw e;
     }
@@ -891,12 +879,10 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     if (fetchAddedIssues) await this.rootIssueStore.issues.getIssues(workspaceSlug, projectId, issueIds);
 
     // Update issueIds from current store
-    runInAction(() => {
-      // If sprint Id is the current sprint Id, then, add issue to list of issueIds
-      if (this.sprintId === sprintId) issueIds.forEach((issueId) => this.addIssueToList(issueId));
-      // If sprint Id is not the current sprint Id, then, remove issue to list of issueIds
-      else if (this.sprintId) issueIds.forEach((issueId) => this.removeIssueFromList(issueId));
-    });
+    // If sprint Id is the current sprint Id, then, add issue to list of issueIds
+    if (this.sprintId === sprintId) issueIds.forEach((issueId) => this.addIssueToList(issueId));
+    // If sprint Id is not the current sprint Id, then, remove issue to list of issueIds
+    else if (this.sprintId) issueIds.forEach((issueId) => this.removeIssueFromList(issueId));
 
     // For Each issue update sprint Id by calling current store's update Issue, without making an API call
     issueIds.forEach((issueId) => {
@@ -923,10 +909,8 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     // if sprint Id is the current Sprint Id then call fetch parent stats
     if (this.sprintId === sprintId) this.fetchParentStats(workspaceSlug, projectId, sprintId);
 
-    runInAction(() => {
-      // If sprint Id is the current sprint Id, then, remove issue from list of issueIds
-      this.sprintId === sprintId && this.removeIssueFromList(issueId);
-    });
+    // If sprint Id is the current sprint Id, then, remove issue from list of issueIds
+    if (this.sprintId === sprintId) this.removeIssueFromList(issueId);
 
     // update Issue sprint Id to null by calling current store's update Issue, without making an API call
     this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: null }, false);
@@ -949,14 +933,12 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
 
     try {
       // Update issueIds from current store
-      runInAction(() => {
-        // If sprint Id before update is the same as current sprint Id then, remove issueId from list
-        if (this.sprintId === issueSprintId) this.removeIssueFromList(issueId);
-        // If sprint Id is the current sprint Id, then, add issue to list of issueIds
-        if (this.sprintId === sprintId) this.addIssueToList(issueId);
-        // For Each issue update sprint Id by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: sprintId }, false);
-      });
+      // If sprint Id before update is the same as current sprint Id then, remove issueId from list
+      if (this.sprintId === issueSprintId) this.removeIssueFromList(issueId);
+      // If sprint Id is the current sprint Id, then, add issue to list of issueIds
+      if (this.sprintId === sprintId) this.addIssueToList(issueId);
+      // For Each issue update sprint Id by calling current store's update Issue, without making an API call
+      this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: sprintId }, false);
 
       const issueAfterUpdate = clone(this.rootIssueStore.issues.getIssueById(issueId));
 
@@ -973,12 +955,10 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
         this.fetchParentStats(workspaceSlug, projectId, this.sprintId);
     } catch (error) {
       // remove the new issue ids from the sprint issues map
-      runInAction(() => {
-        // If sprint Id is the current sprint Id, then, remove issue to list of issueIds
-        if (this.sprintId === sprintId) this.removeIssueFromList(issueId);
-        // For Each issue update sprint Id to previous value by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: issueSprintId }, false);
-      });
+      // If sprint Id is the current sprint Id, then, remove issue to list of issueIds
+      if (this.sprintId === sprintId) this.removeIssueFromList(issueId);
+      // For Each issue update sprint Id to previous value by calling current store's update Issue, without making an API call
+      this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: issueSprintId }, false);
 
       throw error;
     }
@@ -998,12 +978,10 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     try {
       // perform optimistic update, update store
       // Update issueIds from current store
-      runInAction(() => {
-        // If sprint Id is the current sprint Id, then, add issue to list of issueIds
-        if (this.sprintId === issueSprintId) this.removeIssueFromList(issueId);
-        // For Each issue update sprint Id by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: null }, false);
-      });
+      // If sprint Id is the current sprint Id, then, add issue to list of issueIds
+      if (this.sprintId === issueSprintId) this.removeIssueFromList(issueId);
+      // For Each issue update sprint Id by calling current store's update Issue, without making an API call
+      this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: null }, false);
 
       // update parent stats optimistically
       if (this.sprintId === issueSprintId) this.updateParentStats(issueBeforeRemoval, undefined, issueSprintId);
@@ -1016,12 +994,10 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     } catch (error) {
       // revert back changes if fails
       // Update issueIds from current store
-      runInAction(() => {
-        // If sprint Id is the current sprint Id, then, add issue to list of issueIds
-        if (this.sprintId === issueSprintId) this.addIssueToList(issueId);
-        // For Each issue update sprint Id by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: issueSprintId }, false);
-      });
+      // If sprint Id is the current sprint Id, then, add issue to list of issueIds
+      if (this.sprintId === issueSprintId) this.addIssueToList(issueId);
+      // For Each issue update sprint Id by calling current store's update Issue, without making an API call
+      this.issueUpdate(workspaceSlug, projectId, issueId, { sprint_id: issueSprintId }, false);
 
       throw error;
     }
@@ -1053,10 +1029,8 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     // if epic Id is the current Epic Id then call fetch parent stats
     if (this.epicId === epicId) this.fetchParentStats(workspaceSlug, projectId);
 
-    runInAction(() => {
-      // if epic Id is the current Epic Id, then, add issue to list of issueIds
-      this.epicId === epicId && issueIds.forEach((issueId) => this.addIssueToList(issueId));
-    });
+    // if epic Id is the current Epic Id, then, add issue to list of issueIds
+    if (this.epicId === epicId) issueIds.forEach((issueId) => this.addIssueToList(issueId));
 
     // For Each issue update epic Ids by calling current store's update Issue, without making an API call
     issueIds.forEach((issueId) => {
@@ -1081,18 +1055,14 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     // if epic Id is the current Epic Id then call fetch parent stats
     if (this.epicId === epicId) this.fetchParentStats(workspaceSlug, projectId);
 
-    runInAction(() => {
-      // if epic Id is the current Epic Id, then remove issue from list of issueIds
-      this.epicId === epicId && issueIds.forEach((issueId) => this.removeIssueFromList(issueId));
-    });
+    // if epic Id is the current Epic Id, then remove issue from list of issueIds
+    if (this.epicId === epicId) issueIds.forEach((issueId) => this.removeIssueFromList(issueId));
 
     // For Each issue update epic Ids by calling current store's update Issue, without making an API call
-    runInAction(() => {
-      issueIds.forEach((issueId) => {
-        const issueEpicIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "epic_ids"]) ?? [];
-        const updatedIssueEpicIds = pull(issueEpicIds, epicId);
-        this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: updatedIssueEpicIds }, false);
-      });
+    issueIds.forEach((issueId) => {
+      const issueEpicIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "epic_ids"]) ?? [];
+      const updatedIssueEpicIds = pull(issueEpicIds, epicId);
+      this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: updatedIssueEpicIds }, false);
     });
 
     return response;
@@ -1114,17 +1084,15 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       removed_epics: [],
     });
 
-    runInAction(() => {
-      // get current Epic Ids of the issue
-      let currentEpicIds = [...originalEpicIds];
+    // get current Epic Ids of the issue
+    let currentEpicIds = [...originalEpicIds];
 
-      // If current Epic Id is included in the epics list, then add Issue to List
-      if (epicIds.includes(this.epicId ?? "")) this.addIssueToList(issueId);
-      currentEpicIds = uniq(concat([...currentEpicIds], epicIds));
+    // If current Epic Id is included in the epics list, then add Issue to List
+    if (epicIds.includes(this.epicId ?? "")) this.addIssueToList(issueId);
+    currentEpicIds = uniq(concat([...currentEpicIds], epicIds));
 
-      // For current Issue, update epic Ids by calling current store's update Issue, without making an API call
-      this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: currentEpicIds }, false);
-    });
+    // For current Issue, update epic Ids by calling current store's update Issue, without making an API call
+    this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: currentEpicIds }, false);
 
     if (epicIds.includes(this.epicId ?? "")) {
       this.fetchParentStats(workspaceSlug, projectId, this.epicId);
@@ -1150,23 +1118,21 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     const issueBeforeChanges = clone(this.rootIssueStore.issues.getIssueById(issueId));
     const originalEpicIds = get(this.rootIssueStore.issues.issuesMap, [issueId, "epic_ids"]) ?? [];
     try {
-      runInAction(() => {
-        // get current Epic Ids of the issue
-        let currentEpicIds = [...originalEpicIds];
-        // remove the new issue id from the epic issues
-        removeEpicIds.forEach((epicId) => {
-          // If epic Id is equal to current epic Id, then remove Issue from List
-          this.epicId === epicId && this.removeIssueFromList(issueId);
-          currentEpicIds = pull(currentEpicIds, epicId);
-        });
-
-        // If current Epic Id is included in the epics list, then add Issue to List
-        if (addEpicIds.includes(this.epicId ?? "")) this.addIssueToList(issueId);
-        currentEpicIds = uniq(concat([...currentEpicIds], addEpicIds));
-
-        // For current Issue, update epic Ids by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: currentEpicIds }, false);
+      // get current Epic Ids of the issue
+      let currentEpicIds = [...originalEpicIds];
+      // remove the new issue id from the epic issues
+      removeEpicIds.forEach((epicId) => {
+        // If epic Id is equal to current epic Id, then remove Issue from List
+        if (this.epicId === epicId) this.removeIssueFromList(issueId);
+        currentEpicIds = pull(currentEpicIds, epicId);
       });
+
+      // If current Epic Id is included in the epics list, then add Issue to List
+      if (addEpicIds.includes(this.epicId ?? "")) this.addIssueToList(issueId);
+      currentEpicIds = uniq(concat([...currentEpicIds], addEpicIds));
+
+      // For current Issue, update epic Ids by calling current store's update Issue, without making an API call
+      this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: currentEpicIds }, false);
 
       const issueAfterChanges = clone(this.rootIssueStore.issues.getIssueById(issueId));
 
@@ -1186,15 +1152,13 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
       }
     } catch (error) {
       // revert the issue back to its original epic ids
-      runInAction(() => {
-        // If current Epic Id is included in the add epics list, then remove Issue from List
-        if (addEpicIds.includes(this.epicId ?? "")) this.removeIssueFromList(issueId);
-        // If current Epic Id is included in the removed epics list, then add Issue to List
-        if (removeEpicIds.includes(this.epicId ?? "")) this.addIssueToList(issueId);
+      // If current Epic Id is included in the add epics list, then remove Issue from List
+      if (addEpicIds.includes(this.epicId ?? "")) this.removeIssueFromList(issueId);
+      // If current Epic Id is included in the removed epics list, then add Issue to List
+      if (removeEpicIds.includes(this.epicId ?? "")) this.addIssueToList(issueId);
 
-        // For current Issue, update epic Ids by calling current store's update Issue, without making an API call
-        this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: originalEpicIds }, false);
-      });
+      // For current Issue, update epic Ids by calling current store's update Issue, without making an API call
+      this.issueUpdate(workspaceSlug, projectId, issueId, { epic_ids: originalEpicIds }, false);
 
       throw error;
     }
@@ -1206,9 +1170,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    * @param shouldUpdateList indicates if the issue Id to be added to the list
    */
   addIssue(issue: TIssue, shouldUpdateList = true) {
-    runInAction(() => {
-      this.rootIssueStore.issues.addIssue([issue]);
-    });
+    this.rootIssueStore.issues.addIssue([issue]);
 
     // if true, add issue id to the list
     if (shouldUpdateList) this.updateIssueList(issue, undefined, EIssueGroupedAction.ADD);
@@ -1268,44 +1230,42 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
     // issueUpdates is nothing but an array of objects that contain the path of the issueId list that need updating and also the action that needs to be performed at the path
     const issueUpdates = this.getUpdateDetails(issue, issueBeforeUpdate, action);
     const accumulatedUpdatesForCount = {};
-    runInAction(() => {
-      // The issueUpdates
-      for (const issueUpdate of issueUpdates) {
-        //if update is add, add it at a particular path
-        if (issueUpdate.action === EIssueGroupedAction.ADD) {
-          // add issue Id at the path
-          this.baseStore.getState().mutateState((state) => {
-            update(state, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) =>
-              this.issuesSortWithOrderBy(uniq(concat(issueIds, issueId)), this.orderBy)
-            );
-          });
-        }
-
-        //if update is delete, remove it at a particular path
-        if (issueUpdate.action === EIssueGroupedAction.DELETE) {
-          // remove issue Id from the path
-          this.baseStore.getState().mutateState((state) => {
-            update(state, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) => pull(issueIds, issueId));
-          });
-        }
-
-        // accumulate the updates so that we don't end up updating the count twice for the same issue
-        this.accumulateIssueUpdates(accumulatedUpdatesForCount, issueUpdate.path, issueUpdate.action);
-
-        //if update is reorder, reorder it at a particular path
-        if (issueUpdate.action === EIssueGroupedAction.REORDER) {
-          // re-order/re-sort the issue Ids at the path
-          this.baseStore.getState().mutateState((state) => {
-            update(state, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) =>
-              this.issuesSortWithOrderBy(issueIds, this.orderBy)
-            );
-          });
-        }
+    // The issueUpdates
+    for (const issueUpdate of issueUpdates) {
+      //if update is add, add it at a particular path
+      if (issueUpdate.action === EIssueGroupedAction.ADD) {
+        // add issue Id at the path
+        this.baseStore.getState().mutateState((state) => {
+          update(state, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) =>
+            this.issuesSortWithOrderBy(uniq(concat(issueIds, issueId)), this.orderBy)
+          );
+        });
       }
 
-      // update the respective counts from the accumulation object
-      this.updateIssueCount(accumulatedUpdatesForCount);
-    });
+      //if update is delete, remove it at a particular path
+      if (issueUpdate.action === EIssueGroupedAction.DELETE) {
+        // remove issue Id from the path
+        this.baseStore.getState().mutateState((state) => {
+          update(state, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) => pull(issueIds, issueId));
+        });
+      }
+
+      // accumulate the updates so that we don't end up updating the count twice for the same issue
+      this.accumulateIssueUpdates(accumulatedUpdatesForCount, issueUpdate.path, issueUpdate.action);
+
+      //if update is reorder, reorder it at a particular path
+      if (issueUpdate.action === EIssueGroupedAction.REORDER) {
+        // re-order/re-sort the issue Ids at the path
+        this.baseStore.getState().mutateState((state) => {
+          update(state, ["groupedIssueIds", ...issueUpdate.path], (issueIds: string[] = []) =>
+            this.issuesSortWithOrderBy(issueIds, this.orderBy)
+          );
+        });
+      }
+    }
+
+    // update the respective counts from the accumulation object
+    this.updateIssueCount(accumulatedUpdatesForCount);
   }
 
   /**

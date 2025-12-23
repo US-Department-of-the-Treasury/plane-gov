@@ -65,6 +65,30 @@ export default defineConfig([
       },
     },
     rules: {
+      // Prevent MobX re-introduction - use Zustand instead
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "mobx",
+              message: "MobX has been removed from the codebase. Use Zustand for state management.",
+            },
+            {
+              name: "mobx-react",
+              message: "MobX has been removed from the codebase. Use Zustand for state management.",
+            },
+            {
+              name: "mobx-react-lite",
+              message: "MobX has been removed from the codebase. Use Zustand for state management.",
+            },
+            {
+              name: "mobx-utils",
+              message: "MobX has been removed from the codebase. Use Zustand for state management.",
+            },
+          ],
+        },
+      ],
       "@typescript-eslint/await-thenable": "warn",
       "@typescript-eslint/no-base-to-string": "warn",
       "@typescript-eslint/no-duplicate-type-constituents": "warn",
