@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 import { cn } from "@plane/utils";
+import { Tooltip } from "@plane/ui";
 
 // ============================================================================
 // TYPES
@@ -14,6 +15,8 @@ interface AppSidebarItemData {
   onClick?: () => void;
   disabled?: boolean;
   showLabel?: boolean;
+  /** Keyboard shortcut number (e.g., 1, 2, 3) for display in tooltip */
+  shortcutKey?: number;
 }
 
 interface AppSidebarItemProps {
@@ -35,6 +38,8 @@ interface AppSidebarLinkItemProps {
   href?: string;
   children: React.ReactNode;
   className?: string;
+  /** Whether this link is currently active */
+  isActive?: boolean;
 }
 
 interface AppSidebarButtonItemProps {
@@ -96,12 +101,13 @@ function AppSidebarLinkItem({
   href,
   children,
   className,
+  isActive,
 }: AppSidebarLinkItemProps & { ref?: React.Ref<HTMLAnchorElement> }) {
   if (!href) return null;
 
   // Note: ref is not forwarded because the compat Link (React Router) handles refs internally
   return (
-    <Link href={href} className={cn(styles.base, className)}>
+    <Link href={href} className={cn(styles.base, className)} data-active={isActive || undefined}>
       {children}
     </Link>
   );
@@ -141,23 +147,48 @@ function AppSidebarButtonItem({
 // MAIN COMPONENT
 // ============================================================================
 
-export type AppSidebarItemComponent = React.FC<
-  AppSidebarItemProps & { ref?: React.Ref<HTMLElement> }
-> & {
+export type AppSidebarItemComponent = React.FC<AppSidebarItemProps & { ref?: React.Ref<HTMLElement> }> & {
   Label: React.FC<AppSidebarItemLabelProps>;
   Icon: React.FC<AppSidebarItemIconProps>;
   Link: React.FC<AppSidebarLinkItemProps & { ref?: React.Ref<HTMLAnchorElement> }>;
   Button: React.FC<AppSidebarButtonItemProps & { ref?: React.Ref<HTMLDivElement> }>;
 };
 
+/**
+ * Formats keyboard shortcut for display based on platform
+ * @param shortcutKey - The number key (1, 2, 3, etc.)
+ * @returns Formatted string like "⌘1" or "Ctrl+1"
+ */
+function formatShortcut(shortcutKey: number): string {
+  // Check for Mac using navigator (SSR-safe)
+  const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+  return isMac ? `⌘${shortcutKey}` : `Ctrl+${shortcutKey}`;
+}
+
 const AppSidebarItem = function AppSidebarItem({
   variant = "link",
   item,
   ref,
 }: AppSidebarItemProps & { ref?: React.Ref<HTMLElement> }) {
-  if (!item) return null;
+  // Extract item properties with defaults (hooks must be called before early return)
+  const { icon, isActive, label, href, onClick, disabled, showLabel = true, shortcutKey } = item ?? {};
 
-  const { icon, isActive, label, href, onClick, disabled, showLabel = true } = item;
+  // Memoize the tooltip content to avoid recalculating on each render
+  const tooltipContent = useMemo(() => {
+    if (!label) return null;
+    if (shortcutKey) {
+      return (
+        <span className="flex items-center gap-2">
+          <span>{label}</span>
+          <span className="text-custom-text-400 text-10 font-mono">{formatShortcut(shortcutKey)}</span>
+        </span>
+      );
+    }
+    return label;
+  }, [label, shortcutKey]);
+
+  // Early return after hooks
+  if (!item) return null;
 
   const commonItems = (
     <>
@@ -166,19 +197,31 @@ const AppSidebarItem = function AppSidebarItem({
     </>
   );
 
-  if (variant === "link") {
-    return (
-      <AppSidebarLinkItem ref={ref as React.Ref<HTMLAnchorElement>} href={href}>
-        {commonItems}
-      </AppSidebarLinkItem>
-    );
-  }
+  const linkElement = (
+    <AppSidebarLinkItem ref={ref as React.Ref<HTMLAnchorElement>} href={href} isActive={isActive}>
+      {commonItems}
+    </AppSidebarLinkItem>
+  );
 
-  return (
+  const buttonElement = (
     <AppSidebarButtonItem ref={ref as React.Ref<HTMLDivElement>} onClick={onClick} disabled={disabled}>
       {commonItems}
     </AppSidebarButtonItem>
   );
+
+  const content = variant === "link" ? linkElement : buttonElement;
+
+  // Show tooltip with shortcut hint when label is hidden (icon-only mode)
+  if (!showLabel && tooltipContent) {
+    return (
+      <Tooltip tooltipContent={tooltipContent} position="right">
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {content as any}
+      </Tooltip>
+    );
+  }
+
+  return content;
 } as AppSidebarItemComponent;
 
 // ============================================================================
