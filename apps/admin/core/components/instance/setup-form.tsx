@@ -39,17 +39,14 @@ type TFormData = {
   company_name: string;
   password: string;
   confirm_password?: string;
-  is_telemetry_enabled: boolean;
 };
 
-// Telemetry disabled by default for government deployment
 const defaultFromData: TFormData = {
   first_name: "",
   last_name: "",
   email: "",
   company_name: "",
   password: "",
-  is_telemetry_enabled: false,
 };
 
 export function InstanceSetupForm() {
@@ -59,7 +56,6 @@ export function InstanceSetupForm() {
   const lastNameParam = searchParams.get("last_name") || undefined;
   const companyParam = searchParams.get("company") || undefined;
   const emailParam = searchParams.get("email") || undefined;
-  const isTelemetryEnabledParam = (searchParams.get("is_telemetry_enabled") === "True" ? true : false) || true;
   const errorCode = searchParams.get("error_code") || undefined;
   const errorMessage = searchParams.get("error_message") || undefined;
   // state
@@ -83,21 +79,27 @@ export function InstanceSetupForm() {
     if (csrfToken === undefined) {
       void authService.requestCSRFToken().then((data) => {
         if (data?.csrf_token) setCsrfToken(data.csrf_token);
+        return data;
       });
     }
   }, [csrfToken]);
 
+  // Sync URL params to form state on mount
+  const hasInitialized = useMemo(() => {
+    const updates: Partial<TFormData> = {};
+    if (firstNameParam) updates.first_name = firstNameParam;
+    if (lastNameParam) updates.last_name = lastNameParam;
+    if (companyParam) updates.company_name = companyParam;
+    if (emailParam) updates.email = emailParam;
+    return updates;
+  }, [firstNameParam, lastNameParam, companyParam, emailParam]);
+
   useEffect(() => {
-    // Consolidate all param updates into a single setState to avoid cascading renders
-    setFormData((prev) => ({
-      ...prev,
-      ...(firstNameParam && { first_name: firstNameParam }),
-      ...(lastNameParam && { last_name: lastNameParam }),
-      ...(companyParam && { company_name: companyParam }),
-      ...(emailParam && { email: emailParam }),
-      ...(isTelemetryEnabledParam && { is_telemetry_enabled: isTelemetryEnabledParam }),
-    }));
-  }, [firstNameParam, lastNameParam, companyParam, emailParam, isTelemetryEnabledParam]);
+    if (Object.keys(hasInitialized).length > 0) {
+      setFormData((prev) => ({ ...prev, ...hasInitialized }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // derived values
   const errorData: TError = useMemo(() => {
@@ -150,7 +152,8 @@ export function InstanceSetupForm() {
             onSubmit={() => setIsSubmitting(true)}
           >
             <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
-            <input type="hidden" name="is_telemetry_enabled" value={formData.is_telemetry_enabled ? "True" : "False"} />
+            {/* Telemetry disabled for government deployment - always false */}
+            <input type="hidden" name="is_telemetry_enabled" value="False" />
 
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="w-full space-y-1">
