@@ -22,6 +22,10 @@ const envSchema = z.object({
   REDIS_HOST: z.string().optional(),
   REDIS_PORT: z.string().default("6379").transform(Number),
   REDIS_URL: z.string().optional(),
+  // WebSocket rate limiting
+  WS_RATE_LIMIT_CONNECTIONS_PER_USER: z.string().default("10").transform(Number), // Max concurrent connections per user
+  WS_RATE_LIMIT_CONNECTIONS_WINDOW_SECONDS: z.string().default("60").transform(Number), // Time window for connection rate
+  WS_RATE_LIMIT_MESSAGES_PER_SECOND: z.string().default("50").transform(Number), // Max messages per second per connection
 });
 
 const validateEnv = () => {

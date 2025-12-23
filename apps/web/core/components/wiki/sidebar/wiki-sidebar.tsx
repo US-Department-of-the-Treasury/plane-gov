@@ -18,8 +18,8 @@ import {
   useWikiCollections,
   buildWikiPageTree,
   buildWikiCollectionTree
-  
-  
+
+
 } from "@/store/queries";
 import type {TWikiPageTreeNode, TWikiCollectionTreeNode} from "@/store/queries";
 // types
