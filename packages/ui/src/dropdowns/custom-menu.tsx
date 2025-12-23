@@ -89,6 +89,27 @@ function CustomMenu(props: ICustomMenuDropdownProps) {
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: placement ?? "auto",
+    modifiers: [
+      {
+        name: "offset",
+        options: {
+          offset: [0, 4],
+        },
+      },
+      {
+        name: "preventOverflow",
+        options: {
+          padding: 8,
+          boundary: "clippingParents",
+        },
+      },
+      {
+        name: "flip",
+        options: {
+          fallbackPlacements: ["top-start", "bottom-end", "top-end"],
+        },
+      },
+    ],
   });
 
   const closeAllSubmenus = React.useCallback(() => {

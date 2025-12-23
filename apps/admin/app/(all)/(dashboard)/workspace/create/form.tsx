@@ -15,16 +15,20 @@ import { useCreateWorkspace } from "@/store/queries";
 
 const instanceWorkspaceService = new InstanceWorkspaceService();
 
+// Extended type for admin workspace creation with owner_email
+type IWorkspaceCreateForm = IWorkspace & { owner_email?: string };
+
 export function WorkspaceCreateForm() {
   // router
   const router = useRouter();
   // states
   const [slugError, setSlugError] = useState(false);
   const [invalidSlug, setInvalidSlug] = useState(false);
-  const [defaultValues, setDefaultValues] = useState<Partial<IWorkspace>>({
+  const [defaultValues, setDefaultValues] = useState<Partial<IWorkspaceCreateForm>>({
     name: "",
     slug: "",
     organization_size: "",
+    owner_email: "",
   });
   // store hooks
   const createWorkspaceMutation = useCreateWorkspace();
@@ -35,11 +39,13 @@ export function WorkspaceCreateForm() {
     setValue,
     getValues,
     formState: { errors, isSubmitting, isValid },
-  } = useForm<IWorkspace>({ defaultValues, mode: "onChange" });
+  } = useForm<IWorkspaceCreateForm>({ defaultValues, mode: "onChange" });
   // derived values
-  const workspaceBaseURL = encodeURI(WEB_BASE_URL || window.location.origin + "/");
+  // Ensure base URL ends with "/" for proper URL concatenation in preview
+  const baseUrl = WEB_BASE_URL || window.location.origin;
+  const workspaceBaseURL = encodeURI(baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`);
 
-  const handleCreateWorkspace = async (formData: IWorkspace) => {
+  const handleCreateWorkspace = async (formData: IWorkspaceCreateForm) => {
     await instanceWorkspaceService
       .slugCheck(formData.slug)
       .then(async (res) => {
@@ -189,6 +195,38 @@ export function WorkspaceCreateForm() {
             {errors.organization_size && (
               <span className="text-13 text-red-500">{errors.organization_size.message}</span>
             )}
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <h4 className="text-13 text-tertiary">Workspace owner email</h4>
+          <div className="flex flex-col gap-1">
+            <Controller
+              control={control}
+              name="owner_email"
+              rules={{
+                required: "Owner email is required.",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Please enter a valid email address.",
+                },
+              }}
+              render={({ field: { value, ref, onChange } }) => (
+                <Input
+                  id="ownerEmail"
+                  type="email"
+                  value={value || ""}
+                  onChange={(e) => onChange(e.target.value)}
+                  ref={ref}
+                  hasError={Boolean(errors.owner_email)}
+                  placeholder="user@example.com"
+                  className="w-full"
+                />
+              )}
+            />
+            <span className="text-11 text-tertiary">
+              The user with this email will be the workspace owner. They must already have an account.
+            </span>
+            {errors.owner_email && <span className="text-11 text-red-500">{errors.owner_email.message}</span>}
           </div>
         </div>
       </div>
