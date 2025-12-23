@@ -1,7 +1,7 @@
 # Third party imports
 from rest_framework.response import Response
 from rest_framework import status
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.db.models import OuterRef, Func, F
 
 # Package imports
@@ -98,14 +98,16 @@ class InstanceWorkSpaceEndpoint(BaseAPIView):
                     )
 
             if serializer.is_valid(raise_exception=True):
-                serializer.save(owner=owner)
-                # Create Workspace member
-                _ = WorkspaceMember.objects.create(
-                    workspace_id=serializer.data["id"],
-                    member=owner,
-                    role=20,
-                    company_role=request.data.get("company_role", ""),
-                )
+                # Use atomic transaction to ensure both workspace and member are created together
+                with transaction.atomic():
+                    workspace = serializer.save(owner=owner)
+                    # Create Workspace member
+                    WorkspaceMember.objects.create(
+                        workspace=workspace,
+                        member=owner,
+                        role=20,
+                        company_role=request.data.get("company_role", ""),
+                    )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(
                 [serializer.errors[error][0] for error in serializer.errors],

@@ -1,11 +1,13 @@
 "use client";
 
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { InfiniteData, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { InstanceWorkspaceService } from "@plane/services";
-import type { IWorkspace } from "@plane/types";
+import type { IWorkspace, TWorkspacePaginationInfo } from "@plane/types";
 import { queryKeys } from "./query-keys";
 
 const instanceWorkspaceService = new InstanceWorkspaceService();
+
+type WorkspaceInfiniteData = InfiniteData<TWorkspacePaginationInfo, string | undefined>;
 
 /**
  * Hook to fetch workspaces with pagination support.
@@ -36,9 +38,9 @@ export function useCreateWorkspace() {
 
   return useMutation({
     mutationFn: (data: IWorkspace) => instanceWorkspaceService.create(data),
-    onSuccess: (newWorkspace) => {
-      // Invalidate workspaces query to refetch with the new workspace
-      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all() });
+    onSuccess: async () => {
+      // Invalidate and wait for refetch before navigation can occur
+      await queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all() });
     },
   });
 }
@@ -48,7 +50,7 @@ export function useCreateWorkspace() {
  * Replaces MobX WorkspaceStore.getWorkspaceById.
  */
 export function getWorkspaceById(
-  data: any, // InfiniteData from useWorkspaces
+  data: WorkspaceInfiniteData | undefined,
   workspaceId: string
 ): IWorkspace | undefined {
   if (!data?.pages) return undefined;
@@ -65,7 +67,7 @@ export function getWorkspaceById(
  * Utility to get all workspaces as a flat array from infinite query data.
  * Replaces MobX WorkspaceStore.workspaceIds computed value.
  */
-export function getAllWorkspaces(data: any): IWorkspace[] {
+export function getAllWorkspaces(data: WorkspaceInfiniteData | undefined): IWorkspace[] {
   if (!data?.pages) return [];
-  return data.pages.flatMap((page: any) => page.results || []);
+  return data.pages.flatMap((page) => page.results || []);
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
 // plane imports
 import { WEB_BASE_URL, ORGANIZATION_SIZE, RESTRICTED_URLS } from "@plane/constants";
 import { Button, getButtonStyling } from "@plane/propel/button";
@@ -11,7 +12,7 @@ import type { IWorkspace } from "@plane/types";
 // components
 import { CustomSelect, Input } from "@plane/ui";
 // store
-import { useCreateWorkspace } from "@/store/queries";
+import { useCreateWorkspace, queryKeys } from "@/store/queries";
 
 const instanceWorkspaceService = new InstanceWorkspaceService();
 
@@ -21,6 +22,8 @@ type IWorkspaceCreateForm = IWorkspace & { owner_email?: string };
 export function WorkspaceCreateForm() {
   // router
   const router = useRouter();
+  // query client for cache invalidation
+  const queryClient = useQueryClient();
   // states
   const [slugError, setSlugError] = useState(false);
   const [invalidSlug, setInvalidSlug] = useState(false);
@@ -46,36 +49,37 @@ export function WorkspaceCreateForm() {
   const workspaceBaseURL = encodeURI(baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`);
 
   const handleCreateWorkspace = async (formData: IWorkspaceCreateForm) => {
-    await instanceWorkspaceService
-      .slugCheck(formData.slug)
-      .then(async (res) => {
-        if (res.status === true && !RESTRICTED_URLS.includes(formData.slug)) {
-          setSlugError(false);
-          await createWorkspaceMutation.mutateAsync(formData)
-            .then(async () => {
-              setToast({
-                type: TOAST_TYPE.SUCCESS,
-                title: "Success!",
-                message: "Workspace created successfully.",
-              });
-              router.push(`/workspace`);
-            })
-            .catch(() => {
-              setToast({
-                type: TOAST_TYPE.ERROR,
-                title: "Error!",
-                message: "Workspace could not be created. Please try again.",
-              });
-            });
-        } else setSlugError(true);
-      })
-      .catch(() => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Error!",
-          message: "Some error occurred while creating workspace. Please try again.",
-        });
+    try {
+      const res = await instanceWorkspaceService.slugCheck(formData.slug);
+      if (res.status === true && !RESTRICTED_URLS.includes(formData.slug)) {
+        setSlugError(false);
+        try {
+          await createWorkspaceMutation.mutateAsync(formData);
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: "Workspace created successfully.",
+          });
+          // Ensure cache is invalidated before navigating
+          await queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all() });
+          router.push(`/workspace`);
+        } catch {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: "Workspace could not be created. Please try again.",
+          });
+        }
+      } else {
+        setSlugError(true);
+      }
+    } catch {
+      setToast({
+        type: TOAST_TYPE.ERROR,
+        title: "Error!",
+        message: "Some error occurred while creating workspace. Please try again.",
       });
+    }
   };
 
   useEffect(
@@ -234,7 +238,7 @@ export function WorkspaceCreateForm() {
         <Button
           variant="primary"
           size="lg"
-          onClick={handleSubmit(handleCreateWorkspace)}
+          onClick={() => void handleSubmit(handleCreateWorkspace)()}
           disabled={!isValid}
           loading={isSubmitting}
         >

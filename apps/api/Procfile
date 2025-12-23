@@ -1,1 +1,1 @@
-web: gunicorn plane.wsgi:application --bind 127.0.0.1:8000 --workers 3 --threads 4 --timeout 60 --access-logfile - --error-logfile - --capture-output --log-level info --preload
+web: bash -c 'source /opt/elasticbeanstalk/deployment/custom_env 2>/dev/null || true && exec gunicorn plane.wsgi:application --bind 127.0.0.1:8000 --workers 3 --threads 4 --timeout 60 --access-logfile - --error-logfile - --capture-output --log-level info --preload'

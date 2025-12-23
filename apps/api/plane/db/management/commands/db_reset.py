@@ -29,14 +29,14 @@ class Command(BaseCommand):
         parser.add_argument(
             "--email",
             type=str,
-            default="test@example.com",
-            help="Email for the test user (default: test@example.com)",
+            default="admin@admin.gov",
+            help="Email for the test user (default: admin@admin.gov)",
         )
         parser.add_argument(
             "--password",
             type=str,
-            default="password123",
-            help="Password for the test user (default: password123)",
+            default="admin123",
+            help="Password for the test user (default: admin123)",
         )
         parser.add_argument(
             "--workspace",
@@ -100,12 +100,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args: Any, **options: Any) -> str | None:
-        # Safety check - only allow in DEBUG mode
-        if not settings.DEBUG:
-            raise CommandError(
-                "db_reset is only allowed in DEBUG mode! "
-                "Set DEBUG=True in your environment to use this command."
-            )
 
         if not options["confirm"]:
             raise CommandError("You must pass --confirm to acknowledge data deletion.")

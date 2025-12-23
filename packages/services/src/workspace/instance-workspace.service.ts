@@ -37,10 +37,10 @@ export class InstanceWorkspaceService extends APIService {
   /**
    * Checks if a workspace slug is available
    * @param {string} slug - The workspace slug to check
-   * @returns {Promise<any>} Promise resolving to slug availability status
+   * @returns {Promise<{status: boolean}>} Promise resolving to slug availability status
    * @throws {Error} If the API request fails
    */
-  async slugCheck(slug: string): Promise<any> {
+  async slugCheck(slug: string): Promise<{ status: boolean }> {
     const params = new URLSearchParams({ slug });
     return this.get(`/api/instances/workspace-slug-check/?${params.toString()}`)
       .then((response) => response?.data)
