@@ -549,6 +549,18 @@ Sprint 23 (Jan 6-20)
 - [ ] Deployed to staging
 - [ ] Product owner approved
 
+### Keyboard Shortcuts
+
+Navigate faster with these workspace mode shortcuts:
+
+| Shortcut         | Action                   |
+| ---------------- | ------------------------ |
+| **Cmd/Ctrl + 1** | Switch to Projects mode  |
+| **Cmd/Ctrl + 2** | Switch to Wiki mode      |
+| **Cmd/Ctrl + 3** | Switch to Resources mode |
+
+**Tip:** Plane remembers your last visited page in each mode. Switching back takes you exactly where you left off.
+
 ---
 
 ## Common Questions
