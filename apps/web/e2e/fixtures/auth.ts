@@ -3,6 +3,7 @@
 import { test as base, Page } from "@playwright/test";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import fs from "fs";
 
 /**
  * Auth Fixture
@@ -17,38 +18,62 @@ const __dirname = dirname(__filename);
 // Path to stored auth state (relative to playwright config)
 export const AUTH_STATE_PATH = join(__dirname, "../.auth/user.json");
 
-// Test user credentials (should match what's configured in your test environment)
-// These should be set via environment variables or test fixtures
+// Test user credentials (should match seed_data defaults)
 export const TEST_USER = {
   email: process.env.E2E_TEST_USER_EMAIL ?? "test@example.com",
-  password: process.env.E2E_TEST_USER_PASSWORD ?? "testpassword123",
+  password: process.env.E2E_TEST_USER_PASSWORD ?? "password123",
 };
 
-// Default workspace slug for testing
-export const TEST_WORKSPACE_SLUG = process.env.E2E_TEST_WORKSPACE_SLUG ?? "treasury";
+// Default workspace slug for testing (matches seed_data default)
+export const TEST_WORKSPACE_SLUG = process.env.E2E_TEST_WORKSPACE_SLUG ?? "test-workspace";
+
+// Path to discovered project ID (written by global-setup)
+const PROJECT_ID_PATH = join(__dirname, "../.auth/project-id.txt");
 
 // Default project ID for testing
-export const TEST_PROJECT_ID = process.env.E2E_TEST_PROJECT_ID ?? "test-project";
+// This is dynamically discovered by global-setup or can be overridden via env
+function getProjectId(): string {
+  // First check environment variable
+  if (process.env.E2E_TEST_PROJECT_ID) {
+    return process.env.E2E_TEST_PROJECT_ID;
+  }
+  // Try to read from discovered file
+  if (fs.existsSync(PROJECT_ID_PATH)) {
+    return fs.readFileSync(PROJECT_ID_PATH, "utf-8").trim();
+  }
+  // Fallback (will likely fail tests if no project exists)
+  return "test-project";
+}
+
+export const TEST_PROJECT_ID = getProjectId();
 
 /**
  * Perform login via UI
  * Used by global-setup to create auth state
+ *
+ * Note: Plane uses a multi-step login flow:
+ * 1. Enter email -> Click Continue
+ * 2. Enter password -> Click Sign In
  */
 export async function loginViaUI(page: Page): Promise<void> {
   await page.goto("/");
 
-  // Wait for login form
+  // Step 1: Wait for email input and enter email
   await page.waitForSelector('input[type="email"], input[name="email"]', { timeout: 10000 });
-
-  // Fill in credentials
   await page.fill('input[type="email"], input[name="email"]', TEST_USER.email);
+
+  // Click Continue/Submit to proceed to password step
+  await page.click('button[type="submit"]');
+
+  // Step 2: Wait for password input (appears after email verification)
+  await page.waitForSelector('input[type="password"], input[name="password"]', { timeout: 15000 });
   await page.fill('input[type="password"], input[name="password"]', TEST_USER.password);
 
   // Submit login
   await page.click('button[type="submit"]');
 
   // Wait for navigation to workspace or dashboard
-  await page.waitForURL(/\/(workspace|treasury)/, { timeout: 30000 });
+  await page.waitForURL(/\/(workspace|test-workspace)/, { timeout: 30000 });
 }
 
 /**
