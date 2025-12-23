@@ -66,10 +66,13 @@ class InstanceWorkSpaceEndpoint(BaseAPIView):
 
     def post(self, request):
         try:
+            from plane.db.models import User
+
             serializer = WorkspaceSerializer(data=request.data)
 
             slug = request.data.get("slug", False)
             name = request.data.get("name", False)
+            owner_email = request.data.get("owner_email", None)
 
             if not name or not slug:
                 return Response(
@@ -83,12 +86,23 @@ class InstanceWorkSpaceEndpoint(BaseAPIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+            # Determine workspace owner - use specified email or fall back to instance admin
+            owner = request.user
+            if owner_email:
+                try:
+                    owner = User.objects.get(email__iexact=owner_email)
+                except User.DoesNotExist:
+                    return Response(
+                        {"error": f"User with email '{owner_email}' does not exist"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
             if serializer.is_valid(raise_exception=True):
-                serializer.save(owner=request.user)
+                serializer.save(owner=owner)
                 # Create Workspace member
                 _ = WorkspaceMember.objects.create(
                     workspace_id=serializer.data["id"],
-                    member=request.user,
+                    member=owner,
                     role=20,
                     company_role=request.data.get("company_role", ""),
                 )

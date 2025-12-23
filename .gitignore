@@ -133,6 +133,12 @@ backend-deploy.zip
 
 # Local development certificates
 certs/
+# Deployment artifacts
+backend-deploy.zip
+*.zip
+
+# Local development certificates
+certs/
 
 # Local planning docs
 plans/

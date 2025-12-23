@@ -43,6 +43,27 @@ function CustomSelect(props: ICustomSelectProps) {
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: placement ?? "bottom-start",
+    modifiers: [
+      {
+        name: "offset",
+        options: {
+          offset: [0, 4],
+        },
+      },
+      {
+        name: "preventOverflow",
+        options: {
+          padding: 8,
+          boundary: "clippingParents",
+        },
+      },
+      {
+        name: "flip",
+        options: {
+          fallbackPlacements: ["top-start", "bottom-end", "top-end"],
+        },
+      },
+    ],
   });
 
   const openDropdown = useCallback(() => {

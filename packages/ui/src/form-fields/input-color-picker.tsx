@@ -27,6 +27,27 @@ export function InputColorPicker(props: InputColorPickerProps) {
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: "auto",
+    modifiers: [
+      {
+        name: "offset",
+        options: {
+          offset: [0, 4],
+        },
+      },
+      {
+        name: "preventOverflow",
+        options: {
+          padding: 8,
+          boundary: "clippingParents",
+        },
+      },
+      {
+        name: "flip",
+        options: {
+          fallbackPlacements: ["top-start", "bottom-end", "top-end"],
+        },
+      },
+    ],
   });
 
   const handleColorChange = (newColor: ColorResult) => {
