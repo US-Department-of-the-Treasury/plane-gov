@@ -111,7 +111,10 @@ resource "aws_s3_bucket_public_access_block" "space" {
   restrict_public_buckets = true
 }
 
-# Bucket Policies for CloudFront Access
+# ==============================================================================
+# Bucket Policies - All reference the unified CloudFront distribution
+# ==============================================================================
+
 resource "aws_s3_bucket_policy" "web" {
   bucket = aws_s3_bucket.web.id
   policy = data.aws_iam_policy_document.web_bucket_policy.json
@@ -131,7 +134,7 @@ data "aws_iam_policy_document" "web_bucket_policy" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.web.arn]
+      values   = [aws_cloudfront_distribution.unified.arn]
     }
   }
 }
@@ -155,7 +158,7 @@ data "aws_iam_policy_document" "admin_bucket_policy" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.admin.arn]
+      values   = [aws_cloudfront_distribution.unified.arn]
     }
   }
 }
@@ -179,7 +182,7 @@ data "aws_iam_policy_document" "space_bucket_policy" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.space.arn]
+      values   = [aws_cloudfront_distribution.unified.arn]
     }
   }
 }

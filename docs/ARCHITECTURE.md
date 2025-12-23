@@ -9,34 +9,45 @@
                              │
                              │ HTTPS (TLS 1.3)
                              │
-            ┌────────────────┴────────────────┐
-            │                                  │
-            ▼                                  ▼
-┌───────────────────────────┐     ┌───────────────────────────┐
-│   CloudFront (3 dist.)    │     │  Application Load Balancer │
-│                           │     │  - HTTPS (ACM cert)        │
-│  - web.plane.treasury.gov │     │  - mTLS (PIV/CAC)          │
-│  - admin.plane.treasury   │     │  - WebSocket support       │
-│  - space.plane.treasury   │     │                            │
-└────────────┬──────────────┘     └────────────┬───────────────┘
-             │                                  │
-             │ OAC                              │
-             │                                  │
-             ▼                                  ▼
-┌───────────────────────────┐     ┌───────────────────────────────────┐
-│   S3 Buckets (Private)    │     │  VPC (10.0.0.0/16)                │
-│                           │     │                                   │
-│  - treasury-plane-web     │     │  ┌─────────────────────────────┐ │
-│  - treasury-plane-admin   │     │  │  Public Subnets (2 AZs)     │ │
-│  - treasury-plane-space   │     │  │  - 10.0.1.0/24             │ │
-│                           │     │  │  - 10.0.2.0/24             │ │
-└───────────────────────────┘     │  │  (NAT Gateways)             │ │
-                                  │  └─────────────────────────────┘ │
-                                  │                │                  │
-                                  │                ▼                  │
-                                  │  ┌─────────────────────────────┐ │
-                                  │  │  Private Subnets (2 AZs)    │ │
-                                  │  │  - 10.0.10.0/24            │ │
+                             │
+                             ▼
+            ┌───────────────────────────────────────────────┐
+            │         CloudFront (Unified Distribution)      │
+            │                                               │
+            │  plane.treasury.gov                           │
+            │    /          → S3 web bucket                 │
+            │    /god-mode/ → S3 admin bucket               │
+            │    /spaces/   → S3 space bucket               │
+            │    /api/      → ALB (Django API)              │
+            │    /live/     → ALB (WebSocket)               │
+            └───────────────────────────┬───────────────────┘
+                                        │
+             ┌──────────────────────────┼───────────────────────────┐
+             │ OAC                      │                           │
+             ▼                          ▼                           │
+┌───────────────────────────┐     ┌───────────────────────────┐    │
+│   S3 Buckets (Private)    │     │  Application Load Balancer │    │
+│                           │     │  - mTLS (PIV/CAC)          │    │
+│  - treasury-plane-web     │     │  - WebSocket support       │    │
+│  - treasury-plane-admin   │     │                            │    │
+│  - treasury-plane-space   │     │                            │    │
+└───────────────────────────┘     └────────────┬───────────────┘    │
+                                               │                     │
+                                               ▼                     │
+                                  ┌─────────────────────────────────┐│
+                                  │  VPC (10.0.0.0/16)              ││
+                                  │                                 ││
+                                  │  ┌─────────────────────────────┐││
+                                  │  │  Public Subnets (2 AZs)     │││
+                                  │  │  - 10.0.1.0/24             │││
+                                  │  │  - 10.0.2.0/24             │││
+                                  │  │  (NAT Gateways)             │││
+                                  │  └─────────────────────────────┘││
+                                  │                │                ││
+                                  │                ▼                ││
+                                  │  ┌─────────────────────────────┐││
+                                  │  │  Private Subnets (2 AZs)    │││
+                                  │  │  - 10.0.10.0/24            │││
                                   │  │  - 10.0.11.0/24            │ │
                                   │  │                             │ │
                                   │  │  ┌────────────────────────┐│ │
@@ -396,7 +407,7 @@ Note: Add Redis only if PostgreSQL alternatives don't meet measured requirements
 │  Elastic Beanstalk (2 t3.small) $30  █████████                     │
 │  Application Load Balancer      $23  ███████                       │
 │  ElastiCache Redis              $0   (disabled)                    │
-│  CloudFront (3 distributions)   $5   ██                            │
+│  CloudFront (1 unified dist.)   $2   █                             │
 │  S3 Storage                     $3   █                             │
 │  Secrets Manager (5 secrets)    $2.50 █                            │
 │  Data Transfer                  ~$10  ███                          │
