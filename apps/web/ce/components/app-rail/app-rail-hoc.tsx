@@ -1,13 +1,21 @@
 // hoc/withDockItems.tsx
 import React from "react";
 import { BookOpen, FolderOpen } from "lucide-react";
+// eslint-disable-next-line import/no-unresolved -- @plane/propel/icons is a valid package export
 import { PlaneNewIcon } from "@plane/propel/icons";
 import type { TWorkspaceMode } from "@plane/types";
 import type { AppSidebarItemData } from "@/components/sidebar/sidebar-item";
 import { useModeNavigation } from "@/hooks/use-workspace-mode";
 
+type DockItem = AppSidebarItemData & { shouldRender: boolean; mode: TWorkspaceMode };
+
 type WithDockItemsProps = {
-  dockItems: (AppSidebarItemData & { shouldRender: boolean; mode: TWorkspaceMode })[];
+  dockItems: DockItem[];
+};
+
+/** Additional props passed through to the wrapped component */
+type AdditionalProps = {
+  showLabel?: boolean;
 };
 
 const MODE_ICONS: Record<TWorkspaceMode, React.ReactNode> = {
@@ -16,8 +24,10 @@ const MODE_ICONS: Record<TWorkspaceMode, React.ReactNode> = {
   resources: <FolderOpen className="size-5" />,
 };
 
-export function withDockItems<P extends WithDockItemsProps>(WrappedComponent: React.ComponentType<P>) {
-  function ComponentWithDockItems(props: Omit<P, keyof WithDockItemsProps>) {
+export function withDockItems<P extends WithDockItemsProps & AdditionalProps>(
+  WrappedComponent: React.ComponentType<P>
+): React.ComponentType<AdditionalProps> {
+  function ComponentWithDockItems(props: AdditionalProps) {
     const { currentMode, getModeHref, modes } = useModeNavigation();
 
     const dockItems: (AppSidebarItemData & { shouldRender: boolean; mode: TWorkspaceMode })[] = modes.map((mode) => ({
@@ -27,6 +37,7 @@ export function withDockItems<P extends WithDockItemsProps>(WrappedComponent: Re
       isActive: currentMode === mode.key,
       shouldRender: true,
       mode: mode.key,
+      shortcutKey: mode.shortcutKey,
     }));
 
     return <WrappedComponent {...(props as P)} dockItems={dockItems} />;
