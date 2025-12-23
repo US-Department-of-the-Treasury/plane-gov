@@ -22,7 +22,7 @@ export function PageNavigationPaneTabPanelsRoot(props: Props) {
   const { page, versionHistory, workspaceSlug } = props;
 
   return (
-    <Tab.Panels as={React.Fragment}>
+    <Tab.Panels>
       {ORDERED_PAGE_NAVIGATION_TABS_LIST.map((tab) => (
         <Tab.Panel
           key={tab.key}

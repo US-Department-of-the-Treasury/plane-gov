@@ -1,13 +1,11 @@
-import { uniq, pull, set, debounce, update, concat } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { uniq, pull, concat, update, set, debounce } from "lodash-es";
 import { v4 as uuidv4 } from "uuid";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // types
 import type { TIssueAttachment, TIssueAttachmentMap, TIssueAttachmentIdMap, TIssueServiceType } from "@plane/types";
 // services
 import { IssueAttachmentService } from "@/services/issue";
-import type { IIssueRootStore } from "../root.store";
-import type { IIssueDetail } from "./root.store";
 
 export type TAttachmentUploadStatus = {
   id: string;
@@ -17,7 +15,16 @@ export type TAttachmentUploadStatus = {
   type: string;
 };
 
-export interface IIssueAttachmentStoreActions {
+export interface IIssueAttachmentStore {
+  // state
+  attachments: TIssueAttachmentIdMap;
+  attachmentMap: TIssueAttachmentMap;
+  attachmentsUploadStatusMap: Record<string, Record<string, TAttachmentUploadStatus>>;
+  // helper methods
+  getAttachmentsUploadStatusByIssueId: (issueId: string) => TAttachmentUploadStatus[] | undefined;
+  getAttachmentsByIssueId: (issueId: string) => string[] | undefined;
+  getAttachmentById: (attachmentId: string) => TIssueAttachment | undefined;
+  getAttachmentsCountByIssueId: (issueId: string) => number;
   // actions
   addAttachments: (issueId: string, attachments: TIssueAttachment[]) => void;
   fetchAttachments: (workspaceSlug: string, projectId: string, issueId: string) => Promise<TIssueAttachment[]>;
@@ -25,178 +32,178 @@ export interface IIssueAttachmentStoreActions {
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    file: File
+    file: File,
+    onIssueUpdate?: (issueId: string, data: { attachment_count: number }) => void
   ) => Promise<TIssueAttachment>;
   removeAttachment: (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    attachmentId: string
+    attachmentId: string,
+    onIssueUpdate?: (issueId: string, data: { attachment_count: number }) => void
   ) => Promise<TIssueAttachment>;
+  updateUploadProgress: (issueId: string, tempId: string, progress: number) => void;
+  clearUploadStatus: (issueId: string, tempId: string) => void;
 }
 
-export interface IIssueAttachmentStore extends IIssueAttachmentStoreActions {
-  // observables
-  attachments: TIssueAttachmentIdMap;
-  attachmentMap: TIssueAttachmentMap;
-  attachmentsUploadStatusMap: Record<string, Record<string, TAttachmentUploadStatus>>;
-  // computed
-  issueAttachments: string[] | undefined;
-  // helper methods
-  getAttachmentsUploadStatusByIssueId: (issueId: string) => TAttachmentUploadStatus[] | undefined;
-  getAttachmentsByIssueId: (issueId: string) => string[] | undefined;
-  getAttachmentById: (attachmentId: string) => TIssueAttachment | undefined;
-  getAttachmentsCountByIssueId: (issueId: string) => number;
-}
+// Store factory for different service types
+const attachmentServiceMap = new Map<TIssueServiceType, IssueAttachmentService>();
 
-export class IssueAttachmentStore implements IIssueAttachmentStore {
-  // observables
-  attachments: TIssueAttachmentIdMap = {};
-  attachmentMap: TIssueAttachmentMap = {};
-  attachmentsUploadStatusMap: Record<string, Record<string, TAttachmentUploadStatus>> = {};
-  // root store
-  rootIssueStore: IIssueRootStore;
-  rootIssueDetailStore: IIssueDetail;
-  // services
-  issueAttachmentService;
-
-  constructor(rootStore: IIssueRootStore, serviceType: TIssueServiceType) {
-    makeObservable(this, {
-      // observables
-      attachments: observable,
-      attachmentMap: observable,
-      attachmentsUploadStatusMap: observable,
-      // computed
-      issueAttachments: computed,
-      // actions
-      addAttachments: action.bound,
-      fetchAttachments: action,
-      createAttachment: action,
-      removeAttachment: action,
-    });
-    // root store
-    this.rootIssueStore = rootStore;
-    this.rootIssueDetailStore = rootStore.issueDetail;
-    // services
-    this.issueAttachmentService = new IssueAttachmentService(serviceType);
+const getAttachmentService = (serviceType: TIssueServiceType): IssueAttachmentService => {
+  if (!attachmentServiceMap.has(serviceType)) {
+    attachmentServiceMap.set(serviceType, new IssueAttachmentService(serviceType));
   }
+  return attachmentServiceMap.get(serviceType)!;
+};
 
-  // computed
-  get issueAttachments() {
-    const issueId = this.rootIssueDetailStore.peekIssue?.issueId;
-    if (!issueId) return undefined;
-    return this.attachments[issueId] ?? undefined;
-  }
+export const useIssueAttachmentStore = create<IIssueAttachmentStore>()(
+  immer((set, get) => ({
+    // state
+    attachments: {},
+    attachmentMap: {},
+    attachmentsUploadStatusMap: {},
 
-  // helper methods
-  getAttachmentsUploadStatusByIssueId = computedFn((issueId: string) => {
-    if (!issueId) return undefined;
-    const attachmentsUploadStatus = Object.values(this.attachmentsUploadStatusMap[issueId] ?? {});
-    return attachmentsUploadStatus ?? undefined;
-  });
+    // helper methods
+    getAttachmentsUploadStatusByIssueId: (issueId: string) => {
+      if (!issueId) return undefined;
+      const state = get();
+      const attachmentsUploadStatus = Object.values(state.attachmentsUploadStatusMap[issueId] ?? {});
+      return attachmentsUploadStatus.length > 0 ? attachmentsUploadStatus : undefined;
+    },
 
-  getAttachmentsByIssueId = (issueId: string) => {
-    if (!issueId) return undefined;
-    return this.attachments[issueId] ?? undefined;
-  };
+    getAttachmentsByIssueId: (issueId: string) => {
+      if (!issueId) return undefined;
+      return get().attachments[issueId] ?? undefined;
+    },
 
-  getAttachmentById = (attachmentId: string) => {
-    if (!attachmentId) return undefined;
-    return this.attachmentMap[attachmentId] ?? undefined;
-  };
+    getAttachmentById: (attachmentId: string) => {
+      if (!attachmentId) return undefined;
+      return get().attachmentMap[attachmentId] ?? undefined;
+    },
 
-  getAttachmentsCountByIssueId = (issueId: string) => {
-    const attachments = this.getAttachmentsByIssueId(issueId);
-    return attachments?.length ?? 0;
-  };
+    getAttachmentsCountByIssueId: (issueId: string) => {
+      const attachments = get().getAttachmentsByIssueId(issueId);
+      return attachments?.length ?? 0;
+    },
 
-  // actions
-  addAttachments = (issueId: string, attachments: TIssueAttachment[]) => {
-    if (attachments && attachments.length > 0) {
-      const newAttachmentIds = attachments.map((attachment) => attachment.id);
-      runInAction(() => {
-        update(this.attachments, [issueId], (attachmentIds = []) => uniq(concat(attachmentIds, newAttachmentIds)));
-        attachments.forEach((attachment) => set(this.attachmentMap, attachment.id, attachment));
-      });
-    }
-  };
-
-  fetchAttachments = async (workspaceSlug: string, projectId: string, issueId: string) => {
-    const response = await this.issueAttachmentService.getIssueAttachments(workspaceSlug, projectId, issueId);
-    this.addAttachments(issueId, response);
-    return response;
-  };
-
-  private debouncedUpdateProgress = debounce((issueId: string, tempId: string, progress: number) => {
-    runInAction(() => {
-      set(this.attachmentsUploadStatusMap, [issueId, tempId, "progress"], progress);
-    });
-  }, 16);
-
-  createAttachment = async (workspaceSlug: string, projectId: string, issueId: string, file: File) => {
-    const tempId = uuidv4();
-    try {
-      // update attachment upload status
-      runInAction(() => {
-        set(this.attachmentsUploadStatusMap, [issueId, tempId], {
-          id: tempId,
-          name: file.name,
-          progress: 0,
-          size: file.size,
-          type: file.type,
+    // actions
+    addAttachments: (issueId: string, attachments: TIssueAttachment[]) => {
+      if (attachments && attachments.length > 0) {
+        const newAttachmentIds = attachments.map((attachment) => attachment.id);
+        set((state) => {
+          update(state.attachments, [issueId], (attachmentIds = []) => uniq(concat(attachmentIds, newAttachmentIds)));
+          attachments.forEach((attachment) => set(state.attachmentMap, attachment.id, attachment));
         });
-      });
-      const response = await this.issueAttachmentService.uploadIssueAttachment(
-        workspaceSlug,
-        projectId,
-        issueId,
-        file,
-        (progressEvent) => {
-          const progressPercentage = Math.round((progressEvent.progress ?? 0) * 100);
-          this.debouncedUpdateProgress(issueId, tempId, progressPercentage);
-        }
-      );
+      }
+    },
 
-      if (response && response.id) {
-        runInAction(() => {
-          update(this.attachments, [issueId], (attachmentIds = []) => uniq(concat(attachmentIds, [response.id])));
-          set(this.attachmentMap, response.id, response);
-          this.rootIssueStore.issues.updateIssue(issueId, {
-            attachment_count: this.getAttachmentsCountByIssueId(issueId),
+    fetchAttachments: async (workspaceSlug: string, projectId: string, issueId: string) => {
+      const service = getAttachmentService("WORKSPACE");
+      const response = await service.getIssueAttachments(workspaceSlug, projectId, issueId);
+      get().addAttachments(issueId, response);
+      return response;
+    },
+
+    updateUploadProgress: debounce((issueId: string, tempId: string, progress: number) => {
+      set((state) => {
+        if (state.attachmentsUploadStatusMap[issueId]?.[tempId]) {
+          state.attachmentsUploadStatusMap[issueId][tempId].progress = progress;
+        }
+      });
+    }, 16),
+
+    clearUploadStatus: (issueId: string, tempId: string) => {
+      set((state) => {
+        if (state.attachmentsUploadStatusMap[issueId]) {
+          delete state.attachmentsUploadStatusMap[issueId][tempId];
+        }
+      });
+    },
+
+    createAttachment: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      file: File,
+      onIssueUpdate?: (issueId: string, data: { attachment_count: number }) => void
+    ) => {
+      const tempId = uuidv4();
+      const service = getAttachmentService("WORKSPACE");
+      const store = get();
+
+      try {
+        // update attachment upload status
+        set((state) => {
+          if (!state.attachmentsUploadStatusMap[issueId]) {
+            state.attachmentsUploadStatusMap[issueId] = {};
+          }
+          state.attachmentsUploadStatusMap[issueId][tempId] = {
+            id: tempId,
+            name: file.name,
+            progress: 0,
+            size: file.size,
+            type: file.type,
+          };
+        });
+
+        const response = await service.uploadIssueAttachment(
+          workspaceSlug,
+          projectId,
+          issueId,
+          file,
+          (progressEvent) => {
+            const progressPercentage = Math.round((progressEvent.progress ?? 0) * 100);
+            store.updateUploadProgress(issueId, tempId, progressPercentage);
+          }
+        );
+
+        if (response && response.id) {
+          set((state) => {
+            update(state.attachments, [issueId], (attachmentIds = []) => uniq(concat(attachmentIds, [response.id])));
+            state.attachmentMap[response.id] = response;
           });
+
+          if (onIssueUpdate) {
+            onIssueUpdate(issueId, {
+              attachment_count: get().getAttachmentsCountByIssueId(issueId),
+            });
+          }
+        }
+
+        return response;
+      } catch (error) {
+        console.error("Error in uploading issue attachment:", error);
+        throw error;
+      } finally {
+        store.clearUploadStatus(issueId, tempId);
+      }
+    },
+
+    removeAttachment: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      attachmentId: string,
+      onIssueUpdate?: (issueId: string, data: { attachment_count: number }) => void
+    ) => {
+      const service = getAttachmentService("WORKSPACE");
+      const response = await service.deleteIssueAttachment(workspaceSlug, projectId, issueId, attachmentId);
+
+      set((state) => {
+        update(state.attachments, [issueId], (attachmentIds = []) => {
+          if (attachmentIds.includes(attachmentId)) pull(attachmentIds, attachmentId);
+          return attachmentIds;
+        });
+        delete state.attachmentMap[attachmentId];
+      });
+
+      if (onIssueUpdate) {
+        onIssueUpdate(issueId, {
+          attachment_count: get().getAttachmentsCountByIssueId(issueId),
         });
       }
 
       return response;
-    } catch (error) {
-      console.error("Error in uploading issue attachment:", error);
-      throw error;
-    } finally {
-      runInAction(() => {
-        delete this.attachmentsUploadStatusMap[issueId][tempId];
-      });
-    }
-  };
-
-  removeAttachment = async (workspaceSlug: string, projectId: string, issueId: string, attachmentId: string) => {
-    const response = await this.issueAttachmentService.deleteIssueAttachment(
-      workspaceSlug,
-      projectId,
-      issueId,
-      attachmentId
-    );
-
-    runInAction(() => {
-      update(this.attachments, [issueId], (attachmentIds = []) => {
-        if (attachmentIds.includes(attachmentId)) pull(attachmentIds, attachmentId);
-        return attachmentIds;
-      });
-      delete this.attachmentMap[attachmentId];
-      this.rootIssueStore.issues.updateIssue(issueId, {
-        attachment_count: this.getAttachmentsCountByIssueId(issueId),
-      });
-    });
-
-    return response;
-  };
-}
+    },
+  }))
+);

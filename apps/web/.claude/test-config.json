@@ -1,0 +1,10 @@
+{
+  "framework": "playwright",
+  "commands": {
+    "smoke": "pnpm test:smoke",
+    "e2e": "pnpm test:e2e",
+    "comprehensive": "pnpm test:comprehensive"
+  },
+  "testDirs": ["e2e/specs/smoke/", "e2e/specs/crud/"],
+  "lastAnalyzed": "2024-12-22T23:30:00Z"
+}

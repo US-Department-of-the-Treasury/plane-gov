@@ -1,5 +1,6 @@
-import { clone, set } from "lodash-es";
-import { makeObservable, observable, runInAction, action } from "mobx";
+import { clone, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 import type {
   TInboxIssue,
   TInboxIssueStatus,
@@ -34,22 +35,218 @@ export interface IInboxIssueStore {
   fetchIssueActivity: () => Promise<void>; // fetching the issue activity
 }
 
-export class InboxIssueStore implements IInboxIssueStore {
-  // observables
-  isLoading: boolean = false;
+// Zustand Store
+interface InboxIssueState {
+  isLoading: boolean;
   id: string;
-  status: TInboxIssueStatus = EInboxIssueStatus.PENDING;
-  issue: Partial<TIssue> = {};
+  status: TInboxIssueStatus;
+  issue: Partial<TIssue>;
   snoozed_till: Date | undefined;
   source: EInboxIssueSource | undefined;
   duplicate_to: string | undefined;
   created_by: string | undefined;
-  duplicate_issue_detail: TInboxDuplicateIssueDetails | undefined = undefined;
+  duplicate_issue_detail: TInboxDuplicateIssueDetails | undefined;
   workspaceSlug: string;
   projectId: string;
-  // services
-  inboxIssueService;
-  issueService;
+}
+
+interface InboxIssueActions {
+  updateInboxIssueStatus: (status: TInboxIssueStatus, store: CoreRootStore) => Promise<void>;
+  updateInboxIssueDuplicateTo: (issueId: string) => Promise<void>;
+  updateInboxIssueSnoozeTill: (date: Date | undefined) => Promise<void>;
+  updateIssue: (issue: Partial<TIssue>) => Promise<void>;
+  updateProjectIssue: (issue: Partial<TIssue>, store: CoreRootStore) => Promise<void>;
+  fetchIssueActivity: (store: CoreRootStore) => Promise<void>;
+}
+
+type InboxIssueStoreType = InboxIssueState & InboxIssueActions;
+
+const createInboxIssueStore = (
+  workspaceSlug: string,
+  projectId: string,
+  data: TInboxIssue
+) => {
+  const inboxIssueService = new InboxIssueService();
+  const issueService = new IssueService();
+
+  return create<InboxIssueStoreType>()(
+    immer((set, get) => ({
+      // State
+      isLoading: false,
+      id: data.id,
+      status: data.status,
+      issue: data?.issue || {},
+      snoozed_till: data?.snoozed_till || undefined,
+      source: data?.source || undefined,
+      duplicate_to: data?.duplicate_to || undefined,
+      created_by: data?.created_by || undefined,
+      duplicate_issue_detail: data?.duplicate_issue_detail || undefined,
+      workspaceSlug,
+      projectId,
+
+      // Actions
+      updateInboxIssueStatus: async (status: TInboxIssueStatus, store: CoreRootStore) => {
+        const state = get();
+        const previousStatus = state.status;
+
+        try {
+          if (!state.issue.id) return;
+
+          const inboxIssue = await inboxIssueService.update(state.workspaceSlug, state.projectId, state.issue.id, {
+            status: status,
+          });
+          set((draft) => {
+            draft.status = inboxIssue?.status;
+          });
+
+          // If issue accepted sync issue to local db
+          if (status === EInboxIssueStatus.ACCEPTED) {
+            const updatedIssue = { ...state.issue, ...inboxIssue.issue };
+            store.issue.issues.addIssue([updatedIssue]);
+          }
+        } catch {
+          set((draft) => {
+            draft.status = previousStatus;
+          });
+        }
+      },
+
+      updateInboxIssueDuplicateTo: async (issueId: string) => {
+        const state = get();
+        const inboxStatus = EInboxIssueStatus.DUPLICATE as TInboxIssueStatus;
+        const previousData = {
+          status: state.status,
+          duplicate_to: state.duplicate_to,
+          duplicate_issue_detail: state.duplicate_issue_detail,
+        };
+
+        try {
+          if (!state.issue.id) return;
+          const inboxIssue = await inboxIssueService.update(state.workspaceSlug, state.projectId, state.issue.id, {
+            status: inboxStatus,
+            duplicate_to: issueId,
+          });
+          set((draft) => {
+            draft.status = inboxIssue?.status;
+            draft.duplicate_to = inboxIssue?.duplicate_to;
+            draft.duplicate_issue_detail = inboxIssue?.duplicate_issue_detail;
+          });
+        } catch {
+          set((draft) => {
+            draft.status = previousData.status;
+            draft.duplicate_to = previousData.duplicate_to;
+            draft.duplicate_issue_detail = previousData.duplicate_issue_detail;
+          });
+        }
+      },
+
+      updateInboxIssueSnoozeTill: async (date: Date | undefined) => {
+        const state = get();
+        const inboxStatus = (date ? EInboxIssueStatus.SNOOZED : EInboxIssueStatus.PENDING) as TInboxIssueStatus;
+        const previousData = {
+          status: state.status,
+          snoozed_till: state.snoozed_till,
+        };
+
+        try {
+          if (!state.issue.id) return;
+          const inboxIssue = await inboxIssueService.update(state.workspaceSlug, state.projectId, state.issue.id, {
+            status: inboxStatus,
+            snoozed_till: date ? new Date(date) : null,
+          });
+          set((draft) => {
+            draft.status = inboxIssue?.status;
+            draft.snoozed_till = inboxIssue?.snoozed_till;
+          });
+        } catch {
+          set((draft) => {
+            draft.status = previousData.status;
+            draft.snoozed_till = previousData.snoozed_till;
+          });
+        }
+      },
+
+      updateIssue: async (issue: Partial<TIssue>) => {
+        const state = get();
+        const inboxIssue = clone(state.issue);
+
+        try {
+          if (!state.issue.id) return;
+          set((draft) => {
+            Object.keys(issue).forEach((key) => {
+              const issueKey = key as keyof TIssue;
+              lodashSet(draft.issue, issueKey, issue[issueKey]);
+            });
+          });
+          await inboxIssueService.updateIssue(state.workspaceSlug, state.projectId, state.issue.id, issue);
+          // fetching activity - note: we need store reference
+          // This is handled in the legacy wrapper
+        } catch {
+          set((draft) => {
+            Object.keys(issue).forEach((key) => {
+              const issueKey = key as keyof TIssue;
+              lodashSet(draft.issue, issueKey, inboxIssue[issueKey]);
+            });
+          });
+        }
+      },
+
+      updateProjectIssue: async (issue: Partial<TIssue>, store: CoreRootStore) => {
+        const state = get();
+        const inboxIssue = clone(state.issue);
+
+        try {
+          if (!state.issue.id) return;
+          set((draft) => {
+            Object.keys(issue).forEach((key) => {
+              const issueKey = key as keyof TIssue;
+              lodashSet(draft.issue, issueKey, issue[issueKey]);
+            });
+          });
+          await issueService.patchIssue(state.workspaceSlug, state.projectId, state.issue.id, issue);
+          if (issue.sprint_id) {
+            await store.issue.issueDetail.addIssueToSprint(state.workspaceSlug, state.projectId, issue.sprint_id, [
+              state.issue.id,
+            ]);
+          }
+          if (issue.epic_ids) {
+            await store.issue.issueDetail.changeEpicsInIssue(
+              state.workspaceSlug,
+              state.projectId,
+              state.issue.id,
+              issue.epic_ids,
+              []
+            );
+          }
+
+          // fetching activity
+          await get().fetchIssueActivity(store);
+        } catch {
+          set((draft) => {
+            Object.keys(issue).forEach((key) => {
+              const issueKey = key as keyof TIssue;
+              lodashSet(draft.issue, issueKey, inboxIssue[issueKey]);
+            });
+          });
+        }
+      },
+
+      fetchIssueActivity: async (store: CoreRootStore) => {
+        const state = get();
+        try {
+          if (!state.issue.id) return;
+          await store.issue.issueDetail.fetchActivities(state.workspaceSlug, state.projectId, state.issue.id);
+        } catch {
+          console.error("Failed to fetch issue activity");
+        }
+      },
+    }))
+  );
+};
+
+// Legacy class wrapper for backward compatibility
+export class InboxIssueStore implements IInboxIssueStore {
+  private useStore: ReturnType<typeof createInboxIssueStore>;
 
   constructor(
     workspaceSlug: string,
@@ -57,172 +254,69 @@ export class InboxIssueStore implements IInboxIssueStore {
     data: TInboxIssue,
     private store: CoreRootStore
   ) {
-    this.id = data.id;
-    this.status = data.status;
-    this.issue = data?.issue;
-    this.snoozed_till = data?.snoozed_till || undefined;
-    this.duplicate_to = data?.duplicate_to || undefined;
-    this.created_by = data?.created_by || undefined;
-    this.source = data?.source || undefined;
-    this.duplicate_issue_detail = data?.duplicate_issue_detail || undefined;
-    this.workspaceSlug = workspaceSlug;
-    this.projectId = projectId;
-    // services
-    this.inboxIssueService = new InboxIssueService();
-    this.issueService = new IssueService();
-    // observable variables should be defined after the initialization of the values
-    makeObservable(this, {
-      id: observable,
-      status: observable,
-      issue: observable,
-      snoozed_till: observable,
-      duplicate_to: observable,
-      duplicate_issue_detail: observable,
-      created_by: observable,
-      source: observable,
-      // actions
-      updateInboxIssueStatus: action,
-      updateInboxIssueDuplicateTo: action,
-      updateInboxIssueSnoozeTill: action,
-      updateIssue: action,
-      updateProjectIssue: action,
-      fetchIssueActivity: action,
-    });
+    this.useStore = createInboxIssueStore(workspaceSlug, projectId, data);
   }
 
-  updateInboxIssueStatus = async (status: TInboxIssueStatus) => {
-    const previousData: Partial<TInboxIssue> = {
-      status: this.status,
-    };
+  private get state() {
+    return this.useStore.getState();
+  }
 
-    try {
-      if (!this.issue.id) return;
+  get isLoading() {
+    return this.state.isLoading;
+  }
 
-      const inboxIssue = await this.inboxIssueService.update(this.workspaceSlug, this.projectId, this.issue.id, {
-        status: status,
-      });
-      runInAction(() => set(this, "status", inboxIssue?.status));
+  get id() {
+    return this.state.id;
+  }
 
-      // If issue accepted sync issue to local db
-      if (status === EInboxIssueStatus.ACCEPTED) {
-        const updatedIssue = { ...this.issue, ...inboxIssue.issue };
-        this.store.issue.issues.addIssue([updatedIssue]);
-      }
-    } catch {
-      runInAction(() => set(this, "status", previousData.status));
-    }
-  };
+  get status() {
+    return this.state.status;
+  }
 
-  updateInboxIssueDuplicateTo = async (issueId: string) => {
-    const inboxStatus = EInboxIssueStatus.DUPLICATE;
-    const previousData: Partial<TInboxIssue> = {
-      status: this.status,
-      duplicate_to: this.duplicate_to,
-      duplicate_issue_detail: this.duplicate_issue_detail,
-    };
-    try {
-      if (!this.issue.id) return;
-      const inboxIssue = await this.inboxIssueService.update(this.workspaceSlug, this.projectId, this.issue.id, {
-        status: inboxStatus,
-        duplicate_to: issueId,
-      });
-      runInAction(() => {
-        set(this, "status", inboxIssue?.status);
-        set(this, "duplicate_to", inboxIssue?.duplicate_to);
-        set(this, "duplicate_issue_detail", inboxIssue?.duplicate_issue_detail);
-      });
-    } catch {
-      runInAction(() => {
-        set(this, "status", previousData.status);
-        set(this, "duplicate_to", previousData.duplicate_to);
-        set(this, "duplicate_issue_detail", previousData.duplicate_issue_detail);
-      });
-    }
-  };
+  get issue() {
+    return this.state.issue;
+  }
 
-  updateInboxIssueSnoozeTill = async (date: Date | undefined) => {
-    const inboxStatus = date ? EInboxIssueStatus.SNOOZED : EInboxIssueStatus.PENDING;
-    const previousData: Partial<TInboxIssue> = {
-      status: this.status,
-      snoozed_till: this.snoozed_till,
-    };
-    try {
-      if (!this.issue.id) return;
-      const inboxIssue = await this.inboxIssueService.update(this.workspaceSlug, this.projectId, this.issue.id, {
-        status: inboxStatus,
-        snoozed_till: date ? new Date(date) : null,
-      });
-      runInAction(() => {
-        set(this, "status", inboxIssue?.status);
-        set(this, "snoozed_till", inboxIssue?.snoozed_till);
-      });
-    } catch {
-      runInAction(() => {
-        set(this, "status", previousData.status);
-        set(this, "snoozed_till", previousData.snoozed_till);
-      });
-    }
-  };
+  get snoozed_till() {
+    return this.state.snoozed_till;
+  }
+
+  get source() {
+    return this.state.source;
+  }
+
+  get duplicate_to() {
+    return this.state.duplicate_to;
+  }
+
+  get created_by() {
+    return this.state.created_by;
+  }
+
+  get duplicate_issue_detail() {
+    return this.state.duplicate_issue_detail;
+  }
+
+  get workspaceSlug() {
+    return this.state.workspaceSlug;
+  }
+
+  get projectId() {
+    return this.state.projectId;
+  }
+
+  updateInboxIssueStatus = (status: TInboxIssueStatus) => this.state.updateInboxIssueStatus(status, this.store);
+
+  updateInboxIssueDuplicateTo = (issueId: string) => this.state.updateInboxIssueDuplicateTo(issueId);
+
+  updateInboxIssueSnoozeTill = (date: Date | undefined) => this.state.updateInboxIssueSnoozeTill(date);
 
   updateIssue = async (issue: Partial<TIssue>) => {
-    const inboxIssue = clone(this.issue);
-    try {
-      if (!this.issue.id) return;
-      Object.keys(issue).forEach((key) => {
-        const issueKey = key as keyof TIssue;
-        set(this.issue, issueKey, issue[issueKey]);
-      });
-      await this.inboxIssueService.updateIssue(this.workspaceSlug, this.projectId, this.issue.id, issue);
-      // fetching activity
-      this.fetchIssueActivity();
-    } catch {
-      Object.keys(issue).forEach((key) => {
-        const issueKey = key as keyof TIssue;
-        set(this.issue, issueKey, inboxIssue[issueKey]);
-      });
-    }
+    await this.state.updateIssue(issue);
+    await this.fetchIssueActivity();
   };
 
-  updateProjectIssue = async (issue: Partial<TIssue>) => {
-    const inboxIssue = clone(this.issue);
-    try {
-      if (!this.issue.id) return;
-      Object.keys(issue).forEach((key) => {
-        const issueKey = key as keyof TIssue;
-        set(this.issue, issueKey, issue[issueKey]);
-      });
-      await this.issueService.patchIssue(this.workspaceSlug, this.projectId, this.issue.id, issue);
-      if (issue.sprint_id) {
-        await this.store.issue.issueDetail.addIssueToSprint(this.workspaceSlug, this.projectId, issue.sprint_id, [
-          this.issue.id,
-        ]);
-      }
-      if (issue.epic_ids) {
-        await this.store.issue.issueDetail.changeEpicsInIssue(
-          this.workspaceSlug,
-          this.projectId,
-          this.issue.id,
-          issue.epic_ids,
-          []
-        );
-      }
+  updateProjectIssue = (issue: Partial<TIssue>) => this.state.updateProjectIssue(issue, this.store);
 
-      // fetching activity
-      this.fetchIssueActivity();
-    } catch {
-      Object.keys(issue).forEach((key) => {
-        const issueKey = key as keyof TIssue;
-        set(this.issue, issueKey, inboxIssue[issueKey]);
-      });
-    }
-  };
-
-  fetchIssueActivity = async () => {
-    try {
-      if (!this.issue.id) return;
-      await this.store.issue.issueDetail.fetchActivities(this.workspaceSlug, this.projectId, this.issue.id);
-    } catch {
-      console.error("Failed to fetch issue activity");
-    }
-  };
+  fetchIssueActivity = () => this.state.fetchIssueActivity(this.store);
 }

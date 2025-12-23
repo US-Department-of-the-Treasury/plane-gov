@@ -16,10 +16,11 @@ export class WorkspaceNotificationService extends APIService {
     super(API_BASE_URL);
   }
 
-  async fetchUnreadNotificationsCount(workspaceSlug: string): Promise<TUnreadNotificationsCount | undefined> {
+  async fetchUnreadNotificationsCount(workspaceSlug: string): Promise<TUnreadNotificationsCount> {
     try {
       const { data } = await this.get(`/api/workspaces/${workspaceSlug}/users/notifications/unread/`);
-      return data || undefined;
+      // TanStack Query requires non-undefined return values
+      return data ?? { total_unread_notifications_count: 0, mention_unread_notifications_count: 0 };
     } catch (error) {
       throw error;
     }
@@ -28,12 +29,13 @@ export class WorkspaceNotificationService extends APIService {
   async fetchNotifications(
     workspaceSlug: string,
     params: TNotificationPaginatedInfoQueryParams
-  ): Promise<TNotificationPaginatedInfo | undefined> {
+  ): Promise<TNotificationPaginatedInfo> {
     try {
       const { data } = await this.get(`/api/workspaces/${workspaceSlug}/users/notifications`, {
         params,
       });
-      return data || undefined;
+      // TanStack Query requires non-undefined return values
+      return data ?? { results: [], count: 0, total_pages: 0, extra_stats: null, next_cursor: "", prev_cursor: "", next_page_results: false, prev_page_results: false };
     } catch (error) {
       throw error;
     }

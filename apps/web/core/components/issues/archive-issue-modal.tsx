@@ -1,4 +1,4 @@
-import { useState, Fragment } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
 // i18n
@@ -71,32 +71,31 @@ export function ArchiveIssueModal(props: Props) {
   };
 
   return (
-    <Transition.Root show={isOpen} as={Fragment}>
+    <Transition.Root show={isOpen} as="div">
       <Dialog as="div" className="relative z-30" onClose={onClose}>
         <Transition.Child
-          as={Fragment}
+          as="div"
           enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
           leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-backdrop transition-opacity" />
-        </Transition.Child>
+          className="fixed inset-0 bg-backdrop transition-opacity"
+        />
 
         <div className="fixed inset-0 z-30 overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <Transition.Child
-              as={Fragment}
+              as={Dialog.Panel}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              className="relative transform overflow-hidden rounded-lg bg-surface-1 text-left shadow-raised-200 transition-all sm:my-8 sm:w-full sm:max-w-lg"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-surface-1 text-left shadow-raised-200 transition-all sm:my-8 sm:w-full sm:max-w-lg">
                 <div className="px-5 py-4">
                   <h3 className="text-18 font-medium 2xl:text-20">
                     {t("issue.archive.label")} {projectDetails?.identifier} {issue.sequence_id}
@@ -111,7 +110,6 @@ export function ArchiveIssueModal(props: Props) {
                     </Button>
                   </div>
                 </div>
-              </Dialog.Panel>
             </Transition.Child>
           </div>
         </div>

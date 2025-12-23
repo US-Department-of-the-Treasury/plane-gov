@@ -1,4 +1,5 @@
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // plane imports
 import type { IUserSettings } from "@plane/types";
 // services
@@ -22,80 +23,120 @@ export interface IUserSettingsStore {
   toggleIsScrolled: (isScrolled?: boolean) => void;
 }
 
-export class UserSettingsStore implements IUserSettingsStore {
-  // observables
-  isLoading: boolean = false;
-  sidebarCollapsed: boolean = true;
-  error: TError | undefined = undefined;
-  isScrolled: boolean = false;
-  data: IUserSettings = {
-    id: undefined,
-    email: undefined,
-    workspace: {
-      last_workspace_id: undefined,
-      last_workspace_slug: undefined,
-      last_workspace_name: undefined,
-      last_workspace_logo: undefined,
-      fallback_workspace_id: undefined,
-      fallback_workspace_slug: undefined,
-      invites: undefined,
+// Zustand Store
+interface UserSettingsState {
+  isLoading: boolean;
+  error: TError | undefined;
+  data: IUserSettings;
+  sidebarCollapsed: boolean;
+  isScrolled: boolean;
+}
+
+interface UserSettingsActions {
+  fetchCurrentUserSettings: (bustCache?: boolean) => Promise<IUserSettings | undefined>;
+  toggleSidebar: (collapsed?: boolean) => void;
+  toggleIsScrolled: (isScrolled?: boolean) => void;
+}
+
+type UserSettingsStoreType = UserSettingsState & UserSettingsActions;
+
+const userService = new UserService();
+
+export const useUserSettingsStore = create<UserSettingsStoreType>()(
+  immer((set, get) => ({
+    // State
+    isLoading: false,
+    sidebarCollapsed: true,
+    error: undefined,
+    isScrolled: false,
+    data: {
+      id: undefined,
+      email: undefined,
+      workspace: {
+        last_workspace_id: undefined,
+        last_workspace_slug: undefined,
+        last_workspace_name: undefined,
+        last_workspace_logo: undefined,
+        fallback_workspace_id: undefined,
+        fallback_workspace_slug: undefined,
+        invites: undefined,
+      },
     },
-  };
-  // services
+
+    // Actions
+    toggleSidebar: (collapsed) => {
+      set((state) => {
+        state.sidebarCollapsed = collapsed ?? !state.sidebarCollapsed;
+      });
+    },
+
+    toggleIsScrolled: (isScrolled) => {
+      set((state) => {
+        state.isScrolled = isScrolled ?? !state.isScrolled;
+      });
+    },
+
+    fetchCurrentUserSettings: async (bustCache = false) => {
+      try {
+        set((state) => {
+          state.isLoading = true;
+          state.error = undefined;
+        });
+        const userSettings = await userService.currentUserSettings(bustCache);
+        set((state) => {
+          state.isLoading = false;
+          state.data = userSettings;
+        });
+        return userSettings;
+      } catch (error) {
+        set((state) => {
+          state.isLoading = false;
+          state.error = {
+            status: "error",
+            message: "Failed to fetch user settings",
+          };
+        });
+        throw error;
+      }
+    },
+  }))
+);
+
+// Legacy class wrapper for backward compatibility
+export class UserSettingsStore implements IUserSettingsStore {
   userService: UserService;
 
   constructor() {
-    makeObservable(this, {
-      // observables
-      isLoading: observable.ref,
-      error: observable,
-      data: observable,
-      sidebarCollapsed: observable.ref,
-      isScrolled: observable.ref,
-      // actions
-      fetchCurrentUserSettings: action,
-      toggleSidebar: action,
-      toggleIsScrolled: action,
-    });
-    // services
     this.userService = new UserService();
   }
 
-  // actions
-  toggleSidebar = (collapsed?: boolean) => {
-    this.sidebarCollapsed = collapsed ?? !this.sidebarCollapsed;
-  };
+  private get store() {
+    return useUserSettingsStore.getState();
+  }
 
-  toggleIsScrolled = (isScrolled?: boolean) => {
-    this.isScrolled = isScrolled ?? !this.isScrolled;
-  };
+  get isLoading() {
+    return this.store.isLoading;
+  }
 
-  // actions
-  /**
-   * @description fetches user profile information
-   * @returns {Promise<IUserSettings | undefined>}
-   */
-  fetchCurrentUserSettings = async (bustCache: boolean = false) => {
-    try {
-      runInAction(() => {
-        this.isLoading = true;
-        this.error = undefined;
-      });
-      const userSettings = await this.userService.currentUserSettings(bustCache);
-      runInAction(() => {
-        this.isLoading = false;
-        this.data = userSettings;
-      });
-      return userSettings;
-    } catch (error) {
-      runInAction(() => {
-        this.isLoading = false;
-        this.error = {
-          status: "error",
-          message: "Failed to fetch user settings",
-        };
-      });
-      throw error;
-    }
-  };
+  get error() {
+    return this.store.error;
+  }
+
+  get data() {
+    return this.store.data;
+  }
+
+  get sidebarCollapsed() {
+    return this.store.sidebarCollapsed;
+  }
+
+  get isScrolled() {
+    return this.store.isScrolled;
+  }
+
+  toggleSidebar = (collapsed?: boolean) => this.store.toggleSidebar(collapsed);
+
+  toggleIsScrolled = (isScrolled?: boolean) => this.store.toggleIsScrolled(isScrolled);
+
+  fetchCurrentUserSettings = (bustCache?: boolean) => this.store.fetchCurrentUserSettings(bustCache);
 }

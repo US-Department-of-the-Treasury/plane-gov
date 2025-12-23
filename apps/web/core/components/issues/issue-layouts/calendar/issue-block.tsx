@@ -1,4 +1,4 @@
-import { useState, useRef, forwardRef } from "react";
+import { useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { MoreHorizontal } from "lucide-react";
 // plane imports
@@ -30,11 +30,10 @@ type Props = {
   isEpic?: boolean;
 };
 
-export const CalendarIssueBlock = forwardRef(function CalendarIssueBlock(
-  props: Props,
-  ref: React.ForwardedRef<HTMLAnchorElement>
+export function CalendarIssueBlock(
+  props: Props & { ref?: React.Ref<HTMLAnchorElement> }
 ) {
-  const { issue, quickActions, isDragging = false, isEpic = false } = props;
+  const { issue, quickActions, isDragging = false, isEpic = false, ref } = props;
   // states
   const [isMenuActive, setIsMenuActive] = useState(false);
   // refs
@@ -174,6 +173,4 @@ export const CalendarIssueBlock = forwardRef(function CalendarIssueBlock(
       </Popover.Panel>
     </Popover>
   );
-});
-
-CalendarIssueBlock.displayName = "CalendarIssueBlock";
+}

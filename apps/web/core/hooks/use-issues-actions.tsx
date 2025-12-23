@@ -77,8 +77,6 @@ export const useIssuesActions = (storeType: EIssuesStoreType): IssueActions => {
     case EIssuesStoreType.WORKSPACE_DRAFT:
       //@ts-expect-error type mismatch
       return workspaceDraftIssueActions;
-    case EIssuesStoreType.EPIC:
-      return projectEpicsActions;
     case EIssuesStoreType.TEAM_PROJECT_WORK_ITEMS:
       return teamProjectWorkItemsActions;
     case EIssuesStoreType.PROJECT:

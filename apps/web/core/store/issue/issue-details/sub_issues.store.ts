@@ -1,6 +1,6 @@
-import { pull, concat, uniq, set, update } from "lodash-es";
-import { action, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { pull, concat, uniq, set as lodashSet, update } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // Plane Imports
 import type {
   TIssue,
@@ -13,18 +13,38 @@ import type {
 } from "@plane/types";
 // services
 import { IssueService } from "@/services/issue";
-// store
-import type { IIssueDetail } from "./root.store";
-import type { IWorkItemSubIssueFiltersStore } from "./sub_issues_filter.store";
-import { WorkItemSubIssueFiltersStore } from "./sub_issues_filter.store";
+type TSubIssueHelpersKeys = "issue_visibility" | "preview_loader" | "issue_loader";
+type TSubIssueHelpers = Record<TSubIssueHelpersKeys, string[]>;
 
-export interface IIssueSubIssuesStoreActions {
-  fetchSubIssues: (workspaceSlug: string, projectId: string, parentIssueId: string) => Promise<TIssueSubIssues>;
+export interface IIssueSubIssuesStore {
+  // state
+  subIssuesStateDistribution: TIssueSubIssuesStateDistributionMap;
+  subIssues: TIssueSubIssuesIdMap;
+  subIssueHelpers: Record<string, TSubIssueHelpers>; // parent_issue_id -> TSubIssueHelpers
+  loader: TLoader;
+  // helper methods
+  stateDistributionByIssueId: (issueId: string) => TSubIssuesStateDistribution | undefined;
+  subIssuesByIssueId: (issueId: string) => string[] | undefined;
+  subIssueHelpersByIssueId: (issueId: string) => TSubIssueHelpers;
+  // actions
+  setLoader: (loader: TLoader) => void;
+  setSubIssueHelpers: (parentIssueId: string, key: TSubIssueHelpersKeys, value: string) => void;
+  fetchSubIssues: (
+    workspaceSlug: string,
+    projectId: string,
+    parentIssueId: string,
+    onAddIssues?: (issues: TIssue[]) => void,
+    onUpdateIssue?: (issueId: string, data: Partial<TIssue>) => void,
+    onFetchProjectProperties?: (workspaceSlug: string, projectIds: string[]) => void
+  ) => Promise<TIssueSubIssues>;
   createSubIssues: (
     workspaceSlug: string,
     projectId: string,
     parentIssueId: string,
-    issueIds: string[]
+    issueIds: string[],
+    onAddIssues?: (issues: TIssue[]) => void,
+    onUpdateIssue?: (issueId: string, data: Partial<TIssue>) => void,
+    onFetchProjectProperties?: (workspaceSlug: string, projectIds: string[]) => void
   ) => Promise<void>;
   updateSubIssue: (
     workspaceSlug: string,
@@ -33,323 +53,351 @@ export interface IIssueSubIssuesStoreActions {
     issueId: string,
     issueData: Partial<TIssue>,
     oldIssue?: Partial<TIssue>,
-    fromModal?: boolean
+    fromModal?: boolean,
+    onUpdateProjectIssue?: (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssue>) => Promise<void>,
+    getStateById?: (stateId: string) => { group?: string } | undefined
   ) => Promise<void>;
-  removeSubIssue: (workspaceSlug: string, projectId: string, parentIssueId: string, issueId: string) => Promise<void>;
-  deleteSubIssue: (workspaceSlug: string, projectId: string, parentIssueId: string, issueId: string) => Promise<void>;
-}
-
-type TSubIssueHelpersKeys = "issue_visibility" | "preview_loader" | "issue_loader";
-type TSubIssueHelpers = Record<TSubIssueHelpersKeys, string[]>;
-export interface IIssueSubIssuesStore extends IIssueSubIssuesStoreActions {
-  // observables
-  subIssuesStateDistribution: TIssueSubIssuesStateDistributionMap;
-  subIssues: TIssueSubIssuesIdMap;
-  subIssueHelpers: Record<string, TSubIssueHelpers>; // parent_issue_id -> TSubIssueHelpers
-  loader: TLoader;
-  filters: IWorkItemSubIssueFiltersStore;
-  // helper methods
-  stateDistributionByIssueId: (issueId: string) => TSubIssuesStateDistribution | undefined;
-  subIssuesByIssueId: (issueId: string) => string[] | undefined;
-  subIssueHelpersByIssueId: (issueId: string) => TSubIssueHelpers;
-  // actions
-  fetchOtherProjectProperties: (workspaceSlug: string, projectIds: string[]) => Promise<void>;
-  setSubIssueHelpers: (parentIssueId: string, key: TSubIssueHelpersKeys, value: string) => void;
-}
-
-export class IssueSubIssuesStore implements IIssueSubIssuesStore {
-  // observables
-  subIssuesStateDistribution: TIssueSubIssuesStateDistributionMap = {};
-  subIssues: TIssueSubIssuesIdMap = {};
-  subIssueHelpers: Record<string, TSubIssueHelpers> = {};
-  loader: TLoader = undefined;
-
-  filters: IWorkItemSubIssueFiltersStore;
-  // root store
-  rootIssueDetailStore: IIssueDetail;
-  // services
-  serviceType;
-  issueService;
-
-  constructor(rootStore: IIssueDetail, serviceType: TIssueServiceType) {
-    makeObservable(this, {
-      // observables
-      subIssuesStateDistribution: observable,
-      subIssues: observable,
-      subIssueHelpers: observable,
-      loader: observable.ref,
-      // actions
-      setSubIssueHelpers: action,
-      fetchSubIssues: action,
-      createSubIssues: action,
-      updateSubIssue: action,
-      removeSubIssue: action,
-      deleteSubIssue: action,
-      fetchOtherProjectProperties: action,
-    });
-    this.filters = new WorkItemSubIssueFiltersStore(this);
-    // root store
-    this.rootIssueDetailStore = rootStore;
-    // services
-    this.serviceType = serviceType;
-    this.issueService = new IssueService(serviceType);
-  }
-
-  // helper methods
-  stateDistributionByIssueId = (issueId: string) => {
-    if (!issueId) return undefined;
-    return this.subIssuesStateDistribution[issueId] ?? undefined;
-  };
-
-  subIssuesByIssueId = computedFn((issueId: string) => this.subIssues[issueId]);
-
-  subIssueHelpersByIssueId = (issueId: string) => ({
-    preview_loader: this.subIssueHelpers?.[issueId]?.preview_loader || [],
-    issue_visibility: this.subIssueHelpers?.[issueId]?.issue_visibility || [],
-    issue_loader: this.subIssueHelpers?.[issueId]?.issue_loader || [],
-  });
-
-  // actions
-  setSubIssueHelpers = (parentIssueId: string, key: TSubIssueHelpersKeys, value: string) => {
-    if (!parentIssueId || !key || !value) return;
-
-    update(this.subIssueHelpers, [parentIssueId, key], (_subIssueHelpers: string[] = []) => {
-      if (_subIssueHelpers.includes(value)) return pull(_subIssueHelpers, value);
-      return concat(_subIssueHelpers, value);
-    });
-  };
-
-  fetchSubIssues = async (workspaceSlug: string, projectId: string, parentIssueId: string) => {
-    this.loader = "init-loader";
-    const response = await this.issueService.subIssues(workspaceSlug, projectId, parentIssueId);
-
-    const subIssuesStateDistribution = response?.state_distribution ?? {};
-
-    const issueList = (response.sub_issues ?? []) as TIssue[];
-
-    this.rootIssueDetailStore.rootIssueStore.issues.addIssue(issueList);
-
-    // fetch other issues states and members when sub-issues are from different project
-    if (issueList && issueList.length > 0) {
-      const otherProjectIds = uniq(
-        issueList.map((issue) => issue.project_id).filter((id) => !!id && id !== projectId)
-      ) as string[];
-      this.fetchOtherProjectProperties(workspaceSlug, otherProjectIds);
-    }
-    if (issueList) {
-      this.rootIssueDetailStore.rootIssueStore.issues.updateIssue(parentIssueId, {
-        sub_issues_count: issueList.length,
-      });
-    }
-
-    runInAction(() => {
-      set(this.subIssuesStateDistribution, parentIssueId, subIssuesStateDistribution);
-      set(
-        this.subIssues,
-        parentIssueId,
-        issueList.map((issue) => issue.id)
-      );
-    });
-
-    this.loader = undefined;
-    return response;
-  };
-
-  createSubIssues = async (workspaceSlug: string, projectId: string, parentIssueId: string, issueIds: string[]) => {
-    const response = await this.issueService.addSubIssues(workspaceSlug, projectId, parentIssueId, {
-      sub_issue_ids: issueIds,
-    });
-
-    const subIssuesStateDistribution = response?.state_distribution;
-    const subIssues = response.sub_issues as TIssue[];
-
-    // fetch other issues states and members when sub-issues are from different project
-    if (subIssues && subIssues.length > 0) {
-      const otherProjectIds = uniq(
-        subIssues.map((issue) => issue.project_id).filter((id) => !!id && id !== projectId)
-      ) as string[];
-      this.fetchOtherProjectProperties(workspaceSlug, otherProjectIds);
-    }
-
-    runInAction(() => {
-      Object.keys(subIssuesStateDistribution).forEach((key) => {
-        const stateGroup = key as keyof TSubIssuesStateDistribution;
-        update(this.subIssuesStateDistribution, [parentIssueId, stateGroup], (stateDistribution) => {
-          if (!stateDistribution) return subIssuesStateDistribution[stateGroup];
-          return concat(stateDistribution, subIssuesStateDistribution[stateGroup]);
-        });
-      });
-
-      const issueIds = subIssues.map((issue) => issue.id);
-      update(this.subIssues, [parentIssueId], (issues) => {
-        if (!issues) return issueIds;
-        return concat(issues, issueIds);
-      });
-    });
-
-    this.rootIssueDetailStore.rootIssueStore.issues.addIssue(subIssues);
-
-    // update sub-issues_count of the parent issue
-    set(
-      this.rootIssueDetailStore.rootIssueStore.issues.issuesMap,
-      [parentIssueId, "sub_issues_count"],
-      this.subIssues[parentIssueId].length
-    );
-
-    return;
-  };
-
-  updateSubIssue = async (
+  removeSubIssue: (
     workspaceSlug: string,
     projectId: string,
     parentIssueId: string,
     issueId: string,
-    issueData: Partial<TIssue>,
-    oldIssue: Partial<TIssue> = {},
-    fromModal: boolean = false
-  ) => {
-    if (!fromModal)
-      await this.rootIssueDetailStore.rootIssueStore.projectIssues.updateIssue(
-        workspaceSlug,
-        projectId,
-        issueId,
-        issueData
-      );
-
-    // parent update
-    if (issueData.hasOwnProperty("parent_id") && issueData.parent_id !== oldIssue.parent_id) {
-      runInAction(() => {
-        if (oldIssue.parent_id) pull(this.subIssues[oldIssue.parent_id], issueId);
-        if (issueData.parent_id)
-          set(this.subIssues, [issueData.parent_id], concat(this.subIssues[issueData.parent_id], issueId));
-      });
-    }
-
-    // state update
-    if (issueData.hasOwnProperty("state_id") && issueData.state_id !== oldIssue.state_id) {
-      let oldIssueStateGroup: string | undefined = undefined;
-      let issueStateGroup: string | undefined = undefined;
-
-      if (oldIssue.state_id) {
-        const state = this.rootIssueDetailStore.rootIssueStore.rootStore.state.getStateById(oldIssue.state_id);
-        if (state?.group) oldIssueStateGroup = state.group;
-      }
-
-      if (issueData.state_id) {
-        const state = this.rootIssueDetailStore.rootIssueStore.rootStore.state.getStateById(issueData.state_id);
-        if (state?.group) issueStateGroup = state.group;
-      }
-
-      if (oldIssueStateGroup && issueStateGroup && issueStateGroup !== oldIssueStateGroup) {
-        runInAction(() => {
-          if (oldIssueStateGroup)
-            update(this.subIssuesStateDistribution, [parentIssueId, oldIssueStateGroup], (stateDistribution) => {
-              if (!stateDistribution) return;
-              return pull(stateDistribution, issueId);
-            });
-
-          if (issueStateGroup)
-            update(this.subIssuesStateDistribution, [parentIssueId, issueStateGroup], (stateDistribution) => {
-              if (!stateDistribution) return [issueId];
-              return concat(stateDistribution, issueId);
-            });
-        });
-      }
-    }
-
-    return;
-  };
-
-  removeSubIssue = async (workspaceSlug: string, projectId: string, parentIssueId: string, issueId: string) => {
-    await this.rootIssueDetailStore.rootIssueStore.projectIssues.updateIssue(workspaceSlug, projectId, issueId, {
-      parent_id: null,
-    });
-
-    const issue = this.rootIssueDetailStore.issue.getIssueById(issueId);
-    if (issue && issue.state_id) {
-      let issueStateGroup: string | undefined = undefined;
-      const state = this.rootIssueDetailStore.rootIssueStore.rootStore.state.getStateById(issue.state_id);
-      if (state?.group) issueStateGroup = state.group;
-
-      if (issueStateGroup) {
-        runInAction(() => {
-          if (issueStateGroup)
-            update(this.subIssuesStateDistribution, [parentIssueId, issueStateGroup], (stateDistribution) => {
-              if (!stateDistribution) return;
-              return pull(stateDistribution, issueId);
-            });
-        });
-      }
-    }
-
-    runInAction(() => {
-      pull(this.subIssues[parentIssueId], issueId);
-      // update sub-issues_count of the parent issue
-      set(
-        this.rootIssueDetailStore.rootIssueStore.issues.issuesMap,
-        [parentIssueId, "sub_issues_count"],
-        this.subIssues[parentIssueId]?.length
-      );
-    });
-
-    return;
-  };
-
-  deleteSubIssue = async (workspaceSlug: string, projectId: string, parentIssueId: string, issueId: string) => {
-    await this.rootIssueDetailStore.rootIssueStore.projectIssues.removeIssue(workspaceSlug, projectId, issueId);
-
-    const issue = this.rootIssueDetailStore.issue.getIssueById(issueId);
-    if (issue && issue.state_id) {
-      let issueStateGroup: string | undefined = undefined;
-      const state = this.rootIssueDetailStore.rootIssueStore.rootStore.state.getStateById(issue.state_id);
-      if (state?.group) issueStateGroup = state.group;
-
-      if (issueStateGroup) {
-        runInAction(() => {
-          if (issueStateGroup)
-            update(this.subIssuesStateDistribution, [parentIssueId, issueStateGroup], (stateDistribution) => {
-              if (!stateDistribution) return;
-              return pull(stateDistribution, issueId);
-            });
-        });
-      }
-    }
-
-    runInAction(() => {
-      pull(this.subIssues[parentIssueId], issueId);
-      // update sub-issues_count of the parent issue
-      set(
-        this.rootIssueDetailStore.rootIssueStore.issues.issuesMap,
-        [parentIssueId, "sub_issues_count"],
-        this.subIssues[parentIssueId]?.length
-      );
-    });
-
-    return;
-  };
-
-  fetchOtherProjectProperties = async (workspaceSlug: string, projectIds: string[]) => {
-    if (projectIds.length > 0) {
-      for (const projectId of projectIds) {
-        // fetching other project states
-        this.rootIssueDetailStore.rootIssueStore.rootStore.state.fetchProjectStates(workspaceSlug, projectId);
-        // fetching other project members
-        this.rootIssueDetailStore.rootIssueStore.rootStore.memberRoot.project.fetchProjectMembers(
-          workspaceSlug,
-          projectId
-        );
-        // fetching other project labels
-        this.rootIssueDetailStore.rootIssueStore.rootStore.label.fetchProjectLabels(workspaceSlug, projectId);
-        // fetching other project sprints - migrated to TanStack Query, no need to fetch explicitly
-        // this.rootIssueDetailStore.rootIssueStore.rootStore.sprint.fetchAllSprints(workspaceSlug, projectId);
-        // fetching other project epics
-        this.rootIssueDetailStore.rootIssueStore.rootStore.epic.fetchEpics(workspaceSlug, projectId);
-        // fetching other project estimates
-        this.rootIssueDetailStore.rootIssueStore.rootStore.projectEstimate.getProjectEstimates(
-          workspaceSlug,
-          projectId
-        );
-      }
-    }
-  };
+    onUpdateProjectIssue?: (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssue>) => Promise<void>,
+    getIssueById?: (issueId: string) => TIssue | undefined,
+    getStateById?: (stateId: string) => { group?: string } | undefined,
+    onUpdateIssue?: (issueId: string, data: Partial<TIssue>) => void
+  ) => Promise<void>;
+  deleteSubIssue: (
+    workspaceSlug: string,
+    projectId: string,
+    parentIssueId: string,
+    issueId: string,
+    onRemoveProjectIssue?: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>,
+    getIssueById?: (issueId: string) => TIssue | undefined,
+    getStateById?: (stateId: string) => { group?: string } | undefined,
+    onUpdateIssue?: (issueId: string, data: Partial<TIssue>) => void
+  ) => Promise<void>;
 }
+
+// Store factory for different service types
+const subIssuesServiceMap = new Map<TIssueServiceType, IssueService>();
+
+const getSubIssuesService = (serviceType: TIssueServiceType): IssueService => {
+  if (!subIssuesServiceMap.has(serviceType)) {
+    subIssuesServiceMap.set(serviceType, new IssueService(serviceType));
+  }
+  return subIssuesServiceMap.get(serviceType)!;
+};
+
+export const useIssueSubIssuesStore = create<IIssueSubIssuesStore>()(
+  immer((set, get) => ({
+    // state
+    subIssuesStateDistribution: {},
+    subIssues: {},
+    subIssueHelpers: {},
+    loader: undefined,
+
+    // helper methods
+    stateDistributionByIssueId: (issueId: string) => {
+      if (!issueId) return undefined;
+      return get().subIssuesStateDistribution[issueId] ?? undefined;
+    },
+
+    subIssuesByIssueId: (issueId: string) => get().subIssues[issueId],
+
+    subIssueHelpersByIssueId: (issueId: string) => ({
+      preview_loader: get().subIssueHelpers?.[issueId]?.preview_loader || [],
+      issue_visibility: get().subIssueHelpers?.[issueId]?.issue_visibility || [],
+      issue_loader: get().subIssueHelpers?.[issueId]?.issue_loader || [],
+    }),
+
+    // actions
+    setLoader: (loader: TLoader) => {
+      set((state) => {
+        state.loader = loader;
+      });
+    },
+
+    setSubIssueHelpers: (parentIssueId: string, key: TSubIssueHelpersKeys, value: string) => {
+      if (!parentIssueId || !key || !value) return;
+
+      set((state) => {
+        if (!state.subIssueHelpers[parentIssueId]) {
+          state.subIssueHelpers[parentIssueId] = {
+            issue_visibility: [],
+            preview_loader: [],
+            issue_loader: [],
+          };
+        }
+        const helpers = state.subIssueHelpers[parentIssueId][key] || [];
+        if (helpers.includes(value)) {
+          state.subIssueHelpers[parentIssueId][key] = helpers.filter((v) => v !== value);
+        } else {
+          state.subIssueHelpers[parentIssueId][key] = [...helpers, value];
+        }
+      });
+    },
+
+    fetchSubIssues: async (
+      workspaceSlug: string,
+      projectId: string,
+      parentIssueId: string,
+      onAddIssues?: (issues: TIssue[]) => void,
+      onUpdateIssue?: (issueId: string, data: Partial<TIssue>) => void,
+      onFetchProjectProperties?: (workspaceSlug: string, projectIds: string[]) => void
+    ) => {
+      const service = getSubIssuesService("WORKSPACE");
+
+      set((state) => {
+        state.loader = "init-loader";
+      });
+
+      const response = await service.subIssues(workspaceSlug, projectId, parentIssueId);
+      const subIssuesStateDistribution = response?.state_distribution ?? {};
+      const issueList = (response.sub_issues ?? []) as TIssue[];
+
+      if (onAddIssues) {
+        onAddIssues(issueList);
+      }
+
+      // fetch other issues states and members when sub-issues are from different project
+      if (issueList && issueList.length > 0 && onFetchProjectProperties) {
+        const otherProjectIds = uniq(
+          issueList.map((issue) => issue.project_id).filter((id) => !!id && id !== projectId)
+        ) as string[];
+        onFetchProjectProperties(workspaceSlug, otherProjectIds);
+      }
+
+      if (issueList && onUpdateIssue) {
+        onUpdateIssue(parentIssueId, {
+          sub_issues_count: issueList.length,
+        });
+      }
+
+      set((state) => {
+        state.subIssuesStateDistribution[parentIssueId] = subIssuesStateDistribution;
+        state.subIssues[parentIssueId] = issueList.map((issue) => issue.id);
+        state.loader = undefined;
+      });
+
+      return response;
+    },
+
+    createSubIssues: async (
+      workspaceSlug: string,
+      projectId: string,
+      parentIssueId: string,
+      issueIds: string[],
+      onAddIssues?: (issues: TIssue[]) => void,
+      onUpdateIssue?: (issueId: string, data: Partial<TIssue>) => void,
+      onFetchProjectProperties?: (workspaceSlug: string, projectIds: string[]) => void
+    ) => {
+      const service = getSubIssuesService("WORKSPACE");
+
+      const response = await service.addSubIssues(workspaceSlug, projectId, parentIssueId, {
+        sub_issue_ids: issueIds,
+      });
+
+      const subIssuesStateDistribution = response?.state_distribution;
+      const subIssues = response.sub_issues as TIssue[];
+
+      // fetch other issues states and members when sub-issues are from different project
+      if (subIssues && subIssues.length > 0 && onFetchProjectProperties) {
+        const otherProjectIds = uniq(
+          subIssues.map((issue) => issue.project_id).filter((id) => !!id && id !== projectId)
+        ) as string[];
+        onFetchProjectProperties(workspaceSlug, otherProjectIds);
+      }
+
+      set((state) => {
+        Object.keys(subIssuesStateDistribution).forEach((key) => {
+          const stateGroup = key as keyof TSubIssuesStateDistribution;
+          if (!state.subIssuesStateDistribution[parentIssueId]) {
+            state.subIssuesStateDistribution[parentIssueId] = {};
+          }
+          const existing = state.subIssuesStateDistribution[parentIssueId][stateGroup] || [];
+          state.subIssuesStateDistribution[parentIssueId][stateGroup] = concat(
+            existing,
+            subIssuesStateDistribution[stateGroup]
+          );
+        });
+
+        const newIssueIds = subIssues.map((issue) => issue.id);
+        if (!state.subIssues[parentIssueId]) {
+          state.subIssues[parentIssueId] = [];
+        }
+        state.subIssues[parentIssueId] = concat(state.subIssues[parentIssueId], newIssueIds);
+      });
+
+      if (onAddIssues) {
+        onAddIssues(subIssues);
+      }
+
+      // update sub-issues_count of the parent issue
+      if (onUpdateIssue) {
+        onUpdateIssue(parentIssueId, {
+          sub_issues_count: get().subIssues[parentIssueId]?.length,
+        });
+      }
+    },
+
+    updateSubIssue: async (
+      workspaceSlug: string,
+      projectId: string,
+      parentIssueId: string,
+      issueId: string,
+      issueData: Partial<TIssue>,
+      oldIssue: Partial<TIssue> = {},
+      fromModal: boolean = false,
+      onUpdateProjectIssue?: (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssue>) => Promise<void>,
+      getStateById?: (stateId: string) => { group?: string } | undefined
+    ) => {
+      if (!fromModal && onUpdateProjectIssue) {
+        await onUpdateProjectIssue(workspaceSlug, projectId, issueId, issueData);
+      }
+
+      // parent update
+      if (issueData.hasOwnProperty("parent_id") && issueData.parent_id !== oldIssue.parent_id) {
+        set((state) => {
+          if (oldIssue.parent_id && state.subIssues[oldIssue.parent_id]) {
+            state.subIssues[oldIssue.parent_id] = state.subIssues[oldIssue.parent_id].filter((id) => id !== issueId);
+          }
+          if (issueData.parent_id) {
+            if (!state.subIssues[issueData.parent_id]) {
+              state.subIssues[issueData.parent_id] = [];
+            }
+            state.subIssues[issueData.parent_id] = concat(state.subIssues[issueData.parent_id], issueId);
+          }
+        });
+      }
+
+      // state update
+      if (issueData.hasOwnProperty("state_id") && issueData.state_id !== oldIssue.state_id && getStateById) {
+        let oldIssueStateGroup: string | undefined = undefined;
+        let issueStateGroup: string | undefined = undefined;
+
+        if (oldIssue.state_id) {
+          const state = getStateById(oldIssue.state_id);
+          if (state?.group) oldIssueStateGroup = state.group;
+        }
+
+        if (issueData.state_id) {
+          const state = getStateById(issueData.state_id);
+          if (state?.group) issueStateGroup = state.group;
+        }
+
+        if (oldIssueStateGroup && issueStateGroup && issueStateGroup !== oldIssueStateGroup) {
+          set((state) => {
+            if (oldIssueStateGroup && state.subIssuesStateDistribution[parentIssueId]?.[oldIssueStateGroup]) {
+              state.subIssuesStateDistribution[parentIssueId][oldIssueStateGroup] =
+                state.subIssuesStateDistribution[parentIssueId][oldIssueStateGroup].filter((id) => id !== issueId);
+            }
+
+            if (issueStateGroup) {
+              if (!state.subIssuesStateDistribution[parentIssueId]) {
+                state.subIssuesStateDistribution[parentIssueId] = {};
+              }
+              if (!state.subIssuesStateDistribution[parentIssueId][issueStateGroup]) {
+                state.subIssuesStateDistribution[parentIssueId][issueStateGroup] = [];
+              }
+              state.subIssuesStateDistribution[parentIssueId][issueStateGroup] = concat(
+                state.subIssuesStateDistribution[parentIssueId][issueStateGroup],
+                issueId
+              );
+            }
+          });
+        }
+      }
+    },
+
+    removeSubIssue: async (
+      workspaceSlug: string,
+      projectId: string,
+      parentIssueId: string,
+      issueId: string,
+      onUpdateProjectIssue?: (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssue>) => Promise<void>,
+      getIssueById?: (issueId: string) => TIssue | undefined,
+      getStateById?: (stateId: string) => { group?: string } | undefined,
+      onUpdateIssue?: (issueId: string, data: Partial<TIssue>) => void
+    ) => {
+      if (onUpdateProjectIssue) {
+        await onUpdateProjectIssue(workspaceSlug, projectId, issueId, {
+          parent_id: null,
+        });
+      }
+
+      const issue = getIssueById ? getIssueById(issueId) : undefined;
+      if (issue && issue.state_id && getStateById) {
+        let issueStateGroup: string | undefined = undefined;
+        const state = getStateById(issue.state_id);
+        if (state?.group) issueStateGroup = state.group;
+
+        if (issueStateGroup) {
+          set((draft) => {
+            if (issueStateGroup && draft.subIssuesStateDistribution[parentIssueId]?.[issueStateGroup]) {
+              draft.subIssuesStateDistribution[parentIssueId][issueStateGroup] =
+                draft.subIssuesStateDistribution[parentIssueId][issueStateGroup].filter((id) => id !== issueId);
+            }
+          });
+        }
+      }
+
+      set((state) => {
+        if (state.subIssues[parentIssueId]) {
+          state.subIssues[parentIssueId] = state.subIssues[parentIssueId].filter((id) => id !== issueId);
+        }
+      });
+
+      // update sub-issues_count of the parent issue
+      if (onUpdateIssue) {
+        onUpdateIssue(parentIssueId, {
+          sub_issues_count: get().subIssues[parentIssueId]?.length,
+        });
+      }
+    },
+
+    deleteSubIssue: async (
+      workspaceSlug: string,
+      projectId: string,
+      parentIssueId: string,
+      issueId: string,
+      onRemoveProjectIssue?: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>,
+      getIssueById?: (issueId: string) => TIssue | undefined,
+      getStateById?: (stateId: string) => { group?: string } | undefined,
+      onUpdateIssue?: (issueId: string, data: Partial<TIssue>) => void
+    ) => {
+      if (onRemoveProjectIssue) {
+        await onRemoveProjectIssue(workspaceSlug, projectId, issueId);
+      }
+
+      const issue = getIssueById ? getIssueById(issueId) : undefined;
+      if (issue && issue.state_id && getStateById) {
+        let issueStateGroup: string | undefined = undefined;
+        const state = getStateById(issue.state_id);
+        if (state?.group) issueStateGroup = state.group;
+
+        if (issueStateGroup) {
+          set((draft) => {
+            if (issueStateGroup && draft.subIssuesStateDistribution[parentIssueId]?.[issueStateGroup]) {
+              draft.subIssuesStateDistribution[parentIssueId][issueStateGroup] =
+                draft.subIssuesStateDistribution[parentIssueId][issueStateGroup].filter((id) => id !== issueId);
+            }
+          });
+        }
+      }
+
+      set((state) => {
+        if (state.subIssues[parentIssueId]) {
+          state.subIssues[parentIssueId] = state.subIssues[parentIssueId].filter((id) => id !== issueId);
+        }
+      });
+
+      // update sub-issues_count of the parent issue
+      if (onUpdateIssue) {
+        onUpdateIssue(parentIssueId, {
+          sub_issues_count: get().subIssues[parentIssueId]?.length,
+        });
+      }
+    },
+  }))
+);

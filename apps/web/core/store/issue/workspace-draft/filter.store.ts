@@ -1,6 +1,6 @@
-import { isEmpty, set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { isEmpty, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // Plane Imports
 import type { TSupportedFilterTypeForUpdate } from "@plane/constants";
 import { EIssueFilterType } from "@plane/constants";
@@ -45,10 +45,49 @@ export interface IWorkspaceDraftIssuesFilter extends IBaseIssueFilterStore {
   ) => Promise<void>;
 }
 
+// Zustand Store
+interface WorkspaceDraftIssuesFilterState {
+  workspaceSlug: string;
+  filters: { [userId: string]: IIssueFilters };
+}
+
+interface WorkspaceDraftIssuesFilterActions {
+  setWorkspaceSlug: (slug: string) => void;
+  setFilters: (workspaceSlug: string, filters: IIssueFilters) => void;
+  updateFilterField: (workspaceSlug: string, field: string, value: any) => void;
+}
+
+type WorkspaceDraftIssuesFilterStore = WorkspaceDraftIssuesFilterState & WorkspaceDraftIssuesFilterActions;
+
+export const useWorkspaceDraftIssuesFilterStore = create<WorkspaceDraftIssuesFilterStore>()(
+  immer((set) => ({
+    // State
+    workspaceSlug: "",
+    filters: {},
+
+    // Actions
+    setWorkspaceSlug: (slug) => {
+      set((state) => {
+        state.workspaceSlug = slug;
+      });
+    },
+
+    setFilters: (workspaceSlug, filters) => {
+      set((state) => {
+        state.filters[workspaceSlug] = filters;
+      });
+    },
+
+    updateFilterField: (workspaceSlug, field, value) => {
+      set((state) => {
+        lodashSet(state.filters, [workspaceSlug, field], value);
+      });
+    },
+  }))
+);
+
+// Legacy class wrapper for backward compatibility
 export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implements IWorkspaceDraftIssuesFilter {
-  // observables
-  workspaceSlug: string = "";
-  filters: { [userId: string]: IIssueFilters } = {};
   // root store
   rootIssueStore: IIssueRootStore;
   // services
@@ -56,21 +95,26 @@ export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implement
 
   constructor(_rootStore: IIssueRootStore) {
     super();
-    makeObservable(this, {
-      // observables
-      workspaceSlug: observable.ref,
-      filters: observable,
-      // computed
-      issueFilters: computed,
-      appliedFilters: computed,
-      // actions
-      fetchFilters: action,
-      updateFilters: action,
-    });
     // root store
     this.rootIssueStore = _rootStore;
     // services
     this.issueFilterService = new IssueFiltersService();
+  }
+
+  private get store() {
+    return useWorkspaceDraftIssuesFilterStore.getState();
+  }
+
+  get workspaceSlug() {
+    return this.store.workspaceSlug;
+  }
+
+  set workspaceSlug(value: string) {
+    this.store.setWorkspaceSlug(value);
+  }
+
+  get filters() {
+    return this.store.filters;
   }
 
   get issueFilters() {
@@ -112,23 +156,21 @@ export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implement
     return filteredRouteParams;
   }
 
-  getFilterParams = computedFn(
-    (
-      options: IssuePaginationOptions,
-      userId: string,
-      cursor: string | undefined,
-      groupId: string | undefined,
-      subGroupId: string | undefined
-    ) => {
-      const filterParams = this.getAppliedFilters(this.workspaceSlug);
+  getFilterParams = (
+    options: IssuePaginationOptions,
+    userId: string,
+    cursor: string | undefined,
+    groupId: string | undefined,
+    subGroupId: string | undefined
+  ) => {
+    const filterParams = this.getAppliedFilters(this.workspaceSlug);
 
-      const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
-      return paginationParams;
-    }
-  );
+    const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
+    return paginationParams;
+  };
 
   fetchFilters = async (workspaceSlug: string) => {
-    this.workspaceSlug = workspaceSlug;
+    this.store.setWorkspaceSlug(workspaceSlug);
     const _filters = this.handleIssuesLocalFilters.get(
       EIssuesStoreType.PROFILE,
       workspaceSlug,
@@ -144,12 +186,10 @@ export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implement
       sub_group_by: _filters?.kanban_filters?.sub_group_by || [],
     };
 
-    runInAction(() => {
-      set(this.filters, [workspaceSlug, "richFilters"], richFilters);
-      set(this.filters, [workspaceSlug, "displayFilters"], displayFilters);
-      set(this.filters, [workspaceSlug, "displayProperties"], displayProperties);
-      set(this.filters, [workspaceSlug, "kanbanFilters"], kanbanFilters);
-    });
+    this.store.updateFilterField(workspaceSlug, "richFilters", richFilters);
+    this.store.updateFilterField(workspaceSlug, "displayFilters", displayFilters);
+    this.store.updateFilterField(workspaceSlug, "displayProperties", displayProperties);
+    this.store.updateFilterField(workspaceSlug, "kanbanFilters", kanbanFilters);
   };
 
   /**
@@ -163,9 +203,7 @@ export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implement
     filters
   ) => {
     try {
-      runInAction(() => {
-        set(this.filters, [workspaceSlug, "richFilters"], filters);
-      });
+      this.store.updateFilterField(workspaceSlug, "richFilters", filters);
 
       this.rootIssueStore.profileIssues.fetchIssuesWithExistingPagination(workspaceSlug, workspaceSlug, "mutation");
       this.handleIssuesLocalFilters.set(
@@ -219,14 +257,12 @@ export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implement
             updatedDisplayFilters.group_by = "priority";
           }
 
-          runInAction(() => {
-            Object.keys(updatedDisplayFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [workspaceSlug, "displayFilters", _key],
-                updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
-              );
-            });
+          Object.keys(updatedDisplayFilters).forEach((_key) => {
+            this.store.updateFilterField(
+              workspaceSlug,
+              `displayFilters.${_key}`,
+              updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
+            );
           });
 
           this.rootIssueStore.profileIssues.fetchIssuesWithExistingPagination(workspaceSlug, workspaceSlug, "mutation");
@@ -241,14 +277,12 @@ export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implement
           const updatedDisplayProperties = filters as IIssueDisplayProperties;
           _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
 
-          runInAction(() => {
-            Object.keys(updatedDisplayProperties).forEach((_key) => {
-              set(
-                this.filters,
-                [workspaceSlug, "displayProperties", _key],
-                updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
-              );
-            });
+          Object.keys(updatedDisplayProperties).forEach((_key) => {
+            this.store.updateFilterField(
+              workspaceSlug,
+              `displayProperties.${_key}`,
+              updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
+            );
           });
 
           this.handleIssuesLocalFilters.set(EIssuesStoreType.PROFILE, type, workspaceSlug, workspaceSlug, undefined, {

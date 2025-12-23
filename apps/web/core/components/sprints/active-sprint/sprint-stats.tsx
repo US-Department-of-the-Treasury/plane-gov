@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Fragment, useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { isEmpty } from "lodash-es";
 import { useTheme } from "next-themes";
 import { CalendarCheck } from "lucide-react";
@@ -101,7 +101,6 @@ export function ActiveSprintStats(props: ActiveSprintStatsProps) {
   return sprintId ? (
     <div className="flex flex-col gap-4 p-4 min-h-[17rem] overflow-hidden bg-surface-1 col-span-1 lg:col-span-2 xl:col-span-1 border border-subtle rounded-lg">
       <Tab.Group
-        as={Fragment}
         defaultIndex={currentValue(tab)}
         onChange={(i) => {
           switch (i) {
@@ -165,7 +164,7 @@ export function ActiveSprintStats(props: ActiveSprintStatsProps) {
           </Tab>
         </Tab.List>
 
-        <Tab.Panels as={Fragment}>
+        <Tab.Panels>
           <Tab.Panel
             as="div"
             className="flex h-52 w-full flex-col gap-1 overflow-y-auto  text-secondary vertical-scrollbar scrollbar-sm"

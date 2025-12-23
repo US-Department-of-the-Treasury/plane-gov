@@ -1,4 +1,5 @@
 import { Outlet } from "react-router";
+import { AnalyticsProvider } from "@/hooks/store/use-analytics";
 import { AuthenticationWrapper } from "@/lib/wrappers/authentication-wrapper";
 import { WorkspaceContentWrapper } from "@/plane-web/components/workspace/content-wrapper";
 import { AppRailVisibilityProvider } from "@/plane-web/hooks/app-rail";
@@ -9,9 +10,11 @@ export default function WorkspaceLayout() {
     <AuthenticationWrapper>
       <WorkspaceAuthWrapper>
         <AppRailVisibilityProvider>
-          <WorkspaceContentWrapper>
-            <Outlet />
-          </WorkspaceContentWrapper>
+          <AnalyticsProvider>
+            <WorkspaceContentWrapper>
+              <Outlet />
+            </WorkspaceContentWrapper>
+          </AnalyticsProvider>
         </AppRailVisibilityProvider>
       </WorkspaceAuthWrapper>
     </AuthenticationWrapper>

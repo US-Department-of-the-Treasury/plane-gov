@@ -1,1 +1,1 @@
-export * from "@/store/sprint.store";
+export * from "@/store/client/sprint.store";

@@ -58,7 +58,7 @@ export function MemberDropdownBase(props: TMemberDropdownBaseProps) {
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   // popper-js refs
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
+  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
   // states
   const [isOpen, setIsOpen] = useState(false);
 
@@ -101,34 +101,36 @@ export function MemberDropdownBase(props: TMemberDropdownBaseProps) {
     }
   };
 
+  // Use div as outer wrapper to avoid button-inside-button HTML validation error.
+  // The actual button behavior is provided by DropdownButton/Button component inside.
   const comboButton = (
     <>
       {button ? (
-        <button
+        <div
           ref={setReferenceElement}
-          type="button"
+          role="button"
           className={cn("clickable block h-full w-full outline-none", buttonContainerClassName)}
-          onClick={handleOnClick}
-          disabled={disabled}
-          tabIndex={tabIndex}
+          onClick={disabled ? undefined : handleOnClick}
+          tabIndex={disabled ? -1 : tabIndex}
+          aria-disabled={disabled}
         >
           {button}
-        </button>
+        </div>
       ) : (
-        <button
+        <div
           ref={setReferenceElement}
-          type="button"
+          role="button"
           className={cn(
             "clickable block h-full max-w-full outline-none",
             {
-              "cursor-not-allowed text-secondary": disabled,
+              "cursor-not-allowed text-secondary pointer-events-none": disabled,
               "cursor-pointer": !disabled,
             },
             buttonContainerClassName
           )}
-          onClick={handleOnClick}
-          disabled={disabled}
-          tabIndex={tabIndex}
+          onClick={disabled ? undefined : handleOnClick}
+          tabIndex={disabled ? -1 : tabIndex}
+          aria-disabled={disabled}
         >
           <DropdownButton
             className={cn("text-11", buttonClassName)}
@@ -151,7 +153,7 @@ export function MemberDropdownBase(props: TMemberDropdownBaseProps) {
               <ChevronDownIcon className={cn("h-2.5 w-2.5 flex-shrink-0", dropdownArrowClassName)} aria-hidden="true" />
             )}
           </DropdownButton>
-        </button>
+        </div>
       )}
     </>
   );

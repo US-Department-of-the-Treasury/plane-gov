@@ -11,6 +11,11 @@ export {
   useCurrentUserSettings,
   useCurrentUserProfile,
   useUpdateCurrentUserProfile,
+  useFinishUserOnboarding,
+  useSetPassword,
+  useChangePassword,
+  useDeactivateAccount,
+  useUpdateTourCompleted,
 } from "./user";
 
 // State hooks (TanStack Query)
@@ -140,6 +145,25 @@ export {
   getWorkspaceIds,
   getWorkspaceSlugs,
 } from "./workspace";
+
+// API Token hooks (TanStack Query)
+export {
+  useApiTokens,
+  useApiTokenDetails,
+  useCreateApiToken,
+  useDeleteApiToken,
+  getApiTokenById,
+} from "./api-token";
+
+// Workspace Links hooks (TanStack Query - home quick links)
+export {
+  useWorkspaceLinks,
+  useWorkspaceLinkDetails,
+  useCreateWorkspaceLink,
+  useUpdateWorkspaceLink,
+  useDeleteWorkspaceLink,
+  getWorkspaceLinkById,
+} from "./workspace-links";
 
 // Issue hooks (TanStack Query)
 export {

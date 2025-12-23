@@ -411,6 +411,7 @@ export function ProfileForm(props: TProfileFormProps) {
               <ChevronDownIcon className={`h-5 w-5 transition-all ${open ? "rotate-180" : ""}`} />
             </Disclosure.Button>
             <Transition
+              as="div"
               show={open}
               enter="transition duration-100 ease-out"
               enterFrom="transform opacity-0"

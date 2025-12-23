@@ -104,6 +104,14 @@ export function useCurrentUserSettings() {
     queryFn: () => userService.currentUserSettings(),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
+    retry: (failureCount, error) => {
+      // Don't retry on auth errors
+      if (error && typeof error === "object" && "status" in error) {
+        const status = (error as { status?: number }).status;
+        if (status === 401 || status === 403) return false;
+      }
+      return failureCount < 2;
+    },
   });
 }
 
@@ -119,6 +127,14 @@ export function useCurrentUserProfile() {
     queryFn: () => userService.getCurrentUserProfile(),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
+    retry: (failureCount, error) => {
+      // Don't retry on auth errors
+      if (error && typeof error === "object" && "status" in error) {
+        const status = (error as { status?: number }).status;
+        if (status === 401 || status === 403) return false;
+      }
+      return failureCount < 2;
+    },
   });
 }
 
@@ -155,6 +171,83 @@ export function useFinishUserOnboarding() {
     mutationFn: () => userService.updateUserOnBoard(),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.users.profile() });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
+    },
+  });
+}
+
+/**
+ * Hook to set a new password (for users without a password).
+ *
+ * @example
+ * const { mutate: setPassword, isPending } = useSetPassword();
+ * setPassword({ token, new_password: "newpass123" });
+ */
+export function useSetPassword() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ token, new_password }: { token: string; new_password: string }) =>
+      userService.changePassword(token, { new_password }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
+    },
+  });
+}
+
+/**
+ * Hook to change password (for users with existing password).
+ *
+ * @example
+ * const { mutate: changePassword, isPending } = useChangePassword();
+ * changePassword({ token, old_password: "oldpass", new_password: "newpass123" });
+ */
+export function useChangePassword() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ token, old_password, new_password }: { token: string; old_password: string; new_password: string }) =>
+      userService.changePassword(token, { old_password, new_password }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
+    },
+  });
+}
+
+/**
+ * Hook to deactivate user account.
+ *
+ * @example
+ * const { mutate: deactivateAccount, isPending } = useDeactivateAccount();
+ * deactivateAccount();
+ */
+export function useDeactivateAccount() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => userService.deactivateAccount(),
+    onSuccess: () => {
+      // Clear all user-related cache on account deactivation
+      void queryClient.removeQueries({ queryKey: queryKeys.users.me() });
+      void queryClient.removeQueries({ queryKey: queryKeys.users.profile() });
+      void queryClient.removeQueries({ queryKey: queryKeys.users.settings() });
+    },
+  });
+}
+
+/**
+ * Hook to mark user tour as completed.
+ *
+ * @example
+ * const { mutate: updateTourCompleted, isPending } = useUpdateTourCompleted();
+ * updateTourCompleted();
+ */
+export function useUpdateTourCompleted() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => userService.updateUserTourCompleted(),
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
     },
   });

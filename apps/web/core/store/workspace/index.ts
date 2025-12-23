@@ -1,7 +1,7 @@
-import { clone, set } from "lodash-es";
-import { action, computed, observable, makeObservable, runInAction } from "mobx";
+import { clone, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // types
-import { computedFn } from "mobx-utils";
 import type { IWorkspaceSidebarNavigationItem, IWorkspace, IWorkspaceSidebarNavigation } from "@plane/types";
 // services
 import { WorkspaceService } from "@/plane-web/services";
@@ -15,6 +15,180 @@ import { HomeStore } from "./home";
 import type { IWebhookStore } from "./webhook.store";
 import { WebhookStore } from "./webhook.store";
 
+// Zustand Store
+interface WorkspaceRootState {
+  loader: boolean;
+  workspaces: Record<string, IWorkspace>;
+  navigationPreferencesMap: Record<string, IWorkspaceSidebarNavigation>;
+}
+
+interface WorkspaceRootActions {
+  fetchWorkspaces: () => Promise<IWorkspace[]>;
+  createWorkspace: (data: Partial<IWorkspace>) => Promise<IWorkspace>;
+  updateWorkspace: (workspaceSlug: string, data: Partial<IWorkspace>) => Promise<IWorkspace>;
+  updateWorkspaceLogo: (workspaceSlug: string, logoURL: string) => void;
+  deleteWorkspace: (workspaceSlug: string) => Promise<void>;
+  fetchSidebarNavigationPreferences: (workspaceSlug: string) => Promise<void>;
+  updateSidebarPreference: (
+    workspaceSlug: string,
+    key: string,
+    data: Partial<IWorkspaceSidebarNavigationItem>
+  ) => Promise<IWorkspaceSidebarNavigationItem | undefined>;
+  updateBulkSidebarPreferences: (
+    workspaceSlug: string,
+    data: Array<{ key: string; is_pinned: boolean; sort_order: number }>
+  ) => Promise<void>;
+}
+
+type WorkspaceRootStoreType = WorkspaceRootState & WorkspaceRootActions;
+
+const workspaceService = new WorkspaceService();
+
+export const useWorkspaceRootStore = create<WorkspaceRootStoreType>()(
+  immer((set, get) => ({
+    // State
+    loader: false,
+    workspaces: {},
+    navigationPreferencesMap: {},
+
+    // Actions
+    fetchWorkspaces: async () => {
+      set((state) => {
+        state.loader = true;
+      });
+      try {
+        const workspaceResponse = await workspaceService.userWorkspaces();
+        set((state) => {
+          workspaceResponse.forEach((workspace) => {
+            state.workspaces[workspace.id] = workspace;
+          });
+        });
+        return workspaceResponse;
+      } finally {
+        set((state) => {
+          state.loader = false;
+        });
+      }
+    },
+
+    createWorkspace: async (data) => {
+      const response = await workspaceService.createWorkspace(data);
+      set((state) => {
+        state.workspaces[response.id] = response;
+      });
+      return response;
+    },
+
+    updateWorkspace: async (workspaceSlug, data) => {
+      const res = await workspaceService.updateWorkspace(workspaceSlug, data);
+      if (res && res.id) {
+        set((state) => {
+          Object.keys(data).forEach((key) => {
+            if (state.workspaces[res.id]) {
+              lodashSet(state.workspaces[res.id], key, data[key as keyof IWorkspace]);
+            }
+          });
+        });
+      }
+      return res;
+    },
+
+    updateWorkspaceLogo: (workspaceSlug, logoURL) => {
+      set((state) => {
+        const workspace = Object.values(state.workspaces).find((w) => w.slug === workspaceSlug);
+        if (workspace) {
+          workspace.logo_url = logoURL;
+        }
+      });
+    },
+
+    deleteWorkspace: async (workspaceSlug) => {
+      try {
+        await workspaceService.deleteWorkspace(workspaceSlug);
+        set((state) => {
+          const workspace = Object.values(state.workspaces).find((w) => w.slug === workspaceSlug);
+          if (workspace) {
+            delete state.workspaces[workspace.id];
+          }
+        });
+      } catch (error) {
+        console.error("Failed to delete workspace:", error);
+      }
+    },
+
+    fetchSidebarNavigationPreferences: async (workspaceSlug) => {
+      try {
+        const response = await workspaceService.fetchSidebarNavigationPreferences(workspaceSlug);
+        set((state) => {
+          state.navigationPreferencesMap[workspaceSlug] = response;
+        });
+      } catch (error) {
+        console.error("Failed to fetch sidebar preferences:", error);
+      }
+    },
+
+    updateSidebarPreference: async (workspaceSlug, key, data) => {
+      const state = get();
+      const beforeUpdateData = clone(state.navigationPreferencesMap[workspaceSlug]?.[key]);
+
+      try {
+        set((state) => {
+          state.navigationPreferencesMap[workspaceSlug] = {
+            ...state.navigationPreferencesMap[workspaceSlug],
+            [key]: {
+              ...beforeUpdateData,
+              ...data,
+            },
+          };
+        });
+
+        const response = await workspaceService.updateSidebarPreference(workspaceSlug, key, data);
+        return response;
+      } catch (error) {
+        // Revert to original data if API call fails
+        set((state) => {
+          state.navigationPreferencesMap[workspaceSlug] = {
+            ...state.navigationPreferencesMap[workspaceSlug],
+            [key]: beforeUpdateData,
+          };
+        });
+        console.error("Failed to update sidebar preference:", error);
+      }
+    },
+
+    updateBulkSidebarPreferences: async (workspaceSlug, data) => {
+      const state = get();
+      const beforeUpdateData = clone(state.navigationPreferencesMap[workspaceSlug]);
+
+      try {
+        // Optimistically update store
+        const updatedPreferences: IWorkspaceSidebarNavigation = {};
+        data.forEach((item) => {
+          updatedPreferences[item.key] = item;
+        });
+
+        set((state) => {
+          state.navigationPreferencesMap[workspaceSlug] = {
+            ...state.navigationPreferencesMap[workspaceSlug],
+            ...updatedPreferences,
+          };
+        });
+
+        // Call API to persist changes
+        await workspaceService.updateBulkSidebarPreferences(workspaceSlug, data);
+      } catch (error) {
+        // Rollback on failure
+        set((state) => {
+          state.navigationPreferencesMap[workspaceSlug] = beforeUpdateData;
+        });
+        console.error("Failed to update bulk sidebar preferences:", error);
+        throw error;
+      }
+    },
+  }))
+);
+
+// Legacy interface for backward compatibility
 export interface IWorkspaceRootStore {
   loader: boolean;
   // observables
@@ -52,53 +226,41 @@ export interface IWorkspaceRootStore {
   home: IHomeStore;
 }
 
+// Legacy class wrapper for backward compatibility
 export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
-  loader: boolean = false;
-  // observables
-  workspaces: Record<string, IWorkspace> = {};
-  navigationPreferencesMap: Record<string, IWorkspaceSidebarNavigation> = {};
-  // services
-  workspaceService;
-  // root store
+  // root store references
+  protected rootStore: CoreRootStore;
   router;
   user;
-  home;
+
   // sub-stores
   webhook: IWebhookStore;
   apiToken: IApiTokenStore;
+  home: IHomeStore;
 
   constructor(_rootStore: CoreRootStore) {
-    makeObservable(this, {
-      loader: observable.ref,
-      // observables
-      workspaces: observable,
-      navigationPreferencesMap: observable,
-      // computed
-      currentWorkspace: computed,
-      workspacesCreatedByCurrentUser: computed,
-      // computed actions
-      getWorkspaceBySlug: action,
-      getWorkspaceById: action,
-      // actions
-      fetchWorkspaces: action,
-      createWorkspace: action,
-      updateWorkspace: action,
-      updateWorkspaceLogo: action,
-      deleteWorkspace: action,
-      fetchSidebarNavigationPreferences: action,
-      updateSidebarPreference: action,
-      updateBulkSidebarPreferences: action,
-    });
-
-    // services
-    this.workspaceService = new WorkspaceService();
-    // root store
+    this.rootStore = _rootStore;
     this.router = _rootStore.router;
     this.user = _rootStore.user;
     this.home = new HomeStore();
-    // sub-stores
     this.webhook = new WebhookStore(_rootStore);
     this.apiToken = new ApiTokenStore(_rootStore);
+  }
+
+  private get store() {
+    return useWorkspaceRootStore.getState();
+  }
+
+  get loader() {
+    return this.store.loader;
+  }
+
+  get workspaces() {
+    return this.store.workspaces;
+  }
+
+  get navigationPreferencesMap() {
+    return this.store.navigationPreferencesMap;
   }
 
   /**
@@ -112,7 +274,7 @@ export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
       this.user.userSettings?.data?.workspace?.fallback_workspace_slug;
 
     // validate the current workspace_slug is available in the user's workspace list
-    const isCurrentWorkspaceValid = Object.values(this.workspaces || {}).findIndex(
+    const isCurrentWorkspaceValid = Object.values(this.store.workspaces || {}).findIndex(
       (workspace) => workspace.slug === currentWorkspaceSlug
     );
 
@@ -126,7 +288,7 @@ export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
   get currentWorkspace() {
     const workspaceSlug = this.router.workspaceSlug;
     if (!workspaceSlug) return null;
-    const workspaceDetails = Object.values(this.workspaces ?? {})?.find((w) => w.slug === workspaceSlug);
+    const workspaceDetails = Object.values(this.store.workspaces ?? {})?.find((w) => w.slug === workspaceSlug);
     return workspaceDetails || null;
   }
 
@@ -134,10 +296,10 @@ export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
    * computed value of all the workspaces created by the current logged in user
    */
   get workspacesCreatedByCurrentUser() {
-    if (!this.workspaces) return null;
+    if (!this.store.workspaces) return null;
     const user = this.user.data;
     if (!user) return null;
-    const userWorkspaces = Object.values(this.workspaces ?? {})?.filter((w) => w.created_by === user?.id);
+    const userWorkspaces = Object.values(this.store.workspaces ?? {})?.filter((w) => w.created_by === user?.id);
     return userWorkspaces || null;
   }
 
@@ -146,174 +308,30 @@ export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
    * @param workspaceSlug
    */
   getWorkspaceBySlug = (workspaceSlug: string) =>
-    Object.values(this.workspaces ?? {})?.find((w) => w.slug == workspaceSlug) || null;
+    Object.values(this.store.workspaces ?? {})?.find((w) => w.slug == workspaceSlug) || null;
 
   /**
    * get workspace info from the array of workspaces in the store using workspace id
    * @param workspaceId
    */
-  getWorkspaceById = (workspaceId: string) => this.workspaces?.[workspaceId] || null; // TODO: use undefined instead of null
+  getWorkspaceById = (workspaceId: string) => this.store.workspaces?.[workspaceId] || null;
 
-  /**
-   * fetch user workspaces from API
-   */
-  fetchWorkspaces = async () => {
-    this.loader = true;
-    try {
-      const workspaceResponse = await this.workspaceService.userWorkspaces();
-      runInAction(() => {
-        workspaceResponse.forEach((workspace) => {
-          set(this.workspaces, [workspace.id], workspace);
-        });
-      });
-      return workspaceResponse;
-    } finally {
-      this.loader = false;
-    }
-  };
+  getNavigationPreferences = (workspaceSlug: string): IWorkspaceSidebarNavigation | undefined =>
+    this.store.navigationPreferencesMap[workspaceSlug];
 
-  /**
-   * create workspace using the workspace data
-   * @param data
-   */
-  createWorkspace = async (data: Partial<IWorkspace>) =>
-    await this.workspaceService.createWorkspace(data).then((response) => {
-      runInAction(() => {
-        this.workspaces = set(this.workspaces, response.id, response);
-      });
-      return response;
-    });
-
-  /**
-   * update workspace using the workspace slug and new workspace data
-   * @param workspaceSlug
-   * @param data
-   */
-  updateWorkspace = async (workspaceSlug: string, data: Partial<IWorkspace>) =>
-    await this.workspaceService.updateWorkspace(workspaceSlug, data).then((res) => {
-      if (res && res.id) {
-        runInAction(() => {
-          Object.keys(data).forEach((key) => {
-            set(this.workspaces, [res.id, key], data[key as keyof IWorkspace]);
-          });
-        });
-      }
-      return res;
-    });
-
-  /**
-   * update workspace using the workspace slug and new workspace data
-   * @param {string} workspaceSlug
-   * @param {string} logoURL
-   */
-  updateWorkspaceLogo = (workspaceSlug: string, logoURL: string) => {
-    const workspaceId = this.getWorkspaceBySlug(workspaceSlug)?.id;
-    if (!workspaceId) {
-      throw new Error("Workspace not found");
-    }
-    runInAction(() => {
-      set(this.workspaces[workspaceId], ["logo_url"], logoURL);
-    });
-  };
-
-  /**
-   * delete workspace using the workspace slug
-   * @param workspaceSlug
-   */
-  deleteWorkspace = async (workspaceSlug: string) => {
-    try {
-      await this.workspaceService.deleteWorkspace(workspaceSlug);
-      const updatedWorkspacesList = this.workspaces;
-      const workspaceId = this.getWorkspaceBySlug(workspaceSlug)?.id;
-      delete updatedWorkspacesList[`${workspaceId}`];
-      runInAction(() => {
-        this.workspaces = updatedWorkspacesList;
-      });
-    } catch (error) {
-      console.error("Failed to delete workspace:", error);
-    }
-  };
-
-  fetchSidebarNavigationPreferences = async (workspaceSlug: string) => {
-    try {
-      const response = await this.workspaceService.fetchSidebarNavigationPreferences(workspaceSlug);
-
-      runInAction(() => {
-        this.navigationPreferencesMap[workspaceSlug] = response;
-      });
-    } catch (error) {
-      console.error("Failed to fetch sidebar preferences:", error);
-    }
-  };
-
-  updateSidebarPreference = async (
-    workspaceSlug: string,
-    key: string,
-    data: Partial<IWorkspaceSidebarNavigationItem>
-  ) => {
-    // Store the data before update to use for reverting if needed
-    const beforeUpdateData = clone(this.navigationPreferencesMap[workspaceSlug]?.[key]);
-
-    try {
-      runInAction(() => {
-        this.navigationPreferencesMap[workspaceSlug] = {
-          ...this.navigationPreferencesMap[workspaceSlug],
-          [key]: {
-            ...beforeUpdateData,
-            ...data,
-          },
-        };
-      });
-
-      const response = await this.workspaceService.updateSidebarPreference(workspaceSlug, key, data);
-      return response;
-    } catch (error) {
-      // Revert to original data if API call fails
-      runInAction(() => {
-        this.navigationPreferencesMap[workspaceSlug] = {
-          ...this.navigationPreferencesMap[workspaceSlug],
-          [key]: beforeUpdateData,
-        };
-      });
-      console.error("Failed to update sidebar preference:", error);
-    }
-  };
-
-  getNavigationPreferences = computedFn(
-    (workspaceSlug: string): IWorkspaceSidebarNavigation | undefined => this.navigationPreferencesMap[workspaceSlug]
-  );
-
-  updateBulkSidebarPreferences = async (
+  // Actions
+  fetchWorkspaces = () => this.store.fetchWorkspaces();
+  createWorkspace = (data: Partial<IWorkspace>) => this.store.createWorkspace(data);
+  updateWorkspace = (workspaceSlug: string, data: Partial<IWorkspace>) => this.store.updateWorkspace(workspaceSlug, data);
+  updateWorkspaceLogo = (workspaceSlug: string, logoURL: string) => this.store.updateWorkspaceLogo(workspaceSlug, logoURL);
+  deleteWorkspace = (workspaceSlug: string) => this.store.deleteWorkspace(workspaceSlug);
+  fetchSidebarNavigationPreferences = (workspaceSlug: string) => this.store.fetchSidebarNavigationPreferences(workspaceSlug);
+  updateSidebarPreference = (workspaceSlug: string, key: string, data: Partial<IWorkspaceSidebarNavigationItem>) =>
+    this.store.updateSidebarPreference(workspaceSlug, key, data);
+  updateBulkSidebarPreferences = (
     workspaceSlug: string,
     data: Array<{ key: string; is_pinned: boolean; sort_order: number }>
-  ) => {
-    const beforeUpdateData = clone(this.navigationPreferencesMap[workspaceSlug]);
-
-    try {
-      // Optimistically update store
-      const updatedPreferences: IWorkspaceSidebarNavigation = {};
-      data.forEach((item) => {
-        updatedPreferences[item.key] = item;
-      });
-
-      runInAction(() => {
-        this.navigationPreferencesMap[workspaceSlug] = {
-          ...this.navigationPreferencesMap[workspaceSlug],
-          ...updatedPreferences,
-        };
-      });
-
-      // Call API to persist changes
-      await this.workspaceService.updateBulkSidebarPreferences(workspaceSlug, data);
-    } catch (error) {
-      // Rollback on failure
-      runInAction(() => {
-        this.navigationPreferencesMap[workspaceSlug] = beforeUpdateData;
-      });
-      console.error("Failed to update bulk sidebar preferences:", error);
-      throw error;
-    }
-  };
+  ) => this.store.updateBulkSidebarPreferences(workspaceSlug, data);
 
   /**
    * Mutate workspace members activity

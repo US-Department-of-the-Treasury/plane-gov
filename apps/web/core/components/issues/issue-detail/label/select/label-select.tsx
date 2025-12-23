@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { usePopper } from "react-popper";
 import { Check, Loader, Plus, Search } from "lucide-react";
 import { Combobox } from "@headlessui/react";
@@ -109,10 +109,15 @@ export function IssueLabelSelect(props: IIssueLabelSelect) {
         onChange={(value) => onSelect(value)}
         multiple
       >
-        <Combobox.Button as={Fragment}>
-          <Button ref={setReferenceElement} type="button" variant="tertiary" size="sm" prependIcon={<Plus />}>
-            {label}
-          </Button>
+        <Combobox.Button
+          as={Button}
+          ref={setReferenceElement}
+          type="button"
+          variant="tertiary"
+          size="sm"
+          prependIcon={<Plus />}
+        >
+          {label}
         </Combobox.Button>
 
         <Combobox.Options className="fixed z-10">

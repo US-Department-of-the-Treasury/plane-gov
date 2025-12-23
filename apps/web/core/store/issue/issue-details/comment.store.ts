@@ -1,177 +1,202 @@
 import { pull, concat, update, uniq, set } from "lodash-es";
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // Plane Imports
 import type { TIssueComment, TIssueCommentMap, TIssueCommentIdMap, TIssueServiceType } from "@plane/types";
 // services
 import { IssueCommentService } from "@/services/issue";
-// types
-import type { IIssueDetail } from "./root.store";
 
 export type TCommentLoader = "fetch" | "create" | "update" | "delete" | "mutate" | undefined;
 
-export interface IIssueCommentStoreActions {
+export interface IIssueCommentStore {
+  // state
+  loader: TCommentLoader;
+  comments: TIssueCommentIdMap;
+  commentMap: TIssueCommentMap;
+  // helper methods
+  getCommentsByIssueId: (issueId: string) => string[] | undefined;
+  getCommentById: (commentId: string) => TIssueComment | undefined;
+  // actions
+  setLoader: (loader: TCommentLoader) => void;
   fetchComments: (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
-    loaderType?: TCommentLoader
+    loaderType?: TCommentLoader,
+    applyCommentReactions?: (commentId: string, reactions: unknown[]) => void
   ) => Promise<TIssueComment[]>;
   createComment: (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
     data: Partial<TIssueComment>
-  ) => Promise<any>;
+  ) => Promise<TIssueComment>;
   updateComment: (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
     commentId: string,
-    data: Partial<TIssueComment>
-  ) => Promise<any>;
-  removeComment: (workspaceSlug: string, projectId: string, issueId: string, commentId: string) => Promise<any>;
+    data: Partial<TIssueComment>,
+    onError?: () => Promise<void>
+  ) => Promise<TIssueComment>;
+  removeComment: (
+    workspaceSlug: string,
+    projectId: string,
+    issueId: string,
+    commentId: string
+  ) => Promise<void>;
 }
 
-export interface IIssueCommentStore extends IIssueCommentStoreActions {
-  // observables
-  loader: TCommentLoader;
-  comments: TIssueCommentIdMap;
-  commentMap: TIssueCommentMap;
-  // helper methods
-  getCommentsByIssueId: (issueId: string) => string[] | undefined;
-  getCommentById: (activityId: string) => TIssueComment | undefined;
-}
+// Store factory for different service types
+const commentServiceMap = new Map<TIssueServiceType, IssueCommentService>();
 
-export class IssueCommentStore implements IIssueCommentStore {
-  // observables
-  loader: TCommentLoader = "fetch";
-  comments: TIssueCommentIdMap = {};
-  commentMap: TIssueCommentMap = {};
-  serviceType;
-  // root store
-  rootIssueDetail: IIssueDetail;
-  // services
-  issueCommentService;
-
-  constructor(rootStore: IIssueDetail, serviceType: TIssueServiceType) {
-    makeObservable(this, {
-      // observables
-      loader: observable.ref,
-      comments: observable,
-      commentMap: observable,
-      // actions
-      fetchComments: action,
-      createComment: action,
-      updateComment: action,
-      removeComment: action,
-    });
-    // root store
-    this.serviceType = serviceType;
-    this.rootIssueDetail = rootStore;
-    // services
-    this.issueCommentService = new IssueCommentService(serviceType);
+const getCommentService = (serviceType: TIssueServiceType): IssueCommentService => {
+  if (!commentServiceMap.has(serviceType)) {
+    commentServiceMap.set(serviceType, new IssueCommentService(serviceType));
   }
+  return commentServiceMap.get(serviceType)!;
+};
 
-  // helper methods
-  getCommentsByIssueId = (issueId: string) => {
-    if (!issueId) return undefined;
-    return this.comments[issueId] ?? undefined;
-  };
+export const useIssueCommentStore = create<IIssueCommentStore>()(
+  immer((set, get) => ({
+    // state
+    loader: "fetch" as TCommentLoader,
+    comments: {},
+    commentMap: {},
 
-  getCommentById = (commentId: string) => {
-    if (!commentId) return undefined;
-    return this.commentMap[commentId] ?? undefined;
-  };
+    // helper methods
+    getCommentsByIssueId: (issueId: string) => {
+      if (!issueId) return undefined;
+      return get().comments[issueId] ?? undefined;
+    },
 
-  fetchComments = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    loaderType: TCommentLoader = "fetch"
-  ) => {
-    this.loader = loaderType;
+    getCommentById: (commentId: string) => {
+      if (!commentId) return undefined;
+      return get().commentMap[commentId] ?? undefined;
+    },
 
-    let props = {};
-    const _commentIds = this.getCommentsByIssueId(issueId);
-    if (_commentIds && _commentIds.length > 0) {
-      const _comment = this.getCommentById(_commentIds[_commentIds.length - 1]);
-      if (_comment) props = { created_at__gt: _comment.created_at };
-    }
-
-    const comments = await this.issueCommentService.getIssueComments(workspaceSlug, projectId, issueId, props);
-
-    const commentIds = comments.map((comment) => comment.id);
-    runInAction(() => {
-      update(this.comments, issueId, (_commentIds) => {
-        if (!_commentIds) return commentIds;
-        return uniq(concat(_commentIds, commentIds));
+    // actions
+    setLoader: (loader: TCommentLoader) => {
+      set((state) => {
+        state.loader = loader;
       });
-      comments.forEach((comment) => {
-        this.rootIssueDetail.commentReaction.applyCommentReactions(comment.id, comment?.comment_reactions || []);
-        set(this.commentMap, comment.id, comment);
+    },
+
+    fetchComments: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      loaderType: TCommentLoader = "fetch",
+      applyCommentReactions?: (commentId: string, reactions: unknown[]) => void
+    ) => {
+      const service = getCommentService("WORKSPACE");
+      const state = get();
+
+      set((draft) => {
+        draft.loader = loaderType;
       });
-      this.loader = undefined;
-    });
 
-    return comments;
-  };
+      let props = {};
+      const _commentIds = state.getCommentsByIssueId(issueId);
+      if (_commentIds && _commentIds.length > 0) {
+        const _comment = state.getCommentById(_commentIds[_commentIds.length - 1]);
+        if (_comment) props = { created_at__gt: _comment.created_at };
+      }
 
-  createComment = async (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssueComment>) => {
-    const response = await this.issueCommentService.createIssueComment(workspaceSlug, projectId, issueId, data);
+      const comments = await service.getIssueComments(workspaceSlug, projectId, issueId, props);
 
-    runInAction(() => {
-      update(this.comments, issueId, (_commentIds) => {
-        if (!_commentIds) return [response.id];
-        return uniq(concat(_commentIds, [response.id]));
-      });
-      set(this.commentMap, response.id, response);
-    });
-
-    return response;
-  };
-
-  updateComment = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    commentId: string,
-    data: Partial<TIssueComment>
-  ) => {
-    try {
-      runInAction(() => {
-        Object.keys(data).forEach((key) => {
-          set(this.commentMap, [commentId, key], data[key as keyof TIssueComment]);
+      const commentIds = comments.map((comment) => comment.id);
+      set((draft) => {
+        update(draft.comments, issueId, (_commentIds) => {
+          if (!_commentIds) return commentIds;
+          return uniq(concat(_commentIds, commentIds));
         });
+        comments.forEach((comment) => {
+          if (applyCommentReactions) {
+            applyCommentReactions(comment.id, comment?.comment_reactions || []);
+          }
+          draft.commentMap[comment.id] = comment;
+        });
+        draft.loader = undefined;
       });
 
-      const response = await this.issueCommentService.patchIssueComment(
-        workspaceSlug,
-        projectId,
-        issueId,
-        commentId,
-        data
-      );
+      return comments;
+    },
 
-      runInAction(() => {
-        set(this.commentMap, [commentId, "updated_at"], response.updated_at);
-        set(this.commentMap, [commentId, "edited_at"], response.edited_at);
+    createComment: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      data: Partial<TIssueComment>
+    ) => {
+      const service = getCommentService("WORKSPACE");
+      const response = await service.createIssueComment(workspaceSlug, projectId, issueId, data);
+
+      set((state) => {
+        update(state.comments, issueId, (_commentIds) => {
+          if (!_commentIds) return [response.id];
+          return uniq(concat(_commentIds, [response.id]));
+        });
+        state.commentMap[response.id] = response;
       });
 
       return response;
-    } catch (error) {
-      this.rootIssueDetail.activity.fetchActivities(workspaceSlug, projectId, issueId);
-      throw error;
-    }
-  };
+    },
 
-  removeComment = async (workspaceSlug: string, projectId: string, issueId: string, commentId: string) => {
-    const response = await this.issueCommentService.deleteIssueComment(workspaceSlug, projectId, issueId, commentId);
+    updateComment: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      commentId: string,
+      data: Partial<TIssueComment>,
+      onError?: () => Promise<void>
+    ) => {
+      const service = getCommentService("WORKSPACE");
 
-    runInAction(() => {
-      pull(this.comments[issueId], commentId);
-      delete this.commentMap[commentId];
-    });
+      try {
+        // Optimistic update
+        set((state) => {
+          Object.keys(data).forEach((key) => {
+            if (state.commentMap[commentId]) {
+              (state.commentMap[commentId] as Record<string, unknown>)[key] = data[key as keyof TIssueComment];
+            }
+          });
+        });
 
-    return response;
-  };
-}
+        const response = await service.patchIssueComment(workspaceSlug, projectId, issueId, commentId, data);
+
+        set((state) => {
+          if (state.commentMap[commentId]) {
+            state.commentMap[commentId].updated_at = response.updated_at;
+            state.commentMap[commentId].edited_at = response.edited_at;
+          }
+        });
+
+        return response;
+      } catch (error) {
+        // Refetch on error to restore state
+        if (onError) {
+          await onError();
+        }
+        throw error;
+      }
+    },
+
+    removeComment: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      commentId: string
+    ) => {
+      const service = getCommentService("WORKSPACE");
+      await service.deleteIssueComment(workspaceSlug, projectId, issueId, commentId);
+
+      set((state) => {
+        if (state.comments[issueId]) {
+          pull(state.comments[issueId], commentId);
+        }
+        delete state.commentMap[commentId];
+      });
+    },
+  }))
+);

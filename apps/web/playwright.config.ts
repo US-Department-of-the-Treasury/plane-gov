@@ -5,10 +5,25 @@ import { dirname, resolve } from "path";
 /**
  * Playwright Configuration
  *
+ * IMPORTANT: Tests require the full application stack to be running.
+ *
+ * Run tests using the root-level scripts (recommended):
+ *   pnpm test:e2e          # All tests (starts services automatically)
+ *   pnpm test:e2e:headed   # Headed mode
+ *   pnpm test:e2e:ui       # Playwright UI mode
+ *   pnpm test:smoke        # Quick smoke tests only
+ *
+ * Or manually start services first, then run tests:
+ *   1. pnpm dev:all        # Start all services (API + frontend)
+ *   2. cd apps/web && npx playwright test
+ *
+ * DO NOT use `pnpm dev` alone - it only starts frontend without the API server.
+ *
  * Supports multiple test suites:
  * - smoke: Quick route loading tests (~2 min)
- * - e2e: Full E2E CRUD tests (~10 min)
- * - comprehensive: Everything including interactions
+ * - crud: Full E2E CRUD tests (~10 min)
+ * - interactions: Component interaction tests
+ * - comprehensive: Everything
  *
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -134,14 +149,19 @@ export default defineConfig({
   ],
 
   // Web server configuration
-  webServer: {
-    command: "pnpm run dev",
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 180000, // 3 minutes to start
-    stdout: "pipe",
-    stderr: "pipe",
-  },
+  // NOTE: When running via `pnpm test:e2e` from root, the test script
+  // handles starting all services. When running Playwright directly,
+  // you MUST run `pnpm dev:all` first to start the API server.
+  //
+  // The webServer is disabled because:
+  // 1. Our test script starts all services (API + frontend)
+  // 2. Playwright's webServer only starts frontend, not the API
+  // 3. This prevents port conflicts when running tests
+  //
+  // To run tests:
+  //   pnpm test:e2e           (recommended - handles everything)
+  //   OR
+  //   pnpm dev:all && cd apps/web && npx playwright test
 
   // Output folders
   outputDir: "test-results/",

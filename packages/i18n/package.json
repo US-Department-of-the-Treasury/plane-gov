@@ -26,9 +26,8 @@
     "@plane/utils": "workspace:*",
     "intl-messageformat": "^10.7.11",
     "lodash-es": "catalog:",
-    "mobx": "catalog:",
-    "mobx-react": "catalog:",
-    "react": "catalog:"
+    "react": "catalog:",
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@plane/typescript-config": "workspace:*",

@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect } from "react";
+import React, { useEffect } from "react";
 import { TwitterPicker } from "react-color";
 import type { SubmitHandler } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
@@ -36,11 +36,10 @@ const defaultValues: Partial<IIssueLabel> = {
   color: "var(--text-color-secondary)",
 };
 
-export const CreateUpdateLabelInline = forwardRef(function CreateUpdateLabelInline(
-  props: TCreateUpdateLabelInlineProps,
-  ref: React.ForwardedRef<HTMLDivElement>
+export function CreateUpdateLabelInline(
+  props: TCreateUpdateLabelInlineProps & { ref?: React.Ref<HTMLDivElement> }
 ) {
-  const { labelForm, setLabelForm, isUpdating, labelOperationsCallbacks, labelToUpdate, onClose } = props;
+  const { labelForm, setLabelForm, isUpdating, labelOperationsCallbacks, labelToUpdate, onClose, ref } = props;
   // form info
   const {
     handleSubmit,
@@ -204,15 +203,15 @@ export const CreateUpdateLabelInline = forwardRef(function CreateUpdateLabelInli
                 </Popover.Button>
 
                 <Transition
-                  as={React.Fragment}
+                  as={Popover.Panel}
                   enter="transition ease-out duration-200"
                   enterFrom="opacity-0 translate-y-1"
                   enterTo="opacity-100 translate-y-0"
                   leave="transition ease-in duration-150"
                   leaveFrom="opacity-100 translate-y-0"
                   leaveTo="opacity-0 translate-y-1"
+                  className="absolute left-0 top-full z-20 mt-3 w-screen max-w-xs px-2 sm:px-0"
                 >
-                  <Popover.Panel className="absolute left-0 top-full z-20 mt-3 w-screen max-w-xs px-2 sm:px-0">
                     <Controller
                       name="color"
                       control={control}
@@ -224,7 +223,6 @@ export const CreateUpdateLabelInline = forwardRef(function CreateUpdateLabelInli
                         />
                       )}
                     />
-                  </Popover.Panel>
                 </Transition>
               </>
             )}
@@ -274,4 +272,4 @@ export const CreateUpdateLabelInline = forwardRef(function CreateUpdateLabelInli
       {errors.name?.message && <p className="p-0.5 pl-8 text-13 text-red-500">{errors.name?.message}</p>}
     </>
   );
-});
+}

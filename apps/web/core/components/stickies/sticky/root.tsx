@@ -52,10 +52,11 @@ export function StickyNote(props: TProps) {
     [stickyId, stickyOperations]
   );
 
-  const debouncedFormSave = useCallback(
-    debounce(async (payload: Partial<TSticky>) => {
-      await handleChange(payload);
-    }, 500),
+  const debouncedFormSave = useMemo(
+    () =>
+      debounce(async (payload: Partial<TSticky>) => {
+        await handleChange(payload);
+      }, 500),
     [stickyOperations, stickyData, handleChange]
   );
 

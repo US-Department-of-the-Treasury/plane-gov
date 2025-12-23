@@ -190,9 +190,9 @@ export function IssuePeekOverviewHeader(props: PeekOverviewHeaderProps) {
               onChange={(val: any) => setPeekMode(val)}
               customButton={
                 <Tooltip tooltipContent={t("common.toggle_peek_view_layout")} isMobile={isMobile}>
-                  <button type="button" className="">
+                  <div className="cursor-pointer">
                     <currentMode.icon className="h-4 w-4 text-tertiary hover:text-secondary" />
-                  </button>
+                  </div>
                 </Tooltip>
               }
             >

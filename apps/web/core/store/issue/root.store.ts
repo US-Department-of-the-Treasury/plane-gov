@@ -1,5 +1,6 @@
 import { isEmpty } from "lodash-es";
-import { autorun, makeObservable, observable, runInAction } from "mobx";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // types
 import type { ISprint, IIssueLabel, IEpic, IProject, IState, IUserLite, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
@@ -113,28 +114,71 @@ export interface IIssueRootStore {
   projectEpics: IProjectEpics;
 }
 
-export class IssueRootStore implements IIssueRootStore {
-  currentUserId: string | undefined = undefined;
-  workspaceSlug: string | undefined = undefined;
-  teamspaceId: string | undefined = undefined;
-  projectId: string | undefined = undefined;
-  sprintId: string | undefined = undefined;
-  epicId: string | undefined = undefined;
-  viewId: string | undefined = undefined;
-  globalViewId: string | undefined = undefined;
-  userId: string | undefined = undefined;
-  stateMap: Record<string, IState> | undefined = undefined;
-  stateDetails: IState[] | undefined = undefined;
-  workspaceStateDetails: IState[] | undefined = undefined;
-  labelMap: Record<string, IIssueLabel> | undefined = undefined;
-  workSpaceMemberRolesMap: Record<string, IWorkspaceMembership> | undefined = undefined;
-  memberMap: Record<string, IUserLite> | undefined = undefined;
-  projectMap: Record<string, IProject> | undefined = undefined;
-  epicMap: Record<string, IEpic> | undefined = undefined;
-  sprintMap: Record<string, ISprint> | undefined = undefined;
+// Zustand Store
+interface IssueRootState {
+  currentUserId: string | undefined;
+  workspaceSlug: string | undefined;
+  teamspaceId: string | undefined;
+  projectId: string | undefined;
+  sprintId: string | undefined;
+  epicId: string | undefined;
+  viewId: string | undefined;
+  globalViewId: string | undefined;
+  userId: string | undefined;
+  stateMap: Record<string, IState> | undefined;
+  stateDetails: IState[] | undefined;
+  workspaceStateDetails: IState[] | undefined;
+  labelMap: Record<string, IIssueLabel> | undefined;
+  workSpaceMemberRolesMap: Record<string, IWorkspaceMembership> | undefined;
+  memberMap: Record<string, IUserLite> | undefined;
+  projectMap: Record<string, IProject> | undefined;
+  epicMap: Record<string, IEpic> | undefined;
+  sprintMap: Record<string, ISprint> | undefined;
+}
 
+interface IssueRootActions {
+  updateState: (updates: Partial<IssueRootState>) => void;
+}
+
+type IssueRootStoreType = IssueRootState & IssueRootActions;
+
+export const createIssueRootStore = () =>
+  create<IssueRootStoreType>()(
+    immer((set) => ({
+      // State
+      currentUserId: undefined,
+      workspaceSlug: undefined,
+      teamspaceId: undefined,
+      projectId: undefined,
+      sprintId: undefined,
+      epicId: undefined,
+      viewId: undefined,
+      globalViewId: undefined,
+      userId: undefined,
+      stateMap: undefined,
+      stateDetails: undefined,
+      workspaceStateDetails: undefined,
+      labelMap: undefined,
+      workSpaceMemberRolesMap: undefined,
+      memberMap: undefined,
+      projectMap: undefined,
+      epicMap: undefined,
+      sprintMap: undefined,
+
+      // Actions
+      updateState: (updates: Partial<IssueRootState>) => {
+        set((state) => {
+          Object.assign(state, updates);
+        });
+      },
+    }))
+  );
+
+export class IssueRootStore implements IIssueRootStore {
   rootStore: RootStore;
   serviceType: TIssueServiceType;
+  private issueRootStore: ReturnType<typeof createIssueRootStore>;
+  private unsubscribe: (() => void) | null = null;
 
   issues: IIssueStore;
 
@@ -180,54 +224,137 @@ export class IssueRootStore implements IIssueRootStore {
   projectEpicsFilter: IProjectEpicsFilter;
   projectEpics: IProjectEpics;
 
-  constructor(rootStore: RootStore, serviceType: TIssueServiceType = EIssueServiceType.ISSUES) {
-    makeObservable(this, {
-      workspaceSlug: observable.ref,
-      teamspaceId: observable.ref,
-      projectId: observable.ref,
-      sprintId: observable.ref,
-      epicId: observable.ref,
-      viewId: observable.ref,
-      userId: observable.ref,
-      globalViewId: observable.ref,
-      stateMap: observable,
-      stateDetails: observable,
-      workspaceStateDetails: observable,
-      labelMap: observable,
-      memberMap: observable,
-      workSpaceMemberRolesMap: observable,
-      projectMap: observable,
-      epicMap: observable,
-      sprintMap: observable,
-    });
+  // Getters for Zustand store properties
+  get currentUserId() {
+    return this.issueRootStore.getState().currentUserId;
+  }
+  get workspaceSlug() {
+    return this.issueRootStore.getState().workspaceSlug;
+  }
+  get teamspaceId() {
+    return this.issueRootStore.getState().teamspaceId;
+  }
+  get projectId() {
+    return this.issueRootStore.getState().projectId;
+  }
+  get sprintId() {
+    return this.issueRootStore.getState().sprintId;
+  }
+  get epicId() {
+    return this.issueRootStore.getState().epicId;
+  }
+  get viewId() {
+    return this.issueRootStore.getState().viewId;
+  }
+  get globalViewId() {
+    return this.issueRootStore.getState().globalViewId;
+  }
+  get userId() {
+    return this.issueRootStore.getState().userId;
+  }
+  get stateMap() {
+    return this.issueRootStore.getState().stateMap;
+  }
+  get stateDetails() {
+    return this.issueRootStore.getState().stateDetails;
+  }
+  get workspaceStateDetails() {
+    return this.issueRootStore.getState().workspaceStateDetails;
+  }
+  get labelMap() {
+    return this.issueRootStore.getState().labelMap;
+  }
+  get workSpaceMemberRolesMap() {
+    return this.issueRootStore.getState().workSpaceMemberRolesMap;
+  }
+  get memberMap() {
+    return this.issueRootStore.getState().memberMap;
+  }
+  get projectMap() {
+    return this.issueRootStore.getState().projectMap;
+  }
+  get epicMap() {
+    return this.issueRootStore.getState().epicMap;
+  }
+  get sprintMap() {
+    return this.issueRootStore.getState().sprintMap;
+  }
 
+  constructor(rootStore: RootStore, serviceType: TIssueServiceType = EIssueServiceType.ISSUES) {
     this.serviceType = serviceType;
     this.rootStore = rootStore;
+    this.issueRootStore = createIssueRootStore();
 
-    autorun(() => {
-      runInAction(() => {
-        if (rootStore?.user?.data?.id) this.currentUserId = rootStore?.user?.data?.id;
-        if (this.workspaceSlug !== rootStore.router.workspaceSlug) this.workspaceSlug = rootStore.router.workspaceSlug;
-        if (this.teamspaceId !== rootStore.router.teamspaceId) this.teamspaceId = rootStore.router.teamspaceId;
-        if (this.projectId !== rootStore.router.projectId) this.projectId = rootStore.router.projectId;
-        if (this.sprintId !== rootStore.router.sprintId) this.sprintId = rootStore.router.sprintId;
-        if (this.epicId !== rootStore.router.epicId) this.epicId = rootStore.router.epicId;
-        if (this.viewId !== rootStore.router.viewId) this.viewId = rootStore.router.viewId;
-        if (this.globalViewId !== rootStore.router.globalViewId) this.globalViewId = rootStore.router.globalViewId;
-        if (this.userId !== rootStore.router.userId) this.userId = rootStore.router.userId;
-        if (!isEmpty(rootStore?.state?.stateMap)) this.stateMap = rootStore?.state?.stateMap;
-        if (!isEmpty(rootStore?.state?.projectStates)) this.stateDetails = rootStore?.state?.projectStates;
-        if (!isEmpty(rootStore?.state?.workspaceStates)) this.workspaceStateDetails = rootStore?.state?.workspaceStates;
-        if (!isEmpty(rootStore?.label?.labelMap)) this.labelMap = rootStore?.label?.labelMap;
-        if (!isEmpty(rootStore?.memberRoot?.workspace?.workspaceMemberMap))
-          this.workSpaceMemberRolesMap = rootStore?.memberRoot?.workspace?.memberMap || undefined;
-        if (!isEmpty(rootStore?.memberRoot?.memberMap)) this.memberMap = rootStore?.memberRoot?.memberMap || undefined;
-        if (!isEmpty(rootStore?.projectRoot?.project?.projectMap))
-          this.projectMap = rootStore?.projectRoot?.project?.projectMap;
-        if (!isEmpty(rootStore?.epic?.epicMap)) this.epicMap = rootStore?.epic?.epicMap;
-        if (!isEmpty(rootStore?.sprint?.sprintMap)) this.sprintMap = rootStore?.sprint?.sprintMap;
-      });
-    });
+    // Setup sync with root store using setInterval (replacing autorun)
+    const syncWithRootStore = () => {
+      const updates: Partial<IssueRootState> = {};
+
+      if (rootStore?.user?.data?.id && this.currentUserId !== rootStore.user.data.id) {
+        updates.currentUserId = rootStore.user.data.id;
+      }
+      if (this.workspaceSlug !== rootStore.router.workspaceSlug) {
+        updates.workspaceSlug = rootStore.router.workspaceSlug;
+      }
+      if (this.teamspaceId !== rootStore.router.teamspaceId) {
+        updates.teamspaceId = rootStore.router.teamspaceId;
+      }
+      if (this.projectId !== rootStore.router.projectId) {
+        updates.projectId = rootStore.router.projectId;
+      }
+      if (this.sprintId !== rootStore.router.sprintId) {
+        updates.sprintId = rootStore.router.sprintId;
+      }
+      if (this.epicId !== rootStore.router.epicId) {
+        updates.epicId = rootStore.router.epicId;
+      }
+      if (this.viewId !== rootStore.router.viewId) {
+        updates.viewId = rootStore.router.viewId;
+      }
+      if (this.globalViewId !== rootStore.router.globalViewId) {
+        updates.globalViewId = rootStore.router.globalViewId;
+      }
+      if (this.userId !== rootStore.router.userId) {
+        updates.userId = rootStore.router.userId;
+      }
+      if (!isEmpty(rootStore?.state?.stateMap)) {
+        updates.stateMap = rootStore.state.stateMap;
+      }
+      if (!isEmpty(rootStore?.state?.projectStates)) {
+        updates.stateDetails = rootStore.state.projectStates;
+      }
+      if (!isEmpty(rootStore?.state?.workspaceStates)) {
+        updates.workspaceStateDetails = rootStore.state.workspaceStates;
+      }
+      if (!isEmpty(rootStore?.label?.labelMap)) {
+        updates.labelMap = rootStore.label.labelMap;
+      }
+      if (!isEmpty(rootStore?.memberRoot?.workspace?.workspaceMemberMap)) {
+        updates.workSpaceMemberRolesMap = rootStore.memberRoot.workspace.memberMap || undefined;
+      }
+      if (!isEmpty(rootStore?.memberRoot?.memberMap)) {
+        updates.memberMap = rootStore.memberRoot.memberMap || undefined;
+      }
+      if (!isEmpty(rootStore?.projectRoot?.project?.projectMap)) {
+        updates.projectMap = rootStore.projectRoot.project.projectMap;
+      }
+      if (!isEmpty(rootStore?.epic?.epicMap)) {
+        updates.epicMap = rootStore.epic.epicMap;
+      }
+      if (!isEmpty(rootStore?.sprint?.sprintMap)) {
+        updates.sprintMap = rootStore.sprint.sprintMap;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        this.issueRootStore.getState().updateState(updates);
+      }
+    };
+
+    // Initial sync
+    syncWithRootStore();
+
+    // Setup periodic sync (can be replaced with proper reactive solution later)
+    const intervalId = setInterval(syncWithRootStore, 100);
+    this.unsubscribe = () => clearInterval(intervalId);
 
     this.issues = new IssueStore();
 

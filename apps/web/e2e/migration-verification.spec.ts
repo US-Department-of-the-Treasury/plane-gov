@@ -37,6 +37,11 @@ const IGNORED_PATTERNS = [
   // See: https://reactjs.org/docs/error-decoder.html?invariant=418
   /Minified React error #418/,
   /error #418/,
+  // Vite dev mode hydration mismatch - HMR scripts are injected during client hydration
+  // that weren't present during SSR. This is expected in development and doesn't affect
+  // production builds. The suppressHydrationWarning attribute is set on <html>.
+  /Hydration failed because the server rendered HTML didn't match the client/,
+  /hydration-mismatch/,
 ];
 
 function shouldIgnoreMessage(text: string): boolean {

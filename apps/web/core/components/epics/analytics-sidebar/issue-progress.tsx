@@ -164,7 +164,7 @@ export function EpicAnalyticsProgress(props: TEpicAnalyticsProgress) {
               </div>
             )}
 
-            <Transition show={open}>
+            <Transition show={open} as="div">
               <Disclosure.Panel className="space-y-4">
                 {/* progress burndown chart */}
                 <div>

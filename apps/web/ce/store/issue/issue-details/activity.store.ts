@@ -1,6 +1,26 @@
-import { concat, orderBy, set, uniq, update } from "lodash-es";
-import { action, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+/**
+ * CE Issue Activity Store - Migrated to Zustand
+ *
+ * This store manages issue activities and their integration with comments.
+ *
+ * Available TanStack Query hooks (already migrated):
+ * - useIssueActivities(workspaceSlug, projectId, issueId) - Fetch issue activities
+ *
+ * Migration notes:
+ * - The `fetchActivities` method can be replaced with `useIssueActivities` hook
+ * - The activity/comment merging logic (`getActivityAndCommentsByIssueId`) would need
+ *   to be refactored to work with TanStack Query data
+ * - Full migration requires migrating IssueCommentStore as well
+ *
+ * Recommended approach:
+ * 1. Migrate IssueCommentStore to TanStack Query (create comment hooks)
+ * 2. Create utility functions for merging activities and comments
+ * 3. Replace this store with those utilities in components
+ */
+
+import { concat, orderBy, set as lodashSet, uniq, update } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // plane package imports
 import type { E_SORT_ORDER } from "@plane/constants";
 import { EActivityFilterType } from "@plane/constants";
@@ -41,11 +61,75 @@ export interface IIssueActivityStore extends IIssueActivityStoreActions {
   getActivityAndCommentsByIssueId: (issueId: string, sortOrder: E_SORT_ORDER) => TIssueActivityComment[] | undefined;
 }
 
+// Zustand store state
+interface IssueActivityStoreState {
+  loader: TActivityLoader;
+  activities: TIssueActivityIdMap;
+  activityMap: TIssueActivityMap;
+  serviceType: TIssueServiceType;
+}
+
+// Zustand store actions
+interface IssueActivityStoreActions {
+  setLoader: (loader: TActivityLoader) => void;
+  updateActivities: (issueId: string, activityIds: string[]) => void;
+  updateActivityMap: (activities: TIssueActivity[]) => void;
+  getActivitiesByIssueId: (issueId: string) => string[] | undefined;
+  getActivityById: (activityId: string) => TIssueActivity | undefined;
+}
+
+type IssueActivityStoreType = IssueActivityStoreState & IssueActivityStoreActions;
+
+// Zustand store
+export const useIssueActivityStore = create<IssueActivityStoreType>()(
+  immer((set, get) => ({
+    // State
+    loader: "fetch",
+    activities: {},
+    activityMap: {},
+    serviceType: EIssueServiceType.ISSUES,
+
+    // Actions
+    setLoader: (loader: TActivityLoader) => {
+      set((state) => {
+        state.loader = loader;
+      });
+    },
+
+    updateActivities: (issueId: string, activityIds: string[]) => {
+      set((state) => {
+        update(state.activities, issueId, (currentActivityIds) => {
+          if (!currentActivityIds) return activityIds;
+          return uniq(concat(currentActivityIds, activityIds));
+        });
+      });
+    },
+
+    updateActivityMap: (activities: TIssueActivity[]) => {
+      set((state) => {
+        activities.forEach((activity) => {
+          lodashSet(state.activityMap, activity.id, activity);
+        });
+      });
+    },
+
+    // Helper methods
+    getActivitiesByIssueId: (issueId: string) => {
+      if (!issueId) return undefined;
+      const state = get();
+      return state.activities[issueId] ?? undefined;
+    },
+
+    getActivityById: (activityId: string) => {
+      if (!activityId) return undefined;
+      const state = get();
+      return state.activityMap[activityId] ?? undefined;
+    },
+  }))
+);
+
+// Legacy class wrapper for backward compatibility
 export class IssueActivityStore implements IIssueActivityStore {
-  // observables
-  loader: TActivityLoader = "fetch";
-  activities: TIssueActivityIdMap = {};
-  activityMap: TIssueActivityMap = {};
   // services
   serviceType;
   issueActivityService;
@@ -54,31 +138,37 @@ export class IssueActivityStore implements IIssueActivityStore {
     protected store: CoreRootStore,
     serviceType: TIssueServiceType = EIssueServiceType.ISSUES
   ) {
-    makeObservable(this, {
-      // observables
-      loader: observable.ref,
-      activities: observable,
-      activityMap: observable,
-      // actions
-      fetchActivities: action,
-    });
     this.serviceType = serviceType;
-    // services
     this.issueActivityService = new IssueActivityService(this.serviceType);
   }
 
-  // helper methods
+  private get state() {
+    return useIssueActivityStore.getState();
+  }
+
+  // Observables (getters that read from Zustand store)
+  get loader() {
+    return this.state.loader;
+  }
+
+  get activities() {
+    return this.state.activities;
+  }
+
+  get activityMap() {
+    return this.state.activityMap;
+  }
+
+  // Helper methods (delegate to Zustand store)
   getActivitiesByIssueId = (issueId: string) => {
-    if (!issueId) return undefined;
-    return this.activities[issueId] ?? undefined;
+    return this.state.getActivitiesByIssueId(issueId);
   };
 
   getActivityById = (activityId: string) => {
-    if (!activityId) return undefined;
-    return this.activityMap[activityId] ?? undefined;
+    return this.state.getActivityById(activityId);
   };
 
-  protected buildActivityAndCommentItems(issueId: string): TIssueActivityComment[] | undefined {
+  getActivityAndCommentsByIssueId = (issueId: string, sortOrder: E_SORT_ORDER) => {
     if (!issueId) return undefined;
 
     const activityComments: TIssueActivityComment[] = [];
@@ -119,20 +209,10 @@ export class IssueActivityStore implements IIssueActivityStore {
       });
     });
 
-    return activityComments;
-  }
+    return orderBy(activityComments, (e) => new Date(e.created_at || 0), sortOrder);
+  };
 
-  protected sortActivityComments(items: TIssueActivityComment[], sortOrder: E_SORT_ORDER): TIssueActivityComment[] {
-    return orderBy(items, (e) => new Date(e.created_at || 0), sortOrder);
-  }
-
-  getActivityAndCommentsByIssueId = computedFn((issueId: string, sortOrder: E_SORT_ORDER) => {
-    const baseItems = this.buildActivityAndCommentItems(issueId);
-    if (!baseItems) return undefined;
-    return this.sortActivityComments(baseItems, sortOrder);
-  });
-
-  // actions
+  // Actions
   public async fetchActivities(
     workspaceSlug: string,
     projectId: string,
@@ -140,7 +220,7 @@ export class IssueActivityStore implements IIssueActivityStore {
     loaderType: TActivityLoader = "fetch"
   ) {
     try {
-      this.loader = loaderType;
+      this.state.setLoader(loaderType);
 
       let props = {};
       const currentActivityIds = this.getActivitiesByIssueId(issueId);
@@ -153,20 +233,13 @@ export class IssueActivityStore implements IIssueActivityStore {
 
       const activityIds = activities.map((activity) => activity.id);
 
-      runInAction(() => {
-        update(this.activities, issueId, (currentActivityIds) => {
-          if (!currentActivityIds) return activityIds;
-          return uniq(concat(currentActivityIds, activityIds));
-        });
-        activities.forEach((activity) => {
-          set(this.activityMap, activity.id, activity);
-        });
-        this.loader = undefined;
-      });
+      this.state.updateActivities(issueId, activityIds);
+      this.state.updateActivityMap(activities);
+      this.state.setLoader(undefined);
 
       return activities;
     } catch (error) {
-      this.loader = undefined;
+      this.state.setLoader(undefined);
       throw error;
     }
   }

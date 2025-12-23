@@ -1,6 +1,6 @@
 import { Tab } from "@headlessui/react";
 import type { FC } from "react";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 // helpers
 import { useLocalStorage } from "@plane/hooks";
 import { cn } from "../utils";
@@ -76,7 +76,7 @@ export function Tabs(props: TTabsProps) {
             />
             {actions && <div className="flex-grow">{actions}</div>}
           </div>
-          <Tab.Panels as={Fragment}>
+          <Tab.Panels as="div" className="flex-1">
             {tabs.map((tab) => (
               <Tab.Panel key={tab.key} as="div" className={cn("relative outline-none", tabPanelClassName)}>
                 {tab.content}

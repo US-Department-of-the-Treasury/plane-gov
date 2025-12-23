@@ -1,9 +1,7 @@
-import type { IBaseAnalyticsStore } from "@/store/analytics.store";
-import { BaseAnalyticsStore } from "@/store/analytics.store";
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface IAnalyticsStore extends IBaseAnalyticsStore {
-  //observables
-}
-
-export class AnalyticsStore extends BaseAnalyticsStore {}
+// Re-export from the Zustand store in client folder
+// This maintains backward compatibility with imports from @/plane-web/store/analytics.store
+export {
+  useAnalyticsStore,
+  AnalyticsStore,
+} from "@/store/client";
+export type { IAnalyticsStore, AnalyticsStoreType } from "@/store/client";

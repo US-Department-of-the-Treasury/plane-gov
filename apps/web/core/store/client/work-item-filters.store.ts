@@ -91,10 +91,17 @@ export const useWorkItemFiltersStore = create<WorkItemFiltersStore>()((set, get)
     const newFilter = initializeFilterInstance(params);
     const filterKey = getFilterKey(params.entityType, params.entityId);
 
-    set((state) => {
-      const newFilters = new Map(state.filters);
-      newFilters.set(filterKey, newFilter);
-      return { filters: newFilters };
+    // Defer state update to avoid setState during render
+    // The filter instance is returned immediately for synchronous access
+    queueMicrotask(() => {
+      // Check again in case filter was created by another call
+      if (!get().filters.has(filterKey)) {
+        set((state) => {
+          const newFilters = new Map(state.filters);
+          newFilters.set(filterKey, newFilter);
+          return { filters: newFilters };
+        });
+      }
     });
 
     return newFilter;

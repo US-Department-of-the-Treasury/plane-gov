@@ -43,32 +43,31 @@ export function SelectMonthModal({ type, initialValues, isOpen, handleClose, han
   };
 
   return (
-    <Transition.Root show={isOpen} as={React.Fragment}>
+    <Transition.Root show={isOpen} as="div">
       <Dialog as="div" className="relative z-30" onClose={onClose}>
         <Transition.Child
-          as={React.Fragment}
+          as="div"
           enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
           leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-backdrop transition-opacity" />
-        </Transition.Child>
+          className="fixed inset-0 bg-backdrop transition-opacity"
+        />
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <Transition.Child
-              as={React.Fragment}
+              as={Dialog.Panel}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              className="relative transform rounded-lg bg-surface-1 px-4 pb-4 pt-5 text-left shadow-raised-200 transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:p-6"
             >
-              <Dialog.Panel className="relative transform rounded-lg bg-surface-1 px-4 pb-4 pt-5 text-left shadow-raised-200 transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:p-6">
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <div>
                     <Dialog.Title as="h3" className="text-16 font-medium leading-6 text-primary">
@@ -156,7 +155,6 @@ export function SelectMonthModal({ type, initialValues, isOpen, handleClose, han
                     </Button>
                   </div>
                 </form>
-              </Dialog.Panel>
             </Transition.Child>
           </div>
         </div>

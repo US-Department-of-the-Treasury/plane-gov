@@ -128,6 +128,7 @@ export function ProjectSettingLabelGroup(props: Props) {
                       </Disclosure.Button>
                     </div>
                     <Transition
+                      as="div"
                       show={open}
                       enter="transition duration-100 ease-out"
                       enterFrom="transform opacity-0"

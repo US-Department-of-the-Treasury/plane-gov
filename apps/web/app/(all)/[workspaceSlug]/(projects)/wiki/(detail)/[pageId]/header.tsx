@@ -142,12 +142,9 @@ export function WikiDetailHeader() {
             ellipsis
             placement="bottom-end"
             customButton={
-              <button
-                type="button"
-                className="flex items-center justify-center p-1.5 rounded hover:bg-custom-background-80"
-              >
+              <div className="flex items-center justify-center p-1.5 rounded hover:bg-custom-background-80 cursor-pointer">
                 <MoreHorizontal className="size-4" />
-              </button>
+              </div>
             }
           >
             <CustomMenu.MenuItem onClick={handleDuplicate}>

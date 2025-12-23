@@ -1,6 +1,6 @@
-import { clone, update, unset, orderBy, set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { clone, update, unset, orderBy, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // plane imports
 import { EDraftIssuePaginationType } from "@plane/constants";
 import type {
@@ -101,39 +101,145 @@ export interface IWorkspaceDraftIssues {
   bulkUpdateProperties: (workspaceSlug: string, projectId: string, data: TBulkOperationsPayload) => Promise<void>;
 }
 
+// Zustand Store
+interface WorkspaceDraftIssuesState {
+  loader: TWorkspaceDraftIssueLoader;
+  paginationInfo: Omit<TWorkspaceDraftPaginationInfo<TWorkspaceDraftIssue>, "results"> | undefined;
+  issuesMap: Record<string, TWorkspaceDraftIssue>;
+  issueMapIds: Record<string, string[]>;
+}
+
+interface WorkspaceDraftIssuesActions {
+  setLoader: (loader: TWorkspaceDraftIssueLoader) => void;
+  setPaginationInfo: (info: Omit<TWorkspaceDraftPaginationInfo<TWorkspaceDraftIssue>, "results"> | undefined) => void;
+  addIssues: (issues: TWorkspaceDraftIssue[]) => void;
+  updateIssue: (issueId: string, issue: Partial<TWorkspaceDraftIssue>) => void;
+  deleteIssue: (issueId: string) => void;
+  addIssueToMapIds: (workspaceSlug: string, issueIds: string[]) => void;
+  updateIssueMapIds: (workspaceSlug: string, issueIds: string[]) => void;
+  removeIssueFromMapIds: (workspaceSlug: string, issueId: string) => void;
+}
+
+type WorkspaceDraftIssuesStore = WorkspaceDraftIssuesState & WorkspaceDraftIssuesActions;
+
+export const useWorkspaceDraftIssuesStore = create<WorkspaceDraftIssuesStore>()(
+  immer((set) => ({
+    // State
+    loader: undefined,
+    paginationInfo: undefined,
+    issuesMap: {},
+    issueMapIds: {},
+
+    // Actions
+    setLoader: (loader) => {
+      set((state) => {
+        state.loader = loader;
+      });
+    },
+
+    setPaginationInfo: (info) => {
+      set((state) => {
+        state.paginationInfo = info;
+      });
+    },
+
+    addIssues: (issues) => {
+      set((state) => {
+        issues.forEach((issue) => {
+          if (!state.issuesMap[issue.id]) {
+            state.issuesMap[issue.id] = issue;
+          } else {
+            state.issuesMap[issue.id] = { ...state.issuesMap[issue.id], ...issue };
+          }
+        });
+      });
+    },
+
+    updateIssue: (issueId, issue) => {
+      set((state) => {
+        if (state.issuesMap[issueId]) {
+          state.issuesMap[issueId] = {
+            ...state.issuesMap[issueId],
+            ...issue,
+            updated_at: getCurrentDateTimeInISO(),
+          };
+        }
+      });
+    },
+
+    deleteIssue: (issueId) => {
+      set((state) => {
+        delete state.issuesMap[issueId];
+      });
+    },
+
+    addIssueToMapIds: (workspaceSlug, issueIds) => {
+      set((state) => {
+        const existingIds = state.issueMapIds[workspaceSlug] || [];
+        state.issueMapIds[workspaceSlug] = [...issueIds, ...existingIds];
+      });
+    },
+
+    updateIssueMapIds: (workspaceSlug, issueIds) => {
+      set((state) => {
+        state.issueMapIds[workspaceSlug] = issueIds;
+      });
+    },
+
+    removeIssueFromMapIds: (workspaceSlug, issueId) => {
+      set((state) => {
+        if (state.issueMapIds[workspaceSlug]) {
+          state.issueMapIds[workspaceSlug] = state.issueMapIds[workspaceSlug].filter((id) => id !== issueId);
+        }
+      });
+    },
+  }))
+);
+
+// Legacy class wrapper for backward compatibility
 export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
   // local constants
   paginatedCount = 50;
-  // observables
-  loader: TWorkspaceDraftIssueLoader = undefined;
-  paginationInfo: Omit<TWorkspaceDraftPaginationInfo<TWorkspaceDraftIssue>, "results"> | undefined = undefined;
-  issuesMap: Record<string, TWorkspaceDraftIssue> = {};
-  issueMapIds: Record<string, string[]> = {};
+  // issue store reference
+  issueStore: IIssueRootStore;
 
-  constructor(public issueStore: IIssueRootStore) {
-    makeObservable(this, {
-      loader: observable.ref,
-      paginationInfo: observable,
-      issuesMap: observable,
-      issueMapIds: observable,
-      // computed
-      issueIds: computed,
-      // action
-      fetchIssues: action,
-      createIssue: action,
-      updateIssue: action,
-      deleteIssue: action,
-      moveIssue: action,
-      addSprintToIssue: action,
-      addEpicsToIssue: action,
-    });
+  constructor(issueStore: IIssueRootStore) {
+    this.issueStore = issueStore;
+  }
+
+  private get store() {
+    return useWorkspaceDraftIssuesStore.getState();
+  }
+
+  get loader() {
+    return this.store.loader;
+  }
+
+  set loader(value: TWorkspaceDraftIssueLoader) {
+    this.store.setLoader(value);
+  }
+
+  get paginationInfo() {
+    return this.store.paginationInfo;
+  }
+
+  set paginationInfo(value: Omit<TWorkspaceDraftPaginationInfo<TWorkspaceDraftIssue>, "results"> | undefined) {
+    this.store.setPaginationInfo(value);
+  }
+
+  get issuesMap() {
+    return this.store.issuesMap;
+  }
+
+  get issueMapIds() {
+    return this.store.issueMapIds;
   }
 
   private updateWorkspaceUserDraftIssueCount(workspaceSlug: string, increment: number) {
     const workspaceUserInfo = this.issueStore.rootStore.user.permission.workspaceUserInfo;
     const currentCount = workspaceUserInfo[workspaceSlug]?.draft_issue_count ?? 0;
 
-    set(workspaceUserInfo, [workspaceSlug, "draft_issue_count"], currentCount + increment);
+    lodashSet(workspaceUserInfo, [workspaceSlug, "draft_issue_count"], currentCount + increment);
   }
 
   // computed
@@ -146,35 +252,25 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
   }
 
   // computed functions
-  getIssueById = computedFn((issueId: string) => {
+  getIssueById = (issueId: string) => {
     if (!issueId || !this.issuesMap[issueId]) return undefined;
     return this.issuesMap[issueId];
-  });
+  };
 
   // helper actions
   addIssue = (issues: TWorkspaceDraftIssue[]) => {
     if (issues && issues.length <= 0) return;
-    runInAction(() => {
-      issues.forEach((issue) => {
-        if (!this.issuesMap[issue.id]) set(this.issuesMap, issue.id, issue);
-        else update(this.issuesMap, issue.id, (prevIssue) => ({ ...prevIssue, ...issue }));
-      });
-    });
+    this.store.addIssues(issues);
   };
 
   mutateIssue = (issueId: string, issue: Partial<TWorkspaceDraftIssue>) => {
     if (!issue || !issueId || !this.issuesMap[issueId]) return;
-    runInAction(() => {
-      set(this.issuesMap, [issueId, "updated_at"], getCurrentDateTimeInISO());
-      Object.keys(issue).forEach((key) => {
-        set(this.issuesMap, [issueId, key], issue[key as keyof TWorkspaceDraftIssue]);
-      });
-    });
+    this.store.updateIssue(issueId, issue);
   };
 
   removeIssue = async (issueId: string) => {
     if (!issueId || !this.issuesMap[issueId]) return;
-    runInAction(() => unset(this.issuesMap, issueId));
+    this.store.deleteIssue(issueId);
   };
 
   generateNotificationQueryParams = (
@@ -217,22 +313,20 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
       if (!draftIssuesResponse) return undefined;
 
       const { results, ...paginationInfo } = draftIssuesResponse;
-      runInAction(() => {
-        if (results && results.length > 0) {
-          // adding issueIds
-          const issueIds = results.map((issue) => issue.id);
-          const existingIssueIds = this.issueMapIds[workspaceSlug] ?? [];
-          // new issueIds
-          const newIssueIds = issueIds.filter((issueId) => !existingIssueIds.includes(issueId));
-          this.addIssue(results);
-          // issue map update
-          update(this.issueMapIds, [workspaceSlug], (existingIssueIds = []) => [...newIssueIds, ...existingIssueIds]);
-          this.loader = undefined;
-        } else {
-          this.loader = "empty-state";
-        }
-        set(this, "paginationInfo", paginationInfo);
-      });
+      if (results && results.length > 0) {
+        // adding issueIds
+        const issueIds = results.map((issue) => issue.id);
+        const existingIssueIds = this.issueMapIds[workspaceSlug] ?? [];
+        // new issueIds
+        const newIssueIds = issueIds.filter((issueId) => !existingIssueIds.includes(issueId));
+        this.addIssue(results);
+        // issue map update
+        this.store.addIssueToMapIds(workspaceSlug, newIssueIds);
+        this.loader = undefined;
+      } else {
+        this.loader = "empty-state";
+      }
+      this.paginationInfo = paginationInfo;
       return draftIssuesResponse;
     } catch (error) {
       // set loader to undefined if errored out
@@ -250,19 +344,17 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
 
       const response = await workspaceDraftService.createIssue(workspaceSlug, payload);
       if (response) {
-        runInAction(() => {
-          this.addIssue([response]);
-          update(this.issueMapIds, [workspaceSlug], (existingIssueIds = []) => [response.id, ...existingIssueIds]);
-          // increase the count of issues in the pagination info
-          if (this.paginationInfo?.total_count) {
-            set(this, "paginationInfo", {
-              ...this.paginationInfo,
-              total_count: this.paginationInfo.total_count + 1,
-            });
-          }
-          // Update draft issue count in workspaceUserInfo
-          this.updateWorkspaceUserDraftIssueCount(workspaceSlug, 1);
-        });
+        this.addIssue([response]);
+        this.store.addIssueToMapIds(workspaceSlug, [response.id]);
+        // increase the count of issues in the pagination info
+        if (this.paginationInfo?.total_count) {
+          this.paginationInfo = {
+            ...this.paginationInfo,
+            total_count: this.paginationInfo.total_count + 1,
+          };
+        }
+        // Update draft issue count in workspaceUserInfo
+        this.updateWorkspaceUserDraftIssueCount(workspaceSlug, 1);
       }
 
       this.loader = undefined;
@@ -277,21 +369,18 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
     const issueBeforeUpdate = clone(this.getIssueById(issueId));
     try {
       this.loader = "update";
-      runInAction(() => {
-        set(this.issuesMap, [issueId], {
-          ...issueBeforeUpdate,
-          ...payload,
-          ...{ updated_at: getCurrentDateTimeInISO() },
-        });
+      this.store.updateIssue(issueId, {
+        ...payload,
+        updated_at: getCurrentDateTimeInISO(),
       });
       const response = await workspaceDraftService.updateIssue(workspaceSlug, issueId, payload);
       this.loader = undefined;
       return response;
     } catch (error) {
       this.loader = undefined;
-      runInAction(() => {
-        set(this.issuesMap, [issueId], issueBeforeUpdate);
-      });
+      if (issueBeforeUpdate) {
+        this.store.addIssues([issueBeforeUpdate]);
+      }
       throw error;
     }
   };
@@ -301,21 +390,19 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
       this.loader = "delete";
 
       const response = await workspaceDraftService.deleteIssue(workspaceSlug, issueId);
-      runInAction(() => {
-        // Remove the issue from the issueMapIds
-        this.issueMapIds[workspaceSlug] = (this.issueMapIds[workspaceSlug] || []).filter((id) => id !== issueId);
-        // Remove the issue from the issuesMap
-        delete this.issuesMap[issueId];
-        // reduce the count of issues in the pagination info
-        if (this.paginationInfo?.total_count) {
-          set(this, "paginationInfo", {
-            ...this.paginationInfo,
-            total_count: this.paginationInfo.total_count - 1,
-          });
-        }
-        // Update draft issue count in workspaceUserInfo
-        this.updateWorkspaceUserDraftIssueCount(workspaceSlug, -1);
-      });
+      // Remove the issue from the issueMapIds
+      this.store.removeIssueFromMapIds(workspaceSlug, issueId);
+      // Remove the issue from the issuesMap
+      this.store.deleteIssue(issueId);
+      // reduce the count of issues in the pagination info
+      if (this.paginationInfo?.total_count) {
+        this.paginationInfo = {
+          ...this.paginationInfo,
+          total_count: this.paginationInfo.total_count - 1,
+        };
+      }
+      // Update draft issue count in workspaceUserInfo
+      this.updateWorkspaceUserDraftIssueCount(workspaceSlug, -1);
 
       this.loader = undefined;
       return response;
@@ -330,22 +417,20 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
       this.loader = "move";
 
       const response = await workspaceDraftService.moveIssue(workspaceSlug, issueId, payload);
-      runInAction(() => {
-        // Remove the issue from the issueMapIds
-        this.issueMapIds[workspaceSlug] = (this.issueMapIds[workspaceSlug] || []).filter((id) => id !== issueId);
-        // Remove the issue from the issuesMap
-        delete this.issuesMap[issueId];
-        // reduce the count of issues in the pagination info
-        if (this.paginationInfo?.total_count) {
-          set(this, "paginationInfo", {
-            ...this.paginationInfo,
-            total_count: this.paginationInfo.total_count - 1,
-          });
-        }
+      // Remove the issue from the issueMapIds
+      this.store.removeIssueFromMapIds(workspaceSlug, issueId);
+      // Remove the issue from the issuesMap
+      this.store.deleteIssue(issueId);
+      // reduce the count of issues in the pagination info
+      if (this.paginationInfo?.total_count) {
+        this.paginationInfo = {
+          ...this.paginationInfo,
+          total_count: this.paginationInfo.total_count - 1,
+        };
+      }
 
-        // Update draft issue count in workspaceUserInfo
-        this.updateWorkspaceUserDraftIssueCount(workspaceSlug, -1);
-      });
+      // Update draft issue count in workspaceUserInfo
+      this.updateWorkspaceUserDraftIssueCount(workspaceSlug, -1);
 
       this.loader = undefined;
       return response;

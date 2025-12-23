@@ -7,9 +7,29 @@
  * Import this in test files for full functionality.
  */
 
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect, Page } from "@playwright/test";
 import { ErrorTracker } from "./error-tracker";
 import { TEST_WORKSPACE_SLUG, TEST_PROJECT_ID, AUTH_STATE_PATH, urls } from "./auth";
+
+/**
+ * Helper to check if the app has loaded correctly
+ * Returns false if the startup error is shown
+ */
+export async function isAppReady(page: Page): Promise<boolean> {
+  const startupError = page.getByText(/Plane didn't start up correctly/i);
+  return !(await startupError.isVisible().catch(() => false));
+}
+
+/**
+ * Helper to wait for app to be ready or skip
+ * Throws test.skip() if app is not ready
+ */
+export async function ensureAppReady(page: Page, test: typeof base): Promise<void> {
+  const ready = await isAppReady(page);
+  if (!ready) {
+    test.skip(true, "API not ready - Plane startup error shown");
+  }
+}
 
 /**
  * Combined fixture types

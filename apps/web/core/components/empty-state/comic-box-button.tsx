@@ -1,5 +1,4 @@
-import type { Ref } from "react";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { usePopper } from "react-popper";
 import { Popover } from "@headlessui/react";
 // plane imports
@@ -42,25 +41,30 @@ export function ComicBoxButton(props: Props) {
 
   return (
     <Popover as="div" className="relative">
-      <Popover.Button as={Fragment}>
-        <Button variant="primary" size="lg" ref={setReferenceElement} onClick={onClick} disabled={disabled}>
-          {icon}
-          <span className="leading-4">{label}</span>
-          <span className="relative h-2 w-2">
-            <div
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              className={`absolute bg-blue-300 right-0 z-10 h-2.5 w-2.5 animate-ping rounded-full`}
-            />
-            <div className={`absolute bg-blue-400/40 right-0 h-1.5 w-1.5 mt-0.5 mr-0.5 rounded-full`} />
-          </span>
-        </Button>
+      <Popover.Button
+        as={Button}
+        variant="primary"
+        size="lg"
+        ref={setReferenceElement}
+        onClick={onClick}
+        disabled={disabled}
+      >
+        {icon}
+        <span className="leading-4">{label}</span>
+        <span className="relative h-2 w-2">
+          <div
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            className={`absolute bg-blue-300 right-0 z-10 h-2.5 w-2.5 animate-ping rounded-full`}
+          />
+          <div className={`absolute bg-blue-400/40 right-0 h-1.5 w-1.5 mt-0.5 mr-0.5 rounded-full`} />
+        </span>
       </Popover.Button>
       {isHovered && (
         <Popover.Panel className="fixed z-10" static>
           <div
             className="flex flex-col rounded-sm border border-subtle bg-layer-1 hover:bg-layer-1-hover rounded-xl overflow-hidden p-5 relative w-52 lg:w-60 xl:w-80"
-            ref={setPopperElement as Ref<HTMLDivElement>}
+            ref={setPopperElement}
             style={styles.popper}
             {...attributes.popper}
           >
