@@ -199,16 +199,6 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# DNS Record for API
-resource "aws_route53_record" "api" {
-  count   = var.domain_name != "" && var.route53_zone_id != "" ? 1 : 0
-  zone_id = var.route53_zone_id
-  name    = "api.${var.domain_name}"
-  type    = "A"
-
-  alias {
-    name                   = aws_lb.main.dns_name
-    zone_id                = aws_lb.main.zone_id
-    evaluate_target_health = true
-  }
-}
+# NOTE: API is now routed through the unified CloudFront distribution at /api/*
+# The api.${domain} subdomain record has been removed.
+# See terraform/cloudfront.tf for the unified distribution configuration.

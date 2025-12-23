@@ -101,7 +101,7 @@ Enable Redis only after measuring actual need.
 | Aurora Serverless v2 | $43   | Scales to 0.5 ACU when idle |
 | EB (2x t3.small)     | $30   | Use t3.micro for dev (-$15) |
 | ALB                  | $23   | Required for mTLS           |
-| CloudFront (3)       | $5    | Pay-as-you-go               |
+| CloudFront (1)       | $2    | Pay-as-you-go               |
 | S3 + Secrets         | $5.50 | Minimal                     |
 | Redis                | $0    | **Disabled**                |
 
@@ -166,7 +166,7 @@ openssl req -x509 -newkey rsa:2048 -nodes \
   -subj "/CN=Test/emailAddress=test@treasury.gov"
 
 curl -v --cert test.crt --key test.key \
-  https://api.plane.treasury.gov/api/health/
+  https://plane.treasury.gov/api/health/
 ```
 
 ### Deployment fails
