@@ -78,6 +78,104 @@ test.describe("Settings Routes @smoke", () => {
     }
     expect(pageErrors).toHaveLength(0);
   });
+
+  test("/:workspaceSlug/settings/imports loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
+    await page.goto(`/${workspaceSlug}/settings/imports`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(2000);
+
+    const pageErrors = errorTracker.getPageErrors();
+    if (pageErrors.length > 0) {
+      console.log("Imports settings errors:", errorTracker.getSummary());
+    }
+    expect(pageErrors).toHaveLength(0);
+  });
+
+  test("/:workspaceSlug/settings/integrations loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
+    await page.goto(`/${workspaceSlug}/settings/integrations`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(2000);
+
+    const pageErrors = errorTracker.getPageErrors();
+    if (pageErrors.length > 0) {
+      console.log("Integrations settings errors:", errorTracker.getSummary());
+    }
+    expect(pageErrors).toHaveLength(0);
+  });
+});
+
+test.describe("Account Settings Routes @smoke", () => {
+  test("/:workspaceSlug/settings/account loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
+    await page.goto(`/${workspaceSlug}/settings/account`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(2000);
+
+    const pageErrors = errorTracker.getPageErrors();
+    if (pageErrors.length > 0) {
+      console.log("Account settings errors:", errorTracker.getSummary());
+    }
+    expect(pageErrors).toHaveLength(0);
+  });
+
+  test("/:workspaceSlug/settings/account/activity loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
+    await page.goto(`/${workspaceSlug}/settings/account/activity`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(2000);
+
+    const pageErrors = errorTracker.getPageErrors();
+    if (pageErrors.length > 0) {
+      console.log("Account activity errors:", errorTracker.getSummary());
+    }
+    expect(pageErrors).toHaveLength(0);
+  });
+
+  test("/:workspaceSlug/settings/account/preferences loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
+    await page.goto(`/${workspaceSlug}/settings/account/preferences`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(2000);
+
+    const pageErrors = errorTracker.getPageErrors();
+    if (pageErrors.length > 0) {
+      console.log("Account preferences errors:", errorTracker.getSummary());
+    }
+    expect(pageErrors).toHaveLength(0);
+  });
+
+  test("/:workspaceSlug/settings/account/notifications loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
+    await page.goto(`/${workspaceSlug}/settings/account/notifications`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(2000);
+
+    const pageErrors = errorTracker.getPageErrors();
+    if (pageErrors.length > 0) {
+      console.log("Account notifications errors:", errorTracker.getSummary());
+    }
+    expect(pageErrors).toHaveLength(0);
+  });
+
+  test("/:workspaceSlug/settings/account/security loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
+    await page.goto(`/${workspaceSlug}/settings/account/security`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(2000);
+
+    const pageErrors = errorTracker.getPageErrors();
+    if (pageErrors.length > 0) {
+      console.log("Account security errors:", errorTracker.getSummary());
+    }
+    expect(pageErrors).toHaveLength(0);
+  });
+
+  test("/:workspaceSlug/settings/account/api-tokens loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
+    await page.goto(`/${workspaceSlug}/settings/account/api-tokens`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(2000);
+
+    const pageErrors = errorTracker.getPageErrors();
+    if (pageErrors.length > 0) {
+      console.log("Account API tokens errors:", errorTracker.getSummary());
+    }
+    expect(pageErrors).toHaveLength(0);
+  });
 });
 
 test.describe("Project Settings Routes @smoke", () => {

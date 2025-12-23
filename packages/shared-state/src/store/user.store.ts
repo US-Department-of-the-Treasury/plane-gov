@@ -1,4 +1,3 @@
-import { makeObservable, observable } from "mobx";
 import type { IWorkspaceStore } from "./workspace.store";
 
 export interface IUserStore {
@@ -15,12 +14,7 @@ export class UserStore implements IUserStore {
   error: any = null;
 
   constructor() {
-    makeObservable(this, {
-      user: observable.ref,
-      workspaces: observable,
-      isLoading: observable.ref,
-      error: observable.ref,
-    });
+    // Plain class - no MobX observables needed
   }
 }
 

@@ -110,33 +110,32 @@ export function ProjectsAppPowerKModalWrapper(props: Props) {
   }, [isOpen]);
 
   return (
-    <Transition.Root show={isOpen} as={React.Fragment}>
+    <Transition.Root show={isOpen} as="div">
       <Dialog as="div" className="relative z-50" onClose={onClose}>
         {/* Backdrop */}
         <Transition.Child
-          as={React.Fragment}
+          as="div"
           enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
           leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-backdrop transition-opacity" />
-        </Transition.Child>
+          className="fixed inset-0 bg-backdrop transition-opacity"
+        />
         {/* Modal Container */}
         <div className="fixed inset-0 z-30 overflow-y-auto">
           <div className="flex items-center justify-center p-4 sm:p-6 md:p-20">
             <Transition.Child
-              as={React.Fragment}
+              as={Dialog.Panel}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              className="relative flex w-full max-w-2xl transform flex-col items-center justify-center divide-y divide-subtle-1 divide-opacity-10 rounded-lg bg-surface-1 shadow-raised-200 transition-all"
             >
-              <Dialog.Panel className="relative flex w-full max-w-2xl transform flex-col items-center justify-center divide-y divide-subtle-1 divide-opacity-10 rounded-lg bg-surface-1 shadow-raised-200 transition-all">
                 <Command
                   filter={(i18nValue: string, search: string) => {
                     if (i18nValue === "no-results") return 1;
@@ -173,7 +172,6 @@ export function ProjectsAppPowerKModalWrapper(props: Props) {
                     />
                   )}
                 </Command>
-              </Dialog.Panel>
             </Transition.Child>
           </div>
         </div>

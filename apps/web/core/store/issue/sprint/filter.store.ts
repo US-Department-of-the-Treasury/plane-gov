@@ -1,7 +1,7 @@
-import { isEmpty, set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { isEmpty, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // base class
-import { computedFn } from "mobx-utils";
 import type { TSupportedFilterTypeForUpdate } from "@plane/constants";
 import { EIssueFilterType } from "@plane/constants";
 import type {
@@ -24,6 +24,83 @@ import { IssueFilterHelperStore } from "../helpers/issue-filter-helper.store";
 import type { IIssueRootStore } from "../root.store";
 // constants
 // services
+
+// Zustand Store
+interface SprintIssuesFilterState {
+  filters: { [sprintId: string]: IIssueFilters };
+}
+
+interface SprintIssuesFilterActions {
+  setFilters: (sprintId: string, filters: Partial<IIssueFilters>) => void;
+  setRichFilters: (sprintId: string, richFilters: TWorkItemFilterExpression) => void;
+  setDisplayFilters: (sprintId: string, displayFilters: Partial<IIssueDisplayFilterOptions>) => void;
+  setDisplayProperties: (sprintId: string, displayProperties: Partial<IIssueDisplayProperties>) => void;
+  setKanbanFilters: (sprintId: string, kanbanFilters: Partial<TIssueKanbanFilters>) => void;
+}
+
+type SprintIssuesFilterStoreType = SprintIssuesFilterState & SprintIssuesFilterActions;
+
+export const useSprintIssuesFilterStore = create<SprintIssuesFilterStoreType>()(
+  immer((set) => ({
+    // State
+    filters: {},
+
+    // Actions
+    setFilters: (sprintId, filters) => {
+      set((state) => {
+        if (!state.filters[sprintId]) {
+          state.filters[sprintId] = {} as IIssueFilters;
+        }
+        Object.assign(state.filters[sprintId], filters);
+      });
+    },
+
+    setRichFilters: (sprintId, richFilters) => {
+      set((state) => {
+        if (!state.filters[sprintId]) {
+          state.filters[sprintId] = {} as IIssueFilters;
+        }
+        state.filters[sprintId].richFilters = richFilters;
+      });
+    },
+
+    setDisplayFilters: (sprintId, displayFilters) => {
+      set((state) => {
+        if (!state.filters[sprintId]) {
+          state.filters[sprintId] = {} as IIssueFilters;
+        }
+        if (!state.filters[sprintId].displayFilters) {
+          state.filters[sprintId].displayFilters = {} as IIssueDisplayFilterOptions;
+        }
+        Object.assign(state.filters[sprintId].displayFilters!, displayFilters);
+      });
+    },
+
+    setDisplayProperties: (sprintId, displayProperties) => {
+      set((state) => {
+        if (!state.filters[sprintId]) {
+          state.filters[sprintId] = {} as IIssueFilters;
+        }
+        if (!state.filters[sprintId].displayProperties) {
+          state.filters[sprintId].displayProperties = {} as IIssueDisplayProperties;
+        }
+        Object.assign(state.filters[sprintId].displayProperties!, displayProperties);
+      });
+    },
+
+    setKanbanFilters: (sprintId, kanbanFilters) => {
+      set((state) => {
+        if (!state.filters[sprintId]) {
+          state.filters[sprintId] = {} as IIssueFilters;
+        }
+        if (!state.filters[sprintId].kanbanFilters) {
+          state.filters[sprintId].kanbanFilters = {} as TIssueKanbanFilters;
+        }
+        Object.assign(state.filters[sprintId].kanbanFilters!, kanbanFilters);
+      });
+    },
+  }))
+);
 
 export interface ISprintIssuesFilter extends IBaseIssueFilterStore {
   //helper actions
@@ -52,9 +129,8 @@ export interface ISprintIssuesFilter extends IBaseIssueFilterStore {
   ) => Promise<void>;
 }
 
+// Legacy class wrapper for backward compatibility
 export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprintIssuesFilter {
-  // observables
-  filters: { [sprintId: string]: IIssueFilters } = {};
   // root store
   rootIssueStore: IIssueRootStore;
   // services
@@ -62,20 +138,18 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
 
   constructor(_rootStore: IIssueRootStore) {
     super();
-    makeObservable(this, {
-      // observables
-      filters: observable,
-      // computed
-      issueFilters: computed,
-      appliedFilters: computed,
-      // actions
-      fetchFilters: action,
-      updateFilters: action,
-    });
     // root store
     this.rootIssueStore = _rootStore;
     // services
     this.issueFilterService = new IssueFiltersService();
+  }
+
+  private get store() {
+    return useSprintIssuesFilterStore.getState();
+  }
+
+  get filters() {
+    return this.store.filters;
   }
 
   get issueFilters() {
@@ -119,25 +193,23 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
     return filteredRouteParams;
   }
 
-  getFilterParams = computedFn(
-    (
-      options: IssuePaginationOptions,
-      sprintId: string,
-      cursor: string | undefined,
-      groupId: string | undefined,
-      subGroupId: string | undefined
-    ) => {
-      let filterParams = this.getAppliedFilters(sprintId);
+  getFilterParams = (
+    options: IssuePaginationOptions,
+    sprintId: string,
+    cursor: string | undefined,
+    groupId: string | undefined,
+    subGroupId: string | undefined
+  ) => {
+    let filterParams = this.getAppliedFilters(sprintId);
 
-      if (!filterParams) {
-        filterParams = {};
-      }
-      filterParams["sprint"] = sprintId;
-
-      const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
-      return paginationParams;
+    if (!filterParams) {
+      filterParams = {};
     }
-  );
+    filterParams["sprint"] = sprintId;
+
+    const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
+    return paginationParams;
+  };
 
   fetchFilters = async (workspaceSlug: string, projectId: string, sprintId: string) => {
     const _filters = await this.issueFilterService.fetchSprintIssueFilters(workspaceSlug, projectId, sprintId);
@@ -163,11 +235,11 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
       kanbanFilters.sub_group_by = _kanbanFilters?.kanban_filters?.sub_group_by || [];
     }
 
-    runInAction(() => {
-      set(this.filters, [sprintId, "richFilters"], richFilters);
-      set(this.filters, [sprintId, "displayFilters"], displayFilters);
-      set(this.filters, [sprintId, "displayProperties"], displayProperties);
-      set(this.filters, [sprintId, "kanbanFilters"], kanbanFilters);
+    this.store.setFilters(sprintId, {
+      richFilters,
+      displayFilters,
+      displayProperties,
+      kanbanFilters,
     });
   };
 
@@ -183,9 +255,7 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
     filters
   ) => {
     try {
-      runInAction(() => {
-        set(this.filters, [sprintId, "richFilters"], filters);
-      });
+      this.store.setRichFilters(sprintId, filters);
 
       this.rootIssueStore.sprintIssues.fetchIssuesWithExistingPagination(
         workspaceSlug,
@@ -237,15 +307,7 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
             updatedDisplayFilters.group_by = "state";
           }
 
-          runInAction(() => {
-            Object.keys(updatedDisplayFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [sprintId, "displayFilters", _key],
-                updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
-              );
-            });
-          });
+          this.store.setDisplayFilters(sprintId, updatedDisplayFilters);
 
           if (this.getShouldClearIssues(updatedDisplayFilters)) {
             this.rootIssueStore.sprintIssues.clear(true); // clear issues for local store when some filters like layout changes
@@ -270,15 +332,7 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
           const updatedDisplayProperties = filters as IIssueDisplayProperties;
           _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
 
-          runInAction(() => {
-            Object.keys(updatedDisplayProperties).forEach((_key) => {
-              set(
-                this.filters,
-                [sprintId, "displayProperties", _key],
-                updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
-              );
-            });
-          });
+          this.store.setDisplayProperties(sprintId, updatedDisplayProperties);
 
           await this.issueFilterService.patchSprintIssueFilters(workspaceSlug, projectId, sprintId, {
             display_properties: _filters.displayProperties,
@@ -296,15 +350,7 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
               kanban_filters: _filters.kanbanFilters,
             });
 
-          runInAction(() => {
-            Object.keys(updatedKanbanFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [sprintId, "kanbanFilters", _key],
-                updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
-              );
-            });
-          });
+          this.store.setKanbanFilters(sprintId, updatedKanbanFilters);
 
           break;
         }

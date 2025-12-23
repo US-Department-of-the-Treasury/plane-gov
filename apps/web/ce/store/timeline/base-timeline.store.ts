@@ -1,6 +1,6 @@
-import { isEqual, set } from "lodash-es";
-import { action, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { isEqual, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // components
 import type {
   ChartDataType,
@@ -30,6 +30,256 @@ type BlockData = {
   project_id?: string | undefined | null;
 };
 
+// Zustand store state
+interface TimelineStoreState {
+  blocksMap: Record<string, IGanttBlock>;
+  blockIds: string[] | undefined;
+  isDragging: boolean;
+  currentView: TGanttViews;
+  currentViewData: ChartDataType | undefined;
+  activeBlockId: string | null;
+  renderView: any;
+  isDependencyEnabled: boolean;
+  rootStore: RootStore | null;
+}
+
+// Zustand store actions
+interface TimelineStoreActions {
+  setBlockIds: (ids: string[]) => void;
+  setIsDragging: (isDragging: boolean) => void;
+  updateCurrentView: (view: TGanttViews) => void;
+  updateCurrentViewData: (data: ChartDataType | undefined) => void;
+  updateActiveBlockId: (blockId: string | null) => void;
+  updateRenderView: (data: any) => void;
+  initGantt: () => void;
+  updateBlocks: (getDataById: (id: string) => BlockData | undefined | null, type?: EGanttBlockType, index?: number) => void;
+  getNumberOfDaysFromPosition: (position: number | undefined) => number | undefined;
+  updateAllBlocksOnChartChangeWhileDragging: (addedWidth: number) => void;
+  getUpdatedPositionAfterDrag: (id: string, shouldUpdateHalfBlock: boolean, ignoreDependencies?: boolean) => IBlockUpdateDependencyData[];
+  updateBlockPosition: (id: string, deltaLeft: number, deltaWidth: number, ignoreDependencies?: boolean) => void;
+  // Computed-style functions (arrow functions, not computedFn)
+  getBlockById: (blockId: string) => IGanttBlock | undefined;
+  isBlockActive: (blockId: string) => boolean;
+  getPositionFromDateOnGantt: (date: string | Date, offSetWidth: number) => number | undefined;
+  getDateFromPositionOnGantt: (position: number, offsetDays: number) => Date | undefined;
+  getIsCurrentDependencyDragging: (blockId: string) => boolean;
+  // Internal
+  setRootStore: (rootStore: RootStore) => void;
+}
+
+type TimelineStoreType = TimelineStoreState & TimelineStoreActions;
+
+// Zustand store
+export const useTimelineStore = create<TimelineStoreType>()(
+  immer((set, get) => ({
+    // State
+    blocksMap: {},
+    blockIds: undefined,
+    isDragging: false,
+    currentView: "week",
+    currentViewData: undefined,
+    activeBlockId: null,
+    renderView: [],
+    isDependencyEnabled: false,
+    rootStore: null,
+
+    // Actions
+    setBlockIds: (ids: string[]) => {
+      set((state) => {
+        state.blockIds = ids;
+      });
+    },
+
+    setIsDragging: (isDragging: boolean) => {
+      set((state) => {
+        state.isDragging = isDragging;
+      });
+    },
+
+    updateCurrentView: (view: TGanttViews) => {
+      set((state) => {
+        state.currentView = view;
+      });
+    },
+
+    updateCurrentViewData: (data: ChartDataType | undefined) => {
+      set((state) => {
+        state.currentViewData = data;
+      });
+    },
+
+    updateActiveBlockId: (blockId: string | null) => {
+      set((state) => {
+        state.activeBlockId = blockId;
+      });
+    },
+
+    updateRenderView: (data: any) => {
+      set((state) => {
+        state.renderView = data;
+      });
+    },
+
+    initGantt: () => {
+      const newCurrentViewData = currentViewDataWithView(get().currentView);
+      set((state) => {
+        state.currentViewData = newCurrentViewData;
+        state.blocksMap = {};
+        state.blockIds = undefined;
+      });
+    },
+
+    updateBlocks: (getDataById: (id: string) => BlockData | undefined | null, type?: EGanttBlockType, index?: number) => {
+      const state = get();
+      if (!state.blockIds || !Array.isArray(state.blockIds) || state.isDragging) return;
+
+      const updatedBlockMaps: { path: string[]; value: any }[] = [];
+      const newBlocks: IGanttBlock[] = [];
+
+      // Loop through blockIds to generate blocks Data
+      for (const blockId of state.blockIds) {
+        const blockData = getDataById(blockId);
+        if (!blockData) continue;
+
+        const block: IGanttBlock = {
+          data: blockData,
+          id: blockData?.id,
+          name: blockData.name,
+          sort_order: blockData?.sort_order ?? undefined,
+          start_date: blockData?.start_date ?? undefined,
+          target_date: blockData?.target_date ?? undefined,
+          meta: {
+            type,
+            index,
+            project_id: blockData?.project_id,
+          },
+        };
+        if (state.currentViewData && (state.currentViewData?.data?.startDate || state.currentViewData?.data?.dayWidth)) {
+          block.position = getItemPositionWidth(state.currentViewData, block);
+        }
+
+        // create block updates if the block already exists, or push them to newBlocks
+        if (state.blocksMap[blockId]) {
+          for (const key of Object.keys(block)) {
+            const currValue = state.blocksMap[blockId][key as keyof IGanttBlock];
+            const nextValue = block[key as keyof IGanttBlock];
+            if (!isEqual(currValue, nextValue)) {
+              updatedBlockMaps.push({ path: [blockId, key], value: nextValue });
+            }
+          }
+        } else {
+          newBlocks.push(block);
+        }
+      }
+
+      // update the store with the block updates
+      set((state) => {
+        for (const updatedBlock of updatedBlockMaps) {
+          lodashSet(state.blocksMap, updatedBlock.path, updatedBlock.value);
+        }
+
+        for (const newBlock of newBlocks) {
+          lodashSet(state.blocksMap, [newBlock.id], newBlock);
+        }
+      });
+    },
+
+    getNumberOfDaysFromPosition: (position: number | undefined) => {
+      const state = get();
+      if (!state.currentViewData || !position) return undefined;
+      return Math.round(position / state.currentViewData.data.dayWidth);
+    },
+
+    updateAllBlocksOnChartChangeWhileDragging: (addedWidth: number) => {
+      const state = get();
+      if (!state.blockIds || !state.isDragging) return;
+
+      set((state) => {
+        state.blockIds?.forEach((blockId) => {
+          const currBlock = state.blocksMap[blockId];
+
+          if (!currBlock || !currBlock.position) return;
+
+          currBlock.position.marginLeft += addedWidth;
+        });
+      });
+    },
+
+    getUpdatedPositionAfterDrag: (id: string, shouldUpdateHalfBlock: boolean, ignoreDependencies?: boolean) => {
+      const state = get();
+      const currBlock = state.blocksMap[id];
+
+      if (!currBlock?.position || !state.currentViewData) return [];
+
+      const updatePayload: IBlockUpdateDependencyData = { id, meta: currBlock.meta };
+
+      // If shouldUpdateHalfBlock or the start date is available then update start date
+      if (shouldUpdateHalfBlock || currBlock.start_date) {
+        updatePayload.start_date = renderFormattedPayloadDate(
+          getDateFromPositionOnGantt(currBlock.position.marginLeft, state.currentViewData)
+        );
+      }
+      // If shouldUpdateHalfBlock or the target date is available then update target date
+      if (shouldUpdateHalfBlock || currBlock.target_date) {
+        updatePayload.target_date = renderFormattedPayloadDate(
+          getDateFromPositionOnGantt(currBlock.position.marginLeft + currBlock.position.width, state.currentViewData, -1)
+        );
+      }
+
+      return [updatePayload];
+    },
+
+    updateBlockPosition: (id: string, deltaLeft: number, deltaWidth: number, ignoreDependencies?: boolean) => {
+      const state = get();
+      const currBlock = state.blocksMap[id];
+
+      if (!currBlock?.position) return;
+
+      const newMarginLeft = currBlock.position.marginLeft + deltaLeft;
+      const newWidth = currBlock.position.width + deltaWidth;
+
+      set((state) => {
+        lodashSet(state.blocksMap, [id, "position"], {
+          marginLeft: newMarginLeft ?? currBlock.position?.marginLeft,
+          width: newWidth ?? currBlock.position?.width,
+        });
+      });
+    },
+
+    // Computed-style functions (regular arrow functions)
+    getBlockById: (blockId: string) => {
+      const state = get();
+      return state.blocksMap[blockId];
+    },
+
+    isBlockActive: (blockId: string): boolean => {
+      const state = get();
+      return state.activeBlockId === blockId;
+    },
+
+    getPositionFromDateOnGantt: (date: string | Date, offSetWidth: number) => {
+      const state = get();
+      if (!state.currentViewData) return undefined;
+      return getPositionFromDate(state.currentViewData, date, offSetWidth);
+    },
+
+    getDateFromPositionOnGantt: (position: number, offsetDays: number) => {
+      const state = get();
+      if (!state.currentViewData) return undefined;
+      return getDateFromPositionOnGantt(position, state.currentViewData, offsetDays);
+    },
+
+    getIsCurrentDependencyDragging: (blockId: string) => false,
+
+    setRootStore: (rootStore: RootStore) => {
+      set((state) => {
+        state.rootStore = rootStore as any;
+      });
+    },
+  }))
+);
+
+// Legacy interface for backward compatibility
 export interface IBaseTimelineStore {
   // observables
   currentView: TGanttViews;
@@ -64,277 +314,68 @@ export interface IBaseTimelineStore {
   getPositionFromDateOnGantt: (date: string | Date, offSetWidth: number) => number | undefined;
 }
 
+// Legacy class wrapper for backward compatibility
 export class BaseTimeLineStore implements IBaseTimelineStore {
-  blocksMap: Record<string, IGanttBlock> = {};
-  blockIds: string[] | undefined = undefined;
-
-  isDragging: boolean = false;
-  currentView: TGanttViews = "week";
-  currentViewData: ChartDataType | undefined = undefined;
-  activeBlockId: string | null = null;
-  renderView: any = [];
-
   rootStore: RootStore;
 
-  isDependencyEnabled = false;
-
   constructor(_rootStore: RootStore) {
-    makeObservable(this, {
-      // observables
-      blocksMap: observable,
-      blockIds: observable,
-      isDragging: observable.ref,
-      currentView: observable.ref,
-      currentViewData: observable,
-      activeBlockId: observable.ref,
-      renderView: observable,
-      // actions
-      setIsDragging: action,
-      setBlockIds: action.bound,
-      initGantt: action.bound,
-      updateCurrentView: action.bound,
-      updateCurrentViewData: action.bound,
-      updateActiveBlockId: action.bound,
-      updateRenderView: action.bound,
-    });
-
-    this.initGantt();
-
     this.rootStore = _rootStore;
+    useTimelineStore.getState().setRootStore(_rootStore);
+    useTimelineStore.getState().initGantt();
   }
 
-  /**
-   * Update Block Ids to derive blocks from
-   * @param ids
-   */
-  setBlockIds = (ids: string[]) => {
-    this.blockIds = ids;
-  };
-
-  /**
-   * setIsDragging
-   * @param isDragging
-   */
-  setIsDragging = (isDragging: boolean) => {
-    runInAction(() => {
-      this.isDragging = isDragging;
-    });
-  };
-
-  /**
-   * @description check if block is active
-   * @param {string} blockId
-   */
-  isBlockActive = computedFn((blockId: string): boolean => this.activeBlockId === blockId);
-
-  /**
-   * @description update current view
-   * @param {TGanttViews} view
-   */
-  updateCurrentView = (view: TGanttViews) => {
-    this.currentView = view;
-  };
-
-  /**
-   * @description update current view data
-   * @param {ChartDataType | undefined} data
-   */
-  updateCurrentViewData = (data: ChartDataType | undefined) => {
-    runInAction(() => {
-      this.currentViewData = data;
-    });
-  };
-
-  /**
-   * @description update active block
-   * @param {string | null} block
-   */
-  updateActiveBlockId = (blockId: string | null) => {
-    this.activeBlockId = blockId;
-  };
-
-  /**
-   * @description update render view
-   * @param {any[]} data
-   */
-  updateRenderView = (data: any[]) => {
-    this.renderView = data;
-  };
-
-  /**
-   * @description initialize gantt chart with month view
-   */
-  initGantt = () => {
-    const newCurrentViewData = currentViewDataWithView(this.currentView);
-
-    runInAction(() => {
-      this.currentViewData = newCurrentViewData;
-      this.blocksMap = {};
-      this.blockIds = undefined;
-    });
-  };
-
-  /** Gets Block from Id */
-  getBlockById = computedFn((blockId: string) => this.blocksMap[blockId]);
-
-  /**
-   * updates the BlocksMap from blockIds
-   * @param getDataById
-   * @returns
-   */
-  updateBlocks(getDataById: (id: string) => BlockData | undefined | null, type?: EGanttBlockType, index?: number) {
-    if (!this.blockIds || !Array.isArray(this.blockIds) || this.isDragging) return true;
-
-    const updatedBlockMaps: { path: string[]; value: any }[] = [];
-    const newBlocks: IGanttBlock[] = [];
-
-    // Loop through blockIds to generate blocks Data
-    for (const blockId of this.blockIds) {
-      const blockData = getDataById(blockId);
-      if (!blockData) continue;
-
-      const block: IGanttBlock = {
-        data: blockData,
-        id: blockData?.id,
-        name: blockData.name,
-        sort_order: blockData?.sort_order ?? undefined,
-        start_date: blockData?.start_date ?? undefined,
-        target_date: blockData?.target_date ?? undefined,
-        meta: {
-          type,
-          index,
-          project_id: blockData?.project_id,
-        },
-      };
-      if (this.currentViewData && (this.currentViewData?.data?.startDate || this.currentViewData?.data?.dayWidth)) {
-        block.position = getItemPositionWidth(this.currentViewData, block);
-      }
-
-      // create block updates if the block already exists, or push them to newBlocks
-      if (this.blocksMap[blockId]) {
-        for (const key of Object.keys(block)) {
-          const currValue = this.blocksMap[blockId][key as keyof IGanttBlock];
-          const nextValue = block[key as keyof IGanttBlock];
-          if (!isEqual(currValue, nextValue)) {
-            updatedBlockMaps.push({ path: [blockId, key], value: nextValue });
-          }
-        }
-      } else {
-        newBlocks.push(block);
-      }
-    }
-
-    // update the store with the block updates
-    runInAction(() => {
-      for (const updatedBlock of updatedBlockMaps) {
-        set(this.blocksMap, updatedBlock.path, updatedBlock.value);
-      }
-
-      for (const newBlock of newBlocks) {
-        set(this.blocksMap, [newBlock.id], newBlock);
-      }
-    });
+  private get state() {
+    return useTimelineStore.getState();
   }
 
-  /**
-   * returns number of days that the position pixels span across the timeline chart
-   * @param position
-   * @returns
-   */
-  getNumberOfDaysFromPosition = (position: number | undefined) => {
-    if (!this.currentViewData || !position) return;
+  // State getters
+  get blocksMap() {
+    return this.state.blocksMap;
+  }
+  get blockIds() {
+    return this.state.blockIds;
+  }
+  get isDragging() {
+    return this.state.isDragging;
+  }
+  get currentView() {
+    return this.state.currentView;
+  }
+  get currentViewData() {
+    return this.state.currentViewData;
+  }
+  get activeBlockId() {
+    return this.state.activeBlockId;
+  }
+  get renderView() {
+    return this.state.renderView;
+  }
+  get isDependencyEnabled() {
+    return this.state.isDependencyEnabled;
+  }
 
-    return Math.round(position / this.currentViewData.data.dayWidth);
-  };
-
-  /**
-   * returns position of the date on chart
-   */
-  getPositionFromDateOnGantt = computedFn((date: string | Date, offSetWidth: number) => {
-    if (!this.currentViewData) return;
-
-    return getPositionFromDate(this.currentViewData, date, offSetWidth);
-  });
-
-  /**
-   * returns the date at which the position corresponds to on the timeline chart
-   */
-  getDateFromPositionOnGantt = computedFn((position: number, offsetDays: number) => {
-    if (!this.currentViewData) return;
-
-    return getDateFromPositionOnGantt(position, this.currentViewData, offsetDays);
-  });
-
-  /**
-   * Adds width on Chart position change while the blocks are being dragged
-   * @param addedWidth
-   */
-  updateAllBlocksOnChartChangeWhileDragging = action((addedWidth: number) => {
-    if (!this.blockIds || !this.isDragging) return;
-
-    runInAction(() => {
-      this.blockIds?.forEach((blockId) => {
-        const currBlock = this.blocksMap[blockId];
-
-        if (!currBlock || !currBlock.position) return;
-
-        currBlock.position.marginLeft += addedWidth;
-      });
-    });
-  });
-
-  /**
-   * returns updates dates of blocks post drag.
-   * @param id
-   * @param shouldUpdateHalfBlock if is a half block then update the incomplete block only if this is true
-   * @returns
-   */
-  getUpdatedPositionAfterDrag = action((id: string, shouldUpdateHalfBlock: boolean) => {
-    const currBlock = this.blocksMap[id];
-
-    if (!currBlock?.position || !this.currentViewData) return [];
-
-    const updatePayload: IBlockUpdateDependencyData = { id, meta: currBlock.meta };
-
-    // If shouldUpdateHalfBlock or the start date is available then update start date
-    if (shouldUpdateHalfBlock || currBlock.start_date) {
-      updatePayload.start_date = renderFormattedPayloadDate(
-        getDateFromPositionOnGantt(currBlock.position.marginLeft, this.currentViewData)
-      );
-    }
-    // If shouldUpdateHalfBlock or the target date is available then update target date
-    if (shouldUpdateHalfBlock || currBlock.target_date) {
-      updatePayload.target_date = renderFormattedPayloadDate(
-        getDateFromPositionOnGantt(currBlock.position.marginLeft + currBlock.position.width, this.currentViewData, -1)
-      );
-    }
-
-    return [updatePayload];
-  });
-
-  /**
-   * updates the block's position such as marginLeft and width while dragging
-   * @param id
-   * @param deltaLeft
-   * @param deltaWidth
-   * @returns
-   */
-  updateBlockPosition = action((id: string, deltaLeft: number, deltaWidth: number) => {
-    const currBlock = this.blocksMap[id];
-
-    if (!currBlock?.position) return;
-
-    const newMarginLeft = currBlock.position.marginLeft + deltaLeft;
-    const newWidth = currBlock.position.width + deltaWidth;
-
-    runInAction(() => {
-      set(this.blocksMap, [id, "position"], {
-        marginLeft: newMarginLeft ?? currBlock.position?.marginLeft,
-        width: newWidth ?? currBlock.position?.width,
-      });
-    });
-  });
-
-  // Dummy method to return if the current Block's dependency is being dragged
-  getIsCurrentDependencyDragging = computedFn((blockId: string) => false);
+  // Actions - delegate to Zustand store
+  setBlockIds = (ids: string[]) => this.state.setBlockIds(ids);
+  setIsDragging = (isDragging: boolean) => this.state.setIsDragging(isDragging);
+  isBlockActive = (blockId: string) => this.state.isBlockActive(blockId);
+  updateCurrentView = (view: TGanttViews) => this.state.updateCurrentView(view);
+  updateCurrentViewData = (data: ChartDataType | undefined) => this.state.updateCurrentViewData(data);
+  updateActiveBlockId = (blockId: string | null) => this.state.updateActiveBlockId(blockId);
+  updateRenderView = (data: any) => this.state.updateRenderView(data);
+  initGantt = () => this.state.initGantt();
+  getBlockById = (blockId: string) => this.state.getBlockById(blockId) as IGanttBlock;
+  updateBlocks = (getDataById: (id: string) => BlockData | undefined | null, type?: EGanttBlockType, index?: number) =>
+    this.state.updateBlocks(getDataById, type, index);
+  getNumberOfDaysFromPosition = (position: number | undefined) => this.state.getNumberOfDaysFromPosition(position);
+  getPositionFromDateOnGantt = (date: string | Date, offSetWidth: number) =>
+    this.state.getPositionFromDateOnGantt(date, offSetWidth);
+  getDateFromPositionOnGantt = (position: number, offsetDays: number) =>
+    this.state.getDateFromPositionOnGantt(position, offsetDays);
+  updateAllBlocksOnChartChangeWhileDragging = (addedWidth: number) =>
+    this.state.updateAllBlocksOnChartChangeWhileDragging(addedWidth);
+  getUpdatedPositionAfterDrag = (id: string, shouldUpdateHalfBlock: boolean, ignoreDependencies?: boolean) =>
+    this.state.getUpdatedPositionAfterDrag(id, shouldUpdateHalfBlock, ignoreDependencies);
+  updateBlockPosition = (id: string, deltaLeft: number, deltaWidth: number, ignoreDependencies?: boolean) =>
+    this.state.updateBlockPosition(id, deltaLeft, deltaWidth, ignoreDependencies);
+  getIsCurrentDependencyDragging = (blockId: string) => this.state.getIsCurrentDependencyDragging(blockId);
 }

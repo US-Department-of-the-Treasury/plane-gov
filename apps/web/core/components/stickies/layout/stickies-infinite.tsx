@@ -1,34 +1,22 @@
 import { useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
 import { STICKIES_PER_PAGE } from "@plane/constants";
 import { ContentWrapper, Loader } from "@plane/ui";
 import { cn } from "@plane/utils";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useSticky } from "@/hooks/use-stickies";
-import { queryKeys } from "@/store/queries/query-keys";
 import { StickiesLayout } from "./stickies-list";
 
 export function StickiesInfinite() {
   const { workspaceSlug } = useParams();
-  // hooks
-  const { fetchWorkspaceStickies, fetchNextWorkspaceStickies, getWorkspaceStickyIds, loader, paginationInfo } =
+  // hooks - useSticky() internally uses useWorkspaceStickies which handles data fetching
+  const { fetchNextWorkspaceStickies, getWorkspaceStickyIds, loader, paginationInfo } =
     useSticky();
   //state
   const [elementRef, setElementRef] = useState<HTMLDivElement | null>(null);
 
   // ref
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useQuery({
-    queryKey: queryKeys.stickies.all(workspaceSlug?.toString() ?? "", "", undefined),
-    queryFn: () => fetchWorkspaceStickies(),
-    enabled: !!workspaceSlug,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
 
   const handleLoadMore = () => {
     if (loader === "pagination") return;

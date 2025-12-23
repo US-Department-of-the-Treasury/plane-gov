@@ -59,6 +59,7 @@ export function SidebarWorkspaceMenu() {
     <Disclosure as="div" defaultOpen>
       <SidebarWorkspaceMenuHeader isWorkspaceMenuOpen={isWorkspaceMenuOpen} toggleWorkspaceMenu={toggleWorkspaceMenu} />
       <Transition
+        as="div"
         show={isWorkspaceMenuOpen}
         enter="transition duration-100 ease-out"
         enterFrom="transform scale-95 opacity-0"

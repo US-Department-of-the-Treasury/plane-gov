@@ -475,7 +475,7 @@ export function EpicAnalyticsSidebar(props: Props) {
                       />
                     </div>
                   </Disclosure.Button>
-                  <Transition show={open}>
+                  <Transition show={open} as="div">
                     <Disclosure.Panel>
                       <div className="mt-2 flex min-h-72 w-full flex-col space-y-3 overflow-y-auto">
                         {isEditingAllowed && epicDetails.link_epic && epicDetails.link_epic.length > 0 ? (

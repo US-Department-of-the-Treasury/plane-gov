@@ -40,13 +40,10 @@ mkdir -p "$STAGING_DIR"
 echo ""
 echo "Staging deployment package..."
 
-# Copy Django application code
+# Copy Django application code (includes .ebextensions, .platform, Procfile)
 cp -r "$PROJECT_ROOT/apps/api/"* "$STAGING_DIR/"
-
-# Copy Elastic Beanstalk configuration
-cp -r "$PROJECT_ROOT/backend/.ebextensions" "$STAGING_DIR/"
-cp -r "$PROJECT_ROOT/backend/.platform" "$STAGING_DIR/"
-cp "$PROJECT_ROOT/backend/Procfile" "$STAGING_DIR/"
+cp -r "$PROJECT_ROOT/apps/api/.ebextensions" "$STAGING_DIR/"
+cp -r "$PROJECT_ROOT/apps/api/.platform" "$STAGING_DIR/" 2>/dev/null || true
 
 # Remove files that shouldn't be deployed
 cd "$STAGING_DIR"

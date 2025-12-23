@@ -1,4 +1,3 @@
-import { action, makeObservable, runInAction } from "mobx";
 // base class
 import type {
   TIssue,
@@ -66,15 +65,6 @@ export class EpicIssues extends BaseIssuesStore implements IEpicIssues {
 
   constructor(_rootStore: IIssueRootStore, issueFilterStore: IEpicIssuesFilter) {
     super(_rootStore, issueFilterStore);
-
-    makeObservable(this, {
-      // action
-      fetchIssues: action,
-      fetchNextIssues: action,
-      fetchIssuesWithExistingPagination: action,
-
-      quickAddIssue: action,
-    });
     // filter store
     this.issueFilterStore = issueFilterStore;
   }
@@ -133,10 +123,8 @@ export class EpicIssues extends BaseIssuesStore implements IEpicIssues {
   ) => {
     try {
       // set loader and clear store
-      runInAction(() => {
-        this.setLoader(loadType);
-        this.clear(!isExistingPaginationOptions); // clear while fetching from server.
-      });
+      this.setLoader(loadType);
+      this.clear(!isExistingPaginationOptions); // clear while fetching from server.
 
       // get params from pagination options
       const params = this.issueFilterStore?.getFilterParams(options, epicId, undefined, undefined, undefined);
@@ -257,10 +245,8 @@ export class EpicIssues extends BaseIssuesStore implements IEpicIssues {
       const response = await this.createIssue(workspaceSlug, projectId, data, epicId);
 
       // remove temp Issue from store list
-      runInAction(() => {
-        this.removeIssueFromList(data.id);
-        this.rootIssueStore.issues.removeIssue(data.id);
-      });
+      this.removeIssueFromList(data.id);
+      this.rootIssueStore.issues.removeIssue(data.id);
 
       const currentSprintId = data.sprint_id !== "" && data.sprint_id === "None" ? undefined : data.sprint_id;
 

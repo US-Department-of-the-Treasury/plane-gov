@@ -1,6 +1,6 @@
-import { isEmpty, set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { isEmpty, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // plane imports
 import type { TSupportedFilterTypeForUpdate } from "@plane/constants";
 import { EIssueFilterType } from "@plane/constants";
@@ -51,9 +51,40 @@ export interface IWorkspaceIssuesFilter extends TBaseFilterStore {
   ) => Partial<Record<TIssueParams, string | boolean>>;
 }
 
+// Zustand Store
+interface WorkspaceIssuesFilterState {
+  filters: { [viewId: string]: IIssueFilters };
+}
+
+interface WorkspaceIssuesFilterActions {
+  setFilters: (viewId: string, filters: IIssueFilters) => void;
+  updateFilterField: (viewId: string, field: string, value: any) => void;
+}
+
+type WorkspaceIssuesFilterStore = WorkspaceIssuesFilterState & WorkspaceIssuesFilterActions;
+
+export const useWorkspaceIssuesFilterStore = create<WorkspaceIssuesFilterStore>()(
+  immer((set) => ({
+    // State
+    filters: {},
+
+    // Actions
+    setFilters: (viewId, filters) => {
+      set((state) => {
+        state.filters[viewId] = filters;
+      });
+    },
+
+    updateFilterField: (viewId, field, value) => {
+      set((state) => {
+        lodashSet(state.filters, [viewId, field], value);
+      });
+    },
+  }))
+);
+
+// Legacy class wrapper for backward compatibility
 export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWorkspaceIssuesFilter {
-  // observables
-  filters: { [viewId: string]: IIssueFilters } = {};
   // root store
   rootIssueStore;
   // services
@@ -61,20 +92,18 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
 
   constructor(_rootStore: IIssueRootStore) {
     super();
-    makeObservable(this, {
-      // observables
-      filters: observable,
-      // computed
-      issueFilters: computed,
-      appliedFilters: computed,
-      // fetch actions
-      fetchFilters: action,
-      updateFilters: action,
-    });
     // root store
     this.rootIssueStore = _rootStore;
     // services
     this.issueFilterService = new WorkspaceService();
+  }
+
+  private get store() {
+    return useWorkspaceIssuesFilterStore.getState();
+  }
+
+  get filters() {
+    return this.store.filters;
   }
 
   getIssueFilters = (viewId: string | undefined) => {
@@ -116,32 +145,30 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
     return this.getAppliedFilters(viewId);
   }
 
-  getFilterParams = computedFn(
-    (
-      options: IssuePaginationOptions,
-      viewId: string,
-      cursor: string | undefined,
-      groupId: string | undefined,
-      subGroupId: string | undefined
-    ) => {
-      let filterParams = this.getAppliedFilters(viewId);
+  getFilterParams = (
+    options: IssuePaginationOptions,
+    viewId: string,
+    cursor: string | undefined,
+    groupId: string | undefined,
+    subGroupId: string | undefined
+  ) => {
+    let filterParams = this.getAppliedFilters(viewId);
 
-      if (!filterParams) {
-        filterParams = {};
-      }
-
-      if (STATIC_VIEW_TYPES.includes(viewId)) {
-        const currentUserId = this.rootIssueStore.currentUserId;
-        const paramForStaticView = this.getFilterConditionBasedOnViews(currentUserId, viewId);
-        if (paramForStaticView) {
-          filterParams = { ...filterParams, ...paramForStaticView };
-        }
-      }
-
-      const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
-      return paginationParams;
+    if (!filterParams) {
+      filterParams = {};
     }
-  );
+
+    if (STATIC_VIEW_TYPES.includes(viewId)) {
+      const currentUserId = this.rootIssueStore.currentUserId;
+      const paramForStaticView = this.getFilterConditionBasedOnViews(currentUserId, viewId);
+      if (paramForStaticView) {
+        filterParams = { ...filterParams, ...paramForStaticView };
+      }
+    }
+
+    const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
+    return paginationParams;
+  };
 
   fetchFilters = async (workspaceSlug: string, viewId: TWorkspaceFilters) => {
     let richFilters: TWorkItemFilterExpression;
@@ -179,12 +206,10 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
       displayFilters.order_by = "-created_at";
     }
 
-    runInAction(() => {
-      set(this.filters, [viewId, "richFilters"], richFilters);
-      set(this.filters, [viewId, "displayFilters"], displayFilters);
-      set(this.filters, [viewId, "displayProperties"], displayProperties);
-      set(this.filters, [viewId, "kanbanFilters"], kanbanFilters);
-    });
+    this.store.updateFilterField(viewId, "richFilters", richFilters);
+    this.store.updateFilterField(viewId, "displayFilters", displayFilters);
+    this.store.updateFilterField(viewId, "displayProperties", displayProperties);
+    this.store.updateFilterField(viewId, "kanbanFilters", kanbanFilters);
   };
 
   /**
@@ -194,9 +219,7 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
    */
   updateFilterExpression: IWorkspaceIssuesFilter["updateFilterExpression"] = async (workspaceSlug, viewId, filters) => {
     try {
-      runInAction(() => {
-        set(this.filters, [viewId, "richFilters"], filters);
-      });
+      this.store.updateFilterField(viewId, "richFilters", filters);
 
       this.rootIssueStore.workspaceIssues.fetchIssuesWithExistingPagination(workspaceSlug, viewId, "mutation");
     } catch (error) {
@@ -242,14 +265,12 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
             updatedDisplayFilters.group_by = "state";
           }
 
-          runInAction(() => {
-            Object.keys(updatedDisplayFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [viewId, "displayFilters", _key],
-                updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
-              );
-            });
+          Object.keys(updatedDisplayFilters).forEach((_key) => {
+            this.store.updateFilterField(
+              viewId,
+              `displayFilters.${_key}`,
+              updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
+            );
           });
 
           this.rootIssueStore.workspaceIssues.fetchIssuesWithExistingPagination(workspaceSlug, viewId, "mutation");
@@ -264,19 +285,17 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
           const updatedDisplayProperties = filters as IIssueDisplayProperties;
           _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
 
-          runInAction(() => {
-            Object.keys(updatedDisplayProperties).forEach((_key) => {
-              set(
-                this.filters,
-                [viewId, "displayProperties", _key],
-                updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
-              );
-            });
-            if (["all-issues", "assigned", "created", "subscribed"].includes(viewId))
-              this.handleIssuesLocalFilters.set(EIssuesStoreType.GLOBAL, type, workspaceSlug, undefined, viewId, {
-                display_properties: _filters.displayProperties,
-              });
+          Object.keys(updatedDisplayProperties).forEach((_key) => {
+            this.store.updateFilterField(
+              viewId,
+              `displayProperties.${_key}`,
+              updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
+            );
           });
+          if (["all-issues", "assigned", "created", "subscribed"].includes(viewId))
+            this.handleIssuesLocalFilters.set(EIssuesStoreType.GLOBAL, type, workspaceSlug, undefined, viewId, {
+              display_properties: _filters.displayProperties,
+            });
           break;
         }
 
@@ -290,14 +309,12 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
               kanban_filters: _filters.kanbanFilters,
             });
 
-          runInAction(() => {
-            Object.keys(updatedKanbanFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [viewId, "kanbanFilters", _key],
-                updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
-              );
-            });
+          Object.keys(updatedKanbanFilters).forEach((_key) => {
+            this.store.updateFilterField(
+              viewId,
+              `kanbanFilters.${_key}`,
+              updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
+            );
           });
 
           break;

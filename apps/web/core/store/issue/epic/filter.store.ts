@@ -1,7 +1,7 @@
-import { isEmpty, set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { isEmpty, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // base class
-import { computedFn } from "mobx-utils";
 import type { TSupportedFilterTypeForUpdate } from "@plane/constants";
 import { EIssueFilterType } from "@plane/constants";
 import type {
@@ -24,6 +24,83 @@ import { IssueFilterHelperStore } from "../helpers/issue-filter-helper.store";
 import type { IIssueRootStore } from "../root.store";
 // constants
 // services
+
+// Zustand Store
+interface EpicIssuesFilterState {
+  filters: { [epicId: string]: IIssueFilters };
+}
+
+interface EpicIssuesFilterActions {
+  setFilters: (epicId: string, filters: Partial<IIssueFilters>) => void;
+  setRichFilters: (epicId: string, richFilters: TWorkItemFilterExpression) => void;
+  setDisplayFilters: (epicId: string, displayFilters: Partial<IIssueDisplayFilterOptions>) => void;
+  setDisplayProperties: (epicId: string, displayProperties: Partial<IIssueDisplayProperties>) => void;
+  setKanbanFilters: (epicId: string, kanbanFilters: Partial<TIssueKanbanFilters>) => void;
+}
+
+type EpicIssuesFilterStoreType = EpicIssuesFilterState & EpicIssuesFilterActions;
+
+export const useEpicIssuesFilterStore = create<EpicIssuesFilterStoreType>()(
+  immer((set) => ({
+    // State
+    filters: {},
+
+    // Actions
+    setFilters: (epicId, filters) => {
+      set((state) => {
+        if (!state.filters[epicId]) {
+          state.filters[epicId] = {} as IIssueFilters;
+        }
+        Object.assign(state.filters[epicId], filters);
+      });
+    },
+
+    setRichFilters: (epicId, richFilters) => {
+      set((state) => {
+        if (!state.filters[epicId]) {
+          state.filters[epicId] = {} as IIssueFilters;
+        }
+        state.filters[epicId].richFilters = richFilters;
+      });
+    },
+
+    setDisplayFilters: (epicId, displayFilters) => {
+      set((state) => {
+        if (!state.filters[epicId]) {
+          state.filters[epicId] = {} as IIssueFilters;
+        }
+        if (!state.filters[epicId].displayFilters) {
+          state.filters[epicId].displayFilters = {} as IIssueDisplayFilterOptions;
+        }
+        Object.assign(state.filters[epicId].displayFilters!, displayFilters);
+      });
+    },
+
+    setDisplayProperties: (epicId, displayProperties) => {
+      set((state) => {
+        if (!state.filters[epicId]) {
+          state.filters[epicId] = {} as IIssueFilters;
+        }
+        if (!state.filters[epicId].displayProperties) {
+          state.filters[epicId].displayProperties = {} as IIssueDisplayProperties;
+        }
+        Object.assign(state.filters[epicId].displayProperties!, displayProperties);
+      });
+    },
+
+    setKanbanFilters: (epicId, kanbanFilters) => {
+      set((state) => {
+        if (!state.filters[epicId]) {
+          state.filters[epicId] = {} as IIssueFilters;
+        }
+        if (!state.filters[epicId].kanbanFilters) {
+          state.filters[epicId].kanbanFilters = {} as TIssueKanbanFilters;
+        }
+        Object.assign(state.filters[epicId].kanbanFilters!, kanbanFilters);
+      });
+    },
+  }))
+);
 
 export interface IEpicIssuesFilter extends IBaseIssueFilterStore {
   //helper actions
@@ -52,9 +129,8 @@ export interface IEpicIssuesFilter extends IBaseIssueFilterStore {
   ) => Promise<void>;
 }
 
+// Legacy class wrapper for backward compatibility
 export class EpicIssuesFilter extends IssueFilterHelperStore implements IEpicIssuesFilter {
-  // observables
-  filters: { [epicId: string]: IIssueFilters } = {};
   // root store
   rootIssueStore: IIssueRootStore;
   // services
@@ -62,20 +138,18 @@ export class EpicIssuesFilter extends IssueFilterHelperStore implements IEpicIss
 
   constructor(_rootStore: IIssueRootStore) {
     super();
-    makeObservable(this, {
-      // observables
-      filters: observable,
-      // computed
-      issueFilters: computed,
-      appliedFilters: computed,
-      // actions
-      fetchFilters: action,
-      updateFilters: action,
-    });
     // root store
     this.rootIssueStore = _rootStore;
     // services
     this.issueFilterService = new IssueFiltersService();
+  }
+
+  private get store() {
+    return useEpicIssuesFilterStore.getState();
+  }
+
+  get filters() {
+    return this.store.filters;
   }
 
   get issueFilters() {
@@ -119,25 +193,23 @@ export class EpicIssuesFilter extends IssueFilterHelperStore implements IEpicIss
     return filteredRouteParams;
   }
 
-  getFilterParams = computedFn(
-    (
-      options: IssuePaginationOptions,
-      epicId: string,
-      cursor: string | undefined,
-      groupId: string | undefined,
-      subGroupId: string | undefined
-    ) => {
-      let filterParams = this.getAppliedFilters(epicId);
+  getFilterParams = (
+    options: IssuePaginationOptions,
+    epicId: string,
+    cursor: string | undefined,
+    groupId: string | undefined,
+    subGroupId: string | undefined
+  ) => {
+    let filterParams = this.getAppliedFilters(epicId);
 
-      if (!filterParams) {
-        filterParams = {};
-      }
-      filterParams["epic"] = epicId;
-
-      const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
-      return paginationParams;
+    if (!filterParams) {
+      filterParams = {};
     }
-  );
+    filterParams["epic"] = epicId;
+
+    const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
+    return paginationParams;
+  };
 
   fetchFilters = async (workspaceSlug: string, projectId: string, epicId: string) => {
     const _filters = await this.issueFilterService.fetchEpicIssueFilters(workspaceSlug, projectId, epicId);
@@ -163,11 +235,11 @@ export class EpicIssuesFilter extends IssueFilterHelperStore implements IEpicIss
       kanbanFilters.sub_group_by = _kanbanFilters?.kanban_filters?.sub_group_by || [];
     }
 
-    runInAction(() => {
-      set(this.filters, [epicId, "richFilters"], richFilters);
-      set(this.filters, [epicId, "displayFilters"], displayFilters);
-      set(this.filters, [epicId, "displayProperties"], displayProperties);
-      set(this.filters, [epicId, "kanbanFilters"], kanbanFilters);
+    this.store.setFilters(epicId, {
+      richFilters,
+      displayFilters,
+      displayProperties,
+      kanbanFilters,
     });
   };
 
@@ -183,9 +255,7 @@ export class EpicIssuesFilter extends IssueFilterHelperStore implements IEpicIss
     filters
   ) => {
     try {
-      runInAction(() => {
-        set(this.filters, [epicId, "richFilters"], filters);
-      });
+      this.store.setRichFilters(epicId, filters);
 
       this.rootIssueStore.epicIssues.fetchIssuesWithExistingPagination(workspaceSlug, projectId, "mutation", epicId);
       await this.issueFilterService.patchEpicIssueFilters(workspaceSlug, projectId, epicId, {
@@ -232,15 +302,7 @@ export class EpicIssuesFilter extends IssueFilterHelperStore implements IEpicIss
             updatedDisplayFilters.group_by = "state";
           }
 
-          runInAction(() => {
-            Object.keys(updatedDisplayFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [epicId, "displayFilters", _key],
-                updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
-              );
-            });
-          });
+          this.store.setDisplayFilters(epicId, updatedDisplayFilters);
 
           if (this.getShouldClearIssues(updatedDisplayFilters)) {
             this.rootIssueStore.epicIssues.clear(true); // clear issues for local store when some filters like layout changes
@@ -265,15 +327,7 @@ export class EpicIssuesFilter extends IssueFilterHelperStore implements IEpicIss
           const updatedDisplayProperties = filters as IIssueDisplayProperties;
           _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
 
-          runInAction(() => {
-            Object.keys(updatedDisplayProperties).forEach((_key) => {
-              set(
-                this.filters,
-                [epicId, "displayProperties", _key],
-                updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
-              );
-            });
-          });
+          this.store.setDisplayProperties(epicId, updatedDisplayProperties);
 
           await this.issueFilterService.patchEpicIssueFilters(workspaceSlug, projectId, epicId, {
             display_properties: _filters.displayProperties,
@@ -291,15 +345,7 @@ export class EpicIssuesFilter extends IssueFilterHelperStore implements IEpicIss
               kanban_filters: _filters.kanbanFilters,
             });
 
-          runInAction(() => {
-            Object.keys(updatedKanbanFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [epicId, "kanbanFilters", _key],
-                updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
-              );
-            });
-          });
+          this.store.setKanbanFilters(epicId, updatedKanbanFilters);
 
           break;
         }

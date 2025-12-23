@@ -1,4 +1,3 @@
-import { computedFn } from "mobx-utils";
 import type { EUserProjectRoles } from "@plane/types";
 // plane imports
 // plane web imports
@@ -21,9 +20,8 @@ export class ProjectMemberStore extends BaseProjectMemberStore implements IProje
    * @param { string } projectId
    * @returns { EUserProjectRoles | undefined }
    */
-  getUserProjectRole = computedFn((userId: string, projectId: string): EUserProjectRoles | undefined =>
-    this.getRoleFromProjectMembership(userId, projectId)
-  );
+  getUserProjectRole = (userId: string, projectId: string): EUserProjectRoles | undefined =>
+    this.getRoleFromProjectMembership(userId, projectId);
 
   /**
    * @description Returns the role from the project membership

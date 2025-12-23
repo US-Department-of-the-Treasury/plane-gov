@@ -1,7 +1,8 @@
 /* eslint-disable no-useless-catch */
 
-import { set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // types
 import type { IEstimate, IEstimatePoint as IEstimatePointType } from "@plane/types";
 // plane web services
@@ -29,74 +30,176 @@ export interface IEstimatePoint extends IEstimatePointType {
   ) => Promise<IEstimatePointType | undefined>;
 }
 
+// Zustand Store
+interface EstimatePointState {
+  id: string | undefined;
+  key: number | undefined;
+  value: string | undefined;
+  description: string | undefined;
+  workspace: string | undefined;
+  project: string | undefined;
+  estimate: string | undefined;
+  created_at: Date | undefined;
+  updated_at: Date | undefined;
+  created_by: string | undefined;
+  updated_by: string | undefined;
+  error: TErrorCodes | undefined;
+}
+
+interface EstimatePointActions {
+  updateEstimatePointObject: (estimatePoint: Partial<IEstimatePointType>) => void;
+  updateEstimatePoint: (
+    workspaceSlug: string,
+    projectId: string,
+    payload: Partial<IEstimatePointType>,
+    projectEstimateId: string
+  ) => Promise<IEstimatePointType | undefined>;
+}
+
+type EstimatePointStoreType = EstimatePointState & EstimatePointActions;
+
+const createEstimatePointStore = (
+  data: IEstimatePointType
+) => {
+  return create<EstimatePointStoreType>()(
+    immer((set, get) => ({
+      // State
+      id: data.id,
+      key: data.key,
+      value: data.value,
+      description: data.description,
+      workspace: data.workspace,
+      project: data.project,
+      estimate: data.estimate,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+      created_by: data.created_by,
+      updated_by: data.updated_by,
+      error: undefined,
+
+      // Actions
+      updateEstimatePointObject: (estimatePoint: Partial<IEstimatePointType>) => {
+        set((draft) => {
+          Object.keys(estimatePoint).forEach((key) => {
+            const estimatePointKey = key as keyof IEstimatePointType;
+            lodashSet(draft, estimatePointKey, estimatePoint[estimatePointKey]);
+          });
+        });
+      },
+
+      updateEstimatePoint: async (
+        workspaceSlug: string,
+        projectId: string,
+        payload: Partial<IEstimatePointType>,
+        projectEstimateId: string
+      ): Promise<IEstimatePointType | undefined> => {
+        try {
+          const state = get();
+          if (!projectEstimateId || !state.id || !payload) return undefined;
+
+          const estimatePoint = await estimateService.updateEstimatePoint(
+            workspaceSlug,
+            projectId,
+            projectEstimateId,
+            state.id,
+            payload
+          );
+          if (estimatePoint) {
+            set((draft) => {
+              Object.keys(payload).forEach((key) => {
+                const estimatePointKey = key as keyof IEstimatePointType;
+                lodashSet(draft, estimatePointKey, estimatePoint[estimatePointKey]);
+              });
+            });
+          }
+
+          return estimatePoint;
+        } catch (error) {
+          throw error;
+        }
+      },
+    }))
+  );
+};
+
+// Legacy class wrapper for backward compatibility
 export class EstimatePoint implements IEstimatePoint {
-  // data model observables
-  id: string | undefined = undefined;
-  key: number | undefined = undefined;
-  value: string | undefined = undefined;
-  description: string | undefined = undefined;
-  workspace: string | undefined = undefined;
-  project: string | undefined = undefined;
-  estimate: string | undefined = undefined;
-  created_at: Date | undefined = undefined;
-  updated_at: Date | undefined = undefined;
-  created_by: string | undefined = undefined;
-  updated_by: string | undefined = undefined;
-  // observables
-  error: TErrorCodes | undefined = undefined;
+  private useStore: ReturnType<typeof createEstimatePointStore>;
 
   constructor(
     private store: CoreRootStore,
     private projectEstimate: IEstimate,
     private data: IEstimatePointType
   ) {
-    makeObservable(this, {
-      // data model observables
-      id: observable.ref,
-      key: observable.ref,
-      value: observable.ref,
-      description: observable.ref,
-      workspace: observable.ref,
-      project: observable.ref,
-      estimate: observable.ref,
-      created_at: observable.ref,
-      updated_at: observable.ref,
-      created_by: observable.ref,
-      updated_by: observable.ref,
-      // observables
-      error: observable.ref,
-      // computed
-      asJson: computed,
-      // actions
-      updateEstimatePoint: action,
-    });
-    this.id = this.data.id;
-    this.key = this.data.key;
-    this.value = this.data.value;
-    this.description = this.data.description;
-    this.workspace = this.data.workspace;
-    this.project = this.data.project;
-    this.estimate = this.data.estimate;
-    this.created_at = this.data.created_at;
-    this.updated_at = this.data.updated_at;
-    this.created_by = this.data.created_by;
-    this.updated_by = this.data.updated_by;
+    this.useStore = createEstimatePointStore(data);
+  }
+
+  private get state() {
+    return this.useStore.getState();
+  }
+
+  get id() {
+    return this.state.id;
+  }
+
+  get key() {
+    return this.state.key;
+  }
+
+  get value() {
+    return this.state.value;
+  }
+
+  get description() {
+    return this.state.description;
+  }
+
+  get workspace() {
+    return this.state.workspace;
+  }
+
+  get project() {
+    return this.state.project;
+  }
+
+  get estimate() {
+    return this.state.estimate;
+  }
+
+  get created_at() {
+    return this.state.created_at;
+  }
+
+  get updated_at() {
+    return this.state.updated_at;
+  }
+
+  get created_by() {
+    return this.state.created_by;
+  }
+
+  get updated_by() {
+    return this.state.updated_by;
+  }
+
+  get error() {
+    return this.state.error;
   }
 
   // computed
   get asJson() {
     return {
-      id: this.id,
-      key: this.key,
-      value: this.value,
-      description: this.description,
-      workspace: this.workspace,
-      project: this.project,
-      estimate: this.estimate,
-      created_at: this.created_at,
-      updated_at: this.updated_at,
-      created_by: this.created_by,
-      updated_by: this.updated_by,
+      id: this.state.id,
+      key: this.state.key,
+      value: this.state.value,
+      description: this.state.description,
+      workspace: this.state.workspace,
+      project: this.state.project,
+      estimate: this.state.estimate,
+      created_at: this.state.created_at,
+      updated_at: this.state.updated_at,
+      created_by: this.state.created_by,
+      updated_by: this.state.updated_by,
     };
   }
 
@@ -106,12 +209,8 @@ export class EstimatePoint implements IEstimatePoint {
    * @param { Partial<IEstimatePointType> } estimatePoint
    * @returns { void }
    */
-  updateEstimatePointObject = (estimatePoint: Partial<IEstimatePointType>) => {
-    Object.keys(estimatePoint).map((key) => {
-      const estimatePointKey = key as keyof IEstimatePointType;
-      set(this, estimatePointKey, estimatePoint[estimatePointKey]);
-    });
-  };
+  updateEstimatePointObject = (estimatePoint: Partial<IEstimatePointType>) =>
+    this.state.updateEstimatePointObject(estimatePoint);
 
   // actions
   /**
@@ -119,33 +218,10 @@ export class EstimatePoint implements IEstimatePoint {
    * @param { Partial<IEstimatePointType> } payload
    * @returns { IEstimatePointType | undefined }
    */
-  updateEstimatePoint = async (
+  updateEstimatePoint = (
     workspaceSlug: string,
     projectId: string,
     payload: Partial<IEstimatePointType>
-  ): Promise<IEstimatePointType | undefined> => {
-    try {
-      if (!this.projectEstimate?.id || !this.id || !payload) return undefined;
-
-      const estimatePoint = await estimateService.updateEstimatePoint(
-        workspaceSlug,
-        projectId,
-        this.projectEstimate?.id,
-        this.id,
-        payload
-      );
-      if (estimatePoint) {
-        runInAction(() => {
-          Object.keys(payload).map((key) => {
-            const estimatePointKey = key as keyof IEstimatePointType;
-            set(this, estimatePointKey, estimatePoint[estimatePointKey]);
-          });
-        });
-      }
-
-      return estimatePoint;
-    } catch (error) {
-      throw error;
-    }
-  };
+  ): Promise<IEstimatePointType | undefined> =>
+    this.state.updateEstimatePoint(workspaceSlug, projectId, payload, this.projectEstimate?.id || "");
 }

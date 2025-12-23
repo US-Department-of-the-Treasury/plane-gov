@@ -1,5 +1,3 @@
-import { computed, makeObservable } from "mobx";
-import { computedFn } from "mobx-utils";
 // constants
 import { EPageAccess, EUserPermissions } from "@plane/constants";
 import type { TPage } from "@plane/types";
@@ -54,26 +52,14 @@ export class ProjectPage extends BasePage implements TProjectPage {
         return await projectPageService.duplicate(workspaceSlug, projectId, page.id);
       },
     });
-    makeObservable(this, {
-      // computed
-      canCurrentUserAccessPage: computed,
-      canCurrentUserEditPage: computed,
-      canCurrentUserDuplicatePage: computed,
-      canCurrentUserLockPage: computed,
-      canCurrentUserChangeAccess: computed,
-      canCurrentUserArchivePage: computed,
-      canCurrentUserDeletePage: computed,
-      canCurrentUserFavoritePage: computed,
-      canCurrentUserMovePage: computed,
-      isContentEditable: computed,
-    });
   }
 
-  private getHighestRoleAcrossProjects = computedFn((): EUserPermissions | undefined => {
+  private getHighestRoleAcrossProjects = (): EUserPermissions | undefined => {
     const { workspaceSlug } = this.rootStore.router;
-    if (!workspaceSlug || !this.project_ids?.length) return;
+    const projectIds = this.project_ids;
+    if (!workspaceSlug || !projectIds?.length) return;
     let highestRole: EUserPermissions | undefined = undefined;
-    this.project_ids.map((projectId) => {
+    projectIds.map((projectId) => {
       const currentUserProjectRole = this.rootStore.user.permission.getProjectRoleByWorkspaceSlugAndProjectId(
         workspaceSlug?.toString() || "",
         projectId?.toString() || ""
@@ -84,7 +70,7 @@ export class ProjectPage extends BasePage implements TProjectPage {
       }
     });
     return highestRole;
-  });
+  };
 
   /**
    * @description returns true if the current logged in user can access the page
@@ -177,8 +163,10 @@ export class ProjectPage extends BasePage implements TProjectPage {
     );
   }
 
-  getRedirectionLink = computedFn(() => {
+  getRedirectionLink = () => {
     const { workspaceSlug } = this.rootStore.router;
-    return `/${workspaceSlug}/projects/${this.project_ids?.[0]}/pages/${this.id}`;
-  });
+    const projectIds = this.project_ids;
+    const pageId = this.id;
+    return `/${workspaceSlug}/projects/${projectIds?.[0]}/pages/${pageId}`;
+  };
 }

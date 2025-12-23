@@ -1,13 +1,10 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
 // plane utils
 import { useTranslation } from "@plane/i18n";
 import { cn } from "@plane/utils";
 // hooks
 import { useSticky } from "@/hooks/use-stickies";
-// queries
-import { queryKeys } from "@/store/queries/query-keys";
 // components
 import { ContentOverflowWrapper } from "../../core/content-overflow-HOC";
 import { StickiesLayout } from "./stickies-list";
@@ -20,19 +17,9 @@ export function StickiesTruncated(props: StickiesTruncatedProps) {
   const { handleClose = () => {} } = props;
   // navigation
   const { workspaceSlug } = useParams();
-  // store hooks
-  const { fetchWorkspaceStickies } = useSticky();
+  // store hooks - useSticky() internally uses useWorkspaceStickies which handles data fetching
+  useSticky();
   const { t } = useTranslation();
-
-  useQuery({
-    queryKey: queryKeys.stickies.all(workspaceSlug?.toString() ?? "", "", undefined),
-    queryFn: () => fetchWorkspaceStickies(),
-    enabled: !!workspaceSlug,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
 
   return (
     <ContentOverflowWrapper

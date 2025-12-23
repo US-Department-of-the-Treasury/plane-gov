@@ -1,14 +1,15 @@
-import { forwardRef } from "react";
+import type React from "react";
 import { range } from "lodash-es";
 // plane ui
 import { ContentWrapper } from "@plane/ui";
 // plane utils
 import { cn } from "@plane/utils";
 
-export const KanbanIssueBlockLoader = forwardRef(function KanbanIssueBlockLoader(
-  { cardHeight = 100, shouldAnimate = true }: { cardHeight?: number; shouldAnimate?: boolean },
-  ref: React.ForwardedRef<HTMLSpanElement>
-) {
+export function KanbanIssueBlockLoader({
+  cardHeight = 100,
+  shouldAnimate = true,
+  ref,
+}: { cardHeight?: number; shouldAnimate?: boolean; ref?: React.Ref<HTMLSpanElement> }) {
   return (
     <span
       ref={ref}
@@ -16,7 +17,7 @@ export const KanbanIssueBlockLoader = forwardRef(function KanbanIssueBlockLoader
       style={{ height: `${cardHeight}px` }}
     />
   );
-});
+}
 
 export function KanbanColumnLoader({
   cardsInColumn = 3,
@@ -45,8 +46,6 @@ export function KanbanColumnLoader({
     </div>
   );
 }
-
-KanbanIssueBlockLoader.displayName = "KanbanIssueBlockLoader";
 
 export function KanbanLayoutLoader({ cardsInEachColumn = [2, 3, 2, 4, 3] }: { cardsInEachColumn?: number[] }) {
   return (

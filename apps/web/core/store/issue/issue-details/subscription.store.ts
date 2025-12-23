@@ -1,104 +1,138 @@
-import { set } from "lodash-es";
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // services
 import type { EIssueServiceType } from "@plane/types";
 import { IssueService } from "@/services/issue/issue.service";
-// types
-import type { IIssueDetail } from "./root.store";
-export interface IIssueSubscriptionStoreActions {
-  addSubscription: (issueId: string, isSubscribed: boolean | undefined | null) => void;
-  fetchSubscriptions: (workspaceSlug: string, projectId: string, issueId: string) => Promise<boolean>;
-  createSubscription: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>;
-  removeSubscription: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>;
-}
 
-export interface IIssueSubscriptionStore extends IIssueSubscriptionStoreActions {
-  // observables
-  subscriptionMap: Record<string, Record<string, boolean>>; // Record defines subscriptionId as key and link as value
+export interface IIssueSubscriptionStore {
+  // state
+  subscriptionMap: Record<string, Record<string, boolean>>; // issueId -> userId -> subscribed
   // helper methods
-  getSubscriptionByIssueId: (issueId: string) => boolean | undefined;
+  getSubscriptionByIssueId: (issueId: string, currentUserId: string | undefined) => boolean | undefined;
+  // actions
+  addSubscription: (issueId: string, currentUserId: string, isSubscribed: boolean | undefined | null) => void;
+  fetchSubscriptions: (
+    workspaceSlug: string,
+    projectId: string,
+    issueId: string,
+    currentUserId: string
+  ) => Promise<boolean>;
+  createSubscription: (
+    workspaceSlug: string,
+    projectId: string,
+    issueId: string,
+    currentUserId: string
+  ) => Promise<void>;
+  removeSubscription: (
+    workspaceSlug: string,
+    projectId: string,
+    issueId: string,
+    currentUserId: string
+  ) => Promise<void>;
 }
 
-export class IssueSubscriptionStore implements IIssueSubscriptionStore {
-  // observables
-  subscriptionMap: Record<string, Record<string, boolean>> = {};
-  // root store
-  rootIssueDetail: IIssueDetail;
-  // services
-  issueService;
+// Store factory for different service types
+const subscriptionServiceMap = new Map<EIssueServiceType, IssueService>();
 
-  constructor(rootStore: IIssueDetail, serviceType: EIssueServiceType) {
-    makeObservable(this, {
-      // observables
-      subscriptionMap: observable,
-      // actions
-      addSubscription: action.bound,
-      fetchSubscriptions: action,
-      createSubscription: action,
-      removeSubscription: action,
-    });
-    // root store
-    this.rootIssueDetail = rootStore;
-    // services
-    this.issueService = new IssueService(serviceType);
+const getSubscriptionService = (serviceType: EIssueServiceType): IssueService => {
+  if (!subscriptionServiceMap.has(serviceType)) {
+    subscriptionServiceMap.set(serviceType, new IssueService(serviceType));
   }
+  return subscriptionServiceMap.get(serviceType)!;
+};
 
-  // helper methods
-  getSubscriptionByIssueId = (issueId: string) => {
-    if (!issueId) return undefined;
-    const currentUserId = this.rootIssueDetail.rootIssueStore.currentUserId;
-    if (!currentUserId) return undefined;
-    return this.subscriptionMap[issueId]?.[currentUserId] ?? undefined;
-  };
+export const useIssueSubscriptionStore = create<IIssueSubscriptionStore>()(
+  immer((set, get) => ({
+    // state
+    subscriptionMap: {},
 
-  addSubscription = (issueId: string, isSubscribed: boolean | undefined | null) => {
-    const currentUserId = this.rootIssueDetail.rootIssueStore.currentUserId;
-    if (!currentUserId) throw new Error("user id not available");
+    // helper methods
+    getSubscriptionByIssueId: (issueId: string, currentUserId: string | undefined) => {
+      if (!issueId || !currentUserId) return undefined;
+      return get().subscriptionMap[issueId]?.[currentUserId] ?? undefined;
+    },
 
-    runInAction(() => {
-      set(this.subscriptionMap, [issueId, currentUserId], isSubscribed ?? false);
-    });
-  };
-
-  fetchSubscriptions = async (workspaceSlug: string, projectId: string, issueId: string) => {
-    const subscription = await this.issueService.getIssueNotificationSubscriptionStatus(
-      workspaceSlug,
-      projectId,
-      issueId
-    );
-    this.addSubscription(issueId, subscription?.subscribed);
-    return subscription?.subscribed;
-  };
-
-  createSubscription = async (workspaceSlug: string, projectId: string, issueId: string) => {
-    try {
-      const currentUserId = this.rootIssueDetail.rootIssueStore.currentUserId;
+    // actions
+    addSubscription: (issueId: string, currentUserId: string, isSubscribed: boolean | undefined | null) => {
       if (!currentUserId) throw new Error("user id not available");
 
-      runInAction(() => {
-        set(this.subscriptionMap, [issueId, currentUserId], true);
+      set((state) => {
+        if (!state.subscriptionMap[issueId]) {
+          state.subscriptionMap[issueId] = {};
+        }
+        state.subscriptionMap[issueId][currentUserId] = isSubscribed ?? false;
       });
+    },
 
-      await this.issueService.subscribeToIssueNotifications(workspaceSlug, projectId, issueId);
-    } catch (error) {
-      this.fetchSubscriptions(workspaceSlug, projectId, issueId);
-      throw error;
-    }
-  };
+    fetchSubscriptions: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      currentUserId: string
+    ) => {
+      const service = getSubscriptionService("WORKSPACE");
+      const subscription = await service.getIssueNotificationSubscriptionStatus(
+        workspaceSlug,
+        projectId,
+        issueId
+      );
 
-  removeSubscription = async (workspaceSlug: string, projectId: string, issueId: string) => {
-    try {
-      const currentUserId = this.rootIssueDetail.rootIssueStore.currentUserId;
-      if (!currentUserId) throw new Error("user id not available");
+      get().addSubscription(issueId, currentUserId, subscription?.subscribed);
+      return subscription?.subscribed;
+    },
 
-      runInAction(() => {
-        set(this.subscriptionMap, [issueId, currentUserId], false);
-      });
+    createSubscription: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      currentUserId: string
+    ) => {
+      const service = getSubscriptionService("WORKSPACE");
 
-      await this.issueService.unsubscribeFromIssueNotifications(workspaceSlug, projectId, issueId);
-    } catch (error) {
-      this.fetchSubscriptions(workspaceSlug, projectId, issueId);
-      throw error;
-    }
-  };
-}
+      try {
+        if (!currentUserId) throw new Error("user id not available");
+
+        // Optimistic update
+        set((state) => {
+          if (!state.subscriptionMap[issueId]) {
+            state.subscriptionMap[issueId] = {};
+          }
+          state.subscriptionMap[issueId][currentUserId] = true;
+        });
+
+        await service.subscribeToIssueNotifications(workspaceSlug, projectId, issueId);
+      } catch (error) {
+        // Refetch on error
+        await get().fetchSubscriptions(workspaceSlug, projectId, issueId, currentUserId);
+        throw error;
+      }
+    },
+
+    removeSubscription: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      currentUserId: string
+    ) => {
+      const service = getSubscriptionService("WORKSPACE");
+
+      try {
+        if (!currentUserId) throw new Error("user id not available");
+
+        // Optimistic update
+        set((state) => {
+          if (!state.subscriptionMap[issueId]) {
+            state.subscriptionMap[issueId] = {};
+          }
+          state.subscriptionMap[issueId][currentUserId] = false;
+        });
+
+        await service.unsubscribeFromIssueNotifications(workspaceSlug, projectId, issueId);
+      } catch (error) {
+        // Refetch on error
+        await get().fetchSubscriptions(workspaceSlug, projectId, issueId, currentUserId);
+        throw error;
+      }
+    },
+  }))
+);

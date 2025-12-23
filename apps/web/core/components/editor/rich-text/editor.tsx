@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import type React from "react";
 // plane imports
 import { RichTextEditorWithRef } from "@plane/editor";
 import type { EditorRefApi, IRichTextEditorProps, TFileHandler } from "@plane/editor";
@@ -33,9 +33,8 @@ type RichTextEditorWrapperProps = MakeOptional<
       }
   );
 
-export const RichTextEditor = forwardRef(function RichTextEditor(
-  props: RichTextEditorWrapperProps,
-  ref: React.ForwardedRef<EditorRefApi>
+export function RichTextEditor(
+  props: RichTextEditorWrapperProps & { ref?: React.Ref<EditorRefApi> }
 ) {
   const {
     containerClassName,
@@ -44,6 +43,7 @@ export const RichTextEditor = forwardRef(function RichTextEditor(
     workspaceId,
     projectId,
     disabledExtensions: additionalDisabledExtensions = [],
+    ref,
     ...rest
   } = props;
   // store hooks
@@ -95,6 +95,4 @@ export const RichTextEditor = forwardRef(function RichTextEditor(
       containerClassName={cn("relative pl-3 pb-3", containerClassName)}
     />
   );
-});
-
-RichTextEditor.displayName = "RichTextEditor";
+}

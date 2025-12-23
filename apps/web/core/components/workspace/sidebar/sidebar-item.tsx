@@ -1,4 +1,5 @@
-import { memo, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { memo } from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 // plane imports

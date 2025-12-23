@@ -69,6 +69,32 @@ const getInitialState = (): ThemeState => ({
   projectOverviewSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.projectOverviewSidebar, false),
 });
 
+// Legacy interface for backward compatibility with MobX store
+export interface IThemeStore {
+  isAnySidebarDropdownOpen: boolean | undefined;
+  sidebarCollapsed: boolean | undefined;
+  sidebarPeek: boolean | undefined;
+  isExtendedSidebarOpened: boolean | undefined;
+  isExtendedProjectSidebarOpened: boolean | undefined;
+  profileSidebarCollapsed: boolean | undefined;
+  workspaceAnalyticsSidebarCollapsed: boolean | undefined;
+  issueDetailSidebarCollapsed: boolean | undefined;
+  epicDetailSidebarCollapsed: boolean | undefined;
+  initiativesSidebarCollapsed: boolean | undefined;
+  projectOverviewSidebarCollapsed: boolean | undefined;
+  toggleAnySidebarDropdown: (open?: boolean) => void;
+  toggleSidebar: (collapsed?: boolean) => void;
+  toggleSidebarPeek: (peek?: boolean) => void;
+  toggleExtendedSidebar: (collapsed?: boolean) => void;
+  toggleExtendedProjectSidebar: (collapsed?: boolean) => void;
+  toggleProfileSidebar: (collapsed?: boolean) => void;
+  toggleWorkspaceAnalyticsSidebar: (collapsed?: boolean) => void;
+  toggleIssueDetailSidebar: (collapsed?: boolean) => void;
+  toggleEpicDetailSidebar: (collapsed?: boolean) => void;
+  toggleInitiativesSidebar: (collapsed?: boolean) => void;
+  toggleProjectOverviewSidebar: (collapsed?: boolean) => void;
+}
+
 export const useThemeStore = create<ThemeStore>()(
   persist(
     (set) => ({
@@ -166,3 +192,56 @@ export const useThemeStore = create<ThemeStore>()(
     }
   )
 );
+
+/**
+ * Legacy class wrapper for backward compatibility with MobX patterns.
+ * Used by root.store.ts to maintain API compatibility during migration.
+ * @deprecated Use useThemeStore hook directly in React components
+ */
+export class ThemeStoreLegacy implements IThemeStore {
+  get isAnySidebarDropdownOpen() {
+    return useThemeStore.getState().isAnySidebarDropdownOpen;
+  }
+  get sidebarCollapsed() {
+    return useThemeStore.getState().sidebarCollapsed;
+  }
+  get sidebarPeek() {
+    return useThemeStore.getState().sidebarPeek;
+  }
+  get isExtendedSidebarOpened() {
+    return useThemeStore.getState().isExtendedSidebarOpened;
+  }
+  get isExtendedProjectSidebarOpened() {
+    return useThemeStore.getState().isExtendedProjectSidebarOpened;
+  }
+  get profileSidebarCollapsed() {
+    return useThemeStore.getState().profileSidebarCollapsed;
+  }
+  get workspaceAnalyticsSidebarCollapsed() {
+    return useThemeStore.getState().workspaceAnalyticsSidebarCollapsed;
+  }
+  get issueDetailSidebarCollapsed() {
+    return useThemeStore.getState().issueDetailSidebarCollapsed;
+  }
+  get epicDetailSidebarCollapsed() {
+    return useThemeStore.getState().epicDetailSidebarCollapsed;
+  }
+  get initiativesSidebarCollapsed() {
+    return useThemeStore.getState().initiativesSidebarCollapsed;
+  }
+  get projectOverviewSidebarCollapsed() {
+    return useThemeStore.getState().projectOverviewSidebarCollapsed;
+  }
+
+  toggleAnySidebarDropdown = (open?: boolean) => useThemeStore.getState().toggleAnySidebarDropdown(open);
+  toggleSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleSidebar(collapsed);
+  toggleSidebarPeek = (peek?: boolean) => useThemeStore.getState().toggleSidebarPeek(peek);
+  toggleExtendedSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleExtendedSidebar(collapsed);
+  toggleExtendedProjectSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleExtendedProjectSidebar(collapsed);
+  toggleProfileSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleProfileSidebar(collapsed);
+  toggleWorkspaceAnalyticsSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleWorkspaceAnalyticsSidebar(collapsed);
+  toggleIssueDetailSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleIssueDetailSidebar(collapsed);
+  toggleEpicDetailSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleEpicDetailSidebar(collapsed);
+  toggleInitiativesSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleInitiativesSidebar(collapsed);
+  toggleProjectOverviewSidebar = (collapsed?: boolean) => useThemeStore.getState().toggleProjectOverviewSidebar(collapsed);
+}

@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React from "react";
 import Link from "next/link";
 import { cn } from "@plane/utils";
 
@@ -92,10 +92,11 @@ function AppSidebarItemIcon({ icon, highlight }: AppSidebarItemIconProps) {
   );
 }
 
-const AppSidebarLinkItem = forwardRef<HTMLAnchorElement, AppSidebarLinkItemProps>(function AppSidebarLinkItem(
-  { href, children, className },
-  _ref
-) {
+function AppSidebarLinkItem({
+  href,
+  children,
+  className,
+}: AppSidebarLinkItemProps & { ref?: React.Ref<HTMLAnchorElement> }) {
   if (!href) return null;
 
   // Note: ref is not forwarded because the compat Link (React Router) handles refs internally
@@ -104,15 +105,18 @@ const AppSidebarLinkItem = forwardRef<HTMLAnchorElement, AppSidebarLinkItemProps
       {children}
     </Link>
   );
-});
+}
 
 // Note: Using div instead of button because this component is typically nested
 // inside CustomMenu which wraps it in its own button element. Using a button here
 // would create invalid HTML (button inside button).
-const AppSidebarButtonItem = forwardRef<HTMLDivElement, AppSidebarButtonItemProps>(function AppSidebarButtonItem(
-  { children, onClick, disabled = false, className },
-  ref
-) {
+function AppSidebarButtonItem({
+  children,
+  onClick,
+  disabled = false,
+  className,
+  ref,
+}: AppSidebarButtonItemProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <div
       ref={ref}
@@ -131,25 +135,26 @@ const AppSidebarButtonItem = forwardRef<HTMLDivElement, AppSidebarButtonItemProp
       {children}
     </div>
   );
-});
+}
 
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
-export type AppSidebarItemComponent = React.ForwardRefExoticComponent<
-  AppSidebarItemProps & React.RefAttributes<HTMLElement>
+export type AppSidebarItemComponent = React.FC<
+  AppSidebarItemProps & { ref?: React.Ref<HTMLElement> }
 > & {
   Label: React.FC<AppSidebarItemLabelProps>;
   Icon: React.FC<AppSidebarItemIconProps>;
-  Link: React.ForwardRefExoticComponent<AppSidebarLinkItemProps & React.RefAttributes<HTMLAnchorElement>>;
-  Button: React.ForwardRefExoticComponent<AppSidebarButtonItemProps & React.RefAttributes<HTMLDivElement>>;
+  Link: React.FC<AppSidebarLinkItemProps & { ref?: React.Ref<HTMLAnchorElement> }>;
+  Button: React.FC<AppSidebarButtonItemProps & { ref?: React.Ref<HTMLDivElement> }>;
 };
 
-const AppSidebarItem = forwardRef<HTMLElement, AppSidebarItemProps>(function AppSidebarItem(
-  { variant = "link", item },
-  ref
-) {
+const AppSidebarItem = function AppSidebarItem({
+  variant = "link",
+  item,
+  ref,
+}: AppSidebarItemProps & { ref?: React.Ref<HTMLElement> }) {
   if (!item) return null;
 
   const { icon, isActive, label, href, onClick, disabled, showLabel = true } = item;
@@ -174,7 +179,7 @@ const AppSidebarItem = forwardRef<HTMLElement, AppSidebarItemProps>(function App
       {commonItems}
     </AppSidebarButtonItem>
   );
-}) as AppSidebarItemComponent;
+} as AppSidebarItemComponent;
 
 // ============================================================================
 // COMPOUND COMPONENT ASSIGNMENT

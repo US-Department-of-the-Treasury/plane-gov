@@ -1,7 +1,7 @@
-import { isEmpty, set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { isEmpty, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // base class
-import { computedFn } from "mobx-utils";
 import type { TSupportedFilterTypeForUpdate } from "@plane/constants";
 import { EIssueFilterType } from "@plane/constants";
 import type {
@@ -56,9 +56,40 @@ export interface IProjectViewIssuesFilter extends IBaseIssueFilterStore {
   resetFilters: (workspaceSlug: string, viewId: string) => void;
 }
 
+// Zustand Store
+interface ProjectViewIssuesFilterState {
+  filters: { [viewId: string]: IIssueFilters };
+}
+
+interface ProjectViewIssuesFilterActions {
+  setFilters: (viewId: string, filters: IIssueFilters) => void;
+  updateFilterField: (viewId: string, field: string, value: any) => void;
+}
+
+type ProjectViewIssuesFilterStore = ProjectViewIssuesFilterState & ProjectViewIssuesFilterActions;
+
+export const useProjectViewIssuesFilterStore = create<ProjectViewIssuesFilterStore>()(
+  immer((set) => ({
+    // State
+    filters: {},
+
+    // Actions
+    setFilters: (viewId, filters) => {
+      set((state) => {
+        state.filters[viewId] = filters;
+      });
+    },
+
+    updateFilterField: (viewId, field, value) => {
+      set((state) => {
+        lodashSet(state.filters, [viewId, field], value);
+      });
+    },
+  }))
+);
+
+// Legacy class wrapper for backward compatibility
 export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements IProjectViewIssuesFilter {
-  // observables
-  filters: { [viewId: string]: IIssueFilters } = {};
   // root store
   rootIssueStore;
   // services
@@ -66,21 +97,18 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
 
   constructor(_rootStore: IIssueRootStore) {
     super();
-    makeObservable(this, {
-      // observables
-      filters: observable,
-      // computed
-      issueFilters: computed,
-      appliedFilters: computed,
-      // actions
-      fetchFilters: action,
-      updateFilters: action,
-      resetFilters: action,
-    });
     // root store
     this.rootIssueStore = _rootStore;
     // services
     this.issueFilterService = new ViewService();
+  }
+
+  private get store() {
+    return useProjectViewIssuesFilterStore.getState();
+  }
+
+  get filters() {
+    return this.store.filters;
   }
 
   get issueFilters() {
@@ -122,22 +150,20 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
     return filteredRouteParams;
   }
 
-  getFilterParams = computedFn(
-    (
-      options: IssuePaginationOptions,
-      viewId: string,
-      cursor: string | undefined,
-      groupId: string | undefined,
-      subGroupId: string | undefined
-    ) => {
-      const filterParams = this.getAppliedFilters(viewId);
+  getFilterParams = (
+    options: IssuePaginationOptions,
+    viewId: string,
+    cursor: string | undefined,
+    groupId: string | undefined,
+    subGroupId: string | undefined
+  ) => {
+    const filterParams = this.getAppliedFilters(viewId);
 
-      const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
-      return paginationParams;
-    }
-  );
+    const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
+    return paginationParams;
+  };
 
-  mutateFilters: IProjectViewIssuesFilter["mutateFilters"] = action((workspaceSlug, viewId, viewDetails) => {
+  mutateFilters: IProjectViewIssuesFilter["mutateFilters"] = (workspaceSlug, viewId, viewDetails) => {
     const richFilters: TWorkItemFilterExpression = viewDetails?.rich_filters;
     const displayFilters: IIssueDisplayFilterOptions = this.computedDisplayFilters(viewDetails?.display_filters);
     const displayProperties: IIssueDisplayProperties = this.computedDisplayProperties(viewDetails?.display_properties);
@@ -159,13 +185,11 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
       kanbanFilters.sub_group_by = _kanbanFilters?.kanban_filters?.sub_group_by || [];
     }
 
-    runInAction(() => {
-      set(this.filters, [viewId, "richFilters"], richFilters);
-      set(this.filters, [viewId, "displayFilters"], displayFilters);
-      set(this.filters, [viewId, "displayProperties"], displayProperties);
-      set(this.filters, [viewId, "kanbanFilters"], kanbanFilters);
-    });
-  });
+    this.store.updateFilterField(viewId, "richFilters", richFilters);
+    this.store.updateFilterField(viewId, "displayFilters", displayFilters);
+    this.store.updateFilterField(viewId, "displayProperties", displayProperties);
+    this.store.updateFilterField(viewId, "kanbanFilters", kanbanFilters);
+  };
 
   fetchFilters = async (workspaceSlug: string, projectId: string, viewId: string) => {
     try {
@@ -189,9 +213,7 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
     filters
   ) => {
     try {
-      runInAction(() => {
-        set(this.filters, [viewId, "richFilters"], filters);
-      });
+      this.store.updateFilterField(viewId, "richFilters", filters);
 
       this.rootIssueStore.projectViewIssues.fetchIssuesWithExistingPagination(
         workspaceSlug,
@@ -246,14 +268,12 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
             updatedDisplayFilters.group_by = "state";
           }
 
-          runInAction(() => {
-            Object.keys(updatedDisplayFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [viewId, "displayFilters", _key],
-                updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
-              );
-            });
+          Object.keys(updatedDisplayFilters).forEach((_key) => {
+            this.store.updateFilterField(
+              viewId,
+              `displayFilters.${_key}`,
+              updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
+            );
           });
 
           if (this.getShouldClearIssues(updatedDisplayFilters)) {
@@ -275,14 +295,12 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
           const updatedDisplayProperties = filters as IIssueDisplayProperties;
           _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
 
-          runInAction(() => {
-            Object.keys(updatedDisplayProperties).forEach((_key) => {
-              set(
-                this.filters,
-                [viewId, "displayProperties", _key],
-                updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
-              );
-            });
+          Object.keys(updatedDisplayProperties).forEach((_key) => {
+            this.store.updateFilterField(
+              viewId,
+              `displayProperties.${_key}`,
+              updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
+            );
           });
 
           break;
@@ -304,14 +322,12 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
               }
             );
 
-          runInAction(() => {
-            Object.keys(updatedKanbanFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [viewId, "kanbanFilters", _key],
-                updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
-              );
-            });
+          Object.keys(updatedKanbanFilters).forEach((_key) => {
+            this.store.updateFilterField(
+              viewId,
+              `kanbanFilters.${_key}`,
+              updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
+            );
           });
 
           break;
@@ -330,9 +346,9 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
    * @param workspaceSlug
    * @param viewId
    */
-  resetFilters: IProjectViewIssuesFilter["resetFilters"] = action((workspaceSlug, viewId) => {
+  resetFilters: IProjectViewIssuesFilter["resetFilters"] = (workspaceSlug, viewId) => {
     const viewDetails = this.rootIssueStore.rootStore.projectView.getViewById(viewId);
     if (!viewDetails) return;
     this.mutateFilters(workspaceSlug, viewId, viewDetails);
-  });
+  };
 }

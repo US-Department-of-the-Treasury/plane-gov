@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
 import type { Placement } from "@popperjs/core";
 import { usePopper } from "react-popper";
 // headless ui
@@ -43,12 +43,12 @@ export function FiltersDropdown(props: Props) {
     <Popover as="div">
       {({ open }) => (
         <>
-          <Popover.Button as={React.Fragment}>
-            {menuButton ? (
-              <button type="button" ref={setReferenceElement}>
-                {menuButton}
-              </button>
-            ) : (
+          {menuButton ? (
+            <Popover.Button as="button" type="button" ref={setReferenceElement}>
+              {menuButton}
+            </Popover.Button>
+          ) : (
+            <Popover.Button as="div" ref={setReferenceElement}>
               <div ref={setReferenceElement}>
                 <div className="hidden @4xl:flex">
                   <Button
@@ -81,30 +81,29 @@ export function FiltersDropdown(props: Props) {
                   </Button>
                 </div>
               </div>
-            )}
-          </Popover.Button>
+            </Popover.Button>
+          )}
+          {/** translate-y-0 is a hack to create new stacking context. Required for safari  */}
           <Transition
-            as={Fragment}
+            as={Popover.Panel}
             enter="transition ease-out duration-200"
             enterFrom="opacity-0 translate-y-1"
             enterTo="opacity-100 translate-y-0"
             leave="transition ease-in duration-150"
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-1"
+            className="fixed z-10 translate-y-0"
           >
-            {/** translate-y-0 is a hack to create new stacking context. Required for safari  */}
-            <Popover.Panel className="fixed z-10 translate-y-0">
-              <div
-                className="overflow-hidden rounded-sm border border-subtle bg-surface-1 shadow-raised-100 my-1"
-                ref={setPopperElement}
-                style={styles.popper}
-                {...attributes.popper}
-              >
-                <div className="flex max-h-[30rem] lg:max-h-[37.5rem] w-[18.75rem] flex-col overflow-hidden">
-                  {children}
-                </div>
+            <div
+              className="overflow-hidden rounded-sm border border-subtle bg-surface-1 shadow-raised-100 my-1"
+              ref={setPopperElement}
+              style={styles.popper}
+              {...attributes.popper}
+            >
+              <div className="flex max-h-[30rem] lg:max-h-[37.5rem] w-[18.75rem] flex-col overflow-hidden">
+                {children}
               </div>
-            </Popover.Panel>
+            </div>
           </Transition>
         </>
       )}

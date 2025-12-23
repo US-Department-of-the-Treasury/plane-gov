@@ -1,4 +1,3 @@
-import { action, makeObservable, runInAction } from "mobx";
 // base class
 import type {
   IssuePaginationOptions,
@@ -63,12 +62,6 @@ export class WorkspaceIssues extends BaseIssuesStore implements IWorkspaceIssues
   constructor(_rootStore: IIssueRootStore, issueFilterStore: IWorkspaceIssuesFilter) {
     super(_rootStore, issueFilterStore);
 
-    makeObservable(this, {
-      // action
-      fetchIssues: action,
-      fetchNextIssues: action,
-      fetchIssuesWithExistingPagination: action,
-    });
     // services
     this.workspaceService = new WorkspaceService();
     // filter store
@@ -97,9 +90,7 @@ export class WorkspaceIssues extends BaseIssuesStore implements IWorkspaceIssues
   ) => {
     try {
       // set loader and clear store
-      runInAction(() => {
-        this.setLoader(loadType);
-      });
+      this.setLoader(loadType);
       this.clear(!isExistingPaginationOptions);
 
       // get params from pagination options

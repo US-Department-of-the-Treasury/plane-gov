@@ -1,5 +1,4 @@
-import type { Ref } from "react";
-import React, { useEffect, useState, useRef, Fragment } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import type { Placement } from "@popperjs/core";
 import { Controller, useForm } from "react-hook-form"; // services
 import { usePopper } from "react-popper";
@@ -191,28 +190,23 @@ export function GptAssistantPopover(props: Props) {
 
   return (
     <Popover as="div" className={`relative w-min text-left`}>
-      <Popover.Button as={Fragment}>
-        <button ref={setReferenceElement} className="flex items-center" tabIndex={-1}>
-          {button}
-        </button>
+      <Popover.Button ref={setReferenceElement} className="flex items-center" tabIndex={-1}>
+        {button}
       </Popover.Button>
       <Transition
         show={isOpen}
-        as={React.Fragment}
+        as={Popover.Panel}
         enter="transition ease-out duration-100"
         enterFrom="transform opacity-0 scale-95"
         enterTo="transform opacity-100 scale-100"
         leave="transition ease-in duration-75"
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
+        className={`fixed z-10 flex w-full min-w-[50rem] max-w-full flex-col space-y-4 overflow-hidden rounded-[10px] border border-subtle bg-surface-1 p-4 shadow ${className}`}
+        ref={setPopperElement}
+        style={styles.popper}
+        {...attributes.popper}
       >
-        <Popover.Panel
-          as="div"
-          className={`fixed z-10 flex w-full min-w-[50rem] max-w-full flex-col space-y-4 overflow-hidden rounded-[10px] border border-subtle bg-surface-1 p-4 shadow ${className}`}
-          ref={setPopperElement as Ref<HTMLDivElement>}
-          style={styles.popper}
-          {...attributes.popper}
-        >
           <div className="vertical-scroll-enable max-h-72 space-y-4 overflow-y-auto">
             {prompt && (
               <div className="text-13">
@@ -289,7 +283,6 @@ export function GptAssistantPopover(props: Props) {
               </Button>
             </div>
           </div>
-        </Popover.Panel>
       </Transition>
     </Popover>
   );

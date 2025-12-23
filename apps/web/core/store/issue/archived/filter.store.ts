@@ -1,7 +1,7 @@
-import { isEmpty, set } from "lodash-es";
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { isEmpty, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // base class
-import { computedFn } from "mobx-utils";
 import type { TSupportedFilterTypeForUpdate } from "@plane/constants";
 import { EIssueFilterType } from "@plane/constants";
 import type {
@@ -50,30 +50,251 @@ export interface IArchivedIssuesFilter extends IBaseIssueFilterStore {
   ) => Promise<void>;
 }
 
+interface ArchivedIssuesFilterState {
+  filters: { [projectId: string]: IIssueFilters };
+}
+
+interface ArchivedIssuesFilterActions {
+  getIssueFilters: (projectId: string, helperStore: IssueFilterHelperStore) => IIssueFilters | undefined;
+  getAppliedFilters: (projectId: string, helperStore: IssueFilterHelperStore) => Partial<Record<TIssueParams, string | boolean>> | undefined;
+  getFilterParams: (
+    options: IssuePaginationOptions,
+    projectId: string,
+    cursor: string | undefined,
+    groupId: string | undefined,
+    subGroupId: string | undefined,
+    helperStore: IssueFilterHelperStore
+  ) => Partial<Record<TIssueParams, string | boolean>>;
+  fetchFilters: (workspaceSlug: string, projectId: string, helperStore: IssueFilterHelperStore) => Promise<void>;
+  updateFilterExpression: (
+    workspaceSlug: string,
+    projectId: string,
+    filters: TWorkItemFilterExpression,
+    helperStore: IssueFilterHelperStore,
+    rootIssueStore: IIssueRootStore
+  ) => Promise<void>;
+  updateFilters: (
+    workspaceSlug: string,
+    projectId: string,
+    filterType: TSupportedFilterTypeForUpdate,
+    filters: TSupportedFilterForUpdate,
+    helperStore: IssueFilterHelperStore,
+    rootIssueStore: IIssueRootStore
+  ) => Promise<void>;
+}
+
+type ArchivedIssuesFilterStore = ArchivedIssuesFilterState & ArchivedIssuesFilterActions;
+
+export const useArchivedIssuesFilterStore = create<ArchivedIssuesFilterStore>()(
+  immer((set, get) => ({
+    filters: {},
+
+    getIssueFilters: (projectId, helperStore) => {
+      const state = get();
+      const displayFilters = state.filters[projectId] || undefined;
+      if (isEmpty(displayFilters)) return undefined;
+
+      const _filters: IIssueFilters = helperStore.computedIssueFilters(displayFilters);
+      return _filters;
+    },
+
+    getAppliedFilters: (projectId, helperStore) => {
+      const state = get();
+      const userFilters = state.getIssueFilters(projectId, helperStore);
+      if (!userFilters) return undefined;
+
+      const filteredParams = handleIssueQueryParamsByLayout(userFilters?.displayFilters?.layout, "issues");
+      if (!filteredParams) return undefined;
+
+      const filteredRouteParams: Partial<Record<TIssueParams, string | boolean>> = helperStore.computedFilteredParams(
+        userFilters?.richFilters,
+        userFilters?.displayFilters,
+        filteredParams
+      );
+
+      return filteredRouteParams;
+    },
+
+    getFilterParams: (options, projectId, cursor, groupId, subGroupId, helperStore) => {
+      const state = get();
+      const filterParams = state.getAppliedFilters(projectId, helperStore);
+      const paginationParams = helperStore.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
+      return paginationParams;
+    },
+
+    fetchFilters: async (workspaceSlug, projectId, helperStore) => {
+      const _filters = helperStore.handleIssuesLocalFilters.get(EIssuesStoreType.ARCHIVED, workspaceSlug, projectId, undefined);
+
+      const richFilters: TWorkItemFilterExpression = _filters?.richFilters;
+      const displayFilters: IIssueDisplayFilterOptions = helperStore.computedDisplayFilters({
+        ..._filters?.display_filters,
+        sub_issue: true,
+      });
+      const displayProperties: IIssueDisplayProperties = helperStore.computedDisplayProperties(_filters?.display_properties);
+      const kanbanFilters = {
+        group_by: [],
+        sub_group_by: [],
+      };
+      kanbanFilters.group_by = _filters?.kanban_filters?.group_by || [];
+      kanbanFilters.sub_group_by = _filters?.kanban_filters?.sub_group_by || [];
+
+      set((state) => {
+        lodashSet(state.filters, [projectId, "richFilters"], richFilters);
+        lodashSet(state.filters, [projectId, "displayFilters"], displayFilters);
+        lodashSet(state.filters, [projectId, "displayProperties"], displayProperties);
+        lodashSet(state.filters, [projectId, "kanbanFilters"], kanbanFilters);
+      });
+    },
+
+    updateFilterExpression: async (workspaceSlug, projectId, filters, helperStore, rootIssueStore) => {
+      try {
+        set((state) => {
+          lodashSet(state.filters, [projectId, "richFilters"], filters);
+        });
+
+        rootIssueStore.archivedIssues.fetchIssuesWithExistingPagination(workspaceSlug, projectId, "mutation");
+        helperStore.handleIssuesLocalFilters.set(
+          EIssuesStoreType.ARCHIVED,
+          EIssueFilterType.FILTERS,
+          workspaceSlug,
+          projectId,
+          undefined,
+          {
+            rich_filters: filters,
+          }
+        );
+      } catch (error) {
+        console.log("error while updating rich filters", error);
+        throw error;
+      }
+    },
+
+    updateFilters: async (workspaceSlug, projectId, type, filters, helperStore, rootIssueStore) => {
+      try {
+        const state = get();
+        if (isEmpty(state.filters) || isEmpty(state.filters[projectId])) return;
+
+        const _filters = {
+          richFilters: state.filters[projectId].richFilters,
+          displayFilters: state.filters[projectId].displayFilters as IIssueDisplayFilterOptions,
+          displayProperties: state.filters[projectId].displayProperties as IIssueDisplayProperties,
+          kanbanFilters: state.filters[projectId].kanbanFilters as TIssueKanbanFilters,
+        };
+
+        switch (type) {
+          case EIssueFilterType.DISPLAY_FILTERS: {
+            const updatedDisplayFilters = filters as IIssueDisplayFilterOptions;
+            _filters.displayFilters = { ..._filters.displayFilters, ...updatedDisplayFilters };
+
+            // set sub_group_by to null if group_by is set to null
+            if (_filters.displayFilters.group_by === null) {
+              _filters.displayFilters.sub_group_by = null;
+              updatedDisplayFilters.sub_group_by = null;
+            }
+            // set sub_group_by to null if layout is switched to kanban group_by and sub_group_by are same
+            if (
+              _filters.displayFilters.layout === "kanban" &&
+              _filters.displayFilters.group_by === _filters.displayFilters.sub_group_by
+            ) {
+              _filters.displayFilters.sub_group_by = null;
+              updatedDisplayFilters.sub_group_by = null;
+            }
+            // set group_by to state if layout is switched to kanban and group_by is null
+            if (_filters.displayFilters.layout === "kanban" && _filters.displayFilters.group_by === null) {
+              _filters.displayFilters.group_by = "state";
+              updatedDisplayFilters.group_by = "state";
+            }
+
+            set((state) => {
+              Object.keys(updatedDisplayFilters).forEach((_key) => {
+                lodashSet(
+                  state.filters,
+                  [projectId, "displayFilters", _key],
+                  updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
+                );
+              });
+            });
+
+            if (helperStore.getShouldReFetchIssues(updatedDisplayFilters)) {
+              rootIssueStore.archivedIssues.fetchIssuesWithExistingPagination(workspaceSlug, projectId, "mutation");
+            }
+
+            helperStore.handleIssuesLocalFilters.set(EIssuesStoreType.ARCHIVED, type, workspaceSlug, projectId, undefined, {
+              display_filters: _filters.displayFilters,
+            });
+
+            break;
+          }
+          case EIssueFilterType.DISPLAY_PROPERTIES: {
+            const updatedDisplayProperties = filters as IIssueDisplayProperties;
+            _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
+
+            set((state) => {
+              Object.keys(updatedDisplayProperties).forEach((_key) => {
+                lodashSet(
+                  state.filters,
+                  [projectId, "displayProperties", _key],
+                  updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
+                );
+              });
+            });
+
+            helperStore.handleIssuesLocalFilters.set(EIssuesStoreType.ARCHIVED, type, workspaceSlug, projectId, undefined, {
+              display_properties: _filters.displayProperties,
+            });
+            break;
+          }
+
+          case EIssueFilterType.KANBAN_FILTERS: {
+            const updatedKanbanFilters = filters as TIssueKanbanFilters;
+            _filters.kanbanFilters = { ..._filters.kanbanFilters, ...updatedKanbanFilters };
+
+            const currentUserId = rootIssueStore.currentUserId;
+            if (currentUserId)
+              helperStore.handleIssuesLocalFilters.set(EIssuesStoreType.ARCHIVED, type, workspaceSlug, projectId, undefined, {
+                kanban_filters: _filters.kanbanFilters,
+              });
+
+            set((state) => {
+              Object.keys(updatedKanbanFilters).forEach((_key) => {
+                lodashSet(
+                  state.filters,
+                  [projectId, "kanbanFilters", _key],
+                  updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
+                );
+              });
+            });
+
+            break;
+          }
+          default:
+            break;
+        }
+      } catch (error) {
+        get().fetchFilters(workspaceSlug, projectId, helperStore);
+        throw error;
+      }
+    },
+  }))
+);
+
+// Legacy class wrapper
 export class ArchivedIssuesFilter extends IssueFilterHelperStore implements IArchivedIssuesFilter {
-  // observables
-  filters: { [projectId: string]: IIssueFilters } = {};
-  // root store
   rootIssueStore;
-  // services
   issueFilterService;
+
+  private get state() {
+    return useArchivedIssuesFilterStore.getState();
+  }
 
   constructor(_rootStore: IIssueRootStore) {
     super();
-    makeObservable(this, {
-      // observables
-      filters: observable,
-      // computed
-      issueFilters: computed,
-      appliedFilters: computed,
-      // actions
-      fetchFilters: action,
-      updateFilters: action,
-    });
-    // root store
     this.rootIssueStore = _rootStore;
-    // services
     this.issueFilterService = new IssueFiltersService();
+  }
+
+  get filters() {
+    return this.state.filters;
   }
 
   get issueFilters() {
@@ -91,204 +312,36 @@ export class ArchivedIssuesFilter extends IssueFilterHelperStore implements IArc
   }
 
   getIssueFilters(projectId: string) {
-    const displayFilters = this.filters[projectId] || undefined;
-    if (isEmpty(displayFilters)) return undefined;
-
-    const _filters: IIssueFilters = this.computedIssueFilters(displayFilters);
-
-    return _filters;
+    return this.state.getIssueFilters(projectId, this);
   }
 
   getAppliedFilters(projectId: string) {
-    const userFilters = this.getIssueFilters(projectId);
-    if (!userFilters) return undefined;
-
-    const filteredParams = handleIssueQueryParamsByLayout(userFilters?.displayFilters?.layout, "issues");
-    if (!filteredParams) return undefined;
-
-    const filteredRouteParams: Partial<Record<TIssueParams, string | boolean>> = this.computedFilteredParams(
-      userFilters?.richFilters,
-      userFilters?.displayFilters,
-      filteredParams
-    );
-
-    return filteredRouteParams;
+    return this.state.getAppliedFilters(projectId, this);
   }
 
-  getFilterParams = computedFn(
-    (
-      options: IssuePaginationOptions,
-      projectId: string,
-      cursor: string | undefined,
-      groupId: string | undefined,
-      subGroupId: string | undefined
-    ) => {
-      const filterParams = this.getAppliedFilters(projectId);
-
-      const paginationParams = this.getPaginationParams(filterParams, options, cursor, groupId, subGroupId);
-      return paginationParams;
-    }
-  );
-
-  fetchFilters = async (workspaceSlug: string, projectId: string) => {
-    const _filters = this.handleIssuesLocalFilters.get(EIssuesStoreType.ARCHIVED, workspaceSlug, projectId, undefined);
-
-    const richFilters: TWorkItemFilterExpression = _filters?.richFilters;
-    const displayFilters: IIssueDisplayFilterOptions = this.computedDisplayFilters({
-      ..._filters?.display_filters,
-      sub_issue: true,
-    });
-    const displayProperties: IIssueDisplayProperties = this.computedDisplayProperties(_filters?.display_properties);
-    const kanbanFilters = {
-      group_by: [],
-      sub_group_by: [],
-    };
-    kanbanFilters.group_by = _filters?.kanban_filters?.group_by || [];
-    kanbanFilters.sub_group_by = _filters?.kanban_filters?.sub_group_by || [];
-
-    runInAction(() => {
-      set(this.filters, [projectId, "richFilters"], richFilters);
-      set(this.filters, [projectId, "displayFilters"], displayFilters);
-      set(this.filters, [projectId, "displayProperties"], displayProperties);
-      set(this.filters, [projectId, "kanbanFilters"], kanbanFilters);
-    });
+  getFilterParams = (
+    options: IssuePaginationOptions,
+    projectId: string,
+    cursor: string | undefined,
+    groupId: string | undefined,
+    subGroupId: string | undefined
+  ) => {
+    return this.state.getFilterParams(options, projectId, cursor, groupId, subGroupId, this);
   };
 
-  /**
-   * NOTE: This method is designed as a fallback function for the work item filter store.
-   * Only use this method directly when initializing filter instances.
-   * For regular filter updates, use this method as a fallback function for the work item filter store methods instead.
-   */
+  fetchFilters = async (workspaceSlug: string, projectId: string) => {
+    return this.state.fetchFilters(workspaceSlug, projectId, this);
+  };
+
   updateFilterExpression: IArchivedIssuesFilter["updateFilterExpression"] = async (
     workspaceSlug,
     projectId,
     filters
   ) => {
-    try {
-      runInAction(() => {
-        set(this.filters, [projectId, "richFilters"], filters);
-      });
-
-      this.rootIssueStore.archivedIssues.fetchIssuesWithExistingPagination(workspaceSlug, projectId, "mutation");
-      this.handleIssuesLocalFilters.set(
-        EIssuesStoreType.ARCHIVED,
-        EIssueFilterType.FILTERS,
-        workspaceSlug,
-        projectId,
-        undefined,
-        {
-          rich_filters: filters,
-        }
-      );
-    } catch (error) {
-      console.log("error while updating rich filters", error);
-      throw error;
-    }
+    return this.state.updateFilterExpression(workspaceSlug, projectId, filters, this, this.rootIssueStore);
   };
 
   updateFilters: IArchivedIssuesFilter["updateFilters"] = async (workspaceSlug, projectId, type, filters) => {
-    try {
-      if (isEmpty(this.filters) || isEmpty(this.filters[projectId])) return;
-
-      const _filters = {
-        richFilters: this.filters[projectId].richFilters,
-        displayFilters: this.filters[projectId].displayFilters as IIssueDisplayFilterOptions,
-        displayProperties: this.filters[projectId].displayProperties as IIssueDisplayProperties,
-        kanbanFilters: this.filters[projectId].kanbanFilters as TIssueKanbanFilters,
-      };
-
-      switch (type) {
-        case EIssueFilterType.DISPLAY_FILTERS: {
-          const updatedDisplayFilters = filters as IIssueDisplayFilterOptions;
-          _filters.displayFilters = { ..._filters.displayFilters, ...updatedDisplayFilters };
-
-          // set sub_group_by to null if group_by is set to null
-          if (_filters.displayFilters.group_by === null) {
-            _filters.displayFilters.sub_group_by = null;
-            updatedDisplayFilters.sub_group_by = null;
-          }
-          // set sub_group_by to null if layout is switched to kanban group_by and sub_group_by are same
-          if (
-            _filters.displayFilters.layout === "kanban" &&
-            _filters.displayFilters.group_by === _filters.displayFilters.sub_group_by
-          ) {
-            _filters.displayFilters.sub_group_by = null;
-            updatedDisplayFilters.sub_group_by = null;
-          }
-          // set group_by to state if layout is switched to kanban and group_by is null
-          if (_filters.displayFilters.layout === "kanban" && _filters.displayFilters.group_by === null) {
-            _filters.displayFilters.group_by = "state";
-            updatedDisplayFilters.group_by = "state";
-          }
-
-          runInAction(() => {
-            Object.keys(updatedDisplayFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [projectId, "displayFilters", _key],
-                updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
-              );
-            });
-          });
-
-          if (this.getShouldReFetchIssues(updatedDisplayFilters)) {
-            this.rootIssueStore.archivedIssues.fetchIssuesWithExistingPagination(workspaceSlug, projectId, "mutation");
-          }
-
-          this.handleIssuesLocalFilters.set(EIssuesStoreType.ARCHIVED, type, workspaceSlug, projectId, undefined, {
-            display_filters: _filters.displayFilters,
-          });
-
-          break;
-        }
-        case EIssueFilterType.DISPLAY_PROPERTIES: {
-          const updatedDisplayProperties = filters as IIssueDisplayProperties;
-          _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
-
-          runInAction(() => {
-            Object.keys(updatedDisplayProperties).forEach((_key) => {
-              set(
-                this.filters,
-                [projectId, "displayProperties", _key],
-                updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
-              );
-            });
-          });
-
-          this.handleIssuesLocalFilters.set(EIssuesStoreType.ARCHIVED, type, workspaceSlug, projectId, undefined, {
-            display_properties: _filters.displayProperties,
-          });
-          break;
-        }
-
-        case EIssueFilterType.KANBAN_FILTERS: {
-          const updatedKanbanFilters = filters as TIssueKanbanFilters;
-          _filters.kanbanFilters = { ..._filters.kanbanFilters, ...updatedKanbanFilters };
-
-          const currentUserId = this.rootIssueStore.currentUserId;
-          if (currentUserId)
-            this.handleIssuesLocalFilters.set(EIssuesStoreType.ARCHIVED, type, workspaceSlug, projectId, undefined, {
-              kanban_filters: _filters.kanbanFilters,
-            });
-
-          runInAction(() => {
-            Object.keys(updatedKanbanFilters).forEach((_key) => {
-              set(
-                this.filters,
-                [projectId, "kanbanFilters", _key],
-                updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
-              );
-            });
-          });
-
-          break;
-        }
-        default:
-          break;
-      }
-    } catch (error) {
-      this.fetchFilters(workspaceSlug, projectId);
-      throw error;
-    }
+    return this.state.updateFilters(workspaceSlug, projectId, type, filters, this, this.rootIssueStore);
   };
 }

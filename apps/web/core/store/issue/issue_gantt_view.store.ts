@@ -1,5 +1,5 @@
-import { action, makeObservable, observable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // helpers
 import type { ChartDataType, TGanttViews } from "@plane/types";
 import { currentViewDataWithView } from "@/components/gantt-chart/data";
@@ -20,76 +20,127 @@ export interface IGanttStore {
   updateRenderView: (data: any[]) => void;
 }
 
+// Zustand Store
+interface GanttState {
+  currentView: TGanttViews;
+  currentViewData: ChartDataType | undefined;
+  activeBlockId: string | null;
+  renderView: any[];
+}
+
+interface GanttActions {
+  updateCurrentView: (view: TGanttViews) => void;
+  updateCurrentViewData: (data: ChartDataType | undefined) => void;
+  updateActiveBlockId: (blockId: string | null) => void;
+  updateRenderView: (data: any[]) => void;
+  initGantt: () => void;
+}
+
+type GanttStoreType = GanttState & GanttActions;
+
+export const useGanttStore = create<GanttStoreType>()(
+  immer((set, get) => ({
+    // State
+    currentView: "month" as TGanttViews,
+    currentViewData: undefined,
+    activeBlockId: null,
+    renderView: [],
+
+    // Actions
+    /**
+     * @description update current view
+     * @param {TGanttViews} view
+     */
+    updateCurrentView: (view) => {
+      set((state) => {
+        state.currentView = view;
+      });
+    },
+
+    /**
+     * @description update current view data
+     * @param {ChartDataType | undefined} data
+     */
+    updateCurrentViewData: (data) => {
+      set((state) => {
+        state.currentViewData = data;
+      });
+    },
+
+    /**
+     * @description update active block
+     * @param {string | null} blockId
+     */
+    updateActiveBlockId: (blockId) => {
+      set((state) => {
+        state.activeBlockId = blockId;
+      });
+    },
+
+    /**
+     * @description update render view
+     * @param {any[]} data
+     */
+    updateRenderView: (data) => {
+      set((state) => {
+        state.renderView = data;
+      });
+    },
+
+    /**
+     * @description initialize gantt chart with month view
+     */
+    initGantt: () => {
+      const state = get();
+      const newCurrentViewData = currentViewDataWithView(state.currentView);
+
+      set((draftState) => {
+        draftState.currentViewData = newCurrentViewData;
+      });
+    },
+  }))
+);
+
+// Legacy class wrapper for backward compatibility
 export class GanttStore implements IGanttStore {
-  // observables
-  currentView: TGanttViews = "month";
-  currentViewData: ChartDataType | undefined = undefined;
-  activeBlockId: string | null = null;
-  renderView: any[] = [];
-
   constructor() {
-    makeObservable(this, {
-      // observables
-      currentView: observable.ref,
-      currentViewData: observable,
-      activeBlockId: observable.ref,
-      renderView: observable,
-      // actions
-      updateCurrentView: action.bound,
-      updateCurrentViewData: action.bound,
-      updateActiveBlockId: action.bound,
-      updateRenderView: action.bound,
-    });
+    const store = useGanttStore.getState();
+    store.initGantt();
+  }
 
-    this.initGantt();
+  private get store() {
+    return useGanttStore.getState();
+  }
+
+  get currentView() {
+    return this.store.currentView;
+  }
+
+  get currentViewData() {
+    return this.store.currentViewData;
+  }
+
+  get activeBlockId() {
+    return this.store.activeBlockId;
+  }
+
+  get renderView() {
+    return this.store.renderView;
   }
 
   /**
    * @description check if block is active
    * @param {string} blockId
    */
-  isBlockActive = computedFn((blockId: string): boolean => this.activeBlockId === blockId);
+  isBlockActive = (blockId: string): boolean => this.store.activeBlockId === blockId;
 
-  /**
-   * @description update current view
-   * @param {TGanttViews} view
-   */
-  updateCurrentView = (view: TGanttViews) => {
-    this.currentView = view;
-  };
+  updateCurrentView = (view: TGanttViews) => this.store.updateCurrentView(view);
 
-  /**
-   * @description update current view data
-   * @param {ChartDataType | undefined} data
-   */
-  updateCurrentViewData = (data: ChartDataType | undefined) => {
-    this.currentViewData = data;
-  };
+  updateCurrentViewData = (data: ChartDataType | undefined) => this.store.updateCurrentViewData(data);
 
-  /**
-   * @description update active block
-   * @param {string | null} block
-   */
-  updateActiveBlockId = (blockId: string | null) => {
-    this.activeBlockId = blockId;
-  };
+  updateActiveBlockId = (blockId: string | null) => this.store.updateActiveBlockId(blockId);
 
-  /**
-   * @description update render view
-   * @param {any[]} data
-   */
-  updateRenderView = (data: any[]) => {
-    this.renderView = data;
-  };
+  updateRenderView = (data: any[]) => this.store.updateRenderView(data);
 
-  /**
-   * @description initialize gantt chart with month view
-   */
-  initGantt = () => {
-    const newCurrentViewData = currentViewDataWithView(this.currentView);
-
-    runInAction(() => {
-      this.currentViewData = newCurrentViewData;
-    });
-  };
+  initGantt = () => this.store.initGantt();
 }

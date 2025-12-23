@@ -175,19 +175,18 @@ export function BulkDeleteIssuesModal(props: Props) {
     );
 
   return (
-    <Transition.Root show={isOpen} as={React.Fragment} afterLeave={() => setQuery("")} appear>
+    <Transition.Root show={isOpen} afterLeave={() => setQuery("")} appear as="div">
       <Dialog as="div" className="relative z-20" onClose={handleClose}>
         <div className="fixed inset-0 z-20 overflow-y-auto bg-backdrop p-4 transition-opacity sm:p-6 md:p-20">
           <Transition.Child
-            as={React.Fragment}
+            as={Dialog.Panel}
             enter="ease-out duration-300"
             enterFrom="opacity-0 scale-95"
             enterTo="opacity-100 scale-100"
             leave="ease-in duration-200"
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
-          >
-            <Dialog.Panel className="relative flex w-full items-center justify-center ">
+            className="relative flex w-full items-center justify-center">
               <div className="w-full max-w-2xl transform divide-y divide-subtle-1 divide-opacity-10 rounded-lg bg-surface-1 shadow-raised-200 transition-all">
                 <form>
                   <Combobox
@@ -246,7 +245,6 @@ export function BulkDeleteIssuesModal(props: Props) {
                   )}
                 </form>
               </div>
-            </Dialog.Panel>
           </Transition.Child>
         </div>
       </Dialog>

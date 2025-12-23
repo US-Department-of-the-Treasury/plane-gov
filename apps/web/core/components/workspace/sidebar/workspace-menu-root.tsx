@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 // icons
@@ -133,24 +133,23 @@ export function WorkspaceMenuRoot(props: WorkspaceMenuRootProps) {
               </Menu.Button>
             )}
             <Transition
-              as={Fragment}
+              as="div"
               enter="transition ease-out duration-100"
               enterFrom="transform opacity-0 scale-95"
-              enterTo="trnsform opacity-100 scale-100"
+              enterTo="transform opacity-100 scale-100"
               leave="transition ease-in duration-75"
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
             >
-              <Menu.Items as={Fragment}>
-                <div
-                  className={cn(
-                    "fixed z-21 mt-1 flex w-[19rem] origin-top-left flex-col divide-y divide-subtle rounded-md border-[0.5px] border-strong bg-surface-1 shadow-raised-200 outline-none",
-                    {
-                      "top-11 left-14": variant === "sidebar",
-                      "top-10 left-4": variant === "top-navigation",
-                    }
-                  )}
-                >
+              <Menu.Items
+                className={cn(
+                  "fixed z-21 mt-1 flex w-[19rem] origin-top-left flex-col divide-y divide-subtle rounded-md border-[0.5px] border-strong bg-surface-1 shadow-raised-200 outline-none",
+                  {
+                    "top-11 left-14": variant === "sidebar",
+                    "top-10 left-4": variant === "top-navigation",
+                  }
+                )}
+              >
                   <div className="overflow-x-hidden vertical-scrollbar scrollbar-sm flex max-h-96 flex-col items-start justify-start overflow-y-scroll">
                     <span className="rounded-md text-left px-4 sticky top-0 z-21 h-full w-full bg-surface-1 pb-1 pt-3 text-13 font-medium text-placeholder truncate flex-shrink-0">
                       {currentUser?.email}
@@ -218,7 +217,6 @@ export function WorkspaceMenuRoot(props: WorkspaceMenuRootProps) {
                       </Menu.Item>
                     </div>
                   </div>
-                </div>
               </Menu.Items>
             </Transition>
           </>

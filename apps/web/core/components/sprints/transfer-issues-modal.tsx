@@ -91,32 +91,30 @@ export function TransferIssuesModal(props: Props) {
   // }, [handleClose]);
 
   return (
-    <Transition.Root show={isOpen} as={React.Fragment}>
+    <Transition.Root show={isOpen} as="div">
       <Dialog as="div" className="relative z-20" onClose={handleClose}>
         <Transition.Child
-          as={React.Fragment}
+          as="div"
           enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
           leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-backdrop transition-opacity" />
-        </Transition.Child>
+          className="fixed inset-0 bg-backdrop transition-opacity"
+        />
 
         <div className="fixed inset-0 z-10">
           <div className="mt-10 flex min-h-full items-start justify-center p-4 text-center sm:p-0 md:mt-20">
             <Transition.Child
-              as={React.Fragment}
+              as={Dialog.Panel}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            >
-              <Dialog.Panel className="relative transform rounded-lg bg-surface-1 py-5 text-left shadow-raised-200 transition-all sm:w-full sm:max-w-2xl">
+              className="relative transform rounded-lg bg-surface-1 py-5 text-left shadow-raised-200 transition-all sm:w-full sm:max-w-2xl">
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between px-5">
                     <div className="flex items-center gap-1">
@@ -180,7 +178,6 @@ export function TransferIssuesModal(props: Props) {
                     )}
                   </div>
                 </div>
-              </Dialog.Panel>
             </Transition.Child>
           </div>
         </div>

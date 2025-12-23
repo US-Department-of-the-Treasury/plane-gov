@@ -1,5 +1,5 @@
-import { makeObservable, observable } from "mobx";
-import { computedFn } from "mobx-utils";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // types
 import type { TIssue, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
@@ -35,8 +35,32 @@ export interface IIssueStore extends IIssueStoreActions {
   getIssueIdByIdentifier: (issueIdentifier: string) => string | undefined;
 }
 
+// Zustand Store
+interface IssueDetailState {
+  fetchingIssueDetails: string | undefined;
+}
+
+interface IssueDetailActions {
+  setFetchingIssueDetails: (issueId: string | undefined) => void;
+}
+
+type IssueDetailStoreType = IssueDetailState & IssueDetailActions;
+
+export const useIssueDetailStore = create<IssueDetailStoreType>()(
+  immer((set) => ({
+    // State
+    fetchingIssueDetails: undefined,
+
+    // Actions
+    setFetchingIssueDetails: (issueId: string | undefined) => {
+      set((state) => {
+        state.fetchingIssueDetails = issueId;
+      });
+    },
+  }))
+);
+
 export class IssueStore implements IIssueStore {
-  fetchingIssueDetails: string | undefined = undefined;
   // root store
   rootIssueDetailStore: IIssueDetail;
   // services
@@ -47,9 +71,6 @@ export class IssueStore implements IIssueStore {
   draftWorkItemService;
 
   constructor(rootStore: IIssueDetail, serviceType: TIssueServiceType) {
-    makeObservable(this, {
-      fetchingIssueDetails: observable.ref,
-    });
     // root store
     this.rootIssueDetailStore = rootStore;
     // services
@@ -60,22 +81,33 @@ export class IssueStore implements IIssueStore {
     this.draftWorkItemService = new WorkspaceDraftService();
   }
 
-  getIsFetchingIssueDetails = computedFn((issueId: string | undefined) => {
-    if (!issueId) return false;
+  private get store() {
+    return useIssueDetailStore.getState();
+  }
 
-    return this.fetchingIssueDetails === issueId;
-  });
+  get fetchingIssueDetails() {
+    return this.store.fetchingIssueDetails;
+  }
+
+  set fetchingIssueDetails(issueId: string | undefined) {
+    this.store.setFetchingIssueDetails(issueId);
+  }
+
+  getIsFetchingIssueDetails = (issueId: string | undefined) => {
+    if (!issueId) return false;
+    return this.store.fetchingIssueDetails === issueId;
+  };
 
   // helper methods
-  getIssueById = computedFn((issueId: string) => {
+  getIssueById = (issueId: string) => {
     if (!issueId) return undefined;
     return this.rootIssueDetailStore.rootIssueStore.issues.getIssueById(issueId) ?? undefined;
-  });
+  };
 
-  getIssueIdByIdentifier = computedFn((issueIdentifier: string) => {
+  getIssueIdByIdentifier = (issueIdentifier: string) => {
     if (!issueIdentifier) return undefined;
     return this.rootIssueDetailStore.rootIssueStore.issues.getIssueIdByIdentifier(issueIdentifier) ?? undefined;
-  });
+  };
 
   // actions
   fetchIssue = async (workspaceSlug: string, projectId: string, issueId: string) => {

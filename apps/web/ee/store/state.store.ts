@@ -1,1 +1,1 @@
-export * from "@/store/state.store";
+export * from "@/store/client/state.store";

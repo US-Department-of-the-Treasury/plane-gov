@@ -1,6 +1,6 @@
-import { sortBy, cloneDeep, update, set } from "lodash-es";
-import { observable, action, computed, makeObservable, runInAction } from "mobx";
-import { computedFn } from "mobx-utils";
+import { sortBy, cloneDeep, update as lodashUpdate, set as lodashSet } from "lodash-es";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 // plane imports
 import type { TFetchStatus, TLoader, TProjectAnalyticsCount, TProjectAnalyticsCountParams } from "@plane/types";
 // helpers
@@ -14,6 +14,385 @@ import type { CoreRootStore } from "../root.store";
 
 type ProjectOverviewCollapsible = "links" | "attachments" | "milestones";
 
+// Zustand Store
+interface ProjectState {
+  isUpdatingProject: boolean;
+  loader: TLoader;
+  fetchStatus: TFetchStatus;
+  projectMap: Record<string, TProject>;
+  projectAnalyticsCountMap: Record<string, TProjectAnalyticsCount>;
+  openCollapsibleSection: ProjectOverviewCollapsible[];
+  lastCollapsibleAction: ProjectOverviewCollapsible | null;
+}
+
+interface ProjectActions {
+  setOpenCollapsibleSection: (section: ProjectOverviewCollapsible[]) => void;
+  setLastCollapsibleAction: (section: ProjectOverviewCollapsible) => void;
+  toggleOpenCollapsibleSection: (section: ProjectOverviewCollapsible) => void;
+  processProjectAfterCreation: (workspaceSlug: string, data: TProject, rootStore: CoreRootStore) => void;
+  fetchPartialProjects: (workspaceSlug: string, projectService: ProjectService) => Promise<TPartialProject[]>;
+  fetchProjects: (workspaceSlug: string, projectService: ProjectService, workspaceProjectIds: string[] | undefined) => Promise<TProject[]>;
+  fetchProjectDetails: (workspaceSlug: string, projectId: string, projectService: ProjectService) => Promise<TProject>;
+  fetchProjectAnalyticsCount: (
+    workspaceSlug: string,
+    params: TProjectAnalyticsCountParams | undefined,
+    projectService: ProjectService
+  ) => Promise<TProjectAnalyticsCount[]>;
+  addProjectToFavorites: (workspaceSlug: string, projectId: string, rootStore: CoreRootStore) => Promise<any>;
+  removeProjectFromFavorites: (workspaceSlug: string, projectId: string, rootStore: CoreRootStore) => Promise<any>;
+  updateProjectView: (workspaceSlug: string, projectId: string, viewProps: any, projectService: ProjectService) => Promise<any>;
+  createProject: (workspaceSlug: string, data: Partial<TProject>, projectService: ProjectService, rootStore: CoreRootStore) => Promise<TProject>;
+  updateProject: (workspaceSlug: string, projectId: string, data: Partial<TProject>, projectService: ProjectService) => Promise<TProject>;
+  deleteProject: (workspaceSlug: string, projectId: string, projectService: ProjectService, rootStore: CoreRootStore) => Promise<void>;
+  archiveProject: (workspaceSlug: string, projectId: string, projectArchiveService: ProjectArchiveService, rootStore: CoreRootStore) => Promise<void>;
+  restoreProject: (workspaceSlug: string, projectId: string, projectArchiveService: ProjectArchiveService) => Promise<void>;
+}
+
+type ProjectStoreType = ProjectState & ProjectActions;
+
+export const useProjectStore = create<ProjectStoreType>()(
+  immer((set, get) => ({
+    // State
+    isUpdatingProject: false,
+    loader: "init-loader" as TLoader,
+    fetchStatus: undefined,
+    projectMap: {},
+    projectAnalyticsCountMap: {},
+    openCollapsibleSection: ["milestones"],
+    lastCollapsibleAction: null,
+
+    // Actions
+    setOpenCollapsibleSection: (section: ProjectOverviewCollapsible[]) => {
+      set((state) => {
+        state.openCollapsibleSection = section;
+        if (state.lastCollapsibleAction) state.lastCollapsibleAction = null;
+      });
+    },
+
+    setLastCollapsibleAction: (section: ProjectOverviewCollapsible) => {
+      set((state) => {
+        state.openCollapsibleSection = [...state.openCollapsibleSection, section];
+      });
+    },
+
+    toggleOpenCollapsibleSection: (section: ProjectOverviewCollapsible) => {
+      set((state) => {
+        if (state.openCollapsibleSection && state.openCollapsibleSection.includes(section)) {
+          state.openCollapsibleSection = state.openCollapsibleSection.filter((s) => s !== section);
+        } else {
+          state.openCollapsibleSection = [...state.openCollapsibleSection, section];
+        }
+      });
+    },
+
+    /**
+     * @description process project after creation
+     * @param workspaceSlug
+     * @param data
+     */
+    processProjectAfterCreation: (workspaceSlug: string, data: TProject, rootStore: CoreRootStore) => {
+      set((state) => {
+        lodashSet(state.projectMap, [data.id], data);
+      });
+      // updating the user project role in workspaceProjectsPermissions
+      lodashSet(rootStore.user.permission.workspaceProjectsPermissions, [workspaceSlug, data.id], data.member_role);
+    },
+
+    /**
+     * get Workspace projects partial data using workspace slug
+     * @param workspaceSlug
+     * @returns Promise<TPartialProject[]>
+     *
+     */
+    fetchPartialProjects: async (workspaceSlug: string, projectService: ProjectService) => {
+      try {
+        set((state) => {
+          state.loader = "init-loader";
+        });
+        const projectsResponse = await projectService.getProjectsLite(workspaceSlug);
+        set((state) => {
+          projectsResponse.forEach((project) => {
+            lodashUpdate(state.projectMap, [project.id], (p) => ({ ...p, ...project }));
+          });
+          state.loader = "loaded";
+          if (!state.fetchStatus) state.fetchStatus = "partial";
+        });
+        return projectsResponse;
+      } catch (error) {
+        console.log("Failed to fetch project from workspace store");
+        set((state) => {
+          state.loader = "loaded";
+        });
+        throw error;
+      }
+    },
+
+    /**
+     * get Workspace projects using workspace slug
+     * @param workspaceSlug
+     * @returns Promise<TProject[]>
+     *
+     */
+    fetchProjects: async (workspaceSlug: string, projectService: ProjectService, workspaceProjectIds: string[] | undefined) => {
+      try {
+        set((state) => {
+          if (workspaceProjectIds && workspaceProjectIds.length > 0) {
+            state.loader = "mutation";
+          } else {
+            state.loader = "init-loader";
+          }
+        });
+        const projectsResponse = await projectService.getProjects(workspaceSlug);
+        set((state) => {
+          projectsResponse.forEach((project) => {
+            lodashUpdate(state.projectMap, [project.id], (p) => ({ ...p, ...project }));
+          });
+          state.loader = "loaded";
+          state.fetchStatus = "complete";
+        });
+        return projectsResponse;
+      } catch (error) {
+        console.log("Failed to fetch project from workspace store");
+        set((state) => {
+          state.loader = "loaded";
+        });
+        throw error;
+      }
+    },
+
+    /**
+     * Fetches project details using workspace slug and project id
+     * @param workspaceSlug
+     * @param projectId
+     * @returns Promise<TProject>
+     */
+    fetchProjectDetails: async (workspaceSlug: string, projectId: string, projectService: ProjectService) => {
+      try {
+        const response = await projectService.getProject(workspaceSlug, projectId);
+        set((state) => {
+          lodashUpdate(state.projectMap, [projectId], (p) => ({ ...p, ...response }));
+        });
+        return response;
+      } catch (error) {
+        console.log("Error while fetching project details", error);
+        throw error;
+      }
+    },
+
+    /**
+     * Fetches project analytics count using workspace slug and project id
+     * @param workspaceSlug
+     * @param params TProjectAnalyticsCountParams
+     * @returns Promise<TProjectAnalyticsCount[]>
+     */
+    fetchProjectAnalyticsCount: async (
+      workspaceSlug: string,
+      params: TProjectAnalyticsCountParams | undefined,
+      projectService: ProjectService
+    ): Promise<TProjectAnalyticsCount[]> => {
+      try {
+        const response = await projectService.getProjectAnalyticsCount(workspaceSlug, params);
+        set((state) => {
+          for (const analyticsData of response) {
+            lodashSet(state.projectAnalyticsCountMap, [analyticsData.id], analyticsData);
+          }
+        });
+        return response;
+      } catch (error) {
+        console.log("Failed to fetch project analytics count", error);
+        throw error;
+      }
+    },
+
+    /**
+     * Adds project to favorites and updates project favorite status in the store
+     * @param workspaceSlug
+     * @param projectId
+     * @returns
+     */
+    addProjectToFavorites: async (workspaceSlug: string, projectId: string, rootStore: CoreRootStore) => {
+      try {
+        const currentProject = get().projectMap[projectId];
+        if (currentProject?.is_favorite) return;
+        set((state) => {
+          lodashSet(state.projectMap, [projectId, "is_favorite"], true);
+        });
+        const response = await rootStore.favorite.addFavorite(workspaceSlug.toString(), {
+          entity_type: "project",
+          entity_identifier: projectId,
+          project_id: projectId,
+          entity_data: { name: get().projectMap[projectId].name || "" },
+        });
+        return response;
+      } catch (error) {
+        console.log("Failed to add project to favorite");
+        set((state) => {
+          lodashSet(state.projectMap, [projectId, "is_favorite"], false);
+        });
+        throw error;
+      }
+    },
+
+    /**
+     * Removes project from favorites and updates project favorite status in the store
+     * @param workspaceSlug
+     * @param projectId
+     * @returns
+     */
+    removeProjectFromFavorites: async (workspaceSlug: string, projectId: string, rootStore: CoreRootStore) => {
+      try {
+        const currentProject = get().projectMap[projectId];
+        if (!currentProject?.is_favorite) return;
+        set((state) => {
+          lodashSet(state.projectMap, [projectId, "is_favorite"], false);
+        });
+        const response = await rootStore.favorite.removeFavoriteEntity(workspaceSlug.toString(), projectId);
+
+        return response;
+      } catch (error) {
+        console.log("Failed to add project to favorite");
+        set((state) => {
+          lodashSet(state.projectMap, [projectId, "is_favorite"], true);
+        });
+        throw error;
+      }
+    },
+
+    /**
+     * Updates the project view
+     * @param workspaceSlug
+     * @param projectId
+     * @param viewProps
+     * @returns
+     */
+    updateProjectView: async (workspaceSlug: string, projectId: string, viewProps: { sort_order: number }, projectService: ProjectService) => {
+      const currentProjectSortOrder = get().projectMap[projectId]?.sort_order;
+      try {
+        set((state) => {
+          lodashSet(state.projectMap, [projectId, "sort_order"], viewProps?.sort_order);
+        });
+        const response = await projectService.setProjectView(workspaceSlug, projectId, viewProps);
+        return response;
+      } catch (error) {
+        set((state) => {
+          lodashSet(state.projectMap, [projectId, "sort_order"], currentProjectSortOrder);
+        });
+        console.log("Failed to update sort order of the projects");
+        throw error;
+      }
+    },
+
+    /**
+     * Creates a project in the workspace and adds it to the store
+     * @param workspaceSlug
+     * @param data
+     * @returns Promise<TProject>
+     */
+    createProject: async (workspaceSlug: string, data: any, projectService: ProjectService, rootStore: CoreRootStore) => {
+      try {
+        const response = await projectService.createProject(workspaceSlug, data);
+        get().processProjectAfterCreation(workspaceSlug, response, rootStore);
+        return response;
+      } catch (error) {
+        console.log("Failed to create project from project store");
+        throw error;
+      }
+    },
+
+    /**
+     * Updates a details of a project and updates it in the store
+     * @param workspaceSlug
+     * @param projectId
+     * @param data
+     * @returns Promise<TProject>
+     */
+    updateProject: async (workspaceSlug: string, projectId: string, data: Partial<TProject>, projectService: ProjectService) => {
+      const projectDetails = cloneDeep(get().projectMap[projectId]);
+      try {
+        set((state) => {
+          lodashSet(state.projectMap, [projectId], { ...projectDetails, ...data });
+          state.isUpdatingProject = true;
+        });
+        const response = await projectService.updateProject(workspaceSlug, projectId, data);
+        set((state) => {
+          state.isUpdatingProject = false;
+        });
+        return response;
+      } catch (error) {
+        console.log("Failed to create project from project store");
+        set((state) => {
+          lodashSet(state.projectMap, [projectId], projectDetails);
+          state.isUpdatingProject = false;
+        });
+        throw error;
+      }
+    },
+
+    /**
+     * Deletes a project from specific workspace and deletes it from the store
+     * @param workspaceSlug
+     * @param projectId
+     * @returns Promise<void>
+     */
+    deleteProject: async (workspaceSlug: string, projectId: string, projectService: ProjectService, rootStore: CoreRootStore) => {
+      try {
+        if (!get().projectMap?.[projectId]) return;
+        await projectService.deleteProject(workspaceSlug, projectId);
+        set((state) => {
+          delete state.projectMap[projectId];
+        });
+        if (rootStore.favorite.entityMap[projectId]) rootStore.favorite.removeFavoriteFromStore(projectId);
+        delete rootStore.user.permission.workspaceProjectsPermissions[workspaceSlug][projectId];
+      } catch (error) {
+        console.log("Failed to delete project from project store");
+        throw error;
+      }
+    },
+
+    /**
+     * Archives a project from specific workspace and updates it in the store
+     * @param workspaceSlug
+     * @param projectId
+     * @returns Promise<void>
+     */
+    archiveProject: async (workspaceSlug: string, projectId: string, projectArchiveService: ProjectArchiveService, rootStore: CoreRootStore) => {
+      await projectArchiveService
+        .archiveProject(workspaceSlug, projectId)
+        .then((response) => {
+          set((state) => {
+            lodashSet(state.projectMap, [projectId, "archived_at"], response.archived_at);
+          });
+          rootStore.favorite.removeFavoriteFromStore(projectId);
+        })
+        .catch((error) => {
+          console.log("Failed to archive project from project store");
+          throw error;
+        });
+    },
+
+    /**
+     * Restores a project from specific workspace and updates it in the store
+     * @param workspaceSlug
+     * @param projectId
+     * @returns Promise<void>
+     */
+    restoreProject: async (workspaceSlug: string, projectId: string, projectArchiveService: ProjectArchiveService) => {
+      await projectArchiveService
+        .restoreProject(workspaceSlug, projectId)
+        .then(() => {
+          set((state) => {
+            lodashSet(state.projectMap, [projectId, "archived_at"], null);
+          });
+        })
+        .catch((error) => {
+          console.log("Failed to restore project from project store");
+          throw error;
+        });
+    },
+  }))
+);
+
+// Legacy interface
 export interface IProjectStore {
   // observables
   isUpdatingProject: boolean;
@@ -70,19 +449,11 @@ export interface IProjectStore {
   restoreProject: (workspaceSlug: string, projectId: string) => Promise<void>;
 }
 
+// Legacy class wrapper for backward compatibility
 export class ProjectStore implements IProjectStore {
-  // observables
-  isUpdatingProject: boolean = false;
-  loader: TLoader = "init-loader";
-  fetchStatus: TFetchStatus = undefined;
-  projectMap: Record<string, TProject> = {};
-  projectAnalyticsCountMap: Record<string, TProjectAnalyticsCount> = {};
-  openCollapsibleSection: ProjectOverviewCollapsible[] = ["milestones"];
-  lastCollapsibleAction: ProjectOverviewCollapsible | null = null;
-
   // root store
   rootStore: CoreRootStore;
-  // service
+  // services
   projectService;
   projectArchiveService;
   issueLabelService;
@@ -90,46 +461,6 @@ export class ProjectStore implements IProjectStore {
   stateService;
 
   constructor(_rootStore: CoreRootStore) {
-    makeObservable(this, {
-      // observables
-      isUpdatingProject: observable,
-      loader: observable.ref,
-      fetchStatus: observable.ref,
-      projectMap: observable,
-      projectAnalyticsCountMap: observable,
-      openCollapsibleSection: observable.ref,
-      lastCollapsibleAction: observable.ref,
-      // computed
-      isInitializingProjects: computed,
-      filteredProjectIds: computed,
-      workspaceProjectIds: computed,
-      archivedProjectIds: computed,
-      totalProjectIds: computed,
-      currentProjectDetails: computed,
-      joinedProjectIds: computed,
-      favoriteProjectIds: computed,
-      currentProjectNextSequenceId: computed,
-      // helper actions
-      processProjectAfterCreation: action,
-      // fetch actions
-      fetchPartialProjects: action,
-      fetchProjects: action,
-      fetchProjectDetails: action,
-      fetchProjectAnalyticsCount: action,
-      // favorites actions
-      addProjectToFavorites: action,
-      removeProjectFromFavorites: action,
-      // project-view action
-      updateProjectView: action,
-      // CRUD actions
-      createProject: action,
-      updateProject: action,
-      // collapsible actions
-      setOpenCollapsibleSection: action,
-      setLastCollapsibleAction: action,
-      toggleOpenCollapsibleSection: action,
-    });
-    // root store
     this.rootStore = _rootStore;
     // services
     this.projectService = new ProjectService();
@@ -139,11 +470,43 @@ export class ProjectStore implements IProjectStore {
     this.stateService = new ProjectStateService();
   }
 
+  private get store() {
+    return useProjectStore.getState();
+  }
+
+  get isUpdatingProject() {
+    return this.store.isUpdatingProject;
+  }
+
+  get loader() {
+    return this.store.loader;
+  }
+
+  get fetchStatus() {
+    return this.store.fetchStatus;
+  }
+
+  get projectMap() {
+    return this.store.projectMap;
+  }
+
+  get projectAnalyticsCountMap() {
+    return this.store.projectAnalyticsCountMap;
+  }
+
+  get openCollapsibleSection() {
+    return this.store.openCollapsibleSection;
+  }
+
+  get lastCollapsibleAction() {
+    return this.store.lastCollapsibleAction;
+  }
+
   /**
    * @description returns true if projects are still initializing
    */
   get isInitializingProjects() {
-    return this.loader === "init-loader";
+    return this.store.loader === "init-loader";
   }
 
   /**
@@ -157,7 +520,7 @@ export class ProjectStore implements IProjectStore {
       searchQuery,
     } = this.rootStore.projectRoot.projectFilter;
     if (!workspaceDetails || !displayFilters || !filters) return;
-    let workspaceProjects = Object.values(this.projectMap).filter(
+    let workspaceProjects = Object.values(this.store.projectMap).filter(
       (p) =>
         p.workspace === workspaceDetails.id &&
         (p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -174,7 +537,7 @@ export class ProjectStore implements IProjectStore {
   get workspaceProjectIds() {
     const workspaceDetails = this.rootStore.workspaceRoot.currentWorkspace;
     if (!workspaceDetails) return;
-    const workspaceProjects = Object.values(this.projectMap).filter(
+    const workspaceProjects = Object.values(this.store.projectMap).filter(
       (p) => p.workspace === workspaceDetails.id && !p.archived_at
     );
     const projectIds = workspaceProjects.map((p) => p.id);
@@ -188,7 +551,7 @@ export class ProjectStore implements IProjectStore {
     const currentWorkspace = this.rootStore.workspaceRoot.currentWorkspace;
     if (!currentWorkspace) return;
 
-    let projects = Object.values(this.projectMap ?? {});
+    let projects = Object.values(this.store.projectMap ?? {});
     projects = sortBy(projects, "archived_at");
 
     const projectIds = projects
@@ -215,7 +578,7 @@ export class ProjectStore implements IProjectStore {
    */
   get currentProjectDetails() {
     if (!this.rootStore.router.projectId) return;
-    return this.projectMap?.[this.rootStore.router.projectId];
+    return this.store.projectMap?.[this.rootStore.router.projectId];
   }
 
   /**
@@ -234,7 +597,7 @@ export class ProjectStore implements IProjectStore {
     const currentWorkspace = this.rootStore.workspaceRoot.currentWorkspace;
     if (!currentWorkspace) return [];
 
-    let projects = Object.values(this.projectMap ?? {});
+    let projects = Object.values(this.store.projectMap ?? {});
     projects = sortBy(projects, "sort_order");
 
     const projectIds = projects
@@ -250,7 +613,7 @@ export class ProjectStore implements IProjectStore {
     const currentWorkspace = this.rootStore.workspaceRoot.currentWorkspace;
     if (!currentWorkspace) return [];
 
-    let projects = Object.values(this.projectMap ?? {});
+    let projects = Object.values(this.store.projectMap ?? {});
     projects = sortBy(projects, "created_at");
 
     const projectIds = projects
@@ -266,20 +629,15 @@ export class ProjectStore implements IProjectStore {
   }
 
   setOpenCollapsibleSection = (section: ProjectOverviewCollapsible[]) => {
-    this.openCollapsibleSection = section;
-    if (this.lastCollapsibleAction) this.lastCollapsibleAction = null;
+    this.store.setOpenCollapsibleSection(section);
   };
 
   setLastCollapsibleAction = (section: ProjectOverviewCollapsible) => {
-    this.openCollapsibleSection = [...this.openCollapsibleSection, section];
+    this.store.setLastCollapsibleAction(section);
   };
 
   toggleOpenCollapsibleSection = (section: ProjectOverviewCollapsible) => {
-    if (this.openCollapsibleSection && this.openCollapsibleSection.includes(section)) {
-      this.openCollapsibleSection = this.openCollapsibleSection.filter((s) => s !== section);
-    } else {
-      this.openCollapsibleSection = [...this.openCollapsibleSection, section];
-    }
+    this.store.toggleOpenCollapsibleSection(section);
   };
 
   /**
@@ -288,11 +646,7 @@ export class ProjectStore implements IProjectStore {
    * @param data
    */
   processProjectAfterCreation = (workspaceSlug: string, data: TProject) => {
-    runInAction(() => {
-      set(this.projectMap, [data.id], data);
-      // updating the user project role in workspaceProjectsPermissions
-      set(this.rootStore.user.permission.workspaceProjectsPermissions, [workspaceSlug, data.id], data.member_role);
-    });
+    this.store.processProjectAfterCreation(workspaceSlug, data, this.rootStore);
   };
 
   /**
@@ -302,22 +656,7 @@ export class ProjectStore implements IProjectStore {
    *
    */
   fetchPartialProjects = async (workspaceSlug: string) => {
-    try {
-      this.loader = "init-loader";
-      const projectsResponse = await this.projectService.getProjectsLite(workspaceSlug);
-      runInAction(() => {
-        projectsResponse.forEach((project) => {
-          update(this.projectMap, [project.id], (p) => ({ ...p, ...project }));
-        });
-        this.loader = "loaded";
-        if (!this.fetchStatus) this.fetchStatus = "partial";
-      });
-      return projectsResponse;
-    } catch (error) {
-      console.log("Failed to fetch project from workspace store");
-      this.loader = "loaded";
-      throw error;
-    }
+    return this.store.fetchPartialProjects(workspaceSlug, this.projectService);
   };
 
   /**
@@ -327,26 +666,7 @@ export class ProjectStore implements IProjectStore {
    *
    */
   fetchProjects = async (workspaceSlug: string) => {
-    try {
-      if (this.workspaceProjectIds && this.workspaceProjectIds.length > 0) {
-        this.loader = "mutation";
-      } else {
-        this.loader = "init-loader";
-      }
-      const projectsResponse = await this.projectService.getProjects(workspaceSlug);
-      runInAction(() => {
-        projectsResponse.forEach((project) => {
-          update(this.projectMap, [project.id], (p) => ({ ...p, ...project }));
-        });
-        this.loader = "loaded";
-        this.fetchStatus = "complete";
-      });
-      return projectsResponse;
-    } catch (error) {
-      console.log("Failed to fetch project from workspace store");
-      this.loader = "loaded";
-      throw error;
-    }
+    return this.store.fetchProjects(workspaceSlug, this.projectService, this.workspaceProjectIds);
   };
 
   /**
@@ -356,16 +676,7 @@ export class ProjectStore implements IProjectStore {
    * @returns Promise<TProject>
    */
   fetchProjectDetails = async (workspaceSlug: string, projectId: string) => {
-    try {
-      const response = await this.projectService.getProject(workspaceSlug, projectId);
-      runInAction(() => {
-        update(this.projectMap, [projectId], (p) => ({ ...p, ...response }));
-      });
-      return response;
-    } catch (error) {
-      console.log("Error while fetching project details", error);
-      throw error;
-    }
+    return this.store.fetchProjectDetails(workspaceSlug, projectId, this.projectService);
   };
 
   /**
@@ -378,18 +689,7 @@ export class ProjectStore implements IProjectStore {
     workspaceSlug: string,
     params?: TProjectAnalyticsCountParams
   ): Promise<TProjectAnalyticsCount[]> => {
-    try {
-      const response = await this.projectService.getProjectAnalyticsCount(workspaceSlug, params);
-      runInAction(() => {
-        for (const analyticsData of response) {
-          set(this.projectAnalyticsCountMap, [analyticsData.id], analyticsData);
-        }
-      });
-      return response;
-    } catch (error) {
-      console.log("Failed to fetch project analytics count", error);
-      throw error;
-    }
+    return this.store.fetchProjectAnalyticsCount(workspaceSlug, params, this.projectService);
   };
 
   /**
@@ -397,19 +697,19 @@ export class ProjectStore implements IProjectStore {
    * @param projectId
    * @returns TProject | null
    */
-  getProjectById = computedFn((projectId: string | undefined | null) => {
-    const projectInfo = this.projectMap[projectId ?? ""] || undefined;
+  getProjectById = (projectId: string | undefined | null) => {
+    const projectInfo = this.store.projectMap[projectId ?? ""] || undefined;
     return projectInfo;
-  });
+  };
 
   /**
    * Returns project details using project identifier
    * @param projectIdentifier
    * @returns TProject | undefined
    */
-  getProjectByIdentifier = computedFn((projectIdentifier: string) =>
-    Object.values(this.projectMap).find((project) => project.identifier === projectIdentifier)
-  );
+  getProjectByIdentifier = (projectIdentifier: string) => {
+    return Object.values(this.store.projectMap).find((project) => project.identifier === projectIdentifier);
+  };
 
   /**
    * Returns project lite using project id
@@ -417,30 +717,30 @@ export class ProjectStore implements IProjectStore {
    * @param projectId
    * @returns TPartialProject | null
    */
-  getPartialProjectById = computedFn((projectId: string | undefined | null) => {
-    const projectInfo = this.projectMap[projectId ?? ""] || undefined;
+  getPartialProjectById = (projectId: string | undefined | null) => {
+    const projectInfo = this.store.projectMap[projectId ?? ""] || undefined;
     return projectInfo;
-  });
+  };
 
   /**
    * Returns project identifier using project id
    * @param projectId
    * @returns string
    */
-  getProjectIdentifierById = computedFn((projectId: string | undefined | null) => {
-    const projectInfo = this.projectMap?.[projectId ?? ""];
+  getProjectIdentifierById = (projectId: string | undefined | null) => {
+    const projectInfo = this.store.projectMap?.[projectId ?? ""];
     return projectInfo?.identifier;
-  });
+  };
 
   /**
    * Returns project analytics count using project id
    * @param projectId
    * @returns TProjectAnalyticsCount[]
    */
-  getProjectAnalyticsCountById = computedFn((projectId: string | undefined | null) => {
+  getProjectAnalyticsCountById = (projectId: string | undefined | null) => {
     if (!projectId) return undefined;
-    return this.projectAnalyticsCountMap?.[projectId];
-  });
+    return this.store.projectAnalyticsCountMap?.[projectId];
+  };
 
   /**
    * Adds project to favorites and updates project favorite status in the store
@@ -449,26 +749,7 @@ export class ProjectStore implements IProjectStore {
    * @returns
    */
   addProjectToFavorites = async (workspaceSlug: string, projectId: string) => {
-    try {
-      const currentProject = this.getProjectById(projectId);
-      if (currentProject.is_favorite) return;
-      runInAction(() => {
-        set(this.projectMap, [projectId, "is_favorite"], true);
-      });
-      const response = await this.rootStore.favorite.addFavorite(workspaceSlug.toString(), {
-        entity_type: "project",
-        entity_identifier: projectId,
-        project_id: projectId,
-        entity_data: { name: this.projectMap[projectId].name || "" },
-      });
-      return response;
-    } catch (error) {
-      console.log("Failed to add project to favorite");
-      runInAction(() => {
-        set(this.projectMap, [projectId, "is_favorite"], false);
-      });
-      throw error;
-    }
+    return this.store.addProjectToFavorites(workspaceSlug, projectId, this.rootStore);
   };
 
   /**
@@ -478,22 +759,7 @@ export class ProjectStore implements IProjectStore {
    * @returns
    */
   removeProjectFromFavorites = async (workspaceSlug: string, projectId: string) => {
-    try {
-      const currentProject = this.getProjectById(projectId);
-      if (!currentProject.is_favorite) return;
-      runInAction(() => {
-        set(this.projectMap, [projectId, "is_favorite"], false);
-      });
-      const response = await this.rootStore.favorite.removeFavoriteEntity(workspaceSlug.toString(), projectId);
-
-      return response;
-    } catch (error) {
-      console.log("Failed to add project to favorite");
-      runInAction(() => {
-        set(this.projectMap, [projectId, "is_favorite"], true);
-      });
-      throw error;
-    }
+    return this.store.removeProjectFromFavorites(workspaceSlug, projectId, this.rootStore);
   };
 
   /**
@@ -504,20 +770,7 @@ export class ProjectStore implements IProjectStore {
    * @returns
    */
   updateProjectView = async (workspaceSlug: string, projectId: string, viewProps: { sort_order: number }) => {
-    const currentProjectSortOrder = this.getProjectById(projectId)?.sort_order;
-    try {
-      runInAction(() => {
-        set(this.projectMap, [projectId, "sort_order"], viewProps?.sort_order);
-      });
-      const response = await this.projectService.setProjectView(workspaceSlug, projectId, viewProps);
-      return response;
-    } catch (error) {
-      runInAction(() => {
-        set(this.projectMap, [projectId, "sort_order"], currentProjectSortOrder);
-      });
-      console.log("Failed to update sort order of the projects");
-      throw error;
-    }
+    return this.store.updateProjectView(workspaceSlug, projectId, viewProps, this.projectService);
   };
 
   /**
@@ -527,14 +780,7 @@ export class ProjectStore implements IProjectStore {
    * @returns Promise<TProject>
    */
   createProject = async (workspaceSlug: string, data: any) => {
-    try {
-      const response = await this.projectService.createProject(workspaceSlug, data);
-      this.processProjectAfterCreation(workspaceSlug, response);
-      return response;
-    } catch (error) {
-      console.log("Failed to create project from project store");
-      throw error;
-    }
+    return this.store.createProject(workspaceSlug, data, this.projectService, this.rootStore);
   };
 
   /**
@@ -545,25 +791,7 @@ export class ProjectStore implements IProjectStore {
    * @returns Promise<TProject>
    */
   updateProject = async (workspaceSlug: string, projectId: string, data: Partial<TProject>) => {
-    const projectDetails = cloneDeep(this.getProjectById(projectId));
-    try {
-      runInAction(() => {
-        set(this.projectMap, [projectId], { ...projectDetails, ...data });
-        this.isUpdatingProject = true;
-      });
-      const response = await this.projectService.updateProject(workspaceSlug, projectId, data);
-      runInAction(() => {
-        this.isUpdatingProject = false;
-      });
-      return response;
-    } catch (error) {
-      console.log("Failed to create project from project store");
-      runInAction(() => {
-        set(this.projectMap, [projectId], projectDetails);
-        this.isUpdatingProject = false;
-      });
-      throw error;
-    }
+    return this.store.updateProject(workspaceSlug, projectId, data, this.projectService);
   };
 
   /**
@@ -573,18 +801,7 @@ export class ProjectStore implements IProjectStore {
    * @returns Promise<void>
    */
   deleteProject = async (workspaceSlug: string, projectId: string) => {
-    try {
-      if (!this.projectMap?.[projectId]) return;
-      await this.projectService.deleteProject(workspaceSlug, projectId);
-      runInAction(() => {
-        delete this.projectMap[projectId];
-        if (this.rootStore.favorite.entityMap[projectId]) this.rootStore.favorite.removeFavoriteFromStore(projectId);
-        delete this.rootStore.user.permission.workspaceProjectsPermissions[workspaceSlug][projectId];
-      });
-    } catch (error) {
-      console.log("Failed to delete project from project store");
-      throw error;
-    }
+    return this.store.deleteProject(workspaceSlug, projectId, this.projectService, this.rootStore);
   };
 
   /**
@@ -594,18 +811,7 @@ export class ProjectStore implements IProjectStore {
    * @returns Promise<void>
    */
   archiveProject = async (workspaceSlug: string, projectId: string) => {
-    await this.projectArchiveService
-      .archiveProject(workspaceSlug, projectId)
-      .then((response) => {
-        runInAction(() => {
-          set(this.projectMap, [projectId, "archived_at"], response.archived_at);
-          this.rootStore.favorite.removeFavoriteFromStore(projectId);
-        });
-      })
-      .catch((error) => {
-        console.log("Failed to archive project from project store");
-        throw error;
-      });
+    return this.store.archiveProject(workspaceSlug, projectId, this.projectArchiveService, this.rootStore);
   };
 
   /**
@@ -615,16 +821,6 @@ export class ProjectStore implements IProjectStore {
    * @returns Promise<void>
    */
   restoreProject = async (workspaceSlug: string, projectId: string) => {
-    await this.projectArchiveService
-      .restoreProject(workspaceSlug, projectId)
-      .then(() => {
-        runInAction(() => {
-          set(this.projectMap, [projectId, "archived_at"], null);
-        });
-      })
-      .catch((error) => {
-        console.log("Failed to restore project from project store");
-        throw error;
-      });
+    return this.store.restoreProject(workspaceSlug, projectId, this.projectArchiveService);
   };
 }

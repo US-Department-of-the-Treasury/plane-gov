@@ -129,7 +129,7 @@ export function SprintAnalyticsProgress(props: TSprintAnalyticsProgress) {
                 <div className="font-medium text-secondary text-13">{t("project_sprints.active_sprint.progress")}</div>
               </div>
             )}
-            <Transition show={open}>
+            <Transition show={open} as="div">
               <Disclosure.Panel className="flex flex-col divide-y divide-subtle-1">
                 {sprintStartDate && sprintEndDate ? (
                   <>

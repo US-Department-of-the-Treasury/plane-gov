@@ -1,16 +1,28 @@
-import { makeObservable } from "mobx";
-import type { TIssueServiceType } from "@plane/types";
-import type { IIssueDetail as IIssueDetailCore } from "@/store/issue/issue-details/root.store";
-import { IssueDetail as IssueDetailCore } from "@/store/issue/issue-details/root.store";
-import type { IIssueRootStore } from "@/store/issue/root.store";
+/**
+ * CE Issue Detail Store - Re-exports core store
+ *
+ * The CE version previously extended IssueDetail (core) with no additional functionality.
+ * Now simply re-exports the core implementation.
+ *
+ * Note: The IssueDetail store still uses MobX for managing issue detail state (reactions,
+ * links, sub-issues, subscriptions, relations, activities, and comments). Migration to
+ * TanStack Query is planned for a future phase.
+ *
+ * Available TanStack Query hooks (already migrated):
+ * - useIssue() - Fetch issue details
+ * - useIssueActivities() - Fetch issue activities
+ * - useIssueLinks() - Fetch issue links
+ * - useSubIssues() - Fetch sub-issues
+ * - useIssueSubscription() - Fetch subscription status
+ *
+ * Remaining MobX stores to migrate:
+ * - IssueActivityStore (activities + comments integration)
+ * - IssueCommentStore (comments CRUD)
+ * - IssueReactionStore (reactions)
+ * - And other sub-stores
+ */
 
-export type IIssueDetail = IIssueDetailCore;
-
-export class IssueDetail extends IssueDetailCore {
-  constructor(rootStore: IIssueRootStore, serviceType: TIssueServiceType) {
-    super(rootStore, serviceType);
-    makeObservable(this, {
-      // observables
-    });
-  }
-}
+export {
+  IssueDetail,
+  type IIssueDetail,
+} from "@/store/issue/issue-details/root.store";

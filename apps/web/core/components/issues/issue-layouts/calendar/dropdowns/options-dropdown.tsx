@@ -95,27 +95,26 @@ export function CalendarOptionsDropdown(props: ICalendarHeader) {
     <Popover className="relative flex items-center">
       {({ open, close: closePopover }) => (
         <>
-          <Popover.Button as={React.Fragment}>
-            <button type="button" ref={setReferenceElement}>
+          <Popover.Button type="button" ref={setReferenceElement}>
+            <div
+              className={`hidden md:flex items-center gap-1.5 rounded-sm bg-layer-1 px-2.5 py-1 text-11 outline-none hover:bg-layer-1 ${
+                open ? "text-primary" : "text-secondary"
+              }`}
+            >
+              <div className="font-medium">{t("common.options")}</div>
               <div
-                className={`hidden md:flex items-center gap-1.5 rounded-sm bg-layer-1 px-2.5 py-1 text-11 outline-none hover:bg-layer-1 ${
-                  open ? "text-primary" : "text-secondary"
-                }`}
+                className={`flex h-3.5 w-3.5 items-center justify-center transition-all ${open ? "" : "rotate-180"}`}
               >
-                <div className="font-medium">{t("common.options")}</div>
-                <div
-                  className={`flex h-3.5 w-3.5 items-center justify-center transition-all ${open ? "" : "rotate-180"}`}
-                >
-                  <ChevronUpIcon width={12} strokeWidth={2} />
-                </div>
+                <ChevronUpIcon width={12} strokeWidth={2} />
               </div>
-              <div className="md:hidden">
-                <MoreVerticalIcon className="h-4 text-secondary" strokeWidth={2} />
-              </div>
-            </button>
+            </div>
+            <div className="md:hidden">
+              <MoreVerticalIcon className="h-4 text-secondary" strokeWidth={2} />
+            </div>
           </Popover.Button>
           <Transition
-            as={React.Fragment}
+            as={Popover.Panel}
+            className="fixed z-50"
             enter="transition ease-out duration-200"
             enterFrom="opacity-0 translate-y-1"
             enterTo="opacity-100 translate-y-0"
@@ -123,7 +122,6 @@ export function CalendarOptionsDropdown(props: ICalendarHeader) {
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-1"
           >
-            <Popover.Panel className="fixed z-50">
               <div
                 ref={setPopperElement}
                 style={styles.popper}
@@ -157,7 +155,6 @@ export function CalendarOptionsDropdown(props: ICalendarHeader) {
                   </button>
                 </div>
               </div>
-            </Popover.Panel>
           </Transition>
         </>
       )}
