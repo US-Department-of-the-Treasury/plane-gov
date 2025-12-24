@@ -3,7 +3,16 @@
 import { Check, Info } from "lucide-react";
 import { useRef, useState } from "react";
 import { ChevronDownIcon } from "@plane/propel/icons";
-import { Popover, PopoverTrigger, PopoverContent , Command, CommandInput, CommandList, CommandEmpty, CommandItem } from "@plane/propel/primitives";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandItem,
+} from "@plane/propel/primitives";
 import { Tooltip } from "@plane/propel/tooltip";
 // helpers
 import { cn } from "../utils";
@@ -155,15 +164,9 @@ export function CustomSearchSelect(props: ICustomSearchSelectProps) {
         onOpenAutoFocus={(e: Event) => e.preventDefault()}
       >
         <Command shouldFilter={false} className="bg-transparent">
-          <CommandInput
-            ref={inputRef}
-            value={query}
-            onValueChange={setQuery}
-            placeholder="Search"
-            className="mx-2 mt-2 rounded-sm border border-subtle text-11 [&>div]:border-0 [&>div]:px-2 [&_input]:h-8 [&_input]:py-1"
-          />
+          <CommandInput ref={inputRef} value={query} onValueChange={setQuery} placeholder="Search" />
           <CommandList
-            className={cn("mt-2 px-2 pb-2.5 overflow-y-auto", {
+            className={cn("px-2 pb-2.5 overflow-y-auto", {
               "max-h-96": maxHeight === "2xl",
               "max-h-80": maxHeight === "xl",
               "max-h-60": maxHeight === "lg",
