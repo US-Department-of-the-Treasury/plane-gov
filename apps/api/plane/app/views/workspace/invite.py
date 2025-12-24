@@ -22,7 +22,7 @@ from plane.app.serializers import (
 from plane.app.views.base import BaseAPIView
 from plane.bgtasks.event_tracking_task import workspace_invite_event
 from plane.bgtasks.workspace_invitation_task import workspace_invitation
-from plane.db.models import User, Workspace, WorkspaceMember, WorkspaceMemberInvite, UserStatusChoices
+from plane.db.models import User, Workspace, WorkspaceMember, WorkspaceMemberInvite, UserStatusChoices, Profile
 from plane.utils.cache import invalidate_cache, invalidate_cache_directly
 from plane.utils.host import base_host
 from plane.utils.ip_address import get_client_ip
@@ -144,6 +144,8 @@ class WorkspaceInvitationsViewset(BaseViewSet):
                         invitation_expires_at=timezone.now() + timedelta(days=14),
                         is_active=False,  # Cannot login until invitation accepted
                     )
+                    # Create profile for shadow user
+                    Profile.objects.create(user=user)
 
                 # Create or update workspace membership
                 workspace_member, created = WorkspaceMember.objects.get_or_create(

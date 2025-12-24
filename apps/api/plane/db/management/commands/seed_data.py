@@ -247,6 +247,9 @@ class Command(BaseCommand):
                 invitation_token=secrets.token_urlsafe(32),
             )
 
+            # Create profile for shadow user
+            Profile.objects.create(user=invited_user)
+
             # Create workspace membership for invited user
             WorkspaceMember.objects.create(
                 workspace=workspace,
