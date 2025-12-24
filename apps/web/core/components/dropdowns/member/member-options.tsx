@@ -67,6 +67,7 @@ export function MemberOptions(props: Props) {
   // popper-js init
   const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
     placement: placement ?? "bottom-start",
+    strategy: "fixed",
     modifiers: [
       {
         name: "preventOverflow",
@@ -156,19 +157,22 @@ export function MemberOptions(props: Props) {
     query === "" ? options : options?.filter((o) => o?.query.toLowerCase().includes(query.toLowerCase()));
 
   return createPortal(
-    <Combobox.Options data-prevent-outside-click static>
-      <div
-        className={cn(
-          "my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none z-50",
-          optionsClassName
-        )}
-        ref={setPopperElement}
-        style={{
-          ...styles.popper,
-          opacity: isPositioned ? 1 : 0,
-        }}
-        {...attributes.popper}
-      >
+    <div
+      ref={setPopperElement}
+      className="z-50"
+      style={{
+        ...styles.popper,
+        opacity: isPositioned ? 1 : 0,
+      }}
+      {...attributes.popper}
+    >
+      <Combobox.Options data-prevent-outside-click static>
+        <div
+          className={cn(
+            "my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none",
+            optionsClassName
+          )}
+        >
         <div className="flex items-center gap-1.5 rounded-sm border border-subtle bg-surface-2 px-2">
           <Search className="h-3.5 w-3.5 text-placeholder" strokeWidth={1.5} />
           <Combobox.Input
@@ -222,8 +226,9 @@ export function MemberOptions(props: Props) {
             <p className="px-1.5 py-1 italic text-placeholder">{t("loading")}</p>
           )}
         </div>
-      </div>
-    </Combobox.Options>,
+        </div>
+      </Combobox.Options>
+    </div>,
     document.body
   );
 }
