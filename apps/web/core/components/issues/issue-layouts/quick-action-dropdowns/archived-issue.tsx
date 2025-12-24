@@ -39,9 +39,9 @@ export function ArchivedIssueQuickActions(props: IQuickActionProps) {
   const activeLayout = `${issuesFilter.issueFilters?.displayFilters?.layout} layout`;
   // auth
   const isEditingAllowed =
-    allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT) && !readOnly;
+    allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), issue.project_id) && !readOnly;
   const isRestoringAllowed =
-    handleRestore && allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT);
+    handleRestore && allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), issue.project_id);
 
   // Menu items and modals using helper
   const menuItemProps: MenuItemFactoryProps = {

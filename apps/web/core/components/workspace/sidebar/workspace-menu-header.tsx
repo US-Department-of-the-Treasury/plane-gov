@@ -34,7 +34,7 @@ export function SidebarWorkspaceMenuHeader(props: SidebarWorkspaceMenuHeaderProp
 
   // TODO: fix types
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isAdmin = allowPermissions([EUserWorkspaceRoles.ADMIN] as any, EUserPermissionsLevel.WORKSPACE);
+  const isAdmin = allowPermissions([EUserWorkspaceRoles.ADMIN] as any, EUserPermissionsLevel.WORKSPACE, workspaceSlug?.toString());
 
   return (
     <div className="flex px-2 bg-surface-1 group/workspace-button hover:bg-surface-2 rounded-sm mt-2.5">

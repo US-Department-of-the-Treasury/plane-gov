@@ -29,7 +29,7 @@ export const usePowerKSprintContextBasedActions = (): TPowerKCommandConfig[] => 
   const isFavorite = !!sprintDetails?.is_favorite;
   // permission
   const isEditingAllowed =
-    allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT) &&
+    allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), sprintDetails?.project_id) &&
     !sprintDetails?.archived_at;
   // translation
   const { t } = useTranslation();

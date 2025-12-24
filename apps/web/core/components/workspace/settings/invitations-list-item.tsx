@@ -42,14 +42,15 @@ export function WorkspaceInvitationsListItem(props: Props) {
   const currentWorkspaceMemberInfo = workspaceInfoBySlug(workspaceSlug.toString());
   const currentWorkspaceRole = currentWorkspaceMemberInfo?.role;
   // is the current logged in user admin
-  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
+  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE, workspaceSlug?.toString());
   // role change access-
   // 1. user cannot change their own role
   // 2. only admin or member can change role
   // 3. user cannot change role of higher role
   const hasRoleChangeAccess = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.WORKSPACE
+    EUserPermissionsLevel.WORKSPACE,
+    workspaceSlug?.toString()
   );
 
   const handleRemoveInvitation = async () => {

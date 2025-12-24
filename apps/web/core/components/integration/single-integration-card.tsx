@@ -51,7 +51,7 @@ export function SingleIntegrationCard({ integration }: Props) {
   const { config } = useInstance();
   const { allowPermissions } = useUserPermissions();
 
-  const isUserAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
+  const isUserAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE, workspaceSlug?.toString());
   const { isMobile } = usePlatformOS();
   const { startAuth, isConnecting: isInstalling } = useIntegrationPopup({
     provider: integration.provider,

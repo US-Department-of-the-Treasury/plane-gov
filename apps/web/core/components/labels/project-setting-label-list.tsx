@@ -45,7 +45,7 @@ export function ProjectSettingsLabelList() {
   const { mutate: updateLabelPosition } = useUpdateLabelPosition();
   const { allowPermissions } = useUserPermissions();
   // derived values
-  const isEditable = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT);
+  const isEditable = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), projectId?.toString());
   const labelOperationsCallbacks: TLabelOperationsCallbacks = {
     createLabel: (data: Partial<IIssueLabel>) =>
       createLabel({ workspaceSlug: workspaceSlug?.toString(), projectId: projectId?.toString(), data }),

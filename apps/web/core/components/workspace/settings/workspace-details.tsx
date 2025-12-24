@@ -146,7 +146,7 @@ export function WorkspaceDetails() {
     if (currentWorkspace) reset({ ...currentWorkspace });
   }, [currentWorkspace, reset]);
 
-  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
+  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE, workspaceSlug?.toString());
 
   if (!currentWorkspace) return <></>;
   return (
