@@ -24,6 +24,7 @@ def migrate_invitations_to_shadow_users(apps, schema_editor):
     3. Create WorkspaceMember record linking shadow user to workspace
     """
     User = apps.get_model('db', 'User')
+    Profile = apps.get_model('db', 'Profile')
     WorkspaceMemberInvite = apps.get_model('db', 'WorkspaceMemberInvite')
     WorkspaceMember = apps.get_model('db', 'WorkspaceMember')
 
@@ -73,6 +74,8 @@ def migrate_invitations_to_shadow_users(apps, schema_editor):
                 invitation_token=invite.token,
                 is_active=False,  # Cannot login until invitation accepted
             )
+            # Create profile for shadow user
+            Profile.objects.create(user=user)
 
         # Create workspace membership for the shadow user
         WorkspaceMember.objects.get_or_create(
