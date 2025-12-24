@@ -41,6 +41,8 @@ export function NameColumn(props: NameProps) {
   // derived values
   const { avatar_url, display_name, email, first_name, id, last_name } = rowData.member;
   const isSuspended = rowData.is_active === false;
+  // Status is on the nested member object (IUserLite)
+  const isInvited = rowData.member.member?.status === "invited";
 
   return (
     <Disclosure>
@@ -70,8 +72,13 @@ export function NameColumn(props: NameProps) {
                 </Link>
               )}
               <span className={isSuspended ? "text-placeholder" : ""}>
-                {first_name} {last_name}
+                {first_name || last_name ? `${first_name} ${last_name}`.trim() : email}
               </span>
+              {isInvited && (
+                <Pill variant={EPillVariant.WARNING} size={EPillSize.XS} className="border-none ml-2">
+                  Pending
+                </Pill>
+              )}
             </div>
 
             {!isSuspended && (isAdmin || id === currentUser?.id) && (

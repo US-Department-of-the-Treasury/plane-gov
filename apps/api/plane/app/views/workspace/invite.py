@@ -137,6 +137,7 @@ class WorkspaceInvitationsViewset(BaseViewSet):
                     user = User.objects.create(
                         email=email,
                         username=generate_unique_username(email),
+                        display_name=email,  # Use full email as display name until user sets their own
                         status=UserStatusChoices.INVITED,
                         invited_at=timezone.now(),
                         invited_by=request.user,
