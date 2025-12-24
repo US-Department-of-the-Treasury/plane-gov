@@ -2,6 +2,7 @@
 
 from django.conf import settings
 import django.contrib.postgres.fields
+import django.contrib.postgres.indexes
 from django.db import migrations, models
 import django.db.models.deletion
 import plane.db.models.user
@@ -170,7 +171,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name='wikipage',
-            index=models.Index(fields=['description_stripped'], name='wikipage_search_idx', opclasses=['gin_trgm_ops']),
+            index=django.contrib.postgres.indexes.GinIndex(fields=['description_stripped'], name='wikipage_search_idx', opclasses=['gin_trgm_ops']),
         ),
         migrations.AddConstraint(
             model_name='draftissueepic',
