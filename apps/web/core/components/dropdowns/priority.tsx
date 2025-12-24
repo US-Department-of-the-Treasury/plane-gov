@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import { usePopper } from "react-popper";
 import { Check, Search, SignalHigh } from "lucide-react";
-import { Combobox } from "@headlessui/react";
 import { ISSUE_PRIORITIES } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 // types
@@ -10,7 +8,7 @@ import { PriorityIcon, ChevronDownIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import type { TIssuePriorities } from "@plane/types";
 // ui
-import { ComboDropDown } from "@plane/ui";
+import { RadixComboDropDown, RadixComboOptions, RadixComboInput, RadixComboOption, RadixComboList } from "@plane/ui";
 // helpers
 import { cn } from "@plane/utils";
 // hooks
@@ -341,21 +339,8 @@ export function PriorityDropdown(props: Props) {
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  // popper-js refs
+  // button ref
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  // popper-js init
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: placement ?? "bottom-start",
-    modifiers: [
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 12,
-        },
-      },
-    ],
-  });
 
   const options = ISSUE_PRIORITIES.map((priority) => ({
     value: priority.key,
@@ -371,8 +356,8 @@ export function PriorityDropdown(props: Props) {
   const filteredOptions =
     query === "" ? options : options.filter((o) => o.query.toLowerCase().includes(query.toLowerCase()));
 
-  const dropdownOnChange = (val: TIssuePriorities) => {
-    onChange(val);
+  const dropdownOnChange = (val: unknown) => {
+    onChange(val as TIssuePriorities);
     handleClose();
   };
 
@@ -439,7 +424,7 @@ export function PriorityDropdown(props: Props) {
   );
 
   return (
-    <ComboDropDown
+    <RadixComboDropDown
       as="div"
       ref={dropdownRef}
       className={cn(
@@ -457,30 +442,23 @@ export function PriorityDropdown(props: Props) {
       renderByDefault={renderByDefault}
     >
       {isOpen && (
-        <Combobox.Options className="fixed z-10" static>
-          <div
-            className="my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none"
-            ref={setPopperElement}
-            style={styles.popper}
-            {...attributes.popper}
-          >
+        <RadixComboOptions static placement={placement ?? "bottom-start"} referenceElement={referenceElement}>
+          <div className="my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none">
             <div className="flex items-center gap-1.5 rounded-sm border border-subtle bg-surface-2 px-2">
               <Search className="h-3.5 w-3.5 text-placeholder" strokeWidth={1.5} />
-              <Combobox.Input
-                as="input"
+              <RadixComboInput
                 ref={inputRef}
                 className="w-full bg-transparent py-1 text-11 text-secondary placeholder:text-placeholder focus:outline-none"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("search")}
-                displayValue={(assigned: any) => assigned?.name}
                 onKeyDown={searchInputKeyDown}
               />
             </div>
-            <div className="mt-2 max-h-48 space-y-1 overflow-y-scroll">
+            <RadixComboList className="mt-2 space-y-1">
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option) => (
-                  <Combobox.Option
+                  <RadixComboOption
                     key={option.value}
                     value={option.value}
                     className={({ active, selected }) =>
@@ -497,15 +475,15 @@ export function PriorityDropdown(props: Props) {
                         {selected && <Check className="h-3.5 w-3.5 flex-shrink-0" />}
                       </>
                     )}
-                  </Combobox.Option>
+                  </RadixComboOption>
                 ))
               ) : (
                 <p className="text-placeholder italic py-1 px-1.5">{t("no_matching_results")}</p>
               )}
-            </div>
+            </RadixComboList>
           </div>
-        </Combobox.Options>
+        </RadixComboOptions>
       )}
-    </ComboDropDown>
+    </RadixComboDropDown>
   );
 }

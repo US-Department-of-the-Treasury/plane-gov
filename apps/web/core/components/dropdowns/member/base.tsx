@@ -4,7 +4,7 @@ import { useTranslation } from "@plane/i18n";
 import { ChevronDownIcon } from "@plane/propel/icons";
 // plane imports
 import type { IUserLite } from "@plane/types";
-import { ComboDropDown } from "@plane/ui";
+import { RadixComboDropDown } from "@plane/ui";
 // helpers
 import { cn } from "@plane/utils";
 // hooks
@@ -159,7 +159,7 @@ export function MemberDropdownBase(props: TMemberDropdownBaseProps) {
   );
 
   return (
-    <ComboDropDown
+    <RadixComboDropDown
       as="div"
       ref={dropdownRef}
       {...comboboxProps}
@@ -180,6 +180,6 @@ export function MemberDropdownBase(props: TMemberDropdownBaseProps) {
           referenceElement={referenceElement}
         />
       )}
-    </ComboDropDown>
+    </RadixComboDropDown>
   );
 }
