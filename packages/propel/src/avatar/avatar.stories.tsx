@@ -169,3 +169,44 @@ export const AvatarGroup: Story = {
     );
   },
 };
+
+export const WithTooltip: Story = {
+  args: {
+    name: "John Doe",
+    src: "https://i.pravatar.cc/150?img=1",
+    showTooltip: true,
+  },
+};
+
+export const WithTooltipFallback: Story = {
+  args: {
+    name: "Alice Johnson",
+    src: "invalid-url",
+    showTooltip: true,
+    fallbackBackgroundColor: "#3b82f6",
+    fallbackTextColor: "#ffffff",
+  },
+};
+
+export const TooltipGroup: Story = {
+  parameters: {
+    controls: { disable: true },
+  },
+  render() {
+    return (
+      <div className="flex items-center gap-4">
+        <Avatar name="Alice Smith" src="https://i.pravatar.cc/150?img=25" size="md" showTooltip />
+        <Avatar name="Bob Johnson" src="https://i.pravatar.cc/150?img=26" size="md" showTooltip />
+        <Avatar name="Carol Williams" src="https://i.pravatar.cc/150?img=27" size="md" showTooltip />
+        <Avatar
+          name="David Brown"
+          src="invalid-url"
+          size="md"
+          showTooltip
+          fallbackBackgroundColor="#8b5cf6"
+          fallbackTextColor="#ffffff"
+        />
+      </div>
+    );
+  },
+};
