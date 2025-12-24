@@ -1,3 +1,7 @@
+---
+name: external-call-detector
+---
+
 # External Call Detector Agent
 
 A reviewer agent that detects external network calls and data exfiltration vectors in code changes.
