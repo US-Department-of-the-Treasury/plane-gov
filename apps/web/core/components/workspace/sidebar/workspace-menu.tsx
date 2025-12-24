@@ -1,5 +1,5 @@
 import { useParams } from "next/navigation";
-import { Disclosure, Transition } from "@headlessui/react";
+import { Collapsible, CollapsibleContent } from "@plane/propel/primitives";
 // plane imports
 import { AnalyticsIcon, SprintIcon, ProjectIcon, TeamsIcon, ViewsIcon } from "@plane/propel/icons";
 import { EUserWorkspaceRoles } from "@plane/types";
@@ -56,26 +56,15 @@ export function SidebarWorkspaceMenu() {
   ];
 
   return (
-    <Disclosure as="div" defaultOpen>
+    <Collapsible open={isWorkspaceMenuOpen} onOpenChange={toggleWorkspaceMenu}>
       <SidebarWorkspaceMenuHeader isWorkspaceMenuOpen={isWorkspaceMenuOpen} toggleWorkspaceMenu={toggleWorkspaceMenu} />
-      <Transition
-        as="div"
-        show={isWorkspaceMenuOpen}
-        enter="transition duration-100 ease-out"
-        enterFrom="transform scale-95 opacity-0"
-        enterTo="transform scale-100 opacity-100"
-        leave="transition duration-75 ease-out"
-        leaveFrom="transform scale-100 opacity-100"
-        leaveTo="transform scale-95 opacity-0"
-      >
-        {isWorkspaceMenuOpen && (
-          <Disclosure.Panel as="div" className="flex flex-col mt-0.5 gap-0.5" static>
-            {SIDEBAR_WORKSPACE_MENU_ITEMS.map((item) => (
-              <SidebarWorkspaceMenuItem key={item.key} item={item} />
-            ))}
-          </Disclosure.Panel>
-        )}
-      </Transition>
-    </Disclosure>
+      <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+        <div className="flex flex-col mt-0.5 gap-0.5">
+          {SIDEBAR_WORKSPACE_MENU_ITEMS.map((item) => (
+            <SidebarWorkspaceMenuItem key={item.key} item={item} />
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

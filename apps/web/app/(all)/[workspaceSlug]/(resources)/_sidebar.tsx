@@ -1,6 +1,6 @@
 import { useState, memo } from "react";
 import { FolderOpen, Filter, File, Link, Image, FileText, ChevronRight } from "lucide-react";
-import { Disclosure, Transition, TransitionChild } from "@headlessui/react";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
 import { SIDEBAR_WIDTH } from "@plane/constants";
 import { useLocalStorage } from "@plane/hooks";
 import { cn } from "@plane/utils";
@@ -44,6 +44,79 @@ const ResourceTypeFilter = memo(function ResourceTypeFilter({
       <Icon className="size-4 flex-shrink-0" />
       <span className="flex-1 text-left">{type.label}</span>
     </button>
+  );
+});
+
+const FilterByTypeSection = memo(function FilterByTypeSection({
+  activeFilter,
+  setActiveFilter,
+}: {
+  activeFilter: ResourceTypeId;
+  setActiveFilter: (id: ResourceTypeId) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="border-b border-custom-border-200">
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-custom-text-400 uppercase hover:bg-custom-background-80"
+          >
+            <ChevronRight
+              className={cn("size-3 transition-transform", {
+                "rotate-90": isOpen,
+              })}
+            />
+            <span>Filter by Type</span>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+          <div className="px-2 pb-2">
+            {RESOURCE_TYPES.map((type) => (
+              <ResourceTypeFilter
+                key={type.id}
+                type={type}
+                isActive={activeFilter === type.id}
+                onClick={() => setActiveFilter(type.id)}
+              />
+            ))}
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  );
+});
+
+const QuickFiltersSection = memo(function QuickFiltersSection() {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="border-b border-custom-border-200">
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-custom-text-400 uppercase hover:bg-custom-background-80"
+          >
+            <ChevronRight
+              className={cn("size-3 transition-transform", {
+                "rotate-90": isOpen,
+              })}
+            />
+            <span>Quick Filters</span>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+          <div className="px-4 pb-3 space-y-2">
+            <div className="text-sm text-custom-text-300">Recently Added</div>
+            <div className="text-sm text-custom-text-300">Favorites</div>
+            <div className="text-sm text-custom-text-300">Shared with Me</div>
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
   );
 });
 
@@ -98,75 +171,10 @@ export function ResourcesSidebar() {
         </div>
 
         {/* Filter by Type */}
-        <Disclosure defaultOpen={true}>
-          {({ open }) => (
-            <div className="border-b border-custom-border-200">
-              <Disclosure.Button className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-custom-text-400 uppercase hover:bg-custom-background-80">
-                <ChevronRight
-                  className={cn("size-3 transition-transform", {
-                    "rotate-90": open,
-                  })}
-                />
-                <span>Filter by Type</span>
-              </Disclosure.Button>
-              <Transition show={open} as="div">
-                <TransitionChild
-                  as="div"
-                  enter="transition duration-100 ease-out"
-                  enterFrom="opacity-0"
-                  enterTo="opacity-100"
-                  leave="transition duration-75 ease-out"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Disclosure.Panel static className="px-2 pb-2">
-                    {RESOURCE_TYPES.map((type) => (
-                      <ResourceTypeFilter
-                        key={type.id}
-                        type={type}
-                        isActive={activeFilter === type.id}
-                        onClick={() => setActiveFilter(type.id)}
-                      />
-                    ))}
-                  </Disclosure.Panel>
-                </TransitionChild>
-              </Transition>
-            </div>
-          )}
-        </Disclosure>
+        <FilterByTypeSection activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
 
         {/* Quick Filters */}
-        <Disclosure defaultOpen={true}>
-          {({ open }) => (
-            <div className="border-b border-custom-border-200">
-              <Disclosure.Button className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-custom-text-400 uppercase hover:bg-custom-background-80">
-                <ChevronRight
-                  className={cn("size-3 transition-transform", {
-                    "rotate-90": open,
-                  })}
-                />
-                <span>Quick Filters</span>
-              </Disclosure.Button>
-              <Transition show={open} as="div">
-                <TransitionChild
-                  as="div"
-                  enter="transition duration-100 ease-out"
-                  enterFrom="opacity-0"
-                  enterTo="opacity-100"
-                  leave="transition duration-75 ease-out"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Disclosure.Panel static className="px-4 pb-3 space-y-2">
-                    <div className="text-sm text-custom-text-300">Recently Added</div>
-                    <div className="text-sm text-custom-text-300">Favorites</div>
-                    <div className="text-sm text-custom-text-300">Shared with Me</div>
-                  </Disclosure.Panel>
-                </TransitionChild>
-              </Transition>
-            </div>
-          )}
-        </Disclosure>
+        <QuickFiltersSection />
 
         {/* Placeholder content */}
         <div className="flex-1 overflow-y-auto px-4 py-4">

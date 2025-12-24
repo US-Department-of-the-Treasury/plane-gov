@@ -1,7 +1,7 @@
 import { useState, useMemo, memo } from "react";
 import { useParams } from "react-router";
 import { Plus, Search, ChevronRight, File, FolderClosed, Lock } from "lucide-react";
-import { Disclosure, Transition, TransitionChild } from "@headlessui/react";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
 import { SIDEBAR_WIDTH } from "@plane/constants";
 import { useLocalStorage } from "@plane/hooks";
 import { useTranslation } from "@plane/i18n";
@@ -30,77 +30,68 @@ const WikiPageItem = memo(function WikiPageItem({
   depth?: number;
 }) {
   const router = useAppRouter();
+  const [isOpen, setIsOpen] = useState(false);
   const isActive = activePageId === page.id;
   const hasChildren = page.children.length > 0;
 
   return (
-    <Disclosure defaultOpen={false}>
-      {({ open }) => (
-        <div>
-          <div
-            role="button"
-            tabIndex={0}
-            className={cn(
-              "group flex items-center gap-1 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-custom-background-80",
-              {
-                "bg-custom-primary-100/10 text-custom-primary-100": isActive,
-              }
-            )}
-            style={{ paddingLeft: `${depth * 12 + 8}px` }}
-            onClick={() => router.push(`/${workspaceSlug}/wiki/${page.id}`)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                router.push(`/${workspaceSlug}/wiki/${page.id}`);
-              }
-            }}
-          >
-            {hasChildren && (
-              <Disclosure.Button
-                as="button"
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div>
+        <div
+          role="button"
+          tabIndex={0}
+          className={cn(
+            "group flex items-center gap-1 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-custom-background-80",
+            {
+              "bg-custom-primary-100/10 text-custom-primary-100": isActive,
+            }
+          )}
+          style={{ paddingLeft: `${depth * 12 + 8}px` }}
+          onClick={() => router.push(`/${workspaceSlug}/wiki/${page.id}`)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              router.push(`/${workspaceSlug}/wiki/${page.id}`);
+            }
+          }}
+        >
+          {hasChildren && (
+            <CollapsibleTrigger
+              asChild
+            >
+              <button
+                type="button"
                 className="flex-shrink-0 p-0.5 rounded hover:bg-custom-background-90"
                 onClick={(e) => e.stopPropagation()}
               >
                 <ChevronRight
                   className={cn("size-3.5 transition-transform", {
-                    "rotate-90": open,
+                    "rotate-90": isOpen,
                   })}
                 />
-              </Disclosure.Button>
-            )}
-            {!hasChildren && <div className="w-4" />}
-            <File className="size-4 flex-shrink-0 text-custom-text-300" />
-            <span className="flex-1 truncate">{page.name || "Untitled"}</span>
-            {page.is_locked && <Lock className="size-3 flex-shrink-0 text-custom-text-400" />}
-          </div>
-          {hasChildren && (
-            <Transition show={open} as="div">
-              <TransitionChild
-                as="div"
-                enter="transition duration-100 ease-out"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="transition duration-75 ease-out"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Disclosure.Panel static>
-                  {page.children.map((child) => (
-                    <WikiPageItem
-                      key={child.id}
-                      page={child}
-                      workspaceSlug={workspaceSlug}
-                      activePageId={activePageId}
-                      depth={depth + 1}
-                    />
-                  ))}
-                </Disclosure.Panel>
-              </TransitionChild>
-            </Transition>
+              </button>
+            </CollapsibleTrigger>
           )}
+          {!hasChildren && <div className="w-4" />}
+          <File className="size-4 flex-shrink-0 text-custom-text-300" />
+          <span className="flex-1 truncate">{page.name || "Untitled"}</span>
+          {page.is_locked && <Lock className="size-3 flex-shrink-0 text-custom-text-400" />}
         </div>
-      )}
-    </Disclosure>
+        {hasChildren && (
+          <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+            {page.children.map((child) => (
+              <WikiPageItem
+                key={child.id}
+                page={child}
+                workspaceSlug={workspaceSlug}
+                activePageId={activePageId}
+                depth={depth + 1}
+              />
+            ))}
+          </CollapsibleContent>
+        )}
+      </div>
+    </Collapsible>
   );
 });
 
@@ -117,14 +108,18 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
   activePageId?: string;
   depth?: number;
 }) {
+  const [isOpen, setIsOpen] = useState(true);
   const collectionPages = pages.filter((p) => p.collection === collection.id);
   const hasContent = collection.children.length > 0 || collectionPages.length > 0;
 
   return (
-    <Disclosure defaultOpen={true}>
-      {({ open }) => (
-        <div>
-          <Disclosure.Button
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div>
+        <CollapsibleTrigger
+          asChild
+        >
+          <button
+            type="button"
             className={cn(
               "group w-full flex items-center gap-1 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-custom-background-80"
             )}
@@ -132,50 +127,38 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
           >
             <ChevronRight
               className={cn("size-3.5 transition-transform flex-shrink-0", {
-                "rotate-90": open,
+                "rotate-90": isOpen,
               })}
             />
             <FolderClosed className="size-4 flex-shrink-0 text-custom-text-300" />
             <span className="flex-1 truncate text-left font-medium">{collection.name}</span>
-          </Disclosure.Button>
-          {hasContent && (
-            <Transition show={open} as="div">
-              <TransitionChild
-                as="div"
-                enter="transition duration-100 ease-out"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="transition duration-75 ease-out"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Disclosure.Panel static>
-                  {collection.children.map((child) => (
-                    <WikiCollectionItem
-                      key={child.id}
-                      collection={child}
-                      pages={pages}
-                      workspaceSlug={workspaceSlug}
-                      activePageId={activePageId}
-                      depth={depth + 1}
-                    />
-                  ))}
-                  {collectionPages.map((page) => (
-                    <WikiPageItem
-                      key={page.id}
-                      page={page}
-                      workspaceSlug={workspaceSlug}
-                      activePageId={activePageId}
-                      depth={depth + 1}
-                    />
-                  ))}
-                </Disclosure.Panel>
-              </TransitionChild>
-            </Transition>
-          )}
-        </div>
-      )}
-    </Disclosure>
+          </button>
+        </CollapsibleTrigger>
+        {hasContent && (
+          <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+            {collection.children.map((child) => (
+              <WikiCollectionItem
+                key={child.id}
+                collection={child}
+                pages={pages}
+                workspaceSlug={workspaceSlug}
+                activePageId={activePageId}
+                depth={depth + 1}
+              />
+            ))}
+            {collectionPages.map((page) => (
+              <WikiPageItem
+                key={page.id}
+                page={page}
+                workspaceSlug={workspaceSlug}
+                activePageId={activePageId}
+                depth={depth + 1}
+              />
+            ))}
+          </CollapsibleContent>
+        )}
+      </div>
+    </Collapsible>
   );
 });
 

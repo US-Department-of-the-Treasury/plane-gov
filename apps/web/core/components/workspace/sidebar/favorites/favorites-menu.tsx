@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import type {
   DragLocationHistory,
@@ -9,7 +9,7 @@ import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element
 import { orderBy } from "lodash-es";
 import { useParams } from "next/navigation";
 import { FolderPlus } from "lucide-react";
-import { Disclosure, Transition } from "@headlessui/react";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
 import { IS_FAVORITE_MENU_OPEN } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { ChevronRightIcon } from "@plane/propel/icons";
@@ -173,76 +173,71 @@ export function SidebarFavoritesMenu() {
 
   return (
     <>
-      <Disclosure as="div" defaultOpen ref={containerRef}>
-        <div
-          ref={elementRef}
-          className={cn(
-            "group/favorites-button w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-placeholder hover:bg-layer-transparent-hover"
-          )}
-        >
-          <Disclosure.Button
-            as="button"
-            type="button"
+      <Collapsible open={isFavoriteMenuOpen} onOpenChange={toggleFavoriteMenu}>
+        <div ref={containerRef}>
+          <div
+            ref={elementRef}
             className={cn(
-              "w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder",
-              {
-                "bg-layer-1 opacity-60": isDragging,
-              }
-            )}
-            onClick={() => toggleFavoriteMenu(!isFavoriteMenuOpen)}
-            aria-label={t(
-              isFavoriteMenuOpen
-                ? "aria_labels.projects_sidebar.close_favorites_menu"
-                : "aria_labels.projects_sidebar.open_favorites_menu"
+              "group/favorites-button w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-placeholder hover:bg-layer-transparent-hover"
             )}
           >
-            <span className="text-13 font-semibold">{t("favorites")}</span>
-          </Disclosure.Button>
-          <div className="flex items-center opacity-0 pointer-events-none group-hover/favorites-button:opacity-100 group-hover/favorites-button:pointer-events-auto">
-            <Tooltip tooltipHeading={t("create_folder")} tooltipContent="">
+            <CollapsibleTrigger
+              asChild
+            >
               <button
                 type="button"
-                className="p-0.5 rounded-sm hover:bg-layer-transparent-hover flex-shrink-0 grid place-items-center"
-                onClick={() => {
-                  setCreateNewFolder(true);
-                  if (!isFavoriteMenuOpen) toggleFavoriteMenu(!isFavoriteMenuOpen);
-                }}
-                aria-label={t("aria_labels.projects_sidebar.create_favorites_folder")}
+                className={cn(
+                  "w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder",
+                  {
+                    "bg-layer-1 opacity-60": isDragging,
+                  }
+                )}
+                aria-label={t(
+                  isFavoriteMenuOpen
+                    ? "aria_labels.projects_sidebar.close_favorites_menu"
+                    : "aria_labels.projects_sidebar.open_favorites_menu"
+                )}
               >
-                <FolderPlus className="size-3" />
+                <span className="text-13 font-semibold">{t("favorites")}</span>
               </button>
-            </Tooltip>
-            <Disclosure.Button
-              as="button"
-              type="button"
-              className="p-0.5 rounded-sm hover:bg-layer-transparent-hover flex-shrink-0 grid place-items-center"
-              onClick={() => toggleFavoriteMenu(!isFavoriteMenuOpen)}
-              aria-label={t(
-                isFavoriteMenuOpen
-                  ? "aria_labels.projects_sidebar.close_favorites_menu"
-                  : "aria_labels.projects_sidebar.open_favorites_menu"
-              )}
-            >
-              <ChevronRightIcon
-                className={cn("flex-shrink-0 size-3 transition-all", {
-                  "rotate-90": isFavoriteMenuOpen,
-                })}
-              />
-            </Disclosure.Button>
+            </CollapsibleTrigger>
+            <div className="flex items-center opacity-0 pointer-events-none group-hover/favorites-button:opacity-100 group-hover/favorites-button:pointer-events-auto">
+              <Tooltip tooltipHeading={t("create_folder")} tooltipContent="">
+                <button
+                  type="button"
+                  className="p-0.5 rounded-sm hover:bg-layer-transparent-hover flex-shrink-0 grid place-items-center"
+                  onClick={() => {
+                    setCreateNewFolder(true);
+                    if (!isFavoriteMenuOpen) toggleFavoriteMenu(!isFavoriteMenuOpen);
+                  }}
+                  aria-label={t("aria_labels.projects_sidebar.create_favorites_folder")}
+                >
+                  <FolderPlus className="size-3" />
+                </button>
+              </Tooltip>
+              <CollapsibleTrigger
+                asChild
+              >
+                <button
+                  type="button"
+                  className="p-0.5 rounded-sm hover:bg-layer-transparent-hover flex-shrink-0 grid place-items-center"
+                  aria-label={t(
+                    isFavoriteMenuOpen
+                      ? "aria_labels.projects_sidebar.close_favorites_menu"
+                      : "aria_labels.projects_sidebar.open_favorites_menu"
+                  )}
+                >
+                  <ChevronRightIcon
+                    className={cn("flex-shrink-0 size-3 transition-all", {
+                      "rotate-90": isFavoriteMenuOpen,
+                    })}
+                  />
+                </button>
+              </CollapsibleTrigger>
+            </div>
           </div>
-        </div>
-        <Transition
-          as="div"
-          show={isFavoriteMenuOpen}
-          enter="transition duration-100 ease-out"
-          enterFrom="transform scale-95 opacity-0"
-          enterTo="transform scale-100 opacity-100"
-          leave="transition duration-75 ease-out"
-          leaveFrom="transform scale-100 opacity-100"
-          leaveTo="transform scale-95 opacity-0"
-        >
-          {isFavoriteMenuOpen && (
-            <Disclosure.Panel as="div" className="flex flex-col mt-0.5 gap-0.5" static>
+          <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+            <div className="flex flex-col mt-0.5 gap-0.5">
               {createNewFolder && <NewFavoriteFolder setCreateNewFolder={setCreateNewFolder} actionType="create" />}
               {Object.keys(groupedFavorites).length === 0 ? (
                 <>
@@ -274,10 +269,10 @@ export function SidebarFavoritesMenu() {
                     </>
                   ))
               )}
-            </Disclosure.Panel>
-          )}
-        </Transition>
-      </Disclosure>
+            </div>
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
     </>
   );
 }

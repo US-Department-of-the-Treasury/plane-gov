@@ -8,7 +8,7 @@ import { useParams, useRouter } from "next/navigation";
 import { createRoot } from "react-dom/client";
 import scrollIntoView from "smooth-scroll-into-view-if-needed";
 import { LinkIcon, Settings, Share2, LogOut, MoreHorizontal } from "lucide-react";
-import { Disclosure, Transition, TransitionChild } from "@headlessui/react";
+import { Collapsible, CollapsibleContent } from "@plane/propel/primitives";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, MEMBER_TRACKER_ELEMENTS } from "@plane/constants";
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -269,7 +269,7 @@ export function SidebarProjectsListItem(props: Props) {
     <>
       <PublishProjectModal isOpen={publishModalOpen} projectId={projectId} onClose={() => setPublishModal(false)} />
       <LeaveProjectModal project={project} isOpen={leaveProjectModalOpen} onClose={() => setLeaveProjectModal(false)} />
-      <Disclosure key={`${project.id}_${URLProjectId}`} defaultOpen={isProjectListOpen} as="div">
+      <div key={`${project.id}_${URLProjectId}`}>
         <div
           id={`sidebar-${projectId}-${projectListType}`}
           className={cn("relative", {
@@ -316,8 +316,7 @@ export function SidebarProjectsListItem(props: Props) {
             <>
               <ControlLink href={defaultTabUrl} className="flex-grow flex truncate" onClick={handleItemClick}>
                 {isAccordionMode ? (
-                  <Disclosure.Button
-                    as="button"
+                  <button
                     type="button"
                     className={cn("flex-grow flex items-center gap-1.5 text-left select-none w-full", {})}
                     aria-label={
@@ -330,7 +329,7 @@ export function SidebarProjectsListItem(props: Props) {
                       <Logo logo={project.logo_props} size={16} />
                     </div>
                     <p className="truncate text-13 font-medium text-secondary">{project.name}</p>
-                  </Disclosure.Button>
+                  </button>
                 ) : (
                   <div className="flex-grow flex items-center gap-1.5 text-left select-none w-full">
                     <div className="size-4 grid place-items-center flex-shrink-0">
@@ -456,28 +455,18 @@ export function SidebarProjectsListItem(props: Props) {
             </>
           </div>
           {isAccordionMode && (
-            <Transition show={isProjectListOpen} as="div">
-              <TransitionChild
-                as="div"
-                enter="transition duration-100 ease-out"
-                enterFrom="transform scale-95 opacity-0"
-                enterTo="transform scale-100 opacity-100"
-                leave="transition duration-75 ease-out"
-                leaveFrom="transform scale-100 opacity-100"
-                leaveTo="transform scale-95 opacity-0"
-              >
-                {isProjectListOpen && (
-                  <Disclosure.Panel as="div" className="relative flex flex-col gap-0.5 mt-1 pl-6 mb-1.5">
-                    <div className="absolute left-[15px] top-0 bottom-1 w-[1px] bg-subtle-1" />
-                    <ProjectNavigationRoot workspaceSlug={workspaceSlug.toString()} projectId={projectId.toString()} />
-                  </Disclosure.Panel>
-                )}
-              </TransitionChild>
-            </Transition>
+            <Collapsible open={isProjectListOpen} onOpenChange={setIsProjectListOpen}>
+              <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+                <div className="relative flex flex-col gap-0.5 mt-1 pl-6 mb-1.5">
+                  <div className="absolute left-[15px] top-0 bottom-1 w-[1px] bg-subtle-1" />
+                  <ProjectNavigationRoot workspaceSlug={workspaceSlug.toString()} projectId={projectId.toString()} />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           )}
           {isLastChild && <DropIndicator isVisible={instruction === "DRAG_BELOW"} />}
         </div>
-      </Disclosure>
+      </div>
     </>
   );
 }

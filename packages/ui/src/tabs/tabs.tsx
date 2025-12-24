@@ -1,12 +1,10 @@
-import { Tab } from "@headlessui/react";
-import type { FC } from "react";
 import React, { useEffect, useState } from "react";
+import { Tabs as RadixTabs, TabsList, TabsTrigger, TabsContent } from "@plane/propel/primitives";
 // helpers
 import { useLocalStorage } from "@plane/hooks";
 import { cn } from "../utils";
 // types
 import type { TabListItem } from "./tab-list";
-import { TabList } from "./tab-list";
 
 export type TabContent = {
   content: React.ReactNode;
@@ -56,35 +54,68 @@ export function Tabs(props: TTabsProps) {
     }
   }, [selectedTab, setValue, storeInLocalStorage, storageKey]);
 
-  const currentTabIndex = (tabKey: string): number => tabs.findIndex((tab) => tab.key === tabKey);
-
-  const handleTabChange = (key: string) => {
-    setSelectedTab(key);
+  const handleTabChange = (value: string) => {
+    setSelectedTab(value);
+    // Call the onClick handler if defined on the tab
+    const tab = tabs.find((t) => t.key === value);
+    if (tab?.onClick) {
+      tab.onClick();
+    }
   };
 
   return (
     <div className="flex flex-col w-full h-full">
-      <Tab.Group defaultIndex={currentTabIndex(selectedTab)}>
+      <RadixTabs value={selectedTab} onValueChange={handleTabChange}>
         <div className={cn("flex flex-col w-full h-full gap-2", containerClassName)}>
           <div className={cn("flex w-full items-center gap-4", tabListContainerClassName)}>
-            <TabList
-              tabs={tabs}
-              tabListClassName={tabListClassName}
-              tabClassName={tabClassName}
-              size={size}
-              onTabChange={handleTabChange}
-            />
+            <TabsList
+              className={cn(
+                "flex w-full min-w-fit items-center justify-between gap-1.5 rounded-md text-13 p-0.5 bg-layer-1",
+                tabListClassName
+              )}
+            >
+              {tabs.map((tab) => (
+                <TabsTrigger
+                  key={tab.key}
+                  value={tab.key}
+                  disabled={tab.disabled}
+                  className={cn(
+                    "flex items-center justify-center p-1 min-w-fit w-full font-medium text-primary outline-none focus:outline-none cursor-pointer transition-all rounded-sm",
+                    "data-[state=active]:bg-layer-transparent-active data-[state=active]:text-primary data-[state=active]:shadow-sm",
+                    "data-[state=inactive]:text-placeholder data-[state=inactive]:hover:text-tertiary data-[state=inactive]:hover:bg-layer-transparent-hover",
+                    "disabled:text-placeholder disabled:cursor-not-allowed",
+                    {
+                      "text-11": size === "sm",
+                      "text-13": size === "md",
+                      "text-14": size === "lg",
+                    },
+                    tabClassName
+                  )}
+                >
+                  {tab.icon && (
+                    <tab.icon
+                      className={cn({ "size-3": size === "sm", "size-4": size === "md", "size-5": size === "lg" })}
+                    />
+                  )}
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
             {actions && <div className="flex-grow">{actions}</div>}
           </div>
-          <Tab.Panels as="div" className="flex-1">
+          <div className="flex-1">
             {tabs.map((tab) => (
-              <Tab.Panel key={tab.key} as="div" className={cn("relative outline-none", tabPanelClassName)}>
+              <TabsContent
+                key={tab.key}
+                value={tab.key}
+                className={cn("relative outline-none mt-0", tabPanelClassName)}
+              >
                 {tab.content}
-              </Tab.Panel>
+              </TabsContent>
             ))}
-          </Tab.Panels>
+          </div>
         </div>
-      </Tab.Group>
+      </RadixTabs>
     </div>
   );
 }

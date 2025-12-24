@@ -74,4 +74,29 @@
       opacity: 0;
     }
   }
+
+  /* collapsible animations for Radix */
+  --animate-collapsible-down: collapsibleDown 0.2s ease-out;
+  @keyframes collapsibleDown {
+    from {
+      height: 0;
+      opacity: 0;
+    }
+    to {
+      height: var(--radix-collapsible-content-height);
+      opacity: 1;
+    }
+  }
+
+  --animate-collapsible-up: collapsibleUp 0.2s ease-out;
+  @keyframes collapsibleUp {
+    from {
+      height: var(--radix-collapsible-content-height);
+      opacity: 1;
+    }
+    to {
+      height: 0;
+      opacity: 0;
+    }
+  }
 }

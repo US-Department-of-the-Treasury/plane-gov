@@ -1,5 +1,9 @@
-import { Disclosure, Transition, TransitionChild } from "@headlessui/react";
 import React, { useState, useEffect, useCallback } from "react";
+import {
+  Collapsible as RadixCollapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@plane/propel/primitives";
 
 export type TCollapsibleProps = {
   title: string | React.ReactNode;
@@ -24,35 +28,27 @@ export function Collapsible(props: TCollapsibleProps) {
   }, [isOpen]);
 
   // handlers
-  const handleOnClick = useCallback(() => {
-    if (isOpen !== undefined) {
-      if (onToggle) onToggle();
-    } else {
-      setLocalIsOpen((prev) => !prev);
-    }
-  }, [isOpen, onToggle]);
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (isOpen !== undefined) {
+        // Controlled mode - call onToggle
+        if (onToggle) onToggle();
+      } else {
+        // Uncontrolled mode - update local state
+        setLocalIsOpen(open);
+      }
+    },
+    [isOpen, onToggle]
+  );
 
   return (
-    <Disclosure as="div" className={className}>
-      <Disclosure.Button ref={buttonRef} className={buttonClassName} onClick={handleOnClick}>
+    <RadixCollapsible open={localIsOpen} onOpenChange={handleOpenChange} className={className}>
+      <CollapsibleTrigger ref={buttonRef} className={buttonClassName}>
         {title}
-      </Disclosure.Button>
-      <Transition show={localIsOpen} as="div">
-        <TransitionChild
-          as="div"
-          enter="transition-all duration-300 ease-in-out"
-          enterFrom="grid-rows-[0fr] opacity-0"
-          enterTo="grid-rows-[1fr] opacity-100"
-          leave="transition-all duration-300 ease-in-out"
-          leaveFrom="grid-rows-[1fr] opacity-100"
-          leaveTo="grid-rows-[0fr] opacity-0"
-          className="grid overflow-hidden"
-        >
-          <Disclosure.Panel static className="min-h-0">
-            {children}
-          </Disclosure.Panel>
-        </TransitionChild>
-      </Transition>
-    </Disclosure>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+        {children}
+      </CollapsibleContent>
+    </RadixCollapsible>
   );
 }

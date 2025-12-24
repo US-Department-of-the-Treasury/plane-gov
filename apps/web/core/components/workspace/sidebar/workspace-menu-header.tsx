@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { MoreHorizontal, ArchiveIcon, Settings } from "lucide-react";
-import { Disclosure } from "@headlessui/react";
+import { CollapsibleTrigger } from "@plane/propel/primitives";
 // plane imports
 import { EUserPermissionsLevel } from "@plane/constants";
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -19,7 +19,7 @@ export type SidebarWorkspaceMenuHeaderProps = {
 };
 
 export function SidebarWorkspaceMenuHeader(props: SidebarWorkspaceMenuHeaderProps) {
-  const { isWorkspaceMenuOpen, toggleWorkspaceMenu } = props;
+  const { isWorkspaceMenuOpen } = props;
   // state
   const [isMenuActive, setIsMenuActive] = useState(false);
   // refs
@@ -38,13 +38,11 @@ export function SidebarWorkspaceMenuHeader(props: SidebarWorkspaceMenuHeaderProp
 
   return (
     <div className="flex px-2 bg-surface-1 group/workspace-button hover:bg-surface-2 rounded-sm mt-2.5">
-      <Disclosure.Button
-        as="button"
+      <CollapsibleTrigger
         className="flex-1 sticky top-0  z-10  w-full  py-1.5 flex items-center justify-between gap-1 text-placeholder  text-13 font-semibold"
-        onClick={() => toggleWorkspaceMenu(!isWorkspaceMenuOpen)}
       >
         <span>{t("workspace")}</span>
-      </Disclosure.Button>
+      </CollapsibleTrigger>
       <CustomMenu
         customButton={
           <span
@@ -82,10 +80,8 @@ export function SidebarWorkspaceMenuHeader(props: SidebarWorkspaceMenuHeaderProp
           </CustomMenu.MenuItem>
         )}
       </CustomMenu>
-      <Disclosure.Button
-        as="button"
+      <CollapsibleTrigger
         className="sticky top-0 z-10 group/workspace-button px-0.5 py-1.5 flex items-center justify-between gap-1 text-placeholder hover:bg-surface-2 rounded-sm text-11 font-semibold"
-        onClick={() => toggleWorkspaceMenu(!isWorkspaceMenuOpen)}
       >
         {" "}
         <span className="flex-shrink-0 opacity-0 pointer-events-none group-hover/workspace-button:opacity-100 group-hover/workspace-button:pointer-events-auto rounded-sm hover:bg-layer-1">
@@ -95,7 +91,7 @@ export function SidebarWorkspaceMenuHeader(props: SidebarWorkspaceMenuHeaderProp
             })}
           />
         </span>
-      </Disclosure.Button>
+      </CollapsibleTrigger>
     </div>
   );
 }

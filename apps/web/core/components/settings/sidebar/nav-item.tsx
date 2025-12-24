@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Disclosure } from "@headlessui/react";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import type { EUserWorkspaceRoles } from "@plane/types";
@@ -55,35 +55,37 @@ function SettingsSidebarNavItem(props: TSettingsSidebarNavItemProps) {
   );
 
   return (
-    <Disclosure as="div" className="flex flex-col w-full" defaultOpen={isExpanded} key={setting.key}>
-      <Disclosure.Button
-        as="button"
-        type="button"
-        className={cn(
-          "group w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder"
-        )}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        {renderChildren ? (
-          <div className={buttonClass}>{titleElement}</div>
-        ) : (
-          <Link
-            href={joinUrlPath(workspaceSlug, setting.href)}
-            className={buttonClass}
-            onClick={() => toggleSidebar(true)}
-          >
-            {titleElement}
-          </Link>
-        )}
-      </Disclosure.Button>
+    <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="flex flex-col w-full" key={setting.key}>
+      <CollapsibleTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "group w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder"
+          )}
+        >
+          {renderChildren ? (
+            <div className={buttonClass}>{titleElement}</div>
+          ) : (
+            <Link
+              href={joinUrlPath(workspaceSlug, setting.href)}
+              className={buttonClass}
+              onClick={() => toggleSidebar(true)}
+            >
+              {titleElement}
+            </Link>
+          )}
+        </button>
+      </CollapsibleTrigger>
       {/* Nested Navigation */}
-      {isExpanded && (
-        <Disclosure.Panel as="div" className={cn("relative flex flex-col gap-0.5 mt-1 pl-6 mb-1.5")} static>
-          <div className="absolute left-[15px] top-0 bottom-1 w-px bg-subtle-1" />
-          {renderChildren?.(setting.key)}
-        </Disclosure.Panel>
+      {renderChildren && (
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+          <div className={cn("relative flex flex-col gap-0.5 mt-1 pl-6 mb-1.5")}>
+            <div className="absolute left-[15px] top-0 bottom-1 w-px bg-subtle-1" />
+            {renderChildren(setting.key)}
+          </div>
+        </CollapsibleContent>
       )}
-    </Disclosure>
+    </Collapsible>
   );
 }
 
