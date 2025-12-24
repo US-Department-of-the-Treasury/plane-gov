@@ -148,3 +148,21 @@ plans/
 
 # Dynamic port allocation (per-worktree)
 .dev-ports
+
+# Local/sensitive deployment configs (contain gov URLs)
+.claude/deploy-config.json
+apps/web/.env.production
+scripts/post-deploy-smoke-tests.sh
+scripts/pre-deploy-health-check.sh
+scripts/rollback-deployment.sh
+scripts/validate-single-domain-migration.sh
+docs/DEPLOYMENT_PREVENTION_STRATEGIES.md
+docs/DEPLOYMENT_QUICK_REFERENCE.md
+
+# Terraform local files
+terraform/cloudfront-policies-improved.tf.example
+terraform/scripts/
+
+# E2E test state
+test-results/.last-run.json
+e2e/screenshots/
