@@ -43,24 +43,4 @@ resource "aws_elasticache_replication_group" "redis" {
   }
 }
 
-# Store Redis endpoint in Secrets Manager
-resource "aws_secretsmanager_secret" "redis_config" {
-  count                   = var.enable_redis ? 1 : 0
-  name                    = "${var.project_name}/redis-config"
-  description             = "ElastiCache Redis configuration"
-  recovery_window_in_days = var.environment == "prod" ? 30 : 0
-
-  tags = {
-    Name = "${var.project_name}-redis-config"
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "redis_config" {
-  count     = var.enable_redis ? 1 : 0
-  secret_id = aws_secretsmanager_secret.redis_config[0].id
-  secret_string = jsonencode({
-    primary_endpoint = aws_elasticache_replication_group.redis[0].primary_endpoint_address
-    reader_endpoint  = aws_elasticache_replication_group.redis[0].reader_endpoint_address
-    port             = 6379
-  })
-}
+# Redis configuration is now managed via SSM Parameter Store (see ssm.tf)

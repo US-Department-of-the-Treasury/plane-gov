@@ -85,25 +85,4 @@ resource "aws_rds_cluster_instance" "aurora" {
   }
 }
 
-# Store database credentials in Secrets Manager
-resource "aws_secretsmanager_secret" "db_credentials" {
-  name                    = "${var.project_name}/db-credentials"
-  description             = "Aurora PostgreSQL database credentials"
-  recovery_window_in_days = var.environment == "prod" ? 30 : 0
-
-  tags = {
-    Name = "${var.project_name}-db-credentials"
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "db_credentials" {
-  secret_id = aws_secretsmanager_secret.db_credentials.id
-  secret_string = jsonencode({
-    username = var.db_username
-    password = random_password.db_password.result
-    host     = aws_rds_cluster.aurora.endpoint
-    port     = 5432
-    dbname   = var.db_name
-    engine   = "postgres"
-  })
-}
+# Database credentials are now managed via SSM Parameter Store (see ssm.tf)

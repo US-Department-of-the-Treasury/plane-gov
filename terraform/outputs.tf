@@ -25,11 +25,7 @@ output "aurora_reader_endpoint" {
   value       = aws_rds_cluster.aurora.reader_endpoint
 }
 
-output "db_secret_arn" {
-  description = "Secrets Manager ARN for database credentials"
-  value       = aws_secretsmanager_secret.db_credentials.arn
-  sensitive   = true
-}
+# Secrets Manager outputs removed - now using SSM Parameter Store
 
 # ElastiCache Outputs
 output "redis_endpoint" {
@@ -155,23 +151,10 @@ output "live_url" {
   value       = var.domain_name != "" ? "wss://${var.domain_name}/live" : "wss://${aws_cloudfront_distribution.unified.domain_name}/live"
 }
 
-# Secrets Manager ARNs
-output "django_secret_arn" {
-  description = "Secrets Manager ARN for Django secret key"
-  value       = aws_secretsmanager_secret.django_secret.arn
-  sensitive   = true
-}
-
-output "oidc_secret_arn" {
-  description = "Secrets Manager ARN for OIDC credentials"
-  value       = aws_secretsmanager_secret.oidc_credentials.arn
-  sensitive   = true
-}
-
-output "app_config_secret_arn" {
-  description = "Secrets Manager ARN for application config"
-  value       = aws_secretsmanager_secret.app_config.arn
-  sensitive   = true
+# SSM Parameter Store outputs
+output "ssm_parameter_path" {
+  description = "SSM Parameter Store path prefix for application secrets"
+  value       = "/${var.project_name}/${var.environment}"
 }
 
 # Security Group IDs
