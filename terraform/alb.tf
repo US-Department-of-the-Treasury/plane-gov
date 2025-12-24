@@ -15,6 +15,21 @@ resource "aws_lb" "main" {
   }
 }
 
+# Route53 alias for ALB - used by CloudFront to connect over HTTPS
+# The wildcard certificate (*.domain_name) covers this subdomain
+resource "aws_route53_record" "alb_alias" {
+  count   = var.domain_name != "" && var.route53_zone_id != "" ? 1 : 0
+  zone_id = var.route53_zone_id
+  name    = "api-alb.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.main.dns_name
+    zone_id                = aws_lb.main.zone_id
+    evaluate_target_health = true
+  }
+}
+
 # Target Group for Django API
 resource "aws_lb_target_group" "django" {
   name                 = "${var.project_name}-django"

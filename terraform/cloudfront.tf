@@ -146,14 +146,16 @@ resource "aws_cloudfront_distribution" "unified" {
   }
 
   # ALB Origin for API
+  # Uses a Route53 alias that matches the wildcard certificate (*.domain_name)
+  # This allows HTTPS between CloudFront and ALB for FedRAMP SC-8/SC-13 compliance
   origin {
-    domain_name = aws_lb.main.dns_name
+    domain_name = var.domain_name != "" ? "api-alb.${var.domain_name}" : aws_lb.main.dns_name
     origin_id   = "ALB-api"
 
     custom_origin_config {
       http_port              = 80
       https_port             = 443
-      origin_protocol_policy = "https-only"
+      origin_protocol_policy = var.domain_name != "" ? "https-only" : "http-only"
       origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
