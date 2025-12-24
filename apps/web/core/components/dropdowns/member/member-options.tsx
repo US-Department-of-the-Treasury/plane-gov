@@ -45,6 +45,7 @@ export function MemberOptions(props: Props) {
   // states
   const [query, setQuery] = useState("");
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
+  const [isPositioned, setIsPositioned] = useState(false);
   // plane hooks
   const { t } = useTranslation();
   // store hooks
@@ -64,7 +65,7 @@ export function MemberOptions(props: Props) {
     return workspaceMember?.is_active === false;
   };
   // popper-js init
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
     placement: placement ?? "bottom-start",
     modifiers: [
       {
@@ -75,6 +76,41 @@ export function MemberOptions(props: Props) {
       },
     ],
   });
+
+  // Force popper to recalculate position when dropdown opens or popper element mounts
+  useEffect(() => {
+    if (isOpen && popperElement) {
+      // Use double rAF to ensure browser has laid out the element before showing
+      // First rAF: element is in DOM but not yet painted
+      // Second rAF: element is painted, position can be calculated correctly
+      let cancelled = false;
+      let rafId2: number | undefined;
+      const rafId1 = requestAnimationFrame(() => {
+        if (cancelled) return;
+        rafId2 = requestAnimationFrame(() => {
+          if (cancelled) return;
+          const updatePromise = update?.();
+          if (updatePromise) {
+            updatePromise
+              .then(() => {
+                if (!cancelled) setIsPositioned(true);
+                return undefined;
+              })
+              .catch(() => {
+                if (!cancelled) setIsPositioned(true);
+              });
+          } else {
+            setIsPositioned(true);
+          }
+        });
+      });
+      return () => {
+        cancelled = true;
+        cancelAnimationFrame(rafId1);
+        if (rafId2 !== undefined) cancelAnimationFrame(rafId2);
+      };
+    }
+  }, [isOpen, update, popperElement]);
 
   useEffect(() => {
     if (isOpen) {
@@ -129,6 +165,7 @@ export function MemberOptions(props: Props) {
         ref={setPopperElement}
         style={{
           ...styles.popper,
+          opacity: isPositioned ? 1 : 0,
         }}
         {...attributes.popper}
       >
