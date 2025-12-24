@@ -294,29 +294,31 @@ export function DateRangeDropdown(props: Props) {
   );
 
   const comboOptions = (
-    <Combobox.Options data-prevent-outside-click static>
-      <div
-        className="my-1 bg-surface-1 border-[0.5px] border-subtle-1 rounded-md overflow-hidden z-50"
-        ref={setPopperElement}
-        style={{ ...styles.popper, opacity: isPositioned ? 1 : 0 }}
-        {...attributes.popper}
-      >
-        <Calendar
-          className="rounded-md border border-subtle p-3 text-12"
-          captionLayout="dropdown"
-          selected={dateRange}
-          onSelect={(val: DateRange | undefined) => {
-            onSelect?.(val);
-          }}
-          mode="range"
-          disabled={disabledDays}
-          showOutsideDays
-          fixedWeeks
-          weekStartsOn={startOfWeek}
-          initialFocus
-        />
-      </div>
-    </Combobox.Options>
+    <div
+      ref={setPopperElement}
+      className="z-50"
+      style={{ ...styles.popper, opacity: isPositioned ? 1 : 0 }}
+      {...attributes.popper}
+    >
+      <Combobox.Options data-prevent-outside-click static>
+        <div className="my-1 bg-surface-1 border-[0.5px] border-subtle-1 rounded-md overflow-hidden">
+          <Calendar
+            className="rounded-md border border-subtle p-3 text-12"
+            captionLayout="dropdown"
+            selected={dateRange}
+            onSelect={(val: DateRange | undefined) => {
+              onSelect?.(val);
+            }}
+            mode="range"
+            disabled={disabledDays}
+            showOutsideDays
+            fixedWeeks
+            weekStartsOn={startOfWeek}
+            initialFocus
+          />
+        </div>
+      </Combobox.Options>
+    </div>
   );
 
   const Options = renderInPortal ? createPortal(comboOptions, document.body) : comboOptions;

@@ -212,33 +212,37 @@ export function DateDropdown(props: Props) {
     >
       {isOpen &&
         createPortal(
-          <Combobox.Options data-prevent-outside-click static>
-            <div
-              className={cn(
-                "my-1 bg-surface-1 shadow-raised-200 border-[0.5px] border-strong rounded-md overflow-hidden z-50",
-                optionsClassName
-              )}
-              ref={setPopperElement}
-              style={{ ...styles.popper, opacity: isPositioned ? 1 : 0 }}
-              {...attributes.popper}
-            >
-              <Calendar
-                className="rounded-md border border-subtle p-3"
-                captionLayout="dropdown"
-                selected={getDate(value)}
-                defaultMonth={getDate(value)}
-                onSelect={(date: Date | undefined) => {
-                  dropdownOnChange(date ?? null);
-                }}
-                showOutsideDays
-                initialFocus
-                disabled={disabledDays}
-                mode="single"
-                fixedWeeks
-                weekStartsOn={startOfWeek}
-              />
-            </div>
-          </Combobox.Options>,
+          <div
+            ref={setPopperElement}
+            className="z-50"
+            style={{ ...styles.popper, opacity: isPositioned ? 1 : 0 }}
+            {...attributes.popper}
+          >
+            <Combobox.Options data-prevent-outside-click static>
+              <div
+                className={cn(
+                  "my-1 bg-surface-1 shadow-raised-200 border-[0.5px] border-strong rounded-md overflow-hidden",
+                  optionsClassName
+                )}
+              >
+                <Calendar
+                  className="rounded-md border border-subtle p-3"
+                  captionLayout="dropdown"
+                  selected={getDate(value)}
+                  defaultMonth={getDate(value)}
+                  onSelect={(date: Date | undefined) => {
+                    dropdownOnChange(date ?? null);
+                  }}
+                  showOutsideDays
+                  initialFocus
+                  disabled={disabledDays}
+                  mode="single"
+                  fixedWeeks
+                  weekStartsOn={startOfWeek}
+                />
+              </div>
+            </Combobox.Options>
+          </div>,
           document.body
         )}
     </ComboDropDown>
