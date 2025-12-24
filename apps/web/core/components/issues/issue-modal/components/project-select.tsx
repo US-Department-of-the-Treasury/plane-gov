@@ -8,7 +8,7 @@ import { ETabIndices } from "@plane/constants";
 import type { TIssue } from "@plane/types";
 import { getTabIndex } from "@plane/utils";
 // components
-import { ProjectDropdown } from "@/components/dropdowns/project/dropdown";
+import { ProjectCombobox } from "@/components/dropdowns/project/project-combobox";
 // hooks
 import { useIssueModal } from "@/hooks/context/use-issue-modal";
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -41,7 +41,7 @@ export function IssueProjectSelect(props: TIssueProjectSelectProps) {
       }}
       render={({ field: { value, onChange } }) => (
         <div className="h-7">
-          <ProjectDropdown
+          <ProjectCombobox
             workspaceSlug={workspaceSlug.toString()}
             value={value}
             onChange={(projectId) => {

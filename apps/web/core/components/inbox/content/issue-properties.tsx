@@ -13,9 +13,9 @@ import { getDate, renderFormattedPayloadDate, generateWorkItemLink } from "@plan
 // components
 import { DateDropdown } from "@/components/dropdowns/date";
 import { IntakeStateDropdown } from "@/components/dropdowns/intake-state/dropdown";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { PriorityDropdown } from "@/components/dropdowns/priority";
-import { StateDropdown } from "@/components/dropdowns/state/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
+import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
+import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 import type { TIssueOperations } from "@/components/issues/issue-detail";
 import { IssueLabel } from "@/components/issues/issue-detail/label";
 // hooks
@@ -51,7 +51,7 @@ export function InboxIssueContentProperties(props: Props) {
     projectIdentifier: currentProjectDetails?.identifier,
     sequenceId: duplicateIssueDetails?.sequence_id,
   });
-  const DropdownComponent = isIntakeAccepted ? StateDropdown : IntakeStateDropdown;
+  const DropdownComponent = isIntakeAccepted ? StateCombobox : IntakeStateDropdown;
 
   return (
     <div className="flex w-full flex-col divide-y-2 divide-subtle-1">
@@ -86,7 +86,7 @@ export function InboxIssueContentProperties(props: Props) {
                 <MembersPropertyIcon className="h-4 w-4 flex-shrink-0" />
                 <span>Assignees</span>
               </div>
-              <MemberDropdown
+              <MemberCombobox
                 value={issue?.assignee_ids ?? []}
                 onChange={(val) =>
                   issue?.id && issueOperations.update(workspaceSlug, projectId, issue?.id, { assignee_ids: val })
@@ -114,7 +114,7 @@ export function InboxIssueContentProperties(props: Props) {
                 <PriorityPropertyIcon className="h-4 w-4 flex-shrink-0" />
                 <span>Priority</span>
               </div>
-              <PriorityDropdown
+              <PriorityCombobox
                 value={issue?.priority}
                 onChange={(val) =>
                   issue?.id && issueOperations.update(workspaceSlug, projectId, issue?.id, { priority: val })

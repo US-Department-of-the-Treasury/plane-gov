@@ -3,9 +3,9 @@ import React from "react";
 // components
 import type { TIssuePriorities, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { PriorityDropdown } from "@/components/dropdowns/priority";
-import { StateDropdown } from "@/components/dropdowns/state/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
+import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
+import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 // hooks
 import { useIssue } from "@/store/queries/issue";
 // types
@@ -57,7 +57,7 @@ export function RelationIssueProperty(props: Props) {
   return (
     <div className="relative flex items-center gap-2">
       <div className="h-5 flex-shrink-0">
-        <StateDropdown
+        <StateCombobox
           value={issue.state_id}
           projectId={issue.project_id ?? undefined}
           onChange={handleStateChange}
@@ -67,7 +67,7 @@ export function RelationIssueProperty(props: Props) {
       </div>
 
       <div className="h-5 flex-shrink-0">
-        <PriorityDropdown
+        <PriorityCombobox
           value={issue.priority}
           onChange={handlePriorityChange}
           disabled={disabled}
@@ -77,8 +77,8 @@ export function RelationIssueProperty(props: Props) {
       </div>
 
       <div className="h-5 flex-shrink-0">
-        <MemberDropdown
-          value={issue.assignee_ids}
+        <MemberCombobox
+          value={issue.assignee_ids ?? []}
           projectId={issue.project_id ?? undefined}
           onChange={handleAssigneeChange}
           disabled={disabled}

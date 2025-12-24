@@ -10,9 +10,9 @@ import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { IntakeStateDropdown } from "@/components/dropdowns/intake-state/dropdown";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
 import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
-import { PriorityDropdown } from "@/components/dropdowns/priority";
+import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
 import { ParentIssuesListModal } from "@/components/issues/parent-issues-list-modal";
 import { IssueLabelSelect } from "@/components/issues/select";
 // helpers
@@ -63,7 +63,7 @@ export function InboxIssueProperties(props: TInboxIssueProperties) {
 
       {/* priority */}
       <div className="h-7">
-        <PriorityDropdown
+        <PriorityCombobox
           value={data?.priority}
           onChange={(priority) => handleData("priority", priority)}
           buttonVariant="border-with-text"
@@ -73,7 +73,7 @@ export function InboxIssueProperties(props: TInboxIssueProperties) {
 
       {/* Assignees */}
       <div className="h-7">
-        <MemberDropdown
+        <MemberCombobox
           projectId={projectId}
           value={data?.assignee_ids || []}
           onChange={(assigneeIds) => handleData("assignee_ids", assigneeIds)}

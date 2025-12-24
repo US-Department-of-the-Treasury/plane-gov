@@ -8,9 +8,9 @@ import { getDate, renderFormattedPayloadDate, shouldHighlightIssueDueDate } from
 // components
 import { DateDropdown } from "@/components/dropdowns/date";
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { PriorityDropdown } from "@/components/dropdowns/priority";
-import { StateDropdown } from "@/components/dropdowns/state/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
+import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
+import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 // hooks
 import { WithDisplayPropertiesHOC } from "@/components/issues/issue-layouts/properties/with-display-properties-HOC";
 import { useProjectStates, getStateById } from "@/store/queries/state";
@@ -78,7 +78,7 @@ export function SubIssuesListItemProperties(props: Props) {
     <div className="relative flex items-center gap-2">
       <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="state">
         <div className="h-5 flex-shrink-0">
-          <StateDropdown
+          <StateCombobox
             value={issue.state_id}
             projectId={issue.project_id ?? undefined}
             onChange={(val) =>
@@ -105,7 +105,7 @@ export function SubIssuesListItemProperties(props: Props) {
 
       <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="priority">
         <div className="h-5 flex-shrink-0">
-          <PriorityDropdown
+          <PriorityCombobox
             value={issue.priority}
             onChange={(val) =>
               issue.project_id &&
@@ -197,8 +197,8 @@ export function SubIssuesListItemProperties(props: Props) {
 
       <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="assignee">
         <div className="h-5 flex-shrink-0">
-          <MemberDropdown
-            value={issue.assignee_ids}
+          <MemberCombobox
+            value={issue.assignee_ids ?? []}
             projectId={issue.project_id ?? undefined}
             onChange={(val) =>
               issue.project_id &&

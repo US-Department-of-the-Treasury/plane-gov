@@ -25,7 +25,7 @@ import lightPriorityAsset from "@/app/assets/empty-state/active-sprint/priority-
 import userImage from "@/app/assets/user.png?url";
 // components
 import { SingleProgressStats } from "@/components/core/sidebar/single-progress-stats";
-import { StateDropdown } from "@/components/dropdowns/state/dropdown";
+import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 import { SimpleEmptyState } from "@/components/empty-state/simple-empty-state-root";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -207,7 +207,7 @@ export function ActiveSprintStats(props: ActiveSprintStatsProps) {
                           </div>
                           <PriorityIcon priority={issue.priority} withContainer size={12} />
                           <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <StateDropdown
+                            <StateCombobox
                               value={issue.state_id}
                               onChange={() => {}}
                               projectId={projectId?.toString() ?? ""}
