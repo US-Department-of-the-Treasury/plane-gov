@@ -57,8 +57,22 @@ export function EmojiReactionPicker(props: EmojiReactionPickerProps) {
     [onChange, closeOnSelect, handleToggle]
   );
 
+  // Wrap onOpenChange to block unwanted dismiss events
+  const handleOpenChange = useCallback(
+    (open: boolean, eventDetails?: { reason?: string }) => {
+      if (!open && eventDetails?.reason) {
+        const allowedReasons = ["escape-key", "close-press"];
+        if (!allowedReasons.includes(eventDetails.reason)) {
+          return; // Block unexpected close events
+        }
+      }
+      handleToggle(open);
+    },
+    [handleToggle]
+  );
+
   return (
-    <Popover open={isOpen} onOpenChange={handleToggle} modal="trap-focus">
+    <Popover open={isOpen} onOpenChange={handleOpenChange} modal>
       <Popover.Button className={cn("outline-none", buttonClassName)} disabled={disabled}>
         {label}
       </Popover.Button>
