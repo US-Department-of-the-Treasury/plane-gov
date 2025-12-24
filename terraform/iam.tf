@@ -1,3 +1,6 @@
+# Get current AWS account ID for IAM policy ARNs
+data "aws_caller_identity" "current" {}
+
 # IAM Role for Elastic Beanstalk EC2 Instances
 resource "aws_iam_role" "eb_ec2" {
   name = "${var.project_name}-eb-ec2-role"
@@ -36,10 +39,57 @@ resource "aws_iam_role_policy_attachment" "eb_multicontainer_docker" {
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker"
 }
 
-# SSM access for running management commands
+# SSM access for running management commands (SSM Session Manager)
 resource "aws_iam_role_policy_attachment" "eb_ssm" {
   role       = aws_iam_role.eb_ec2.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+# Custom policy for SSM Parameter Store access (application secrets)
+resource "aws_iam_policy" "ssm_parameters_access" {
+  name        = "${var.project_name}-ssm-parameters-access"
+  description = "Allow EB instances to read SSM parameters for application secrets"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ReadSSMParameters"
+        Effect = "Allow"
+        Action = [
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+          "ssm:GetParametersByPath"
+        ]
+        Resource = [
+          # Path itself (required for GetParametersByPath)
+          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}/${var.environment}",
+          # Parameters under the path
+          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}/${var.environment}/*"
+        ]
+      },
+      {
+        Sid    = "DecryptSSMParameters"
+        Effect = "Allow"
+        Action = ["kms:Decrypt"]
+        Resource = ["*"]
+        Condition = {
+          StringEquals = {
+            "kms:ViaService" = "ssm.${var.aws_region}.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name = "${var.project_name}-ssm-parameters-access"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_parameters_access" {
+  role       = aws_iam_role.eb_ec2.name
+  policy_arn = aws_iam_policy.ssm_parameters_access.arn
 }
 
 # Custom policy for Secrets Manager access

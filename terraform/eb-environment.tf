@@ -144,6 +144,20 @@ resource "aws_elastic_beanstalk_environment" "main" {
     value     = var.aws_region
   }
 
+  # SSM Parameter Store configuration (new approach)
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "PROJECT"
+    value     = var.project_name
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "ENVIRONMENT"
+    value     = var.environment
+  }
+
+  # Legacy Secrets Manager ARNs (kept during migration, remove after validation)
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "APP_CONFIG_SECRET_ARN"
