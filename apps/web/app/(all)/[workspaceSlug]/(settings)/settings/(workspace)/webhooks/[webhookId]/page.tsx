@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { EUserPermissions, EUserPermissionsLevel, WORKSPACE_SETTINGS_TRACKER_EVENTS } from "@plane/constants";
+import { EUserPermissions, WORKSPACE_SETTINGS_TRACKER_EVENTS } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IWebhook } from "@plane/types";
 // ui
@@ -13,7 +13,6 @@ import { DeleteWebhookModal, WebhookDeleteSection, WebhookForm } from "@/compone
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useWebhook } from "@/hooks/store/use-webhook";
-import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceDetails } from "@/store/queries/workspace";
 import { queryKeys } from "@/store/queries/query-keys";
 import type { Route } from "./+types/page";
@@ -25,15 +24,16 @@ function WebhookDetailsPage({ params }: Route.ComponentProps) {
   const { workspaceSlug, webhookId } = params;
   // mobx store
   const { currentWebhook, fetchWebhookById, updateWebhook } = useWebhook();
-  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
-  const { allowPermissions } = useUserPermissions();
+  // Use TanStack Query for workspace details - properly triggers re-renders when data loads
+  const { data: currentWorkspace, isLoading: isLoadingWorkspace } = useWorkspaceDetails(workspaceSlug);
 
   // TODO: fix this error
   // useEffect(() => {
   //   if (isCreated !== "true") clearSecretKey();
   // }, [clearSecretKey, isCreated]);
-  // derived values
-  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
+  // derived values - use role from TanStack Query for accurate re-rendering
+  const userWorkspaceRole = currentWorkspace?.role;
+  const isAdmin = userWorkspaceRole === EUserPermissions.ADMIN;
   const pageTitle = currentWorkspace?.name ? `${currentWorkspace.name} - Webhook` : undefined;
 
   useQuery({
@@ -70,23 +70,26 @@ function WebhookDetailsPage({ params }: Route.ComponentProps) {
         title: "Success!",
         message: "Webhook updated successfully.",
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
       captureError({
         eventName: WORKSPACE_SETTINGS_TRACKER_EVENTS.webhook_updated,
         payload: { webhook: formData.id },
         error: error as Error,
       });
 
+      const errorMessage =
+        error instanceof Error && "error" in error ? (error as Error & { error?: string }).error : undefined;
+
       setToast({
         type: TOAST_TYPE.ERROR,
         title: "Error!",
-        message: error?.error ?? "Something went wrong. Please try again.",
+        message: errorMessage ?? "Something went wrong. Please try again.",
       });
     }
   };
 
-  if (!isAdmin)
+  // Only show NotAuthorized when workspace data has loaded AND user lacks permissions
+  if (!isLoadingWorkspace && currentWorkspace && !isAdmin)
     return (
       <>
         <PageHead title={pageTitle} />

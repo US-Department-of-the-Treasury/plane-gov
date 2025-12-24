@@ -2,12 +2,7 @@ import { useState } from "react";
 
 import { Search } from "lucide-react";
 // types
-import {
-  EUserPermissions,
-  EUserPermissionsLevel,
-  MEMBER_TRACKER_ELEMENTS,
-  MEMBER_TRACKER_EVENTS,
-} from "@plane/constants";
+import { EUserPermissions, MEMBER_TRACKER_ELEMENTS, MEMBER_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -26,7 +21,6 @@ import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
 import { useMember } from "@/hooks/store/use-member";
 import { useWorkspaceDetails } from "@/store/queries/workspace";
-import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceMembers, useInviteWorkspaceMembers } from "@/store/queries/member";
 // plane web components
 import { SendWorkspaceInvitationModal, MembersActivityButton } from "@/plane-web/components/workspace/members";
@@ -39,11 +33,10 @@ function WorkspaceMembersSettingsPage({ params }: Route.ComponentProps) {
   // router
   const { workspaceSlug } = params;
   // store hooks
-  const { workspaceUserInfo, allowPermissions } = useUserPermissions();
   const {
     workspace: { filtersStore },
   } = useMember();
-  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
+  const { data: currentWorkspace, isLoading: isLoadingWorkspace } = useWorkspaceDetails(workspaceSlug);
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const { mutate: inviteWorkspaceMembers } = useInviteWorkspaceMembers();
   const { t } = useTranslation();
@@ -51,69 +44,66 @@ function WorkspaceMembersSettingsPage({ params }: Route.ComponentProps) {
   // derived values
   const workspaceMemberIds = workspaceMembers?.map((m) => m.id);
 
-  // derived values
-  const canPerformWorkspaceAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
-  const canPerformWorkspaceMemberActions = allowPermissions(
-    [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.WORKSPACE
-  );
+  // Permission checks - use role from TanStack Query for accurate re-rendering
+  const userWorkspaceRole = currentWorkspace?.role;
+  const canPerformWorkspaceAdminActions = userWorkspaceRole === EUserPermissions.ADMIN;
+  const canPerformWorkspaceMemberActions =
+    userWorkspaceRole === EUserPermissions.ADMIN || userWorkspaceRole === EUserPermissions.MEMBER;
 
-  const handleWorkspaceInvite = async (data: IWorkspaceBulkInviteFormData) => {
-    try {
-      inviteWorkspaceMembers(
-        {
-          workspaceSlug,
-          data,
+  const handleWorkspaceInvite = (data: IWorkspaceBulkInviteFormData) => {
+    inviteWorkspaceMembers(
+      {
+        workspaceSlug,
+        data,
+      },
+      {
+        onSuccess: () => {
+          setInviteModal(false);
+
+          captureSuccess({
+            eventName: MEMBER_TRACKER_EVENTS.invite,
+            payload: {
+              emails: data.emails.map((email) => email.email),
+            },
+          });
+
+          setToast({
+            type: TOAST_TYPE.SUCCESS,
+            title: "Success!",
+            message: t("workspace_settings.settings.members.invitations_sent_successfully"),
+          });
         },
-        {
-          onSuccess: () => {
-            setInviteModal(false);
+        onError: (error: unknown) => {
+          let message = undefined;
+          if (error instanceof Error) {
+            const err = error as Error & { error?: string };
+            message = err.error;
+          }
+          captureError({
+            eventName: MEMBER_TRACKER_EVENTS.invite,
+            payload: {
+              emails: data.emails.map((email) => email.email),
+            },
+            error: error as Error,
+          });
 
-            captureSuccess({
-              eventName: MEMBER_TRACKER_EVENTS.invite,
-              payload: {
-                emails: data.emails.map((email) => email.email),
-              },
-            });
-
-            setToast({
-              type: TOAST_TYPE.SUCCESS,
-              title: "Success!",
-              message: t("workspace_settings.settings.members.invitations_sent_successfully"),
-            });
-          },
-          onError: (error: unknown) => {
-            let message = undefined;
-            if (error instanceof Error) {
-              const err = error as Error & { error?: string };
-              message = err.error;
-            }
-            captureError({
-              eventName: MEMBER_TRACKER_EVENTS.invite,
-              payload: {
-                emails: data.emails.map((email) => email.email),
-              },
-              error: error as Error,
-            });
-
-            setToast({
-              type: TOAST_TYPE.ERROR,
-              title: "Error!",
-              message: `${message ?? t("something_went_wrong_please_try_again")}`,
-            });
-          },
-        }
-      );
-    } catch (error: unknown) {
-      throw error;
-    }
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: `${message ?? t("something_went_wrong_please_try_again")}`,
+          });
+        },
+      }
+    );
   };
 
   // Handler for role filter updates
   const handleRoleFilterUpdate = (role: string) => {
     const currentFilters = filtersStore.filters;
     const currentRoles = currentFilters?.roles || [];
-    const updatedRoles = currentRoles.includes(role) ? currentRoles.filter((r: string) => r !== role) : [...currentRoles, role];
+    const updatedRoles = currentRoles.includes(role)
+      ? currentRoles.filter((r: string) => r !== role)
+      : [...currentRoles, role];
 
     filtersStore.updateFilters({
       roles: updatedRoles.length > 0 ? updatedRoles : undefined,
@@ -125,7 +115,9 @@ function WorkspaceMembersSettingsPage({ params }: Route.ComponentProps) {
   const appliedRoleFilters = filtersStore.filters?.roles || [];
 
   // if user is not authorized to view this page
-  if (workspaceUserInfo && !canPerformWorkspaceMemberActions) {
+  // Only show NotAuthorized when workspace data has loaded AND user lacks permissions
+  // Use TanStack Query loading state for accurate timing of permission check
+  if (!isLoadingWorkspace && currentWorkspace && !canPerformWorkspaceMemberActions) {
     return <NotAuthorizedView section="settings" className="h-auto" />;
   }
 
