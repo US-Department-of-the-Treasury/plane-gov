@@ -175,6 +175,10 @@ echo -e "${BLUE}Starting Django API server on port $API_PORT...${NC}"
 cd "$API_DIR"
 source venv/bin/activate
 set -a && source .env && set +a
+
+# Override CORS to allow dynamic frontend ports
+export CORS_ALLOWED_ORIGINS="http://localhost:$WEB_PORT,http://localhost:$ADMIN_PORT,http://localhost:$SPACE_PORT,http://localhost:$LIVE_PORT,http://127.0.0.1:$WEB_PORT,http://127.0.0.1:$ADMIN_PORT,http://127.0.0.1:$SPACE_PORT,http://127.0.0.1:$LIVE_PORT,http://localhost:$API_PORT,http://127.0.0.1:$API_PORT"
+
 python manage.py runserver "$API_PORT" &
 PIDS+=($!)
 
@@ -197,6 +201,13 @@ done
 # Start frontend services individually with custom ports
 echo -e "${BLUE}Starting frontend services...${NC}"
 cd "$PROJECT_ROOT"
+
+# Export VITE_* env vars with dynamic ports for all frontend apps
+export VITE_API_BASE_URL="http://localhost:$API_PORT"
+export VITE_WEB_BASE_URL="http://localhost:$WEB_PORT"
+export VITE_ADMIN_BASE_URL="http://localhost:$ADMIN_PORT"
+export VITE_SPACE_BASE_URL="http://localhost:$SPACE_PORT"
+export VITE_LIVE_BASE_URL="http://localhost:$LIVE_PORT"
 
 # Web app
 echo -e "  Starting web app on port $WEB_PORT..."
