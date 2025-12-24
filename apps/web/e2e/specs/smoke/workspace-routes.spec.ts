@@ -65,18 +65,6 @@ test.describe("Workspace Routes @smoke", () => {
     expect(pageErrors).toHaveLength(0);
   });
 
-  test("/:workspaceSlug/stickies loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
-    await page.goto(`/${workspaceSlug}/stickies`);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    const pageErrors = errorTracker.getPageErrors();
-    if (pageErrors.length > 0) {
-      console.log("Stickies errors:", errorTracker.getSummary());
-    }
-    expect(pageErrors).toHaveLength(0);
-  });
-
   test("/:workspaceSlug/workspace-views loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
     await page.goto(`/${workspaceSlug}/workspace-views`);
     await page.waitForLoadState("networkidle");

@@ -157,7 +157,6 @@ export const urls = {
   settings: (workspaceSlug: string) => `/${workspaceSlug}/settings`,
   notifications: (workspaceSlug: string) => `/${workspaceSlug}/notifications`,
   analytics: (workspaceSlug: string, tab: string = "scope") => `/${workspaceSlug}/analytics/${tab}`,
-  stickies: (workspaceSlug: string) => `/${workspaceSlug}/stickies`,
   workspaceViews: (workspaceSlug: string) => `/${workspaceSlug}/workspace-views`,
   activeSprints: (workspaceSlug: string) => `/${workspaceSlug}/active-sprints`,
   resourceView: (workspaceSlug: string) => `/${workspaceSlug}/resource-view`,

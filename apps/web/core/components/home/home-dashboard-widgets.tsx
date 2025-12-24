@@ -14,7 +14,6 @@ import { useProjects } from "@/store/queries/project";
 // plane web components
 import { HomePageHeader } from "@/plane-web/components/home/header";
 // local imports
-import { StickiesWidget } from "../stickies/widget";
 import { HomeLoader, NoProjectsEmptyState, RecentActivityWidget } from "./widgets";
 import { DashboardQuickLinks } from "./widgets/links";
 import { ManageWidgetsModal } from "./widgets/manage";
@@ -35,11 +34,6 @@ export const HOME_WIDGETS_LIST: {
     component: RecentActivityWidget,
     fullWidth: false,
     title: "home.recents.title",
-  },
-  my_stickies: {
-    component: StickiesWidget,
-    fullWidth: false,
-    title: "stickies.title",
   },
   new_at_plane: {
     component: null,

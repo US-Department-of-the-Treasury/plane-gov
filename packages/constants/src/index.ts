@@ -29,7 +29,6 @@ export * from "./settings";
 export * from "./sidebar";
 export * from "./spreadsheet";
 export * from "./state";
-export * from "./stickies";
 export * from "./subscription";
 export * from "./swr";
 export * from "./tab-indices";

@@ -1,4 +1,4 @@
-export type TPersonalNavigationItemKey = "stickies" | "your_work" | "drafts";
+export type TPersonalNavigationItemKey = "your_work" | "drafts";
 
 export interface TPersonalNavigationItem {
   key: TPersonalNavigationItemKey;
@@ -47,9 +47,8 @@ export interface TNavigationPreferences {
 // Default preferences
 export const DEFAULT_PERSONAL_PREFERENCES: TPersonalNavigationPreferences = {
   items: {
-    stickies: { enabled: false, sort_order: 0 },
-    your_work: { enabled: true, sort_order: 1 },
-    drafts: { enabled: true, sort_order: 2 },
+    your_work: { enabled: true, sort_order: 0 },
+    drafts: { enabled: true, sort_order: 1 },
   },
 };
 
