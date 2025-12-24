@@ -296,7 +296,7 @@ export function DateRangeDropdown(props: Props) {
   const comboOptions = (
     <Combobox.Options data-prevent-outside-click static>
       <div
-        className="my-1 bg-surface-1 border-[0.5px] border-subtle-1 rounded-md overflow-hidden z-30"
+        className="my-1 bg-surface-1 border-[0.5px] border-subtle-1 rounded-md overflow-hidden z-50"
         ref={setPopperElement}
         style={{ ...styles.popper, opacity: isPositioned ? 1 : 0 }}
         {...attributes.popper}
