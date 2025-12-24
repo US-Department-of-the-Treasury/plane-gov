@@ -63,6 +63,10 @@ class WorkSpaceViewSet(BaseViewSet):
             .values("count")
         )
 
+        role = WorkspaceMember.objects.filter(
+            workspace=OuterRef("id"), member=self.request.user, is_active=True
+        ).values("role")
+
         return (
             self.filter_queryset(super().get_queryset().select_related("owner"))
             .order_by("name")
@@ -70,7 +74,7 @@ class WorkSpaceViewSet(BaseViewSet):
                 workspace_member__member=self.request.user,
                 workspace_member__is_active=True,
             )
-            .annotate(total_members=member_count)
+            .annotate(total_members=member_count, role=role)
         )
 
     def create(self, request):
