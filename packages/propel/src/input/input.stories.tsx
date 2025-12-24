@@ -20,6 +20,9 @@ const meta: Meta<typeof Input> = {
     hasError: {
       control: "boolean",
     },
+    hasSuccess: {
+      control: "boolean",
+    },
     type: {
       control: "select",
       options: ["text", "email", "password", "number", "tel", "url", "search"],
@@ -100,6 +103,12 @@ export const WithError = createStory({
   defaultValue: "Invalid input",
 });
 
+export const WithSuccess = createStory({
+  hasSuccess: true,
+  placeholder: "Input with success",
+  defaultValue: "Valid input",
+});
+
 export const Disabled = createStory({
   disabled: true,
   placeholder: "Disabled input",
@@ -148,6 +157,7 @@ export const AllSizes = createShowcaseStory("Input Sizes", [
 export const AllStates = createShowcaseStory("Input States", [
   { label: "Normal", props: { placeholder: "Normal input" } },
   { label: "With Error", props: { hasError: true, placeholder: "Input with error" } },
+  { label: "With Success", props: { hasSuccess: true, placeholder: "Input with success" } },
   { label: "Disabled", props: { disabled: true, placeholder: "Disabled input" } },
   { label: "With Value", props: { defaultValue: "Pre-filled value", placeholder: "Input with value" } },
 ]);
