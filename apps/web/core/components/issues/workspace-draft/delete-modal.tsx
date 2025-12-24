@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 // types
 import { PROJECT_ERROR_MESSAGES, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -23,14 +24,13 @@ export function WorkspaceDraftIssueDeleteIssueModal(props: Props) {
   const { dataId, data, isOpen, handleClose, onSubmit } = props;
   // states
   const [isDeleting, setIsDeleting] = useState(false);
+  // router
+  const { workspaceSlug } = useParams();
   // store hooks
   const { issueMap } = useIssues();
   const { allowPermissions } = useUserPermissions();
   const { t } = useTranslation();
   const { data: currentUser } = useUser();
-
-  // derived values
-  const canPerformProjectAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT);
 
   useEffect(() => {
     setIsDeleting(false);
@@ -40,6 +40,8 @@ export function WorkspaceDraftIssueDeleteIssueModal(props: Props) {
 
   // derived values
   const issue = data ? data : issueMap[dataId!];
+  // Get the issue to check its project_id for permissions
+  const canPerformProjectAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), issue?.project_id);
   const isIssueCreator = issue?.created_by === currentUser?.id;
   const authorized = isIssueCreator || canPerformProjectAdminActions;
 

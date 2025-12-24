@@ -187,7 +187,7 @@ function CustomSelect<T = unknown>(props: ICustomSelectProps<T>) {
               <Combobox.Options
                 static
                 className={cn(
-                  "my-1 overflow-y-scroll rounded-md border-[0.5px] border-subtle-1 bg-surface-1 px-2 py-2.5 text-11 focus:outline-none min-w-48 whitespace-nowrap z-30 transition-opacity duration-75",
+                  "my-1 overflow-y-scroll rounded-md border-[0.5px] border-subtle-1 bg-surface-1 px-2 py-2.5 text-11 focus:outline-none min-w-48 whitespace-nowrap z-50 transition-opacity duration-75",
                   optionsClassName
                 )}
               >

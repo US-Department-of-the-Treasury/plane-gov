@@ -39,7 +39,7 @@ function ProjectViewsPage({ params }: Route.ComponentProps) {
   const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
   // derived values
   const pageTitle = currentProjectDetails?.name ? `${currentProjectDetails?.name} - Views` : undefined;
-  const canPerformEmptyStateActions = allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT);
+  const canPerformEmptyStateActions = allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug, projectId);
   const resolvedPath = resolvedTheme === "light" ? lightViewsAsset : darkViewsAsset;
 
   const handleRemoveFilter = useCallback(

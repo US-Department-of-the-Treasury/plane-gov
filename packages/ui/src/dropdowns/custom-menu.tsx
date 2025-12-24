@@ -208,7 +208,7 @@ function CustomMenu(props: ICustomMenuDropdownProps) {
     <Menu.Items
       data-prevent-outside-click={!!portalElement}
       className={cn(
-        "fixed z-30 translate-y-0",
+        "fixed z-50 translate-y-0",
         menuItemsClassName
       )} /** translate-y-0 is a hack to create new stacking context. Required for safari  */
       static
@@ -478,7 +478,7 @@ function SubMenu(props: ICustomSubMenuProps) {
             }}
             {...attributes.popper}
             className={cn(
-              "fixed z-30 min-w-[12rem] overflow-hidden rounded-md border-[0.5px] border-subtle-1 bg-surface-1 p-1 text-11 transition-opacity duration-75",
+              "fixed z-50 min-w-[12rem] overflow-hidden rounded-md border-[0.5px] border-subtle-1 bg-surface-1 p-1 text-11 transition-opacity duration-75",
               contentClassName
             )}
             data-prevent-outside-click="true"

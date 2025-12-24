@@ -1,5 +1,6 @@
 import type { MutableRefObject } from "react";
 import { useEffect, useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { pointerOutsideOfPreview } from "@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview";
@@ -58,9 +59,11 @@ export function LabelDndHOC(props: Props) {
   // refs
   const labelRef = useRef<HTMLDivElement | null>(null);
   const dragHandleRef = useRef<HTMLButtonElement | null>(null);
-
+  // router
+  const { workspaceSlug, projectId } = useParams();
+  // store hooks
   const { allowPermissions } = useUserPermissions();
-  const isEditable = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT);
+  const isEditable = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), projectId?.toString());
 
   useEffect(() => {
     const element = labelRef.current;
