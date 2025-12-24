@@ -24,10 +24,10 @@ import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
 import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
-import { PriorityDropdown } from "@/components/dropdowns/priority";
-import { StateDropdown } from "@/components/dropdowns/state/dropdown";
+import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
+import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 // helpers
 import { captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
@@ -259,14 +259,13 @@ export function IssueProperties(props: IIssueProperties) {
       {/* state */}
       <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="state">
         <div className="h-5" onFocus={handleEventPropagation} onClick={handleEventPropagation}>
-          <StateDropdown
+          <StateCombobox
             buttonContainerClassName="truncate max-w-40"
             value={issue.state_id}
             onChange={handleState}
             projectId={issue.project_id}
             disabled={isReadOnly}
             buttonVariant="border-with-text"
-            renderByDefault={isMobile}
             showTooltip
           />
         </div>
@@ -275,12 +274,11 @@ export function IssueProperties(props: IIssueProperties) {
       {/* priority */}
       <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="priority">
         <div className="h-5" onFocus={handleEventPropagation} onClick={handleEventPropagation}>
-          <PriorityDropdown
+          <PriorityCombobox
             value={issue?.priority}
             onChange={handlePriority}
             disabled={isReadOnly}
             buttonVariant="border-without-text"
-            renderByDefault={isMobile}
             showTooltip
           />
         </div>
@@ -368,9 +366,9 @@ export function IssueProperties(props: IIssueProperties) {
       {/* assignee */}
       <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="assignee">
         <div className="h-5" onFocus={handleEventPropagation} onClick={handleEventPropagation}>
-          <MemberDropdown
+          <MemberCombobox
             projectId={issue?.project_id}
-            value={issue?.assignee_ids}
+            value={issue?.assignee_ids ?? []}
             onChange={handleAssignee}
             disabled={isReadOnly}
             multiple
@@ -380,7 +378,6 @@ export function IssueProperties(props: IIssueProperties) {
             placeholder={t("common.assignees")}
             optionsClassName="z-10"
             tooltipContent=""
-            renderByDefault={isMobile}
           />
         </div>
       </WithDisplayPropertiesHOC>

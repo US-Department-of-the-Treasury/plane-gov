@@ -11,7 +11,7 @@ import { Input, TextArea } from "@plane/ui";
 import { getDate, renderFormattedPayloadDate, getTabIndex } from "@plane/utils";
 // components
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
-import { ProjectDropdown } from "@/components/dropdowns/project/dropdown";
+import { ProjectCombobox } from "@/components/dropdowns/project/project-combobox";
 // hooks
 import { useUser } from "@/hooks/store/user/user-user";
 
@@ -69,7 +69,7 @@ export function SprintForm(props: Props) {
         <div className="flex items-center gap-x-3">
           {!status && (
             <div className="h-7">
-              <ProjectDropdown
+              <ProjectCombobox
                 value={projectId}
                 onChange={(val) => {
                   if (!Array.isArray(val)) {

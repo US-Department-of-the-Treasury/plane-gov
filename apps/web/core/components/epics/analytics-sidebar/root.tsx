@@ -29,7 +29,7 @@ import { Loader, CustomSelect, TextArea } from "@plane/ui";
 // helpers
 import { getDate, renderFormattedPayloadDate } from "@plane/utils";
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
 import { CreateUpdateEpicLinkModal, EpicAnalyticsProgress, EpicLinksList } from "@/components/epics";
 import { captureElementAndEvent, captureSuccess, captureError } from "@/helpers/event-tracker.helper";
 // hooks
@@ -383,7 +383,7 @@ export function EpicAnalyticsSidebar(props: Props) {
               name="lead_id"
               render={({ field: { value } }) => (
                 <div className="h-7 w-3/5">
-                  <MemberDropdown
+                  <MemberCombobox
                     value={value ?? null}
                     onChange={(val) => {
                       submitChanges({ lead_id: val });
@@ -393,7 +393,6 @@ export function EpicAnalyticsSidebar(props: Props) {
                     buttonVariant="background-with-text"
                     placeholder={t("lead")}
                     disabled={!isEditingAllowed || isArchived}
-                    icon={SquareUser}
                   />
                 </div>
               )}
@@ -409,7 +408,7 @@ export function EpicAnalyticsSidebar(props: Props) {
               name="member_ids"
               render={({ field: { value } }) => (
                 <div className="h-7 w-3/5">
-                  <MemberDropdown
+                  <MemberCombobox
                     value={value ?? []}
                     onChange={(val: string[]) => {
                       submitChanges({ member_ids: val });

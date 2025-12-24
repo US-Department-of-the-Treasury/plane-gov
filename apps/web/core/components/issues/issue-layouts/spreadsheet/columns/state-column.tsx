@@ -2,7 +2,7 @@ import React from "react";
 // types
 import type { TIssue } from "@plane/types";
 // components
-import { StateDropdown } from "@/components/dropdowns/state/dropdown";
+import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 
 type Props = {
   issue: TIssue;
@@ -16,7 +16,7 @@ export function SpreadsheetStateColumn(props: Props) {
 
   return (
     <div className="h-11 border-b-[0.5px] border-subtle">
-      <StateDropdown
+      <StateCombobox
         projectId={issue.project_id ?? undefined}
         value={issue.state_id}
         onChange={(data) => onChange(issue, { state_id: data }, { changed_property: "state", change_details: data })}

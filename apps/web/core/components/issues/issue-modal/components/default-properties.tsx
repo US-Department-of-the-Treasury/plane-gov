@@ -13,10 +13,10 @@ import { getDate, renderFormattedPayloadDate, getTabIndex } from "@plane/utils";
 import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
 import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
-import { PriorityDropdown } from "@/components/dropdowns/priority";
-import { StateDropdown } from "@/components/dropdowns/state/dropdown";
+import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
+import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 import { ParentIssuesListModal } from "@/components/issues/parent-issues-list-modal";
 import { IssueLabelSelect } from "@/components/issues/select";
 // helpers
@@ -83,7 +83,7 @@ export function IssueDefaultProperties(props: TIssueDefaultPropertiesProps) {
         name="state_id"
         render={({ field: { value, onChange } }) => (
           <div className="h-7">
-            <StateDropdown
+            <StateCombobox
               value={value}
               onChange={(stateId) => {
                 onChange(stateId);
@@ -102,7 +102,7 @@ export function IssueDefaultProperties(props: TIssueDefaultPropertiesProps) {
         name="priority"
         render={({ field: { value, onChange } }) => (
           <div className="h-7">
-            <PriorityDropdown
+            <PriorityCombobox
               value={value}
               onChange={(priority) => {
                 onChange(priority);
@@ -119,9 +119,9 @@ export function IssueDefaultProperties(props: TIssueDefaultPropertiesProps) {
         name="assignee_ids"
         render={({ field: { value, onChange } }) => (
           <div className="h-7">
-            <MemberDropdown
+            <MemberCombobox
               projectId={projectId ?? undefined}
-              value={value}
+              value={value ?? []}
               onChange={(assigneeIds) => {
                 onChange(assigneeIds);
                 handleFormChange();

@@ -10,8 +10,8 @@ import { Input, TextArea } from "@plane/ui";
 import { getDate, renderFormattedPayloadDate, getTabIndex } from "@plane/utils";
 // components
 import { DateRangeDropdown } from "@/components/dropdowns/date-range";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { ProjectDropdown } from "@/components/dropdowns/project/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
+import { ProjectCombobox } from "@/components/dropdowns/project/project-combobox";
 import { EpicStatusSelect } from "@/components/epics";
 // hooks
 import { useUser } from "@/hooks/store/user";
@@ -85,7 +85,7 @@ export function EpicForm(props: Props) {
               name="project_id"
               render={({ field: { value, onChange } }) => (
                 <div className="h-7">
-                  <ProjectDropdown
+                  <ProjectCombobox
                     value={value}
                     onChange={(val) => {
                       if (!Array.isArray(val)) {
@@ -195,7 +195,7 @@ export function EpicForm(props: Props) {
               name="lead_id"
               render={({ field: { value, onChange } }) => (
                 <div className="h-7">
-                  <MemberDropdown
+                  <MemberCombobox
                     value={value}
                     onChange={onChange}
                     projectId={projectId}
@@ -212,8 +212,8 @@ export function EpicForm(props: Props) {
               name="member_ids"
               render={({ field: { value, onChange } }) => (
                 <div className="h-7">
-                  <MemberDropdown
-                    value={value}
+                  <MemberCombobox
+                    value={value ?? []}
                     onChange={onChange}
                     projectId={projectId}
                     multiple

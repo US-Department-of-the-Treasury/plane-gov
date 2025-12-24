@@ -2,7 +2,7 @@ import React from "react";
 // types
 import type { TIssue } from "@plane/types";
 // components
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
 
 type Props = {
   issue: TIssue;
@@ -16,7 +16,7 @@ export function SpreadsheetAssigneeColumn(props: Props) {
 
   return (
     <div className="h-11 border-b-[0.5px] border-subtle">
-      <MemberDropdown
+      <MemberCombobox
         value={issue?.assignee_ids ?? []}
         onChange={(data) => {
           onChange(

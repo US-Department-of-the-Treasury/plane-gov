@@ -7,7 +7,7 @@ import { EIssueServiceType } from "@plane/types";
 import { calculateTimeAgo, generateWorkItemLink } from "@plane/utils";
 // components
 import { ListItem } from "@/components/core/list";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
 // helpers
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -115,9 +115,9 @@ export function RecentIssue(props: BlockProps) {
           </Tooltip>
           {issueDetails?.assignees?.length > 0 && (
             <div className="h-5">
-              <MemberDropdown
+              <MemberCombobox
                 projectId={issueDetails?.project_id}
-                value={issueDetails?.assignees}
+                value={issueDetails?.assignees ?? []}
                 onChange={() => {}}
                 disabled
                 multiple

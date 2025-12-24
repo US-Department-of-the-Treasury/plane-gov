@@ -5,7 +5,7 @@ import type { TActivityEntityData, TProjectEntityData } from "@plane/types";
 import { calculateTimeAgo } from "@plane/utils";
 // components
 import { ListItem } from "@/components/core/list";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
 // helpers
 
 type BlockProps = {
@@ -46,9 +46,9 @@ export function RecentProject(props: BlockProps) {
         <div className="flex gap-4">
           {projectDetails?.project_members?.length > 0 && (
             <div className="h-5">
-              <MemberDropdown
+              <MemberCombobox
                 projectId={projectDetails?.id}
-                value={projectDetails?.project_members}
+                value={projectDetails?.project_members ?? []}
                 onChange={() => {}}
                 disabled
                 multiple
