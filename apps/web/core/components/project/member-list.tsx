@@ -50,7 +50,7 @@ export function ProjectMemberList(props: TProjectMemberListProps) {
     return matchesSearch && matchesRole;
   });
 
-  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT);
+  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug, projectId);
 
   // Handler for role filter updates
   const handleRoleFilterUpdate = (role: string) => {

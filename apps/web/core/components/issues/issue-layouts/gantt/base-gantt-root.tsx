@@ -83,7 +83,7 @@ export function BaseGanttRoot(props: IBaseGanttRoot) {
     updateIssue && (await updateIssue(issue.project_id, issue.id, payload));
   };
 
-  const isAllowed = allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT);
+  const isAllowed = allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), projectId?.toString());
   const updateBlockDates = useCallback(
     (
       updates: {

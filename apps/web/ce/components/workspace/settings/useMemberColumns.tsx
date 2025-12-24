@@ -26,7 +26,7 @@ export const useMemberColumns = () => {
   const { t } = useTranslation();
 
   // derived values
-  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
+  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE, workspaceSlug?.toString());
 
   const isSuspended = (rowData: RowData) => rowData.is_active === false;
 

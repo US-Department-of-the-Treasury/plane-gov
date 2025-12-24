@@ -29,7 +29,7 @@ export function WorkspaceViewQuickActions(props: Props) {
   const { allowPermissions } = useUserPermissions();
   // auth
   const isOwner = view?.owned_by === data?.id;
-  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
+  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE, workspaceSlug);
 
   const viewLink = `${workspaceSlug}/workspace-views/${view.id}`;
   const handleCopyText = () =>

@@ -31,7 +31,7 @@ export const usePowerKEpicContextBasedActions = (): TPowerKCommandConfig[] => {
   const isFavorite = !!epicDetails?.is_favorite;
   // permission
   const isEditingAllowed =
-    allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT) &&
+    allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), projectId?.toString()) &&
     !epicDetails?.archived_at;
   // translation
   const { t } = useTranslation();
