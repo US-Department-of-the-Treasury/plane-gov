@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Placement } from "@popperjs/core";
 import { useParams } from "next/navigation";
-import { usePopper } from "react-popper";
 import { Check, Loader, Search } from "lucide-react";
-import { Combobox } from "@headlessui/react";
 // plane imports
 import { EUserPermissionsLevel, getRandomLabelColor } from "@plane/constants";
 import { useOutsideClickDetector } from "@plane/hooks";
@@ -13,7 +11,7 @@ import { ChevronDownIcon } from "@plane/propel/icons";
 import type { IIssueLabel } from "@plane/types";
 import { EUserProjectRoles } from "@plane/types";
 // components
-import { ComboDropDown } from "@plane/ui";
+import { RadixComboDropDown, RadixComboOptions, RadixComboInput, RadixComboOption, RadixComboList } from "@plane/ui";
 // hooks
 import { useProjectLabels, useCreateLabel } from "@/store/queries/label";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -26,7 +24,7 @@ export interface ILabelDropdownProps {
   onChange: (data: string[]) => void;
   onClose?: () => void;
   disabled?: boolean;
-  defaultOptions?: any;
+  defaultOptions?: IIssueLabel[];
   hideDropdownArrow?: boolean;
   className?: string;
   buttonClassName?: string;
@@ -72,9 +70,8 @@ export function LabelDropdown(props: ILabelDropdownProps) {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // popper-js refs
+  // reference element for positioning
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
 
   //hooks
   const { data: storeLabels, isLoading } = useProjectLabels(workspaceSlug ?? "", projectId ?? "");
@@ -113,18 +110,6 @@ export function LabelDropdown(props: ILabelDropdownProps) {
       query === "" ? options : options?.filter((option) => option.query.toLowerCase().includes(query.toLowerCase())),
     [options, query]
   );
-
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: placement ?? "bottom-start",
-    modifiers: [
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 12,
-        },
-      },
-    ],
-  });
 
   const toggleDropdown = useCallback(() => {
     setIsOpen((prevIsOpen) => !prevIsOpen);
@@ -218,13 +203,14 @@ export function LabelDropdown(props: ILabelDropdownProps) {
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div className={`${fullHeight ? "h-full" : "h-5"}`} onClick={preventPropagation}>
-      <ComboDropDown
+      <RadixComboDropDown
         as="div"
         ref={dropdownRef}
         className={`w-auto max-w-full h-full flex-shrink-0 text-left ${className}`}
         value={value}
-        onChange={onChange}
+        onChange={onChange as (value: unknown) => void}
         disabled={disabled}
         onKeyDown={handleKeyDown}
         button={comboButton}
@@ -232,39 +218,30 @@ export function LabelDropdown(props: ILabelDropdownProps) {
         multiple
       >
         {isOpen && (
-          <Combobox.Options className="fixed z-10" static>
+          <RadixComboOptions static placement={placement ?? "bottom-start"} referenceElement={referenceElement}>
             <div
               className={`z-10 my-1 w-48 h-auto whitespace-nowrap rounded-sm border border-strong bg-surface-1 px-2 py-2.5 text-caption-sm-regular shadow-raised-200 focus:outline-none ${optionsClassName}`}
-              ref={setPopperElement}
-              style={styles.popper}
-              {...attributes.popper}
             >
               <div className="flex w-full items-center justify-start rounded-sm border border-subtle bg-surface-2 px-2">
                 <Search className="h-3.5 w-3.5 text-tertiary" />
-                <Combobox.Input
+                <RadixComboInput
                   ref={inputRef}
                   className="w-full bg-transparent px-2 py-1 text-caption-sm-regular text-secondary placeholder:text-placeholder focus:outline-none"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={t("common.search.label")}
-                  displayValue={(assigned: any) => assigned?.name || ""}
+                  // eslint-disable-next-line @typescript-eslint/no-misused-promises
                   onKeyDown={searchInputKeyDown}
                 />
               </div>
-              <div className={`mt-2 max-h-48 space-y-1 overflow-y-scroll`}>
+              <RadixComboList className="mt-2 space-y-1">
                 {isLoading ? (
                   <p className="text-center text-secondary">{t("common.loading")}</p>
                 ) : filteredOptions.length > 0 ? (
                   filteredOptions.map((option) => (
-                    <Combobox.Option
+                    <RadixComboOption
                       key={option.value}
                       value={option.value}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }
-                      }}
                       className={({ active, selected }) =>
                         `flex cursor-pointer select-none items-center justify-between gap-2 truncate rounded-sm px-1 py-1.5 hover:bg-layer-1 ${
                           active ? "bg-layer-1" : ""
@@ -281,15 +258,16 @@ export function LabelDropdown(props: ILabelDropdownProps) {
                           )}
                         </>
                       )}
-                    </Combobox.Option>
+                    </RadixComboOption>
                   ))
                 ) : submitting ? (
                   <Loader className="animate-spin h-3.5 w-3.5" />
                 ) : canCreateLabel ? (
+                  // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
                   <p
                     onClick={() => {
                       if (!query.length) return;
-                      handleAddLabel(query);
+                      void handleAddLabel(query);
                     }}
                     className={`text-left text-secondary ${query.length ? "cursor-pointer" : "cursor-default"}`}
                   >
@@ -305,11 +283,11 @@ export function LabelDropdown(props: ILabelDropdownProps) {
                 ) : (
                   <p className="text-left text-secondary ">{t("common.search.no_matching_results")}</p>
                 )}
-              </div>
+              </RadixComboList>
             </div>
-          </Combobox.Options>
+          </RadixComboOptions>
         )}
-      </ComboDropDown>
+      </RadixComboDropDown>
     </div>
   );
 }
