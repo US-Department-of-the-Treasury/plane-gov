@@ -1,5 +1,4 @@
-import React, { memo, useMemo } from "react";
-import { Ellipsis } from "lucide-react";
+import { memo, useMemo } from "react";
 import { Disclosure, Transition } from "@headlessui/react";
 // plane imports
 import {
@@ -11,10 +10,7 @@ import {
 import { useTranslation } from "@plane/i18n";
 import { ChevronRightIcon } from "@plane/propel/icons";
 import { cn } from "@plane/utils";
-// components
-import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // store hooks
-import { useAppTheme } from "@/hooks/store/use-app-theme";
 import useLocalStorage from "@/hooks/use-local-storage";
 import {
   usePersonalNavigationPreferences,
@@ -30,8 +26,6 @@ export const SidebarMenuItems = memo(function SidebarMenuItems() {
     true
   );
 
-  // store hooks
-  const { isExtendedSidebarOpened, toggleExtendedSidebar } = useAppTheme();
   // hooks
   const { preferences: personalPreferences } = usePersonalNavigationPreferences();
   const { preferences: workspacePreferences } = useWorkspaceNavigationPreferences();
@@ -48,13 +42,6 @@ export const SidebarMenuItems = memo(function SidebarMenuItems() {
     const personalItems: Array<(typeof items)[0] & { sort_order: number }> = [];
 
     // Add personal items based on preferences with their sort_order
-    const stickiesItem = WORKSPACE_SIDEBAR_STATIC_NAVIGATION_ITEMS["stickies"];
-    if (personalPreferences.items.stickies?.enabled && stickiesItem) {
-      personalItems.push({
-        ...stickiesItem,
-        sort_order: personalPreferences.items.stickies.sort_order,
-      });
-    }
     if (personalPreferences.items.your_work?.enabled && WORKSPACE_SIDEBAR_STATIC_NAVIGATION_ITEMS["your-work"]) {
       personalItems.push({
         ...WORKSPACE_SIDEBAR_STATIC_NAVIGATION_ITEMS["your-work"],
@@ -148,22 +135,6 @@ export const SidebarMenuItems = memo(function SidebarMenuItems() {
                 {sortedNavigationItems.map((item, _index) => (
                   <SidebarItem key={`dynamic_${_index}`} item={item} />
                 ))}
-                <SidebarNavItem>
-                  <button
-                    type="button"
-                    onClick={() => toggleExtendedSidebar()}
-                    className="flex items-center gap-1.5 text-13 font-medium flex-grow text-tertiary"
-                    id="extended-sidebar-toggle"
-                    aria-label={t(
-                      isExtendedSidebarOpened
-                        ? "aria_labels.app_sidebar.close_extended_sidebar"
-                        : "aria_labels.app_sidebar.open_extended_sidebar"
-                    )}
-                  >
-                    <Ellipsis className="flex-shrink-0 size-4" />
-                    <span>{isExtendedSidebarOpened ? "Hide" : "More"}</span>
-                  </button>
-                </SidebarNavItem>
               </>
             </Disclosure.Panel>
           )}

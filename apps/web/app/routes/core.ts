@@ -121,11 +121,6 @@ export const coreRoutes: RouteConfigEntry[] = [
           ),
         ]),
 
-        // Stickies
-        layout("./(all)/[workspaceSlug]/(projects)/stickies/layout.tsx", [
-          route(":workspaceSlug/stickies", "./(all)/[workspaceSlug]/(projects)/stickies/page.tsx"),
-        ]),
-
         // NOTE: Wiki routes have moved to (wiki) route group - see below
 
         // Workspace Views

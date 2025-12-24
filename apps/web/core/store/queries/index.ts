@@ -343,18 +343,6 @@ export {
   getPublishSettingsByProjectId,
 } from "./project-publish";
 
-// Sticky hooks (TanStack Query)
-export {
-  useWorkspaceStickies,
-  useRecentSticky,
-  useCreateSticky,
-  useUpdateSticky,
-  useDeleteSticky,
-  useUpdateStickyPosition,
-  getAllStickiesFromCache,
-  getSortedStickyIds,
-} from "./sticky";
-
 // Wiki hooks (TanStack Query)
 export {
   // Wiki pages

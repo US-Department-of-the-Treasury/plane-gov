@@ -146,12 +146,6 @@ export const queryKeys = {
     settings: (projectId: string) => ["project-publish", projectId, "settings"] as const,
   },
 
-  // Sticky queries
-  stickies: {
-    all: (workspaceSlug: string, cursor: string, query?: string) => ["stickies", workspaceSlug, cursor, query] as const,
-    recent: (workspaceSlug: string) => ["stickies", workspaceSlug, "recent"] as const,
-  },
-
   // Estimate queries
   estimates: {
     all: (workspaceSlug: string, projectId: string) => ["estimates", workspaceSlug, projectId] as const,

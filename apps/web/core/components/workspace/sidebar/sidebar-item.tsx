@@ -46,8 +46,10 @@ export const SidebarItemBase = memo(function SidebarItemBase({
     "pi_chat",
     "projects",
     "your_work",
-    "stickies",
     "drafts",
+    "views",
+    "analytics",
+    "archives",
     ...(additionalStaticItems || []),
   ];
   const slug = workspaceSlug?.toString() || "";

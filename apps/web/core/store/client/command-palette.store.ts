@@ -15,7 +15,6 @@ interface CommandPaletteState {
   isBulkDeleteIssueModalOpen: boolean;
   createIssueStoreType: TCreateModalStoreTypes;
   createWorkItemAllowedProjectIds: string[] | undefined;
-  allStickiesModal: boolean;
   projectListOpenMap: Record<string, boolean>;
   // Power-K shortcuts modal (moved from powerK store)
   isShortcutsListModalOpen: boolean;
@@ -38,7 +37,6 @@ interface CommandPaletteActions {
   toggleCreateEpicModal: (value?: boolean) => void;
   toggleDeleteIssueModal: (value?: boolean) => void;
   toggleBulkDeleteIssueModal: (value?: boolean) => void;
-  toggleAllStickiesModal: (value?: boolean) => void;
   toggleProjectListOpen: (projectId: string, value?: boolean) => void;
   toggleShortcutsListModal: (value?: boolean) => void;
 }
@@ -58,7 +56,6 @@ export interface ICommandPaletteStore {
   isBulkDeleteIssueModalOpen: boolean;
   createIssueStoreType: TCreateModalStoreTypes;
   createWorkItemAllowedProjectIds: string[] | undefined;
-  allStickiesModal: boolean;
   projectListOpenMap: Record<string, boolean>;
   isShortcutsListModalOpen: boolean;
   // computed
@@ -77,7 +74,6 @@ export interface ICommandPaletteStore {
   toggleCreateEpicModal: (value?: boolean) => void;
   toggleDeleteIssueModal: (value?: boolean) => void;
   toggleBulkDeleteIssueModal: (value?: boolean) => void;
-  toggleAllStickiesModal: (value?: boolean) => void;
   toggleProjectListOpen: (projectId: string, value?: boolean) => void;
   toggleShortcutsListModal: (value?: boolean) => void;
 }
@@ -93,7 +89,6 @@ const initialState: CommandPaletteState = {
   isBulkDeleteIssueModalOpen: false,
   createIssueStoreType: EIssuesStoreType.PROJECT,
   createWorkItemAllowedProjectIds: undefined,
-  allStickiesModal: false,
   projectListOpenMap: {},
   isShortcutsListModalOpen: false,
 };
@@ -113,8 +108,7 @@ export const useCommandPaletteStore = create<CommandPaletteStore>()((set, get) =
         state.isShortcutsListModalOpen ||
         state.isBulkDeleteIssueModalOpen ||
         state.isDeleteIssueModalOpen ||
-        state.createPageModal.isOpen ||
-        state.allStickiesModal
+        state.createPageModal.isOpen
     );
   },
 
@@ -185,11 +179,6 @@ export const useCommandPaletteStore = create<CommandPaletteStore>()((set, get) =
       isBulkDeleteIssueModalOpen: value ?? !state.isBulkDeleteIssueModalOpen,
     })),
 
-  toggleAllStickiesModal: (value) =>
-    set((state) => ({
-      allStickiesModal: value ?? !state.allStickiesModal,
-    })),
-
   toggleProjectListOpen: (projectId, value) =>
     set((state) => ({
       projectListOpenMap: {
@@ -240,9 +229,6 @@ export class CommandPaletteStoreLegacy implements ICommandPaletteStore {
   get createWorkItemAllowedProjectIds() {
     return useCommandPaletteStore.getState().createWorkItemAllowedProjectIds;
   }
-  get allStickiesModal() {
-    return useCommandPaletteStore.getState().allStickiesModal;
-  }
   get projectListOpenMap() {
     return useCommandPaletteStore.getState().projectListOpenMap;
   }
@@ -282,9 +268,6 @@ export class CommandPaletteStoreLegacy implements ICommandPaletteStore {
 
   toggleBulkDeleteIssueModal = (value?: boolean) =>
     useCommandPaletteStore.getState().toggleBulkDeleteIssueModal(value);
-
-  toggleAllStickiesModal = (value?: boolean) =>
-    useCommandPaletteStore.getState().toggleAllStickiesModal(value);
 
   toggleProjectListOpen = (projectId: string, value?: boolean) =>
     useCommandPaletteStore.getState().toggleProjectListOpen(projectId, value);
