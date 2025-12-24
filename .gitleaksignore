@@ -1,0 +1,30 @@
+# Gitleaks Ignore File
+# Format: fingerprint or commit:file:rule:line
+# See: https://github.com/gitleaks/gitleaks#gitleaksignore
+
+# =============================================================================
+# FALSE POSITIVES - Placeholder/Example Values from Upstream
+# =============================================================================
+# These are example values in documentation and template files from the upstream
+# makeplane/plane repository. They are not real secrets.
+
+# Example Route53 zone IDs in documentation (clearly fake IDs like Z1234567890ABC)
+cbe9d170a2d68c0c6fb92a0b838101b0a15bbb71:terraform/README.md:route53-zone-id:33
+cbe9d170a2d68c0c6fb92a0b838101b0a15bbb71:terraform/DEPLOYMENT.md:route53-zone-id:60
+cbe9d170a2d68c0c6fb92a0b838101b0a15bbb71:docs/DEPLOYMENT_GUIDE.md:route53-zone-id:76
+
+# Placeholder SECRET_KEY values in example/template files (upstream defaults)
+8333c7065634f1ce0730a650e11e25134b825af9:deployments/aio/community/variables.env:generic-api-key:29
+8333c7065634f1ce0730a650e11e25134b825af9:deployments/aio/community/variables.env:generic-api-key:53
+8333c7065634f1ce0730a650e11e25134b825af9:deployments/aio/community/README.md:generic-api-key:77
+646bad4d35aaa67beabe578bb6b1821904389944:deploy/selfhost/variables.env:generic-api-key:50
+5bdca84a802868d92eb022a1ee8bed52698a0529:aio/Dockerfile-app:generic-api-key:155
+5a91730d0e65f92a54a885f7b7082744aa6ec4d6:ENV_SETUP.md:generic-api-key:83
+
+# Default INSTANCE_KEY placeholder values (upstream defaults, not real keys)
+b0b127279da27d21f02b3940bdccb91d57ea4996:apiserver/plane/settings/common.py:generic-api-key:325
+c0b55c5f97312e3a8c35f373636113345a6d6d39:apiserver/plane/settings/common.py:generic-api-key:339
+9331583f0ce571e55d2d975445b3fcf548f35323:apiserver/plane/settings/common.py:generic-api-key:333
+
+# GitLab OAuth placeholder in form component (example format, not real secret)
+b09b0c0807152f13f7a33344dece63be39b87364:admin/app/authentication/gitlab/form.tsx:gitlab-oauth-app-secret:106
