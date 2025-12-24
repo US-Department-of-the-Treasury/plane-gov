@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 // components
-import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
+import { EUserPermissions } from "@plane/constants";
 import { NotAuthorizedView } from "@/components/auth-screens/not-authorized-view";
 import { PageHead } from "@/components/core/page-title";
 import { SingleIntegrationCard } from "@/components/integration";
@@ -9,7 +9,6 @@ import { IntegrationAndImportExportBanner } from "@/components/ui/integration-an
 import { IntegrationsSettingsLoader } from "@/components/ui/loader/settings/integration";
 // hooks
 import { useWorkspaceDetails } from "@/store/queries/workspace";
-import { useUserPermissions } from "@/hooks/store/user";
 // services
 import { IntegrationService } from "@/services/integrations";
 import { queryKeys } from "@/store/queries/query-keys";
@@ -20,12 +19,12 @@ const integrationService = new IntegrationService();
 function WorkspaceIntegrationsPage({ params }: Route.ComponentProps) {
   // router
   const { workspaceSlug } = params;
-  // store hooks
-  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
-  const { allowPermissions } = useUserPermissions();
+  // Use TanStack Query for workspace details - properly triggers re-renders when data loads
+  const { data: currentWorkspace, isLoading: isLoadingWorkspace } = useWorkspaceDetails(workspaceSlug);
 
-  // derived values
-  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
+  // derived values - use role from TanStack Query for accurate re-rendering
+  const userWorkspaceRole = currentWorkspace?.role;
+  const isAdmin = userWorkspaceRole === EUserPermissions.ADMIN;
   const pageTitle = currentWorkspace?.name ? `${currentWorkspace.name} - Integrations` : undefined;
   const { data: appIntegrations } = useQuery({
     queryKey: queryKeys.integrations.app(),
@@ -35,7 +34,9 @@ function WorkspaceIntegrationsPage({ params }: Route.ComponentProps) {
     gcTime: 30 * 60 * 1000,
   });
 
-  if (!isAdmin) return <NotAuthorizedView section="settings" className="h-auto" />;
+  // Only show NotAuthorized when workspace data has loaded AND user lacks permissions
+  if (!isLoadingWorkspace && currentWorkspace && !isAdmin)
+    return <NotAuthorizedView section="settings" className="h-auto" />;
 
   return (
     <SettingsContentWrapper size="lg">

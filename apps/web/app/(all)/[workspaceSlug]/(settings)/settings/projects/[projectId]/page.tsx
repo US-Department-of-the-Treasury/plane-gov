@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // plane imports
-import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
+import { EUserProjectRoles } from "@plane/types";
 // components
 import { PageHead } from "@/components/core/page-title";
 import { DeleteProjectModal } from "@/components/project/delete-project-modal";
@@ -13,7 +13,6 @@ import { DeleteProjectSection } from "@/components/project/settings/delete-proje
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 // hooks
 import { useProjectDetails } from "@/store/queries/project";
-import { useUserPermissions } from "@/hooks/store/user";
 import type { Route } from "./+types/page";
 
 function ProjectSettingsPage({ params }: Route.ComponentProps) {
@@ -22,11 +21,11 @@ function ProjectSettingsPage({ params }: Route.ComponentProps) {
   const [archiveProject, setArchiveProject] = useState<boolean>(false);
   // router
   const { workspaceSlug, projectId } = params;
-  // store hooks
+  // Use TanStack Query for project details - properly triggers re-renders when data loads
   const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
-  const { allowPermissions } = useUserPermissions();
-  // derived values
-  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug, projectId);
+  // derived values - use member_role from TanStack Query for accurate re-rendering
+  const projectMemberRole = currentProjectDetails?.member_role;
+  const isAdmin = projectMemberRole === EUserProjectRoles.ADMIN;
 
   const pageTitle = currentProjectDetails?.name ? `${currentProjectDetails?.name} - General Settings` : undefined;
 

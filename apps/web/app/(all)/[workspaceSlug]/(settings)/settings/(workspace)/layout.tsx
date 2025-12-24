@@ -10,7 +10,7 @@ import type { EUserWorkspaceRoles } from "@plane/types";
 // plane web components
 import { WorkspaceSettingsRightSidebar } from "@/plane-web/components/workspace/right-sidebar";
 // hooks
-import { useUserPermissions } from "@/hooks/store/user";
+import { useWorkspaceDetails } from "@/store/queries/workspace";
 // local components
 import { WorkspaceSettingsSidebar } from "./sidebar";
 
@@ -19,17 +19,17 @@ import type { Route } from "./+types/layout";
 function WorkspaceSettingLayout({ params }: Route.ComponentProps) {
   // router
   const { workspaceSlug } = params;
-  // store hooks
-  const { workspaceUserInfo, getWorkspaceRoleByWorkspaceSlug } = useUserPermissions();
+  // Use TanStack Query for workspace details - properly triggers re-renders when data loads
+  const { data: currentWorkspace, isLoading } = useWorkspaceDetails(workspaceSlug);
   // next hooks
   const pathname = usePathname();
   // derived values
   const { accessKey } = pathnameToAccessKey(pathname);
-  const userWorkspaceRole = getWorkspaceRoleByWorkspaceSlug(workspaceSlug);
+  const userWorkspaceRole = currentWorkspace?.role as EUserWorkspaceRoles | undefined;
 
   let isAuthorized: boolean | string = false;
   if (pathname && workspaceSlug && userWorkspaceRole) {
-    isAuthorized = WORKSPACE_SETTINGS_ACCESS[accessKey]?.includes(userWorkspaceRole as EUserWorkspaceRoles);
+    isAuthorized = WORKSPACE_SETTINGS_ACCESS[accessKey]?.includes(userWorkspaceRole);
   }
 
   return (
@@ -39,7 +39,7 @@ function WorkspaceSettingLayout({ params }: Route.ComponentProps) {
         activePath={getWorkspaceActivePath(pathname) || ""}
       />
       <div className="inset-y-0 flex flex-row w-full h-full">
-        {workspaceUserInfo && !isAuthorized ? (
+        {!isLoading && currentWorkspace && !isAuthorized ? (
           <NotAuthorizedView section="settings" className="h-auto" />
         ) : (
           <div className="relative flex h-full w-full">

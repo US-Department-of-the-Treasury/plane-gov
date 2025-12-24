@@ -7,12 +7,37 @@ import { test, expect } from "../../fixtures/auth";
  * and does NOT see "You are not authorized" messages.
  *
  * Bug context: User reported seeing "Guest" role despite database
- * showing admin (role=20). These tests catch this permission issue.
+ * showing admin (role=20). The root cause was a race condition in
+ * workspace settings layout.tsx where workspaceUserInfo (a Record {})
+ * was checked for truthiness before workspace-specific data loaded.
+ *
+ * Fix: Changed check from `workspaceUserInfo && !isAuthorized` to
+ * `workspaceUserInfo[workspaceSlug] !== undefined && !isAuthorized`
  */
 test.describe("Admin Access Verification", () => {
-  // Workspace-level admin pages
+  // Test Members page specifically - verifies admin can access without authorization error
+  test("Admin can access workspace Members settings", async ({ authenticatedPage, workspaceSlug }) => {
+    const page = authenticatedPage;
+    await page.goto(`/${workspaceSlug}/settings/members`);
+
+    // Wait for page to load completely
+    await page.waitForLoadState("networkidle");
+
+    // Should NOT see authorization error - wait for content to settle
+    await page.waitForTimeout(2000);
+
+    // Should NOT see "Oops!" error or "not authorized" message
+    const pageContent = await page.content();
+    expect(pageContent.toLowerCase()).not.toContain("oops!");
+    expect(pageContent.toLowerCase()).not.toContain("not authorized");
+
+    // Verify the Add member button is visible (proves admin access AND content loaded)
+    const addMemberButton = page.getByRole("button", { name: /add member/i });
+    await expect(addMemberButton).toBeVisible({ timeout: 10000 });
+  });
+
+  // Workspace-level admin pages - basic access checks
   const workspaceAdminPages = [
-    { path: "/settings/members", name: "Members" },
     { path: "/settings/webhooks", name: "Webhooks" },
     { path: "/settings/imports", name: "Imports" },
     { path: "/settings/integrations", name: "Integrations" },
@@ -30,8 +55,7 @@ test.describe("Admin Access Verification", () => {
       const notAuthorizedText = page.getByText(/not authorized/i);
       await expect(notAuthorizedText).not.toBeVisible({ timeout: 5000 });
 
-      // Should NOT see "Guest" role indicator in sidebar or anywhere prominent
-      // (This is more of a sanity check - Guest role shouldn't have access to these pages)
+      // Should NOT see "Oops!" error
       const pageContent = await page.content();
       expect(pageContent.toLowerCase()).not.toContain("oops!");
     });

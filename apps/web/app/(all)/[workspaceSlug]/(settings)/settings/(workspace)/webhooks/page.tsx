@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 // plane imports
-import { EUserPermissions, EUserPermissionsLevel, WORKSPACE_SETTINGS_TRACKER_ELEMENTS } from "@plane/constants";
+import { EUserPermissions, WORKSPACE_SETTINGS_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 // components
 import { EmptyStateCompact } from "@plane/propel/empty-state";
@@ -15,7 +15,6 @@ import { WebhooksList, CreateWebhookModal } from "@/components/web-hooks";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useWebhook } from "@/hooks/store/use-webhook";
-import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceDetails } from "@/store/queries/workspace";
 import { queryKeys } from "@/store/queries/query-keys";
 import type { Route } from "./+types/page";
@@ -28,11 +27,12 @@ function WebhooksListPage({ params }: Route.ComponentProps) {
   // plane hooks
   const { t } = useTranslation();
   // mobx store
-  const { workspaceUserInfo, allowPermissions } = useUserPermissions();
   const { fetchWebhooks, webhooks, clearSecretKey, webhookSecretKey, createWebhook } = useWebhook();
-  const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
-  // derived values
-  const canPerformWorkspaceAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
+  // Use TanStack Query for workspace details - properly triggers re-renders when data loads
+  const { data: currentWorkspace, isLoading: isLoadingWorkspace } = useWorkspaceDetails(workspaceSlug);
+  // derived values - use role from TanStack Query for accurate re-rendering
+  const userWorkspaceRole = currentWorkspace?.role;
+  const canPerformWorkspaceAdminActions = userWorkspaceRole === EUserPermissions.ADMIN;
 
   useQuery({
     queryKey: queryKeys.webhooks.all(workspaceSlug),
@@ -51,7 +51,8 @@ function WebhooksListPage({ params }: Route.ComponentProps) {
     if (!showCreateWebhookModal && webhookSecretKey) clearSecretKey();
   }, [showCreateWebhookModal, webhookSecretKey, clearSecretKey]);
 
-  if (workspaceUserInfo && !canPerformWorkspaceAdminActions) {
+  // Only show NotAuthorized when workspace data has loaded AND user lacks permissions
+  if (!isLoadingWorkspace && currentWorkspace && !canPerformWorkspaceAdminActions) {
     return <NotAuthorizedView section="settings" className="h-auto" />;
   }
 

@@ -1,7 +1,7 @@
-import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
-import type { IProject } from "@plane/types";
+import { EUserProjectRoles  } from "@plane/types";
+import type {IProject} from "@plane/types";
 // ui
 // components
 import { NotAuthorizedView } from "@/components/auth-screens/not-authorized-view";
@@ -11,7 +11,6 @@ import { PageHead } from "@/components/core/page-title";
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 import { SettingsHeading } from "@/components/settings/heading";
 import { useProjectDetails, useUpdateProject } from "@/store/queries/project";
-import { useUserPermissions } from "@/hooks/store/user";
 // plane web imports
 import { CustomAutomationsRoot } from "@/plane-web/components/automations/root";
 import type { Route } from "./+types/page";
@@ -19,34 +18,37 @@ import type { Route } from "./+types/page";
 function AutomationSettingsPage({ params }: Route.ComponentProps) {
   // router
   const { workspaceSlug, projectId } = params;
-  // store hooks
-  const { workspaceUserInfo, allowPermissions } = useUserPermissions();
-  const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId);
+  // Use TanStack Query for project details - properly triggers re-renders when data loads
+  const { data: projectDetails, isLoading: isLoadingProject } = useProjectDetails(workspaceSlug, projectId);
   const { mutate: updateProject } = useUpdateProject();
 
   const { t } = useTranslation();
 
-  // derived values
-  const canPerformProjectAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT);
+  // derived values - use member_role from TanStack Query for accurate re-rendering
+  const projectMemberRole = projectDetails?.member_role;
+  const canPerformProjectAdminActions = projectMemberRole === EUserProjectRoles.ADMIN;
 
-  const handleChange = async (formData: Partial<IProject>) => {
+  const handleChange = (formData: Partial<IProject>) => {
     if (!projectDetails) return;
-
-    try {
-      updateProject({ workspaceSlug, projectId, data: formData });
-    } catch {
-      setToast({
-        type: TOAST_TYPE.ERROR,
-        title: "Error!",
-        message: "Something went wrong. Please try again.",
-      });
-    }
+    updateProject(
+      { workspaceSlug, projectId, data: formData },
+      {
+        onError: () => {
+          setToast({
+            type: TOAST_TYPE.ERROR,
+            title: "Error!",
+            message: "Something went wrong. Please try again.",
+          });
+        },
+      }
+    );
   };
 
   // derived values
   const pageTitle = projectDetails?.name ? `${projectDetails?.name} - Automations` : undefined;
 
-  if (workspaceUserInfo && !canPerformProjectAdminActions) {
+  // Only show NotAuthorized when project data has loaded AND user lacks permissions
+  if (!isLoadingProject && projectDetails && !canPerformProjectAdminActions) {
     return <NotAuthorizedView section="settings" isProjectView className="h-auto" />;
   }
 
