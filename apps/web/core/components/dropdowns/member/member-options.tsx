@@ -64,6 +64,12 @@ export function MemberOptions(props: Props) {
     const workspaceMember = membersMap.get(userId);
     return workspaceMember?.is_active === false;
   };
+
+  // Helper function to check if user is invited (pending)
+  const isUserInvited = (userId: string) => {
+    const userDetails = getUserDetails(userId);
+    return userDetails?.status === "invited";
+  };
   // popper-js init
   const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
     placement: placement ?? "bottom-start",
@@ -212,6 +218,11 @@ export function MemberOptions(props: Props) {
                           {isUserSuspended(option.value) && (
                             <Pill variant={EPillVariant.DEFAULT} size={EPillSize.XS} className="border-none">
                               Suspended
+                            </Pill>
+                          )}
+                          {!isUserSuspended(option.value) && isUserInvited(option.value) && (
+                            <Pill variant={EPillVariant.AMBER} size={EPillSize.XS} className="border-none">
+                              Pending
                             </Pill>
                           )}
                         </>

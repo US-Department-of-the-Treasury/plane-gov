@@ -16,6 +16,11 @@ export enum EStartOfTheWeek {
   SATURDAY = 6,
 }
 
+/**
+ * @description User status in the system (shadow user pattern)
+ */
+export type TUserStatus = "invited" | "active" | "deactivated";
+
 export interface IUserLite {
   avatar_url: string;
   display_name: string;
@@ -25,6 +30,7 @@ export interface IUserLite {
   is_bot: boolean;
   last_name: string;
   joining_date?: string;
+  status?: TUserStatus;
 }
 export interface IUser extends IUserLite {
   // only for uploading the cover image
