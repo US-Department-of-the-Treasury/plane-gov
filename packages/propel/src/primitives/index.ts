@@ -106,3 +106,9 @@ export { Separator } from "./separator";
 
 // Tooltip - For hover hints
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./tooltip";
+
+// Tabs - For tabbed interfaces
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
+
+// Collapsible - For expandable content sections
+export { Collapsible, CollapsibleTrigger, CollapsibleContent } from "./collapsible";
