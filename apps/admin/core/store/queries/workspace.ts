@@ -39,8 +39,10 @@ export function useCreateWorkspace() {
   return useMutation({
     mutationFn: (data: IWorkspace) => instanceWorkspaceService.create(data),
     onSuccess: async () => {
-      // Invalidate and wait for refetch before navigation can occur
-      await queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all() });
+      // Reset (not just invalidate) to clear cached data completely.
+      // This ensures the list page shows a loading state and fetches fresh data
+      // rather than displaying stale cached data while refetching in background.
+      await queryClient.resetQueries({ queryKey: queryKeys.workspaces.all() });
     },
   });
 }

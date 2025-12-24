@@ -60,8 +60,9 @@ export function WorkspaceCreateForm() {
             title: "Success!",
             message: "Workspace created successfully.",
           });
-          // Ensure cache is invalidated before navigating
-          await queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all() });
+          // Note: resetQueries is already called in mutation's onSuccess handler,
+          // but we call it again to ensure cache is cleared before navigation
+          await queryClient.resetQueries({ queryKey: queryKeys.workspaces.all() });
           router.push(`/workspace`);
         } catch {
           setToast({
