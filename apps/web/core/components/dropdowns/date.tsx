@@ -1,13 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { usePopper } from "react-popper";
+import React, { useRef, useState } from "react";
 import { CalendarDays } from "lucide-react";
-import { Combobox } from "@headlessui/react";
 // ui
 import type { Matcher } from "@plane/propel/calendar";
 import { Calendar } from "@plane/propel/calendar";
 import { CloseIcon } from "@plane/propel/icons";
-import { ComboDropDown } from "@plane/ui";
+import { RadixComboDropDown, RadixComboOptions } from "@plane/ui";
 import { cn, renderFormattedDate, getDate } from "@plane/utils";
 // helpers
 // hooks
@@ -66,64 +63,10 @@ export function DateDropdown(props: Props) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
   // hooks
   const { data } = useUserProfile();
   const startOfWeek = data?.start_of_the_week;
-  // popper-js refs
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const [isPositioned, setIsPositioned] = useState(false);
-  // popper-js init
-  const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
-    placement: placement ?? "bottom-start",
-    modifiers: [
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 12,
-        },
-      },
-    ],
-  });
-
-  // Force popper to recalculate position when dropdown opens or popper element mounts
-  useEffect(() => {
-    if (isOpen && popperElement) {
-      let cancelled = false;
-      let rafId2: number | undefined;
-      const rafId1 = requestAnimationFrame(() => {
-        if (cancelled) return;
-        rafId2 = requestAnimationFrame(() => {
-          if (cancelled) return;
-          const updatePromise = update?.();
-          if (updatePromise) {
-            updatePromise
-              .then(() => {
-                if (!cancelled) setIsPositioned(true);
-                return undefined;
-              })
-              .catch(() => {
-                if (!cancelled) setIsPositioned(true);
-              });
-          } else {
-            setIsPositioned(true);
-          }
-        });
-      });
-      return () => {
-        cancelled = true;
-        cancelAnimationFrame(rafId1);
-        if (rafId2 !== undefined) cancelAnimationFrame(rafId2);
-      };
-    }
-  }, [isOpen, update, popperElement]);
-
-  // Reset positioned state when dropdown closes
-  useEffect(() => {
-    if (!isOpen) {
-      setIsPositioned(false);
-    }
-  }, [isOpen]);
 
   const isDateSelected = value && value.toString().trim() !== "";
 
@@ -196,7 +139,7 @@ export function DateDropdown(props: Props) {
   );
 
   return (
-    <ComboDropDown
+    <RadixComboDropDown
       as="div"
       ref={dropdownRef}
       tabIndex={tabIndex}
@@ -210,41 +153,32 @@ export function DateDropdown(props: Props) {
       disabled={disabled}
       renderByDefault={renderByDefault}
     >
-      {isOpen &&
-        createPortal(
+      {isOpen && (
+        <RadixComboOptions static placement={placement ?? "bottom-start"} referenceElement={referenceElement}>
           <div
-            ref={setPopperElement}
-            className="z-50"
-            style={{ ...styles.popper, opacity: isPositioned ? 1 : 0 }}
-            {...attributes.popper}
+            className={cn(
+              "my-1 bg-surface-1 shadow-raised-200 border-[0.5px] border-strong rounded-md overflow-hidden",
+              optionsClassName
+            )}
           >
-            <Combobox.Options data-prevent-outside-click static>
-              <div
-                className={cn(
-                  "my-1 bg-surface-1 shadow-raised-200 border-[0.5px] border-strong rounded-md overflow-hidden",
-                  optionsClassName
-                )}
-              >
-                <Calendar
-                  className="rounded-md border border-subtle p-3"
-                  captionLayout="dropdown"
-                  selected={getDate(value)}
-                  defaultMonth={getDate(value)}
-                  onSelect={(date: Date | undefined) => {
-                    dropdownOnChange(date ?? null);
-                  }}
-                  showOutsideDays
-                  initialFocus
-                  disabled={disabledDays}
-                  mode="single"
-                  fixedWeeks
-                  weekStartsOn={startOfWeek}
-                />
-              </div>
-            </Combobox.Options>
-          </div>,
-          document.body
-        )}
-    </ComboDropDown>
+            <Calendar
+              className="rounded-md border border-subtle p-3"
+              captionLayout="dropdown"
+              selected={getDate(value)}
+              defaultMonth={getDate(value)}
+              onSelect={(date: Date | undefined) => {
+                dropdownOnChange(date ?? null);
+              }}
+              showOutsideDays
+              initialFocus
+              disabled={disabledDays}
+              mode="single"
+              fixedWeeks
+              weekStartsOn={startOfWeek}
+            />
+          </div>
+        </RadixComboOptions>
+      )}
+    </RadixComboDropDown>
   );
 }
