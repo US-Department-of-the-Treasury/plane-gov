@@ -157,30 +157,7 @@ resource "aws_elastic_beanstalk_environment" "main" {
     value     = var.environment
   }
 
-  # Legacy Secrets Manager ARNs (kept during migration, remove after validation)
-  setting {
-    namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "APP_CONFIG_SECRET_ARN"
-    value     = aws_secretsmanager_secret.app_config.arn
-  }
-
-  setting {
-    namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "DB_SECRET_ARN"
-    value     = aws_secretsmanager_secret.db_credentials.arn
-  }
-
-  setting {
-    namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "DJANGO_SECRET_ARN"
-    value     = aws_secretsmanager_secret.django_secret.arn
-  }
-
-  setting {
-    namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "OIDC_SECRET_ARN"
-    value     = aws_secretsmanager_secret.oidc_credentials.arn
-  }
+  # Secrets are now fetched from SSM Parameter Store via .ebextensions/00-validate.config
 
   # Redis URL (if enabled)
   dynamic "setting" {

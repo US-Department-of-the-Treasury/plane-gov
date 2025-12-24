@@ -92,52 +92,7 @@ resource "aws_iam_role_policy_attachment" "ssm_parameters_access" {
   policy_arn = aws_iam_policy.ssm_parameters_access.arn
 }
 
-# Custom policy for Secrets Manager access
-resource "aws_iam_policy" "secrets_access" {
-  name        = "${var.project_name}-secrets-access"
-  description = "Allow EB instances to read application secrets"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "secretsmanager:GetSecretValue",
-          "secretsmanager:DescribeSecret"
-        ]
-        Resource = [
-          aws_secretsmanager_secret.db_credentials.arn,
-          aws_secretsmanager_secret.django_secret.arn,
-          aws_secretsmanager_secret.oidc_credentials.arn,
-          aws_secretsmanager_secret.app_config.arn,
-          var.enable_redis ? aws_secretsmanager_secret.redis_config[0].arn : ""
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "kms:Decrypt"
-        ]
-        Resource = "*"
-        Condition = {
-          StringEquals = {
-            "kms:ViaService" = "secretsmanager.${var.aws_region}.amazonaws.com"
-          }
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "${var.project_name}-secrets-access"
-  }
-}
-
-resource "aws_iam_role_policy_attachment" "secrets_access" {
-  role       = aws_iam_role.eb_ec2.name
-  policy_arn = aws_iam_policy.secrets_access.arn
-}
+# Secrets Manager access removed - now using SSM Parameter Store (see ssm.tf)
 
 # Custom policy for CloudWatch Logs
 resource "aws_iam_policy" "cloudwatch_logs" {
