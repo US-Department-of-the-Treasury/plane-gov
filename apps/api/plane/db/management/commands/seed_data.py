@@ -35,6 +35,7 @@ from plane.db.models import (
     Label,
     Page,
     PageLabel,
+    Profile,
     ProjectPage,
     Project,
     ProjectMember,
