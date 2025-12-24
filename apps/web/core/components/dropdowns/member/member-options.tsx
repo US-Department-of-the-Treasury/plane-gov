@@ -1,16 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { Placement } from "@popperjs/core";
 import { useParams } from "next/navigation";
-import { createPortal } from "react-dom";
-import { usePopper } from "react-popper";
 import { Check, Search } from "lucide-react";
-import { Combobox } from "@headlessui/react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { SuspendedUserIcon } from "@plane/propel/icons";
 import { EPillSize, EPillVariant, Pill } from "@plane/propel/pill";
 import type { IUserLite } from "@plane/types";
-import { Avatar } from "@plane/ui";
+import { Avatar, RadixComboOptions, RadixComboInput, RadixComboOption, RadixComboList, useRadixCombo } from "@plane/ui";
 import { cn, getFileURL } from "@plane/utils";
 // hooks
 import { useUser } from "@/hooks/store/user";
@@ -24,8 +21,8 @@ interface Props {
   memberIds?: string[];
   onDropdownOpen?: () => void;
   optionsClassName?: string;
-  placement: Placement | undefined;
-  referenceElement: HTMLButtonElement | null;
+  placement?: Placement;
+  referenceElement?: HTMLElement | null;
 }
 
 export function MemberOptions(props: Props) {
@@ -42,16 +39,14 @@ export function MemberOptions(props: Props) {
   const { workspaceSlug } = useParams();
   // refs
   const inputRef = useRef<HTMLInputElement | null>(null);
-  // states
-  const [query, setQuery] = useState("");
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const [isPositioned, setIsPositioned] = useState(false);
   // plane hooks
   const { t } = useTranslation();
   // store hooks
   const { data: currentUser } = useUser();
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString());
   const { isMobile } = usePlatformOS();
+  // Get query state from Radix context
+  const { query, setQuery } = useRadixCombo();
 
   // Create members map for checking suspension status
   const membersMap = useMemo(() => {
@@ -70,63 +65,15 @@ export function MemberOptions(props: Props) {
     const userDetails = getUserDetails(userId);
     return userDetails?.status === "invited";
   };
-  // popper-js init
-  const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
-    placement: placement ?? "bottom-start",
-    strategy: "fixed",
-    modifiers: [
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 12,
-        },
-      },
-    ],
-  });
-
-  // Force popper to recalculate position when dropdown opens or popper element mounts
-  useEffect(() => {
-    if (isOpen && popperElement) {
-      // Use double rAF to ensure browser has laid out the element before showing
-      // First rAF: element is in DOM but not yet painted
-      // Second rAF: element is painted, position can be calculated correctly
-      let cancelled = false;
-      let rafId2: number | undefined;
-      const rafId1 = requestAnimationFrame(() => {
-        if (cancelled) return;
-        rafId2 = requestAnimationFrame(() => {
-          if (cancelled) return;
-          const updatePromise = update?.();
-          if (updatePromise) {
-            updatePromise
-              .then(() => {
-                if (!cancelled) setIsPositioned(true);
-                return undefined;
-              })
-              .catch(() => {
-                if (!cancelled) setIsPositioned(true);
-              });
-          } else {
-            setIsPositioned(true);
-          }
-        });
-      });
-      return () => {
-        cancelled = true;
-        cancelAnimationFrame(rafId1);
-        if (rafId2 !== undefined) cancelAnimationFrame(rafId2);
-      };
-    }
-  }, [isOpen, update, popperElement]);
 
   useEffect(() => {
     if (isOpen) {
       onDropdownOpen?.();
-      if (!isMobile) {
-        inputRef.current && inputRef.current.focus();
+      if (!isMobile && inputRef.current) {
+        inputRef.current.focus();
       }
     }
-  }, [isOpen, isMobile]);
+  }, [isOpen, isMobile, onDropdownOpen]);
 
   const searchInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (query !== "" && e.key === "Escape") {
@@ -162,43 +109,36 @@ export function MemberOptions(props: Props) {
   const filteredOptions =
     query === "" ? options : options?.filter((o) => o?.query.toLowerCase().includes(query.toLowerCase()));
 
-  return createPortal(
-    <div
-      ref={setPopperElement}
-      className="z-50"
-      style={{
-        ...styles.popper,
-        opacity: isPositioned ? 1 : 0,
-      }}
-      {...attributes.popper}
+  return (
+    <RadixComboOptions
+      static
+      placement={placement ?? "bottom-start"}
+      referenceElement={referenceElement}
     >
-      <Combobox.Options data-prevent-outside-click static>
-        <div
-          className={cn(
-            "my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none",
-            optionsClassName
-          )}
-        >
+      <div
+        className={cn(
+          "my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none",
+          optionsClassName
+        )}
+      >
         <div className="flex items-center gap-1.5 rounded-sm border border-subtle bg-surface-2 px-2">
           <Search className="h-3.5 w-3.5 text-placeholder" strokeWidth={1.5} />
-          <Combobox.Input
-            as="input"
+          <RadixComboInput
             ref={inputRef}
             className="w-full bg-transparent py-1 text-11 text-secondary placeholder:text-placeholder focus:outline-none"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("search")}
-            displayValue={(assigned: any) => assigned?.name}
             onKeyDown={searchInputKeyDown}
           />
         </div>
-        <div className="mt-2 max-h-48 space-y-1 overflow-y-scroll">
+        <RadixComboList className="mt-2 space-y-1">
           {filteredOptions ? (
             filteredOptions.length > 0 ? (
               filteredOptions.map(
                 (option) =>
                   option && (
-                    <Combobox.Option
+                    <RadixComboOption
                       key={option.value}
                       value={option.value}
                       className={({ active, selected }) =>
@@ -227,7 +167,7 @@ export function MemberOptions(props: Props) {
                           )}
                         </>
                       )}
-                    </Combobox.Option>
+                    </RadixComboOption>
                   )
               )
             ) : (
@@ -236,10 +176,8 @@ export function MemberOptions(props: Props) {
           ) : (
             <p className="px-1.5 py-1 italic text-placeholder">{t("loading")}</p>
           )}
-        </div>
-        </div>
-      </Combobox.Options>
-    </div>,
-    document.body
+        </RadixComboList>
+      </div>
+    </RadixComboOptions>
   );
 }
