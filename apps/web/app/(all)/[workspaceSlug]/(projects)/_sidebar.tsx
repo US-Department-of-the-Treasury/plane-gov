@@ -1,4 +1,3 @@
-import type { FC } from "react";
 import { useState } from "react";
 
 // plane imports
@@ -10,7 +9,6 @@ import { ResizableSidebar } from "@/components/sidebar/resizable-sidebar";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 // local imports
-import { ExtendedAppSidebar } from "./extended-sidebar";
 import { AppSidebar } from "./sidebar";
 
 export function ProjectAppSidebar() {
@@ -20,7 +18,6 @@ export function ProjectAppSidebar() {
     toggleSidebar,
     sidebarPeek,
     toggleSidebarPeek,
-    isExtendedSidebarOpened,
     isAnySidebarDropdownOpen,
   } = useAppTheme();
   const { storedValue, setValue } = useLocalStorage("sidebarWidth", SIDEBAR_WIDTH);
@@ -29,8 +26,6 @@ export function ProjectAppSidebar() {
   // routes
   const { workspaceSlug } = useParams();
   const pathname = usePathname();
-  // derived values
-  const isAnyExtendedSidebarOpen = isExtendedSidebarOpened;
 
   const isNotificationsPath = pathname.includes(`/${workspaceSlug}/notifications`);
 
@@ -53,12 +48,7 @@ export function ProjectAppSidebar() {
         isCollapsed={sidebarCollapsed}
         toggleCollapsed={toggleSidebar}
         togglePeek={toggleSidebarPeek}
-        extendedSidebar={
-          <>
-            <ExtendedAppSidebar />
-          </>
-        }
-        isAnyExtendedSidebarExpanded={isAnyExtendedSidebarOpen}
+        isAnyExtendedSidebarExpanded={false}
         isAnySidebarDropdownOpen={isAnySidebarDropdownOpen}
       >
         <AppSidebar />
