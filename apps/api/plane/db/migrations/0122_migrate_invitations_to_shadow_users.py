@@ -111,7 +111,7 @@ def reverse_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('db', '0121_add_user_status_fields'),
+        ('db', '0121b_fix_invitation_token_length'),
     ]
 
     operations = [

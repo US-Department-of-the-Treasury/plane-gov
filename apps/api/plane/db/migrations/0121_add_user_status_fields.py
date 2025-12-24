@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='invitation_token',
-            field=models.CharField(blank=True, db_index=True, max_length=64, null=True),
+            field=models.CharField(blank=True, db_index=True, max_length=255, null=True),
         ),
         migrations.AddField(
             model_name='user',
@@ -169,10 +169,8 @@ class Migration(migrations.Migration):
             name='user',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='epic_user_properties', to=settings.AUTH_USER_MODEL),
         ),
-        migrations.AddIndex(
-            model_name='wikipage',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['description_stripped'], name='wikipage_search_idx', opclasses=['gin_trgm_ops']),
-        ),
+        # NOTE: wikipage_search_idx was already created in 0119_wiki_tables.py
+        # Do NOT add it again here - it causes DuplicateTable error on deployment
         migrations.AddConstraint(
             model_name='draftissueepic',
             constraint=models.UniqueConstraint(condition=models.Q(('deleted_at__isnull', True)), fields=('draft_issue', 'epic'), name='epic_draft_issue_unique_issue_epic_when_deleted_at_null'),
