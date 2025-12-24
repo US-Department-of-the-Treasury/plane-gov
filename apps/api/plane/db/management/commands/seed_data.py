@@ -18,7 +18,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from faker import Faker
@@ -209,7 +208,7 @@ class Command(BaseCommand):
                 "is_active": True,
                 "is_email_verified": True,
                 "is_password_autoset": False,
-                "status": "active",
+                "status": "active",  # Shadow user pattern: active status for real users
             },
         )
         if created:
@@ -223,6 +222,41 @@ class Command(BaseCommand):
         profile.save()
 
         return user
+
+    def _create_invited_users(self, workspace: Workspace, user: User, count: int = 3) -> list:
+        """Create sample invited (shadow) users for testing the pending member feature."""
+        from plane.db.models.user import UserStatusChoices
+        import secrets
+
+        fake = Faker()
+        invited_users = []
+
+        for i in range(count):
+            email = f"invited{i+1}@example.gov"
+            username = f"invited{i+1}_{uuid.uuid4().hex[:8]}"
+
+            invited_user = User.objects.create(
+                email=email,
+                username=username,
+                first_name=fake.first_name(),
+                last_name=fake.last_name(),
+                is_active=False,  # Cannot login until invitation accepted
+                status=UserStatusChoices.INVITED,
+                invited_at=datetime.now(),
+                invited_by=user,
+                invitation_token=secrets.token_urlsafe(32),
+            )
+
+            # Create workspace membership for invited user
+            WorkspaceMember.objects.create(
+                workspace=workspace,
+                member=invited_user,
+                role=15,  # Member role
+            )
+
+            invited_users.append(invited_user)
+
+        return invited_users
 
     def _create_workspace(self, name: str, slug: str, owner: User) -> Workspace:
         """Create a workspace with the owner as admin member."""
@@ -295,6 +329,10 @@ class Command(BaseCommand):
         wiki_count = self._create_default_wiki_pages(workspace, user)
         self.stdout.write(f"    Wiki pages: {wiki_count}")
 
+        # Create invited (shadow) users for testing pending member feature
+        invited_users = self._create_invited_users(workspace, user, count=3)
+        self.stdout.write(f"    Invited users: {len(invited_users)}")
+
         # Create webhooks
         webhook_count = self._create_default_webhooks(workspace, user)
         self.stdout.write(f"    Webhooks: {webhook_count}")
@@ -346,6 +384,10 @@ class Command(BaseCommand):
         # Create wiki pages
         wiki_pages = self._create_random_wiki_pages(workspace, user, options["wiki_pages"])
         self.stdout.write(f"    Wiki pages: {len(wiki_pages)}")
+
+        # Create invited (shadow) users for testing pending member feature
+        invited_users = self._create_invited_users(workspace, user, count=3)
+        self.stdout.write(f"    Invited users: {len(invited_users)}")
 
         # Create webhooks
         webhooks = self._create_random_webhooks(workspace, user, options["webhooks"])

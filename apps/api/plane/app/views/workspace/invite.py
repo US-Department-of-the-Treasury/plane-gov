@@ -1,10 +1,9 @@
 # Python imports
-from datetime import datetime
-
-import jwt
+from datetime import timedelta
+import secrets
+import uuid
 
 # Django imports
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.utils import timezone
@@ -23,11 +22,27 @@ from plane.app.serializers import (
 from plane.app.views.base import BaseAPIView
 from plane.bgtasks.event_tracking_task import workspace_invite_event
 from plane.bgtasks.workspace_invitation_task import workspace_invitation
-from plane.db.models import User, Workspace, WorkspaceMember, WorkspaceMemberInvite
+from plane.db.models import User, Workspace, WorkspaceMember, WorkspaceMemberInvite, UserStatusChoices
 from plane.utils.cache import invalidate_cache, invalidate_cache_directly
 from plane.utils.host import base_host
 from plane.utils.ip_address import get_client_ip
 from .. import BaseViewSet
+
+
+def generate_unique_username(email):
+    """Generate a unique username from email, adding UUID suffix if needed."""
+    prefix = email.split("@")[0]
+    # Start with just the prefix
+    username = prefix
+    # If it already exists, add a UUID suffix
+    if User.objects.filter(username=username).exists():
+        username = f"{prefix}_{uuid.uuid4().hex[:8]}"
+    return username
+
+
+def generate_invitation_token():
+    """Generate a secure invitation token."""
+    return secrets.token_urlsafe(32)
 
 
 class WorkspaceInvitationsViewset(BaseViewSet):
@@ -65,10 +80,11 @@ class WorkspaceInvitationsViewset(BaseViewSet):
         # Get the workspace object
         workspace = Workspace.objects.get(slug=slug)
 
-        # Check if user is already a member of workspace
+        # Check if user is already an active member of workspace
         workspace_members = WorkspaceMember.objects.filter(
             workspace_id=workspace.id,
             member__email__in=[email.get("email") for email in emails],
+            member__status=UserStatusChoices.ACTIVE,
             is_active=True,
         ).select_related("member", "member__avatar_asset")
 
@@ -81,43 +97,97 @@ class WorkspaceInvitationsViewset(BaseViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        workspace_invitations = []
-        for email in emails:
+        current_site = base_host(request=request, is_app=True)
+        invited_users = []
+
+        for email_data in emails:
             try:
-                validate_email(email.get("email"))
-                workspace_invitations.append(
-                    WorkspaceMemberInvite(
-                        email=email.get("email").strip().lower(),
-                        workspace_id=workspace.id,
-                        token=jwt.encode(
-                            {"email": email, "timestamp": datetime.now().timestamp()},
-                            settings.SECRET_KEY,
-                            algorithm="HS256",
-                        ),
-                        role=email.get("role", 5),
-                        created_by=request.user,
+                email = email_data.get("email").strip().lower()
+                validate_email(email)
+                role = email_data.get("role", 5)
+
+                # Check if user already exists
+                existing_user = User.objects.filter(email=email).first()
+
+                if existing_user:
+                    if existing_user.status == UserStatusChoices.ACTIVE:
+                        # User is already active - they need to be added via different flow
+                        # This shouldn't happen due to the check above, but handle gracefully
+                        continue
+                    elif existing_user.status == UserStatusChoices.INVITED:
+                        # Resend invitation - refresh token and expiry
+                        existing_user.invitation_token = generate_invitation_token()
+                        existing_user.invitation_expires_at = timezone.now() + timedelta(days=14)
+                        existing_user.save(update_fields=['invitation_token', 'invitation_expires_at'])
+                        user = existing_user
+                    else:
+                        # Deactivated user - reactivate as invited
+                        existing_user.status = UserStatusChoices.INVITED
+                        existing_user.invited_at = timezone.now()
+                        existing_user.invited_by = request.user
+                        existing_user.invitation_token = generate_invitation_token()
+                        existing_user.invitation_expires_at = timezone.now() + timedelta(days=14)
+                        existing_user.save(update_fields=[
+                            'status', 'invited_at', 'invited_by',
+                            'invitation_token', 'invitation_expires_at'
+                        ])
+                        user = existing_user
+                else:
+                    # Create shadow user
+                    user = User.objects.create(
+                        email=email,
+                        username=generate_unique_username(email),
+                        status=UserStatusChoices.INVITED,
+                        invited_at=timezone.now(),
+                        invited_by=request.user,
+                        invitation_token=generate_invitation_token(),
+                        invitation_expires_at=timezone.now() + timedelta(days=14),
+                        is_active=False,  # Cannot login until invitation accepted
                     )
+
+                # Create or update workspace membership
+                workspace_member, created = WorkspaceMember.objects.get_or_create(
+                    workspace=workspace,
+                    member=user,
+                    defaults={
+                        'role': role,
+                        'created_by': request.user,
+                    }
                 )
+                if not created:
+                    # Update existing membership
+                    workspace_member.role = role
+                    workspace_member.is_active = True
+                    workspace_member.save(update_fields=['role', 'is_active'])
+
+                invited_users.append(user)
+
+                # Also create WorkspaceMemberInvite for backward compatibility with email task
+                # TODO: Remove this once email task is updated to use User.invitation_token
+                WorkspaceMemberInvite.objects.update_or_create(
+                    email=email,
+                    workspace=workspace,
+                    defaults={
+                        'token': user.invitation_token,
+                        'role': role,
+                        'created_by': request.user,
+                    }
+                )
+
             except ValidationError:
                 return Response(
                     {
-                        "error": f"Invalid email - {email} provided a valid email address is required to send the invite"  # noqa: E501
+                        "error": f"Invalid email - {email_data} provided a valid email address is required to send the invite"  # noqa: E501
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        # Create workspace member invite
-        workspace_invitations = WorkspaceMemberInvite.objects.bulk_create(
-            workspace_invitations, batch_size=10, ignore_conflicts=True
-        )
-
-        current_site = base_host(request=request, is_app=True)
 
         # Send invitations
-        for invitation in workspace_invitations:
+        for user in invited_users:
             workspace_invitation.delay(
-                invitation.email,
+                user.email,
                 workspace.id,
-                invitation.token,
+                user.invitation_token,
                 current_site,
                 request.user.email,
             )
@@ -126,6 +196,45 @@ class WorkspaceInvitationsViewset(BaseViewSet):
 
     def destroy(self, request, slug, pk):
         workspace_member_invite = WorkspaceMemberInvite.objects.get(pk=pk, workspace__slug=slug)
+
+        # Check if this invite has a corresponding shadow user with assignments
+        shadow_user = User.objects.filter(
+            email=workspace_member_invite.email,
+            status=UserStatusChoices.INVITED
+        ).first()
+
+        if shadow_user:
+            # Import here to avoid circular imports
+            from plane.db.models import Project, Issue
+
+            # Check for assignments that would be orphaned
+            assignments = []
+            if Project.objects.filter(project_lead=shadow_user).exists():
+                assignments.append("project lead")
+            if Issue.objects.filter(assignees=shadow_user).exists():
+                assignments.append("issue assignee")
+
+            if assignments:
+                return Response(
+                    {
+                        "error": f"Cannot revoke invitation: user is assigned as "
+                                 f"{', '.join(assignments)}. Remove assignments first.",
+                        "assignments": assignments,
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Safe to revoke - deactivate the shadow user and workspace membership
+            shadow_user.status = UserStatusChoices.DEACTIVATED
+            shadow_user.invitation_token = None
+            shadow_user.save(update_fields=['status', 'invitation_token'])
+
+            WorkspaceMember.objects.filter(
+                member=shadow_user,
+                workspace__slug=slug
+            ).update(is_active=False)
+
+        # Delete the invitation record
         workspace_member_invite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -162,12 +271,23 @@ class WorkspaceJoinEndpoint(BaseAPIView):
             workspace_invite.save()
 
             if workspace_invite.accepted:
-                # Check if the user created account after invitation
+                # With shadow user pattern, user should already exist
                 user = User.objects.filter(email=email).first()
 
-                # If the user is present then create the workspace member
                 if user is not None:
-                    # Check if the user was already a member of workspace then activate the user
+                    # Activate the shadow user if they were invited
+                    if user.status == UserStatusChoices.INVITED:
+                        user.status = UserStatusChoices.ACTIVE
+                        user.activated_at = timezone.now()
+                        user.invitation_token = None
+                        user.invitation_expires_at = None
+                        user.is_active = True  # Enable login
+                        user.save(update_fields=[
+                            'status', 'activated_at', 'invitation_token',
+                            'invitation_expires_at', 'is_active'
+                        ])
+
+                    # Ensure workspace membership exists and is active
                     workspace_member = WorkspaceMember.objects.filter(
                         workspace=workspace_invite.workspace, member=user
                     ).first()
@@ -176,18 +296,18 @@ class WorkspaceJoinEndpoint(BaseAPIView):
                         workspace_member.role = workspace_invite.role
                         workspace_member.save()
                     else:
-                        # Create a Workspace
-                        _ = WorkspaceMember.objects.create(
+                        # Create workspace membership (shouldn't happen with shadow users, but handle gracefully)
+                        WorkspaceMember.objects.create(
                             workspace=workspace_invite.workspace,
                             member=user,
                             role=workspace_invite.role,
                         )
 
                     # Set the user last_workspace_id to the accepted workspace
-                    user.last_workspace_id = workspace_invite.workspace.id
-                    user.save()
+                    user.profile.last_workspace_id = workspace_invite.workspace.id
+                    user.profile.save(update_fields=['last_workspace_id'])
 
-                    # Delete the invitation
+                    # Delete the invitation record (backward compatibility cleanup)
                     workspace_invite.delete()
 
                 # Send event
@@ -239,6 +359,19 @@ class UserWorkspaceInvitationsViewSet(BaseViewSet):
             pk__in=invitations, email=request.user.email
         ).order_by("-created_at")
 
+        # Activate shadow user if status is invited
+        user = request.user
+        if user.status == UserStatusChoices.INVITED:
+            user.status = UserStatusChoices.ACTIVE
+            user.activated_at = timezone.now()
+            user.invitation_token = None
+            user.invitation_expires_at = None
+            user.is_active = True
+            user.save(update_fields=[
+                'status', 'activated_at', 'invitation_token',
+                'invitation_expires_at', 'is_active'
+            ])
+
         # If the user is already a member of workspace and was deactivated then activate the user
         for invitation in workspace_invitations:
             invalidate_cache_directly(
@@ -252,7 +385,7 @@ class UserWorkspaceInvitationsViewSet(BaseViewSet):
                 is_active=True, role=invitation.role
             )
 
-        # Bulk create the user for all the workspaces
+        # Bulk create workspace memberships for all workspaces (if not already existing)
         WorkspaceMember.objects.bulk_create(
             [
                 WorkspaceMember(
@@ -266,7 +399,7 @@ class UserWorkspaceInvitationsViewSet(BaseViewSet):
             ignore_conflicts=True,
         )
 
-        # Delete joined workspace invites
+        # Delete joined workspace invites (backward compatibility cleanup)
         workspace_invitations.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
