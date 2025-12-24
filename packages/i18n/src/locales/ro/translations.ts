@@ -1427,9 +1427,14 @@ export default {
         title: "Privat",
         description: "Accesibil doar pe bază de invitație",
       },
+      shared: {
+        title: "Partajat",
+        description: "Oricine din spațiul de lucru, cu excepția celor din categoria Invitați, se poate alătura",
+      },
       public: {
         title: "Public",
-        description: "Oricine din spațiul de lucru, cu excepția celor din categoria Invitați, se poate alătura",
+        description: "Accesibil oricui de pe internet",
+        disabled_tooltip: "Proiectele publice nu sunt încă disponibile",
       },
     },
     error: {

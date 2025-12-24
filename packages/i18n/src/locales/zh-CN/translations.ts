@@ -1399,13 +1399,19 @@ export default {
       label: "添加项目",
     },
     network: {
+      label: "网络",
       private: {
         title: "私有",
         description: "仅限邀请访问",
       },
+      shared: {
+        title: "共享",
+        description: "工作区中除访客外的任何人都可以加入",
+      },
       public: {
         title: "公开",
-        description: "工作区中除访客外的任何人都可以加入",
+        description: "互联网上的任何人都可以访问",
+        disabled_tooltip: "公开项目尚不可用",
       },
     },
     error: {

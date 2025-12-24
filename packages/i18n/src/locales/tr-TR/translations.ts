@@ -1424,9 +1424,14 @@ export default {
         title: "Özel",
         description: "Yalnızca davetle erişilebilir",
       },
+      shared: {
+        title: "Paylaşımlı",
+        description: "Çalışma alanındaki herkes (Misafirler hariç) katılabilir",
+      },
       public: {
         title: "Herkese Açık",
-        description: "Çalışma alanındaki herkes (Misafirler hariç) katılabilir",
+        description: "İnternetteki herkes erişebilir",
+        disabled_tooltip: "Herkese açık projeler henüz mevcut değil",
       },
     },
     error: {

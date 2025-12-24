@@ -1411,9 +1411,14 @@ export default {
         title: "비공개",
         description: "초대에 의해서만 접근 가능",
       },
+      shared: {
+        title: "공유",
+        description: "게스트를 제외한 작업 공간의 모든 사람이 참여할 수 있습니다",
+      },
       public: {
         title: "공개",
-        description: "게스트를 제외한 작업 공간의 모든 사람이 참여할 수 있습니다",
+        description: "인터넷 상의 누구나 접근 가능",
+        disabled_tooltip: "공개 프로젝트는 아직 사용할 수 없습니다",
       },
     },
     error: {

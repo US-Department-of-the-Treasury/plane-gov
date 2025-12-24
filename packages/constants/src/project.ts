@@ -2,14 +2,15 @@
 import type { TProjectAppliedDisplayFilterKeys, TProjectOrderByOptions } from "@plane/types";
 // local imports
 
-export type TNetworkChoiceIconKey = "Lock" | "Globe2";
+export type TNetworkChoiceIconKey = "Lock" | "Building" | "Globe2";
 
 export type TNetworkChoice = {
-  key: 0 | 2;
+  key: 0 | 2 | 4;
   labelKey: string;
   i18n_label: string;
   description: string;
   iconKey: TNetworkChoiceIconKey;
+  disabled?: boolean;
 };
 
 export const NETWORK_CHOICES: TNetworkChoice[] = [
@@ -22,10 +23,18 @@ export const NETWORK_CHOICES: TNetworkChoice[] = [
   },
   {
     key: 2,
+    labelKey: "Shared",
+    i18n_label: "workspace_projects.network.shared.title",
+    description: "workspace_projects.network.shared.description", //"Anyone in the workspace except Guests can join",
+    iconKey: "Building",
+  },
+  {
+    key: 4,
     labelKey: "Public",
     i18n_label: "workspace_projects.network.public.title",
-    description: "workspace_projects.network.public.description", //"Anyone in the workspace except Guests can join",
+    description: "workspace_projects.network.public.description", //"Public projects are not yet available",
     iconKey: "Globe2",
+    disabled: true,
   },
 ];
 

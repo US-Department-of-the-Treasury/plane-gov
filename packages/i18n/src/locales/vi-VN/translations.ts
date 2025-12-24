@@ -1422,13 +1422,19 @@ export default {
       label: "Thêm dự án",
     },
     network: {
+      label: "Mạng",
       private: {
         title: "Riêng tư",
         description: "Chỉ truy cập bằng lời mời",
       },
+      shared: {
+        title: "Chia sẻ",
+        description: "Bất kỳ ai trong không gian làm việc ngoại trừ khách đều có thể tham gia",
+      },
       public: {
         title: "Công khai",
-        description: "Bất kỳ ai trong không gian làm việc ngoại trừ khách đều có thể tham gia",
+        description: "Bất kỳ ai trên internet đều có thể truy cập",
+        disabled_tooltip: "Dự án công khai chưa khả dụng",
       },
     },
     error: {

@@ -1422,9 +1422,14 @@ export default {
         title: "Súkromný",
         description: "Prístupné iba na pozvanie",
       },
+      shared: {
+        title: "Zdieľaný",
+        description: "Ktokoľvek v priestore okrem hostí sa môže pripojiť",
+      },
       public: {
         title: "Verejný",
-        description: "Ktokoľvek v priestore okrem hostí sa môže pripojiť",
+        description: "Prístupné komukoľvek na internete",
+        disabled_tooltip: "Verejné projekty zatiaľ nie sú k dispozícii",
       },
     },
     error: {

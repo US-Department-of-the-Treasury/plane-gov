@@ -1432,13 +1432,19 @@ export default {
       label: "Agregar Proyecto",
     },
     network: {
+      label: "Red",
       private: {
         title: "Privado",
         description: "Accesible solo por invitación",
       },
+      shared: {
+        title: "Compartido",
+        description: "Cualquiera en el espacio de trabajo excepto Invitados puede unirse",
+      },
       public: {
         title: "Público",
-        description: "Cualquiera en el espacio de trabajo excepto Invitados puede unirse",
+        description: "Accesible para cualquier persona en internet",
+        disabled_tooltip: "Los proyectos públicos aún no están disponibles",
       },
     },
     error: {
