@@ -1,5 +1,5 @@
 import { memo, useMemo } from "react";
-import { Disclosure, Transition } from "@headlessui/react";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
 // plane imports
 import {
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS_LINKS,
@@ -81,13 +81,10 @@ export const SidebarMenuItems = memo(function SidebarMenuItems() {
           <SidebarItem key={`static_${_index}`} item={item} />
         ))}
       </div>
-      <Disclosure as="div" className="flex flex-col" defaultOpen={!!isWorkspaceMenuOpen}>
+      <Collapsible open={!!isWorkspaceMenuOpen} onOpenChange={toggleListDisclosure} className="flex flex-col">
         <div className="group w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-placeholder hover:bg-layer-transparent-hover">
-          <Disclosure.Button
-            as="button"
-            type="button"
+          <CollapsibleTrigger
             className="w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder"
-            onClick={() => toggleListDisclosure(!isWorkspaceMenuOpen)}
             aria-label={t(
               isWorkspaceMenuOpen
                 ? "aria_labels.app_sidebar.close_workspace_menu"
@@ -95,13 +92,10 @@ export const SidebarMenuItems = memo(function SidebarMenuItems() {
             )}
           >
             <span className="text-13 font-semibold">{t("workspace")}</span>
-          </Disclosure.Button>
+          </CollapsibleTrigger>
           <div className="flex items-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
-            <Disclosure.Button
-              as="button"
-              type="button"
+            <CollapsibleTrigger
               className="p-0.5 rounded-sm hover:bg-layer-1 flex-shrink-0"
-              onClick={() => toggleListDisclosure(!isWorkspaceMenuOpen)}
               aria-label={t(
                 isWorkspaceMenuOpen
                   ? "aria_labels.app_sidebar.close_workspace_menu"
@@ -113,33 +107,20 @@ export const SidebarMenuItems = memo(function SidebarMenuItems() {
                   "rotate-90": isWorkspaceMenuOpen,
                 })}
               />
-            </Disclosure.Button>
+            </CollapsibleTrigger>
           </div>
         </div>
-        <Transition
-          as="div"
-          show={!!isWorkspaceMenuOpen}
-          enter="transition duration-100 ease-out"
-          enterFrom="transform scale-95 opacity-0"
-          enterTo="transform scale-100 opacity-100"
-          leave="transition duration-75 ease-out"
-          leaveFrom="transform scale-100 opacity-100"
-          leaveTo="transform scale-95 opacity-0"
-        >
-          {isWorkspaceMenuOpen && (
-            <Disclosure.Panel as="div" className="flex flex-col gap-0.5" static>
-              <>
-                {WORKSPACE_SIDEBAR_STATIC_PINNED_NAVIGATION_ITEMS_LINKS.map((item, _index) => (
-                  <SidebarItem key={`static_${_index}`} item={item} />
-                ))}
-                {sortedNavigationItems.map((item, _index) => (
-                  <SidebarItem key={`dynamic_${_index}`} item={item} />
-                ))}
-              </>
-            </Disclosure.Panel>
-          )}
-        </Transition>
-      </Disclosure>
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+          <div className="flex flex-col gap-0.5">
+            {WORKSPACE_SIDEBAR_STATIC_PINNED_NAVIGATION_ITEMS_LINKS.map((item, _index) => (
+              <SidebarItem key={`static_${_index}`} item={item} />
+            ))}
+            {sortedNavigationItems.map((item, _index) => (
+              <SidebarItem key={`dynamic_${_index}`} item={item} />
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </>
   );
 });

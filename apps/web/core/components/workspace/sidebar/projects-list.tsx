@@ -3,7 +3,7 @@ import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { useParams, usePathname } from "next/navigation";
 import { Plus, Ellipsis } from "lucide-react";
-import { Disclosure, Transition } from "@headlessui/react";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -169,111 +169,93 @@ export const SidebarProjectsList = memo(function SidebarProjectsList() {
           "border-t border-strong": isScrolled,
         })}
       >
-        <>
-          <Disclosure as="div" className="flex flex-col" defaultOpen={isAllProjectsListOpen}>
-            <div className="group w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-placeholder hover:bg-layer-transparent-hover">
-              <Disclosure.Button
-                as="button"
-                type="button"
-                className="w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder"
+        <Collapsible open={isAllProjectsListOpen} onOpenChange={toggleListDisclosure} className="flex flex-col">
+          <div className="group w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-placeholder hover:bg-layer-transparent-hover">
+            <CollapsibleTrigger
+              className="w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder"
+              aria-label={t(
+                isAllProjectsListOpen
+                  ? "aria_labels.projects_sidebar.close_projects_menu"
+                  : "aria_labels.projects_sidebar.open_projects_menu"
+              )}
+            >
+              <span className="text-13 font-semibold">{t("projects")}</span>
+            </CollapsibleTrigger>
+            <div className="flex items-center gap-1">
+              {isAuthorizedUser && (
+                <Tooltip tooltipHeading={t("create_project")} tooltipContent="">
+                  <IconButton
+                    variant="ghost"
+                    size="sm"
+                    icon={Plus}
+                    onClick={() => {
+                      setIsProjectModalOpen(true);
+                    }}
+                    data-ph-element={PROJECT_TRACKER_ELEMENTS.SIDEBAR_CREATE_PROJECT_TOOLTIP}
+                    className="hidden group-hover:inline-flex text-placeholder"
+                    aria-label={t("aria_labels.projects_sidebar.create_new_project")}
+                  />
+                </Tooltip>
+              )}
+              <IconButton
+                variant="ghost"
+                size="sm"
+                icon={ChevronRightIcon}
                 onClick={() => toggleListDisclosure(!isAllProjectsListOpen)}
+                className="text-placeholder"
+                iconClassName={cn("transition-transform", {
+                  "rotate-90": isAllProjectsListOpen,
+                })}
                 aria-label={t(
                   isAllProjectsListOpen
                     ? "aria_labels.projects_sidebar.close_projects_menu"
                     : "aria_labels.projects_sidebar.open_projects_menu"
                 )}
-              >
-                <span className="text-13 font-semibold">{t("projects")}</span>
-              </Disclosure.Button>
-              <div className="flex items-center gap-1">
-                {isAuthorizedUser && (
-                  <Tooltip tooltipHeading={t("create_project")} tooltipContent="">
-                    <IconButton
-                      variant="ghost"
-                      size="sm"
-                      icon={Plus}
-                      onClick={() => {
-                        setIsProjectModalOpen(true);
-                      }}
-                      data-ph-element={PROJECT_TRACKER_ELEMENTS.SIDEBAR_CREATE_PROJECT_TOOLTIP}
-                      className="hidden group-hover:inline-flex text-placeholder"
-                      aria-label={t("aria_labels.projects_sidebar.create_new_project")}
-                    />
-                  </Tooltip>
-                )}
-                <IconButton
-                  variant="ghost"
-                  size="sm"
-                  icon={ChevronRightIcon}
-                  onClick={() => toggleListDisclosure(!isAllProjectsListOpen)}
-                  className="text-placeholder"
-                  iconClassName={cn("transition-transform", {
-                    "rotate-90": isAllProjectsListOpen,
-                  })}
-                  aria-label={t(
-                    isAllProjectsListOpen
-                      ? "aria_labels.projects_sidebar.close_projects_menu"
-                      : "aria_labels.projects_sidebar.open_projects_menu"
-                  )}
-                />
-              </div>
+              />
             </div>
-            <Transition
-              as="div"
-              show={isAllProjectsListOpen}
-              enter="transition duration-100 ease-out"
-              enterFrom="transform scale-95 opacity-0"
-              enterTo="transform scale-100 opacity-100"
-              leave="transition duration-75 ease-out"
-              leaveFrom="transform scale-100 opacity-100"
-              leaveTo="transform scale-95 opacity-0"
-            >
-              {loader === "init-loader" && (
-                <Loader className="w-full space-y-1.5">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <Loader.Item key={index} height="28px" />
-                  ))}
-                </Loader>
-              )}
-              {isAllProjectsListOpen && (
-                <Disclosure.Panel as="div" className="flex flex-col gap-0.5" static>
-                  <>
-                    {displayedProjects.map((projectId, index) => (
-                      <SidebarProjectsListItem
-                        key={projectId}
-                        projectId={projectId}
-                        handleCopyText={() => handleCopyText(projectId)}
-                        projectListType={"JOINED"}
-                        disableDrag={false}
-                        disableDrop={false}
-                        isLastChild={index === displayedProjects.length - 1}
-                        handleOnProjectDrop={handleOnProjectDrop}
-                      />
-                    ))}
-                    {hasMoreProjects && (
-                      <SidebarNavItem>
-                        <button
-                          type="button"
-                          onClick={() => toggleExtendedProjectSidebar()}
-                          className="flex items-center gap-1.5 text-13 font-medium flex-grow text-tertiary"
-                          id="extended-project-sidebar-toggle"
-                          aria-label={t(
-                            isExtendedProjectSidebarOpened
-                              ? "aria_labels.app_sidebar.close_extended_sidebar"
-                              : "aria_labels.app_sidebar.open_extended_sidebar"
-                          )}
-                        >
-                          <Ellipsis className="flex-shrink-0 size-4" />
-                          <span>{isExtendedProjectSidebarOpened ? "Hide" : "More"}</span>
-                        </button>
-                      </SidebarNavItem>
+          </div>
+          <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+            {loader === "init-loader" && (
+              <Loader className="w-full space-y-1.5">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Loader.Item key={index} height="28px" />
+                ))}
+              </Loader>
+            )}
+            <div className="flex flex-col gap-0.5">
+              {displayedProjects.map((projectId, index) => (
+                <SidebarProjectsListItem
+                  key={projectId}
+                  projectId={projectId}
+                  handleCopyText={() => handleCopyText(projectId)}
+                  projectListType={"JOINED"}
+                  disableDrag={false}
+                  disableDrop={false}
+                  isLastChild={index === displayedProjects.length - 1}
+                  handleOnProjectDrop={handleOnProjectDrop}
+                />
+              ))}
+              {hasMoreProjects && (
+                <SidebarNavItem>
+                  <button
+                    type="button"
+                    onClick={() => toggleExtendedProjectSidebar()}
+                    className="flex items-center gap-1.5 text-13 font-medium flex-grow text-tertiary"
+                    id="extended-project-sidebar-toggle"
+                    aria-label={t(
+                      isExtendedProjectSidebarOpened
+                        ? "aria_labels.app_sidebar.close_extended_sidebar"
+                        : "aria_labels.app_sidebar.open_extended_sidebar"
                     )}
-                  </>
-                </Disclosure.Panel>
+                  >
+                    <Ellipsis className="flex-shrink-0 size-4" />
+                    <span>{isExtendedProjectSidebarOpened ? "Hide" : "More"}</span>
+                  </button>
+                </SidebarNavItem>
               )}
-            </Transition>
-          </Disclosure>
-        </>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         {isAuthorizedUser && joinedProjects?.length === 0 && (
           <button
