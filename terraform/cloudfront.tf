@@ -88,28 +88,10 @@ resource "aws_cloudfront_function" "web_spa_routing" {
   EOF
 }
 
-# Cache policy for API (no caching)
-resource "aws_cloudfront_cache_policy" "api_no_cache" {
-  name        = "${var.project_name}-api-no-cache"
-  comment     = "No caching for API requests"
-  min_ttl     = 0
-  default_ttl = 0
-  max_ttl     = 0
-
-  parameters_in_cache_key_and_forwarded_to_origin {
-    cookies_config {
-      cookie_behavior = "all"
-    }
-    headers_config {
-      header_behavior = "whitelist"
-      headers {
-        items = ["Host", "Origin", "Authorization", "Accept", "Content-Type"]
-      }
-    }
-    query_strings_config {
-      query_string_behavior = "all"
-    }
-  }
+# Use AWS managed CachingDisabled policy for API
+# ID: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+locals {
+  managed_cache_policy_caching_disabled = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
 }
 
 # Origin request policy for API (forward all)
@@ -188,7 +170,7 @@ resource "aws_cloudfront_distribution" "unified" {
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
 
-    cache_policy_id          = aws_cloudfront_cache_policy.api_no_cache.id
+    cache_policy_id          = local.managed_cache_policy_caching_disabled
     origin_request_policy_id = aws_cloudfront_origin_request_policy.api_forward_all.id
 
     response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
@@ -203,7 +185,7 @@ resource "aws_cloudfront_distribution" "unified" {
     viewer_protocol_policy = "redirect-to-https"
     compress               = false # Don't compress WebSocket
 
-    cache_policy_id          = aws_cloudfront_cache_policy.api_no_cache.id
+    cache_policy_id          = local.managed_cache_policy_caching_disabled
     origin_request_policy_id = aws_cloudfront_origin_request_policy.api_forward_all.id
 
     response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
