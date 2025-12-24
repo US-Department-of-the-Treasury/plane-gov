@@ -29,7 +29,7 @@ export function useTranslation(): TTranslationStore {
   return {
     t: store.t.bind(store),
     currentLocale: store.currentLocale,
-    changeLanguage: (lng: TLanguage) => store.setLanguage(lng),
+    changeLanguage: (lng: TLanguage) => void store.setLanguage(lng),
     languages: store.availableLanguages,
   };
 }

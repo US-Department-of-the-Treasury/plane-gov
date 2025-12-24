@@ -1,6 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 "use client";
 
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext } from "react";
+import type { ReactNode } from "react";
 
 const AnchorContext = createContext<string | null>(null);
 

@@ -2,6 +2,7 @@ import React, { createContext, useEffect } from "react";
 // store
 import { TranslationStore, useTranslationStore } from "../store";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const TranslationContext = createContext<TranslationStore | null>(null);
 
 interface TranslationProviderProps {
@@ -17,7 +18,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
   useEffect(() => {
     const state = useTranslationStore.getState();
     if (!state.isInitialized) {
-      state._initialize();
+      void state._initialize();
     }
   }, []);
 

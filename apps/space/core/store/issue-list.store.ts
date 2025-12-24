@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { concat, get, set, uniq, update } from "lodash-es";
+import { concat, get, set, uniq } from "lodash-es";
 import { ALL_ISSUES } from "@plane/constants";
 import { SitesIssueService } from "@plane/services";
 import type {
@@ -220,13 +220,13 @@ export const useIssueListStore = create<IssueListState>((setState, getState) => 
           (result as TGroupedIssues)[groupId] = uniq(concat(existing, issueGroup));
         } else {
           for (const subGroupId in issueGroup) {
-            const subGroup = (issueGroup as TGroupedIssues)[subGroupId];
+            const subGroup = (issueGroup)[subGroupId];
             if (Array.isArray(subGroup)) {
               if (!(result as TSubGroupedIssues)[groupId]) {
                 (result as TSubGroupedIssues)[groupId] = {};
               }
-              const existing = ((result as TSubGroupedIssues)[groupId] as TGroupedIssues)[subGroupId] ?? [];
-              ((result as TSubGroupedIssues)[groupId] as TGroupedIssues)[subGroupId] = uniq(concat(existing, subGroup));
+              const existing = ((result as TSubGroupedIssues)[groupId])[subGroupId] ?? [];
+              ((result as TSubGroupedIssues)[groupId])[subGroupId] = uniq(concat(existing, subGroup));
             }
           }
         }
@@ -275,7 +275,7 @@ export const useIssueListStore = create<IssueListState>((setState, getState) => 
     state.addIssues(issueList);
 
     setState((currentState) => {
-      let newGroupedIssueIds = currentState.groupedIssueIds ? { ...currentState.groupedIssueIds } : {};
+      const newGroupedIssueIds = currentState.groupedIssueIds ? { ...currentState.groupedIssueIds } : {};
 
       // Handle individual group/subgroup pagination
       if (groupId && groupedIssues[ALL_ISSUES] && Array.isArray(groupedIssues[ALL_ISSUES])) {
@@ -284,8 +284,8 @@ export const useIssueListStore = create<IssueListState>((setState, getState) => 
           if (!(newGroupedIssueIds as TSubGroupedIssues)[groupId]) {
             (newGroupedIssueIds as TSubGroupedIssues)[groupId] = {};
           }
-          const existing = ((newGroupedIssueIds as TSubGroupedIssues)[groupId] as TGroupedIssues)[subGroupId] ?? [];
-          ((newGroupedIssueIds as TSubGroupedIssues)[groupId] as TGroupedIssues)[subGroupId] = uniq(
+          const existing = ((newGroupedIssueIds as TSubGroupedIssues)[groupId])[subGroupId] ?? [];
+          ((newGroupedIssueIds as TSubGroupedIssues)[groupId])[subGroupId] = uniq(
             concat(existing, issueGroup)
           );
         } else {
@@ -301,13 +301,13 @@ export const useIssueListStore = create<IssueListState>((setState, getState) => 
             (newGroupedIssueIds as TGroupedIssues)[gId] = uniq(concat(existing, issueGroup));
           } else {
             for (const sGId in issueGroup) {
-              const subGroup = (issueGroup as TGroupedIssues)[sGId];
+              const subGroup = (issueGroup)[sGId];
               if (Array.isArray(subGroup)) {
                 if (!(newGroupedIssueIds as TSubGroupedIssues)[gId]) {
                   (newGroupedIssueIds as TSubGroupedIssues)[gId] = {};
                 }
-                const existing = ((newGroupedIssueIds as TSubGroupedIssues)[gId] as TGroupedIssues)[sGId] ?? [];
-                ((newGroupedIssueIds as TSubGroupedIssues)[gId] as TGroupedIssues)[sGId] = uniq(
+                const existing = ((newGroupedIssueIds as TSubGroupedIssues)[gId])[sGId] ?? [];
+                ((newGroupedIssueIds as TSubGroupedIssues)[gId])[sGId] = uniq(
                   concat(existing, subGroup)
                 );
               }

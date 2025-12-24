@@ -1,7 +1,8 @@
-import IntlMessageFormat from "intl-messageformat";
+import { IntlMessageFormat } from "intl-messageformat";
 import { get as lodashGet, merge } from "lodash-es";
 import { create } from "zustand";
-import { persist, createJSONStorage, type StateStorage } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+import type { StateStorage } from "zustand/middleware";
 // constants
 import { FALLBACK_LANGUAGE, SUPPORTED_LANGUAGES, LANGUAGE_STORAGE_KEY, ETranslationFiles } from "../constants";
 
@@ -63,8 +64,8 @@ interface TranslationActions {
   _isValidLanguage: (lang: string | null) => lang is TLanguage;
   _getCacheKey: (key: string, locale: TLanguage) => string;
   _getMessageInstance: (key: string, locale: TLanguage) => IntlMessageFormat | null;
-  _importAndMergeFiles: (language: TLanguage, files: string[]) => Promise<{ default: any }>;
-  _importLanguageFile: (language: TLanguage) => Promise<{ default: any }>;
+  _importAndMergeFiles: (language: TLanguage, files: string[]) => Promise<{ default: Record<string, unknown> }>;
+  _importLanguageFile: (language: TLanguage) => Promise<{ default: Record<string, unknown> }>;
   _loadLanguageTranslations: (language: TLanguage) => Promise<void>;
   _loadPrimaryLanguages: () => Promise<void>;
   _loadRemainingLanguages: () => void;
@@ -147,7 +148,7 @@ export const useTranslationStore = create<TranslationStoreType>()(
         const state = get();
         try {
           if (!state._isValidLanguage(lng)) {
-            throw new Error(`Invalid language: ${lng}`);
+            throw new Error(`Invalid language: ${String(lng)}`);
           }
 
           // Safeguard in case background loading failed
@@ -240,10 +241,13 @@ export const useTranslationStore = create<TranslationStoreType>()(
           });
 
           const modules = await Promise.all(importPromises);
-          const merged = modules.reduce((acc: any, module: any) => merge(acc, module.default), {});
+          const merged = modules.reduce<Record<string, unknown>>(
+            (acc, module) => merge(acc, (module as { default: Record<string, unknown> }).default),
+            {}
+          );
           return { default: merged };
         } catch (error) {
-          throw new Error(`Failed to import and merge files for ${language}: ${error}`);
+          throw new Error(`Failed to import and merge files for ${language}: ${String(error)}`);
         }
       },
 
@@ -309,9 +313,7 @@ export const useTranslationStore = create<TranslationStoreType>()(
         const state = get();
         const remainingLanguages = SUPPORTED_LANGUAGES.map((lang) => lang.value).filter(
           (lang) =>
-            !state._internal.loadedLanguages.has(lang) &&
-            lang !== state.currentLocale &&
-            lang !== FALLBACK_LANGUAGE
+            !state._internal.loadedLanguages.has(lang) && lang !== state.currentLocale && lang !== FALLBACK_LANGUAGE
         );
         // Load all remaining languages in parallel
         Promise.all(remainingLanguages.map((lang) => state._loadLanguageTranslations(lang))).catch((error) => {
@@ -347,7 +349,7 @@ export class TranslationStore {
 
     // Initialize translations on first instantiation
     if (!useTranslationStore.getState().isInitialized) {
-      useTranslationStore.getState()._initialize();
+      void useTranslationStore.getState()._initialize();
     }
   }
 
