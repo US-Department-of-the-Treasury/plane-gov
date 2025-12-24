@@ -14,7 +14,7 @@ from django.conf import settings
 from zxcvbn import zxcvbn
 
 # Package imports
-from plane.db.models import Profile, User, WorkspaceMemberInvite, FileAsset
+from plane.db.models import Profile, User, WorkspaceMemberInvite, FileAsset, UserStatusChoices
 from plane.license.models.instance import Instance
 from plane.license.utils.instance_value import get_configuration_value
 from .error import AuthenticationException, AUTHENTICATION_ERROR_CODES
@@ -254,6 +254,12 @@ class Adapter:
             user_activation_email.delay(base_host(request=self.request), user.id)
         # Set user as active
         user.is_active = True
+        # Activate invited (shadow) users on first login
+        if user.status == UserStatusChoices.INVITED:
+            user.status = UserStatusChoices.ACTIVE
+            user.activated_at = timezone.now()
+            user.invitation_token = None
+            user.invitation_expires_at = None
         user.save()
         return user
 
