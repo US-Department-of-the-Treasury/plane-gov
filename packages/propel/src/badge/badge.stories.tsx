@@ -114,18 +114,39 @@ export const WithAppendIcon: Story = {
   },
 };
 
+export const Secondary: Story = {
+  args: {
+    variant: "secondary",
+    children: "Secondary Badge",
+  },
+};
+
+export const Outline: Story = {
+  args: {
+    variant: "outline",
+    children: "Outline Badge",
+  },
+};
+
 export const AllVariants: Story = {
   render() {
     return (
       <div className="space-y-4">
         <div className="space-y-2">
-          <h3 className="text-16 font-semibold">Primary Variants</h3>
+          <h3 className="text-16 font-semibold">Filled Variants</h3>
           <div className="flex flex-wrap gap-2">
             <Badge variant="neutral">Neutral</Badge>
             <Badge variant="brand">Brand</Badge>
             <Badge variant="warning">Warning</Badge>
             <Badge variant="success">Success</Badge>
             <Badge variant="danger">Danger</Badge>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-16 font-semibold">shadcn-style Variants</h3>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary">Secondary</Badge>
+            <Badge variant="outline">Outline</Badge>
           </div>
         </div>
       </div>
