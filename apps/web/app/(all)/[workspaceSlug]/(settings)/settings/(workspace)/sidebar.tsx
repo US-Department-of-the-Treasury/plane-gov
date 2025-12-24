@@ -42,9 +42,10 @@ export function WorkspaceSettingsSidebar(props: TWorkspaceSettingsSidebarProps) 
   const { isMobile = false } = props;
   // router
   const pathname = usePathname();
-  const { workspaceSlug } = useParams(); // store hooks
+  const { workspaceSlug } = useParams();
+  // store hooks
   const { allowPermissions } = useUserPermissions();
-  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
+  const isAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE, workspaceSlug?.toString());
 
   return (
     <SettingsSidebar

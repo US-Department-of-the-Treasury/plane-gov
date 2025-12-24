@@ -44,7 +44,7 @@ function ProjectEpicsPage({ params }: Route.ComponentProps) {
   const { allowPermissions } = useUserPermissions();
   // derived values
   const pageTitle = currentProjectDetails?.name ? `${currentProjectDetails?.name} - Epics` : undefined;
-  const canPerformEmptyStateActions = allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT);
+  const canPerformEmptyStateActions = allowPermissions([EUserProjectRoles.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug, projectId);
   const resolvedPath = resolvedTheme === "light" ? lightEpicsAsset : darkEpicsAsset;
 
   const handleRemoveFilter = useCallback(

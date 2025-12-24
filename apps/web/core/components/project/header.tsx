@@ -1,4 +1,4 @@
-import { usePathname } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 // i18n
 import { EUserPermissions, EUserPermissionsLevel, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -22,12 +22,14 @@ export function ProjectsBaseHeader() {
   // store hooks
   const { toggleCreateProjectModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
-
+  // router
+  const { workspaceSlug } = useParams();
   const pathname = usePathname();
   // auth
   const isAuthorizedUser = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.WORKSPACE
+    EUserPermissionsLevel.WORKSPACE,
+    workspaceSlug?.toString()
   );
   const isArchived = pathname.includes("/archives");
 

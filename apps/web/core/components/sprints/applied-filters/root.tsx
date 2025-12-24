@@ -1,3 +1,4 @@
+import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -22,6 +23,8 @@ const DATE_FILTERS = ["start_date", "end_date"];
 
 export function SprintAppliedFiltersList(props: Props) {
   const { appliedFilters, handleClearAllFilters, handleRemoveFilter, alwaysAllowEditing } = props;
+  // router
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
   const { allowPermissions } = useUserPermissions();
   const { t } = useTranslation();
@@ -32,7 +35,7 @@ export function SprintAppliedFiltersList(props: Props) {
 
   const isEditingAllowed =
     alwaysAllowEditing ||
-    allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT);
+    allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), projectId?.toString());
 
   return (
     <div className="flex flex-wrap items-stretch gap-2 bg-surface-1">
