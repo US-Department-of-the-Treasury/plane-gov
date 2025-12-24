@@ -145,3 +145,6 @@ plans/
 
 # Git worktrees
 .worktrees/
+
+# Dynamic port allocation (per-worktree)
+.dev-ports
