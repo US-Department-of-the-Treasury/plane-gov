@@ -1,6 +1,6 @@
-# Contributing to Treasury Plane
+# Contributing to Plane for Government
 
-Thank you for your interest in contributing to the Treasury fork of Plane. This guide covers how to set up your development environment and submit contributions.
+Thank you for your interest in contributing to Plane for Government. This guide covers how to set up your development environment and submit contributions.
 
 ## Contribution Terms
 
@@ -14,7 +14,7 @@ See the [NOTICE](./NOTICE) file for more details on licensing.
 
 ## Submitting Issues
 
-Before submitting a new issue, please search existing [issues](https://github.com/US-Department-of-the-Treasury/plane-treasury/issues) to avoid duplicates.
+Before submitting a new issue, please search existing [issues](https://github.com/US-Department-of-the-Treasury/plane-gov/issues) to avoid duplicates.
 
 When creating an issue, please provide:
 
@@ -46,8 +46,8 @@ brew services start redis
 The easiest way to start all services:
 
 ```bash
-git clone https://github.com/US-Department-of-the-Treasury/plane-treasury.git
-cd plane-treasury
+git clone https://github.com/US-Department-of-the-Treasury/plane-gov.git
+cd plane-gov
 pnpm install
 ./scripts/setup-security.sh  # One-time: install gitleaks
 ./scripts/dev.sh             # Starts all services
@@ -68,8 +68,8 @@ If you prefer to set up manually:
 1. Clone and install:
 
 ```bash
-git clone https://github.com/US-Department-of-the-Treasury/plane-treasury.git
-cd plane-treasury
+git clone https://github.com/US-Department-of-the-Treasury/plane-gov.git
+cd plane-gov
 pnpm install
 ./scripts/setup-security.sh
 ```

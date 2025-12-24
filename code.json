@@ -6,14 +6,14 @@
   },
   "releases": [
     {
-      "name": "plane-treasury",
-      "description": "Treasury fork of Plane - open source project management tool with federal authentication support (PIV/CAC, OIDC)",
-      "repositoryURL": "https://github.com/US-Department-of-the-Treasury/plane-treasury",
-      "homepageURL": "https://github.com/US-Department-of-the-Treasury/plane-treasury",
+      "name": "plane-gov",
+      "description": "Open-source project management for U.S. government agencies - fork of Plane with federal authentication support (PIV/CAC, OIDC)",
+      "repositoryURL": "https://github.com/US-Department-of-the-Treasury/plane-gov",
+      "homepageURL": "https://github.com/US-Department-of-the-Treasury/plane-gov",
       "permissions": {
         "licenses": [
           {
-            "URL": "https://github.com/US-Department-of-the-Treasury/plane-treasury/blob/master/LICENSE.txt",
+            "URL": "https://github.com/US-Department-of-the-Treasury/plane-gov/blob/master/LICENSE.txt",
             "name": "AGPL-3.0"
           }
         ],

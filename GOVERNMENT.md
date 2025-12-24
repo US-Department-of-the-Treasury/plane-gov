@@ -1,15 +1,15 @@
-# Treasury Fork of Plane
+# Government Deployment Guide
 
-This document describes Treasury-specific setup, configuration, and development workflows.
+This document describes government-specific setup, configuration, and deployment workflows for Plane.
 
 ## Overview
 
-This is a fork of [Plane](https://github.com/makeplane/plane) maintained by the U.S. Department of the Treasury. It adds federal authentication capabilities while tracking upstream development.
+This is a fork of [Plane](https://github.com/makeplane/plane) developed and maintained by the U.S. Department of the Treasury, available for use by any U.S. government agency. It adds federal authentication capabilities and security hardening while tracking upstream development.
 
 ## Fork Architecture
 
 ```
-origin   → github.com/US-Department-of-the-Treasury/plane-treasury (push here)
+origin   → github.com/US-Department-of-the-Treasury/plane-gov (push here)
 upstream → github.com/makeplane/plane (pull updates from here)
 ```
 
@@ -23,11 +23,11 @@ git fetch upstream
 git checkout main
 git merge upstream/main
 
-# Push to Treasury fork
+# Push to government fork
 git push origin main
 ```
 
-## Treasury-Specific Features
+## Federal Authentication Features
 
 ### PIV/CAC Authentication
 
@@ -41,7 +41,7 @@ ENABLE_PIV_AUTH=true
 PIV_CERT_HEADER=X-Client-Cert
 
 # PIV validation service endpoint (optional, for revocation checking)
-PIV_VALIDATION_ENDPOINT=https://piv-service.treasury.gov/validate
+PIV_VALIDATION_ENDPOINT=https://your-agency-piv-service.gov/validate
 ```
 
 ### OIDC Integration
@@ -72,7 +72,7 @@ OIDC_CLIENT_SECRET=your-client-secret
 # Copy environment template
 cp .env.example .env
 
-# Configure Treasury-specific settings
+# Configure agency-specific settings
 # Edit .env with your values
 
 # Start services
@@ -108,7 +108,7 @@ yarn test
 
 ### Code Style
 
-Follow upstream Plane conventions. Treasury-specific code should be:
+Follow upstream Plane conventions. Government-specific code should be:
 
 - Feature-flagged when possible (e.g., `ENABLE_PIV_AUTH`)
 - Isolated in separate modules to minimize merge conflicts
@@ -124,7 +124,7 @@ Follow upstream Plane conventions. Treasury-specific code should be:
 
 ### To Upstream Plane
 
-For general improvements (bug fixes, non-Treasury features):
+For general improvements (bug fixes, non-government-specific features):
 
 1. Create the fix in this fork first
 2. Test thoroughly
@@ -136,10 +136,10 @@ For general improvements (bug fixes, non-Treasury features):
 This project is licensed under the [GNU Affero General Public License v3.0](./LICENSE.txt), the same license as upstream Plane.
 
 Per AGPL requirements, source code is available at:
-https://github.com/US-Department-of-the-Treasury/plane-treasury
+https://github.com/US-Department-of-the-Treasury/plane-gov
 
 ## Contact
 
-For questions about this fork, contact the Treasury development team.
+For questions about this fork, contact the Treasury development team at opensource@treasury.gov.
 
 For general Plane questions, see [Plane's documentation](https://docs.plane.so/) or [Discord](https://discord.com/invite/A92xrEGCge).

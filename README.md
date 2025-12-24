@@ -1,16 +1,18 @@
-# U.S. Department of the Treasury - Plane
+# Plane for Government
 
-> **This is the U.S. Department of the Treasury's fork of [Plane](https://github.com/makeplane/plane) for internal government use.**
+> **Open-source project management for U.S. government agencies.**
+>
+> A fork of [Plane](https://github.com/makeplane/plane) developed by the U.S. Department of the Treasury, available for use by any government agency.
 
-|                   |                                                                  |
-| ----------------- | ---------------------------------------------------------------- |
-| **Upstream**      | [github.com/makeplane/plane](https://github.com/makeplane/plane) |
-| **License**       | AGPL-3.0 (same as upstream)                                      |
-| **Treasury Docs** | [TREASURY.md](./TREASURY.md)                                     |
+|              |                                                                  |
+| ------------ | ---------------------------------------------------------------- |
+| **Upstream** | [github.com/makeplane/plane](https://github.com/makeplane/plane) |
+| **License**  | AGPL-3.0 (same as upstream)                                      |
+| **Gov Docs** | [GOVERNMENT.md](./GOVERNMENT.md)                                 |
 
 ## About This Fork
 
-This is a self-hosted deployment of Plane for Treasury use. Key differences from upstream:
+This is a government-ready deployment of Plane with federal authentication and security hardening. Key differences from upstream:
 
 - **PIV/CAC Authentication** - Federal smart card authentication via client certificates
 - **OIDC Integration** - OpenID Connect for Login.gov and other federal identity providers
@@ -39,7 +41,7 @@ Plane is an open-source project management tool to track issues, run sprints, an
 
 ## Deployment
 
-This fork is deployed on Treasury infrastructure. See [TREASURY.md](./TREASURY.md) for deployment details.
+See [GOVERNMENT.md](./GOVERNMENT.md) for government-specific deployment details.
 
 For production AWS deployment, see the `terraform/` directory.
 
@@ -118,7 +120,7 @@ See [apps/web/TESTING.md](./apps/web/TESTING.md) for the complete testing guide 
 
 ## Documentation
 
-- [Treasury Deployment Guide](./TREASURY.md)
+- [Government Deployment Guide](./GOVERNMENT.md)
 - [Upstream Plane Docs](https://docs.plane.so/) (for general feature documentation)
 
 ## Security
