@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { useTheme } from "next-themes";
 import { ArrowRightLeft } from "lucide-react";

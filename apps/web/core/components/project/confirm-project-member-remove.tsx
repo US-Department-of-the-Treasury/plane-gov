@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";
@@ -96,8 +96,8 @@ export function ConfirmProjectMemberRemove(props: Props) {
                 <Button
                   variant="error-fill"
                   size="lg"
-                  tabIndex={1}
-                  onClick={handleDeletion}
+                  tabIndex={0}
+                  onClick={() => void handleDeletion()}
                   loading={isDeleteLoading}
                 >
                   {isCurrentUser

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";
 import { PROFILE_SETTINGS_TRACKER_EVENTS } from "@plane/constants";

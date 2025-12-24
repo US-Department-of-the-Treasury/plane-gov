@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";
 import { Button } from "@plane/propel/button";
@@ -71,7 +71,7 @@ export function ConfirmWorkspaceMemberRemove(props: Props) {
                 <Button variant="secondary" onClick={handleClose}>
                   Cancel
                 </Button>
-                <Button variant="error-fill" tabIndex={1} onClick={handleDeletion} loading={isRemoving}>
+                <Button variant="error-fill" tabIndex={0} onClick={() => void handleDeletion()} loading={isRemoving}>
                   {currentUser?.id === userDetails.id
                     ? isRemoving
                       ? "Leaving"

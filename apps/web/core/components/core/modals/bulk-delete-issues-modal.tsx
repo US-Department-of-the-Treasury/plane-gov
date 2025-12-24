@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import type { SubmitHandler } from "react-hook-form";

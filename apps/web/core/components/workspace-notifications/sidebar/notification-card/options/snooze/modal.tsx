@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";

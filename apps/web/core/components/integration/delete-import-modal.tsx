@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-
+import { useState } from "react";
 import { useParams } from "next/navigation";
 
 import { useQueryClient } from "@tanstack/react-query";
@@ -115,7 +114,7 @@ export function DeleteImportModal({ isOpen, handleClose, data }: Props) {
                   <Button
                     variant="error-fill"
                     size="lg"
-                    tabIndex={1}
+                    tabIndex={0}
                     onClick={handleDeletion}
                     disabled={!confirmDeleteImport}
                     loading={deleteLoading}

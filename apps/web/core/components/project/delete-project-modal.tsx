@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { AlertTriangle } from "lucide-react";

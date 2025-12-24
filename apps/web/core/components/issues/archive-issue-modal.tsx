@@ -93,7 +93,7 @@ export function ArchiveIssueModal(props: Props) {
                   <Button variant="secondary" size="lg" onClick={onClose}>
                     {t("common.cancel")}
                   </Button>
-                  <Button variant="primary" size="lg" tabIndex={1} onClick={handleArchiveIssue} loading={isArchiving}>
+                  <Button variant="primary" size="lg" tabIndex={0} onClick={handleArchiveIssue} loading={isArchiving}>
                     {isArchiving ? t("common.archiving") : t("common.archive")}
                   </Button>
                 </div>

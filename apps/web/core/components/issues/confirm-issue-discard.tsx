@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";
 // ui
 import { Button } from "@plane/propel/button";
@@ -64,7 +64,7 @@ export function ConfirmIssueDiscard(props: Props) {
                   <Button variant="secondary" onClick={onClose}>
                     Cancel
                   </Button>
-                  <Button variant="primary" onClick={handleDeletion} loading={isLoading}>
+                  <Button variant="primary" onClick={() => void handleDeletion()} loading={isLoading}>
                     {isLoading ? "Saving" : "Save to Drafts"}
                   </Button>
                 </div>

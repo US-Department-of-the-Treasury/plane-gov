@@ -93,7 +93,7 @@ export function ArchiveSprintModal(props: Props) {
                   <Button
                     variant="primary"
                     size="lg"
-                    tabIndex={1}
+                    tabIndex={0}
                     onClick={handleArchiveSprint}
                     loading={isArchiving}
                   >

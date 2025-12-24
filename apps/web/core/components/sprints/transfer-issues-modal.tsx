@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { AlertCircle, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogOverlay, DialogPortal } from "@plane/propel/primitives";
@@ -158,7 +158,7 @@ export function TransferIssuesModal(props: Props) {
                       <div className="flex w-full items-center justify-center gap-4 p-5 text-13">
                         <AlertCircle className="h-3.5 w-3.5 text-secondary" />
                         <span className="text-center text-secondary">
-                          You don't have any current sprint. Please create one to transfer the work items.
+                          You don&apos;t have any current sprint. Please create one to transfer the work items.
                         </span>
                       </div>
                     )

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Rocket, Search } from "lucide-react";
 import { Combobox } from "@headlessui/react";
 import { Dialog, DialogContent, DialogOverlay, DialogPortal } from "@plane/propel/primitives";

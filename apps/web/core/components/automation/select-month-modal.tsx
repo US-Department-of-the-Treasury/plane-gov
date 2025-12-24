@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "next/navigation";
 // react-hook-form
 import { Controller, useForm } from "react-hook-form";
