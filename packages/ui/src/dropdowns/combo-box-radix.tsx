@@ -368,7 +368,7 @@ interface RenderProps {
 }
 
 interface RadixComboOptionProps {
-  value: string;
+  value: string | null;
   disabled?: boolean;
   /** Supports both static className and render prop function */
   className?: string | ((props: RenderProps) => string);
@@ -383,16 +383,19 @@ function RadixComboOption(props: RadixComboOptionProps) {
   const [isActive, setIsActive] = useState(false);
 
   // Check if this option is selected
-  const isSelected = ctx.multiple ? Array.isArray(ctx.value) && ctx.value.includes(value) : ctx.value === value;
+  // For null values, compare directly; for strings, use includes for multiple mode
+  const isSelected = ctx.multiple
+    ? Array.isArray(ctx.value) && value !== null && ctx.value.includes(value)
+    : ctx.value === value;
 
   const handleSelect = useCallback(() => {
     if (disabled) return;
 
     if (ctx.multiple) {
       const currentValue = Array.isArray(ctx.value) ? ctx.value : [];
-      if (currentValue.includes(value)) {
+      if (value !== null && currentValue.includes(value)) {
         ctx.onChange(currentValue.filter((v) => v !== value));
-      } else {
+      } else if (value !== null) {
         ctx.onChange([...currentValue, value]);
       }
     } else {
@@ -411,9 +414,12 @@ function RadixComboOption(props: RadixComboOptionProps) {
 
   const resolvedChildren = typeof children === "function" ? children(renderProps) : children;
 
+  // CommandItem requires a string value, so use empty string for null
+  const commandValue = value ?? "__null__";
+
   return (
     <CommandItem
-      value={value}
+      value={commandValue}
       disabled={disabled}
       onSelect={handleSelect}
       onMouseEnter={() => setIsActive(true)}
