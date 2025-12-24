@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, memo } from "react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import type { IEpic } from "@plane/types";
-import { ComboDropDown } from "@plane/ui";
+import { RadixComboDropDown } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
 import { useDropdown } from "@/hooks/use-dropdown";
@@ -73,8 +73,6 @@ export const EpicDropdownBase = memo(function EpicDropdownBase(props: TEpicDropd
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  // popper-js refs
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
   // store hooks
   const { isMobile } = usePlatformOS();
 
@@ -86,16 +84,9 @@ export const EpicDropdownBase = memo(function EpicDropdownBase(props: TEpicDropd
     setIsOpen,
   });
 
-  const dropdownOnChange = (val: string & string[]) => {
-    onChange(val);
+  const dropdownOnChange = (val: unknown) => {
+    onChange(val as string & string[]);
     if (!multiple) handleClose();
-  };
-
-  const comboboxProps = {
-    value,
-    onChange: dropdownOnChange,
-    disabled,
-    multiple,
   };
 
   useEffect(() => {
@@ -108,7 +99,6 @@ export const EpicDropdownBase = memo(function EpicDropdownBase(props: TEpicDropd
     <>
       {button ? (
         <button
-          ref={setReferenceElement}
           type="button"
           className={cn("clickable block h-full w-full outline-none hover:bg-layer-1", buttonContainerClassName)}
           onClick={handleOnClick}
@@ -119,7 +109,6 @@ export const EpicDropdownBase = memo(function EpicDropdownBase(props: TEpicDropd
         </button>
       ) : (
         <button
-          ref={setReferenceElement}
           type="button"
           className={cn(
             "clickable block h-full max-w-full outline-none hover:bg-layer-1",
@@ -169,25 +158,27 @@ export const EpicDropdownBase = memo(function EpicDropdownBase(props: TEpicDropd
   );
 
   return (
-    <ComboDropDown
+    <RadixComboDropDown
       as="div"
       ref={dropdownRef}
       className={cn("h-full", className)}
       onKeyDown={handleKeyDown}
       button={comboButton}
       renderByDefault={renderByDefault}
-      {...comboboxProps}
+      value={value}
+      onChange={dropdownOnChange}
+      disabled={disabled}
+      multiple={multiple}
     >
       {isOpen && projectId && (
         <EpicOptions
           isOpen={isOpen}
           placement={placement}
-          referenceElement={referenceElement}
           multiple={multiple}
           getEpicById={getEpicById}
           epicIds={epicIds}
         />
       )}
-    </ComboDropDown>
+    </RadixComboDropDown>
   );
 });
