@@ -1,20 +1,9 @@
 "use client";
 
-import { Check, Info, Search } from "lucide-react";
-import React, { useRef, useState } from "react";
+import { Check, Info } from "lucide-react";
+import { useRef, useState } from "react";
 import { ChevronDownIcon } from "@plane/propel/icons";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@plane/propel/primitives";
-import {
-  Command,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandItem,
-} from "@plane/propel/primitives";
+import { Popover, PopoverTrigger, PopoverContent , Command, CommandInput, CommandList, CommandEmpty, CommandItem } from "@plane/propel/primitives";
 import { Tooltip } from "@plane/propel/tooltip";
 // helpers
 import { cn } from "../utils";
@@ -153,9 +142,7 @@ export function CustomSearchSelect(props: ICustomSearchSelectProps) {
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild disabled={disabled}>
-        <div className={cn("relative flex-shrink-0 text-left", className)}>
-          {triggerButton}
-        </div>
+        <div className={cn("relative flex-shrink-0 text-left", className)}>{triggerButton}</div>
       </PopoverTrigger>
       <PopoverContent
         side={side}
@@ -168,16 +155,13 @@ export function CustomSearchSelect(props: ICustomSearchSelectProps) {
         onOpenAutoFocus={(e: Event) => e.preventDefault()}
       >
         <Command shouldFilter={false} className="bg-transparent">
-          <div className="flex items-center gap-1.5 rounded-sm border border-subtle px-2 mx-2 mt-2.5">
-            <Search className="h-3.5 w-3.5 text-placeholder" strokeWidth={1.5} />
-            <CommandInput
-              ref={inputRef}
-              value={query}
-              onValueChange={setQuery}
-              placeholder="Search"
-              className="flex h-8 w-full bg-transparent py-1 text-11 text-secondary placeholder:text-placeholder focus:outline-none border-0"
-            />
-          </div>
+          <CommandInput
+            ref={inputRef}
+            value={query}
+            onValueChange={setQuery}
+            placeholder="Search"
+            className="mx-2 mt-2 rounded-sm border border-subtle text-11 [&>div]:border-0 [&>div]:px-2 [&_input]:h-8 [&_input]:py-1"
+          />
           <CommandList
             className={cn("mt-2 px-2 pb-2.5 overflow-y-auto", {
               "max-h-96": maxHeight === "2xl",
