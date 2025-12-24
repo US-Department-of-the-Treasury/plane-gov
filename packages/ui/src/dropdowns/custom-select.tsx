@@ -176,6 +176,7 @@ function CustomSelect<T = unknown>(props: ICustomSelectProps<T>) {
           createPortal(
             <div
               ref={setPopperElement}
+              className="z-50"
               style={{
                 ...styles.popper,
                 opacity: isPositioned ? 1 : 0,
