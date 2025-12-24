@@ -125,6 +125,43 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_logs" {
   policy_arn = aws_iam_policy.cloudwatch_logs.arn
 }
 
+# Custom policy for S3 uploads bucket access
+resource "aws_iam_policy" "s3_uploads_access" {
+  name        = "${var.project_name}-s3-uploads-access"
+  description = "Allow EB instances to manage files in the uploads S3 bucket"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "S3UploadsAccess"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:GetObjectAcl",
+          "s3:PutObjectAcl",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.uploads.arn,
+          "${aws_s3_bucket.uploads.arn}/*"
+        ]
+      }
+    ]
+  })
+
+  tags = {
+    Name = "${var.project_name}-s3-uploads-access"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "s3_uploads_access" {
+  role       = aws_iam_role.eb_ec2.name
+  policy_arn = aws_iam_policy.s3_uploads_access.arn
+}
+
 # Instance Profile for EB EC2 Instances
 resource "aws_iam_instance_profile" "eb_ec2" {
   name = "${var.project_name}-eb-ec2-profile"

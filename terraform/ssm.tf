@@ -320,3 +320,20 @@ resource "aws_ssm_parameter" "oidc_scope" {
     ignore_changes = [value]
   }
 }
+
+# =============================================================================
+# S3 Storage
+# =============================================================================
+
+resource "aws_ssm_parameter" "aws_s3_bucket_name" {
+  name        = "${local.ssm_prefix}/aws-s3-bucket-name"
+  type        = "String"
+  value       = aws_s3_bucket.uploads.id
+  description = "S3 bucket name for file uploads (cover images, attachments)"
+
+  tags = {
+    Name        = "${var.project_name}-aws-s3-bucket-name"
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+  }
+}
