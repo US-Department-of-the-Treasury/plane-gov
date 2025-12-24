@@ -47,6 +47,7 @@ apps/{app}/
 **File naming:** `{domain}.store.ts` or `{domain}-{feature}.store.ts`
 
 **Pattern:**
+
 ```typescript
 import { create } from "zustand";
 
@@ -127,6 +128,7 @@ export const useThemeStore = create<ThemeStore>()(
 ```
 
 **Key patterns:**
+
 - Use `persist` middleware for localStorage sync
 - Use `partialize` to exclude ephemeral state from persistence
 - Use `createJSONStorage(() => localStorage)` for storage adapter
@@ -179,6 +181,7 @@ export const useSprintFilterStore = create<SprintFilterStore>()((set, get) => ({
 ```
 
 **Key patterns:**
+
 - Getters are functions that accept parameters and return computed values
 - Use `get()` inside getters to access current state
 - Getters are NOT reactive (use selectors in components for reactivity)
@@ -250,6 +253,7 @@ if (typeof window !== "undefined") {
 ```
 
 **Key patterns:**
+
 - Manual localStorage methods give more control than `persist` middleware
 - Call `saveToLocalStorage()` after mutations
 - Load initial state at module initialization (not in constructor)
@@ -299,6 +303,7 @@ export class CoreRootStore {
 ```
 
 **Key patterns:**
+
 - Legacy class uses `useStore.getState()` to access/update Zustand store
 - Implements old MobX interface for drop-in replacement
 - Mark as `@deprecated` to guide migration
@@ -318,11 +323,7 @@ function MyComponent() {
   const sidebarCollapsed = useThemeStore((state) => state.sidebarCollapsed);
   const toggleSidebar = useThemeStore((state) => state.toggleSidebar);
 
-  return (
-    <button onClick={() => toggleSidebar()}>
-      Toggle Sidebar
-    </button>
-  );
+  return <button onClick={() => toggleSidebar()}>Toggle Sidebar</button>;
 }
 ```
 
@@ -330,9 +331,7 @@ function MyComponent() {
 
 ```tsx
 // Subscribe only to what you need
-const displayFilters = useEpicFilters(
-  (state) => state.getDisplayFiltersByProjectId(projectId)
-);
+const displayFilters = useEpicFilters((state) => state.getDisplayFiltersByProjectId(projectId));
 
 // Multiple selectors
 const { displayFilters, updateDisplayFilters } = useEpicFilters((state) => ({
@@ -353,6 +352,7 @@ export const useAppTheme = () => {
 ```
 
 **Key patterns:**
+
 - Use selectors to subscribe only to needed state (prevents unnecessary re-renders)
 - Custom hooks provide a clean API and can add business logic
 - Direct Zustand hooks are preferred over legacy class-based access
@@ -372,16 +372,15 @@ export function useProjectEpicFilters(projectId: string) {
     filters: state.getFiltersByProjectId(projectId),
     searchQuery: state.searchQuery,
     // Pre-bind actions with projectId
-    updateDisplayFilters: (filters: TEpicDisplayFilters) =>
-      state.updateDisplayFilters(projectId, filters),
-    updateFilters: (filters: TEpicFilters) =>
-      state.updateFilters(projectId, filters),
+    updateDisplayFilters: (filters: TEpicDisplayFilters) => state.updateDisplayFilters(projectId, filters),
+    updateFilters: (filters: TEpicFilters) => state.updateFilters(projectId, filters),
     clearAllFilters: () => state.clearAllFilters(projectId),
   }));
 }
 ```
 
 **Usage:**
+
 ```tsx
 function EpicFilters({ projectId }: { projectId: string }) {
   const { displayFilters, updateDisplayFilters } = useProjectEpicFilters(projectId);
@@ -406,8 +405,7 @@ export const queryKeys = {
   },
 
   issues: {
-    all: (workspaceSlug: string, projectId: string) =>
-      ["issues", workspaceSlug, projectId] as const,
+    all: (workspaceSlug: string, projectId: string) => ["issues", workspaceSlug, projectId] as const,
     detail: (issueId: string) => ["issues", "detail", issueId] as const,
   },
 };
@@ -445,12 +443,11 @@ export function useCreateProject() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, data }) =>
-      projectService.createProject(workspaceSlug, data),
+    mutationFn: ({ workspaceSlug, data }) => projectService.createProject(workspaceSlug, data),
     onSuccess: (newProject, { workspaceSlug }) => {
       // Invalidate and refetch
       queryClient.invalidateQueries({
-        queryKey: queryKeys.projects.all(workspaceSlug)
+        queryKey: queryKeys.projects.all(workspaceSlug),
       });
     },
   });
@@ -530,6 +527,7 @@ export interface IMyStore extends MyStore {}
 ### 1. State Management Boundaries
 
 **Use Zustand for:**
+
 - UI state (sidebar collapsed, modal open, selected items)
 - Filter state (sort, group, search queries)
 - Theme preferences
@@ -537,6 +535,7 @@ export interface IMyStore extends MyStore {}
 - Ephemeral state (not persisted to server)
 
 **Use TanStack Query for:**
+
 - Server data (projects, issues, users)
 - API calls (fetching, mutations)
 - Server-side caching
@@ -556,6 +555,7 @@ client/
 ```
 
 **Naming:**
+
 - `{domain}.store.ts` - Single domain store
 - `{domain}-{feature}.store.ts` - Feature-specific store
 - Use descriptive names that indicate purpose
@@ -588,7 +588,7 @@ fetchData: async () => {
   } catch (error) {
     set({ error, isLoading: false });
   }
-}
+};
 ```
 
 ### 5. Store Initialization
@@ -655,9 +655,10 @@ const getQueryValue = (query: ParsedUrlQuery, key: string): string | undefined =
 ```typescript
 export const useCommandPaletteStore = create<CommandPaletteStore>()((set) => ({
   isOpen: false,
-  toggleOpen: (open) => set((state) => ({
-    isOpen: open ?? !state.isOpen
-  })),
+  toggleOpen: (open) =>
+    set((state) => ({
+      isOpen: open ?? !state.isOpen,
+    })),
 }));
 ```
 
@@ -666,14 +667,16 @@ export const useCommandPaletteStore = create<CommandPaletteStore>()((set) => ({
 ```typescript
 export const useMultipleSelectStore = create<MultipleSelectStore>()((set) => ({
   selectedIssues: new Set<string>(),
-  addIssue: (issueId) => set((state) => ({
-    selectedIssues: new Set([...state.selectedIssues, issueId]),
-  })),
-  removeIssue: (issueId) => set((state) => {
-    const newSet = new Set(state.selectedIssues);
-    newSet.delete(issueId);
-    return { selectedIssues: newSet };
-  }),
+  addIssue: (issueId) =>
+    set((state) => ({
+      selectedIssues: new Set([...state.selectedIssues, issueId]),
+    })),
+  removeIssue: (issueId) =>
+    set((state) => {
+      const newSet = new Set(state.selectedIssues);
+      newSet.delete(issueId);
+      return { selectedIssues: newSet };
+    }),
   clearAll: () => set({ selectedIssues: new Set() }),
 }));
 ```
@@ -681,6 +684,7 @@ export const useMultipleSelectStore = create<MultipleSelectStore>()((set) => ({
 ## Dependencies
 
 **Required packages:**
+
 ```json
 {
   "dependencies": {
