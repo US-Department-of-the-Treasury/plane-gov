@@ -228,7 +228,7 @@ export function SprintCreateUpdateModal(props: SprintModalProps) {
   });
 
   return (
-    <ModalCore isOpen={isOpen} position={EModalPosition.TOP} width={EModalWidth.XXL}>
+    <ModalCore isOpen={isOpen} handleClose={handleClose} position={EModalPosition.TOP} width={EModalWidth.XXL}>
       <SprintForm
         handleFormSubmit={handleFormSubmit}
         handleClose={handleClose}

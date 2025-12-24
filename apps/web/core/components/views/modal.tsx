@@ -116,7 +116,7 @@ export function CreateUpdateProjectViewModal(props: Props) {
   });
 
   return (
-    <ModalCore isOpen={isOpen} position={EModalPosition.TOP} width={EModalWidth.XXL}>
+    <ModalCore isOpen={isOpen} handleClose={handleClose} position={EModalPosition.TOP} width={EModalWidth.XXL}>
       <ProjectViewForm
         data={data}
         handleClose={handleClose}

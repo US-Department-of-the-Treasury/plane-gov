@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   Dialog,
   DialogContent,
@@ -47,6 +46,8 @@ export function ModalCore(props: Props) {
               showCloseButton={false}
               className={cn(
                 "relative transform rounded-lg bg-surface-1 text-left shadow-raised-200 w-full",
+                // Override DialogContent's default fixed positioning with static
+                // since we're using flex centering from the parent wrapper
                 "static translate-x-0 translate-y-0 p-0 border-0",
                 width,
                 className
