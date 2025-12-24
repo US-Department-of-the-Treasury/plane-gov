@@ -110,7 +110,10 @@ cd "$APP_DIR"
 # ==============================================================================
 
 # All apps use the same base domain
-export VITE_API_BASE_URL="$API_URL"
+# IMPORTANT: VITE_API_BASE_URL should be the base domain WITHOUT /api suffix
+# because the frontend code adds /api/ to all API paths.
+# Using $API_URL here would cause double /api/api/ paths.
+export VITE_API_BASE_URL="$BASE_URL"
 export VITE_ADMIN_BASE_URL="$ADMIN_URL"
 export VITE_SPACE_BASE_URL="$SPACE_URL"
 export VITE_WEB_BASE_URL="$WEB_URL"
