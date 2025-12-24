@@ -308,6 +308,21 @@ grep "mTLS" ./alb-logs/*.log
 2. Verify health check endpoint: `curl https://api.plane.treasury.gov/api/health/`
 3. Check security group rules allow ALB → EB communication
 
+### 403 Forbidden on POST Requests (Auth/API)
+
+If POST requests to `/auth/*` or other endpoints return 403 while GET works:
+
+1. **Check CloudFront behaviors** - S3 default only allows GET/HEAD
+2. Verify the URL pattern has a behavior routing to ALB in `cloudfront.tf`
+3. See `docs/solutions/infrastructure-issues/cloudfront-missing-auth-route-403.md`
+
+### Secrets Not Updating After Secrets Manager Change
+
+EB instances don't pick up new secrets on restart - ebextensions only run on deploy:
+
+1. **Always redeploy after secrets change**: `./scripts/deploy-backend.sh`
+2. See `docs/solutions/infrastructure-issues/eb-secrets-require-redeploy.md`
+
 ## Cleanup
 
 To destroy all infrastructure:

@@ -6,6 +6,7 @@
 #   /god-mode/* → S3 (admin app)
 #   /spaces/*   → S3 (space app)
 #   /api/*      → ALB (Django API)
+#   /auth/*     → ALB (Django authentication)
 #   /live/*     → ALB (WebSocket)
 # ==============================================================================
 
@@ -184,6 +185,21 @@ resource "aws_cloudfront_distribution" "unified" {
     target_origin_id       = "ALB-api"
     viewer_protocol_policy = "redirect-to-https"
     compress               = false # Don't compress WebSocket
+
+    cache_policy_id          = local.managed_cache_policy_caching_disabled
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.api_forward_all.id
+
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
+  }
+
+  # /auth/* → ALB (authentication endpoints, no caching)
+  ordered_cache_behavior {
+    path_pattern           = "/auth/*"
+    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "ALB-api"
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
 
     cache_policy_id          = local.managed_cache_policy_caching_disabled
     origin_request_policy_id = aws_cloudfront_origin_request_policy.api_forward_all.id
