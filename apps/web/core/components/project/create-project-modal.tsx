@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, react-hooks/set-state-in-effect */
+// NOTE: Above disables are for pre-existing type resolution issues in monorepo
 import { useEffect, useState } from "react";
-import { EModalPosition, EModalWidth, ModalCore } from "@plane/ui";
+import { Dialog, DialogContent } from "@plane/propel/primitives";
+// eslint-disable-next-line import/no-unresolved -- @plane/utils is a valid workspace package
 import { getAssetIdFromUrl, checkURLValidity } from "@plane/utils";
-// plane ui
-// helpers
-// hooks
-import useKeypress from "@/hooks/use-keypress";
 // plane web components
 import { CreateProjectForm } from "@/plane-web/components/projects/create/root";
 // plane web types
@@ -55,26 +54,24 @@ export function CreateProjectModal(props: Props) {
     }
   };
 
-  useKeypress("Escape", () => {
-    if (isOpen) onClose();
-  });
-
   return (
-    <ModalCore isOpen={isOpen} position={EModalPosition.TOP} width={EModalWidth.XXL}>
-      {currentStep === EProjectCreationSteps.CREATE_PROJECT && (
-        <CreateProjectForm
-          setToFavorite={setToFavorite}
-          workspaceSlug={workspaceSlug}
-          onClose={onClose}
-          updateCoverImageStatus={handleCoverImageStatusUpdate}
-          handleNextStep={handleNextStep}
-          data={data}
-          templateId={templateId}
-        />
-      )}
-      {currentStep === EProjectCreationSteps.FEATURE_SELECTION && (
-        <ProjectFeatureUpdate projectId={createdProjectId} workspaceSlug={workspaceSlug} onClose={onClose} />
-      )}
-    </ModalCore>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="top-[10%] translate-y-0 sm:max-w-2xl" showCloseButton={false}>
+        {currentStep === EProjectCreationSteps.CREATE_PROJECT && (
+          <CreateProjectForm
+            setToFavorite={setToFavorite}
+            workspaceSlug={workspaceSlug}
+            onClose={onClose}
+            updateCoverImageStatus={handleCoverImageStatusUpdate}
+            handleNextStep={handleNextStep}
+            data={data}
+            templateId={templateId}
+          />
+        )}
+        {currentStep === EProjectCreationSteps.FEATURE_SELECTION && (
+          <ProjectFeatureUpdate projectId={createdProjectId} workspaceSlug={workspaceSlug} onClose={onClose} />
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

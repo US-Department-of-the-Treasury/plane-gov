@@ -15,13 +15,7 @@
  */
 
 // Popover - For positioned floating content
-export {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverAnchor,
-  PopoverClose,
-} from "./popover";
+export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor, PopoverClose } from "./popover";
 
 // Dialog - For modals and overlays
 export {
@@ -36,6 +30,21 @@ export {
   DialogTitle,
   DialogDescription,
 } from "./dialog";
+
+// AlertDialog - For confirmation dialogs that require user acknowledgment
+export {
+  AlertDialog,
+  AlertDialogPortal,
+  AlertDialogOverlay,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "./alert-dialog";
 
 // DropdownMenu - For action menus
 export {
@@ -96,9 +105,4 @@ export { Label } from "./label";
 export { Separator } from "./separator";
 
 // Tooltip - For hover hints
-export {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from "./tooltip";
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./tooltip";
