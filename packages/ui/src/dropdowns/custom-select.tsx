@@ -1,20 +1,58 @@
-import { Combobox } from "@headlessui/react";
+"use client";
+
 import { Check } from "lucide-react";
 import React, { createContext, useCallback, useContext, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { usePopper } from "react-popper";
-import { useOutsideClickDetector } from "@plane/hooks";
 import { ChevronDownIcon } from "@plane/propel/icons";
-// plane helpers
-// hooks
-import { useDropdownKeyDown } from "../hooks/use-dropdown-key-down";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@plane/propel/primitives";
 // helpers
 import { cn } from "../utils";
 // types
 import type { ICustomSelectItemProps, ICustomSelectProps } from "./helper";
 
-// Context to share the close handler with option components
-const DropdownContext = createContext<() => void>(() => {});
+// Map placement from our API to Radix side/align
+function mapPlacementToRadix(placement?: string): {
+  side?: "top" | "bottom" | "left" | "right";
+  align?: "start" | "center" | "end";
+} {
+  if (!placement) return { side: "bottom", align: "start" };
+
+  const [side, align] = placement.split("-") as [string, string | undefined];
+
+  const sideMap: Record<string, "top" | "bottom" | "left" | "right"> = {
+    top: "top",
+    bottom: "bottom",
+    left: "left",
+    right: "right",
+  };
+
+  const alignMap: Record<string, "start" | "center" | "end"> = {
+    start: "start",
+    end: "end",
+    center: "center",
+  };
+
+  return {
+    side: sideMap[side] ?? "bottom",
+    align: align ? alignMap[align] : "start",
+  };
+}
+
+// Context to share the value, onChange, and close handler with option components
+interface SelectContextValue<T> {
+  value: T;
+  onChange: ((value: T) => void) | undefined;
+  closeDropdown: () => void;
+}
+
+const SelectContext = createContext<SelectContextValue<unknown>>({
+  value: undefined,
+  onChange: undefined,
+  closeDropdown: () => {},
+});
 
 function CustomSelect<T = unknown>(props: ICustomSelectProps<T>) {
   const {
@@ -34,217 +72,135 @@ function CustomSelect<T = unknown>(props: ICustomSelectProps<T>) {
     value,
     tabIndex,
   } = props;
-  // states
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
+
   const [isOpen, setIsOpen] = useState(false);
-  const [isPositioned, setIsPositioned] = useState(false);
-  // refs
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
-    placement: placement ?? "bottom-start",
-    strategy: "fixed",
-    modifiers: [
-      {
-        name: "offset",
-        options: {
-          offset: [0, 4],
-        },
-      },
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 8,
-          boundary: "clippingParents",
-        },
-      },
-      {
-        name: "flip",
-        options: {
-          fallbackPlacements: ["top-start", "bottom-end", "top-end"],
-        },
-      },
-    ],
-  });
-
-  // Force popper to recalculate position when dropdown opens or popper element mounts
-  React.useEffect(() => {
-    if (isOpen && popperElement) {
-      // Use double rAF to ensure browser has laid out the element before showing
-      // First rAF: element is in DOM but not yet painted
-      // Second rAF: element is painted, position can be calculated correctly
-      let cancelled = false;
-      const rafId1 = requestAnimationFrame(() => {
-        if (cancelled) return;
-        const rafId2 = requestAnimationFrame(() => {
-          if (cancelled) return;
-          // Now update popper position and show
-          const updatePromise = update?.();
-          if (updatePromise) {
-            updatePromise
-              .then(() => {
-                if (!cancelled) setIsPositioned(true);
-                return undefined;
-              })
-              .catch(() => {
-                if (!cancelled) setIsPositioned(true);
-              });
-          } else {
-            setIsPositioned(true);
-          }
-        });
-        return () => cancelAnimationFrame(rafId2);
-      });
-      return () => {
-        cancelled = true;
-        cancelAnimationFrame(rafId1);
-      };
-    }
-  }, [isOpen, update, popperElement]);
-
-  // Reset positioned state when dropdown closes
-  React.useEffect(() => {
-    if (!isOpen) {
-      setIsPositioned(false);
-    }
-  }, [isOpen]);
-
-  const openDropdown = useCallback(() => {
-    setIsOpen(true);
-    if (referenceElement) referenceElement.focus();
-  }, [referenceElement]);
+  const { side, align } = mapPlacementToRadix(placement);
 
   const closeDropdown = useCallback(() => setIsOpen(false), []);
-  const handleKeyDown = useDropdownKeyDown(openDropdown, closeDropdown, isOpen);
-  useOutsideClickDetector(dropdownRef, closeDropdown);
 
-  const toggleDropdown = useCallback(() => {
-    if (isOpen) closeDropdown();
-    else openDropdown();
-  }, [closeDropdown, isOpen, openDropdown]);
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+  };
+
+  const handleSelect = useCallback(
+    (selectedValue: T) => {
+      onChange?.(selectedValue);
+      closeDropdown();
+    },
+    [onChange, closeDropdown]
+  );
+
+  const triggerButton = customButton ? (
+    <button
+      ref={triggerRef}
+      type="button"
+      className={cn(
+        "flex items-center justify-between gap-1 text-11 rounded",
+        {
+          "cursor-not-allowed text-secondary": disabled,
+          "cursor-pointer hover:bg-layer-transparent-hover": !disabled,
+        },
+        customButtonClassName
+      )}
+      disabled={disabled}
+      tabIndex={tabIndex}
+    >
+      {customButton}
+    </button>
+  ) : (
+    <button
+      ref={triggerRef}
+      type="button"
+      className={cn(
+        "flex w-full items-center justify-between gap-1 rounded border border-strong",
+        {
+          "px-3 py-2 text-13": input,
+          "px-2 py-1 text-11": !input,
+          "cursor-not-allowed text-secondary": disabled,
+          "cursor-pointer hover:bg-layer-transparent-hover": !disabled,
+        },
+        buttonClassName
+      )}
+      disabled={disabled}
+      tabIndex={tabIndex}
+    >
+      {label}
+      {!noChevron && !disabled && <ChevronDownIcon className="h-3 w-3" aria-hidden="true" />}
+    </button>
+  );
 
   return (
-    <DropdownContext.Provider value={closeDropdown}>
-      <Combobox
-        as="div"
-        ref={dropdownRef}
-        tabIndex={tabIndex}
-        value={value}
-        onChange={(val) => {
-          onChange?.(val);
-          closeDropdown();
-        }}
-        className={cn("relative flex-shrink-0 text-left", className)}
-        onKeyDown={handleKeyDown}
-        disabled={disabled}
-      >
-        <>
-          {customButton ? (
-            <Combobox.Button
-              ref={setReferenceElement}
-              type="button"
-              className={`flex items-center justify-between gap-1 text-11 rounded ${
-                disabled ? "cursor-not-allowed text-secondary" : "cursor-pointer hover:bg-layer-transparent-hover"
-              } ${customButtonClassName}`}
-              onClick={toggleDropdown}
-            >
-              {customButton}
-            </Combobox.Button>
-          ) : (
-            <Combobox.Button
-              ref={setReferenceElement}
-              type="button"
-              className={cn(
-                "flex w-full items-center justify-between gap-1 rounded border border-strong",
-                {
-                  "px-3 py-2 text-13": input,
-                  "px-2 py-1 text-11": !input,
-                  "cursor-not-allowed text-secondary": disabled,
-                  "cursor-pointer hover:bg-layer-transparent-hover": !disabled,
-                },
-                buttonClassName
-              )}
-              onClick={toggleDropdown}
-            >
-              {label}
-              {!noChevron && !disabled && <ChevronDownIcon className="h-3 w-3" aria-hidden="true" />}
-            </Combobox.Button>
+    <SelectContext.Provider
+      value={{
+        value,
+        onChange: handleSelect as (value: unknown) => void,
+        closeDropdown,
+      }}
+    >
+      <Popover open={isOpen} onOpenChange={handleOpenChange}>
+        <PopoverTrigger asChild disabled={disabled}>
+          <div className={cn("relative flex-shrink-0 text-left", className)}>
+            {triggerButton}
+          </div>
+        </PopoverTrigger>
+        <PopoverContent
+          side={side}
+          align={align}
+          sideOffset={4}
+          className={cn(
+            "z-50 min-w-48 rounded-md border-[0.5px] border-subtle-1 bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 p-0",
+            optionsClassName
           )}
-        </>
-        {isOpen &&
-          createPortal(
-            <div
-              ref={setPopperElement}
-              className="z-50"
-              style={{
-                ...styles.popper,
-                opacity: isPositioned ? 1 : 0,
-                pointerEvents: isPositioned ? "auto" : "none",
-              }}
-              {...attributes.popper}
-              data-prevent-outside-click
-            >
-              <Combobox.Options
-                static
-                className={cn(
-                  "my-1 overflow-y-scroll rounded-md border-[0.5px] border-subtle-1 bg-surface-1 px-2 py-2.5 text-11 focus:outline-none min-w-48 whitespace-nowrap z-50 transition-opacity duration-75",
-                  optionsClassName
-                )}
-              >
-                <div
-                  className={cn("space-y-1 overflow-y-scroll", {
-                    "max-h-60": maxHeight === "lg",
-                    "max-h-48": maxHeight === "md",
-                    "max-h-36": maxHeight === "rg",
-                    "max-h-28": maxHeight === "sm",
-                  })}
-                >
-                  {children}
-                </div>
-              </Combobox.Options>
-            </div>,
-            document.body
-          )}
-      </Combobox>
-    </DropdownContext.Provider>
+          onOpenAutoFocus={(e: Event) => e.preventDefault()}
+        >
+          <div
+            className={cn("space-y-1 overflow-y-auto px-2 py-2.5", {
+              "max-h-60": maxHeight === "lg",
+              "max-h-48": maxHeight === "md",
+              "max-h-36": maxHeight === "rg",
+              "max-h-28": maxHeight === "sm",
+            })}
+          >
+            {children}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </SelectContext.Provider>
   );
 }
 
 function Option<T = unknown>(props: ICustomSelectItemProps<T>) {
-  const { children, value, className } = props;
-  const closeDropdown = useContext(DropdownContext);
+  const { children, value: optionValue, className } = props;
+  const { value: selectedValue, onChange, closeDropdown } = useContext(SelectContext);
+
+  const isSelected = selectedValue === optionValue;
 
   const handleClick = useCallback(() => {
-    // Close dropdown for both new and already-selected options.
-    // Use setTimeout to ensure HeadlessUI's onChange handler fires first for new selections.
-    // For already-selected options, this ensures the dropdown closes since onChange won't fire.
-    setTimeout(() => {
-      closeDropdown();
-    }, 0);
-  }, [closeDropdown]);
+    onChange?.(optionValue);
+    closeDropdown();
+  }, [onChange, optionValue, closeDropdown]);
 
   return (
-    <Combobox.Option
-      value={value}
-      className={({ active }) =>
-        cn(
-          "cursor-pointer select-none truncate rounded-sm px-1 py-1.5 text-secondary flex items-center justify-between gap-2",
-          {
-            "bg-layer-transparent-hover": active,
-          },
-          className
-        )
-      }
+    <div
+      role="option"
+      aria-selected={isSelected}
+      className={cn(
+        "cursor-pointer select-none truncate rounded-sm px-1 py-1.5 text-secondary flex items-center justify-between gap-2",
+        "hover:bg-layer-transparent-hover",
+        {
+          "text-primary": isSelected,
+        },
+        className
+      )}
       onClick={handleClick}
     >
-      {({ selected }) => (
-        <div className="flex items-center justify-between gap-2 w-full">
-          {children}
-          {selected && <Check className="h-3.5 w-3.5 flex-shrink-0" />}
-        </div>
-      )}
-    </Combobox.Option>
+      <div className="flex items-center justify-between gap-2 w-full">
+        {children}
+        {isSelected && <Check className="h-3.5 w-3.5 flex-shrink-0" />}
+      </div>
+    </div>
   );
 }
 

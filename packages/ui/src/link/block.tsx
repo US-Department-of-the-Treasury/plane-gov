@@ -38,8 +38,8 @@ export function LinkItemBlock(props: TLinkItemBlockProps) {
               <CustomMenu.MenuItem
                 key={item.key}
                 onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                  e?.preventDefault();
+                  e?.stopPropagation();
                   item.action();
                 }}
                 className={cn("flex items-center gap-2 w-full ", {

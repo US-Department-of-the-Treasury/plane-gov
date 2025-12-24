@@ -44,9 +44,9 @@ export function BreadcrumbNavigationSearchDropdown(props: TBreadcrumbNavigationS
       }}
       options={navigationItems}
       value={selectedItem}
-      onChange={(value: string) => {
+      onChange={(value) => {
         if (value !== selectedItem) {
-          onChange?.(value);
+          onChange?.(value as string);
         }
       }}
       customButton={

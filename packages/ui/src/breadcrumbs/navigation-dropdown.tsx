@@ -100,8 +100,8 @@ export function BreadcrumbNavigationDropdown(props: TBreadcrumbNavigationDropdow
           <CustomMenu.MenuItem
             key={item.key}
             onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+              e?.preventDefault();
+              e?.stopPropagation();
               if (item.key === selectedItemKey) return;
               item.action();
             }}
