@@ -19,9 +19,9 @@ import { cn, getDate, renderFormattedPayloadDate, shouldHighlightIssueDueDate } 
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { PriorityDropdown } from "@/components/dropdowns/priority";
-import { StateDropdown } from "@/components/dropdowns/state/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
+import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
+import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 import { SidebarPropertyListItem } from "@/components/common/layout/sidebar/property-list-item";
 // helpers
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
@@ -72,7 +72,7 @@ export function PeekOverviewProperties(props: IPeekOverviewProperties) {
       <h6 className="text-body-xs-medium">{t("common.properties")}</h6>
       <div className={`w-full space-y-3 mt-3 ${disabled ? "opacity-60" : ""}`}>
         <SidebarPropertyListItem icon={StatePropertyIcon} label={t("common.state")}>
-          <StateDropdown
+          <StateCombobox
             value={issue?.state_id}
             onChange={(val) => issueOperations.update(workspaceSlug, projectId, issueId, { state_id: val })}
             projectId={projectId}
@@ -87,8 +87,8 @@ export function PeekOverviewProperties(props: IPeekOverviewProperties) {
         </SidebarPropertyListItem>
 
         <SidebarPropertyListItem icon={MembersPropertyIcon} label={t("common.assignees")}>
-          <MemberDropdown
-            value={issue?.assignee_ids ?? undefined}
+          <MemberCombobox
+            value={issue?.assignee_ids ?? []}
             onChange={(val) => issueOperations.update(workspaceSlug, projectId, issueId, { assignee_ids: val })}
             disabled={disabled}
             projectId={projectId}
@@ -105,7 +105,7 @@ export function PeekOverviewProperties(props: IPeekOverviewProperties) {
         </SidebarPropertyListItem>
 
         <SidebarPropertyListItem icon={PriorityPropertyIcon} label={t("common.priority")}>
-          <PriorityDropdown
+          <PriorityCombobox
             value={issue?.priority}
             onChange={(val) => issueOperations.update(workspaceSlug, projectId, issueId, { priority: val })}
             disabled={disabled}

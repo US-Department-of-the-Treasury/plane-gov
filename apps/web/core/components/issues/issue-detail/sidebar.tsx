@@ -19,9 +19,9 @@ import { cn, getDate, renderFormattedPayloadDate, shouldHighlightIssueDueDate } 
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
 import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { PriorityDropdown } from "@/components/dropdowns/priority";
-import { StateDropdown } from "@/components/dropdowns/state/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
+import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
+import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -81,7 +81,7 @@ export function IssueDetailsSidebar(props: Props) {
           <h5 className="mt-5 text-body-xs-medium">{t("common.properties")}</h5>
           <div className={`mb-2 mt-4 space-y-2.5 truncate ${!isEditable ? "opacity-60" : ""}`}>
             <SidebarPropertyListItem icon={StatePropertyIcon} label={t("common.state")}>
-              <StateDropdown
+              <StateCombobox
                 value={issue?.state_id}
                 onChange={(val) => issueOperations.update(workspaceSlug, projectId, issueId, { state_id: val })}
                 projectId={projectId?.toString() ?? ""}
@@ -96,8 +96,8 @@ export function IssueDetailsSidebar(props: Props) {
             </SidebarPropertyListItem>
 
             <SidebarPropertyListItem icon={MembersPropertyIcon} label={t("common.assignees")}>
-              <MemberDropdown
-                value={issue?.assignee_ids ?? undefined}
+              <MemberCombobox
+                value={issue?.assignee_ids ?? []}
                 onChange={(val) => issueOperations.update(workspaceSlug, projectId, issueId, { assignee_ids: val })}
                 disabled={!isEditable}
                 projectId={projectId?.toString() ?? ""}
@@ -114,7 +114,7 @@ export function IssueDetailsSidebar(props: Props) {
             </SidebarPropertyListItem>
 
             <SidebarPropertyListItem icon={PriorityPropertyIcon} label={t("common.priority")}>
-              <PriorityDropdown
+              <PriorityCombobox
                 value={issue?.priority}
                 onChange={(val) => issueOperations.update(workspaceSlug, projectId, issueId, { priority: val })}
                 disabled={!isEditable}

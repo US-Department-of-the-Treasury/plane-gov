@@ -9,10 +9,10 @@ import { getDate, renderFormattedPayloadDate, shouldHighlightIssueDueDate } from
 import { SprintDropdown } from "@/components/dropdowns/sprint";
 import { DateDropdown } from "@/components/dropdowns/date";
 import { EstimateDropdown } from "@/components/dropdowns/estimate";
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
 import { EpicDropdown } from "@/components/dropdowns/epic/dropdown";
-import { PriorityDropdown } from "@/components/dropdowns/priority";
-import { StateDropdown } from "@/components/dropdowns/state/dropdown";
+import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
+import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 // helpers
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
@@ -138,25 +138,23 @@ export function DraftIssueProperties(props: IIssueProperties) {
       {/* basic properties */}
       {/* state */}
       <div className="h-5" onClick={handleEventPropagation}>
-        <StateDropdown
+        <StateCombobox
           buttonContainerClassName="truncate max-w-40"
           value={issue.state_id}
           onChange={handleState}
           projectId={issue.project_id}
           buttonVariant="border-with-text"
-          renderByDefault={isMobile}
           showTooltip
         />
       </div>
 
       {/* priority */}
       <div className="h-5" onClick={handleEventPropagation}>
-        <PriorityDropdown
+        <PriorityCombobox
           value={issue?.priority}
           onChange={handlePriority}
           buttonVariant="border-without-text"
           buttonClassName="border"
-          renderByDefault={isMobile}
           showTooltip
         />
       </div>
@@ -208,9 +206,9 @@ export function DraftIssueProperties(props: IIssueProperties) {
 
       {/* assignee */}
       <div className="h-5" onClick={handleEventPropagation}>
-        <MemberDropdown
+        <MemberCombobox
           projectId={issue?.project_id}
-          value={issue?.assignee_ids}
+          value={issue?.assignee_ids ?? []}
           onChange={handleAssignee}
           multiple
           buttonVariant={issue.assignee_ids?.length > 0 ? "transparent-without-text" : "border-without-text"}
@@ -219,7 +217,6 @@ export function DraftIssueProperties(props: IIssueProperties) {
           placeholder="Assignees"
           optionsClassName="z-10"
           tooltipContent=""
-          renderByDefault={isMobile}
         />
       </div>
 

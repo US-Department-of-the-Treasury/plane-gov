@@ -2,7 +2,7 @@ import React from "react";
 // types
 import type { TIssue } from "@plane/types";
 // components
-import { PriorityDropdown } from "@/components/dropdowns/priority";
+import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
 
 type Props = {
   issue: TIssue;
@@ -16,7 +16,7 @@ export function SpreadsheetPriorityColumn(props: Props) {
 
   return (
     <div className="h-11 border-b-[0.5px] border-subtle">
-      <PriorityDropdown
+      <PriorityCombobox
         value={issue.priority}
         onChange={(data) => onChange(issue, { priority: data }, { changed_property: "priority", change_details: data })}
         disabled={disabled}

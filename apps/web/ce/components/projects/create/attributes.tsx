@@ -7,7 +7,7 @@ import type { IProject } from "@plane/types";
 import { CustomSelect } from "@plane/ui";
 import { getTabIndex } from "@plane/utils";
 // components
-import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
 import { ProjectNetworkIcon } from "@/components/project/project-network-icon";
 
 type Props = {
@@ -73,7 +73,7 @@ function ProjectAttributes(props: Props) {
           if (value === undefined || value === null || typeof value === "string")
             return (
               <div className="flex-shrink-0 h-7" tabIndex={getIndex("lead")}>
-                <MemberDropdown
+                <MemberCombobox
                   value={value ?? null}
                   onChange={(lead) => onChange(lead === value ? null : lead)}
                   placeholder={t("lead")}
