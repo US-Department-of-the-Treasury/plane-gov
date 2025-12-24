@@ -209,7 +209,6 @@ class Command(BaseCommand):
                 "is_active": True,
                 "is_email_verified": True,
                 "is_password_autoset": False,
-                "status": "active",
             },
         )
         if created:
