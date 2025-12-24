@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Transition, Dialog } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { Button } from "@plane/propel/button";
@@ -125,36 +125,24 @@ export function ChangeEmailModal(props: Props) {
     }
   };
 
-  return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog as="div" className="relative z-30" onClose={handleClose}>
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 transition-opacity bg-backdrop"
-        />
+  const handleOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
 
-        <div className="overflow-y-auto fixed inset-0 z-30">
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="overflow-y-auto fixed inset-0 z-50">
           <div className="flex justify-center items-center p-4 min-h-full text-center sm:p-0">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              className="relative transform overflow-hidden rounded-lg bg-surface-1 px-4 text-left shadow-raised-200 transition-all sm:my-8 sm:w-[30rem]"
+            <DialogContent
+              showCloseButton={false}
+              className="relative transform overflow-hidden rounded-lg bg-surface-1 px-4 text-left shadow-raised-200 sm:my-8 sm:w-[30rem] static translate-x-0 translate-y-0 border-0 p-0"
             >
-                <div className="py-4 space-y-0">
-                  <Dialog.Title as="h3" className="text-16 font-medium leading-6 text-primary">
-                    {changeEmailT("title")}
-                  </Dialog.Title>
+              <div className="py-4 px-4 space-y-0">
+                <DialogTitle className="text-16 font-medium leading-6 text-primary">
+                  {changeEmailT("title")}
+                </DialogTitle>
                   <p className="my-4 text-13 text-secondary">{changeEmailT("description")}</p>
                 </div>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
@@ -232,11 +220,11 @@ export function ChangeEmailModal(props: Props) {
                           : changeEmailT("actions.continue")}
                     </Button>
                   </div>
-                </form>
-            </Transition.Child>
+              </form>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }

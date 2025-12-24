@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal } from "@plane/propel/primitives";
 // ui
 import { useTranslation } from "@plane/i18n";
 import { Button } from "@plane/propel/button";
@@ -20,61 +20,51 @@ export function InboxIssueSnoozeModal(props: InboxIssueSnoozeModalProps) {
   //hooks
   const { t } = useTranslation();
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
+
   return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog as="div" className="relative z-20" onClose={handleClose}>
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 bg-backdrop transition-opacity"
-        />
-        <div className="fixed inset-0 z-20 flex w-full justify-center overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="fixed inset-0 z-50 flex w-full justify-center overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              className="relative flex transform rounded-lg bg-surface-1 px-5 py-8 text-left shadow-raised-200 transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:p-6">
-                <div className="flex h-full w-full flex-col gap-y-1">
-                  <Calendar
-                    className="rounded-md border border-subtle p-3"
-                    captionLayout="dropdown"
-                    selected={date ? new Date(date) : undefined}
-                    defaultMonth={date ? new Date(date) : undefined}
-                    onSelect={(date: Date | undefined) => {
-                      if (!date) return;
-                      setDate(date);
-                    }}
-                    mode="single"
-                    disabled={[
-                      {
-                        before: new Date(),
-                      },
-                    ]}
-                  />
-                  <Button
-                    variant="primary"
-                    onClick={() => {
-                      close();
-                      onConfirm(date);
-                    }}
-                  >
-                    {t("inbox_issue.actions.snooze")}
-                  </Button>
-                </div>
-              </Transition.Child>
+            <DialogContent
+              showCloseButton={false}
+              className="relative flex transform rounded-lg bg-surface-1 px-5 py-8 text-left shadow-raised-200 sm:my-8 sm:w-full sm:max-w-2xl sm:p-6 static translate-x-0 translate-y-0 border-0"
+            >
+              <div className="flex h-full w-full flex-col gap-y-1">
+                <Calendar
+                  className="rounded-md border border-subtle p-3"
+                  captionLayout="dropdown"
+                  selected={date ? new Date(date) : undefined}
+                  defaultMonth={date ? new Date(date) : undefined}
+                  onSelect={(date: Date | undefined) => {
+                    if (!date) return;
+                    setDate(date);
+                  }}
+                  mode="single"
+                  disabled={[
+                    {
+                      before: new Date(),
+                    },
+                  ]}
+                />
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    handleClose();
+                    onConfirm(date);
+                  }}
+                >
+                  {t("inbox_issue.actions.snooze")}
+                </Button>
+              </div>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }

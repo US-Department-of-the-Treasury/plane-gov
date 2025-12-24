@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Transition, Dialog } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";
 // types
 import { Button } from "@plane/propel/button";
 import type { IProject } from "@plane/types";
@@ -38,61 +38,50 @@ export function JoinProjectModal(props: TJoinProjectModalProps) {
       });
   };
 
-  return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog as="div" className="relative z-20" onClose={handleClose}>
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 bg-backdrop transition-opacity"
-        />
+  const handleOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
 
-        <div className="fixed inset-0 z-20 overflow-y-auto">
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              className="relative transform overflow-hidden rounded-lg bg-surface-1 px-5 py-8 text-left shadow-raised-200 transition-all sm:w-full sm:max-w-xl sm:p-6">
-                <div className="space-y-5">
-                  <Dialog.Title as="h3" className="text-16 font-medium leading-6 text-primary">
-                    Join Project?
-                  </Dialog.Title>
-                  <p>
-                    Are you sure you want to join the project{" "}
-                    <span className="break-words font-semibold">{project?.name}</span>? Please click the &apos;Join
-                    Project&apos; button below to continue.
-                  </p>
-                  <div className="space-y-3" />
-                </div>
-                <div className="mt-5 flex justify-end gap-2">
-                  <Button variant="secondary" size="lg" onClick={handleClose}>
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    tabIndex={1}
-                    type="submit"
-                    onClick={handleJoin}
-                    loading={isJoiningLoading}
-                  >
-                    {isJoiningLoading ? "Joining..." : "Join Project"}
-                  </Button>
-                </div>
-              </Transition.Child>
+            <DialogContent
+              showCloseButton={false}
+              className="relative transform overflow-hidden rounded-lg bg-surface-1 px-5 py-8 text-left shadow-raised-200 sm:w-full sm:max-w-xl sm:p-6 static translate-x-0 translate-y-0 border-0"
+            >
+              <div className="space-y-5">
+                <DialogTitle className="text-16 font-medium leading-6 text-primary">
+                  Join Project?
+                </DialogTitle>
+                <p>
+                  Are you sure you want to join the project{" "}
+                  <span className="break-words font-semibold">{project?.name}</span>? Please click the &apos;Join
+                  Project&apos; button below to continue.
+                </p>
+                <div className="space-y-3" />
+              </div>
+              <div className="mt-5 flex justify-end gap-2">
+                <Button variant="secondary" size="lg" onClick={handleClose}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  tabIndex={1}
+                  type="submit"
+                  onClick={handleJoin}
+                  loading={isJoiningLoading}
+                >
+                  {isJoiningLoading ? "Joining..." : "Join Project"}
+                </Button>
+              </div>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }

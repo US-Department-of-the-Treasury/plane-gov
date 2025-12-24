@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
-import { Transition, Dialog } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";
 // plane imports
 import { allTimeIn30MinutesInterval12HoursFormat } from "@plane/constants";
 import { Button } from "@plane/propel/button";
@@ -109,37 +109,25 @@ export function NotificationSnoozeModal(props: TNotificationSnoozeModal) {
     });
   };
 
-  return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog as="div" className="relative z-20" onClose={handleClose}>
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 bg-backdrop transition-opacity"
-        />
+  const handleOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
 
-        <div className="fixed inset-0 z-20 overflow-y-auto">
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              className="relative w-full transform rounded-lg bg-surface-1 p-5 text-left shadow-raised-200 transition-all sm:w-full sm:max-w-2xl"
+            <DialogContent
+              showCloseButton={false}
+              className="relative w-full transform rounded-lg bg-surface-1 p-5 text-left shadow-raised-200 sm:w-full sm:max-w-2xl static translate-x-0 translate-y-0 border-0"
             >
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <div className="flex items-center justify-between">
-                    <Dialog.Title as="h3" className="text-h5-medium leading-6 text-primary">
-                      Customize Snooze Time
-                    </Dialog.Title>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-h5-medium leading-6 text-primary">
+                    Customize Snooze Time
+                  </DialogTitle>
 
                     <div>
                       <button type="button" onClick={handleClose}>
@@ -252,11 +240,11 @@ export function NotificationSnoozeModal(props: TNotificationSnoozeModal) {
                       </Button>
                     </div>
                   </div>
-                </form>
-            </Transition.Child>
+              </form>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }

@@ -1,4 +1,4 @@
-import { Dialog } from "@headlessui/react";
+import { DialogTitle } from "@plane/propel/primitives";
 
 type TInvitationFormProps = {
   title: string;
@@ -15,9 +15,9 @@ export function InvitationForm(props: TInvitationFormProps) {
   return (
     <form onSubmit={onSubmit} className={className}>
       <div className="space-y-4">
-        <Dialog.Title as="h3" className="text-body-md-medium leading-6 text-primary">
+        <DialogTitle className="text-body-md-medium leading-6 text-primary">
           {title}
-        </Dialog.Title>
+        </DialogTitle>
         <div className="text-body-xs-regular text-secondary">{description}</div>
         {children}
       </div>

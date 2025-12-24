@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Command } from "cmdk";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal } from "@plane/propel/primitives";
 // hooks
 import { usePowerK } from "@/hooks/store/use-power-k";
 // local imports
@@ -109,73 +109,60 @@ export function ProjectsAppPowerKModalWrapper(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) onClose();
+  };
+
   return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
-        {/* Backdrop */}
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 bg-backdrop transition-opacity"
-        />
-        {/* Modal Container */}
-        <div className="fixed inset-0 z-30 overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center p-4 sm:p-6 md:p-20">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              className="relative flex w-full max-w-2xl transform flex-col items-center justify-center divide-y divide-subtle-1 divide-opacity-10 rounded-lg bg-surface-1 shadow-raised-200 transition-all"
+            <DialogContent
+              showCloseButton={false}
+              className="relative flex w-full max-w-2xl transform flex-col items-center justify-center divide-y divide-subtle-1 divide-opacity-10 rounded-lg bg-surface-1 shadow-raised-200 static translate-x-0 translate-y-0 p-0 border-0"
             >
-                <Command
-                  filter={(i18nValue: string, search: string) => {
-                    if (i18nValue === "no-results") return 1;
-                    if (i18nValue.toLowerCase().includes(search.toLowerCase())) return 1;
-                    return 0;
-                  }}
-                  shouldFilter={searchTerm.length > 0}
-                  onKeyDown={handleKeyDown}
-                  className="w-full"
-                >
-                  <PowerKModalHeader
+              <Command
+                filter={(i18nValue: string, search: string) => {
+                  if (i18nValue === "no-results") return 1;
+                  if (i18nValue.toLowerCase().includes(search.toLowerCase())) return 1;
+                  return 0;
+                }}
+                shouldFilter={searchTerm.length > 0}
+                onKeyDown={handleKeyDown}
+                className="w-full"
+              >
+                <PowerKModalHeader
+                  activePage={activePage}
+                  context={context}
+                  onSearchChange={setSearchTerm}
+                  searchTerm={searchTerm}
+                />
+                <Command.List className="vertical-scrollbar scrollbar-sm max-h-96 overflow-scroll outline-none">
+                  <CommandsListComponent
                     activePage={activePage}
                     context={context}
-                    onSearchChange={setSearchTerm}
+                    handleCommandSelect={handleCommandSelect}
+                    handlePageDataSelection={handlePageDataSelection}
+                    isWorkspaceLevel={isWorkspaceLevel}
                     searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
                   />
-                  <Command.List className="vertical-scrollbar scrollbar-sm max-h-96 overflow-scroll outline-none">
-                    <CommandsListComponent
-                      activePage={activePage}
-                      context={context}
-                      handleCommandSelect={handleCommandSelect}
-                      handlePageDataSelection={handlePageDataSelection}
-                      isWorkspaceLevel={isWorkspaceLevel}
-                      searchTerm={searchTerm}
-                      setSearchTerm={setSearchTerm}
-                    />
-                  </Command.List>
-                  {/* Footer hints */}
-                  {!hideFooter && (
-                    <PowerKModalFooter
-                      isWorkspaceLevel={isWorkspaceLevel}
-                      projectId={context.params.projectId?.toString()}
-                      onWorkspaceLevelChange={setIsWorkspaceLevel}
-                    />
-                  )}
-                </Command>
-            </Transition.Child>
+                </Command.List>
+                {/* Footer hints */}
+                {!hideFooter && (
+                  <PowerKModalFooter
+                    isWorkspaceLevel={isWorkspaceLevel}
+                    projectId={context.params.projectId?.toString()}
+                    onWorkspaceLevelChange={setIsWorkspaceLevel}
+                  />
+                )}
+              </Command>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }

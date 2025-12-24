@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-
-// headless ui
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";
 // ui
 import { Button } from "@plane/propel/button";
 
@@ -28,65 +26,53 @@ export function ConfirmIssueDiscard(props: Props) {
     setIsLoading(false);
   };
 
-  return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog as="div" className="relative z-30" onClose={handleClose}>
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 bg-backdrop transition-opacity"
-        />
+  const handleOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
 
-        <div className="fixed inset-0 z-30 overflow-y-auto">
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="my-10 flex items-center justify-center p-4 text-center sm:p-0 md:my-32">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              className="relative transform overflow-hidden rounded-lg bg-surface-1 text-left shadow-raised-200 transition-all sm:my-8 sm:w-[40rem]"
+            <DialogContent
+              showCloseButton={false}
+              className="relative transform overflow-hidden rounded-lg bg-surface-1 text-left shadow-raised-200 sm:my-8 sm:w-[40rem] static translate-x-0 translate-y-0 p-0 border-0"
             >
-                <div className="px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                  <div className="sm:flex sm:items-start">
-                    <div className="mt-3 text-center sm:mt-0 sm:text-left">
-                      <Dialog.Title as="h3" className="text-16 font-medium leading-6 text-primary">
-                        Save this draft?
-                      </Dialog.Title>
-                      <div className="mt-2">
-                        <p className="text-13 text-secondary">
-                          You can save this work item to Drafts so you can come back to it later.{" "}
-                        </p>
-                      </div>
+              <div className="px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:mt-0 sm:text-left">
+                    <DialogTitle className="text-16 font-medium leading-6 text-primary">
+                      Save this draft?
+                    </DialogTitle>
+                    <div className="mt-2">
+                      <p className="text-13 text-secondary">
+                        You can save this work item to Drafts so you can come back to it later.{" "}
+                      </p>
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-between gap-2 p-4 sm:px-6">
-                  <div>
-                    <Button variant="secondary" onClick={onDiscard}>
-                      Discard
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="secondary" onClick={onClose}>
-                      Cancel
-                    </Button>
-                    <Button variant="primary" onClick={handleDeletion} loading={isLoading}>
-                      {isLoading ? "Saving" : "Save to Drafts"}
-                    </Button>
-                  </div>
+              </div>
+              <div className="flex justify-between gap-2 p-4 sm:px-6">
+                <div>
+                  <Button variant="secondary" onClick={onDiscard}>
+                    Discard
+                  </Button>
                 </div>
-            </Transition.Child>
+                <div className="flex items-center gap-2">
+                  <Button variant="secondary" onClick={onClose}>
+                    Cancel
+                  </Button>
+                  <Button variant="primary" onClick={handleDeletion} loading={isLoading}>
+                    {isLoading ? "Saving" : "Save to Drafts"}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }

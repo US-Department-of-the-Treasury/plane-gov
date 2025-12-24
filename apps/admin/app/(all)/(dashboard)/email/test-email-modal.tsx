@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal } from "@plane/propel/primitives";
 // plane imports
 import { Button } from "@plane/propel/button";
 import { InstanceService } from "@plane/services";
@@ -60,30 +60,19 @@ export function SendTestEmailModal(props: Props) {
       });
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
+
   return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog as="div" className="relative z-20" onClose={handleClose}>
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 bg-backdrop transition-opacity"
-        />
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
         <div className="fixed inset-0 z-20 overflow-y-auto">
           <div className="my-10 flex justify-center p-4 text-center sm:p-0 md:my-20">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              className="relative transform rounded-lg bg-surface-1 p-5 px-4 text-left shadow-raised-200 transition-all w-full sm:max-w-xl"
+            <DialogContent
+              showCloseButton={false}
+              className="relative transform rounded-lg bg-surface-1 p-5 px-4 text-left shadow-raised-200 w-full sm:max-w-xl static translate-x-0 translate-y-0 border-0"
             >
               <h3 className="text-16 font-medium leading-6 text-primary">
                 {sendEmailStep === ESendEmailSteps.SEND_EMAIL
@@ -125,10 +114,10 @@ export function SendTestEmailModal(props: Props) {
                   )}
                 </div>
               </div>
-            </Transition.Child>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }

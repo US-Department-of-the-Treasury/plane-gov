@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Rocket, Search } from "lucide-react";
-import { Combobox, Dialog, Transition } from "@headlessui/react";
+import { Combobox } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal } from "@plane/propel/primitives";
 // i18n
 import { useTranslation } from "@plane/i18n";
 // types
@@ -130,31 +131,22 @@ export function ExistingIssuesListModal(props: Props) {
 
   const filteredIssues = issues.filter((issue) => !shouldHideIssue?.(issue));
 
-  return (
-    <>
-      <Transition.Root show={isOpen} afterLeave={() => setSearchTerm("")} appear as="div">
-        <Dialog as="div" className="relative z-30" onClose={handleClose}>
-          <Transition.Child
-            as="div"
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-            className="fixed inset-0 bg-backdrop transition-opacity"
-          />
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setSearchTerm("");
+      handleClose();
+    }
+  };
 
-          <div className="fixed inset-0 z-30 overflow-y-auto p-4 sm:p-6 md:p-20">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-              className="relative mx-auto max-w-2xl transform rounded-lg bg-surface-1 shadow-raised-200 transition-all">
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 md:p-20">
+          <DialogContent
+            showCloseButton={false}
+            className="relative mx-auto max-w-2xl transform rounded-lg bg-surface-1 shadow-raised-200 static translate-x-0 translate-y-0 p-0 border-0"
+          >
                 <Combobox
                   as="div"
                   onChange={(val: ISearchIssueResponse | null) => {
@@ -353,10 +345,9 @@ export function ExistingIssuesListModal(props: Props) {
                     </Button>
                   </div>
                 </div>
-            </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition.Root>
-    </>
+          </DialogContent>
+        </div>
+      </DialogPortal>
+    </Dialog>
   );
 }

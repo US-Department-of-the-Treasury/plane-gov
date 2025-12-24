@@ -3,7 +3,8 @@ import { useParams } from "next/navigation";
 // icons
 import { Rocket, Search } from "lucide-react";
 // headless ui
-import { Combobox, Dialog, Transition } from "@headlessui/react";
+import { Combobox } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal } from "@plane/propel/primitives";
 // i18n
 import { useTranslation } from "@plane/i18n";
 // types
@@ -63,6 +64,10 @@ export function ParentIssuesListModal({
     setSearchTerm("");
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
+
   useEffect(() => {
     if (!isOpen || !workspaceSlug || !projectId) return;
 
@@ -85,142 +90,124 @@ export function ParentIssuesListModal({
   }, [debouncedSearchTerm, isOpen, issueId, projectId, workspaceSlug]);
 
   return (
-    <>
-      <Transition.Root show={isOpen} afterLeave={() => setSearchTerm("")} appear as="div">
-        <Dialog as="div" className="relative z-30" onClose={handleClose}>
-          <Transition.Child
-            as="div"
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-            className="fixed inset-0 bg-backdrop transition-opacity"
-          />
-
-          <div className="fixed inset-0 z-30 overflow-y-auto p-4 sm:p-6 md:p-20">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-              className="relative mx-auto max-w-2xl transform rounded-lg bg-surface-1 shadow-raised-200 transition-all"
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 md:p-20">
+          <DialogContent
+            showCloseButton={false}
+            className="relative mx-auto max-w-2xl transform rounded-lg bg-surface-1 shadow-raised-200 static translate-x-0 translate-y-0 p-0 border-0"
+          >
+            <Combobox
+              value={value}
+              onChange={(val) => {
+                onChange(val);
+                handleClose();
+              }}
             >
-                <Combobox
-                  value={value}
-                  onChange={(val) => {
-                    onChange(val);
-                    handleClose();
-                  }}
-                >
-                  <div className="relative m-1">
-                    <Search
-                      className="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-primary text-opacity-40"
-                      aria-hidden="true"
-                    />
-                    <Combobox.Input
-                      className="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-primary outline-none placeholder:text-placeholder focus:ring-0 sm:text-13"
-                      placeholder={t("common.search.placeholder")}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      displayValue={() => ""}
-                      tabIndex={baseTabIndex}
-                    />
-                  </div>
-                  <Combobox.Options
-                    static
-                    className="max-h-80 scroll-py-2 overflow-y-auto vertical-scrollbar scrollbar-md"
-                  >
-                    {searchTerm !== "" && (
-                      <h5 className="mx-2 text-13 text-secondary">
-                        Search results for{" "}
-                        <span className="text-primary">
-                          {'"'}
-                          {searchTerm}
-                          {'"'}
-                        </span>{" "}
-                        in project:
-                      </h5>
-                    )}
+              <div className="relative m-1">
+                <Search
+                  className="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-primary text-opacity-40"
+                  aria-hidden="true"
+                />
+                <Combobox.Input
+                  className="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-primary outline-none placeholder:text-placeholder focus:ring-0 sm:text-13"
+                  placeholder={t("common.search.placeholder")}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  displayValue={() => ""}
+                  tabIndex={baseTabIndex}
+                />
+              </div>
+              <Combobox.Options
+                static
+                className="max-h-80 scroll-py-2 overflow-y-auto vertical-scrollbar scrollbar-md"
+              >
+                {searchTerm !== "" && (
+                  <h5 className="mx-2 text-13 text-secondary">
+                    Search results for{" "}
+                    <span className="text-primary">
+                      {'"'}
+                      {searchTerm}
+                      {'"'}
+                    </span>{" "}
+                    in project:
+                  </h5>
+                )}
 
-                    {isSearching || isLoading ? (
-                      <Loader className="space-y-3 p-3">
-                        <Loader.Item height="40px" />
-                        <Loader.Item height="40px" />
-                        <Loader.Item height="40px" />
-                        <Loader.Item height="40px" />
-                      </Loader>
+                {isSearching || isLoading ? (
+                  <Loader className="space-y-3 p-3">
+                    <Loader.Item height="40px" />
+                    <Loader.Item height="40px" />
+                    <Loader.Item height="40px" />
+                    <Loader.Item height="40px" />
+                  </Loader>
+                ) : (
+                  <>
+                    {issues.length === 0 ? (
+                      <IssueSearchModalEmptyState
+                        debouncedSearchTerm={debouncedSearchTerm}
+                        isSearching={isSearching}
+                        issues={issues}
+                        searchTerm={searchTerm}
+                      />
                     ) : (
-                      <>
-                        {issues.length === 0 ? (
-                          <IssueSearchModalEmptyState
-                            debouncedSearchTerm={debouncedSearchTerm}
-                            isSearching={isSearching}
-                            issues={issues}
-                            searchTerm={searchTerm}
-                          />
-                        ) : (
-                          <ul className={`text-13 ${issues.length > 0 ? "p-2" : ""}`}>
-                            {issues.map((issue) => (
-                              <Combobox.Option
-                                key={issue.id}
-                                value={issue}
-                                className={({ active, selected }) =>
-                                  `group flex w-full cursor-pointer select-none items-center justify-between gap-2 rounded-md px-3 py-2 my-0.5 text-secondary ${
-                                    active ? "bg-layer-1 text-primary" : ""
-                                  } ${selected ? "text-primary" : ""}`
-                                }
-                              >
-                                <div className="flex flex-grow items-center gap-2 truncate">
-                                  <span
-                                    className="block h-1.5 w-1.5 flex-shrink-0 rounded-full"
-                                    style={{
-                                      backgroundColor: issue.state__color,
-                                    }}
-                                  />
-                                  <span className="flex-shrink-0">
-                                    <IssueIdentifier
-                                      projectId={issue.project_id}
-                                      issueTypeId={issue.type_id}
-                                      projectIdentifier={issue.project__identifier}
-                                      issueSequenceId={issue.sequence_id}
-                                      size="xs"
-                                      variant="secondary"
-                                    />
-                                  </span>{" "}
-                                  <span className="truncate">{issue.name}</span>
-                                </div>
-                                <a
-                                  href={generateWorkItemLink({
-                                    workspaceSlug: workspaceSlug.toString(),
-                                    projectId: issue?.project_id,
-                                    issueId: issue?.id,
-                                    projectIdentifier: issue.project__identifier,
-                                    sequenceId: issue?.sequence_id,
-                                  })}
-                                  target="_blank"
-                                  className="z-1 relative hidden flex-shrink-0 text-secondary hover:text-primary group-hover:block"
-                                  rel="noopener noreferrer"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Rocket className="h-4 w-4" />
-                                </a>
-                              </Combobox.Option>
-                            ))}
-                          </ul>
-                        )}
-                      </>
+                      <ul className={`text-13 ${issues.length > 0 ? "p-2" : ""}`}>
+                        {issues.map((issue) => (
+                          <Combobox.Option
+                            key={issue.id}
+                            value={issue}
+                            className={({ active, selected }) =>
+                              `group flex w-full cursor-pointer select-none items-center justify-between gap-2 rounded-md px-3 py-2 my-0.5 text-secondary ${
+                                active ? "bg-layer-1 text-primary" : ""
+                              } ${selected ? "text-primary" : ""}`
+                            }
+                          >
+                            <div className="flex flex-grow items-center gap-2 truncate">
+                              <span
+                                className="block h-1.5 w-1.5 flex-shrink-0 rounded-full"
+                                style={{
+                                  backgroundColor: issue.state__color,
+                                }}
+                              />
+                              <span className="flex-shrink-0">
+                                <IssueIdentifier
+                                  projectId={issue.project_id}
+                                  issueTypeId={issue.type_id}
+                                  projectIdentifier={issue.project__identifier}
+                                  issueSequenceId={issue.sequence_id}
+                                  size="xs"
+                                  variant="secondary"
+                                />
+                              </span>{" "}
+                              <span className="truncate">{issue.name}</span>
+                            </div>
+                            <a
+                              href={generateWorkItemLink({
+                                workspaceSlug: workspaceSlug.toString(),
+                                projectId: issue?.project_id,
+                                issueId: issue?.id,
+                                projectIdentifier: issue.project__identifier,
+                                sequenceId: issue?.sequence_id,
+                              })}
+                              target="_blank"
+                              className="z-1 relative hidden flex-shrink-0 text-secondary hover:text-primary group-hover:block"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Rocket className="h-4 w-4" />
+                            </a>
+                          </Combobox.Option>
+                        ))}
+                      </ul>
                     )}
-                  </Combobox.Options>
-                </Combobox>
-              </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition.Root>
-    </>
+                  </>
+                )}
+              </Combobox.Options>
+            </Combobox>
+          </DialogContent>
+        </div>
+      </DialogPortal>
+    </Dialog>
   );
 }

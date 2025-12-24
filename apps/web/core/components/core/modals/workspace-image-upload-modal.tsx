@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import { useDropzone } from "react-dropzone";
-import { Transition, Dialog } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";
 // plane imports
 import { ACCEPTED_AVATAR_IMAGE_MIME_TYPES_FOR_REACT_DROPZONE, MAX_FILE_SIZE } from "@plane/constants";
 import { Button } from "@plane/propel/button";
@@ -103,36 +103,24 @@ export function WorkspaceImageUploadModal(props: Props) {
     }
   };
 
-  return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog as="div" className="relative z-30" onClose={handleClose}>
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 bg-backdrop transition-opacity"
-        />
+  const handleOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
 
-        <div className="fixed inset-0 z-30 overflow-y-auto">
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              className="relative transform overflow-hidden rounded-lg bg-surface-1 px-5 py-8 text-left shadow-raised-200 transition-all sm:w-full sm:max-w-xl sm:p-6"
+            <DialogContent
+              showCloseButton={false}
+              className="relative transform overflow-hidden rounded-lg bg-surface-1 px-5 py-8 text-left shadow-raised-200 sm:w-full sm:max-w-xl sm:p-6 static translate-x-0 translate-y-0 border-0"
             >
-                <div className="space-y-5">
-                  <Dialog.Title as="h3" className="text-16 font-medium leading-6 text-primary">
-                    Upload image
-                  </Dialog.Title>
+              <div className="space-y-5">
+                <DialogTitle className="text-16 font-medium leading-6 text-primary">
+                  Upload image
+                </DialogTitle>
                   <div className="space-y-3">
                     <div className="flex items-center justify-center gap-3">
                       <div
@@ -202,12 +190,12 @@ export function WorkspaceImageUploadModal(props: Props) {
                     >
                       {isImageUploading ? "Uploading" : "Upload & Save"}
                     </Button>
-                  </div>
                 </div>
-            </Transition.Child>
+              </div>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }

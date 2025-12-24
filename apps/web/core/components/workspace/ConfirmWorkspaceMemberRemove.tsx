@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AlertTriangle } from "lucide-react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogTitle } from "@plane/propel/primitives";
 import { Button } from "@plane/propel/button";
 import { useUser } from "@/hooks/store/user";
 import type { Props } from "./confirm-workspace-member-remove";
@@ -25,42 +25,31 @@ export function ConfirmWorkspaceMemberRemove(props: Props) {
     handleClose();
   };
 
-  return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog as="div" className="relative z-20" onClose={handleClose}>
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 bg-backdrop transition-opacity"
-        />
+  const handleOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
 
-        <div className="fixed inset-0 z-20 overflow-y-auto">
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              className="relative transform overflow-hidden rounded-lg bg-surface-1 text-left shadow-raised-200 transition-all sm:my-8 sm:w-[40rem]">
-                <div className="px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                  <div className="sm:flex sm:items-start">
-                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                      <AlertTriangle className="h-6 w-6 text-red-600" aria-hidden="true" />
-                    </div>
-                    <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                      <Dialog.Title as="h3" className="text-16 font-medium leading-6 text-primary">
-                        {currentUser?.id === userDetails.id
-                          ? "Leave workspace?"
-                          : `Remove ${userDetails?.display_name}?`}
-                      </Dialog.Title>
+            <DialogContent
+              showCloseButton={false}
+              className="relative transform overflow-hidden rounded-lg bg-surface-1 text-left shadow-raised-200 sm:my-8 sm:w-[40rem] static translate-x-0 translate-y-0 border-0 p-0"
+            >
+              <div className="px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <AlertTriangle className="h-6 w-6 text-red-600" aria-hidden="true" />
+                  </div>
+                  <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                    <DialogTitle className="text-16 font-medium leading-6 text-primary">
+                      {currentUser?.id === userDetails.id
+                        ? "Leave workspace?"
+                        : `Remove ${userDetails?.display_name}?`}
+                    </DialogTitle>
                       <div className="mt-2">
                         {currentUser?.id === userDetails.id ? (
                           <p className="text-13 text-secondary">
@@ -77,25 +66,25 @@ export function ConfirmWorkspaceMemberRemove(props: Props) {
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex justify-end gap-2 p-4 sm:px-6">
-                  <Button variant="secondary" onClick={handleClose}>
-                    Cancel
-                  </Button>
-                  <Button variant="error-fill" tabIndex={1} onClick={handleDeletion} loading={isRemoving}>
-                    {currentUser?.id === userDetails.id
-                      ? isRemoving
-                        ? "Leaving"
-                        : "Leave"
-                      : isRemoving
-                        ? "Removing"
-                        : "Remove"}
-                  </Button>
-                </div>
-            </Transition.Child>
+              </div>
+              <div className="flex justify-end gap-2 p-4 sm:px-6">
+                <Button variant="secondary" onClick={handleClose}>
+                  Cancel
+                </Button>
+                <Button variant="error-fill" tabIndex={1} onClick={handleDeletion} loading={isRemoving}>
+                  {currentUser?.id === userDetails.id
+                    ? isRemoving
+                      ? "Leaving"
+                      : "Leave"
+                    : isRemoving
+                      ? "Removing"
+                      : "Remove"}
+                </Button>
+              </div>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }

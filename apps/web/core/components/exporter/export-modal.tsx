@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { intersection } from "lodash-es";
 import { useParams } from "next/navigation";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogContent, DialogOverlay, DialogPortal } from "@plane/propel/primitives";
 // types
 import { useTranslation } from "@plane/i18n";
 import { Button } from "@plane/propel/button";
@@ -100,100 +100,82 @@ export function Exporter(props: Props) {
     }
   }
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open && !isSelectOpen) handleClose();
+  };
+
   return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog
-        as="div"
-        className="relative z-20"
-        onClose={() => {
-          if (!isSelectOpen) handleClose();
-        }}
-      >
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 bg-backdrop transition-opacity"
-        />
-
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
         <div className="fixed inset-0 z-20 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center  sm:p-0">
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              className="relative transform rounded-lg bg-surface-1 text-left shadow-raised-200 transition-all sm:my-8 sm:w-full sm:max-w-xl"
+          <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <DialogContent
+              showCloseButton={false}
+              className="relative transform rounded-lg bg-surface-1 text-left shadow-raised-200 sm:my-8 sm:w-full sm:max-w-xl static translate-x-0 translate-y-0 p-0 border-0"
             >
-                <div className="flex flex-col gap-6 gap-y-4 p-6">
-                  <div className="flex w-full items-center justify-start gap-6">
-                    <span className="flex items-center justify-start">
-                      <h3 className="text-18 font-medium 2xl:text-20">
-                        {t("workspace_settings.settings.exports.modal.title")}{" "}
-                        {provider === "csv" ? "CSV" : provider === "xlsx" ? "Excel" : provider === "json" ? "JSON" : ""}
-                      </h3>
-                    </span>
-                  </div>
-                  <div>
-                    <CustomSearchSelect
-                      value={value ?? []}
-                      onChange={(val: string[]) => onChange(val)}
-                      options={options}
-                      input
-                      label={
-                        value && value.length > 0
-                          ? value
-                              .map((projectId) => {
-                                const projectDetails = getProjectById(projects || [], projectId);
+              <div className="flex flex-col gap-6 gap-y-4 p-6">
+                <div className="flex w-full items-center justify-start gap-6">
+                  <span className="flex items-center justify-start">
+                    <h3 className="text-18 font-medium 2xl:text-20">
+                      {t("workspace_settings.settings.exports.modal.title")}{" "}
+                      {provider === "csv" ? "CSV" : provider === "xlsx" ? "Excel" : provider === "json" ? "JSON" : ""}
+                    </h3>
+                  </span>
+                </div>
+                <div>
+                  <CustomSearchSelect
+                    value={value ?? []}
+                    onChange={(val: string[]) => onChange(val)}
+                    options={options}
+                    input
+                    label={
+                      value && value.length > 0
+                        ? value
+                            .map((projectId) => {
+                              const projectDetails = getProjectById(projects || [], projectId);
 
-                                return projectDetails?.identifier;
-                              })
-                              .join(", ")
-                          : "All projects"
-                      }
-                      onOpen={() => setIsSelectOpen(true)}
-                      onClose={() => setIsSelectOpen(false)}
-                      optionsClassName="max-w-48 sm:max-w-[532px]"
-                      placement="bottom-end"
-                      multiple
-                    />
-                  </div>
-                  <div
-                    onClick={() => setMultiple(!multiple)}
-                    className="flex max-w-min cursor-pointer items-center gap-2"
-                  >
-                    <Checkbox checked={multiple} onChange={() => setMultiple(!multiple)} />
-                    <div className="whitespace-nowrap text-13">
-                      {t("workspace_settings.settings.exports.export_separate_files")}
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="secondary" onClick={handleClose}>
-                      {t("cancel")}
-                    </Button>
-                    <Button
-                      variant="primary"
-                      onClick={ExportCSVToMail}
-                      disabled={exportLoading}
-                      loading={exportLoading}
-                    >
-                      {exportLoading
-                        ? `${t("workspace_settings.settings.exports.exporting")}...`
-                        : t("workspace_settings.settings.exports.title")}
-                    </Button>
+                              return projectDetails?.identifier;
+                            })
+                            .join(", ")
+                        : "All projects"
+                    }
+                    onOpen={() => setIsSelectOpen(true)}
+                    onClose={() => setIsSelectOpen(false)}
+                    optionsClassName="max-w-48 sm:max-w-[532px]"
+                    placement="bottom-end"
+                    multiple
+                  />
+                </div>
+                <div
+                  onClick={() => setMultiple(!multiple)}
+                  className="flex max-w-min cursor-pointer items-center gap-2"
+                >
+                  <Checkbox checked={multiple} onChange={() => setMultiple(!multiple)} />
+                  <div className="whitespace-nowrap text-13">
+                    {t("workspace_settings.settings.exports.export_separate_files")}
                   </div>
                 </div>
-            </Transition.Child>
+                <div className="flex justify-end gap-2">
+                  <Button variant="secondary" onClick={handleClose}>
+                    {t("cancel")}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={ExportCSVToMail}
+                    disabled={exportLoading}
+                    loading={exportLoading}
+                  >
+                    {exportLoading
+                      ? `${t("workspace_settings.settings.exports.exporting")}...`
+                      : t("workspace_settings.settings.exports.title")}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }

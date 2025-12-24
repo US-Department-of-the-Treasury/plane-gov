@@ -1,5 +1,12 @@
-import { Dialog, Transition } from "@headlessui/react";
-import React from "react";
+"use client";
+
+import * as React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogOverlay,
+  DialogPortal,
+} from "@plane/propel/primitives";
 // constants
 import { cn } from "../utils";
 import { EModalPosition, EModalWidth } from "./constants";
@@ -13,6 +20,7 @@ type Props = {
   width?: EModalWidth;
   className?: string;
 };
+
 export function ModalCore(props: Props) {
   const {
     children,
@@ -23,41 +31,32 @@ export function ModalCore(props: Props) {
     className = "",
   } = props;
 
-  return (
-    <Transition.Root show={isOpen} as="div">
-      <Dialog as="div" className="relative z-30" onClose={() => handleClose && handleClose()}>
-        <Transition.Child
-          as="div"
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          className="fixed inset-0 bg-backdrop transition-opacity"
-        />
+  const handleOpenChange = (open: boolean) => {
+    if (!open && handleClose) {
+      handleClose();
+    }
+  };
 
-        <div className="fixed inset-0 z-30 overflow-y-auto">
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogPortal>
+        <DialogOverlay />
+        <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className={position}>
-            <Transition.Child
-              as={Dialog.Panel}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            <DialogContent
+              showCloseButton={false}
               className={cn(
-                "relative transform rounded-lg bg-surface-1 text-left shadow-raised-200 transition-all w-full",
+                "relative transform rounded-lg bg-surface-1 text-left shadow-raised-200 w-full",
+                "static translate-x-0 translate-y-0 p-0 border-0",
                 width,
                 className
               )}
             >
               {children}
-            </Transition.Child>
+            </DialogContent>
           </div>
         </div>
-      </Dialog>
-    </Transition.Root>
+      </DialogPortal>
+    </Dialog>
   );
 }
