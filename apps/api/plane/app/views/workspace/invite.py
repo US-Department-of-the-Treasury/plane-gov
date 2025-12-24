@@ -306,8 +306,10 @@ class WorkspaceJoinEndpoint(BaseAPIView):
                         )
 
                     # Set the user last_workspace_id to the accepted workspace
-                    user.profile.last_workspace_id = workspace_invite.workspace.id
-                    user.profile.save(update_fields=['last_workspace_id'])
+                    # Use get_or_create in case profile doesn't exist (legacy edge case)
+                    profile, _ = Profile.objects.get_or_create(user=user)
+                    profile.last_workspace_id = workspace_invite.workspace.id
+                    profile.save(update_fields=['last_workspace_id'])
 
                     # Delete the invitation record (backward compatibility cleanup)
                     workspace_invite.delete()
