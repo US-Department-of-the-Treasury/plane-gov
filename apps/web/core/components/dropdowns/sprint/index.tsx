@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useTranslation } from "@plane/i18n";
 // ui
 import { SprintIcon, ChevronDownIcon } from "@plane/propel/icons";
-import { ComboDropDown } from "@plane/ui";
+import { RadixComboDropDown } from "@plane/ui";
 // helpers
 import { cn } from "@plane/utils";
 // hooks
@@ -132,12 +132,12 @@ export const SprintDropdown = memo(function SprintDropdown(props: Props) {
   );
 
   return (
-    <ComboDropDown
+    <RadixComboDropDown
       as="div"
       ref={dropdownRef}
       className={cn("h-full", className)}
       value={value}
-      onChange={dropdownOnChange}
+      onChange={dropdownOnChange as (value: unknown) => void}
       disabled={disabled}
       onKeyDown={handleKeyDown}
       button={comboButton}
@@ -153,6 +153,6 @@ export const SprintDropdown = memo(function SprintDropdown(props: Props) {
           currentSprintId={currentSprintId}
         />
       )}
-    </ComboDropDown>
+    </RadixComboDropDown>
   );
 });

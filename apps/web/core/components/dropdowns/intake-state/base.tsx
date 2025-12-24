@@ -1,13 +1,11 @@
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import { usePopper } from "react-popper";
 import { Search } from "lucide-react";
-import { Combobox } from "@headlessui/react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { IntakeStateGroupIcon, ChevronDownIcon } from "@plane/propel/icons";
 import type { IIntakeState } from "@plane/types";
-import { ComboDropDown, Spinner } from "@plane/ui";
+import { RadixComboDropDown, RadixComboOptions, RadixComboInput, Spinner } from "@plane/ui";
 import { cn } from "@plane/utils";
 // components
 import { DropdownButton } from "@/components/dropdowns/buttons";
@@ -68,7 +66,6 @@ export function WorkItemStateDropdownBase(props: TWorkItemStateDropdownBaseProps
   const inputRef = useRef<HTMLInputElement | null>(null);
   // popper-js refs
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   // states
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -77,18 +74,6 @@ export function WorkItemStateDropdownBase(props: TWorkItemStateDropdownBaseProps
   const statesList = stateIds.map((stateId) => getStateById(stateId)).filter((state) => !!state);
   const defaultState = statesList?.find((state) => state?.default) || statesList[0];
   const stateValue = value ? value : showDefaultState ? defaultState?.id : undefined;
-  // popper-js init
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: placement ?? "bottom-start",
-    modifiers: [
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 12,
-        },
-      },
-    ],
-  });
   // dropdown init
   const { handleClose, handleKeyDown, handleOnClick, searchInputKeyDown } = useDropdown({
     dropdownRef,
@@ -194,60 +179,55 @@ export function WorkItemStateDropdownBase(props: TWorkItemStateDropdownBaseProps
   );
 
   return (
-    <ComboDropDown
+    <RadixComboDropDown
       as="div"
       ref={dropdownRef}
       className={cn("h-full", className)}
       value={stateValue}
-      onChange={dropdownOnChange}
+      onChange={dropdownOnChange as (value: unknown) => void}
       disabled={disabled}
       onKeyDown={handleKeyDown}
       button={comboButton}
       renderByDefault={renderByDefault}
     >
       {isOpen && (
-        <Combobox.Options className="fixed z-10" static>
-          <div
-            className="my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none"
-            ref={setPopperElement}
-            style={styles.popper}
-            {...attributes.popper}
-          >
-            <div className="flex items-center gap-1.5 rounded-sm border border-subtle bg-surface-2 px-2">
-              <Search className="h-3.5 w-3.5 text-placeholder" strokeWidth={1.5} />
-              <Combobox.Input
-                as="input"
-                ref={inputRef}
-                className="w-full bg-transparent py-1 text-11 text-secondary placeholder:text-placeholder focus:outline-none"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t("common.search.label")}
-                displayValue={(assigned: any) => assigned?.name}
-                onKeyDown={searchInputKeyDown}
-              />
-            </div>
-            <div className="mt-2 max-h-48 space-y-1 overflow-y-scroll">
-              {filteredOptions ? (
-                filteredOptions.length > 0 ? (
-                  filteredOptions.map((option) => (
-                    <StateOption
-                      {...props}
-                      key={option.value}
-                      option={option}
-                      selectedValue={value}
-                      className="flex w-full cursor-pointer select-none items-center justify-between gap-2 truncate rounded-sm px-1 py-1.5"
-                    />
-                  ))
-                ) : (
-                  <p className="px-1.5 py-1 italic text-placeholder">{t("no_matching_results")}</p>
-                )
-              ) : (
-                <p className="px-1.5 py-1 italic text-placeholder">{t("loading")}</p>
-              )}
-            </div>
+        <RadixComboOptions
+          static
+          placement={placement ?? "bottom-start"}
+          referenceElement={referenceElement}
+          className="my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none"
+        >
+          <div className="flex items-center gap-1.5 rounded-sm border border-subtle bg-surface-2 px-2">
+            <Search className="h-3.5 w-3.5 text-placeholder" strokeWidth={1.5} />
+            <RadixComboInput
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("common.search.label")}
+              onKeyDown={searchInputKeyDown}
+            />
           </div>
-        </Combobox.Options>
+          <div className="mt-2 max-h-48 space-y-1 overflow-y-scroll">
+            {filteredOptions ? (
+              filteredOptions.length > 0 ? (
+                filteredOptions.map((option) => (
+                  <StateOption
+                    {...props}
+                    key={option.value}
+                    option={option}
+                    selectedValue={value}
+                    className="flex w-full cursor-pointer select-none items-center justify-between gap-2 truncate rounded-sm px-1 py-1.5"
+                  />
+                ))
+              ) : (
+                <p className="px-1.5 py-1 italic text-placeholder">{t("no_matching_results")}</p>
+              )
+            ) : (
+              <p className="px-1.5 py-1 italic text-placeholder">{t("loading")}</p>
+            )}
+          </div>
+        </RadixComboOptions>
       )}
-    </ComboDropDown>
+    </RadixComboDropDown>
   );
 }
