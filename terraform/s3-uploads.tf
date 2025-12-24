@@ -41,6 +41,7 @@ resource "aws_s3_bucket_public_access_block" "uploads" {
 }
 
 # CORS configuration for browser-based uploads via presigned URLs
+# Single-domain architecture: all apps served from plane.awsdev.treasury.gov
 resource "aws_s3_bucket_cors_configuration" "uploads" {
   bucket = aws_s3_bucket.uploads.id
 
@@ -48,11 +49,11 @@ resource "aws_s3_bucket_cors_configuration" "uploads" {
     allowed_headers = ["*"]
     allowed_methods = ["GET", "PUT", "POST", "DELETE", "HEAD"]
     allowed_origins = var.domain_name != "" ? [
-      "https://${var.domain_name}",
-      "https://admin.${var.domain_name}"
+      "https://${var.domain_name}"
     ] : [
       "http://localhost:3000",
-      "http://localhost:3001"
+      "http://localhost:3001",
+      "http://localhost:3002"
     ]
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
