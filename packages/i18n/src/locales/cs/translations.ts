@@ -1419,9 +1419,14 @@ export default {
         title: "Soukromý",
         description: "Přístupné pouze na pozvání",
       },
+      shared: {
+        title: "Sdílený",
+        description: "Kdokoli v prostoru kromě hostů se může připojit",
+      },
       public: {
         title: "Veřejný",
-        description: "Kdokoli v prostoru kromě hostů se může připojit",
+        description: "Přístupné komukoliv na internetu",
+        disabled_tooltip: "Veřejné projekty zatím nejsou k dispozici",
       },
     },
     error: {

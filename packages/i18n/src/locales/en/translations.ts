@@ -1254,9 +1254,14 @@ export default {
         title: "Private",
         description: "Accessible only by invite",
       },
+      shared: {
+        title: "Shared",
+        description: "Anyone in the workspace except Guests can join",
+      },
       public: {
         title: "Public",
-        description: "Anyone in the workspace except Guests can join",
+        description: "Accessible to anyone on the internet",
+        disabled_tooltip: "Public projects are not yet available",
       },
     },
     error: {

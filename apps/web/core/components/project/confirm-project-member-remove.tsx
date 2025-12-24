@@ -87,7 +87,7 @@ export function ConfirmProjectMemberRemove(props: Props) {
                             <>
                               Are you sure you want to leave the{" "}
                               <span className="font-bold">{currentProjectDetails?.name}</span> project? You will be able
-                              to join the project if invited again or if it{"'"}s public.
+                              to join the project if invited again or if it{"'"}s shared.
                             </>
                           ) : (
                             <>
