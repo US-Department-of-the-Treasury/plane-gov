@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { Combobox } from "@headlessui/react";
+import { RadixComboOption } from "@plane/ui";
 import { cn } from "@plane/utils";
 
 export type TStateOptionProps = {
@@ -20,9 +20,9 @@ export function StateOption(props: TStateOptionProps) {
   const { option, className = "" } = props;
 
   return (
-    <Combobox.Option
+    <RadixComboOption
       key={option.value}
-      value={option.value}
+      value={option.value ?? ""}
       className={({ active, selected }) =>
         cn(`${className} ${active ? "bg-layer-transparent-hover" : ""} ${selected ? "text-primary" : "text-secondary"}`)
       }
@@ -33,6 +33,6 @@ export function StateOption(props: TStateOptionProps) {
           {selected && <Check className="h-3.5 w-3.5 flex-shrink-0" />}
         </>
       )}
-    </Combobox.Option>
+    </RadixComboOption>
   );
 }

@@ -1,14 +1,12 @@
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { usePopper } from "react-popper";
 import { Check, Search } from "lucide-react";
-import { Combobox } from "@headlessui/react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { EstimatePropertyIcon, ChevronDownIcon } from "@plane/propel/icons";
 import { EEstimateSystem } from "@plane/types";
-import { ComboDropDown } from "@plane/ui";
+import { RadixComboDropDown, RadixComboOptions, RadixComboInput, RadixComboOption, RadixComboList } from "@plane/ui";
 import { convertMinutesToHoursMinutesString, cn } from "@plane/utils";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
@@ -68,23 +66,10 @@ export function EstimateDropdown(props: Props) {
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  // popper-js refs
+  // button ref
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  // popper-js init
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: placement ?? "bottom-start",
-    modifiers: [
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 12,
-        },
-      },
-    ],
-  });
   // router
-  const { workspaceSlug } = useParams();
+  const { workspaceSlug: _workspaceSlug } = useParams();
   // store hooks
   const { currentActiveEstimateIdByProjectId, getEstimateById } = useProjectEstimates();
   const currentActiveEstimateId = projectId ? currentActiveEstimateIdByProjectId(projectId) : undefined;
@@ -109,9 +94,12 @@ export function EstimateDropdown(props: Props) {
             </div>
           ),
         };
-      else undefined;
+      return undefined;
     })
-    .filter((estimatePointDropdownOption): estimatePointDropdownOption is NonNullable<typeof estimatePointDropdownOption> => estimatePointDropdownOption != undefined) as DropdownOptions;
+    .filter(
+      (estimatePointDropdownOption): estimatePointDropdownOption is NonNullable<typeof estimatePointDropdownOption> =>
+        estimatePointDropdownOption != undefined
+    ) as DropdownOptions;
   options?.unshift({
     value: null,
     query: t("project_settings.estimates.no_estimate"),
@@ -143,8 +131,8 @@ export function EstimateDropdown(props: Props) {
     setQuery,
   });
 
-  const dropdownOnChange = (val: string | undefined) => {
-    onChange(val);
+  const dropdownOnChange = (val: unknown) => {
+    onChange(val as string | undefined);
     handleClose();
   };
 
@@ -204,7 +192,7 @@ export function EstimateDropdown(props: Props) {
   );
 
   return (
-    <ComboDropDown
+    <RadixComboDropDown
       as="div"
       ref={dropdownRef}
       tabIndex={tabIndex}
@@ -217,27 +205,20 @@ export function EstimateDropdown(props: Props) {
       renderByDefault={renderByDefault}
     >
       {isOpen && (
-        <Combobox.Options className="fixed z-10" static>
-          <div
-            className="my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none"
-            ref={setPopperElement}
-            style={styles.popper}
-            {...attributes.popper}
-          >
+        <RadixComboOptions static placement={placement ?? "bottom-start"} referenceElement={referenceElement}>
+          <div className="my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none">
             <div className="flex items-center gap-1.5 rounded-sm border border-subtle bg-surface-2 px-2">
               <Search className="h-3.5 w-3.5 text-placeholder" strokeWidth={1.5} />
-              <Combobox.Input
-                as="input"
+              <RadixComboInput
                 ref={inputRef}
                 className="w-full bg-transparent py-1 text-11 text-secondary placeholder:text-placeholder focus:outline-none"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("common.search.placeholder")}
-                displayValue={(assigned: any) => assigned?.name}
                 onKeyDown={searchInputKeyDown}
               />
             </div>
-            <div className="mt-2 max-h-48 space-y-1 overflow-y-scroll">
+            <RadixComboList className="mt-2 space-y-1">
               {currentActiveEstimateId === undefined ? (
                 <div
                   className={`flex w-full cursor-pointer select-none items-center justify-between gap-2 truncate rounded-sm px-1 py-1.5 text-secondary`}
@@ -253,7 +234,7 @@ export function EstimateDropdown(props: Props) {
                   {filteredOptions ? (
                     filteredOptions.length > 0 ? (
                       filteredOptions.map((option) => (
-                        <Combobox.Option key={option.value} value={option.value}>
+                        <RadixComboOption key={option.value} value={option.value ?? ""}>
                           {({ active, selected }) => (
                             <div
                               className={cn(
@@ -269,7 +250,7 @@ export function EstimateDropdown(props: Props) {
                               {selected && <Check className="h-3.5 w-3.5 flex-shrink-0" />}
                             </div>
                           )}
-                        </Combobox.Option>
+                        </RadixComboOption>
                       ))
                     ) : (
                       <p className="px-1.5 py-1 italic text-placeholder">{t("common.search.no_matching_results")}</p>
@@ -279,10 +260,10 @@ export function EstimateDropdown(props: Props) {
                   )}
                 </>
               )}
-            </div>
+            </RadixComboList>
           </div>
-        </Combobox.Options>
+        </RadixComboOptions>
       )}
-    </ComboDropDown>
+    </RadixComboDropDown>
   );
 }
