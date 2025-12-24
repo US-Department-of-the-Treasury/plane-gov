@@ -1,21 +1,22 @@
 import * as React from "react";
-// helpers
-import clsx from "clsx";
+import { cn } from "../utils";
+import { spinnerVariants  } from "./helper";
+import type {SpinnerProps} from "./helper";
 
-export interface ISpinner extends React.SVGAttributes<SVGElement> {
-  height?: string;
-  width?: string;
-  className?: string | undefined;
-}
+export const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(function Spinner(
+  { size, height, width, className, ...props },
+  ref
+) {
+  // Support legacy height/width props for backward compatibility
+  const legacyStyle = height || width ? { height, width } : undefined;
+  const useLegacySize = Boolean(height || width);
 
-export function Spinner({ height = "32px", width = "32px", className = "" }: ISpinner) {
   return (
-    <div role="status">
+    <div ref={ref} role="status" {...props}>
       <svg
         aria-hidden="true"
-        height={height}
-        width={width}
-        className={clsx("animate-spin text-secondary", className)}
+        style={legacyStyle}
+        className={cn(spinnerVariants({ size: useLegacySize ? undefined : size }), className)}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -32,4 +33,6 @@ export function Spinner({ height = "32px", width = "32px", className = "" }: ISp
       <span className="sr-only">Loading...</span>
     </div>
   );
-}
+});
+
+Spinner.displayName = "Spinner";
