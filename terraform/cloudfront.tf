@@ -19,74 +19,105 @@ resource "aws_cloudfront_origin_access_control" "unified" {
 }
 
 # CloudFront Function to strip /god-mode prefix and handle SPA routing
+# NOTE: Using file() instead of heredoc to prevent encoding corruption issues
 resource "aws_cloudfront_function" "admin_path_rewrite" {
   name    = "${var.project_name}-admin-path-rewrite"
   runtime = "cloudfront-js-2.0"
   comment = "Strip /god-mode prefix for admin app requests"
   publish = true
-  code    = <<-EOF
-    function handler(event) {
-      var request = event.request;
-      var uri = request.uri;
-
-      // Strip /god-mode prefix
-      uri = uri.replace(/^\/god-mode/, '') || '/';
-
-      // SPA routing: if no extension, serve index.html
-      if (!uri.includes('.') || uri === '/') {
-        uri = '/index.html';
-      }
-
-      request.uri = uri;
-      return request;
-    }
-  EOF
+  code    = file("${path.module}/cloudfront-functions/admin-path-rewrite.js")
 }
 
 # CloudFront Function to strip /spaces prefix and handle SPA routing
+# NOTE: Using file() instead of heredoc to prevent encoding corruption issues
 resource "aws_cloudfront_function" "space_path_rewrite" {
   name    = "${var.project_name}-space-path-rewrite"
   runtime = "cloudfront-js-2.0"
   comment = "Strip /spaces prefix for space app requests"
   publish = true
-  code    = <<-EOF
-    function handler(event) {
-      var request = event.request;
-      var uri = request.uri;
-
-      // Strip /spaces prefix
-      uri = uri.replace(/^\/spaces/, '') || '/';
-
-      // SPA routing: if no extension, serve index.html
-      if (!uri.includes('.') || uri === '/') {
-        uri = '/index.html';
-      }
-
-      request.uri = uri;
-      return request;
-    }
-  EOF
+  code    = file("${path.module}/cloudfront-functions/space-path-rewrite.js")
 }
 
 # CloudFront Function for web app SPA routing
+# NOTE: Using file() instead of heredoc to prevent encoding corruption issues
 resource "aws_cloudfront_function" "web_spa_routing" {
   name    = "${var.project_name}-web-spa-routing"
   runtime = "cloudfront-js-2.0"
-  comment = "Handle SPA routing for web app"
+  comment = "Handle SPA routing for web app and redirect /god-mode, /spaces to trailing slash"
   publish = true
-  code    = <<-EOF
-    function handler(event) {
-      var request = event.request;
-      var uri = request.uri;
+  code    = file("${path.module}/cloudfront-functions/web-spa-routing.js")
+}
 
-      // SPA routing: if no extension, serve index.html
-      if (!uri.includes('.')) {
-        request.uri = '/index.html';
-      }
+# ==============================================================================
+# CloudFront Function Validation
+# ==============================================================================
+# Tests each function after deployment to catch encoding corruption early.
+# If a function fails validation, terraform apply will fail with a clear error.
 
-      return request;
-    }
-  EOF
+resource "null_resource" "validate_cloudfront_functions" {
+  # Re-run validation whenever function code changes
+  triggers = {
+    web_spa_routing_etag    = aws_cloudfront_function.web_spa_routing.etag
+    admin_path_rewrite_etag = aws_cloudfront_function.admin_path_rewrite.etag
+    space_path_rewrite_etag = aws_cloudfront_function.space_path_rewrite.etag
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOF
+      set -e
+      echo "Validating CloudFront functions..."
+
+      # Test web_spa_routing function
+      ETAG=$(aws cloudfront describe-function --name ${aws_cloudfront_function.web_spa_routing.name} --stage LIVE --query 'ETag' --output text)
+      RESULT=$(aws cloudfront test-function \
+        --name ${aws_cloudfront_function.web_spa_routing.name} \
+        --stage LIVE \
+        --if-match "$ETAG" \
+        --event-object "$(echo '{"version":"1.0","context":{"eventType":"viewer-request"},"viewer":{"ip":"1.2.3.4"},"request":{"method":"GET","uri":"/test","querystring":{},"headers":{}}}' | base64)" \
+        --query 'TestResult.FunctionErrorMessage' --output text 2>&1)
+      if [ "$RESULT" != "None" ] && [ -n "$RESULT" ]; then
+        echo "ERROR: web_spa_routing function validation failed: $RESULT"
+        exit 1
+      fi
+      echo "  web_spa_routing: OK"
+
+      # Test admin_path_rewrite function
+      ETAG=$(aws cloudfront describe-function --name ${aws_cloudfront_function.admin_path_rewrite.name} --stage LIVE --query 'ETag' --output text)
+      RESULT=$(aws cloudfront test-function \
+        --name ${aws_cloudfront_function.admin_path_rewrite.name} \
+        --stage LIVE \
+        --if-match "$ETAG" \
+        --event-object "$(echo '{"version":"1.0","context":{"eventType":"viewer-request"},"viewer":{"ip":"1.2.3.4"},"request":{"method":"GET","uri":"/god-mode/test","querystring":{},"headers":{}}}' | base64)" \
+        --query 'TestResult.FunctionErrorMessage' --output text 2>&1)
+      if [ "$RESULT" != "None" ] && [ -n "$RESULT" ]; then
+        echo "ERROR: admin_path_rewrite function validation failed: $RESULT"
+        exit 1
+      fi
+      echo "  admin_path_rewrite: OK"
+
+      # Test space_path_rewrite function
+      ETAG=$(aws cloudfront describe-function --name ${aws_cloudfront_function.space_path_rewrite.name} --stage LIVE --query 'ETag' --output text)
+      RESULT=$(aws cloudfront test-function \
+        --name ${aws_cloudfront_function.space_path_rewrite.name} \
+        --stage LIVE \
+        --if-match "$ETAG" \
+        --event-object "$(echo '{"version":"1.0","context":{"eventType":"viewer-request"},"viewer":{"ip":"1.2.3.4"},"request":{"method":"GET","uri":"/spaces/test","querystring":{},"headers":{}}}' | base64)" \
+        --query 'TestResult.FunctionErrorMessage' --output text 2>&1)
+      if [ "$RESULT" != "None" ] && [ -n "$RESULT" ]; then
+        echo "ERROR: space_path_rewrite function validation failed: $RESULT"
+        exit 1
+      fi
+      echo "  space_path_rewrite: OK"
+
+      echo "All CloudFront functions validated successfully!"
+    EOF
+  }
+
+  depends_on = [
+    aws_cloudfront_function.web_spa_routing,
+    aws_cloudfront_function.admin_path_rewrite,
+    aws_cloudfront_function.space_path_rewrite,
+  ]
 }
 
 # Use AWS managed CachingDisabled policy for API
