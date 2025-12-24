@@ -1,3 +1,22 @@
+"use client";
+
+/**
+ * ComboDropDown - HeadlessUI Combobox wrapper
+ *
+ * BACKWARDS COMPATIBILITY NOTE:
+ * This component uses HeadlessUI Combobox for backwards compatibility with
+ * existing consumers that directly use Combobox.Options, Combobox.Input,
+ * and Combobox.Option as children. Those consumers import these primitives
+ * directly from @headlessui/react.
+ *
+ * For new code, consider using CustomSearchSelect from @plane/ui which is
+ * fully Radix-based.
+ *
+ * Consumer migration to Radix will require updating each consumer file to:
+ * 1. Use the new Radix-based adapter components (ComboOptions, ComboOption, ComboInput)
+ * 2. Stop importing from @headlessui/react
+ */
+
 import { Combobox } from "@headlessui/react";
 import type { ElementType, KeyboardEventHandler, ReactNode, Ref } from "react";
 import { forwardRef, useEffect, useRef, useState } from "react";
@@ -8,7 +27,7 @@ type Props = {
   tabIndex?: number | undefined;
   className?: string | undefined;
   value?: string | string[] | null;
-  onChange?: (value: any) => void;
+  onChange?: (value: unknown) => void;
   disabled?: boolean | undefined;
   onKeyDown?: KeyboardEventHandler<HTMLDivElement> | undefined;
   multiple?: boolean;
@@ -31,7 +50,7 @@ const ComboDropDown = forwardRef(function ComboDropDown(props: Props, ref) {
   };
 
   useEffect(() => {
-    const element = dropDownButtonRef.current as any;
+    const element = dropDownButtonRef.current;
 
     if (!element) return;
 
@@ -60,6 +79,8 @@ const ComboDropDown = forwardRef(function ComboDropDown(props: Props, ref) {
   );
 });
 
+// Re-export HeadlessUI Combobox primitives for backwards compatibility
+// These are kept for consumers that directly use them
 const ComboOptions = Combobox.Options;
 const ComboOption = Combobox.Option;
 const ComboInput = Combobox.Input;
