@@ -329,8 +329,9 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
     }
 
     # Updated CSP to work with single domain
+    # connect-src includes S3 for presigned URL uploads
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' wss://${var.domain_name != "" ? var.domain_name : "localhost"};"
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' wss://${var.domain_name != "" ? var.domain_name : "localhost"} https://*.s3.amazonaws.com https://*.s3.${var.aws_region}.amazonaws.com;"
       override                = true
     }
   }
