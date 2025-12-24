@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Loader2 } from "lucide-react";
 import { cn } from "../utils";
 import type { ButtonProps } from "./helper";
 import { getIconStyling, buttonVariants } from "./helper";
@@ -27,9 +28,15 @@ const Button = React.forwardRef(function Button(props: ButtonProps, ref: React.F
       disabled={disabled || loading}
       {...rest}
     >
-      {prependIcon && React.cloneElement(prependIcon, { className: cn("shrink-0", buttonIconStyle), strokeWidth: 2 })}
+      {loading ? (
+        <Loader2 className={cn("shrink-0 animate-spin", buttonIconStyle)} strokeWidth={2} />
+      ) : (
+        prependIcon && React.cloneElement(prependIcon, { className: cn("shrink-0", buttonIconStyle), strokeWidth: 2 })
+      )}
       {children}
-      {appendIcon && React.cloneElement(appendIcon, { className: cn("shrink-0", buttonIconStyle), strokeWidth: 2 })}
+      {appendIcon &&
+        !loading &&
+        React.cloneElement(appendIcon, { className: cn("shrink-0", buttonIconStyle), strokeWidth: 2 })}
     </button>
   );
 });

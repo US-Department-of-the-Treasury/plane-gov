@@ -201,3 +201,49 @@ export const AllStates: Story = {
     );
   },
 };
+
+export const LoadingVariants: Story = {
+  render() {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <h3 className="text-16 font-semibold">Loading States by Variant</h3>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="primary" loading>
+              Primary
+            </Button>
+            <Button variant="secondary" loading>
+              Secondary
+            </Button>
+            <Button variant="tertiary" loading>
+              Tertiary
+            </Button>
+            <Button variant="ghost" loading>
+              Ghost
+            </Button>
+            <Button variant="error-fill" loading>
+              Error
+            </Button>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-16 font-semibold">Loading States by Size</h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" loading>
+              Small
+            </Button>
+            <Button size="base" loading>
+              Base
+            </Button>
+            <Button size="lg" loading>
+              Large
+            </Button>
+            <Button size="xl" loading>
+              Extra Large
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  },
+};
