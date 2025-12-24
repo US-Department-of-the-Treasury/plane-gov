@@ -37,6 +37,7 @@ export default defineConfig({
     "src/toolbar/index.ts",
     "src/tooltip/index.ts",
     "src/utils/index.ts",
+    "src/primitives/index.ts",
   ],
   format: ["esm"],
   dts: true,
