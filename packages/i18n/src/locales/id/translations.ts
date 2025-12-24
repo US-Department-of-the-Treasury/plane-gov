@@ -1424,9 +1424,14 @@ export default {
         title: "Pribadi",
         description: "Dapat diakses hanya dengan undangan",
       },
+      shared: {
+        title: "Berbagi",
+        description: "Siapa pun di ruang kerja kecuali Tamu dapat bergabung",
+      },
       public: {
         title: "Umum",
-        description: "Siapa pun di ruang kerja kecuali Tamu dapat bergabung",
+        description: "Dapat diakses oleh siapa pun di internet",
+        disabled_tooltip: "Proyek umum belum tersedia",
       },
     },
     error: {

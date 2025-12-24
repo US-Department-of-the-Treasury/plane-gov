@@ -1435,9 +1435,14 @@ export default {
         title: "Privat",
         description: "Nur auf Einladung zugänglich",
       },
+      shared: {
+        title: "Geteilt",
+        description: "Jeder im Arbeitsbereich außer Gästen kann beitreten",
+      },
       public: {
         title: "Öffentlich",
-        description: "Jeder im Arbeitsbereich außer Gästen kann beitreten",
+        description: "Für jeden im Internet zugänglich",
+        disabled_tooltip: "Öffentliche Projekte sind noch nicht verfügbar",
       },
     },
     error: {

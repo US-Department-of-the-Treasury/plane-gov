@@ -4,7 +4,7 @@ import string
 import uuid
 
 import pytz
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager as DjangoUserManager
 
 # Django imports
 from django.db import models
@@ -16,6 +16,28 @@ from django.utils import timezone
 from plane.db.models import FileAsset
 from ..mixins import TimeAuditModel
 from plane.utils.color import get_random_color
+
+
+class UserStatusChoices(models.TextChoices):
+    INVITED = "invited", "Invited"
+    ACTIVE = "active", "Active"
+    DEACTIVATED = "deactivated", "Deactivated"
+
+
+class UserManager(DjangoUserManager):
+    """Custom user manager with convenience query methods."""
+
+    def active(self):
+        """Return users with active status."""
+        return self.filter(status=UserStatusChoices.ACTIVE)
+
+    def invited(self):
+        """Return users with invited (pending) status."""
+        return self.filter(status=UserStatusChoices.INVITED)
+
+    def assignable(self):
+        """Return users who can be assigned to projects/issues (active or invited)."""
+        return self.filter(status__in=[UserStatusChoices.ACTIVE, UserStatusChoices.INVITED])
 
 
 def get_default_onboarding():
@@ -110,6 +132,25 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # masking
     masked_at = models.DateTimeField(null=True)
+
+    # user status (shadow user pattern)
+    status = models.CharField(
+        max_length=20,
+        choices=UserStatusChoices.choices,
+        default=UserStatusChoices.ACTIVE,
+        db_index=True,
+    )
+    invited_at = models.DateTimeField(null=True, blank=True)
+    invited_by = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="invited_users",
+    )
+    activated_at = models.DateTimeField(null=True, blank=True)
+    invitation_token = models.CharField(max_length=64, null=True, blank=True, db_index=True)
+    invitation_expires_at = models.DateTimeField(null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]

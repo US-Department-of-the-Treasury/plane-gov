@@ -1427,9 +1427,14 @@ export default {
         title: "Privato",
         description: "Accessibile solo su invito",
       },
+      shared: {
+        title: "Condiviso",
+        description: "Chiunque nello spazio di lavoro, tranne gli ospiti, può unirsi",
+      },
       public: {
         title: "Pubblico",
-        description: "Chiunque nello spazio di lavoro, tranne gli ospiti, può unirsi",
+        description: "Accessibile a chiunque su internet",
+        disabled_tooltip: "I progetti pubblici non sono ancora disponibili",
       },
     },
     error: {

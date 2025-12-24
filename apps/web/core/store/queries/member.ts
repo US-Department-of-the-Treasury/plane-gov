@@ -160,6 +160,9 @@ export function useInviteWorkspaceMembers() {
   return useMutation({
     mutationFn: ({ workspaceSlug, data }: InviteMembersParams) => workspaceService.inviteWorkspace(workspaceSlug, data),
     onSettled: (_data, _error, { workspaceSlug }) => {
+      // Invalidate workspace members - invited users are now shadow users with WorkspaceMember records
+      void queryClient.invalidateQueries({ queryKey: queryKeys.members.workspace(workspaceSlug) });
+      // Also invalidate invitations for backward compatibility (pending invites section)
       void queryClient.invalidateQueries({ queryKey: [...queryKeys.members.workspace(workspaceSlug), "invitations"] });
     },
   });
@@ -207,6 +210,8 @@ export function useUpdateWorkspaceInvitation() {
       }
     },
     onSettled: (_data, _error, { workspaceSlug }) => {
+      // Invalidate workspace members - role changes should sync to the shadow user's membership
+      void queryClient.invalidateQueries({ queryKey: queryKeys.members.workspace(workspaceSlug) });
       void queryClient.invalidateQueries({ queryKey: [...queryKeys.members.workspace(workspaceSlug), "invitations"] });
     },
   });
@@ -253,6 +258,8 @@ export function useDeleteWorkspaceInvitation() {
       }
     },
     onSettled: (_data, _error, { workspaceSlug }) => {
+      // Invalidate workspace members - deleting invitation deactivates the shadow user
+      void queryClient.invalidateQueries({ queryKey: queryKeys.members.workspace(workspaceSlug) });
       void queryClient.invalidateQueries({ queryKey: [...queryKeys.members.workspace(workspaceSlug), "invitations"] });
     },
   });
@@ -512,7 +519,7 @@ export function getProjectMemberIds(members: TProjectMembership[] | undefined): 
 export function getProjectUserIds(members: TProjectMembership[] | undefined): string[] {
   if (!members) return [];
   // TProjectMembership.member is a string (user ID), not an object
-  return members.filter((m) => m.member && typeof m.member === "string").map((m) => m.member as string);
+  return members.filter((m) => m.member && typeof m.member === "string").map((m) => m.member);
 }
 
 /**
@@ -576,9 +583,9 @@ interface GenerateFakeMembersParams {
   count: number;
 }
 
-interface GenerateFakeMembersResponse {
+interface _GenerateFakeMembersResponse {
   message: string;
-  users: { id: string; email: string; display_name: string; }[];
+  users: { id: string; email: string; display_name: string }[];
 }
 
 /**

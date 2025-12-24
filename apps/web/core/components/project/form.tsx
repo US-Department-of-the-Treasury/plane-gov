@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Info, Lock } from "lucide-react";
+import { Info, Lock, Building } from "lucide-react";
 import { NETWORK_CHOICES, PROJECT_TRACKER_ELEMENTS, PROJECT_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 // plane imports
@@ -258,7 +258,8 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
               <span className="flex items-center gap-2 text-13">
                 <span>{watch("identifier")} .</span>
                 <span className="flex items-center gap-1.5">
-                  {project.network === 0 && <Lock className="h-2.5 w-2.5 text-on-color " />}
+                  {project.network === 0 && <Lock className="h-2.5 w-2.5 text-on-color" />}
+                  {project.network === 2 && <Building className="h-2.5 w-2.5 text-on-color" />}
                   {currentNetwork && t(currentNetwork?.i18n_label)}
                 </span>
               </span>
@@ -407,7 +408,7 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
                     disabled={!isAdmin}
                     // optionsClassName="w-full"
                   >
-                    {NETWORK_CHOICES.map((network) => (
+                    {NETWORK_CHOICES.filter((n) => !n.disabled).map((network) => (
                       <CustomSelect.Option key={network.key} value={network.key}>
                         <div className="flex items-start gap-2">
                           <ProjectNetworkIcon iconKey={network.iconKey} className="h-3.5 w-3.5" />
@@ -417,6 +418,25 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
                           </div>
                         </div>
                       </CustomSelect.Option>
+                    ))}
+                    {/* Show disabled options with tooltip */}
+                    {NETWORK_CHOICES.filter((n) => n.disabled).map((network) => (
+                      <Tooltip
+                        key={network.key}
+                        tooltipContent={t("workspace_projects.network.public.disabled_tooltip")}
+                        isMobile={isMobile}
+                        position="right"
+                      >
+                        <div className="cursor-not-allowed select-none truncate rounded-sm px-1 py-1.5 text-placeholder flex items-center justify-between gap-2 opacity-50">
+                          <div className="flex items-start gap-2">
+                            <ProjectNetworkIcon iconKey={network.iconKey} className="h-3.5 w-3.5" />
+                            <div className="-mt-1">
+                              <p>{t(network.i18n_label)}</p>
+                              <p className="text-11 text-placeholder">{t(network.description)}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </Tooltip>
                     ))}
                   </CustomSelect>
                 );

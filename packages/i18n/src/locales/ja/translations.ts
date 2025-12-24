@@ -1413,13 +1413,19 @@ export default {
       label: "プロジェクトを追加",
     },
     network: {
+      label: "ネットワーク",
       private: {
         title: "非公開",
         description: "招待された人のみアクセス可能",
       },
+      shared: {
+        title: "共有",
+        description: "ゲスト以外のワークスペースの全員が参加可能",
+      },
       public: {
         title: "公開",
-        description: "ゲスト以外のワークスペースの全員が参加可能",
+        description: "インターネット上の誰でもアクセス可能",
+        disabled_tooltip: "公開プロジェクトはまだ利用できません",
       },
     },
     error: {

@@ -1431,13 +1431,19 @@ export default {
       label: "Ajouter un Projet",
     },
     network: {
+      label: "Réseau",
       private: {
         title: "Privé",
         description: "Accessible uniquement sur invitation",
       },
+      shared: {
+        title: "Partagé",
+        description: "Accessible à tous dans l'espace de travail, sauf les invités",
+      },
       public: {
         title: "Public",
-        description: "Accessible à tous dans l’espace de travail, sauf les invités",
+        description: "Accessible à tous sur Internet",
+        disabled_tooltip: "Les projets publics ne sont pas encore disponibles",
       },
     },
     error: {

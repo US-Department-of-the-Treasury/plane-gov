@@ -1420,9 +1420,14 @@ export default {
         title: "Prywatny",
         description: "Dostęp tylko na zaproszenie",
       },
+      shared: {
+        title: "Współdzielony",
+        description: "Każdy w przestrzeni, poza gośćmi, może dołączyć",
+      },
       public: {
         title: "Publiczny",
-        description: "Każdy w przestrzeni, poza gośćmi, może dołączyć",
+        description: "Dostępny dla każdego w internecie",
+        disabled_tooltip: "Projekty publiczne nie są jeszcze dostępne",
       },
     },
     error: {

@@ -1404,9 +1404,14 @@ export default {
         title: "私人",
         description: "僅受邀者可存取",
       },
+      shared: {
+        title: "共享",
+        description: "工作區中除了訪客以外的任何人都可以加入",
+      },
       public: {
         title: "公開",
-        description: "工作區中除了訪客以外的任何人都可以加入",
+        description: "網際網路上的任何人都可以存取",
+        disabled_tooltip: "公開專案尚未推出",
       },
     },
     error: {
