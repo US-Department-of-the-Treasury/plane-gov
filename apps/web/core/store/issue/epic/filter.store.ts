@@ -305,7 +305,9 @@ export class EpicIssuesFilter extends IssueFilterHelperStore implements IEpicIss
           this.store.setDisplayFilters(epicId, updatedDisplayFilters);
 
           if (this.getShouldClearIssues(updatedDisplayFilters)) {
-            this.rootIssueStore.epicIssues.clear(true); // clear issues for local store when some filters like layout changes
+            // Use clearAndSetLoader to atomically clear store AND set loader to prevent flash of empty state
+            // The new layout component's useEffect will trigger the fetch
+            this.rootIssueStore.epicIssues.clearAndSetLoader("init-loader", true);
           }
 
           if (this.getShouldReFetchIssues(updatedDisplayFilters)) {

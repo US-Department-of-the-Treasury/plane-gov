@@ -13,6 +13,7 @@ import { ProjectLevelWorkItemFiltersHOC } from "@/components/work-item-filters/f
 import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useSprintIssueFilters, useSprintLayout } from "@/hooks/store/use-issue-store-reactive";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
 import { queryKeys } from "@/store/queries/query-keys";
 // local imports
@@ -52,11 +53,14 @@ export function SprintLayoutRoot() {
   // store hooks
   const { issuesFilter } = useIssues(EIssuesStoreType.SPRINT);
   const { data: sprints } = useProjectSprints(workspaceSlug ?? "", projectId ?? "");
+  // Use reactive filter hooks - these properly subscribe to Zustand store changes
+  const reactiveFilters = useSprintIssueFilters();
+  // Get layout from the MobX wrapper's issueFilters getter - this uses the same source
+  // as the header component, ensuring consistent behavior when layout changes.
+  // The MobX wrapper re-reads from Zustand on each render, which works reliably.
+  const activeLayout = issuesFilter?.issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
   // state
   const [transferIssuesModal, setTransferIssuesModal] = useState(false);
-  // derived values
-  const workItemFilters = sprintId ? issuesFilter?.getIssueFilters(sprintId) : undefined;
-  const activeLayout = workItemFilters?.displayFilters?.layout;
 
   useQuery({
     queryKey: workspaceSlug && projectId && sprintId ? queryKeys.issues.sprint(sprintId) : [],
@@ -80,7 +84,7 @@ export function SprintLayoutRoot() {
     : 0;
   const canTransferIssues = isProgressSnapshotEmpty && transferableIssuesCount > 0;
 
-  if (!workspaceSlug || !projectId || !sprintId || !workItemFilters) return <></>;
+  if (!workspaceSlug || !projectId || !sprintId) return <></>;
   return (
     <IssuesStoreContext.Provider value={EIssuesStoreType.SPRINT}>
       <ProjectLevelWorkItemFiltersHOC
@@ -88,7 +92,7 @@ export function SprintLayoutRoot() {
         entityType={EIssuesStoreType.SPRINT}
         entityId={sprintId}
         filtersToShowByLayout={ISSUE_DISPLAY_FILTERS_BY_PAGE.issues.filters}
-        initialWorkItemFilters={workItemFilters}
+        initialWorkItemFilters={reactiveFilters ?? {}}
         updateFilters={issuesFilter?.updateFilterExpression.bind(issuesFilter, workspaceSlug, projectId, sprintId)}
         projectId={projectId}
         workspaceSlug={workspaceSlug}
@@ -118,6 +122,7 @@ export function SprintLayoutRoot() {
               )}
               <div className="h-full w-full overflow-auto">
                 <SprintIssueLayout
+                  key={activeLayout}
                   activeLayout={activeLayout}
                   sprintId={sprintId}
                   isCompletedSprint={isCompletedSprint}

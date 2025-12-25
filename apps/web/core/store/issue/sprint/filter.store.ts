@@ -36,6 +36,8 @@ interface SprintIssuesFilterActions {
   setDisplayFilters: (sprintId: string, displayFilters: Partial<IIssueDisplayFilterOptions>) => void;
   setDisplayProperties: (sprintId: string, displayProperties: Partial<IIssueDisplayProperties>) => void;
   setKanbanFilters: (sprintId: string, kanbanFilters: Partial<TIssueKanbanFilters>) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateFilterField: (sprintId: string, field: string, value: any) => void;
 }
 
 type SprintIssuesFilterStoreType = SprintIssuesFilterState & SprintIssuesFilterActions;
@@ -66,37 +68,49 @@ export const useSprintIssuesFilterStore = create<SprintIssuesFilterStoreType>()(
 
     setDisplayFilters: (sprintId, displayFilters) => {
       set((state) => {
-        if (!state.filters[sprintId]) {
-          state.filters[sprintId] = {} as IIssueFilters;
-        }
-        if (!state.filters[sprintId].displayFilters) {
-          state.filters[sprintId].displayFilters = {} as IIssueDisplayFilterOptions;
-        }
-        Object.assign(state.filters[sprintId].displayFilters!, displayFilters);
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[sprintId] = {
+          ...(state.filters[sprintId] ?? {}),
+          displayFilters: {
+            ...(state.filters[sprintId]?.displayFilters ?? {}),
+            ...displayFilters,
+          },
+        } as IIssueFilters;
       });
     },
 
     setDisplayProperties: (sprintId, displayProperties) => {
       set((state) => {
-        if (!state.filters[sprintId]) {
-          state.filters[sprintId] = {} as IIssueFilters;
-        }
-        if (!state.filters[sprintId].displayProperties) {
-          state.filters[sprintId].displayProperties = {} as IIssueDisplayProperties;
-        }
-        Object.assign(state.filters[sprintId].displayProperties!, displayProperties);
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[sprintId] = {
+          ...(state.filters[sprintId] ?? {}),
+          displayProperties: {
+            ...(state.filters[sprintId]?.displayProperties ?? {}),
+            ...displayProperties,
+          },
+        } as IIssueFilters;
       });
     },
 
     setKanbanFilters: (sprintId, kanbanFilters) => {
       set((state) => {
-        if (!state.filters[sprintId]) {
-          state.filters[sprintId] = {} as IIssueFilters;
-        }
-        if (!state.filters[sprintId].kanbanFilters) {
-          state.filters[sprintId].kanbanFilters = {} as TIssueKanbanFilters;
-        }
-        Object.assign(state.filters[sprintId].kanbanFilters!, kanbanFilters);
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[sprintId] = {
+          ...(state.filters[sprintId] ?? {}),
+          kanbanFilters: {
+            ...(state.filters[sprintId]?.kanbanFilters ?? {}),
+            ...kanbanFilters,
+          },
+        } as IIssueFilters;
+      });
+    },
+
+    updateFilterField: (sprintId, field, value) => {
+      set((state) => {
+        // Use string path notation so lodash properly handles nested keys like "displayFilters.layout"
+        // This matches the working pattern from project/filter.store.ts
+        // With immer middleware, lodashSet allows proper mutation tracking at each path level
+        lodashSet(state.filters, `${sprintId}.${field}`, value);
       });
     },
   }))
@@ -212,11 +226,20 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
   };
 
   fetchFilters = async (workspaceSlug: string, projectId: string, sprintId: string) => {
-    const _filters = await this.issueFilterService.fetchSprintIssueFilters(workspaceSlug, projectId, sprintId);
+    let richFilters: TWorkItemFilterExpression = {};
+    let displayFilters: IIssueDisplayFilterOptions;
+    let displayProperties: IIssueDisplayProperties;
 
-    const richFilters: TWorkItemFilterExpression = _filters?.rich_filters;
-    const displayFilters: IIssueDisplayFilterOptions = this.computedDisplayFilters(_filters?.display_filters);
-    const displayProperties: IIssueDisplayProperties = this.computedDisplayProperties(_filters?.display_properties);
+    try {
+      const _filters = await this.issueFilterService.fetchSprintIssueFilters(workspaceSlug, projectId, sprintId);
+      richFilters = _filters?.rich_filters ?? {};
+      displayFilters = this.computedDisplayFilters(_filters?.display_filters);
+      displayProperties = this.computedDisplayProperties(_filters?.display_properties);
+    } catch {
+      // API might return 404 for sprints without user-properties - use defaults
+      displayFilters = this.computedDisplayFilters(undefined);
+      displayProperties = this.computedDisplayProperties(undefined);
+    }
 
     // fetching the kanban toggle helpers in the local storage
     const kanbanFilters = {
@@ -307,10 +330,14 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
             updatedDisplayFilters.group_by = "state";
           }
 
+          // Use setDisplayFilters directly instead of updateFilterField with lodashSet
+          // This creates proper new object references that Zustand selectors will detect
           this.store.setDisplayFilters(sprintId, updatedDisplayFilters);
 
           if (this.getShouldClearIssues(updatedDisplayFilters)) {
-            this.rootIssueStore.sprintIssues.clear(true); // clear issues for local store when some filters like layout changes
+            // Use clearAndSetLoader to atomically clear store AND set loader to prevent flash of empty state
+            // The new layout component's useEffect will trigger the fetch
+            this.rootIssueStore.sprintIssues.clearAndSetLoader("init-loader", true);
           }
 
           if (this.getShouldReFetchIssues(updatedDisplayFilters)) {
@@ -332,7 +359,14 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
           const updatedDisplayProperties = filters as IIssueDisplayProperties;
           _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
 
-          this.store.setDisplayProperties(sprintId, updatedDisplayProperties);
+          // Use updateFilterField for each key, same pattern as ProjectIssuesFilter
+          Object.keys(updatedDisplayProperties).forEach((_key) => {
+            this.store.updateFilterField(
+              sprintId,
+              `displayProperties.${_key}`,
+              updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
+            );
+          });
 
           await this.issueFilterService.patchSprintIssueFilters(workspaceSlug, projectId, sprintId, {
             display_properties: _filters.displayProperties,
@@ -350,7 +384,14 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
               kanban_filters: _filters.kanbanFilters,
             });
 
-          this.store.setKanbanFilters(sprintId, updatedKanbanFilters);
+          // Use updateFilterField for each key, same pattern as ProjectIssuesFilter
+          Object.keys(updatedKanbanFilters).forEach((_key) => {
+            this.store.updateFilterField(
+              sprintId,
+              `kanbanFilters.${_key}`,
+              updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
+            );
+          });
 
           break;
         }
@@ -358,8 +399,11 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
           break;
       }
     } catch (error) {
-      if (sprintId) this.fetchFilters(workspaceSlug, projectId, sprintId);
-      throw error;
+      // Don't re-fetch on error - the Zustand store already has the updated local state
+      // The PATCH may fail (e.g., 404 for user-properties) but we should keep the local change
+      // This is intentional - the UI should reflect what the user selected even if the server
+      // doesn't have user-properties for this sprint yet
+      console.warn("Failed to persist sprint filter to server:", error);
     }
   };
 }

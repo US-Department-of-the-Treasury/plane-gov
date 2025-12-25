@@ -91,9 +91,8 @@ export class ProjectIssues extends BaseIssuesStore implements IProjectIssues {
     isExistingPaginationOptions: boolean = false
   ) => {
     try {
-      // set loader and clear store
-      this.setLoader(loadType);
-      this.clear(!isExistingPaginationOptions); // clear while fetching from server.
+      // atomically clear store and set loader to prevent flash of empty state
+      this.clearAndSetLoader(loadType, !isExistingPaginationOptions);
 
       // get params from pagination options
       const params = this.issueFilterStore?.getFilterParams(options, projectId, undefined, undefined, undefined);

@@ -13,7 +13,7 @@ import { GanttChartRoot } from "@/components/gantt-chart/root";
 import { IssueGanttSidebar } from "@/components/gantt-chart/sidebar/issues/sidebar";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useGroupedIssueIds, useProjectIssueFilters } from "@/hooks/store/use-issue-store-reactive";
+import { useGroupedIssueIds, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -51,14 +51,17 @@ export function BaseGanttRoot(props: IBaseGanttRoot) {
   // store hooks
   const { allowPermissions } = useUserPermissions();
 
-  // Use reactive hook for PROJECT store type, fall back to non-reactive for others
-  const reactiveFilters = useProjectIssueFilters();
+  // Use reactive hooks for PROJECT and SPRINT store types, fall back to non-reactive for others
+  const projectFilters = useProjectIssueFilters();
+  const sprintFilters = useSprintIssueFilters();
 
-  // Use reactive filters for PROJECT store type to ensure proper re-renders when filters load
+  // Use reactive filters for PROJECT and SPRINT store types to ensure proper re-renders when filters load
   const appliedDisplayFilters =
     storeType === EIssuesStoreType.PROJECT
-      ? reactiveFilters?.displayFilters
-      : issuesFilter.issueFilters?.displayFilters;
+      ? projectFilters?.displayFilters
+      : storeType === EIssuesStoreType.SPRINT
+        ? sprintFilters?.displayFilters
+        : issuesFilter.issueFilters?.displayFilters;
   // plane web hooks
   const isBulkOperationsEnabled = useBulkOperationStatus();
   // derived values
