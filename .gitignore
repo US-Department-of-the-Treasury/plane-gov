@@ -168,3 +168,4 @@ terraform/scripts/
 e2e/screenshots/
 .worktrees
 .playwright-mcp/
+.claude-handoff.md
