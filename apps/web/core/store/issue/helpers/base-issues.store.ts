@@ -60,6 +60,21 @@ export enum EIssueGroupedAction {
   DELETE = "DELETE",
   REORDER = "REORDER",
 }
+
+/**
+ * Minimal type for the zustand store returned by getBaseStore().
+ * This type is compatible with zustand's useStore hook for reactive subscriptions.
+ */
+export type BaseIssuesZustandStore = {
+  getState: () => {
+    loader: Record<string, TLoader>;
+    groupedIssueCount: TGroupedIssueCount;
+    groupedIssueIds: TGroupedIssues | TSubGroupedIssues | undefined;
+    issuePaginationData: TIssuePaginationData;
+  };
+  subscribe: (listener: (state: unknown) => void) => () => void;
+};
+
 export interface IBaseIssuesStore {
   // observable
   loader: Record<string, TLoader>;
@@ -72,6 +87,7 @@ export interface IBaseIssuesStore {
   removeIssue: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>;
   clear(shouldClearPaginationOptions?: boolean): void;
   // helper methods
+  getBaseStore(): BaseIssuesZustandStore;
   getIssueIds: (groupId?: string, subGroupId?: string) => string[] | undefined;
   issuesSortWithOrderBy(issueIds: string[], key: Partial<TIssueOrderByOptions>): string[];
   getPaginationData(groupId: string | undefined, subGroupId: string | undefined): TPaginationData | undefined;
@@ -309,6 +325,18 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
 
     this.controller = new AbortController();
     this.baseStore = createBaseIssuesStore();
+  }
+
+  /**
+   * Expose the zustand store for reactive subscriptions in React components.
+   * Use this with zustand's useStore hook to get reactive state updates.
+   *
+   * @example
+   * const store = issues.getBaseStore();
+   * const loader = useStore(store, (state) => state.loader);
+   */
+  getBaseStore() {
+    return this.baseStore;
   }
 
   // Zustand store accessors

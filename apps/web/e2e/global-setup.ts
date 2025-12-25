@@ -69,7 +69,7 @@ function seedDatabase(): boolean {
  * The auth state is saved and reused by all tests.
  */
 
-async function globalSetup(config: FullConfig) {
+async function globalSetup(_config: FullConfig) {
   // Ensure auth directory exists
   const authDir = path.dirname(AUTH_STATE_PATH);
   if (!fs.existsSync(authDir)) {
@@ -101,9 +101,12 @@ async function globalSetup(config: FullConfig) {
   }
 
   console.log("Creating new auth state...");
+  console.log(`E2E_BASE_URL env: ${process.env.E2E_BASE_URL}`);
 
-  // Get baseURL from config
-  const baseURL = config.projects[0]?.use?.baseURL ?? "http://localhost:3000";
+  // Get baseURL from environment variable (set by test-e2e.sh) or fallback to default
+  // Note: config.use.baseURL should also work but env var is more reliable
+  const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
+  console.log(`Using baseURL: ${baseURL}`);
 
   const browser = await chromium.launch();
   const context = await browser.newContext({
@@ -113,7 +116,9 @@ async function globalSetup(config: FullConfig) {
 
   try {
     // Go to login page (relative URL works because baseURL is set on context)
+    console.log("Navigating to login page...");
     await page.goto("/");
+    console.log(`Current URL after goto: ${page.url()}`);
 
     // Check if we're already logged in (e.g., if app auto-logs in from env)
     const url = page.url();
@@ -121,8 +126,10 @@ async function globalSetup(config: FullConfig) {
       console.log("Already authenticated, saving state");
     } else {
       // Perform login
+      console.log("Starting login flow...");
       await loginViaUI(page);
       console.log("Login successful");
+      console.log(`URL after login: ${page.url()}`);
     }
 
     // Save storage state

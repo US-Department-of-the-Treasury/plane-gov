@@ -219,4 +219,6 @@ export_port_env() {
     export API_PORT
     export PORT_OFFSET
     export E2E_BASE_URL="http://localhost:$WEB_PORT"
+    # Export VITE_API_BASE_URL so frontend knows where to find the API
+    export VITE_API_BASE_URL="http://localhost:$API_PORT"
 }
