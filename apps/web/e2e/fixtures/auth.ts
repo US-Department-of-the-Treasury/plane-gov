@@ -58,19 +58,44 @@ export const TEST_PROJECT_ID = getProjectId();
 export async function loginViaUI(page: Page): Promise<void> {
   await page.goto("/");
 
+  // Wait for the page to be fully hydrated - the form should be interactive
+  await page.waitForLoadState("networkidle");
+
   // Step 1: Wait for email input and enter email
-  await page.waitForSelector('input[type="email"], input[name="email"]', { timeout: 10000 });
-  await page.fill('input[type="email"], input[name="email"]', TEST_USER.email);
+  // Use getByLabel for more reliable targeting of React controlled inputs
+  const emailInput = page.getByLabel("Email");
+  await emailInput.waitFor({ state: "visible", timeout: 10000 });
 
-  // Click Continue/Submit to proceed to password step
-  await page.click('button[type="submit"]');
+  // Clear and type (more reliable than fill for React controlled inputs)
+  await emailInput.clear();
+  await emailInput.type(TEST_USER.email, { delay: 50 });
 
-  // Step 2: Wait for password input (appears after email verification)
-  await page.waitForSelector('input[type="password"], input[name="password"]', { timeout: 15000 });
-  await page.fill('input[type="password"], input[name="password"]', TEST_USER.password);
+  // Wait for Continue button to be enabled (validates email was entered)
+  const continueButton = page.getByRole("button", { name: /continue/i });
+  await continueButton.waitFor({ state: "visible", timeout: 5000 });
 
-  // Submit login
-  await page.click('button[type="submit"]');
+  // Wait a moment for React state to settle
+  await page.waitForTimeout(100);
+
+  // Click Continue to proceed to password step
+  await continueButton.click();
+
+  // Step 2: Wait for password input (appears after email verification API call)
+  // Use ID selector to avoid matching both "Password" and "Confirm Password" labels
+  const passwordInput = page.locator("#password");
+  await passwordInput.waitFor({ state: "visible", timeout: 15000 });
+
+  // Enter password
+  await passwordInput.clear();
+  await passwordInput.type(TEST_USER.password, { delay: 50 });
+
+  // Submit login - find the submit button in the password form
+  // Button text varies: "Continue" (SMTP enabled), "Go to workspace" (SMTP disabled),
+  // "Sign in" (legacy), or "Create account" (sign-up flow)
+  const signInButton = page.getByRole("button", { name: /continue|go to workspace|sign in|create account/i });
+  await signInButton.waitFor({ state: "visible", timeout: 5000 });
+
+  await signInButton.click();
 
   // Wait for navigation - could be workspace, profile setup, or create-workspace
   // Use a broad pattern that matches any post-login state

@@ -88,13 +88,20 @@ MIDDLEWARE = [
 ]
 
 # Rest Framework settings
+# Disable throttling in DEBUG mode for development/E2E tests
+if DEBUG:
+    _THROTTLE_CLASSES = ()
+    _THROTTLE_RATES = {}
+else:
+    _THROTTLE_CLASSES = ("rest_framework.throttling.AnonRateThrottle",)
+    _THROTTLE_RATES = {
+        "anon": os.environ.get("ANON_RATE_LIMIT", "30/minute"),
+        "asset_id": "5/minute",
+    }
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.SessionAuthentication",),
-    "DEFAULT_THROTTLE_CLASSES": ("rest_framework.throttling.AnonRateThrottle",),
-    "DEFAULT_THROTTLE_RATES": {
-        "anon": "30/minute",
-        "asset_id": "5/minute",
-    },
+    "DEFAULT_THROTTLE_CLASSES": _THROTTLE_CLASSES,
+    "DEFAULT_THROTTLE_RATES": _THROTTLE_RATES,
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),

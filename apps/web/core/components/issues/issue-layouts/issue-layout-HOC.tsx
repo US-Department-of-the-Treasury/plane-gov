@@ -7,7 +7,7 @@ import { KanbanLayoutLoader } from "@/components/ui/loader/layouts/kanban-layout
 import { ListLayoutLoader } from "@/components/ui/loader/layouts/list-layout-loader";
 import { SpreadsheetLayoutLoader } from "@/components/ui/loader/layouts/spreadsheet-layout-loader";
 // hooks
-import { useIssues } from "@/hooks/store/use-issues";
+import { useIssueLoader, useGroupedIssueCount } from "@/hooks/store/use-issue-store-reactive";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 // local imports
 import { IssueLayoutEmptyState } from "./empty-states";
@@ -39,10 +39,10 @@ export function IssueLayoutHOC(props: Props) {
   const { layout } = props;
 
   const storeType = useIssueStoreType();
-  const { issues } = useIssues(storeType);
 
-  const loader = issues?.getIssueLoader();
-  const issueCount = issues.getGroupIssueCount(undefined, undefined, false);
+  // Use reactive hooks that properly subscribe to zustand store changes
+  const loader = useIssueLoader(storeType);
+  const issueCount = useGroupedIssueCount(storeType, undefined, undefined, false);
 
   // Only show skeleton during explicit init-loader state.
   // When loader is undefined (fetch completed) but issueCount is still undefined

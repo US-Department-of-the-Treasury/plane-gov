@@ -190,6 +190,16 @@ if [ "$STARTED_SERVERS" = true ]; then
     cd "$API_DIR"
     source venv/bin/activate
     set -a && source .env && set +a
+    # Override CORS to include our dynamic test ports
+    export CORS_ALLOWED_ORIGINS="${CORS_ALLOWED_ORIGINS},http://localhost:$WEB_PORT,http://localhost:$ADMIN_PORT,http://localhost:$SPACE_PORT,http://127.0.0.1:$WEB_PORT,http://127.0.0.1:$ADMIN_PORT,http://127.0.0.1:$SPACE_PORT"
+    # Override redirect URLs to use dynamic ports (critical for auth flow)
+    export WEB_URL="http://localhost:$WEB_PORT"
+    export APP_BASE_URL="http://localhost:$WEB_PORT"
+    export ADMIN_BASE_URL="http://localhost:$ADMIN_PORT"
+    export SPACE_BASE_URL="http://localhost:$SPACE_PORT"
+    export LIVE_BASE_URL="http://localhost:$LIVE_PORT"
+    # Disable rate limiting for E2E tests by enabling DEBUG mode
+    export DEBUG=1
     python manage.py runserver "$API_PORT" > /tmp/plane-api.log 2>&1 &
     PIDS+=($!)
 
@@ -208,6 +218,19 @@ if [ "$STARTED_SERVERS" = true ]; then
         echo -n "."
         sleep 1
     done
+
+    # Create .env file for web app with dynamic ports
+    echo -e "${BLUE}Creating web app .env with dynamic ports...${NC}"
+    cat > "$WEB_DIR/.env" << EOF
+VITE_API_BASE_URL="http://localhost:$API_PORT"
+VITE_WEB_BASE_URL="http://localhost:$WEB_PORT"
+VITE_ADMIN_BASE_URL="http://localhost:$ADMIN_PORT"
+VITE_ADMIN_BASE_PATH="/god-mode"
+VITE_SPACE_BASE_URL="http://localhost:$SPACE_PORT"
+VITE_SPACE_BASE_PATH="/spaces"
+VITE_LIVE_BASE_URL="http://localhost:$LIVE_PORT"
+VITE_LIVE_BASE_PATH="/live"
+EOF
 
     # Start frontend services
     echo -e "${BLUE}Starting frontend on port $WEB_PORT...${NC}"
@@ -253,6 +276,7 @@ cd "$WEB_DIR"
 
 # Set base URL for Playwright
 export E2E_BASE_URL="http://localhost:$WEB_PORT"
+echo -e "${BLUE}E2E_BASE_URL set to: $E2E_BASE_URL${NC}"
 
 # Run tests with passed arguments
 if [ -n "$PLAYWRIGHT_ARGS" ]; then
