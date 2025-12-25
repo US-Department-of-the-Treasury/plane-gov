@@ -251,52 +251,77 @@ class Command(BaseCommand):
         pages_data = self._load_json("pages.json")
         views_data = self._load_json("views.json")
 
-        # Create project
-        project_info = projects_data[0] if projects_data else {
-            "name": "Demo Project",
-            "identifier": "DEMO",
-            "description": "A demo project for testing",
-        }
-        project = self._create_project(workspace, user, project_info)
-        self.stdout.write(self.style.SUCCESS(f"    Project: {project.name}"))
-
-        # Create states (mapping old IDs to new)
-        state_map = self._create_states(workspace, project, user, states_data)
-        self.stdout.write(f"    States: {len(state_map)}")
-
-        # Create labels (mapping old IDs to new)
-        label_map = self._create_labels(workspace, project, user, labels_data)
-        self.stdout.write(f"    Labels: {len(label_map)}")
-
-        # Create sprints (mapping old IDs to new)
-        sprint_map = self._create_sprints(workspace, project, user, sprints_data)
+        # Create sprints first (workspace-wide, shared across all projects)
+        sprint_map = self._create_sprints(workspace, None, user, sprints_data)
         self.stdout.write(f"    Sprints: {len(sprint_map)}")
 
-        # Create epics (mapping old IDs to new)
-        epic_map = self._create_epics(workspace, project, user, epics_data)
-        self.stdout.write(f"    Epics: {len(epic_map)}")
-
-        # Create issues with relationships
-        issue_count = self._create_issues(
-            workspace, project, user, issues_data, state_map, label_map, sprint_map, epic_map
-        )
-        self.stdout.write(f"    Issues: {issue_count}")
-
-        # Create pages
-        page_count = self._create_pages(workspace, project, user, pages_data, label_map)
-        self.stdout.write(f"    Pages: {page_count}")
-
-        # Create views
-        view_count = self._create_default_views(workspace, project, user)
-        self.stdout.write(f"    Views: {view_count}")
-
-        # Create wiki pages
+        # Create wiki pages (workspace-wide)
         wiki_count = self._create_default_wiki_pages(workspace, user)
         self.stdout.write(f"    Wiki pages: {wiki_count}")
 
-        # Create webhooks
+        # Create webhooks (workspace-wide)
         webhook_count = self._create_default_webhooks(workspace, user)
         self.stdout.write(f"    Webhooks: {webhook_count}")
+
+        # Create all projects with their own states, labels, epics
+        project_map = {}  # old_id -> Project instance
+        state_maps = {}   # project_id -> state_map
+        label_maps = {}   # project_id -> label_map
+        epic_maps = {}    # project_id -> epic_map
+
+        for project_info in projects_data:
+            project = self._create_project(workspace, user, project_info)
+            project_map[project_info["id"]] = project
+            self.stdout.write(self.style.SUCCESS(f"    Project: {project.name}"))
+
+            # Create states (mapping old IDs to new)
+            state_map = self._create_states(workspace, project, user, states_data)
+            state_maps[project.id] = state_map
+            self.stdout.write(f"      States: {len(state_map)}")
+
+            # Create labels (mapping old IDs to new)
+            label_map = self._create_labels(workspace, project, user, labels_data)
+            label_maps[project.id] = label_map
+            self.stdout.write(f"      Labels: {len(label_map)}")
+
+            # Create epics (mapping old IDs to new)
+            epic_map = self._create_epics(workspace, project, user, epics_data)
+            epic_maps[project.id] = epic_map
+            self.stdout.write(f"      Epics: {len(epic_map)}")
+
+            # Create views for this project
+            view_count = self._create_default_views(workspace, project, user)
+            self.stdout.write(f"      Views: {view_count}")
+
+        # Create issues - distribute across projects based on project_id in JSON
+        total_issue_count = 0
+        for project_info in projects_data:
+            old_project_id = project_info["id"]
+            project = project_map[old_project_id]
+
+            # Filter issues for this project
+            project_issues = [i for i in issues_data if i.get("project_id", 1) == old_project_id]
+
+            if project_issues:
+                issue_count = self._create_issues(
+                    workspace, project, user, project_issues,
+                    state_maps[project.id], label_maps[project.id],
+                    sprint_map, epic_maps[project.id]
+                )
+                total_issue_count += issue_count
+                self.stdout.write(f"      Issues for {project.name}: {issue_count}")
+
+        self.stdout.write(f"    Total Issues: {total_issue_count}")
+
+        # Create pages for the first project only (demo pages)
+        if project_map:
+            first_project = project_map.get(1)
+            if first_project:
+                page_count = self._create_pages(
+                    workspace, first_project, user, pages_data,
+                    label_maps.get(first_project.id, {})
+                )
+                self.stdout.write(f"    Pages: {page_count}")
 
     def _seed_random_data(self, workspace: Workspace, user: User, options: dict):
         """Seed using Faker-generated random data."""

@@ -6,6 +6,9 @@ import { cn } from "@plane/utils";
 // hooks
 import { useWorkspaceMembers } from "@/store/queries/member";
 import { useWorkspaceSprints, getSprintIds, getActiveSprint, getSprintById } from "@/store/queries/sprint";
+// components
+import { SprintProjectCell } from "./sprint-project-cell";
+import { useSprintProjectAssignments } from "./use-sprint-assignments";
 
 type ResourceMatrixProps = {
   workspaceSlug: string;
@@ -15,6 +18,7 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
   const { t } = useTranslation();
   const { data: members, isLoading: membersLoading } = useWorkspaceMembers(workspaceSlug);
   const { data: sprints, isLoading: sprintsLoading } = useWorkspaceSprints(workspaceSlug);
+  const { getAssignment, setAssignment } = useSprintProjectAssignments(workspaceSlug);
 
   const memberIds = members?.map((m) => m.id) || [];
   const sprintIds = getSprintIds(sprints);
@@ -104,41 +108,38 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
 
         {/* Member rows */}
         {members?.map((member) => {
+          // Access user data from the nested member object
+          const user = member.member;
+          const displayName = user?.display_name || user?.first_name || user?.email || "Unknown";
+          const email = user?.email;
+          const avatarUrl = user?.avatar_url;
+
           return (
             <div key={member.id} className="flex border-b border-custom-border-100 hover:bg-custom-background-90">
               {/* Member info */}
               <div className="sticky left-0 z-10 flex w-64 min-w-64 items-center gap-3 bg-custom-background-100 px-4 py-3">
-                <Avatar
-                  name={member.display_name || member.email}
-                  src={member.avatar_url}
-                  size="md"
-                  showTooltip={false}
-                />
+                <Avatar name={displayName} src={avatarUrl} size="md" showTooltip={false} />
                 <div className="flex flex-col overflow-hidden">
-                  <span className="truncate text-sm font-medium text-custom-text-100">
-                    {member.display_name || member.first_name || member.email}
-                  </span>
-                  {member.email && <span className="truncate text-xs text-custom-text-400">{member.email}</span>}
+                  <span className="truncate text-sm font-medium text-custom-text-100">{displayName}</span>
+                  {email && <span className="truncate text-xs text-custom-text-400">{email}</span>}
                 </div>
               </div>
 
               {/* Sprint cells for this member */}
               {sprintIds.map((sprintId) => {
                 const isActive = sprintId === activeSprintId;
+                const assignedProjectId = getAssignment(member.id, sprintId);
 
                 return (
-                  <div
+                  <SprintProjectCell
                     key={`${member.id}-${sprintId}`}
-                    className={cn(
-                      "flex w-40 min-w-40 items-center justify-center border-l border-custom-border-100 px-3 py-3",
-                      {
-                        "bg-custom-primary-100/5": isActive,
-                      }
-                    )}
-                  >
-                    {/* Placeholder for sprint assignments - will be populated with actual data */}
-                    <span className="text-xs text-custom-text-400">-</span>
-                  </div>
+                    workspaceSlug={workspaceSlug}
+                    memberId={member.id}
+                    sprintId={sprintId}
+                    assignedProjectId={assignedProjectId}
+                    onAssignmentChange={setAssignment}
+                    isActiveSprint={isActive}
+                  />
                 );
               })}
             </div>
