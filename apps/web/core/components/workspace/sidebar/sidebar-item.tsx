@@ -12,26 +12,23 @@ import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
-import { useWorkspaceNavigationPreferences } from "@/hooks/use-navigation-preferences";
 // plane web imports
 import { getSidebarNavigationItemIcon } from "@/plane-web/components/workspace/sidebar/helper";
 
 type Props = {
   item: IWorkspaceSidebarNavigationItem;
   additionalRender?: (itemKey: string, workspaceSlug: string) => ReactNode;
-  additionalStaticItems?: string[];
 };
 
-export const SidebarItemBase = memo(function SidebarItemBase({
-  item,
-  additionalRender,
-  additionalStaticItems,
-}: Props) {
+/**
+ * Sidebar navigation item that always shows all items (no customization).
+ * Items are shown in fixed order as defined by the caller.
+ */
+export const SidebarItemBase = memo(function SidebarItemBase({ item, additionalRender }: Props) {
   const { t } = useTranslation();
   const pathname = usePathname();
   const { workspaceSlug } = useParams();
   const { allowPermissions } = useUserPermissions();
-  const { isWorkspaceItemPinned } = useWorkspaceNavigationPreferences();
   const { data } = useUser();
 
   const { toggleSidebar, isExtendedSidebarOpened, toggleExtendedSidebar } = useAppTheme();
@@ -41,23 +38,9 @@ export const SidebarItemBase = memo(function SidebarItemBase({
     if (isExtendedSidebarOpened) toggleExtendedSidebar(false);
   };
 
-  const staticItems = [
-    "home",
-    "pi_chat",
-    "projects",
-    "your_work",
-    "drafts",
-    "views",
-    "analytics",
-    "archives",
-    ...(additionalStaticItems || []),
-  ];
   const slug = workspaceSlug?.toString() || "";
 
   if (!allowPermissions(item.access, EUserPermissionsLevel.WORKSPACE, slug)) return null;
-
-  const isPinned = isWorkspaceItemPinned(item.key);
-  if (!isPinned && !staticItems.includes(item.key)) return null;
 
   const itemHref =
     item.key === "your_work" && data?.id ? joinUrlPath(slug, item.href, data?.id) : joinUrlPath(slug, item.href);

@@ -2,7 +2,7 @@ import { memo, useState, useRef, useEffect } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { useParams, usePathname } from "next/navigation";
-import { Plus, Ellipsis } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
@@ -15,34 +15,35 @@ import { Loader } from "@plane/ui";
 import { copyUrlToClipboard, cn, orderJoinedProjects } from "@plane/utils";
 // components
 import { CreateProjectModal } from "@/components/project/create-project-modal";
-import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // hooks
-import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useProjects, getProjectById, getJoinedProjectIds } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
-import { useProjectNavigationPreferences } from "@/hooks/use-navigation-preferences";
 // plane web imports
 import type { TProject } from "@/plane-web/types";
 // local imports
 import { SidebarProjectsListItem } from "./projects-list-item";
 
 export const SidebarProjectsList = memo(function SidebarProjectsList() {
-  // states
-  const [isAllProjectsListOpen, setIsAllProjectsListOpen] = useState(true);
+  // router params
+  const { workspaceSlug } = useParams();
+  const pathname = usePathname();
+  // states - user preference for collapsed state (only applies when not on a projects page)
+  const [userPreference, setUserPreference] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("isAllProjectsListOpen");
+    return stored === null ? true : stored === "true";
+  });
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false); // scroll animation state
+  // Force open on projects pages, otherwise respect user preference
+  const isAllProjectsListOpen = pathname.includes("projects") ? true : userPreference;
   // refs
   const containerRef = useRef<HTMLDivElement | null>(null);
   // store hooks
   const { t } = useTranslation();
   const { toggleCreateProjectModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
-  const { preferences: projectPreferences } = useProjectNavigationPreferences();
-  const { isExtendedProjectSidebarOpened, toggleExtendedProjectSidebar } = useAppTheme();
-  // router params
-  const { workspaceSlug } = useParams();
-  const pathname = usePathname();
 
   const { data: projects = [], isLoading } = useProjects(workspaceSlug?.toString());
   const joinedProjects = getJoinedProjectIds(projects);
@@ -56,22 +57,14 @@ export const SidebarProjectsList = memo(function SidebarProjectsList() {
     EUserPermissionsLevel.WORKSPACE
   );
 
-  // Compute limited projects for main sidebar
-  const displayedProjects = projectPreferences.showLimitedProjects
-    ? joinedProjects.slice(0, projectPreferences.limitedProjectsCount)
-    : joinedProjects;
-
-  // Check if there are more projects to show
-  const hasMoreProjects =
-    projectPreferences.showLimitedProjects && joinedProjects.length > projectPreferences.limitedProjectsCount;
-
   const handleCopyText = (projectId: string) => {
-    copyUrlToClipboard(`${workspaceSlug}/projects/${projectId}/issues`).then(() => {
+    void copyUrlToClipboard(`${workspaceSlug}/projects/${projectId}/issues`).then(() => {
       setToast({
         type: TOAST_TYPE.SUCCESS,
         title: t("link_copied"),
         message: t("project_link_copied_to_clipboard"),
       });
+      return undefined;
     });
   };
 
@@ -144,15 +137,9 @@ export const SidebarProjectsList = memo(function SidebarProjectsList() {
   }, [containerRef]);
 
   const toggleListDisclosure = (isOpen: boolean) => {
-    setIsAllProjectsListOpen(isOpen);
+    setUserPreference(isOpen);
     localStorage.setItem("isAllProjectsListOpen", isOpen.toString());
   };
-  useEffect(() => {
-    if (pathname.includes("projects")) {
-      setIsAllProjectsListOpen(true);
-      localStorage.setItem("isAllProjectsListOpen", "true");
-    }
-  }, [pathname]);
   return (
     <>
       {workspaceSlug && (
@@ -223,7 +210,7 @@ export const SidebarProjectsList = memo(function SidebarProjectsList() {
               </Loader>
             )}
             <div className="flex flex-col gap-0.5">
-              {displayedProjects.map((projectId, index) => (
+              {joinedProjects.map((projectId, index) => (
                 <SidebarProjectsListItem
                   key={projectId}
                   projectId={projectId}
@@ -231,28 +218,10 @@ export const SidebarProjectsList = memo(function SidebarProjectsList() {
                   projectListType={"JOINED"}
                   disableDrag={false}
                   disableDrop={false}
-                  isLastChild={index === displayedProjects.length - 1}
+                  isLastChild={index === joinedProjects.length - 1}
                   handleOnProjectDrop={handleOnProjectDrop}
                 />
               ))}
-              {hasMoreProjects && (
-                <SidebarNavItem>
-                  <button
-                    type="button"
-                    onClick={() => toggleExtendedProjectSidebar()}
-                    className="flex items-center gap-1.5 text-13 font-medium flex-grow text-tertiary"
-                    id="extended-project-sidebar-toggle"
-                    aria-label={t(
-                      isExtendedProjectSidebarOpened
-                        ? "aria_labels.app_sidebar.close_extended_sidebar"
-                        : "aria_labels.app_sidebar.open_extended_sidebar"
-                    )}
-                  >
-                    <Ellipsis className="flex-shrink-0 size-4" />
-                    <span>{isExtendedProjectSidebarOpened ? "Hide" : "More"}</span>
-                  </button>
-                </SidebarNavItem>
-              )}
             </div>
           </CollapsibleContent>
         </Collapsible>

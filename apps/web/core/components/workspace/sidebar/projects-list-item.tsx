@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { pointerOutsideOfPreview } from "@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview";
@@ -6,15 +6,13 @@ import { setCustomNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/el
 import { attachInstruction, extractInstruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
 import { useParams, useRouter } from "next/navigation";
 import { createRoot } from "react-dom/client";
-import scrollIntoView from "smooth-scroll-into-view-if-needed";
 import { LinkIcon, Settings, Share2, LogOut, MoreHorizontal } from "lucide-react";
-import { Collapsible, CollapsibleContent } from "@plane/propel/primitives";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, MEMBER_TRACKER_ELEMENTS } from "@plane/constants";
 import { useOutsideClickDetector } from "@plane/hooks";
 import { useTranslation } from "@plane/i18n";
 import { Logo } from "@plane/propel/emoji-icon-picker";
-import { ArchiveIcon, ChevronRightIcon } from "@plane/propel/icons";
+import { ArchiveIcon } from "@plane/propel/icons";
 import { IconButton } from "@plane/propel/icon-button";
 import { Tooltip } from "@plane/propel/tooltip";
 import { CustomMenu, DropIndicator, DragHandle, ControlLink } from "@plane/ui";
@@ -26,14 +24,11 @@ import { LeaveProjectModal } from "@/components/project/leave-project-modal";
 import { PublishProjectModal } from "@/components/project/publish-project/modal";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
-import { useProjectNavigationPreferences } from "@/hooks/use-navigation-preferences";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web imports
 import { useNavigationItems } from "@/plane-web/components/navigations";
-import { ProjectNavigationRoot } from "@/plane-web/components/sidebar";
 // local imports
 import { HIGHLIGHT_CLASS, highlightIssueOnDrop } from "../../issues/issue-layouts/utils";
 
@@ -71,8 +66,6 @@ export function SidebarProjectsListItem(props: Props) {
   const { data: project } = useProjectDetails(workspaceSlug?.toString(), projectId);
   const { isMobile } = usePlatformOS();
   const { allowPermissions } = useUserPermissions();
-  const { getIsProjectListOpen, toggleProjectListOpen } = useCommandPalette();
-  const { preferences: projectPreferences } = useProjectNavigationPreferences();
   const { isExtendedProjectSidebarOpened, toggleExtendedProjectSidebar, toggleAnySidebarDropdown } = useAppTheme();
 
   // states
@@ -80,7 +73,6 @@ export function SidebarProjectsListItem(props: Props) {
   const [publishModalOpen, setPublishModal] = useState(false);
   const [isMenuActive, setIsMenuActive] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const isProjectListOpen = getIsProjectListOpen(projectId);
   const [instruction, setInstruction] = useState<"DRAG_OVER" | "DRAG_BELOW" | undefined>(undefined);
   // refs
   const actionSectionRef = useRef<HTMLButtonElement | null>(null);
@@ -103,11 +95,6 @@ export function SidebarProjectsListItem(props: Props) {
   const validatedDefaultTabKey = availableTabKeys.includes(defaultTabKey) ? defaultTabKey : DEFAULT_TAB_KEY;
   const defaultTabUrl = project ? getTabUrl(workspaceSlug.toString(), project.id, validatedDefaultTabKey) : "";
 
-  // toggle project list open
-  const setIsProjectListOpen = useCallback(
-    (value: boolean) => toggleProjectListOpen(projectId, value),
-    [projectId, toggleProjectListOpen]
-  );
   // auth
   const isAdmin = allowPermissions(
     [EUserPermissions.ADMIN],
@@ -213,7 +200,7 @@ export function SidebarProjectsListItem(props: Props) {
         },
       })
     );
-  }, [projectId, isLastChild, projectListType, handleOnProjectDrop]);
+  }, [projectId, isLastChild, projectListType, handleOnProjectDrop, disableDrag, disableDrop, project]);
 
   useEffect(() => {
     if (isMenuActive) toggleAnySidebarDropdown(true);
@@ -223,47 +210,15 @@ export function SidebarProjectsListItem(props: Props) {
   useOutsideClickDetector(actionSectionRef, () => setIsMenuActive(false));
   useOutsideClickDetector(projectRef, () => projectRef?.current?.classList?.remove(HIGHLIGHT_CLASS));
 
-  useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
-    if (URLProjectId === project?.id) {
-      setIsProjectListOpen(true);
-      // Scroll to active project
-      if (projectRef.current) {
-        timeoutId = setTimeout(() => {
-          if (projectRef.current) {
-            scrollIntoView(projectRef.current, {
-              behavior: "smooth",
-              block: "center",
-              scrollMode: "if-needed",
-            });
-          }
-        }, 200);
-      }
-    }
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [URLProjectId, project?.id, setIsProjectListOpen]);
-
   if (!project) return null;
 
   const handleItemClick = () => {
-    if (projectPreferences.navigationMode === "accordion") {
-      setIsProjectListOpen(!isProjectListOpen);
-    } else {
-      router.push(defaultTabUrl);
-    }
+    router.push(defaultTabUrl);
     // close the extended sidebar if it is open
     if (isExtendedProjectSidebarOpened) {
       toggleExtendedProjectSidebar(false);
     }
   };
-
-  const isAccordionMode = projectPreferences.navigationMode === "accordion";
 
   return (
     <>
@@ -315,29 +270,12 @@ export function SidebarProjectsListItem(props: Props) {
             )}
             <>
               <ControlLink href={defaultTabUrl} className="flex-grow flex truncate" onClick={handleItemClick}>
-                {isAccordionMode ? (
-                  <button
-                    type="button"
-                    className={cn("flex-grow flex items-center gap-1.5 text-left select-none w-full", {})}
-                    aria-label={
-                      isProjectListOpen
-                        ? t("aria_labels.projects_sidebar.close_project_menu")
-                        : t("aria_labels.projects_sidebar.open_project_menu")
-                    }
-                  >
-                    <div className="size-4 grid place-items-center flex-shrink-0">
-                      <Logo logo={project.logo_props} size={16} />
-                    </div>
-                    <p className="truncate text-13 font-medium text-secondary">{project.name}</p>
-                  </button>
-                ) : (
-                  <div className="flex-grow flex items-center gap-1.5 text-left select-none w-full">
-                    <div className="size-4 grid place-items-center flex-shrink-0">
-                      <Logo logo={project.logo_props} size={16} />
-                    </div>
-                    <p className="truncate text-13 font-medium text-secondary">{project.name}</p>
+                <div className="flex-grow flex items-center gap-1.5 text-left select-none w-full">
+                  <div className="size-4 grid place-items-center flex-shrink-0">
+                    <Logo logo={project.logo_props} size={16} />
                   </div>
-                )}
+                  <p className="truncate text-13 font-medium text-secondary">{project.name}</p>
+                </div>
               </ControlLink>
               <div className="flex items-center gap-1">
                 <CustomMenu
@@ -432,38 +370,9 @@ export function SidebarProjectsListItem(props: Props) {
                     </CustomMenu.MenuItem>
                   )}
                 </CustomMenu>
-                {isAccordionMode && (
-                  <IconButton
-                    variant="ghost"
-                    size="sm"
-                    icon={ChevronRightIcon}
-                    onClick={() => setIsProjectListOpen(!isProjectListOpen)}
-                    className={cn("hidden group-hover/project-item:inline-flex text-placeholder", {
-                      "inline-flex": isMenuActive,
-                    })}
-                    iconClassName={cn("transition-transform", {
-                      "rotate-90": isProjectListOpen,
-                    })}
-                    aria-label={t(
-                      isProjectListOpen
-                        ? "aria_labels.projects_sidebar.close_project_menu"
-                        : "aria_labels.projects_sidebar.open_project_menu"
-                    )}
-                  />
-                )}
               </div>
             </>
           </div>
-          {isAccordionMode && (
-            <Collapsible open={isProjectListOpen} onOpenChange={setIsProjectListOpen}>
-              <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-                <div className="relative flex flex-col gap-0.5 mt-1 pl-6 mb-1.5">
-                  <div className="absolute left-[15px] top-0 bottom-1 w-[1px] bg-subtle-1" />
-                  <ProjectNavigationRoot workspaceSlug={workspaceSlug.toString()} projectId={projectId.toString()} />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
           {isLastChild && <DropIndicator isVisible={instruction === "DRAG_BELOW"} />}
         </div>
       </div>
