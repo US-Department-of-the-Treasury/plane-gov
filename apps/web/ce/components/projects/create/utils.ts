@@ -15,4 +15,10 @@ export const getProjectFormValues = (): Partial<IProject> => ({
   name: "",
   network: 2,
   project_lead: null,
+  // Gov fork: Enable all features by default
+  epic_view: true,
+  sprint_view: true,
+  issue_views_view: true,
+  page_view: true,
+  intake_view: true,
 });
