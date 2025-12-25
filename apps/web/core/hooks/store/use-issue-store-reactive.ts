@@ -11,13 +11,25 @@
  *
  * // Use reactive:
  * const loader = useIssueLoader(storeType);
+ *
+ * @example
+ * // Instead of non-reactive:
+ * const displayFilters = issuesFilter?.issueFilters?.displayFilters;
+ *
+ * // Use reactive:
+ * const issueFilters = useProjectIssueFilters();
+ * const displayFilters = issueFilters?.displayFilters;
  */
 
-import { useContext, useMemo, useSyncExternalStore } from "react";
-import type { TLoader } from "@plane/types";
+import { isEmpty } from "lodash-es";
+import { useParams } from "next/navigation";
+import { useCallback, useContext, useMemo, useRef, useSyncExternalStore } from "react";
+import { ALL_ISSUES } from "@plane/constants";
+import type { IIssueFilters, TGroupedIssues, TLoader, TSubGroupedIssues, TUnGroupedIssues } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
 import { StoreContext } from "@/lib/store-context";
 import type { BaseIssuesZustandStore } from "@/store/issue/helpers/base-issues.store";
+import { useProjectIssuesFilterStore } from "@/store/issue/project/filter.store";
 
 /**
  * Get the zustand store for a given issue store type.
@@ -97,23 +109,19 @@ export function useIssueLoader(storeType: EIssuesStoreType, groupId?: string, su
   }, [store]);
 
   // Create stable getSnapshot function
-   
+
   const getSnapshot = useMemo(() => {
     return () => {
       if (!store) return "init-loader" as TLoader;
       const loaderMap = store.getState().loader;
 
       // Derive the specific loader value using the same logic as getIssueLoader()
-      if (!groupId) {
-        return loaderMap?.[""] ?? ("init-loader" as TLoader);
-      }
-      if (groupId && !subGroupId) {
-        return loaderMap?.[groupId] ?? ("init-loader" as TLoader);
-      }
-      if (groupId && subGroupId) {
-        return loaderMap?.[`${groupId}_${subGroupId}`] ?? ("init-loader" as TLoader);
-      }
-      return "init-loader" as TLoader;
+      // Uses getGroupKey() pattern: no args = ALL_ISSUES, groupId only = groupId, both = groupId_subGroupId
+      // IMPORTANT: undefined means "loaded/done", so we must NOT fallback to "init-loader" when
+      // the key exists with undefined value. Only fallback when the loaderMap itself is undefined.
+      const key = !groupId ? ALL_ISSUES : groupId && subGroupId ? `${groupId}_${subGroupId}` : groupId;
+      if (!loaderMap) return "init-loader" as TLoader;
+      return loaderMap[key] as TLoader;
     };
   }, [store, groupId, subGroupId]);
 
@@ -147,8 +155,9 @@ export function useGroupedIssueCount(
       const groupedIssueCount = store.getState().groupedIssueCount;
 
       // Derive the count using the same logic as getGroupIssueCount()
+      // Uses getGroupKey() pattern: no args = ALL_ISSUES
       if (!groupId && !subGroupId) {
-        return groupedIssueCount?.[""];
+        return groupedIssueCount?.[ALL_ISSUES];
       }
 
       if (isSubGroupCumulative && groupId && subGroupId) {
@@ -189,4 +198,99 @@ export function useGroupedIssueCount(
   }, [store, groupId, subGroupId, isSubGroupCumulative]);
 
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
+// Empty store constant for fallback when no store is available
+const EMPTY_GROUPED_IDS: TGroupedIssues = {};
+
+/**
+ * Shallow comparison for grouped issue IDs.
+ * Returns true if the objects have the same keys with the same values (by reference).
+ */
+function shallowEqual(
+  a: TGroupedIssues | TSubGroupedIssues | TUnGroupedIssues,
+  b: TGroupedIssues | TSubGroupedIssues | TUnGroupedIssues
+): boolean {
+  if (a === b) return true;
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  for (const key of aKeys) {
+    if (a[key] !== b[key]) return false;
+  }
+  return true;
+}
+
+/**
+ * Get grouped issue IDs reactively.
+ * Re-renders the component when grouped issue IDs change.
+ *
+ * This replaces the non-reactive `issues.groupedIssueIds` getter which
+ * uses getState() and returns a snapshot that doesn't trigger re-renders.
+ *
+ * Uses useSyncExternalStore with a cached snapshot to maintain reference
+ * stability and prevent infinite loops.
+ *
+ * @returns The grouped issue IDs from the store
+ */
+export function useGroupedIssueIds(
+  storeType: EIssuesStoreType
+): TGroupedIssues | TSubGroupedIssues | TUnGroupedIssues {
+  const store = useIssueZustandStore(storeType);
+
+  // Cache the last snapshot to maintain reference stability
+  const snapshotCache = useRef<TGroupedIssues | TSubGroupedIssues | TUnGroupedIssues>(EMPTY_GROUPED_IDS);
+
+  // Create stable subscribe function
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      if (!store) return () => {};
+      return store.subscribe(onStoreChange);
+    },
+    [store]
+  );
+
+  // Create stable getSnapshot with reference caching
+  const getSnapshot = useCallback(() => {
+    if (!store) return EMPTY_GROUPED_IDS;
+    const current = store.getState().groupedIssueIds ?? EMPTY_GROUPED_IDS;
+    // Only update cache if values actually changed (shallow comparison)
+    if (!shallowEqual(snapshotCache.current, current)) {
+      snapshotCache.current = current;
+    }
+    return snapshotCache.current;
+  }, [store]);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
+/**
+ * Get project issue filters reactively.
+ * Subscribes directly to Zustand store and re-renders when filters change.
+ *
+ * This replaces the non-reactive `issuesFilter.issueFilters` getter which
+ * depends on `rootIssueStore.projectId` being synced from MobX.
+ *
+ * @returns The computed issue filters for the current project, or undefined if not loaded
+ */
+export function useProjectIssueFilters(): IIssueFilters | undefined {
+  const { projectId } = useParams();
+  const projectIdStr = projectId?.toString();
+
+  // Subscribe to Zustand store directly using selector
+  // This is reactive and will trigger re-renders when filters change
+  const rawFilters = useProjectIssuesFilterStore((state) =>
+    projectIdStr ? state.filters[projectIdStr] : undefined
+  );
+
+  // Apply computedIssueFilters transform (same logic as IssueFilterHelperStore)
+  return useMemo(() => {
+    if (!rawFilters || isEmpty(rawFilters)) return undefined;
+    return {
+      richFilters: isEmpty(rawFilters?.richFilters) ? {} : rawFilters?.richFilters,
+      displayFilters: isEmpty(rawFilters?.displayFilters) ? undefined : rawFilters?.displayFilters,
+      displayProperties: isEmpty(rawFilters?.displayProperties) ? undefined : rawFilters?.displayProperties,
+      kanbanFilters: isEmpty(rawFilters?.kanbanFilters) ? undefined : rawFilters?.kanbanFilters,
+    };
+  }, [rawFilters]);
 }

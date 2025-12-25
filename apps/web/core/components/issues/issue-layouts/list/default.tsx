@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
+import { useParams } from "next/navigation";
 // plane constants
 import { ALL_ISSUES } from "@plane/constants";
 // types
@@ -18,6 +19,7 @@ import type {
 // components
 import { MultipleSelectGroup } from "@/components/core/multiple-select";
 // hooks
+import { useProjectStates } from "@/hooks/store/use-project-state";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 // plane web components
 import { IssueBulkOperationsRoot } from "@/plane-web/components/issues/bulk-operations";
@@ -78,6 +80,14 @@ export function List(props: IList) {
   // plane web hooks
   const isBulkOperationsEnabled = useBulkOperationStatus();
 
+  // Get params for state query
+  const { workspaceSlug, projectId } = useParams();
+
+  // Subscribe to project states via TanStack Query to ensure re-render when states load.
+  // The getGroupByColumns function reads from the Zustand store which needs states to be populated.
+  // We destructure isSuccess to force a re-render when the query completes and data is synced.
+  const { isSuccess: _statesLoaded } = useProjectStates(workspaceSlug?.toString(), projectId?.toString());
+
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const groups = getGroupByColumns({
@@ -85,6 +95,7 @@ export function List(props: IList) {
     includeNone: true,
     isWorkspaceLevel: isWorkspaceLevel(storeType),
     isEpic: isEpic,
+    projectId: projectId?.toString(),
   });
 
   // Enable Auto Scroll for Main Kanban

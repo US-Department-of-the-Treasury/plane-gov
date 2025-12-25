@@ -36,7 +36,7 @@ export interface IProjectIssuesFilter extends IBaseIssueFilterStore {
   ) => Partial<Record<TIssueParams, string | boolean>>;
   getIssueFilters(projectId: string): IIssueFilters | undefined;
   // action
-  fetchFilters: (workspaceSlug: string, projectId: string) => Promise<void>;
+  fetchFilters: (workspaceSlug: string, projectId: string) => Promise<IIssueFilters | undefined>;
   updateFilterExpression: (
     workspaceSlug: string,
     projectId: string,
@@ -154,7 +154,7 @@ export class ProjectIssuesFilter extends IssueFilterHelperStore implements IProj
     return paginationParams;
   };
 
-  fetchFilters = async (workspaceSlug: string, projectId: string) => {
+  fetchFilters = async (workspaceSlug: string, projectId: string): Promise<IIssueFilters | undefined> => {
     const _filters = await this.issueFilterService.fetchProjectIssueFilters(workspaceSlug, projectId);
 
     const richFilters = _filters?.rich_filters;
@@ -162,7 +162,7 @@ export class ProjectIssuesFilter extends IssueFilterHelperStore implements IProj
     const displayProperties = this.computedDisplayProperties(_filters?.display_properties);
 
     // fetching the kanban toggle helpers in the local storage
-    const kanbanFilters = {
+    const kanbanFilters: { group_by: string[]; sub_group_by: string[] } = {
       group_by: [],
       sub_group_by: [],
     };
@@ -178,10 +178,18 @@ export class ProjectIssuesFilter extends IssueFilterHelperStore implements IProj
       kanbanFilters.sub_group_by = _kanbanFilters?.kanban_filters?.sub_group_by || [];
     }
 
-    this.store.updateFilterField(projectId, "richFilters", richFilters);
-    this.store.updateFilterField(projectId, "displayFilters", displayFilters);
-    this.store.updateFilterField(projectId, "displayProperties", displayProperties);
-    this.store.updateFilterField(projectId, "kanbanFilters", kanbanFilters);
+    const processedFilters = {
+      richFilters,
+      displayFilters,
+      displayProperties,
+      kanbanFilters,
+    } as IIssueFilters;
+
+    // Update Zustand store for other consumers
+    this.store.setFilters(projectId, processedFilters);
+
+    // Return computed filters for TanStack Query to cache
+    return this.computedIssueFilters(processedFilters);
   };
 
   /**

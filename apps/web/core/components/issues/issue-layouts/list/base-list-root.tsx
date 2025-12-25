@@ -4,11 +4,12 @@ import { useParams } from "next/navigation";
 // plane constants
 import { EIssueFilterType, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 // types
-import type { EIssuesStoreType, GroupByColumnTypes, TGroupedIssues, TIssueKanbanFilters } from "@plane/types";
-import { EIssueLayoutTypes } from "@plane/types";
+import type { GroupByColumnTypes, TGroupedIssues, TIssueKanbanFilters } from "@plane/types";
+import { EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 // constants
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useGroupedIssueIds, useProjectIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 // hooks
 import { useGroupIssuesDragNDrop } from "@/hooks/use-group-dragndrop";
@@ -67,8 +68,18 @@ export function BaseListRoot(props: IBaseListRoot) {
   const { allowPermissions } = useUserPermissions();
   const { issueMap } = useIssues();
 
-  const displayFilters = issuesFilter?.issueFilters?.displayFilters;
-  const displayProperties = issuesFilter?.issueFilters?.displayProperties;
+  // Use reactive hook for PROJECT store type, fall back to non-reactive for others
+  const reactiveFilters = useProjectIssueFilters();
+
+  // Use reactive filters for PROJECT store type to ensure proper re-renders when filters load
+  const displayFilters =
+    storeType === EIssuesStoreType.PROJECT
+      ? reactiveFilters?.displayFilters
+      : issuesFilter?.issueFilters?.displayFilters;
+  const displayProperties =
+    storeType === EIssuesStoreType.PROJECT
+      ? reactiveFilters?.displayProperties
+      : issuesFilter?.issueFilters?.displayProperties;
   const orderBy = displayFilters?.order_by || undefined;
 
   const group_by = (displayFilters?.group_by || null) as GroupByColumnTypes | null;
@@ -83,7 +94,8 @@ export function BaseListRoot(props: IBaseListRoot) {
     fetchIssues("init-loader", { canGroup: true, perPageCount: group_by ? 50 : 100 }, viewId);
   }, [fetchIssues, storeType, group_by, viewId]);
 
-  const groupedIssueIds = issues?.groupedIssueIds as TGroupedIssues | undefined;
+  // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
+  const groupedIssueIds = useGroupedIssueIds(storeType) as TGroupedIssues | undefined;
   // auth
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],

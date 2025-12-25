@@ -3,10 +3,11 @@ import { useCallback, useEffect } from "react";
 import { useParams } from "next/navigation";
 // plane imports
 import { ALL_ISSUES, EIssueFilterType, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
-import type { EIssuesStoreType, IIssueDisplayFilterOptions } from "@plane/types";
-import { EIssueLayoutTypes } from "@plane/types";
+import type { IIssueDisplayFilterOptions } from "@plane/types";
+import { EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useGroupedIssueIds, useProjectIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -51,6 +52,20 @@ export function BaseSpreadsheetRoot(props: IBaseSpreadsheetRoot) {
     restoreIssue,
     updateFilters,
   } = useIssuesActions(storeType);
+
+  // Use reactive hook for PROJECT store type, fall back to non-reactive for others
+  const reactiveFilters = useProjectIssueFilters();
+
+  // Use reactive filters for PROJECT store type to ensure proper re-renders when filters load
+  const displayFilters =
+    storeType === EIssuesStoreType.PROJECT
+      ? reactiveFilters?.displayFilters
+      : issuesFilter?.issueFilters?.displayFilters;
+  const displayProperties =
+    storeType === EIssuesStoreType.PROJECT
+      ? reactiveFilters?.displayProperties
+      : issuesFilter?.issueFilters?.displayProperties;
+
   // derived values
   const { enableInlineEditing, enableQuickAdd, enableIssueCreation } = issues?.viewFlags || {};
   // user role validation
@@ -75,7 +90,9 @@ export function BaseSpreadsheetRoot(props: IBaseSpreadsheetRoot) {
     [canEditPropertiesBasedOnProject, enableInlineEditing, isEditingAllowed]
   );
 
-  const issueIds = issues.groupedIssueIds?.[ALL_ISSUES] ?? [];
+  // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
+  const groupedIssueIds = useGroupedIssueIds(storeType);
+  const issueIds = groupedIssueIds?.[ALL_ISSUES] ?? [];
   const nextPageResults = issues.getPaginationData(ALL_ISSUES, undefined)?.nextPageResults;
 
   const handleDisplayFiltersUpdate = useCallback(
@@ -111,8 +128,8 @@ export function BaseSpreadsheetRoot(props: IBaseSpreadsheetRoot) {
   return (
     <IssueLayoutHOC layout={EIssueLayoutTypes.SPREADSHEET}>
       <SpreadsheetView
-        displayProperties={issuesFilter.issueFilters?.displayProperties ?? {}}
-        displayFilters={issuesFilter.issueFilters?.displayFilters ?? {}}
+        displayProperties={displayProperties ?? {}}
+        displayFilters={displayFilters ?? {}}
         handleDisplayFilterUpdate={handleDisplayFiltersUpdate}
         issueIds={issueIds}
         quickActions={renderQuickActions}

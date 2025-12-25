@@ -1,4 +1,5 @@
 import type { MutableRefObject } from "react";
+import { useParams } from "next/navigation";
 // plane imports
 import type {
   GroupByColumnTypes,
@@ -280,6 +281,8 @@ export function KanBanSwimLanes(props: IKanBanSwimLanes) {
     scrollableContainerRef,
     isEpic = false,
   } = props;
+  // router params
+  const { projectId } = useParams();
   // store hooks
   const storeType = useIssueStoreType();
   // derived values
@@ -288,12 +291,14 @@ export function KanBanSwimLanes(props: IKanBanSwimLanes) {
     includeNone: true,
     isWorkspaceLevel: isWorkspaceLevel(storeType),
     isEpic: isEpic,
+    projectId: projectId?.toString(),
   });
   const subGroupByList = getGroupByColumns({
     groupBy: sub_group_by as GroupByColumnTypes,
     includeNone: true,
     isWorkspaceLevel: isWorkspaceLevel(storeType),
     isEpic: isEpic,
+    projectId: projectId?.toString(),
   });
 
   if (!groupByList || !subGroupByList) return null;

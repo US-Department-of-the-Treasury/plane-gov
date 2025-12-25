@@ -46,22 +46,24 @@ export function ProjectLayoutRoot() {
   const { issuesFilter } = useIssues(EIssuesStoreType.PROJECT);
   // Use reactive loader hook instead of non-reactive issues?.getIssueLoader()
   const loader = useIssueLoader(EIssuesStoreType.PROJECT);
-  // derived values
-  const workItemFilters = projectId ? issuesFilter?.getIssueFilters(projectId) : undefined;
-  const activeLayout = workItemFilters?.displayFilters?.layout;
 
-  useQuery({
+  // Fetch filters and return them directly so TanStack Query tracks the data
+  // This triggers re-renders when the query completes, avoiding Zustand subscription issues
+  const { data: workItemFilters } = useQuery({
     queryKey: workspaceSlug && projectId ? queryKeys.issues.all(workspaceSlug, projectId) : [],
     queryFn: async () => {
       if (workspaceSlug && projectId) {
-        await issuesFilter?.fetchFilters(workspaceSlug, projectId);
+        // fetchFilters now returns the processed filters directly
+        return issuesFilter?.fetchFilters(workspaceSlug, projectId);
       }
-      return null;
+      return undefined;
     },
     enabled: !!(workspaceSlug && projectId),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });
+
+  const activeLayout = workItemFilters?.displayFilters?.layout;
 
   if (!workspaceSlug || !projectId || !workItemFilters) return <></>;
   return (

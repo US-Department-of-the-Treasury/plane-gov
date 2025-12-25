@@ -1,4 +1,5 @@
 import type { MutableRefObject } from "react";
+import { useParams } from "next/navigation";
 // i18n
 import { useTranslation } from "@plane/i18n";
 import type {
@@ -94,6 +95,8 @@ export function KanBan(props: IKanBan) {
   } = props;
   // i18n
   const { t } = useTranslation();
+  // router params
+  const { projectId } = useParams();
   // store hooks
   const storeType = useIssueStoreType();
   const issueKanBanView = useKanbanView();
@@ -107,6 +110,7 @@ export function KanBan(props: IKanBan) {
     includeNone: true,
     isWorkspaceLevel: isWorkspaceLevel(storeType),
     isEpic: isEpic,
+    projectId: projectId?.toString(),
   });
 
   if (!list) return null;

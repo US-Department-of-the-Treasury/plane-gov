@@ -5,13 +5,14 @@ import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { useParams } from "next/navigation";
 import { EIssueFilterType, EUserPermissions, EUserPermissionsLevel, WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
-import type { EIssuesStoreType } from "@plane/types";
-import { EIssueServiceType, EIssueLayoutTypes } from "@plane/types";
+import { EIssueServiceType, EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 //constants
 //hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useGroupedIssueIds, useProjectIssueFilters } from "@/hooks/store/use-issue-store-reactive";
+import { useProjectStates } from "@/hooks/store/use-project-state";
 import { useKanbanView } from "@/hooks/store/use-kanban-view";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useGroupIssuesDragNDrop } from "@/hooks/use-group-dragndrop";
@@ -59,6 +60,11 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
   } = props;
   // router
   const { workspaceSlug, projectId } = useParams();
+
+  // Sync project states to Zustand store for getGroupByColumns to work
+  // This ensures the Kanban groups render properly when grouped by state
+  useProjectStates(workspaceSlug?.toString(), projectId?.toString());
+
   // store hooks
   const storeType = useIssueStoreType() as KanbanStoreType;
   const { allowPermissions } = useUserPermissions();
@@ -95,8 +101,18 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
 
   const { isDragging } = useKanbanView();
 
-  const displayFilters = issuesFilter?.issueFilters?.displayFilters;
-  const displayProperties = issuesFilter?.issueFilters?.displayProperties;
+  // Use reactive hook for PROJECT store type, fall back to non-reactive for others
+  const reactiveFilters = useProjectIssueFilters();
+
+  // Use reactive filters for PROJECT store type to ensure proper re-renders when filters load
+  const displayFilters =
+    storeType === EIssuesStoreType.PROJECT
+      ? reactiveFilters?.displayFilters
+      : issuesFilter?.issueFilters?.displayFilters;
+  const displayProperties =
+    storeType === EIssuesStoreType.PROJECT
+      ? reactiveFilters?.displayProperties
+      : issuesFilter?.issueFilters?.displayProperties;
 
   const sub_group_by = displayFilters?.sub_group_by;
   const group_by = displayFilters?.group_by;
@@ -116,7 +132,8 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
     [fetchNextIssues]
   );
 
-  const groupedIssueIds = issues?.groupedIssueIds;
+  // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
+  const groupedIssueIds = useGroupedIssueIds(storeType);
 
   const userDisplayFilters = displayFilters || null;
 

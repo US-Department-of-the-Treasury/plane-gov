@@ -4,8 +4,8 @@ import { useParams } from "next/navigation";
 import { ALL_ISSUES, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
-import type { EIssuesStoreType, IBlockUpdateData, TIssue } from "@plane/types";
-import { EIssueLayoutTypes, GANTT_TIMELINE_TYPE } from "@plane/types";
+import type { IBlockUpdateData, TIssue } from "@plane/types";
+import { EIssueLayoutTypes, EIssuesStoreType, GANTT_TIMELINE_TYPE } from "@plane/types";
 import { renderFormattedPayloadDate } from "@plane/utils";
 // components
 import { TimeLineTypeContext } from "@/components/gantt-chart/contexts";
@@ -13,6 +13,7 @@ import { GanttChartRoot } from "@/components/gantt-chart/root";
 import { IssueGanttSidebar } from "@/components/gantt-chart/sidebar/issues/sidebar";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useGroupedIssueIds, useProjectIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -50,7 +51,14 @@ export function BaseGanttRoot(props: IBaseGanttRoot) {
   // store hooks
   const { allowPermissions } = useUserPermissions();
 
-  const appliedDisplayFilters = issuesFilter.issueFilters?.displayFilters;
+  // Use reactive hook for PROJECT store type, fall back to non-reactive for others
+  const reactiveFilters = useProjectIssueFilters();
+
+  // Use reactive filters for PROJECT store type to ensure proper re-renders when filters load
+  const appliedDisplayFilters =
+    storeType === EIssuesStoreType.PROJECT
+      ? reactiveFilters?.displayFilters
+      : issuesFilter.issueFilters?.displayFilters;
   // plane web hooks
   const isBulkOperationsEnabled = useBulkOperationStatus();
   // derived values
@@ -65,7 +73,9 @@ export function BaseGanttRoot(props: IBaseGanttRoot) {
     initGantt();
   }, []);
 
-  const issuesIds = (issues.groupedIssueIds?.[ALL_ISSUES] as string[]) ?? [];
+  // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
+  const groupedIssueIds = useGroupedIssueIds(storeType);
+  const issuesIds = (groupedIssueIds?.[ALL_ISSUES] as string[]) ?? [];
   const nextPageResults = issues.getPaginationData(undefined, undefined)?.nextPageResults;
 
   const { enableIssueCreation } = issues?.viewFlags || {};
