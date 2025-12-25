@@ -41,13 +41,20 @@ export function IssueLayoutHOC(props: Props) {
   const storeType = useIssueStoreType();
   const { issues } = useIssues(storeType);
 
+  const loader = issues?.getIssueLoader();
   const issueCount = issues.getGroupIssueCount(undefined, undefined, false);
 
-  if (issues?.getIssueLoader() === "init-loader" || issueCount === undefined) {
+  // Only show skeleton during explicit init-loader state.
+  // When loader is undefined (fetch completed) but issueCount is still undefined
+  // due to zustand reactivity timing, treat as empty state rather than loading.
+  if (loader === "init-loader") {
     return <ActiveLoader layout={layout} />;
   }
 
-  if (issues.getGroupIssueCount(undefined, undefined, false) === 0 && layout !== EIssueLayoutTypes.CALENDAR) {
+  // Treat undefined issueCount as 0 (empty) when not in init-loader state
+  const effectiveCount = issueCount ?? 0;
+
+  if (effectiveCount === 0 && layout !== EIssueLayoutTypes.CALENDAR) {
     return <IssueLayoutEmptyState storeType={storeType} />;
   }
 

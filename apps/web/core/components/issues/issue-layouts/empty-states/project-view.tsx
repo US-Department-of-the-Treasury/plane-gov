@@ -1,3 +1,4 @@
+import { useParams } from "next/navigation";
 // components
 import { EUserPermissions, EUserPermissionsLevel, WORK_ITEM_TRACKER_ELEMENTS } from "@plane/constants";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
@@ -9,6 +10,8 @@ import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useUserPermissions } from "@/hooks/store/user";
 
 export function ProjectViewEmptyState() {
+  // router
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
@@ -16,7 +19,9 @@ export function ProjectViewEmptyState() {
   // auth
   const isCreatingIssueAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug?.toString(),
+    projectId?.toString()
   );
 
   return (

@@ -60,7 +60,9 @@ export function EpicListItemAction(props: Props) {
   const epicStatus = EPIC_STATUS.find((status) => status.value === epicDetails.status);
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug,
+    projectId
   );
   const isDisabled = !isEditingAllowed || !!epicDetails?.archived_at;
   const renderIcon = Boolean(epicDetails.start_date) || Boolean(epicDetails.target_date);

@@ -40,7 +40,9 @@ export function SprintEmptyState() {
     isCompletedSprintSnapshotAvailable || sprintDetails?.status?.toLowerCase() === "completed";
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug,
+    projectId
   );
 
   const handleAddIssuesToSprint = async (data: ISearchIssueResponse[]) => {

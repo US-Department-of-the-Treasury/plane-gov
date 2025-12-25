@@ -34,7 +34,9 @@ export function EpicEmptyState() {
   const epicWorkItemFilter = useWorkItemFilterInstance(EIssuesStoreType.EPIC, epicId);
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug,
+    projectId
   );
 
   const handleAddIssuesToEpic = async (data: ISearchIssueResponse[]) => {

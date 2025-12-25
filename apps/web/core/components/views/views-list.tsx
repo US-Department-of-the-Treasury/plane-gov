@@ -16,7 +16,7 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { ProjectViewListItem } from "./view-list-item";
 
 export function ProjectViewsList() {
-  const { projectId } = useParams();
+  const { workspaceSlug, projectId } = useParams();
   // plane hooks
   const { t } = useTranslation();
   // store hooks
@@ -28,7 +28,9 @@ export function ProjectViewsList() {
   const filteredProjectViews = getFilteredProjectViews(projectId?.toString());
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER, EUserProjectRoles.GUEST],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug?.toString(),
+    projectId?.toString()
   );
 
   if (loader || !projectViews || !filteredProjectViews) return <ViewListLoader />;

@@ -13,7 +13,8 @@ import { useWorkItemFilterInstance } from "@/hooks/store/work-item-filters/use-w
 
 export function ProjectEmptyState() {
   // router
-  const { projectId: routerProjectId } = useParams();
+  const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
+  const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
   const projectId = routerProjectId ? routerProjectId.toString() : undefined;
   // plane imports
   const { t } = useTranslation();
@@ -25,7 +26,9 @@ export function ProjectEmptyState() {
 
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug,
+    projectId
   );
 
   return (

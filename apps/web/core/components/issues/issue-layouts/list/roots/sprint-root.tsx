@@ -22,7 +22,9 @@ export function SprintListLayout() {
   const isCompletedSprint = sprintId ? completedSprintIds.includes(sprintId.toString()) : false;
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug?.toString(),
+    projectId?.toString()
   );
 
   const canEditIssueProperties = useCallback(

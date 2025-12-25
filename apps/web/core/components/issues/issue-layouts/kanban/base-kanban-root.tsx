@@ -128,7 +128,9 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
 
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug?.toString(),
+    projectId?.toString()
   );
 
   const handleOnDrop = useGroupIssuesDragNDrop(storeType, orderBy, group_by, sub_group_by);

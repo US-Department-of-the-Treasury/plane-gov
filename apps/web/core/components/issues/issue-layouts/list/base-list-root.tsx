@@ -87,7 +87,9 @@ export function BaseListRoot(props: IBaseListRoot) {
   // auth
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug?.toString(),
+    projectId?.toString()
   );
   const { enableInlineEditing, enableQuickAdd, enableIssueCreation } = issues?.viewFlags || {};
 

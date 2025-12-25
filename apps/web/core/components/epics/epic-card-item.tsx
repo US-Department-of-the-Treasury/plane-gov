@@ -68,7 +68,9 @@ export function EpicCardItem(props: Props) {
   const epicDetails = getEpicById(epics, epicId);
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug,
+    projectId
   );
   const isDisabled = !isEditingAllowed || !!epicDetails?.archived_at;
   const renderIcon = Boolean(epicDetails?.start_date) || Boolean(epicDetails?.target_date);

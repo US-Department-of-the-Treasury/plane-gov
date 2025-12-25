@@ -36,7 +36,9 @@ export function EpicsListView() {
   const filteredEpicIds = epics?.map((epic) => epic.id);
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug?.toString(),
+    projectId?.toString()
   );
 
   if (isLoading || !projectEpicIds || !filteredEpicIds)

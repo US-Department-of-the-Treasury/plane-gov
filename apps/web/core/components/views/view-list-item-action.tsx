@@ -51,7 +51,9 @@ export function ViewListItemAction(props: Props) {
   // derived values
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug,
+    projectId
   );
 
   const access = view.access;

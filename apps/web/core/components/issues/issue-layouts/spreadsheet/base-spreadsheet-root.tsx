@@ -35,7 +35,7 @@ interface IBaseSpreadsheetRoot {
 export function BaseSpreadsheetRoot(props: IBaseSpreadsheetRoot) {
   const { QuickActions, canEditPropertiesBasedOnProject, isCompletedSprint = false, viewId, isEpic = false } = props;
   // router
-  const { projectId } = useParams();
+  const { workspaceSlug, projectId } = useParams();
   // store hooks
   const storeType = useIssueStoreType() as SpreadsheetStoreType;
   const { allowPermissions } = useUserPermissions();
@@ -56,7 +56,9 @@ export function BaseSpreadsheetRoot(props: IBaseSpreadsheetRoot) {
   // user role validation
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug?.toString(),
+    projectId?.toString()
   );
 
   useEffect(() => {

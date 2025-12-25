@@ -46,7 +46,7 @@ export function BaseCalendarRoot(props: IBaseCalendarRoot) {
   } = props;
 
   // router
-  const { workspaceSlug } = useParams();
+  const { workspaceSlug, projectId } = useParams();
 
   // hooks
   const fallbackStoreType = useIssueStoreType() as CalendarStoreType;
@@ -69,7 +69,9 @@ export function BaseCalendarRoot(props: IBaseCalendarRoot) {
 
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug?.toString(),
+    projectId?.toString()
   );
 
   const { enableInlineEditing } = issues?.viewFlags || {};
