@@ -48,7 +48,9 @@ export function PagesListMainContent(props: Props) {
   const filteredPageIds = getCurrentProjectFilteredPageIdsByTab(pageType);
   const canPerformEmptyStateActions = allowPermissions(
     [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug?.toString(),
+    projectId?.toString()
   );
 
   // handle page create
