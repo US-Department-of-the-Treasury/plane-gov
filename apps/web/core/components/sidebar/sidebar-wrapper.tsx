@@ -1,15 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
-import { PreferencesIcon } from "@plane/propel/icons";
 import { ScrollArea } from "@plane/propel/scrollarea";
-// components
-import { CustomizeNavigationDialog } from "@/components/navigation/customize-navigation-dialog";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import useSize from "@/hooks/use-window-size";
 import { AppSidebarToggleButton } from "./sidebar-toggle-button";
-import { IconButton } from "@plane/propel/icon-button";
 
 type TSidebarWrapperProps = {
   title: string;
@@ -19,8 +15,6 @@ type TSidebarWrapperProps = {
 
 export function SidebarWrapper(props: TSidebarWrapperProps) {
   const { title, children, quickActions } = props;
-  // state
-  const [isCustomizeNavDialogOpen, setIsCustomizeNavDialogOpen] = useState(false);
   // store hooks
   const { toggleSidebar, sidebarCollapsed } = useAppTheme();
   const windowSize = useSize();
@@ -39,40 +33,27 @@ export function SidebarWrapper(props: TSidebarWrapperProps) {
   }, [windowSize]);
 
   return (
-    <>
-      <CustomizeNavigationDialog isOpen={isCustomizeNavDialogOpen} onClose={() => setIsCustomizeNavDialogOpen(false)} />
-      <div ref={ref} className="flex flex-col h-full w-full">
-        <div className="flex flex-col gap-3 px-3">
-          {/* Workspace switcher and settings */}
+    <div ref={ref} className="flex flex-col h-full w-full">
+      <div className="flex flex-col gap-3 px-3">
+        {/* Workspace switcher and settings */}
 
-          <div className="flex items-center justify-between gap-2 px-2">
-            <span className="text-16 text-primary font-medium pt-1">{title}</span>
-            <div className="flex items-center gap-2">
-              {title === "Projects" && (
-                <IconButton
-                  size="base"
-                  variant="ghost"
-                  icon={PreferencesIcon}
-                  onClick={() => setIsCustomizeNavDialogOpen(true)}
-                />
-              )}
-              <AppSidebarToggleButton />
-            </div>
-          </div>
-          {/* Quick actions */}
-          {quickActions}
+        <div className="flex items-center justify-between gap-2 px-2">
+          <span className="text-16 text-primary font-medium pt-1">{title}</span>
+          <AppSidebarToggleButton />
         </div>
-
-        <ScrollArea
-          orientation="vertical"
-          scrollType="hover"
-          size="sm"
-          rootClassName="size-full overflow-x-hidden overflow-y-auto"
-          viewportClassName="flex flex-col gap-3 overflow-x-hidden h-full w-full overflow-y-auto px-3 pt-3 pb-0.5"
-        >
-          {children}
-        </ScrollArea>
+        {/* Quick actions */}
+        {quickActions}
       </div>
-    </>
+
+      <ScrollArea
+        orientation="vertical"
+        scrollType="hover"
+        size="sm"
+        rootClassName="size-full overflow-x-hidden overflow-y-auto"
+        viewportClassName="flex flex-col gap-3 overflow-x-hidden h-full w-full overflow-y-auto px-3 pt-3 pb-0.5"
+      >
+        {children}
+      </ScrollArea>
+    </div>
   );
 }
