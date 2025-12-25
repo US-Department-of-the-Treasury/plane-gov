@@ -1,7 +1,16 @@
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, useCallback } from "react";
 import { useParams } from "react-router";
-import { Plus, Search, ChevronRight, File, FolderClosed, Lock } from "lucide-react";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
+import { Plus, Search, ChevronRight, FileText, FolderClosed, Lock, MoreHorizontal, Trash2, Copy } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@plane/propel/primitives";
+import { Logo } from "@plane/propel/emoji-icon-picker";
 import { SIDEBAR_WIDTH } from "@plane/constants";
 import { useLocalStorage } from "@plane/hooks";
 import { useTranslation } from "@plane/i18n";
@@ -23,16 +32,19 @@ const WikiPageItem = memo(function WikiPageItem({
   workspaceSlug,
   activePageId,
   depth = 0,
+  onCreateChildPage,
 }: {
   page: TWikiPageTreeNode;
   workspaceSlug: string;
   activePageId?: string;
   depth?: number;
+  onCreateChildPage?: (parentId: string) => void;
 }) {
   const router = useAppRouter();
   const [isOpen, setIsOpen] = useState(false);
   const isActive = activePageId === page.id;
   const hasChildren = page.children.length > 0;
+  const hasIcon = page.logo_props?.in_use;
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -41,9 +53,9 @@ const WikiPageItem = memo(function WikiPageItem({
           role="button"
           tabIndex={0}
           className={cn(
-            "group flex items-center gap-1 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-custom-background-80",
+            "group flex items-center gap-1 rounded-md px-2 py-1 text-sm cursor-pointer hover:bg-custom-background-80",
             {
-              "bg-custom-primary-100/10 text-custom-primary-100": isActive,
+              "bg-custom-background-80": isActive,
             }
           )}
           style={{ paddingLeft: `${depth * 12 + 8}px` }}
@@ -55,27 +67,79 @@ const WikiPageItem = memo(function WikiPageItem({
             }
           }}
         >
-          {hasChildren && (
-            <CollapsibleTrigger
-              asChild
-            >
+          {/* Expand/collapse toggle */}
+          {hasChildren ? (
+            <CollapsibleTrigger asChild>
               <button
                 type="button"
                 className="flex-shrink-0 p-0.5 rounded hover:bg-custom-background-90"
                 onClick={(e) => e.stopPropagation()}
               >
                 <ChevronRight
-                  className={cn("size-3.5 transition-transform", {
+                  className={cn("size-3.5 text-custom-text-400 transition-transform duration-200", {
                     "rotate-90": isOpen,
                   })}
                 />
               </button>
             </CollapsibleTrigger>
+          ) : (
+            <div className="w-4.5" />
           )}
-          {!hasChildren && <div className="w-4" />}
-          <File className="size-4 flex-shrink-0 text-custom-text-300" />
-          <span className="flex-1 truncate">{page.name || "Untitled"}</span>
+
+          {/* Page icon or default document icon */}
+          {hasIcon ? (
+            <div className="flex-shrink-0">
+              <Logo logo={page.logo_props} size={16} type="lucide" />
+            </div>
+          ) : (
+            <FileText className="size-4 flex-shrink-0 text-custom-text-400" />
+          )}
+
+          {/* Page name */}
+          <span className="flex-1 truncate text-custom-text-200">{page.name || "Untitled"}</span>
+
+          {/* Lock indicator */}
           {page.is_locked && <Lock className="size-3 flex-shrink-0 text-custom-text-400" />}
+
+          {/* Hover actions - Notion-style */}
+          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Add child page */}
+            <Tooltip tooltipContent="Add sub-page">
+              <button
+                type="button"
+                className="p-0.5 rounded hover:bg-custom-background-90"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCreateChildPage?.(page.id);
+                }}
+              >
+                <Plus className="size-3.5 text-custom-text-400" />
+              </button>
+            </Tooltip>
+
+            {/* More options menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="p-0.5 rounded hover:bg-custom-background-90"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="size-3.5 text-custom-text-400" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuItem onClick={() => void navigator.clipboard.writeText(page.id)}>
+                  <Copy className="size-4 mr-2" />
+                  Copy link
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-red-500">
+                  <Trash2 className="size-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         {hasChildren && (
           <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
@@ -86,6 +150,7 @@ const WikiPageItem = memo(function WikiPageItem({
                 workspaceSlug={workspaceSlug}
                 activePageId={activePageId}
                 depth={depth + 1}
+                onCreateChildPage={onCreateChildPage}
               />
             ))}
           </CollapsibleContent>
@@ -101,12 +166,14 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
   workspaceSlug,
   activePageId,
   depth = 0,
+  onCreateChildPage,
 }: {
   collection: TWikiCollectionTreeNode;
   pages: TWikiPageTreeNode[];
   workspaceSlug: string;
   activePageId?: string;
   depth?: number;
+  onCreateChildPage?: (parentId: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(true);
   const collectionPages = pages.filter((p) => p.collection === collection.id);
@@ -115,25 +182,58 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <div>
-        <CollapsibleTrigger
-          asChild
+        <div
+          className={cn(
+            "group w-full flex items-center gap-1 rounded-md px-2 py-1 text-sm cursor-pointer hover:bg-custom-background-80"
+          )}
+          style={{ paddingLeft: `${depth * 12 + 8}px` }}
         >
-          <button
-            type="button"
-            className={cn(
-              "group w-full flex items-center gap-1 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-custom-background-80"
-            )}
-            style={{ paddingLeft: `${depth * 12 + 8}px` }}
-          >
-            <ChevronRight
-              className={cn("size-3.5 transition-transform flex-shrink-0", {
-                "rotate-90": isOpen,
-              })}
-            />
-            <FolderClosed className="size-4 flex-shrink-0 text-custom-text-300" />
-            <span className="flex-1 truncate text-left font-medium">{collection.name}</span>
-          </button>
-        </CollapsibleTrigger>
+          <CollapsibleTrigger asChild>
+            <button type="button" className="flex-shrink-0 p-0.5 rounded hover:bg-custom-background-90">
+              <ChevronRight
+                className={cn("size-3.5 text-custom-text-400 transition-transform duration-200", {
+                  "rotate-90": isOpen,
+                })}
+              />
+            </button>
+          </CollapsibleTrigger>
+          <FolderClosed className="size-4 flex-shrink-0 text-custom-text-400" />
+          <span className="flex-1 truncate text-left font-medium text-custom-text-200">{collection.name}</span>
+
+          {/* Hover actions for collection */}
+          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Tooltip tooltipContent="Add page to collection">
+              <button
+                type="button"
+                className="p-0.5 rounded hover:bg-custom-background-90"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Plus className="size-3.5 text-custom-text-400" />
+              </button>
+            </Tooltip>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="p-0.5 rounded hover:bg-custom-background-90"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="size-3.5 text-custom-text-400" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuItem>
+                  <Copy className="size-4 mr-2" />
+                  Rename
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-red-500">
+                  <Trash2 className="size-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
         {hasContent && (
           <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
             {collection.children.map((child) => (
@@ -144,6 +244,7 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
                 workspaceSlug={workspaceSlug}
                 activePageId={activePageId}
                 depth={depth + 1}
+                onCreateChildPage={onCreateChildPage}
               />
             ))}
             {collectionPages.map((page) => (
@@ -153,6 +254,7 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
                 workspaceSlug={workspaceSlug}
                 activePageId={activePageId}
                 depth={depth + 1}
+                onCreateChildPage={onCreateChildPage}
               />
             ))}
           </CollapsibleContent>
@@ -202,10 +304,16 @@ export function WikiSidebar() {
 
   // handlers
   const handleWidthChange = (width: number) => setValue(width);
-  const handleCreatePage = () => {
-    // Navigate to wiki page creation (to be implemented)
+  const handleCreatePage = useCallback(() => {
     router.push(`/${workspaceSlug}/wiki?create=true`);
-  };
+  }, [router, workspaceSlug]);
+
+  const handleCreateChildPage = useCallback(
+    (parentId: string) => {
+      router.push(`/${workspaceSlug}/wiki?create=true&parent=${parentId}`);
+    },
+    [router, workspaceSlug]
+  );
 
   return (
     <ResizableSidebar
@@ -264,6 +372,7 @@ export function WikiSidebar() {
                   pages={pageTree}
                   workspaceSlug={workspaceSlug || ""}
                   activePageId={pageId}
+                  onCreateChildPage={handleCreateChildPage}
                 />
               ))}
 
@@ -274,7 +383,13 @@ export function WikiSidebar() {
                     <div className="px-2 py-1 text-xs font-medium text-custom-text-400 uppercase">Pages</div>
                   )}
                   {filteredPages.map((page) => (
-                    <WikiPageItem key={page.id} page={page} workspaceSlug={workspaceSlug || ""} activePageId={pageId} />
+                    <WikiPageItem
+                      key={page.id}
+                      page={page}
+                      workspaceSlug={workspaceSlug || ""}
+                      activePageId={pageId}
+                      onCreateChildPage={handleCreateChildPage}
+                    />
                   ))}
                 </div>
               )}
