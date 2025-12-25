@@ -3,13 +3,50 @@
     "id": 1,
     "name": "Plane Demo Project",
     "identifier": "PDP",
-    "description": "Welcome to the Plane Demo Project! This project throws you into the driver’s seat of Plane, work management software. Through curated work items, you’ll uncover key features, pick up best practices, and see how Plane can streamline your team’s workflow. Whether you’re a startup hungry to scale or an enterprise sharpening efficiency, this demo is your launchpad to mastering Plane. Jump in and see what it can do!",
+    "description": "Welcome to the Plane Demo Project! This project throws you into the driver's seat of Plane, work management software. Through curated work items, you'll uncover key features, pick up best practices, and see how Plane can streamline your team's workflow. Whether you're a startup hungry to scale or an enterprise sharpening efficiency, this demo is your launchpad to mastering Plane. Jump in and see what it can do!",
     "network": 2,
-    "cover_image": "https://images.unsplash.com/photo-1691230995681-480d86cbc135?auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&w=870&q=80",
     "logo_props": {
       "emoji": {
-        "url": "https://cdn.jsdelivr.net/npm/emoji-datasource-apple/img/apple/64/1f447.png",
         "value": "128071"
+      },
+      "in_use": "emoji"
+    }
+  },
+  {
+    "id": 2,
+    "name": "Infrastructure Modernization",
+    "identifier": "INFRA",
+    "description": "Cloud infrastructure modernization initiative. Migrating legacy systems to modern cloud-native architecture with improved scalability, security, and cost efficiency.",
+    "network": 2,
+    "logo_props": {
+      "emoji": {
+        "value": "9881"
+      },
+      "in_use": "emoji"
+    }
+  },
+  {
+    "id": 3,
+    "name": "Customer Portal",
+    "identifier": "PORTAL",
+    "description": "Self-service customer portal for account management, support tickets, and service requests. Improving customer experience through digital transformation.",
+    "network": 2,
+    "logo_props": {
+      "emoji": {
+        "value": "128187"
+      },
+      "in_use": "emoji"
+    }
+  },
+  {
+    "id": 4,
+    "name": "Mobile App",
+    "identifier": "MOBILE",
+    "description": "Native mobile application for iOS and Android platforms. Bringing full functionality to mobile users with offline support and push notifications.",
+    "network": 2,
+    "logo_props": {
+      "emoji": {
+        "value": "128241"
       },
       "in_use": "emoji"
     }

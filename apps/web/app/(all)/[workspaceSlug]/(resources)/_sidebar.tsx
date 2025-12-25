@@ -1,5 +1,5 @@
 import { useState, memo } from "react";
-import { FolderOpen, Filter, File, Link, Image, FileText, ChevronRight } from "lucide-react";
+import { Users, Filter, UserCheck, UserX, Calendar, ChevronRight } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
 import { SIDEBAR_WIDTH } from "@plane/constants";
 import { useLocalStorage } from "@plane/hooks";
@@ -9,27 +9,26 @@ import { ResizableSidebar } from "@/components/sidebar/resizable-sidebar";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 
-// Resource type filters
-const RESOURCE_TYPES = [
-  { id: "all", label: "All Resources", icon: FolderOpen },
-  { id: "files", label: "Files", icon: File },
-  { id: "links", label: "Links", icon: Link },
-  { id: "images", label: "Images", icon: Image },
-  { id: "documents", label: "Documents", icon: FileText },
+// Team member view filters
+const TEAM_FILTERS = [
+  { id: "all", label: "All Team Members", icon: Users },
+  { id: "assigned", label: "Assigned to Sprint", icon: UserCheck },
+  { id: "unassigned", label: "Unassigned", icon: UserX },
+  { id: "current-sprint", label: "Current Sprint Only", icon: Calendar },
 ] as const;
 
-type ResourceTypeId = (typeof RESOURCE_TYPES)[number]["id"];
+type TeamFilterId = (typeof TEAM_FILTERS)[number]["id"];
 
-const ResourceTypeFilter = memo(function ResourceTypeFilter({
-  type,
+const TeamFilterItem = memo(function TeamFilterItem({
+  filter,
   isActive,
   onClick,
 }: {
-  type: (typeof RESOURCE_TYPES)[number];
+  filter: (typeof TEAM_FILTERS)[number];
   isActive: boolean;
   onClick: () => void;
 }) {
-  const Icon = type.icon;
+  const Icon = filter.icon;
   return (
     <button
       type="button"
@@ -42,17 +41,17 @@ const ResourceTypeFilter = memo(function ResourceTypeFilter({
       )}
     >
       <Icon className="size-4 flex-shrink-0" />
-      <span className="flex-1 text-left">{type.label}</span>
+      <span className="flex-1 text-left">{filter.label}</span>
     </button>
   );
 });
 
-const FilterByTypeSection = memo(function FilterByTypeSection({
+const TeamFiltersSection = memo(function TeamFiltersSection({
   activeFilter,
   setActiveFilter,
 }: {
-  activeFilter: ResourceTypeId;
-  setActiveFilter: (id: ResourceTypeId) => void;
+  activeFilter: TeamFilterId;
+  setActiveFilter: (id: TeamFilterId) => void;
 }) {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -69,17 +68,17 @@ const FilterByTypeSection = memo(function FilterByTypeSection({
                 "rotate-90": isOpen,
               })}
             />
-            <span>Filter by Type</span>
+            <span>View Options</span>
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
           <div className="px-2 pb-2">
-            {RESOURCE_TYPES.map((type) => (
-              <ResourceTypeFilter
-                key={type.id}
-                type={type}
-                isActive={activeFilter === type.id}
-                onClick={() => setActiveFilter(type.id)}
+            {TEAM_FILTERS.map((filter) => (
+              <TeamFilterItem
+                key={filter.id}
+                filter={filter}
+                isActive={activeFilter === filter.id}
+                onClick={() => setActiveFilter(filter.id)}
               />
             ))}
           </div>
@@ -89,7 +88,7 @@ const FilterByTypeSection = memo(function FilterByTypeSection({
   );
 });
 
-const QuickFiltersSection = memo(function QuickFiltersSection() {
+const QuickActionsSection = memo(function QuickActionsSection() {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -105,14 +104,14 @@ const QuickFiltersSection = memo(function QuickFiltersSection() {
                 "rotate-90": isOpen,
               })}
             />
-            <span>Quick Filters</span>
+            <span>Quick Actions</span>
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
           <div className="px-4 pb-3 space-y-2">
-            <div className="text-sm text-custom-text-300">Recently Added</div>
-            <div className="text-sm text-custom-text-300">Favorites</div>
-            <div className="text-sm text-custom-text-300">Shared with Me</div>
+            <div className="text-sm text-custom-text-300">Export Assignments</div>
+            <div className="text-sm text-custom-text-300">View Capacity</div>
+            <div className="text-sm text-custom-text-300">Sprint Summary</div>
           </div>
         </CollapsibleContent>
       </div>
@@ -121,7 +120,7 @@ const QuickFiltersSection = memo(function QuickFiltersSection() {
 });
 
 /**
- * Resources mode sidebar with filter options
+ * Resources mode sidebar with team/HR-focused filter options
  * Uses per-mode sidebar collapse state for independent collapse behavior
  */
 export function ResourcesSidebar() {
@@ -137,7 +136,7 @@ export function ResourcesSidebar() {
 
   // states
   const [sidebarWidth, setSidebarWidth] = useState<number>(storedValue ?? SIDEBAR_WIDTH);
-  const [activeFilter, setActiveFilter] = useState<ResourceTypeId>("all");
+  const [activeFilter, setActiveFilter] = useState<TeamFilterId>("all");
 
   // handlers
   const handleWidthChange = (width: number) => setValue(width);
@@ -162,26 +161,26 @@ export function ResourcesSidebar() {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-custom-border-200">
           <div className="flex items-center gap-2">
-            <FolderOpen className="h-5 w-5 text-custom-text-200" />
-            <h2 className="text-base font-semibold">Resources</h2>
+            <Users className="h-5 w-5 text-custom-text-200" />
+            <h2 className="text-base font-semibold">Team Resources</h2>
           </div>
           <button className="p-1 rounded hover:bg-custom-background-80 text-custom-text-200" title="Filter options">
             <Filter className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Filter by Type */}
-        <FilterByTypeSection activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
+        {/* Team Filters */}
+        <TeamFiltersSection activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
 
-        {/* Quick Filters */}
-        <QuickFiltersSection />
+        {/* Quick Actions */}
+        <QuickActionsSection />
 
-        {/* Placeholder content */}
+        {/* Info section */}
         <div className="flex-1 overflow-y-auto px-4 py-4">
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <FolderOpen className="size-8 text-custom-text-400 mb-2" />
-            <p className="text-sm text-custom-text-300">Resources coming soon</p>
-            <p className="text-xs text-custom-text-400 mt-1">Organize files, links, and documents</p>
+            <Users className="size-8 text-custom-text-400 mb-2" />
+            <p className="text-sm text-custom-text-300">Sprint Assignment Matrix</p>
+            <p className="text-xs text-custom-text-400 mt-1">Assign team members to projects by sprint</p>
           </div>
         </div>
       </div>
