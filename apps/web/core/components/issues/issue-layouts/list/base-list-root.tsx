@@ -9,7 +9,7 @@ import { EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 // constants
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useGroupedIssueIds, useProjectIssueFilters } from "@/hooks/store/use-issue-store-reactive";
+import { useGroupedIssueIds, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 // hooks
 import { useGroupIssuesDragNDrop } from "@/hooks/use-group-dragndrop";
@@ -68,18 +68,23 @@ export function BaseListRoot(props: IBaseListRoot) {
   const { allowPermissions } = useUserPermissions();
   const { issueMap } = useIssues();
 
-  // Use reactive hook for PROJECT store type, fall back to non-reactive for others
-  const reactiveFilters = useProjectIssueFilters();
+  // Use reactive hooks for PROJECT and SPRINT store types, fall back to non-reactive for others
+  const projectFilters = useProjectIssueFilters();
+  const sprintFilters = useSprintIssueFilters();
 
-  // Use reactive filters for PROJECT store type to ensure proper re-renders when filters load
+  // Use reactive filters for PROJECT and SPRINT store types to ensure proper re-renders when filters load
   const displayFilters =
     storeType === EIssuesStoreType.PROJECT
-      ? reactiveFilters?.displayFilters
-      : issuesFilter?.issueFilters?.displayFilters;
+      ? projectFilters?.displayFilters
+      : storeType === EIssuesStoreType.SPRINT
+        ? sprintFilters?.displayFilters
+        : issuesFilter?.issueFilters?.displayFilters;
   const displayProperties =
     storeType === EIssuesStoreType.PROJECT
-      ? reactiveFilters?.displayProperties
-      : issuesFilter?.issueFilters?.displayProperties;
+      ? projectFilters?.displayProperties
+      : storeType === EIssuesStoreType.SPRINT
+        ? sprintFilters?.displayProperties
+        : issuesFilter?.issueFilters?.displayProperties;
   const orderBy = displayFilters?.order_by || undefined;
 
   const group_by = (displayFilters?.group_by || null) as GroupByColumnTypes | null;

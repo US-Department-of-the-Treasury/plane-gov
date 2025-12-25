@@ -58,6 +58,11 @@ interface WorkspaceIssuesFilterState {
 
 interface WorkspaceIssuesFilterActions {
   setFilters: (viewId: string, filters: IIssueFilters) => void;
+  setRichFilters: (viewId: string, richFilters: TWorkItemFilterExpression) => void;
+  setDisplayFilters: (viewId: string, displayFilters: Partial<IIssueDisplayFilterOptions>) => void;
+  setDisplayProperties: (viewId: string, displayProperties: Partial<IIssueDisplayProperties>) => void;
+  setKanbanFilters: (viewId: string, kanbanFilters: Partial<TIssueKanbanFilters>) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateFilterField: (viewId: string, field: string, value: any) => void;
 }
 
@@ -75,9 +80,59 @@ export const useWorkspaceIssuesFilterStore = create<WorkspaceIssuesFilterStore>(
       });
     },
 
+    setRichFilters: (viewId, richFilters) => {
+      set((state) => {
+        if (!state.filters[viewId]) {
+          state.filters[viewId] = {} as IIssueFilters;
+        }
+        state.filters[viewId].richFilters = richFilters;
+      });
+    },
+
+    setDisplayFilters: (viewId, displayFilters) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[viewId] = {
+          ...(state.filters[viewId] ?? {}),
+          displayFilters: {
+            ...(state.filters[viewId]?.displayFilters ?? {}),
+            ...displayFilters,
+          },
+        } as IIssueFilters;
+      });
+    },
+
+    setDisplayProperties: (viewId, displayProperties) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[viewId] = {
+          ...(state.filters[viewId] ?? {}),
+          displayProperties: {
+            ...(state.filters[viewId]?.displayProperties ?? {}),
+            ...displayProperties,
+          },
+        } as IIssueFilters;
+      });
+    },
+
+    setKanbanFilters: (viewId, kanbanFilters) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[viewId] = {
+          ...(state.filters[viewId] ?? {}),
+          kanbanFilters: {
+            ...(state.filters[viewId]?.kanbanFilters ?? {}),
+            ...kanbanFilters,
+          },
+        } as IIssueFilters;
+      });
+    },
+
     updateFilterField: (viewId, field, value) => {
       set((state) => {
-        lodashSet(state.filters, [viewId, field], value);
+        // Use string path notation so lodash properly handles nested keys like "displayFilters.layout"
+        // With immer middleware, lodashSet allows proper mutation tracking at each path level
+        lodashSet(state.filters, `${viewId}.${field}`, value);
       });
     },
   }))
@@ -206,10 +261,13 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
       displayFilters.order_by = "-created_at";
     }
 
-    this.store.updateFilterField(viewId, "richFilters", richFilters);
-    this.store.updateFilterField(viewId, "displayFilters", displayFilters);
-    this.store.updateFilterField(viewId, "displayProperties", displayProperties);
-    this.store.updateFilterField(viewId, "kanbanFilters", kanbanFilters);
+    // Use setFilters to set all filters at once for proper Zustand reactivity
+    this.store.setFilters(viewId, {
+      richFilters,
+      displayFilters,
+      displayProperties,
+      kanbanFilters,
+    });
   };
 
   /**
@@ -219,7 +277,8 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
    */
   updateFilterExpression: IWorkspaceIssuesFilter["updateFilterExpression"] = async (workspaceSlug, viewId, filters) => {
     try {
-      this.store.updateFilterField(viewId, "richFilters", filters);
+      // Use setRichFilters for proper Zustand reactivity
+      this.store.setRichFilters(viewId, filters);
 
       this.rootIssueStore.workspaceIssues.fetchIssuesWithExistingPagination(workspaceSlug, viewId, "mutation");
     } catch (error) {
@@ -265,13 +324,8 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
             updatedDisplayFilters.group_by = "state";
           }
 
-          Object.keys(updatedDisplayFilters).forEach((_key) => {
-            this.store.updateFilterField(
-              viewId,
-              `displayFilters.${_key}`,
-              updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
-            );
-          });
+          // Use setDisplayFilters directly for proper Zustand reactivity
+          this.store.setDisplayFilters(viewId, updatedDisplayFilters);
 
           this.rootIssueStore.workspaceIssues.fetchIssuesWithExistingPagination(workspaceSlug, viewId, "mutation");
 
@@ -285,13 +339,9 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
           const updatedDisplayProperties = filters as IIssueDisplayProperties;
           _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
 
-          Object.keys(updatedDisplayProperties).forEach((_key) => {
-            this.store.updateFilterField(
-              viewId,
-              `displayProperties.${_key}`,
-              updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
-            );
-          });
+          // Use setDisplayProperties for proper Zustand reactivity
+          this.store.setDisplayProperties(viewId, updatedDisplayProperties);
+
           if (["all-issues", "assigned", "created", "subscribed"].includes(viewId))
             this.handleIssuesLocalFilters.set(EIssuesStoreType.GLOBAL, type, workspaceSlug, undefined, viewId, {
               display_properties: _filters.displayProperties,
@@ -309,13 +359,8 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
               kanban_filters: _filters.kanbanFilters,
             });
 
-          Object.keys(updatedKanbanFilters).forEach((_key) => {
-            this.store.updateFilterField(
-              viewId,
-              `kanbanFilters.${_key}`,
-              updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
-            );
-          });
+          // Use setKanbanFilters for proper Zustand reactivity
+          this.store.setKanbanFilters(viewId, updatedKanbanFilters);
 
           break;
         }

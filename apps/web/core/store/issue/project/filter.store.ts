@@ -76,7 +76,8 @@ export const useProjectIssuesFilterStore = create<ProjectIssuesFilterStore>()(
 
     updateFilterField: (projectId, field, value) => {
       set((state) => {
-        lodashSet(state.filters, [projectId, field], value);
+        // Use string path notation so lodash properly handles nested keys like "displayFilters.layout"
+        lodashSet(state.filters, `${projectId}.${field}`, value);
       });
     },
   }))
@@ -259,7 +260,9 @@ export class ProjectIssuesFilter extends IssueFilterHelperStore implements IProj
           });
 
           if (this.getShouldClearIssues(updatedDisplayFilters)) {
-            this.rootIssueStore.projectIssues.clear(true); // clear issues for local store when some filters like layout changes
+            // Use clearAndSetLoader to atomically clear store AND set loader to prevent flash of empty state
+            // The new layout component's useEffect will trigger the fetch
+            this.rootIssueStore.projectIssues.clearAndSetLoader("init-loader", true);
           }
 
           if (this.getShouldReFetchIssues(updatedDisplayFilters)) {

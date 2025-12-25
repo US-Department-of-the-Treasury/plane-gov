@@ -101,8 +101,8 @@ export class ArchivedIssues extends BaseIssuesStore implements IArchivedIssues {
     isExistingPaginationOptions: boolean = false
   ) => {
     try {
-      this.setLoader(loadType);
-      this.clear(!isExistingPaginationOptions);
+      // atomically clear store and set loader to prevent flash of empty state
+      this.clearAndSetLoader(loadType, !isExistingPaginationOptions);
 
       const params = this.issueFilterStore?.getFilterParams(options, projectId, undefined, undefined, undefined);
       const response = await this.issueArchiveService.getArchivedIssues(workspaceSlug, projectId, params, {

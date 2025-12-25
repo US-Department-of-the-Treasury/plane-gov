@@ -24,12 +24,14 @@
 import { isEmpty } from "lodash-es";
 import { useParams } from "next/navigation";
 import { useCallback, useContext, useMemo, useRef, useSyncExternalStore } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { ALL_ISSUES } from "@plane/constants";
-import type { IIssueFilters, TGroupedIssues, TLoader, TSubGroupedIssues, TUnGroupedIssues } from "@plane/types";
+import type { IIssueFilters, TGroupedIssues, TIssueLayoutTypes, TLoader, TSubGroupedIssues, TUnGroupedIssues } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
 import { StoreContext } from "@/lib/store-context";
 import type { BaseIssuesZustandStore } from "@/store/issue/helpers/base-issues.store";
 import { useProjectIssuesFilterStore } from "@/store/issue/project/filter.store";
+import { useSprintIssuesFilterStore } from "@/store/issue/sprint/filter.store";
 
 /**
  * Get the zustand store for a given issue store type.
@@ -277,10 +279,11 @@ export function useProjectIssueFilters(): IIssueFilters | undefined {
   const { projectId } = useParams();
   const projectIdStr = projectId?.toString();
 
-  // Subscribe to Zustand store directly using selector
-  // This is reactive and will trigger re-renders when filters change
-  const rawFilters = useProjectIssuesFilterStore((state) =>
-    projectIdStr ? state.filters[projectIdStr] : undefined
+  // Subscribe to Zustand store directly using selector with useShallow
+  // useShallow does shallow comparison of the returned object's properties,
+  // ensuring re-renders when nested properties like displayFilters change
+  const rawFilters = useProjectIssuesFilterStore(
+    useShallow((state) => (projectIdStr ? state.filters[projectIdStr] : undefined))
   );
 
   // Apply computedIssueFilters transform (same logic as IssueFilterHelperStore)
@@ -293,4 +296,60 @@ export function useProjectIssueFilters(): IIssueFilters | undefined {
       kanbanFilters: isEmpty(rawFilters?.kanbanFilters) ? undefined : rawFilters?.kanbanFilters,
     };
   }, [rawFilters]);
+}
+
+/**
+ * Get sprint issue filters reactively.
+ * Subscribes directly to Zustand store and re-renders when filters change.
+ *
+ * This replaces the non-reactive `issuesFilter.getIssueFilters(sprintId)` call which
+ * uses getState() and returns a snapshot that doesn't trigger re-renders.
+ *
+ * Uses the same pattern as useProjectIssueFilters which works correctly:
+ * - useShallow for shallow comparison of the filter object
+ * - useMemo to transform to computed filters
+ *
+ * @returns The computed issue filters for the current sprint, or undefined if not loaded
+ */
+export function useSprintIssueFilters(): IIssueFilters | undefined {
+  const { sprintId } = useParams();
+  const sprintIdStr = sprintId?.toString();
+
+  // Subscribe to Zustand store directly using selector with useShallow
+  // useShallow does shallow comparison of the returned object's properties,
+  // ensuring re-renders when nested properties like displayFilters change
+  const rawFilters = useSprintIssuesFilterStore(
+    useShallow((state) => (sprintIdStr ? state.filters[sprintIdStr] : undefined))
+  );
+
+  // Apply computedIssueFilters transform (same logic as IssueFilterHelperStore)
+  return useMemo(() => {
+    if (!rawFilters || isEmpty(rawFilters)) return undefined;
+    return {
+      richFilters: isEmpty(rawFilters?.richFilters) ? {} : rawFilters?.richFilters,
+      displayFilters: isEmpty(rawFilters?.displayFilters) ? undefined : rawFilters?.displayFilters,
+      displayProperties: isEmpty(rawFilters?.displayProperties) ? undefined : rawFilters?.displayProperties,
+      kanbanFilters: isEmpty(rawFilters?.kanbanFilters) ? undefined : rawFilters?.kanbanFilters,
+    };
+  }, [rawFilters]);
+}
+
+/**
+ * Get sprint layout reactively.
+ * Returns just the layout value as a primitive string for reliable re-renders.
+ *
+ * This is more reliable than extracting layout from useSprintIssueFilters() because:
+ * - Primitive comparison (string) is guaranteed to trigger re-renders on change
+ * - No shallow object comparison issues with nested property updates
+ *
+ * @returns The current layout for the sprint, or undefined if not loaded
+ */
+export function useSprintLayout(): TIssueLayoutTypes | undefined {
+  const { sprintId } = useParams();
+  const sprintIdStr = sprintId?.toString();
+
+  // Select just the layout value directly - primitive comparison is reliable
+  return useSprintIssuesFilterStore((state) =>
+    sprintIdStr ? state.filters[sprintIdStr]?.displayFilters?.layout : undefined
+  );
 }

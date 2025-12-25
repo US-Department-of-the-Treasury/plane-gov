@@ -89,9 +89,8 @@ export class WorkspaceIssues extends BaseIssuesStore implements IWorkspaceIssues
     isExistingPaginationOptions: boolean = false
   ) => {
     try {
-      // set loader and clear store
-      this.setLoader(loadType);
-      this.clear(!isExistingPaginationOptions);
+      // atomically clear store and set loader to prevent flash of empty state
+      this.clearAndSetLoader(loadType, !isExistingPaginationOptions);
 
       // get params from pagination options
       const params = this.issueFilterStore?.getFilterParams(options, viewId, undefined, undefined, undefined);

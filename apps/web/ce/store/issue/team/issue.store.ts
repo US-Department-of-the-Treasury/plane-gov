@@ -1,5 +1,5 @@
-import type { IProjectIssues } from "@/store/issue/project";
-import { ProjectIssues } from "@/store/issue/project";
+import type { IProjectIssues } from "@/store/issue/project/issue.store";
+import { ProjectIssues } from "@/store/issue/project/issue.store";
 import type { IIssueRootStore } from "@/store/issue/root.store";
 import type { ITeamIssuesFilter } from "./filter.store";
 

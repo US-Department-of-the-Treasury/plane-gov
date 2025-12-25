@@ -145,9 +145,8 @@ export class ProfileIssues extends BaseIssuesStore implements IProfileIssues {
     isExistingPaginationOptions: boolean = false
   ) => {
     try {
-      // set loader and clear store
-      this.setLoader(loadType);
-      this.clear(!isExistingPaginationOptions);
+      // atomically clear store and set loader to prevent flash of empty state
+      this.clearAndSetLoader(loadType, !isExistingPaginationOptions);
 
       // set ViewId
       this.setViewId(view);

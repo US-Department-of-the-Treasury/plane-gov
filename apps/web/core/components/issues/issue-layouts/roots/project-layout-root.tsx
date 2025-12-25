@@ -9,7 +9,7 @@ import { ProjectLevelWorkItemFiltersHOC } from "@/components/work-item-filters/f
 import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
+import { useIssueLoader, useProjectIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
 import { queryKeys } from "@/store/queries/query-keys";
 // local imports
@@ -46,14 +46,18 @@ export function ProjectLayoutRoot() {
   const { issuesFilter } = useIssues(EIssuesStoreType.PROJECT);
   // Use reactive loader hook instead of non-reactive issues?.getIssueLoader()
   const loader = useIssueLoader(EIssuesStoreType.PROJECT);
+  // Use reactive filter hook for layout - this updates immediately when user changes layout
+  const reactiveFilters = useProjectIssueFilters();
+  const activeLayout = reactiveFilters?.displayFilters?.layout;
 
-  // Fetch filters and return them directly so TanStack Query tracks the data
-  // This triggers re-renders when the query completes, avoiding Zustand subscription issues
+  // Fetch filters from server and populate Zustand store on mount
+  // Note: We don't use the query data directly for rendering - we use the reactive Zustand hook above
+  // This ensures layout changes are reflected immediately without waiting for query invalidation
   const { data: workItemFilters } = useQuery({
     queryKey: workspaceSlug && projectId ? queryKeys.issues.all(workspaceSlug, projectId) : [],
     queryFn: async () => {
       if (workspaceSlug && projectId) {
-        // fetchFilters now returns the processed filters directly
+        // fetchFilters populates Zustand store and returns the processed filters
         return issuesFilter?.fetchFilters(workspaceSlug, projectId);
       }
       return undefined;
@@ -62,8 +66,6 @@ export function ProjectLayoutRoot() {
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });
-
-  const activeLayout = workItemFilters?.displayFilters?.layout;
 
   if (!workspaceSlug || !projectId || !workItemFilters) return <></>;
   return (

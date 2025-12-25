@@ -208,6 +208,7 @@ interface BaseIssuesActions {
   setPaginationOptions: (options: IssuePaginationOptions | undefined) => void;
   updateLoader: (updates: Partial<Record<string, TLoader>>) => void;
   clearStore: (shouldClearPaginationOptions?: boolean) => void;
+  clearAndSetLoader: (loadType: TLoader, shouldClearPaginationOptions?: boolean) => void;
   updateNestedGroupedIssueCount: (path: string[], value: any) => void;
   updateNestedIssuePaginationData: (path: string[], value: any) => void;
   updateNestedGroupedIssueIds: (path: string[], value: any) => void;
@@ -263,6 +264,18 @@ export const createBaseIssuesStore = () =>
           state.groupedIssueIds = undefined;
           state.issuePaginationData = {};
           state.groupedIssueCount = {};
+          if (shouldClearPaginationOptions) {
+            state.paginationOptions = undefined;
+          }
+        });
+      },
+      clearAndSetLoader: (loadType: TLoader, shouldClearPaginationOptions = false) => {
+        set((state) => {
+          state.groupedIssueIds = undefined;
+          state.issuePaginationData = {};
+          state.groupedIssueCount = {};
+          // Set loader atomically with clear to prevent flash of empty state
+          state.loader = { [ALL_ISSUES]: loadType };
           if (shouldClearPaginationOptions) {
             state.paginationOptions = undefined;
           }
@@ -1209,6 +1222,17 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
    */
   clear(shouldClearPaginationOptions = true) {
     this.baseStore.getState().clearStore(shouldClearPaginationOptions);
+    this.controller.abort();
+    this.controller = new AbortController();
+  }
+
+  /**
+   * Atomically clears the store and sets the loader in a single state update.
+   * This prevents the flash of empty state that occurs when clear() and setLoader()
+   * are called separately (the render cycle between them shows count=0 with no loader).
+   */
+  clearAndSetLoader(loadType: TLoader, shouldClearPaginationOptions = true) {
+    this.baseStore.getState().clearAndSetLoader(loadType, shouldClearPaginationOptions);
     this.controller.abort();
     this.controller = new AbortController();
   }

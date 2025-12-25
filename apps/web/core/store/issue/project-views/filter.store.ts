@@ -63,6 +63,11 @@ interface ProjectViewIssuesFilterState {
 
 interface ProjectViewIssuesFilterActions {
   setFilters: (viewId: string, filters: IIssueFilters) => void;
+  setRichFilters: (viewId: string, richFilters: TWorkItemFilterExpression) => void;
+  setDisplayFilters: (viewId: string, displayFilters: Partial<IIssueDisplayFilterOptions>) => void;
+  setDisplayProperties: (viewId: string, displayProperties: Partial<IIssueDisplayProperties>) => void;
+  setKanbanFilters: (viewId: string, kanbanFilters: Partial<TIssueKanbanFilters>) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateFilterField: (viewId: string, field: string, value: any) => void;
 }
 
@@ -80,9 +85,59 @@ export const useProjectViewIssuesFilterStore = create<ProjectViewIssuesFilterSto
       });
     },
 
+    setRichFilters: (viewId, richFilters) => {
+      set((state) => {
+        if (!state.filters[viewId]) {
+          state.filters[viewId] = {} as IIssueFilters;
+        }
+        state.filters[viewId].richFilters = richFilters;
+      });
+    },
+
+    setDisplayFilters: (viewId, displayFilters) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[viewId] = {
+          ...(state.filters[viewId] ?? {}),
+          displayFilters: {
+            ...(state.filters[viewId]?.displayFilters ?? {}),
+            ...displayFilters,
+          },
+        } as IIssueFilters;
+      });
+    },
+
+    setDisplayProperties: (viewId, displayProperties) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[viewId] = {
+          ...(state.filters[viewId] ?? {}),
+          displayProperties: {
+            ...(state.filters[viewId]?.displayProperties ?? {}),
+            ...displayProperties,
+          },
+        } as IIssueFilters;
+      });
+    },
+
+    setKanbanFilters: (viewId, kanbanFilters) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[viewId] = {
+          ...(state.filters[viewId] ?? {}),
+          kanbanFilters: {
+            ...(state.filters[viewId]?.kanbanFilters ?? {}),
+            ...kanbanFilters,
+          },
+        } as IIssueFilters;
+      });
+    },
+
     updateFilterField: (viewId, field, value) => {
       set((state) => {
-        lodashSet(state.filters, [viewId, field], value);
+        // Use string path notation so lodash properly handles nested keys like "displayFilters.layout"
+        // With immer middleware, lodashSet allows proper mutation tracking at each path level
+        lodashSet(state.filters, `${viewId}.${field}`, value);
       });
     },
   }))
@@ -185,10 +240,13 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
       kanbanFilters.sub_group_by = _kanbanFilters?.kanban_filters?.sub_group_by || [];
     }
 
-    this.store.updateFilterField(viewId, "richFilters", richFilters);
-    this.store.updateFilterField(viewId, "displayFilters", displayFilters);
-    this.store.updateFilterField(viewId, "displayProperties", displayProperties);
-    this.store.updateFilterField(viewId, "kanbanFilters", kanbanFilters);
+    // Use setFilters to set all filters at once for proper Zustand reactivity
+    this.store.setFilters(viewId, {
+      richFilters,
+      displayFilters,
+      displayProperties,
+      kanbanFilters,
+    });
   };
 
   fetchFilters = async (workspaceSlug: string, projectId: string, viewId: string) => {
@@ -213,7 +271,8 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
     filters
   ) => {
     try {
-      this.store.updateFilterField(viewId, "richFilters", filters);
+      // Use setRichFilters for proper Zustand reactivity
+      this.store.setRichFilters(viewId, filters);
 
       this.rootIssueStore.projectViewIssues.fetchIssuesWithExistingPagination(
         workspaceSlug,
@@ -268,16 +327,14 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
             updatedDisplayFilters.group_by = "state";
           }
 
-          Object.keys(updatedDisplayFilters).forEach((_key) => {
-            this.store.updateFilterField(
-              viewId,
-              `displayFilters.${_key}`,
-              updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
-            );
-          });
+          // Use setDisplayFilters directly instead of updateFilterField with lodashSet
+          // This creates proper new object references that Zustand selectors will detect
+          this.store.setDisplayFilters(viewId, updatedDisplayFilters);
 
           if (this.getShouldClearIssues(updatedDisplayFilters)) {
-            this.rootIssueStore.projectIssues.clear(true); // clear issues for local store when some filters like layout changes
+            // Use clearAndSetLoader to atomically clear store AND set loader to prevent flash of empty state
+            // The new layout component's useEffect will trigger the fetch
+            this.rootIssueStore.projectViewIssues.clearAndSetLoader("init-loader", true);
           }
 
           if (this.getShouldReFetchIssues(updatedDisplayFilters)) {
@@ -295,13 +352,8 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
           const updatedDisplayProperties = filters as IIssueDisplayProperties;
           _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
 
-          Object.keys(updatedDisplayProperties).forEach((_key) => {
-            this.store.updateFilterField(
-              viewId,
-              `displayProperties.${_key}`,
-              updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
-            );
-          });
+          // Use setDisplayProperties for proper Zustand reactivity
+          this.store.setDisplayProperties(viewId, updatedDisplayProperties);
 
           break;
         }
@@ -322,13 +374,8 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
               }
             );
 
-          Object.keys(updatedKanbanFilters).forEach((_key) => {
-            this.store.updateFilterField(
-              viewId,
-              `kanbanFilters.${_key}`,
-              updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
-            );
-          });
+          // Use setKanbanFilters for proper Zustand reactivity
+          this.store.setKanbanFilters(viewId, updatedKanbanFilters);
 
           break;
         }

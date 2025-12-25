@@ -54,6 +54,11 @@ interface WorkspaceDraftIssuesFilterState {
 interface WorkspaceDraftIssuesFilterActions {
   setWorkspaceSlug: (slug: string) => void;
   setFilters: (workspaceSlug: string, filters: IIssueFilters) => void;
+  setRichFilters: (workspaceSlug: string, richFilters: TWorkItemFilterExpression) => void;
+  setDisplayFilters: (workspaceSlug: string, displayFilters: Partial<IIssueDisplayFilterOptions>) => void;
+  setDisplayProperties: (workspaceSlug: string, displayProperties: Partial<IIssueDisplayProperties>) => void;
+  setKanbanFilters: (workspaceSlug: string, kanbanFilters: Partial<TIssueKanbanFilters>) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateFilterField: (workspaceSlug: string, field: string, value: any) => void;
 }
 
@@ -78,9 +83,59 @@ export const useWorkspaceDraftIssuesFilterStore = create<WorkspaceDraftIssuesFil
       });
     },
 
+    setRichFilters: (workspaceSlug, richFilters) => {
+      set((state) => {
+        if (!state.filters[workspaceSlug]) {
+          state.filters[workspaceSlug] = {} as IIssueFilters;
+        }
+        state.filters[workspaceSlug].richFilters = richFilters;
+      });
+    },
+
+    setDisplayFilters: (workspaceSlug, displayFilters) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[workspaceSlug] = {
+          ...(state.filters[workspaceSlug] ?? {}),
+          displayFilters: {
+            ...(state.filters[workspaceSlug]?.displayFilters ?? {}),
+            ...displayFilters,
+          },
+        } as IIssueFilters;
+      });
+    },
+
+    setDisplayProperties: (workspaceSlug, displayProperties) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[workspaceSlug] = {
+          ...(state.filters[workspaceSlug] ?? {}),
+          displayProperties: {
+            ...(state.filters[workspaceSlug]?.displayProperties ?? {}),
+            ...displayProperties,
+          },
+        } as IIssueFilters;
+      });
+    },
+
+    setKanbanFilters: (workspaceSlug, kanbanFilters) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[workspaceSlug] = {
+          ...(state.filters[workspaceSlug] ?? {}),
+          kanbanFilters: {
+            ...(state.filters[workspaceSlug]?.kanbanFilters ?? {}),
+            ...kanbanFilters,
+          },
+        } as IIssueFilters;
+      });
+    },
+
     updateFilterField: (workspaceSlug, field, value) => {
       set((state) => {
-        lodashSet(state.filters, [workspaceSlug, field], value);
+        // Use string path notation so lodash properly handles nested keys like "displayFilters.layout"
+        // With immer middleware, lodashSet allows proper mutation tracking at each path level
+        lodashSet(state.filters, `${workspaceSlug}.${field}`, value);
       });
     },
   }))
@@ -186,10 +241,13 @@ export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implement
       sub_group_by: _filters?.kanban_filters?.sub_group_by || [],
     };
 
-    this.store.updateFilterField(workspaceSlug, "richFilters", richFilters);
-    this.store.updateFilterField(workspaceSlug, "displayFilters", displayFilters);
-    this.store.updateFilterField(workspaceSlug, "displayProperties", displayProperties);
-    this.store.updateFilterField(workspaceSlug, "kanbanFilters", kanbanFilters);
+    // Use setFilters to set all filters at once for proper Zustand reactivity
+    this.store.setFilters(workspaceSlug, {
+      richFilters,
+      displayFilters,
+      displayProperties,
+      kanbanFilters,
+    });
   };
 
   /**
@@ -203,7 +261,8 @@ export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implement
     filters
   ) => {
     try {
-      this.store.updateFilterField(workspaceSlug, "richFilters", filters);
+      // Use setRichFilters for proper Zustand reactivity
+      this.store.setRichFilters(workspaceSlug, filters);
 
       this.rootIssueStore.profileIssues.fetchIssuesWithExistingPagination(workspaceSlug, workspaceSlug, "mutation");
       this.handleIssuesLocalFilters.set(
@@ -257,13 +316,8 @@ export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implement
             updatedDisplayFilters.group_by = "priority";
           }
 
-          Object.keys(updatedDisplayFilters).forEach((_key) => {
-            this.store.updateFilterField(
-              workspaceSlug,
-              `displayFilters.${_key}`,
-              updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
-            );
-          });
+          // Use setDisplayFilters directly for proper Zustand reactivity
+          this.store.setDisplayFilters(workspaceSlug, updatedDisplayFilters);
 
           this.rootIssueStore.profileIssues.fetchIssuesWithExistingPagination(workspaceSlug, workspaceSlug, "mutation");
 
@@ -277,13 +331,8 @@ export class WorkspaceDraftIssuesFilter extends IssueFilterHelperStore implement
           const updatedDisplayProperties = filters as IIssueDisplayProperties;
           _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
 
-          Object.keys(updatedDisplayProperties).forEach((_key) => {
-            this.store.updateFilterField(
-              workspaceSlug,
-              `displayProperties.${_key}`,
-              updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
-            );
-          });
+          // Use setDisplayProperties for proper Zustand reactivity
+          this.store.setDisplayProperties(workspaceSlug, updatedDisplayProperties);
 
           this.handleIssuesLocalFilters.set(EIssuesStoreType.PROFILE, type, workspaceSlug, workspaceSlug, undefined, {
             display_properties: _filters.displayProperties,
