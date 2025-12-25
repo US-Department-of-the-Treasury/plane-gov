@@ -1,22 +1,16 @@
 "use client";
 
 import { memo, useMemo, useState } from "react";
-import { File, FolderClosed, Search, Grid, List, Clock } from "lucide-react";
+import { FileText, FolderClosed, Search, Grid, List, Clock, MoreHorizontal } from "lucide-react";
 // plane imports
+import { Logo } from "@plane/propel/emoji-icon-picker";
 import { cn } from "@plane/utils";
 import { Tooltip } from "@plane/ui";
 // hooks
 import { useAppRouter } from "@/hooks/use-app-router";
 // queries
-import {
-  useWikiPages,
-  useWikiCollections,
-  buildWikiPageTree,
-  buildWikiCollectionTree
-  
-  
-} from "@/store/queries";
-import type {TWikiPageTreeNode, TWikiCollectionTreeNode} from "@/store/queries";
+import { useWikiPages, useWikiCollections, buildWikiPageTree, buildWikiCollectionTree } from "@/store/queries";
+import type { TWikiPageTreeNode, TWikiCollectionTreeNode } from "@/store/queries";
 // components
 import { CreateWikiPageModal, CreateWikiCollectionModal } from "@/components/wiki/modals";
 import { WikiEmptyState, WikiPageListSkeleton } from "@/components/wiki/empty-states";
@@ -37,6 +31,7 @@ const WikiPageCard = memo(function WikiPageCard({
   viewMode: ViewMode;
 }) {
   const router = useAppRouter();
+  const hasIcon = page.logo_props?.in_use;
 
   const handleClick = () => {
     router.push(`/${workspaceSlug}/wiki/${page.id}`);
@@ -45,44 +40,83 @@ const WikiPageCard = memo(function WikiPageCard({
   if (viewMode === "list") {
     return (
       <div
-        className="flex items-center gap-3 px-4 py-3 hover:bg-custom-background-80 cursor-pointer border-b border-custom-border-200"
+        role="button"
+        tabIndex={0}
+        className="group flex items-center gap-3 px-4 py-2.5 hover:bg-custom-background-80 cursor-pointer border-b border-custom-border-100 transition-colors"
         onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") handleClick();
+        }}
       >
-        <File className="size-5 text-custom-text-300 flex-shrink-0" />
+        {/* Page icon */}
+        {hasIcon ? (
+          <div className="flex-shrink-0">
+            <Logo logo={page.logo_props} size={20} type="lucide" />
+          </div>
+        ) : (
+          <FileText className="size-5 text-custom-text-400 flex-shrink-0" />
+        )}
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium truncate">{page.name || "Untitled"}</h3>
+          <h3 className="text-sm text-custom-text-200 truncate">{page.name || "Untitled"}</h3>
         </div>
         <div className="flex items-center gap-4 text-xs text-custom-text-400">
-          <div className="flex items-center gap-1">
-            <Clock className="size-3" />
-            <span>{new Date(page.updated_at).toLocaleDateString()}</span>
-          </div>
+          <span>{new Date(page.updated_at).toLocaleDateString()}</span>
         </div>
+        <button
+          type="button"
+          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-custom-background-90"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <MoreHorizontal className="size-4 text-custom-text-400" />
+        </button>
       </div>
     );
   }
 
+  // Grid view - Notion-style card with hover lift
   return (
     <div
-      className="flex flex-col p-4 bg-custom-background-100 border border-custom-border-200 rounded-lg hover:border-custom-primary-100 cursor-pointer transition-colors"
+      role="button"
+      tabIndex={0}
+      className="group flex flex-col p-4 bg-custom-background-100 border border-custom-border-100 rounded-xl cursor-pointer transition-all hover:shadow-md hover:border-custom-border-200 hover:-translate-y-0.5"
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") handleClick();
+      }}
     >
+      {/* Icon and title */}
       <div className="flex items-start gap-3 mb-3">
-        <div className="p-2 bg-custom-background-80 rounded">
-          <File className="size-5 text-custom-text-300" />
+        {hasIcon ? (
+          <div className="flex-shrink-0 p-2 bg-custom-background-80 rounded-lg">
+            <Logo logo={page.logo_props} size={24} type="lucide" />
+          </div>
+        ) : (
+          <div className="flex-shrink-0 p-2 bg-custom-background-80 rounded-lg">
+            <FileText className="size-6 text-custom-text-400" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0 pt-1">
+          <h3 className="text-sm font-medium text-custom-text-100 truncate">{page.name || "Untitled"}</h3>
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium truncate mb-1">{page.name || "Untitled"}</h3>
-          <p className="text-xs text-custom-text-400 line-clamp-2">
-            {page.description_stripped || "No description"}
-          </p>
-        </div>
+        {/* Hover action */}
+        <button
+          type="button"
+          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-custom-background-80"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <MoreHorizontal className="size-4 text-custom-text-400" />
+        </button>
       </div>
-      <div className="flex items-center justify-between text-xs text-custom-text-400 mt-auto pt-3 border-t border-custom-border-100">
-        <div className="flex items-center gap-1">
-          <Clock className="size-3" />
-          <span>{new Date(page.updated_at).toLocaleDateString()}</span>
-        </div>
+
+      {/* Description preview */}
+      {page.description_stripped && (
+        <p className="text-xs text-custom-text-400 line-clamp-2 mb-3">{page.description_stripped}</p>
+      )}
+
+      {/* Footer with date */}
+      <div className="flex items-center gap-2 text-xs text-custom-text-400 mt-auto pt-3 border-t border-custom-border-100">
+        <Clock className="size-3" />
+        <span>Edited {new Date(page.updated_at).toLocaleDateString()}</span>
       </div>
     </div>
   );
@@ -105,55 +139,79 @@ const WikiCollectionCard = memo(function WikiCollectionCard({
 
   if (viewMode === "list") {
     return (
-      <div className="flex items-center gap-3 px-4 py-3 hover:bg-custom-background-80 cursor-pointer border-b border-custom-border-200">
-        <FolderClosed className="size-5 text-custom-text-300 flex-shrink-0" />
+      <div className="group flex items-center gap-3 px-4 py-2.5 hover:bg-custom-background-80 cursor-pointer border-b border-custom-border-100 transition-colors">
+        <FolderClosed className="size-5 text-custom-text-400 flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium truncate">{collection.name}</h3>
+          <h3 className="text-sm font-medium text-custom-text-200 truncate">{collection.name}</h3>
         </div>
         <div className="text-xs text-custom-text-400">
           {pageCount} {pageCount === 1 ? "page" : "pages"}
         </div>
+        <button
+          type="button"
+          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-custom-background-90"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <MoreHorizontal className="size-4 text-custom-text-400" />
+        </button>
       </div>
     );
   }
 
+  // Grid view - Notion-style collection card
   return (
-    <div className="flex flex-col p-4 bg-custom-background-100 border border-custom-border-200 rounded-lg hover:border-custom-primary-100 cursor-pointer transition-colors">
+    <div className="group flex flex-col p-4 bg-custom-background-100 border border-custom-border-100 rounded-xl cursor-pointer transition-all hover:shadow-md hover:border-custom-border-200 hover:-translate-y-0.5">
       <div className="flex items-start gap-3 mb-3">
-        <div className="p-2 bg-custom-background-80 rounded">
-          <FolderClosed className="size-5 text-custom-text-300" />
+        <div className="p-2 bg-custom-background-80 rounded-lg">
+          <FolderClosed className="size-6 text-custom-text-400" />
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium truncate mb-1">{collection.name}</h3>
-          <p className="text-xs text-custom-text-400">
+        <div className="flex-1 min-w-0 pt-1">
+          <h3 className="text-sm font-medium text-custom-text-100 truncate">{collection.name}</h3>
+          <p className="text-xs text-custom-text-400 mt-0.5">
             {pageCount} {pageCount === 1 ? "page" : "pages"}
           </p>
         </div>
+        <button
+          type="button"
+          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-custom-background-80"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <MoreHorizontal className="size-4 text-custom-text-400" />
+        </button>
       </div>
+      {/* Page previews */}
       {collectionPages.slice(0, 3).map((page) => (
         <div
+          role="button"
+          tabIndex={0}
           key={page.id}
-          className="flex items-center gap-2 px-2 py-1 text-xs text-custom-text-300 hover:bg-custom-background-80 rounded cursor-pointer"
+          className="flex items-center gap-2 px-2 py-1.5 text-xs text-custom-text-300 hover:bg-custom-background-80 rounded-md cursor-pointer transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             router.push(`/${workspaceSlug}/wiki/${page.id}`);
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.stopPropagation();
+              router.push(`/${workspaceSlug}/wiki/${page.id}`);
+            }
+          }}
         >
-          <File className="size-3" />
+          {page.logo_props?.in_use ? (
+            <Logo logo={page.logo_props} size={14} type="lucide" />
+          ) : (
+            <FileText className="size-3.5 text-custom-text-400" />
+          )}
           <span className="truncate">{page.name || "Untitled"}</span>
         </div>
       ))}
-      {pageCount > 3 && (
-        <div className="text-xs text-custom-text-400 px-2 py-1">
-          +{pageCount - 3} more
-        </div>
-      )}
+      {pageCount > 3 && <div className="text-xs text-custom-text-400 px-2 py-1 mt-1">+{pageCount - 3} more</div>}
     </div>
   );
 });
 
 export const WikiListView = memo(function WikiListView({ workspaceSlug }: WikiListViewProps) {
-  const router = useAppRouter();
+  const _router = useAppRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [isCreatePageModalOpen, setIsCreatePageModalOpen] = useState(false);
@@ -168,19 +226,14 @@ export const WikiListView = memo(function WikiListView({ workspaceSlug }: WikiLi
   const collectionTree = useMemo(() => buildWikiCollectionTree(collections), [collections]);
 
   // Filter root pages (no collection)
-  const rootPages = useMemo(
-    () => pageTree.filter((p) => !p.collection),
-    [pageTree]
-  );
+  const rootPages = useMemo(() => pageTree.filter((p) => !p.collection), [pageTree]);
 
   // Filter by search
   const filteredPages = useMemo(() => {
     if (!searchQuery) return rootPages;
     const query = searchQuery.toLowerCase();
     return rootPages.filter(
-      (p) =>
-        p.name.toLowerCase().includes(query) ||
-        p.description_stripped?.toLowerCase().includes(query)
+      (p) => p.name.toLowerCase().includes(query) || p.description_stripped?.toLowerCase().includes(query)
     );
   }, [rootPages, searchQuery]);
 
@@ -219,9 +272,7 @@ export const WikiListView = memo(function WikiListView({ workspaceSlug }: WikiLi
                 type="button"
                 className={cn(
                   "p-1.5 rounded-l-md",
-                  viewMode === "grid"
-                    ? "bg-custom-background-80"
-                    : "hover:bg-custom-background-80"
+                  viewMode === "grid" ? "bg-custom-background-80" : "hover:bg-custom-background-80"
                 )}
                 onClick={() => setViewMode("grid")}
               >
@@ -233,9 +284,7 @@ export const WikiListView = memo(function WikiListView({ workspaceSlug }: WikiLi
                 type="button"
                 className={cn(
                   "p-1.5 rounded-r-md",
-                  viewMode === "list"
-                    ? "bg-custom-background-80"
-                    : "hover:bg-custom-background-80"
+                  viewMode === "list" ? "bg-custom-background-80" : "hover:bg-custom-background-80"
                 )}
                 onClick={() => setViewMode("list")}
               >
@@ -275,9 +324,7 @@ export const WikiListView = memo(function WikiListView({ workspaceSlug }: WikiLi
             {/* Collections */}
             {filteredCollections.length > 0 && (
               <div>
-                <h2 className="text-sm font-medium text-custom-text-300 uppercase tracking-wide mb-4">
-                  Collections
-                </h2>
+                <h2 className="text-sm font-medium text-custom-text-300 uppercase tracking-wide mb-4">Collections</h2>
                 <div
                   className={cn(
                     viewMode === "grid"
@@ -301,9 +348,7 @@ export const WikiListView = memo(function WikiListView({ workspaceSlug }: WikiLi
             {/* Pages */}
             {filteredPages.length > 0 && (
               <div>
-                <h2 className="text-sm font-medium text-custom-text-300 uppercase tracking-wide mb-4">
-                  Pages
-                </h2>
+                <h2 className="text-sm font-medium text-custom-text-300 uppercase tracking-wide mb-4">Pages</h2>
                 <div
                   className={cn(
                     viewMode === "grid"
@@ -312,12 +357,7 @@ export const WikiListView = memo(function WikiListView({ workspaceSlug }: WikiLi
                   )}
                 >
                   {filteredPages.map((page) => (
-                    <WikiPageCard
-                      key={page.id}
-                      page={page}
-                      workspaceSlug={workspaceSlug}
-                      viewMode={viewMode}
-                    />
+                    <WikiPageCard key={page.id} page={page} workspaceSlug={workspaceSlug} viewMode={viewMode} />
                   ))}
                 </div>
               </div>

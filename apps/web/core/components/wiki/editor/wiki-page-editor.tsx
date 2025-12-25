@@ -1,12 +1,14 @@
 "use client";
 
 import { memo, useMemo, useCallback, useRef, useState, useEffect } from "react";
-import { Lock, Loader2 } from "lucide-react";
+import { Smile, X, Check, Loader2 } from "lucide-react";
 // plane imports
 import { LIVE_BASE_PATH, LIVE_BASE_URL } from "@plane/constants";
 import { CollaborativeDocumentEditorWithRef } from "@plane/editor";
 import type { EditorRefApi, TDisplayConfig, TRealtimeConfig, TServerHandler, CollaborationState } from "@plane/editor";
-import { EFileAssetType } from "@plane/types";
+import { EmojiPicker, EmojiIconPickerTypes, Logo } from "@plane/propel/emoji-icon-picker";
+import { EFileAssetType   } from "@plane/types";
+import type {TLogoProps, TWikiPageDetail} from "@plane/types";
 import { cn, generateRandomColor, hslToHex } from "@plane/utils";
 // hooks
 import { useEditorConfig, useEditorMention } from "@/hooks/editor";
@@ -22,8 +24,6 @@ import { useEditorFlagging } from "@/plane-web/hooks/use-editor-flagging";
 import { EditorMentionsRoot } from "@/components/editor/embeds/mentions";
 // queries
 import { useUpdateWikiPage } from "@/store/queries";
-// types
-import type { TWikiPageDetail } from "@plane/types";
 
 interface WikiPageEditorProps {
   workspaceSlug: string;
@@ -42,10 +42,12 @@ type SyncingStatus = "syncing" | "synced" | "error";
 export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, pageId, page }: WikiPageEditorProps) {
   // refs
   const editorRef = useRef<EditorRefApi>(null);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
   // state
   const [title, setTitle] = useState(page.name);
   const [syncingStatus, setSyncingStatus] = useState<SyncingStatus>("syncing");
-  const [editorReady, setEditorReady] = useState(false);
+  const [_editorReady, setEditorReady] = useState(false);
+  const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
 
   // hooks
   const { data: currentUser } = useUser();
@@ -178,6 +180,53 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
     [page.name, workspaceSlug, pageId, updatePageMutation]
   );
 
+  // handle icon change
+  const handleIconChange = useCallback(
+    async (value: { type: string; value: string | { name: string; color: string } }) => {
+      const newLogoProps: TLogoProps =
+        value.type === EmojiIconPickerTypes.EMOJI
+          ? { in_use: "emoji", emoji: { value: value.value as string } }
+          : { in_use: "icon", icon: value.value as { name: string; color: string } };
+
+      try {
+        await updatePageMutation.mutateAsync({
+          workspaceSlug,
+          pageId,
+          data: { logo_props: newLogoProps },
+        });
+      } catch (error) {
+        console.error("Failed to update page icon:", error);
+      }
+    },
+    [workspaceSlug, pageId, updatePageMutation]
+  );
+
+  // handle icon removal
+  const handleRemoveIcon = useCallback(async () => {
+    try {
+      await updatePageMutation.mutateAsync({
+        workspaceSlug,
+        pageId,
+        data: { logo_props: {} as TLogoProps },
+      });
+    } catch (error) {
+      console.error("Failed to remove page icon:", error);
+    }
+  }, [workspaceSlug, pageId, updatePageMutation]);
+
+  // auto-resize textarea for title
+  const resizeTextarea = useCallback(() => {
+    const textarea = titleRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, []);
+
+  useEffect(() => {
+    resizeTextarea();
+  }, [title, resizeTextarea]);
+
   // handle editor ready
   const handleEditorReady = useCallback((status: boolean) => {
     setEditorReady(status);
@@ -191,9 +240,13 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page.name]);
 
-  // block width class for consistent styling
+  // derived values for icon display
+  const hasIcon = page.logo_props?.in_use;
+  const isEditable = !page.is_locked;
+
+  // block width class for consistent Notion-style styling (768px = max-w-3xl)
   const blockWidthClassName = cn(
-    "block bg-transparent w-full max-w-[720px] mx-auto transition-all duration-200 ease-in-out",
+    "block bg-transparent w-full max-w-3xl mx-auto transition-all duration-200 ease-in-out",
     {
       "max-w-[1152px]": isFullWidth,
     }
@@ -209,66 +262,101 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Status bar */}
-      <div className="flex items-center justify-between px-6 py-2 border-b border-custom-border-200 bg-custom-background-100">
-        <div className="flex items-center gap-2">
-          {page.is_locked && (
-            <div className="flex items-center gap-1 px-2 py-1 text-xs bg-amber-100 text-amber-700 rounded">
-              <Lock className="size-3" />
-              <span>Locked</span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Sync status indicator */}
-          <div className="flex items-center gap-1.5 text-xs text-custom-text-400">
-            {syncingStatus === "syncing" && (
-              <>
-                <Loader2 className="size-3 animate-spin" />
-                <span>Syncing...</span>
-              </>
-            )}
-            {syncingStatus === "synced" && (
-              <>
-                <div className="size-2 rounded-full bg-green-500" />
-                <span>Saved</span>
-              </>
-            )}
-            {syncingStatus === "error" && (
-              <>
-                <div className="size-2 rounded-full bg-red-500" />
-                <span>Connection lost</span>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Editor content */}
+    <div className="flex flex-col h-full bg-custom-background-100">
+      {/* Notion-style content area with generous padding */}
       <div className="flex-1 overflow-y-auto">
-        <div className={blockWidthClassName}>
-          {/* Title input */}
-          <div className="px-6 pt-8 pb-4">
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => void handleTitleChange(e.target.value)}
-              placeholder="Untitled"
-              className="w-full text-3xl font-bold bg-transparent border-none outline-none placeholder:text-custom-text-400"
-              disabled={page.is_locked}
-            />
+        <div className={cn(blockWidthClassName, "px-6 pt-16 pb-40")}>
+          {/* Icon section - hover to reveal "Add icon" when no icon */}
+          <div className="group/icon mb-2">
+            {hasIcon ? (
+              <div className="flex items-center gap-2">
+                <EmojiPicker
+                  isOpen={isIconPickerOpen}
+                  handleToggle={(val) => setIsIconPickerOpen(val)}
+                  buttonClassName="outline-none"
+                  label={
+                    <div className="size-16 flex items-center justify-center rounded-lg hover:bg-custom-background-80 transition-colors cursor-pointer">
+                      <Logo logo={page.logo_props} size={56} type="lucide" />
+                    </div>
+                  }
+                  onChange={(val) => void handleIconChange(val)}
+                  defaultIconColor={page.logo_props?.in_use === "icon" ? page.logo_props?.icon?.color : undefined}
+                  defaultOpen={
+                    page.logo_props?.in_use === "emoji" ? EmojiIconPickerTypes.EMOJI : EmojiIconPickerTypes.ICON
+                  }
+                  disabled={!isEditable}
+                />
+                {isEditable && (
+                  <button
+                    type="button"
+                    onClick={() => void handleRemoveIcon()}
+                    className="size-6 flex items-center justify-center rounded-full opacity-0 group-hover/icon:opacity-100 transition-opacity bg-custom-background-80 hover:bg-custom-background-90 text-custom-text-300"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                )}
+              </div>
+            ) : (
+              isEditable && (
+                <EmojiPicker
+                  isOpen={isIconPickerOpen}
+                  handleToggle={(val) => setIsIconPickerOpen(val)}
+                  buttonClassName="outline-none"
+                  label={
+                    <button
+                      type="button"
+                      className="flex items-center gap-1.5 px-2 py-1 rounded text-sm text-custom-text-400 opacity-0 group-hover/icon:opacity-100 transition-opacity hover:bg-custom-background-80"
+                    >
+                      <Smile className="size-4" />
+                      <span>Add icon</span>
+                    </button>
+                  }
+                  onChange={(val) => void handleIconChange(val)}
+                />
+              )
+            )}
           </div>
 
-          {/* Collaborative editor */}
+          {/* Title section - Notion-style 48px bold with subtle save indicator */}
+          <div className="group/title relative mb-4">
+            <div className="flex items-start gap-2">
+              <textarea
+                ref={titleRef}
+                value={title}
+                onChange={(e) => void handleTitleChange(e.target.value)}
+                placeholder="Untitled"
+                rows={1}
+                className={cn(
+                  "flex-1 text-[42px] leading-tight font-bold bg-transparent border-none outline-none resize-none overflow-hidden",
+                  "text-[#3F3F3F] dark:text-[#CFCFCF]",
+                  "placeholder:text-custom-text-400"
+                )}
+                disabled={!isEditable}
+              />
+              {/* Subtle sync status indicator */}
+              <div className="pt-3 flex items-center">
+                {syncingStatus === "syncing" && <Loader2 className="size-4 animate-spin text-custom-text-400" />}
+                {syncingStatus === "synced" && (
+                  <Check className="size-4 text-green-500 opacity-0 group-hover/title:opacity-100 transition-opacity" />
+                )}
+                {syncingStatus === "error" && (
+                  <div className="flex items-center gap-1 text-xs text-red-500">
+                    <div className="size-2 rounded-full bg-red-500" />
+                    <span>Offline</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Collaborative editor with Notion-style bottom padding */}
           <CollaborativeDocumentEditorWithRef
-            editable={!page.is_locked}
+            editable={isEditable}
             id={pageId}
             fileHandler={fileHandler}
             handleEditorReady={handleEditorReady}
             ref={editorRef}
-            containerClassName="h-full p-0 pb-64 px-6"
+            containerClassName="h-full p-0"
             displayConfig={displayConfig}
             getEditorMetaData={getEditorMetaData}
             mentionHandler={{
@@ -291,15 +379,6 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
             extendedEditorProps={{}}
           />
         </div>
-      </div>
-
-      {/* Footer status bar */}
-      <div className="flex items-center justify-between px-6 py-2 border-t border-custom-border-200 text-xs text-custom-text-400">
-        <div className="flex items-center gap-4">
-          <span>Last updated: {new Date(page.updated_at).toLocaleString()}</span>
-          {page.updated_by_detail && <span>by {page.updated_by_detail.display_name}</span>}
-        </div>
-        <div className="flex items-center gap-4">{editorReady && <span>Editor ready</span>}</div>
       </div>
     </div>
   );
