@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
-import { Popover as BasePopover } from "@base-ui-components/react/popover";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { cn } from "../utils/classname";
 
@@ -112,9 +112,9 @@ function SelectComboboxRoot({
 
   return (
     <SelectComboboxContext.Provider value={contextValue}>
-      <BasePopover.Root open={open} onOpenChange={setOpen}>
+      <PopoverPrimitive.Root open={open} onOpenChange={setOpen}>
         {children}
-      </BasePopover.Root>
+      </PopoverPrimitive.Root>
     </SelectComboboxContext.Provider>
   );
 }
@@ -138,7 +138,7 @@ const SelectComboboxTrigger = React.forwardRef<HTMLButtonElement, SelectCombobox
     // When using default style, render with standard combobox styling
     if (useDefaultStyle) {
       return (
-        <BasePopover.Trigger
+        <PopoverPrimitive.Trigger
           ref={ref}
           disabled={disabled}
           className={cn(
@@ -150,16 +150,18 @@ const SelectComboboxTrigger = React.forwardRef<HTMLButtonElement, SelectCombobox
         >
           <span className="truncate">{children ?? placeholder ?? "Select..."}</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </BasePopover.Trigger>
+        </PopoverPrimitive.Trigger>
       );
     }
 
     // When not using default style, render children directly as the trigger content
     // This allows full customization of the trigger button
     return (
-      <BasePopover.Trigger ref={ref} disabled={disabled} className={className}>
-        {children}
-      </BasePopover.Trigger>
+      <PopoverPrimitive.Trigger ref={ref} disabled={disabled} asChild className={className}>
+        <div role="button" tabIndex={disabled ? -1 : 0} className="outline-none">
+          {children}
+        </div>
+      </PopoverPrimitive.Trigger>
     );
   }
 );
@@ -203,15 +205,6 @@ function SelectComboboxContent({
   const { searchQuery, setSearchQuery, setOpen } = useSelectCombobox();
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // Focus input when popover opens
-  React.useEffect(() => {
-    // Small delay to ensure popover is rendered
-    const timer = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
-
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent) => {
       // Close on escape
@@ -223,50 +216,56 @@ function SelectComboboxContent({
     [setOpen]
   );
 
-  const widthStyle =
-    width === "trigger"
-      ? { width: "var(--anchor-width)" }
-      : width === "auto"
-        ? undefined
-        : { width: `${width}px` };
+  const widthClass = width === "trigger" ? "w-[var(--radix-popover-trigger-width)]" : width === "auto" ? "" : "";
+  const widthStyle = typeof width === "number" ? { width: `${width}px` } : undefined;
 
   return (
-    <BasePopover.Portal>
-      <BasePopover.Positioner side={side} sideOffset={sideOffset} align={align} className="z-50">
-        <BasePopover.Popup
-          className={cn(
-            "rounded-md border border-subtle bg-surface-1 p-1 shadow-lg",
-            "animate-in fade-in-0 zoom-in-95",
-            className
+    <PopoverPrimitive.Portal>
+      <PopoverPrimitive.Content
+        side={side}
+        sideOffset={sideOffset}
+        align={align}
+        className={cn(
+          "z-50 rounded-md border border-subtle bg-surface-1 p-1 shadow-lg",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+          "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
+          "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+          widthClass,
+          className
+        )}
+        style={widthStyle}
+        onOpenAutoFocus={(e) => {
+          // Focus the search input instead of letting Radix auto-focus
+          e.preventDefault();
+          setTimeout(() => {
+            inputRef.current?.focus();
+          }, 0);
+        }}
+      >
+        <CommandPrimitive onKeyDown={handleKeyDown} shouldFilter={false}>
+          {showSearch && (
+            <div className="flex items-center gap-1.5 rounded-sm border border-subtle bg-surface-2 px-2 mb-1">
+              <Search className="h-3.5 w-3.5 flex-shrink-0 text-placeholder" strokeWidth={1.5} />
+              <CommandPrimitive.Input
+                ref={inputRef}
+                value={searchQuery}
+                onValueChange={setSearchQuery}
+                placeholder={searchPlaceholder}
+                className="w-full bg-transparent py-1.5 text-13 text-secondary placeholder:text-placeholder focus:outline-none"
+              />
+            </div>
           )}
-          style={widthStyle}
-          data-prevent-outside-click
-        >
-          <CommandPrimitive onKeyDown={handleKeyDown} shouldFilter={false}>
-            {showSearch && (
-              <div className="flex items-center gap-1.5 rounded-sm border border-subtle bg-surface-2 px-2 mb-1">
-                <Search className="h-3.5 w-3.5 flex-shrink-0 text-placeholder" strokeWidth={1.5} />
-                <CommandPrimitive.Input
-                  ref={inputRef}
-                  value={searchQuery}
-                  onValueChange={setSearchQuery}
-                  placeholder={searchPlaceholder}
-                  className="w-full bg-transparent py-1.5 text-13 text-secondary placeholder:text-placeholder focus:outline-none"
-                />
-              </div>
-            )}
-            <CommandPrimitive.List
-              className={cn("overflow-y-auto overflow-x-hidden", MAX_HEIGHT_CLASSES[maxHeight])}
-            >
-              <CommandPrimitive.Empty className="px-2 py-6 text-center text-13 text-placeholder">
-                {emptyMessage}
-              </CommandPrimitive.Empty>
-              {children}
-            </CommandPrimitive.List>
-          </CommandPrimitive>
-        </BasePopover.Popup>
-      </BasePopover.Positioner>
-    </BasePopover.Portal>
+          <CommandPrimitive.List className={cn("overflow-y-auto overflow-x-hidden", MAX_HEIGHT_CLASSES[maxHeight])}>
+            <CommandPrimitive.Empty className="px-2 py-6 text-center text-13 text-placeholder">
+              {emptyMessage}
+            </CommandPrimitive.Empty>
+            {children}
+          </CommandPrimitive.List>
+        </CommandPrimitive>
+      </PopoverPrimitive.Content>
+    </PopoverPrimitive.Portal>
   );
 }
 
@@ -395,9 +394,7 @@ interface SelectComboboxGroupProps {
 function SelectComboboxGroup({ children, heading, className }: SelectComboboxGroupProps) {
   return (
     <CommandPrimitive.Group heading={heading} className={cn("overflow-hidden", className)}>
-      {heading && (
-        <div className="px-2 py-1.5 text-11 font-medium text-placeholder">{heading}</div>
-      )}
+      {heading && <div className="px-2 py-1.5 text-11 font-medium text-placeholder">{heading}</div>}
       {children}
     </CommandPrimitive.Group>
   );

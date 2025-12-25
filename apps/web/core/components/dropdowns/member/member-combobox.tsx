@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import * as React from "react";
+import { useMemo, useCallback, useState } from "react";
 import { useParams } from "next/navigation";
-import type { Placement } from "@popperjs/core";
-import { ChevronDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { SuspendedUserIcon, MembersPropertyIcon } from "@plane/propel/icons";
 import { Button } from "@plane/propel/button";
-import { SelectCombobox } from "@plane/propel/combobox";
+import { Popover, PopoverTrigger, PopoverContent , Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@plane/propel/primitives";
 import { EPillSize, EPillVariant, Pill } from "@plane/propel/pill";
 import { Tooltip } from "@plane/propel/tooltip";
 import type { IUserLite, IWorkspaceMember } from "@plane/types";
@@ -34,7 +34,7 @@ type MemberComboboxBaseProps = {
   disabled?: boolean;
   hideIcon?: boolean;
   placeholder?: string;
-  placement?: Placement;
+  placement?: string;
   showTooltip?: boolean;
   tabIndex?: number;
   button?: React.ReactNode;
@@ -83,14 +83,17 @@ export function MemberCombobox(props: MemberComboboxProps) {
     onClose,
     optionsClassName = "",
     placeholder,
-    placement,
-    projectId,
     showTooltip = false,
     showUserDetails = false,
     tabIndex,
     tooltipContent,
     value,
+    projectId,
   } = props;
+
+  // State
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // hooks
   const { t } = useTranslation();
@@ -153,29 +156,74 @@ export function MemberCombobox(props: MemberComboboxProps) {
       return showUserDetails ? `${value.length} ${t("members").toLowerCase()}` : "";
     } else {
       if (!value) return defaultPlaceholder;
-      return showUserDetails ? getUserDetails(value)?.display_name ?? defaultPlaceholder : defaultPlaceholder;
+      return showUserDetails ? (getUserDetails(value)?.display_name ?? defaultPlaceholder) : defaultPlaceholder;
     }
   }, [value, placeholder, showUserDetails, t, getUserDetails]);
 
-  // Handle value change
-  const handleValueChange = (newValue: string | string[] | null) => {
-    if (multiple) {
-      (onChange as (val: string[]) => void)(Array.isArray(newValue) ? newValue : []);
-    } else {
-      (onChange as (val: string | null) => void)(typeof newValue === "string" ? newValue : null);
-    }
-  };
+  // Handle selection
+  const handleSelect = useCallback(
+    (userId: string) => {
+      const isSuspended = isUserSuspended(userId);
+      if (isSuspended) return;
 
-  // Convert placement to side/align for SelectCombobox
-  const sideAlign = useMemo(() => {
-    if (!placement) return { side: "bottom" as const, align: "start" as const };
+      if (multiple) {
+        const currentValues = Array.isArray(value) ? value : [];
+        const isSelected = currentValues.includes(userId);
+        if (isSelected) {
+          (onChange as (val: string[]) => void)(currentValues.filter((v) => v !== userId));
+        } else {
+          (onChange as (val: string[]) => void)([...currentValues, userId]);
+        }
+      } else {
+        const isSelected = value === userId;
+        if (isSelected) {
+          (onChange as (val: string | null) => void)(null);
+        } else {
+          (onChange as (val: string | null) => void)(userId);
+        }
+        setOpen(false);
+      }
+    },
+    [multiple, value, onChange, isUserSuspended]
+  );
 
-    const parts = placement.split("-");
-    const side = parts[0] as "top" | "bottom" | "left" | "right";
-    const align = parts[1] === "end" ? "end" : parts[1] === "start" ? "start" : "center";
+  // Check if selected
+  const isSelected = useCallback(
+    (userId: string) => {
+      if (Array.isArray(value)) {
+        return value.includes(userId);
+      }
+      return value === userId;
+    },
+    [value]
+  );
 
-    return { side, align: align as "start" | "center" | "end" };
-  }, [placement]);
+  // Filter members by search
+  const filteredMembers = useMemo(() => {
+    if (!searchQuery) return memberIds;
+    const searchLower = searchQuery.toLowerCase();
+    return memberIds.filter((userId) => {
+      const userDetails = getUserDetails(userId);
+      if (!userDetails) return false;
+      return (
+        userDetails.display_name?.toLowerCase().includes(searchLower) ||
+        userDetails.first_name?.toLowerCase().includes(searchLower) ||
+        userDetails.last_name?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [memberIds, searchQuery, getUserDetails]);
+
+  // Handle open change
+  const handleOpenChange = useCallback(
+    (newOpen: boolean) => {
+      setOpen(newOpen);
+      if (!newOpen) {
+        setSearchQuery("");
+        onClose?.();
+      }
+    },
+    [onClose]
+  );
 
   // Render avatar button content
   const renderAvatars = () => {
@@ -187,9 +235,7 @@ export function MemberCombobox(props: MemberComboboxProps) {
           {value.map((userId) => {
             const userDetails = getUserDetails(userId);
             if (!userDetails) return null;
-            return (
-              <Avatar key={userId} src={getFileURL(userDetails.avatar_url)} name={userDetails.display_name} />
-            );
+            return <Avatar key={userId} src={getFileURL(userDetails.avatar_url)} name={userDetails.display_name} />;
           })}
         </AvatarGroup>
       );
@@ -221,9 +267,9 @@ export function MemberCombobox(props: MemberComboboxProps) {
     return baseClasses;
   };
 
-  // The trigger button
-  const triggerButton = button ? (
-    <div className={cn("clickable block h-full w-full outline-none", buttonContainerClassName)}>{button}</div>
+  // The trigger button content
+  const triggerContent = button ? (
+    button
   ) : (
     <Tooltip
       tooltipHeading={placeholder ?? t("members")}
@@ -253,70 +299,69 @@ export function MemberCombobox(props: MemberComboboxProps) {
 
   return (
     <div className={cn("h-full", className)}>
-      <SelectCombobox
-        value={multiple ? value : value ?? null}
-        onValueChange={handleValueChange}
-        onOpenChange={(open) => {
-          if (!open) onClose?.();
-        }}
-        multiple={multiple}
-        disabled={disabled}
-      >
-        <SelectCombobox.Trigger className={cn("h-full", buttonContainerClassName)}>
-          {triggerButton}
-        </SelectCombobox.Trigger>
+      <Popover open={open} onOpenChange={handleOpenChange}>
+        <PopoverTrigger asChild disabled={disabled}>
+          <div
+            className={cn("h-full cursor-pointer outline-none", buttonContainerClassName)}
+            tabIndex={disabled ? -1 : 0}
+          >
+            {triggerContent}
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className={cn("w-48 p-0", optionsClassName)} align="start" sideOffset={4}>
+          <Command shouldFilter={false}>
+            <CommandInput
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              placeholder={t("search")}
+              className="h-9"
+            />
+            <CommandList>
+              <CommandEmpty>{t("no_matching_results")}</CommandEmpty>
+              <CommandGroup>
+                {filteredMembers.map((userId) => {
+                  const userDetails = getUserDetails(userId);
+                  const isSuspended = isUserSuspended(userId);
+                  const selected = isSelected(userId);
 
-        <SelectCombobox.Content
-          className={cn("w-48", optionsClassName)}
-          searchPlaceholder={t("search")}
-          emptyMessage={t("no_matching_results")}
-          showSearch={true}
-          maxHeight="md"
-          side={sideAlign.side}
-          align={sideAlign.align}
-          width="auto"
-        >
-          {memberIds.map((userId) => {
-            const userDetails = getUserDetails(userId);
-            const isSuspended = isUserSuspended(userId);
-
-            return (
-              <SelectCombobox.Item
-                key={userId}
-                value={userId}
-                disabled={isSuspended}
-                keywords={[
-                  userDetails?.display_name ?? "",
-                  userDetails?.first_name ?? "",
-                  userDetails?.last_name ?? "",
-                ]}
-                className={cn(
-                  "flex items-center justify-between gap-2",
-                  isSuspended && "cursor-not-allowed opacity-50"
-                )}
-              >
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="w-4 flex-shrink-0">
-                    {isSuspended ? (
-                      <SuspendedUserIcon className="h-3.5 w-3.5 text-placeholder" />
-                    ) : (
-                      <Avatar name={userDetails?.display_name} src={getFileURL(userDetails?.avatar_url ?? "")} />
-                    )}
-                  </div>
-                  <span className={cn("flex-grow truncate", isSuspended && "text-placeholder")}>
-                    {currentUser?.id === userId ? t("you") : userDetails?.display_name}
-                  </span>
-                </div>
-                {isSuspended && (
-                  <Pill variant={EPillVariant.DEFAULT} size={EPillSize.XS} className="border-none flex-shrink-0">
-                    Suspended
-                  </Pill>
-                )}
-              </SelectCombobox.Item>
-            );
-          })}
-        </SelectCombobox.Content>
-      </SelectCombobox>
+                  return (
+                    <CommandItem
+                      key={userId}
+                      value={userId}
+                      disabled={isSuspended}
+                      onSelect={() => handleSelect(userId)}
+                      className={cn(
+                        "flex items-center justify-between gap-2",
+                        isSuspended && "cursor-not-allowed opacity-50"
+                      )}
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="w-4 flex-shrink-0">
+                          {isSuspended ? (
+                            <SuspendedUserIcon className="h-3.5 w-3.5 text-placeholder" />
+                          ) : (
+                            <Avatar name={userDetails?.display_name} src={getFileURL(userDetails?.avatar_url ?? "")} />
+                          )}
+                        </div>
+                        <span className={cn("flex-grow truncate", isSuspended && "text-placeholder")}>
+                          {currentUser?.id === userId ? t("you") : userDetails?.display_name}
+                        </span>
+                      </div>
+                      {isSuspended ? (
+                        <Pill variant={EPillVariant.DEFAULT} size={EPillSize.XS} className="border-none flex-shrink-0">
+                          Suspended
+                        </Pill>
+                      ) : (
+                        <Check className={cn("h-4 w-4 flex-shrink-0", selected ? "opacity-100" : "opacity-0")} />
+                      )}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

@@ -8,7 +8,7 @@
  *
  * Components:
  * - RadixComboDropDown: Main wrapper providing context and trigger button
- * - RadixComboOptions: Dropdown content wrapper (uses Popover internally)
+ * - RadixComboOptions: Dropdown content wrapper (uses Radix Popover internally)
  * - RadixComboInput: Search input wrapper (uses CommandInput)
  * - RadixComboOption: Option item with render prop support ({ active, selected })
  *
@@ -21,9 +21,8 @@
 
 import type { ElementType, KeyboardEventHandler, ReactNode, Ref } from "react";
 import React, { createContext, forwardRef, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 import type { Placement } from "@popperjs/core";
-import { usePopper } from "react-popper";
 import { Command, CommandInput, CommandList, CommandItem } from "@plane/propel/primitives";
 import { cn } from "../utils";
 
@@ -39,9 +38,6 @@ interface ComboContextValue {
   value: string | string[] | null | undefined;
   onChange: (value: unknown) => void;
   multiple: boolean;
-  // Reference element for positioning
-  referenceElement: HTMLElement | null;
-  setReferenceElement: (el: HTMLElement | null) => void;
   // Query state for filtering
   query: string;
   setQuery: (query: string) => void;
@@ -60,7 +56,7 @@ function useComboContext() {
 }
 
 // ============================================================================
-// RadixComboDropDown - Main wrapper
+// RadixComboDropDown - Main wrapper using Radix Popover
 // ============================================================================
 
 type RadixComboDropDownProps = {
@@ -93,12 +89,11 @@ const RadixComboDropDown = forwardRef<HTMLDivElement, RadixComboDropDownProps>(f
     onKeyDown,
     tabIndex,
     className,
-    autoOpen = false,
+    autoOpen: _autoOpen = false,
     ...rest
   } = props;
 
   const dropDownButtonRef = useRef<HTMLDivElement | null>(null);
-  const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
   const [shouldRender, setShouldRender] = useState(renderByDefault);
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -127,20 +122,12 @@ const RadixComboDropDown = forwardRef<HTMLDivElement, RadixComboDropDownProps>(f
     }
   }, []);
 
-  const handleButtonClick = useCallback(() => {
-    if (!disabled && autoOpen) {
-      setIsOpen((prev) => !prev);
-    }
-  }, [disabled, autoOpen]);
-
   const contextValue: ComboContextValue = {
     isOpen,
     setIsOpen: handleSetIsOpen,
     value,
     onChange,
     multiple,
-    referenceElement,
-    setReferenceElement,
     query,
     setQuery,
     disabled,
@@ -158,28 +145,16 @@ const RadixComboDropDown = forwardRef<HTMLDivElement, RadixComboDropDownProps>(f
 
   return (
     <ComboContext.Provider value={contextValue}>
-      <Component {...rest} ref={ref} className={resolvedClassName} tabIndex={tabIndex} onKeyDown={onKeyDown}>
-        <div
-          ref={(el) => {
-            if (dropDownButtonRef) {
-              dropDownButtonRef.current = el;
-            }
-            setReferenceElement(el);
-          }}
-          role="button"
-          tabIndex={disabled ? -1 : 0}
-          onClick={handleButtonClick}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handleButtonClick();
-            }
-          }}
-        >
-          {button}
-        </div>
-        {children}
-      </Component>
+      <PopoverPrimitive.Root open={isOpen} onOpenChange={handleSetIsOpen}>
+        <Component {...rest} ref={ref} className={resolvedClassName} tabIndex={tabIndex} onKeyDown={onKeyDown}>
+          <PopoverPrimitive.Trigger asChild disabled={disabled}>
+            <div ref={dropDownButtonRef} role="button" tabIndex={disabled ? -1 : 0} className="outline-none">
+              {button}
+            </div>
+          </PopoverPrimitive.Trigger>
+          {children}
+        </Component>
+      </PopoverPrimitive.Root>
     </ComboContext.Provider>
   );
 });
@@ -187,8 +162,30 @@ const RadixComboDropDown = forwardRef<HTMLDivElement, RadixComboDropDownProps>(f
 RadixComboDropDown.displayName = "RadixComboDropDown";
 
 // ============================================================================
-// RadixComboOptions - Dropdown content wrapper
+// RadixComboOptions - Dropdown content wrapper using Radix Popover
 // ============================================================================
+
+// Map popper.js placement to Radix side/align
+function mapPlacementToRadix(placement: Placement): {
+  side: "top" | "bottom" | "left" | "right";
+  align: "start" | "center" | "end";
+} {
+  const mappings: Record<string, { side: "top" | "bottom" | "left" | "right"; align: "start" | "center" | "end" }> = {
+    top: { side: "top", align: "center" },
+    "top-start": { side: "top", align: "start" },
+    "top-end": { side: "top", align: "end" },
+    bottom: { side: "bottom", align: "center" },
+    "bottom-start": { side: "bottom", align: "start" },
+    "bottom-end": { side: "bottom", align: "end" },
+    left: { side: "left", align: "center" },
+    "left-start": { side: "left", align: "start" },
+    "left-end": { side: "left", align: "end" },
+    right: { side: "right", align: "center" },
+    "right-start": { side: "right", align: "start" },
+    "right-end": { side: "right", align: "end" },
+  };
+  return mappings[placement] || { side: "bottom", align: "start" };
+}
 
 interface RadixComboOptionsProps {
   children: ReactNode;
@@ -197,81 +194,17 @@ interface RadixComboOptionsProps {
   static?: boolean;
   /** Custom placement */
   placement?: Placement;
-  /** Portal to document.body */
+  /** Portal to document.body (default true) */
   portal?: boolean;
-  /** Custom reference element (overrides context) */
+  /** Custom reference element (ignored - kept for API compatibility) */
   referenceElement?: HTMLElement | null;
 }
 
 function RadixComboOptions(props: RadixComboOptionsProps) {
-  const {
-    children,
-    className,
-    static: staticProp = false,
-    placement = "bottom-start",
-    portal = true,
-    referenceElement: customReferenceElement,
-  } = props;
+  const { children, className, static: staticProp = false, placement = "bottom-start", portal = true } = props;
 
   const ctx = useComboContext();
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const [isPositioned, setIsPositioned] = useState(false);
-
-  const refElement = customReferenceElement ?? ctx.referenceElement;
-
-  const { styles, attributes, update } = usePopper(refElement, popperElement, {
-    placement,
-    strategy: "fixed",
-    modifiers: [
-      {
-        name: "preventOverflow",
-        options: {
-          padding: 12,
-        },
-      },
-    ],
-  });
-
-  // Force popper to recalculate position when dropdown opens
-  // Note: We use the cleanup function to reset state, which is the idiomatic
-  // pattern for effects that need to "undo" their state changes
-  useEffect(() => {
-    // Only run the positioning logic when open and element exists
-    if (!ctx.isOpen || !popperElement) {
-      return;
-    }
-
-    let cancelled = false;
-    let rafId2: number | undefined;
-    const rafId1 = requestAnimationFrame(() => {
-      if (cancelled) return;
-      rafId2 = requestAnimationFrame(() => {
-        if (cancelled) return;
-        const updatePromise = update?.();
-        if (updatePromise) {
-          updatePromise
-            .then(() => {
-              if (!cancelled) setIsPositioned(true);
-              return undefined;
-            })
-            .catch(() => {
-              if (!cancelled) setIsPositioned(true);
-            });
-        } else {
-          setIsPositioned(true);
-        }
-      });
-    });
-
-    return () => {
-      cancelled = true;
-      cancelAnimationFrame(rafId1);
-      if (rafId2 !== undefined) cancelAnimationFrame(rafId2);
-      // Reset positioned state on cleanup (when dropdown closes or unmounts)
-       
-      setIsPositioned(false);
-    };
-  }, [ctx.isOpen, update, popperElement]);
+  const { side, align } = mapPlacementToRadix(placement);
 
   // For static mode, check if parent signals open
   if (!staticProp && !ctx.isOpen) {
@@ -279,24 +212,32 @@ function RadixComboOptions(props: RadixComboOptionsProps) {
   }
 
   const content = (
-    <div
-      ref={setPopperElement}
-      className={cn("z-50", className)}
-      style={{
-        ...styles.popper,
-        opacity: isPositioned ? 1 : 0,
+    <PopoverPrimitive.Content
+      side={side}
+      align={align}
+      sideOffset={4}
+      className={cn(
+        "z-50 outline-none",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out",
+        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+        "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
+        "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        className
+      )}
+      onOpenAutoFocus={(e) => {
+        // Prevent auto-focus stealing - let the search input handle its own focus
+        e.preventDefault();
       }}
-      {...attributes.popper}
-      data-prevent-outside-click
     >
       <Command shouldFilter={false} className="bg-transparent">
         {children}
       </Command>
-    </div>
+    </PopoverPrimitive.Content>
   );
 
   if (portal) {
-    return createPortal(content, document.body);
+    return <PopoverPrimitive.Portal>{content}</PopoverPrimitive.Portal>;
   }
 
   return content;
