@@ -105,7 +105,8 @@ function ProjectAttributes(props: Props) {
                   placeholder={t("lead")}
                   multiple={false}
                   buttonVariant="border-with-text"
-                  tabIndex={5}
+                  tabIndex={getIndex("lead")}
+                  showUserDetails
                 />
               </div>
             );
