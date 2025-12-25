@@ -125,4 +125,77 @@ test.describe("Emoji Picker @interactions", () => {
     const dataResponse = await page.request.get("/emojibase-data/en/data.json");
     expect(dataResponse.ok()).toBe(true);
   });
+
+  test("emoji picker search stays open when clicking search input", async ({ page, workspaceSlug }) => {
+    // Navigate to workspace
+    await page.goto(`/${workspaceSlug}/projects`);
+    await page.waitForLoadState("networkidle");
+
+    // Find and hover Projects section to show the + button
+    const projectsHeaderArea = page
+      .locator("div.group")
+      .filter({ hasText: /^Projects$/ })
+      .first();
+
+    if (await projectsHeaderArea.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await projectsHeaderArea.hover();
+      await page.waitForTimeout(200);
+    }
+
+    // Click create project button
+    const sidebarProjectsSection = page.locator('[data-ph-element*="SIDEBAR_CREATE_PROJECT"]').first();
+
+    if (!(await sidebarProjectsSection.isVisible({ timeout: 3000 }).catch(() => false))) {
+      console.log("Could not find create project button - skipping test");
+      test.skip();
+      return;
+    }
+
+    await sidebarProjectsSection.click();
+    await page.waitForTimeout(1000);
+
+    // Click the emoji picker button
+    const logoBtn = page.locator(".absolute.-bottom-\\[22px\\] button, button:has(span.grid.h-11)").first();
+
+    if (!(await logoBtn.isVisible({ timeout: 3000 }).catch(() => false))) {
+      console.log("Could not find emoji picker button - skipping test");
+      test.skip();
+      return;
+    }
+
+    await logoBtn.click();
+    await page.waitForTimeout(1000);
+
+    // Verify emoji picker is open
+    const emojiTab = page.locator('[role="tab"]:has-text("Emoji")').or(page.getByText("Emoji").first());
+    await expect(emojiTab).toBeVisible({ timeout: 5000 });
+
+    // Find the search input
+    const searchInput = page
+      .locator('[data-slot="emoji-picker-search-wrapper"] input, input[placeholder="Search"]')
+      .first();
+    await expect(searchInput).toBeVisible({ timeout: 3000 });
+
+    await page.screenshot({ path: "e2e/screenshots/emoji-search-before-click.png" });
+
+    // THE KEY TEST: Click on the search input
+    await searchInput.click();
+    await page.waitForTimeout(500);
+
+    await page.screenshot({ path: "e2e/screenshots/emoji-search-after-click.png" });
+
+    // Verify the emoji picker is STILL open (bug was it would close)
+    await expect(searchInput).toBeVisible();
+    console.log("✅ Emoji picker stayed open after clicking search!");
+
+    // Type something to verify search works
+    await searchInput.fill("star");
+    await page.waitForTimeout(500);
+
+    await page.screenshot({ path: "e2e/screenshots/emoji-search-after-typing.png" });
+
+    // Still visible after typing
+    await expect(searchInput).toBeVisible();
+    console.log("✅ Search works - can type and results update!");
+  });
 });

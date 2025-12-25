@@ -132,9 +132,10 @@ case "$APP" in
         INVALIDATION_PATH="/*"
         ;;
     "admin")
-        # Admin app is at /god-mode
-        export VITE_BASE_PATH="/god-mode/"
-        export VITE_ADMIN_BASE_PATH="/god-mode/"
+        # Admin app is at /god-mode but CloudFront strips the prefix
+        # So the app itself should use / as base path
+        export VITE_BASE_PATH="/"
+        export VITE_ADMIN_BASE_PATH="/"
         export VITE_SPACE_BASE_PATH="/spaces/"
         export VITE_LIVE_BASE_PATH="/live/"
         S3_PREFIX=""

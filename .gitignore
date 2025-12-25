@@ -164,5 +164,6 @@ terraform/cloudfront-policies-improved.tf.example
 terraform/scripts/
 
 # E2E test state
-test-results/.last-run.json
+**/test-results/
 e2e/screenshots/
+.worktrees

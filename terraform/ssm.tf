@@ -98,8 +98,10 @@ resource "aws_ssm_parameter" "api_base_url" {
 resource "aws_ssm_parameter" "admin_base_url" {
   name        = "${local.ssm_prefix}/admin-base-url"
   type        = "String"
-  value       = var.domain_name != "" ? "https://${var.domain_name}/god-mode" : "http://localhost:3001"
-  description = "Admin panel URL"
+  # IMPORTANT: Do NOT include /god-mode path here - it's added via ADMIN_BASE_PATH
+  # The Django base_host() function combines ADMIN_BASE_URL + ADMIN_BASE_PATH
+  value       = var.domain_name != "" ? "https://${var.domain_name}" : "http://localhost:3001"
+  description = "Admin panel base URL (without /god-mode path)"
 
   tags = {
     Name        = "${var.project_name}-admin-base-url"
@@ -108,14 +110,42 @@ resource "aws_ssm_parameter" "admin_base_url" {
   }
 }
 
+resource "aws_ssm_parameter" "admin_base_path" {
+  name        = "${local.ssm_prefix}/admin-base-path"
+  type        = "String"
+  value       = "/god-mode/"
+  description = "Admin panel URL path (combined with ADMIN_BASE_URL by Django)"
+
+  tags = {
+    Name        = "${var.project_name}-admin-base-path"
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+  }
+}
+
 resource "aws_ssm_parameter" "space_base_url" {
   name        = "${local.ssm_prefix}/space-base-url"
   type        = "String"
-  value       = var.domain_name != "" ? "https://${var.domain_name}/spaces" : "http://localhost:3002"
-  description = "Space application URL"
+  # IMPORTANT: Do NOT include /spaces path here - it's added via SPACE_BASE_PATH
+  # The Django base_host() function combines SPACE_BASE_URL + SPACE_BASE_PATH
+  value       = var.domain_name != "" ? "https://${var.domain_name}" : "http://localhost:3002"
+  description = "Space application base URL (without /spaces path)"
 
   tags = {
     Name        = "${var.project_name}-space-base-url"
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+  }
+}
+
+resource "aws_ssm_parameter" "space_base_path" {
+  name        = "${local.ssm_prefix}/space-base-path"
+  type        = "String"
+  value       = "/spaces/"
+  description = "Space application URL path (combined with SPACE_BASE_URL by Django)"
+
+  tags = {
+    Name        = "${var.project_name}-space-base-path"
     Environment = var.environment
     ManagedBy   = "Terraform"
   }
