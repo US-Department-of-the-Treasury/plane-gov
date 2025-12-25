@@ -7,8 +7,8 @@ import { LIVE_BASE_PATH, LIVE_BASE_URL } from "@plane/constants";
 import { CollaborativeDocumentEditorWithRef } from "@plane/editor";
 import type { EditorRefApi, TDisplayConfig, TRealtimeConfig, TServerHandler, CollaborationState } from "@plane/editor";
 import { EmojiPicker, EmojiIconPickerTypes, Logo } from "@plane/propel/emoji-icon-picker";
-import { EFileAssetType   } from "@plane/types";
-import type {TLogoProps, TWikiPageDetail} from "@plane/types";
+import { EFileAssetType } from "@plane/types";
+import type { TLogoProps, TWikiPageDetail } from "@plane/types";
 import { cn, generateRandomColor, hslToHex } from "@plane/utils";
 // hooks
 import { useEditorConfig, useEditorMention } from "@/hooks/editor";
@@ -262,21 +262,21 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
   }
 
   return (
-    <div className="flex flex-col h-full bg-custom-background-100">
+    <div className="flex flex-col h-full bg-white dark:bg-[#191919]">
       {/* Notion-style content area with generous padding */}
       <div className="flex-1 overflow-y-auto">
-        <div className={cn(blockWidthClassName, "px-6 pt-16 pb-40")}>
-          {/* Icon section - hover to reveal "Add icon" when no icon */}
-          <div className="group/icon mb-2">
+        <div className={cn(blockWidthClassName, "px-12 pt-20 pb-48")}>
+          {/* Icon section - Notion-style large emoji/icon */}
+          <div className="group/icon mb-4">
             {hasIcon ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <EmojiPicker
                   isOpen={isIconPickerOpen}
                   handleToggle={(val) => setIsIconPickerOpen(val)}
                   buttonClassName="outline-none"
                   label={
-                    <div className="size-16 flex items-center justify-center rounded-lg hover:bg-custom-background-80 transition-colors cursor-pointer">
-                      <Logo logo={page.logo_props} size={56} type="lucide" />
+                    <div className="size-20 flex items-center justify-center rounded-xl hover:bg-[#f7f7f5] dark:hover:bg-[#2f2f2f] transition-colors cursor-pointer">
+                      <Logo logo={page.logo_props} size={72} type="lucide" />
                     </div>
                   }
                   onChange={(val) => void handleIconChange(val)}
@@ -290,9 +290,9 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
                   <button
                     type="button"
                     onClick={() => void handleRemoveIcon()}
-                    className="size-6 flex items-center justify-center rounded-full opacity-0 group-hover/icon:opacity-100 transition-opacity bg-custom-background-80 hover:bg-custom-background-90 text-custom-text-300"
+                    className="size-7 flex items-center justify-center rounded-lg opacity-0 group-hover/icon:opacity-100 transition-opacity bg-[#f7f7f5] dark:bg-[#2f2f2f] hover:bg-[#efefef] dark:hover:bg-[#3a3a3a] text-[#37352f80] dark:text-[#ffffff80]"
                   >
-                    <X className="size-3.5" />
+                    <X className="size-4" />
                   </button>
                 )}
               </div>
@@ -305,9 +305,9 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
                   label={
                     <button
                       type="button"
-                      className="flex items-center gap-1.5 px-2 py-1 rounded text-sm text-custom-text-400 opacity-0 group-hover/icon:opacity-100 transition-opacity hover:bg-custom-background-80"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[14px] text-[#37352f80] dark:text-[#ffffff80] opacity-0 group-hover/icon:opacity-100 transition-opacity hover:bg-[#f7f7f5] dark:hover:bg-[#2f2f2f]"
                     >
-                      <Smile className="size-4" />
+                      <Smile className="size-5" />
                       <span>Add icon</span>
                     </button>
                   }
@@ -317,9 +317,9 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
             )}
           </div>
 
-          {/* Title section - Notion-style 48px bold with subtle save indicator */}
-          <div className="group/title relative mb-4">
-            <div className="flex items-start gap-2">
+          {/* Title section - Notion-style 40px bold */}
+          <div className="group/title relative mb-6">
+            <div className="flex items-start gap-3">
               <textarea
                 ref={titleRef}
                 value={title}
@@ -327,21 +327,23 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
                 placeholder="Untitled"
                 rows={1}
                 className={cn(
-                  "flex-1 text-[42px] leading-tight font-bold bg-transparent border-none outline-none resize-none overflow-hidden",
-                  "text-[#3F3F3F] dark:text-[#CFCFCF]",
-                  "placeholder:text-custom-text-400"
+                  "flex-1 text-[40px] leading-[1.2] font-bold bg-transparent border-none outline-none resize-none overflow-hidden",
+                  "text-[#37352f] dark:text-[#ffffffcf]",
+                  "placeholder:text-[#37352f40] dark:placeholder:text-[#ffffff40]"
                 )}
                 disabled={!isEditable}
               />
               {/* Subtle sync status indicator */}
-              <div className="pt-3 flex items-center">
-                {syncingStatus === "syncing" && <Loader2 className="size-4 animate-spin text-custom-text-400" />}
+              <div className="pt-4 flex items-center">
+                {syncingStatus === "syncing" && (
+                  <Loader2 className="size-4 animate-spin text-[#37352f52] dark:text-[#ffffff52]" />
+                )}
                 {syncingStatus === "synced" && (
-                  <Check className="size-4 text-green-500 opacity-0 group-hover/title:opacity-100 transition-opacity" />
+                  <Check className="size-4 text-[#0f7b6c] opacity-0 group-hover/title:opacity-100 transition-opacity" />
                 )}
                 {syncingStatus === "error" && (
-                  <div className="flex items-center gap-1 text-xs text-red-500">
-                    <div className="size-2 rounded-full bg-red-500" />
+                  <div className="flex items-center gap-1.5 text-[12px] text-[#e03e3e]">
+                    <div className="size-2 rounded-full bg-[#e03e3e]" />
                     <span>Offline</span>
                   </div>
                 )}
@@ -349,7 +351,7 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
             </div>
           </div>
 
-          {/* Collaborative editor with Notion-style bottom padding */}
+          {/* Collaborative editor */}
           <CollaborativeDocumentEditorWithRef
             editable={isEditable}
             id={pageId}

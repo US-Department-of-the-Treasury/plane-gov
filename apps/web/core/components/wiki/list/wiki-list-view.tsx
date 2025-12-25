@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo, useState } from "react";
-import { FileText, FolderClosed, Search, Grid, List, Clock, MoreHorizontal } from "lucide-react";
+import { FolderClosed, Search, Grid, List } from "lucide-react";
 // plane imports
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { cn } from "@plane/utils";
@@ -38,85 +38,71 @@ const WikiPageCard = memo(function WikiPageCard({
   };
 
   if (viewMode === "list") {
+    // Notion-style clean list row
     return (
       <div
         role="button"
         tabIndex={0}
-        className="group flex items-center gap-3 px-4 py-2.5 hover:bg-custom-background-80 cursor-pointer border-b border-custom-border-100 transition-colors"
+        className="group flex items-center gap-3 px-3 py-2 hover:bg-[#f7f7f5] dark:hover:bg-[#2f2f2f] cursor-pointer rounded-md transition-colors"
         onClick={handleClick}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") handleClick();
         }}
       >
-        {/* Page icon */}
-        {hasIcon ? (
-          <div className="flex-shrink-0">
-            <Logo logo={page.logo_props} size={20} type="lucide" />
-          </div>
-        ) : (
-          <FileText className="size-5 text-custom-text-400 flex-shrink-0" />
-        )}
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm text-custom-text-200 truncate">{page.name || "Untitled"}</h3>
+        {/* Large emoji/icon - Notion style */}
+        <div className="flex-shrink-0 size-6 flex items-center justify-center">
+          {hasIcon ? (
+            <Logo logo={page.logo_props} size={22} type="lucide" />
+          ) : (
+            <span className="text-lg opacity-40">📄</span>
+          )}
         </div>
-        <div className="flex items-center gap-4 text-xs text-custom-text-400">
-          <span>{new Date(page.updated_at).toLocaleDateString()}</span>
-        </div>
-        <button
-          type="button"
-          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-custom-background-90"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <MoreHorizontal className="size-4 text-custom-text-400" />
-        </button>
+        <span className="flex-1 text-[15px] text-[#37352f] dark:text-[#ffffffcf] truncate">
+          {page.name || "Untitled"}
+        </span>
+        {/* Subtle date on hover */}
+        <span className="text-xs text-[#37352f52] dark:text-[#ffffff52] opacity-0 group-hover:opacity-100 transition-opacity">
+          {new Date(page.updated_at).toLocaleDateString()}
+        </span>
       </div>
     );
   }
 
-  // Grid view - Notion-style card with hover lift
+  // Grid view - Notion-style minimal card
   return (
     <div
       role="button"
       tabIndex={0}
-      className="group flex flex-col p-4 bg-custom-background-100 border border-custom-border-100 rounded-xl cursor-pointer transition-all hover:shadow-md hover:border-custom-border-200 hover:-translate-y-0.5"
+      className="group flex flex-col p-4 bg-white dark:bg-[#202020] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[#f7f7f5] dark:hover:bg-[#2f2f2f] border border-transparent hover:border-[#e0e0e0] dark:hover:border-[#3a3a3a]"
       onClick={handleClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") handleClick();
       }}
     >
-      {/* Icon and title */}
-      <div className="flex items-start gap-3 mb-3">
+      {/* Large icon at top - Notion style */}
+      <div className="mb-3">
         {hasIcon ? (
-          <div className="flex-shrink-0 p-2 bg-custom-background-80 rounded-lg">
-            <Logo logo={page.logo_props} size={24} type="lucide" />
-          </div>
+          <Logo logo={page.logo_props} size={42} type="lucide" />
         ) : (
-          <div className="flex-shrink-0 p-2 bg-custom-background-80 rounded-lg">
-            <FileText className="size-6 text-custom-text-400" />
-          </div>
+          <span className="text-[42px] leading-none opacity-30">📄</span>
         )}
-        <div className="flex-1 min-w-0 pt-1">
-          <h3 className="text-sm font-medium text-custom-text-100 truncate">{page.name || "Untitled"}</h3>
-        </div>
-        {/* Hover action */}
-        <button
-          type="button"
-          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-custom-background-80"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <MoreHorizontal className="size-4 text-custom-text-400" />
-        </button>
       </div>
 
-      {/* Description preview */}
+      {/* Title - Notion typography */}
+      <h3 className="text-[15px] font-medium text-[#37352f] dark:text-[#ffffffcf] line-clamp-2 mb-1">
+        {page.name || "Untitled"}
+      </h3>
+
+      {/* Description preview - subtle */}
       {page.description_stripped && (
-        <p className="text-xs text-custom-text-400 line-clamp-2 mb-3">{page.description_stripped}</p>
+        <p className="text-[13px] text-[#37352f80] dark:text-[#ffffff80] line-clamp-2">{page.description_stripped}</p>
       )}
 
-      {/* Footer with date */}
-      <div className="flex items-center gap-2 text-xs text-custom-text-400 mt-auto pt-3 border-t border-custom-border-100">
-        <Clock className="size-3" />
-        <span>Edited {new Date(page.updated_at).toLocaleDateString()}</span>
+      {/* Minimal footer - no divider, just subtle text */}
+      <div className="mt-auto pt-3">
+        <span className="text-[11px] text-[#37352f52] dark:text-[#ffffff52]">
+          {new Date(page.updated_at).toLocaleDateString()}
+        </span>
       </div>
     </div>
   );
@@ -138,74 +124,65 @@ const WikiCollectionCard = memo(function WikiCollectionCard({
   const pageCount = collectionPages.length;
 
   if (viewMode === "list") {
+    // Notion-style clean list row for collections
     return (
-      <div className="group flex items-center gap-3 px-4 py-2.5 hover:bg-custom-background-80 cursor-pointer border-b border-custom-border-100 transition-colors">
-        <FolderClosed className="size-5 text-custom-text-400 flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-custom-text-200 truncate">{collection.name}</h3>
-        </div>
-        <div className="text-xs text-custom-text-400">
+      <div className="group flex items-center gap-3 px-3 py-2 hover:bg-[#f7f7f5] dark:hover:bg-[#2f2f2f] cursor-pointer rounded-md transition-colors">
+        <span className="text-lg">📁</span>
+        <span className="flex-1 text-[15px] font-medium text-[#37352f] dark:text-[#ffffffcf] truncate">
+          {collection.name}
+        </span>
+        <span className="text-[13px] text-[#37352f52] dark:text-[#ffffff52]">
           {pageCount} {pageCount === 1 ? "page" : "pages"}
-        </div>
-        <button
-          type="button"
-          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-custom-background-90"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <MoreHorizontal className="size-4 text-custom-text-400" />
-        </button>
+        </span>
       </div>
     );
   }
 
-  // Grid view - Notion-style collection card
+  // Grid view - Notion-style minimal collection card
   return (
-    <div className="group flex flex-col p-4 bg-custom-background-100 border border-custom-border-100 rounded-xl cursor-pointer transition-all hover:shadow-md hover:border-custom-border-200 hover:-translate-y-0.5">
-      <div className="flex items-start gap-3 mb-3">
-        <div className="p-2 bg-custom-background-80 rounded-lg">
-          <FolderClosed className="size-6 text-custom-text-400" />
-        </div>
-        <div className="flex-1 min-w-0 pt-1">
-          <h3 className="text-sm font-medium text-custom-text-100 truncate">{collection.name}</h3>
-          <p className="text-xs text-custom-text-400 mt-0.5">
-            {pageCount} {pageCount === 1 ? "page" : "pages"}
-          </p>
-        </div>
-        <button
-          type="button"
-          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-custom-background-80"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <MoreHorizontal className="size-4 text-custom-text-400" />
-        </button>
+    <div className="group flex flex-col p-4 bg-white dark:bg-[#202020] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[#f7f7f5] dark:hover:bg-[#2f2f2f] border border-transparent hover:border-[#e0e0e0] dark:hover:border-[#3a3a3a]">
+      {/* Folder icon */}
+      <div className="mb-3">
+        <span className="text-[42px] leading-none">📁</span>
       </div>
-      {/* Page previews */}
-      {collectionPages.slice(0, 3).map((page) => (
-        <div
-          role="button"
-          tabIndex={0}
-          key={page.id}
-          className="flex items-center gap-2 px-2 py-1.5 text-xs text-custom-text-300 hover:bg-custom-background-80 rounded-md cursor-pointer transition-colors"
-          onClick={(e) => {
-            e.stopPropagation();
-            router.push(`/${workspaceSlug}/wiki/${page.id}`);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
+
+      {/* Title and page count */}
+      <h3 className="text-[15px] font-medium text-[#37352f] dark:text-[#ffffffcf] truncate mb-1">{collection.name}</h3>
+      <p className="text-[13px] text-[#37352f80] dark:text-[#ffffff80] mb-3">
+        {pageCount} {pageCount === 1 ? "page" : "pages"}
+      </p>
+
+      {/* Page previews - Notion style */}
+      <div className="space-y-0.5">
+        {collectionPages.slice(0, 3).map((page) => (
+          <div
+            role="button"
+            tabIndex={0}
+            key={page.id}
+            className="flex items-center gap-2 px-2 py-1 text-[13px] text-[#37352f99] dark:text-[#ffffff99] hover:bg-[#37352f0d] dark:hover:bg-[#ffffff0d] rounded cursor-pointer transition-colors"
+            onClick={(e) => {
               e.stopPropagation();
               router.push(`/${workspaceSlug}/wiki/${page.id}`);
-            }
-          }}
-        >
-          {page.logo_props?.in_use ? (
-            <Logo logo={page.logo_props} size={14} type="lucide" />
-          ) : (
-            <FileText className="size-3.5 text-custom-text-400" />
-          )}
-          <span className="truncate">{page.name || "Untitled"}</span>
-        </div>
-      ))}
-      {pageCount > 3 && <div className="text-xs text-custom-text-400 px-2 py-1 mt-1">+{pageCount - 3} more</div>}
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.stopPropagation();
+                router.push(`/${workspaceSlug}/wiki/${page.id}`);
+              }
+            }}
+          >
+            {page.logo_props?.in_use ? (
+              <Logo logo={page.logo_props} size={14} type="lucide" />
+            ) : (
+              <span className="text-sm opacity-50">📄</span>
+            )}
+            <span className="truncate">{page.name || "Untitled"}</span>
+          </div>
+        ))}
+        {pageCount > 3 && (
+          <div className="text-[11px] text-[#37352f52] dark:text-[#ffffff52] px-2 py-1">+{pageCount - 3} more</div>
+        )}
+      </div>
     </div>
   );
 });
@@ -320,16 +297,18 @@ export const WikiListView = memo(function WikiListView({ workspaceSlug }: WikiLi
             className="h-64"
           />
         ) : (
-          <div className="space-y-8">
-            {/* Collections */}
+          <div className="space-y-10">
+            {/* Collections - Notion style section */}
             {filteredCollections.length > 0 && (
               <div>
-                <h2 className="text-sm font-medium text-custom-text-300 uppercase tracking-wide mb-4">Collections</h2>
+                <h2 className="text-[11px] font-medium text-[#37352f80] dark:text-[#ffffff80] uppercase tracking-wider mb-3 px-1">
+                  Collections
+                </h2>
                 <div
                   className={cn(
                     viewMode === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-                      : "border border-custom-border-200 rounded-md overflow-hidden"
+                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+                      : "space-y-0.5"
                   )}
                 >
                   {filteredCollections.map((collection) => (
@@ -345,15 +324,17 @@ export const WikiListView = memo(function WikiListView({ workspaceSlug }: WikiLi
               </div>
             )}
 
-            {/* Pages */}
+            {/* Pages - Notion style section */}
             {filteredPages.length > 0 && (
               <div>
-                <h2 className="text-sm font-medium text-custom-text-300 uppercase tracking-wide mb-4">Pages</h2>
+                <h2 className="text-[11px] font-medium text-[#37352f80] dark:text-[#ffffff80] uppercase tracking-wider mb-3 px-1">
+                  Pages
+                </h2>
                 <div
                   className={cn(
                     viewMode === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-                      : "border border-custom-border-200 rounded-md overflow-hidden"
+                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+                      : "space-y-0.5"
                   )}
                 >
                   {filteredPages.map((page) => (
