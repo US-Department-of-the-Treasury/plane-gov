@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { useParams } from "next/navigation";
 // plane constants
 import { SPREADSHEET_SELECT_GROUP, SPREADSHEET_PROPERTY_LIST } from "@plane/constants";
@@ -9,8 +9,6 @@ import { EIssueLayoutTypes } from "@plane/types";
 import { MultipleSelectGroup } from "@/components/core/multiple-select";
 // hooks
 import { useProjectDetails } from "@/store/queries/project";
-// plane web components
-import { IssueBulkOperationsRoot } from "@/plane-web/components/issues/bulk-operations";
 // plane web hooks
 import { useBulkOperationStatus } from "@/plane-web/hooks/use-bulk-operation-status";
 // local imports
@@ -120,7 +118,6 @@ export function SpreadsheetView(props: Props) {
                 )}
               </div>
             </div>
-            <IssueBulkOperationsRoot selectionHelpers={helpers} />
           </>
         )}
       </MultipleSelectGroup>

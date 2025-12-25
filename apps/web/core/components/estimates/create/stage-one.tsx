@@ -8,7 +8,6 @@ import type { TEstimateSystemKeys } from "@plane/types";
 import { convertMinutesToHoursMinutesString } from "@plane/utils";
 // plane web imports
 import { isEstimateSystemEnabled } from "@/plane-web/components/estimates/helper";
-import { UpgradeBadge } from "@/plane-web/components/workspace/upgrade-badge";
 import { RadioInput } from "../radio-select";
 // local imports
 
@@ -43,11 +42,6 @@ export function EstimateCreateStageOne(props: TEstimateCreateStageOne) {
                     <Tooltip tooltipContent={t("common.coming_soon")}>
                       <Info size={12} />
                     </Tooltip>
-                  </div>
-                ) : !isEnabled ? (
-                  <div className="relative flex items-center gap-2 cursor-no-drop text-tertiary">
-                    {t(ESTIMATE_SYSTEMS[currentSystem]?.i18n_name)}
-                    <UpgradeBadge />
                   </div>
                 ) : (
                   <div>{t(ESTIMATE_SYSTEMS[currentSystem]?.i18n_name)}</div>

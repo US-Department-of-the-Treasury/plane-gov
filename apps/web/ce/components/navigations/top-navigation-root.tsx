@@ -12,8 +12,6 @@ import { AppSidebarItem } from "@/components/sidebar/sidebar-item";
 import { InboxIcon } from "@plane/propel/icons";
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 import { queryKeys } from "@/store/queries/query-keys";
-// local imports
-import { StarUsOnGitHubLink } from "@/app/(all)/[workspaceSlug]/(projects)/star-us-link";
 
 export function TopNavigationRoot() {
   // router
@@ -75,7 +73,6 @@ export function TopNavigationRoot() {
           />
         </Tooltip>
         <HelpMenuRoot />
-        <StarUsOnGitHubLink />
         <div className="flex items-center justify-center size-8 hover:bg-layer-1-hover rounded-md">
           <UserMenuRoot size="xs" />
         </div>

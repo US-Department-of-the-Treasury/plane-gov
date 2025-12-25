@@ -10,8 +10,6 @@ import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useUserPermissions } from "@/hooks/store/user";
-// plane web imports
-import { UpgradeBadge } from "@/plane-web/components/workspace/upgrade-badge";
 
 export type SidebarWorkspaceMenuItemProps = {
   item: {
@@ -56,9 +54,6 @@ export function SidebarWorkspaceMenuItem(props: SidebarWorkspaceMenuItemProps) {
             })}
           />
           <p className="text-13 leading-5 font-medium">{t(item.labelTranslationKey)}</p>
-        </div>
-        <div className="flex-shrink-0">
-          <UpgradeBadge />
         </div>
       </SidebarNavItem>
     </Link>

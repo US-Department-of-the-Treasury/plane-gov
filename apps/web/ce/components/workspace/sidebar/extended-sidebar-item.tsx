@@ -19,7 +19,6 @@ import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceNavigationPreferences } from "@/hooks/use-navigation-preferences";
 // local imports
-import { UpgradeBadge } from "../upgrade-badge";
 import { getSidebarNavigationItemIcon } from "./helper";
 
 type TExtendedSidebarItemProps = {
@@ -193,11 +192,6 @@ export const ExtendedSidebarItem = memo(function ExtendedSidebarItem(props: TExt
             </div>
           </Link>
           <div className="flex items-center gap-2">
-            {item.key === "active_sprints" && (
-              <div className="flex-shrink-0">
-                <UpgradeBadge />
-              </div>
-            )}
             {isPinned ? (
               <Tooltip tooltipContent="Unpin">
                 <PinOff
