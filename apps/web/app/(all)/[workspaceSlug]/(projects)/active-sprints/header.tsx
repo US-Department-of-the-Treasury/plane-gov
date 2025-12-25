@@ -4,8 +4,6 @@ import { SprintIcon } from "@plane/propel/icons";
 import { Breadcrumbs, Header } from "@plane/ui";
 // components
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
-// plane web components
-import { UpgradeBadge } from "@/plane-web/components/workspace/upgrade-badge";
 
 export function WorkspaceActiveSprintHeader() {
   const { t } = useTranslation();
@@ -22,7 +20,6 @@ export function WorkspaceActiveSprintHeader() {
             }
           />
         </Breadcrumbs>
-        <UpgradeBadge size="md" />
       </Header.LeftItem>
     </Header>
   );

@@ -2,7 +2,6 @@
 import { PROJECT_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
-import { Tooltip } from "@plane/propel/tooltip";
 import type { IProject } from "@plane/types";
 // components
 import { SettingsHeading } from "@/components/settings/heading";
@@ -13,7 +12,6 @@ import { useUser } from "@/hooks/store/user";
 // store queries
 import { useProjects, getProjectById, useUpdateProject } from "@/store/queries/project";
 // plane web imports
-import { UpgradeBadge } from "@/plane-web/components/workspace/upgrade-badge";
 import { PROJECT_FEATURES_LIST } from "@/plane-web/constants/project/settings";
 import { ProjectFeatureToggle } from "./helper";
 
@@ -83,11 +81,6 @@ export function ProjectFeaturesList(props: Props) {
                   <div>
                     <div className="flex items-center gap-2">
                       <h4 className="text-13 font-medium leading-5">{t(featureItem.key)}</h4>
-                      {featureItem.isPro && (
-                        <Tooltip tooltipContent="Pro feature" position="top">
-                          <UpgradeBadge className="rounded-sm" />
-                        </Tooltip>
-                      )}
                     </div>
                     <p className="text-13 leading-5 tracking-tight text-tertiary">
                       {t(`${featureItem.key}_description`)}

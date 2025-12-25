@@ -2,8 +2,6 @@
 import { PageHead } from "@/components/core/page-title";
 // hooks
 import { useWorkspaceDetails } from "@/store/queries/workspace";
-// plane web components
-import { WorkspaceActiveSprintsRoot } from "@/plane-web/components/active-sprints";
 import type { Route } from "./+types/page";
 
 function WorkspaceActiveSprintsPage({ params }: Route.ComponentProps) {
@@ -15,7 +13,6 @@ function WorkspaceActiveSprintsPage({ params }: Route.ComponentProps) {
   return (
     <>
       <PageHead title={pageTitle} />
-      <WorkspaceActiveSprintsRoot />
     </>
   );
 }
