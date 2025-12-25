@@ -5,8 +5,9 @@ import type { IIssueDisplayFilterOptions, IIssueDisplayProperties, TIssue } from
 // components
 import { SpreadsheetIssueRowLoader } from "@/components/ui/loader/layouts/spreadsheet-layout-loader";
 // hooks
+import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
-import { useIssuesStore } from "@/hooks/use-issue-layout-store";
+import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { useTableKeyboardNavigation } from "@/hooks/use-table-keyboard-navigation";
 // local imports
@@ -56,9 +57,9 @@ export function SpreadsheetTable(props: Props) {
   const isScrolled = useRef(false);
   const [intersectionElement, setIntersectionElement] = useState<HTMLTableSectionElement | null>(null);
 
-  const {
-    issues: { getIssueLoader },
-  } = useIssuesStore();
+  const storeType = useIssueStoreType();
+  // Use reactive loader hook instead of non-reactive getIssueLoader()
+  const loader = useIssueLoader(storeType);
 
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
@@ -93,7 +94,7 @@ export function SpreadsheetTable(props: Props) {
     };
   }, [handleScroll, containerRef]);
 
-  const isPaginating = !!getIssueLoader();
+  const isPaginating = !!loader;
 
   useIntersectionObserver(containerRef, isPaginating ? null : intersectionElement, loadMoreIssues, `100% 0% 100% 0%`);
 

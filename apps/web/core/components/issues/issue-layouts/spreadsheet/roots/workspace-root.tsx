@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 // plane constants
 import { ALL_ISSUES, EIssueFilterType, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import type { IIssueDisplayFilterOptions } from "@plane/types";
@@ -8,6 +8,7 @@ import { AllIssueQuickActions } from "@/components/issues/issue-layouts/quick-ac
 import { SpreadsheetLayoutLoader } from "@/components/ui/loader/layouts/spreadsheet-layout-loader";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
 import { useWorkspaceIssueProperties } from "@/hooks/use-workspace-issue-properties";
@@ -39,8 +40,10 @@ export function WorkspaceSpreadsheetRoot(props: Props) {
   // Store hooks
   const {
     issuesFilter: { filters, updateFilters },
-    issues: { getIssueLoader, getPaginationData, groupedIssueIds },
+    issues: { getPaginationData, groupedIssueIds },
   } = useIssues(EIssuesStoreType.GLOBAL);
+  // Use reactive loader hook instead of non-reactive getIssueLoader()
+  const loader = useIssueLoader(EIssuesStoreType.GLOBAL);
   const { updateIssue, removeIssue, archiveIssue } = useIssuesActions(EIssuesStoreType.GLOBAL);
   const { allowPermissions } = useUserPermissions();
 
@@ -95,8 +98,8 @@ export function WorkspaceSpreadsheetRoot(props: Props) {
     [canEditProperties, removeIssue, updateIssue, archiveIssue]
   );
 
-  // Loading state
-  if ((isLoading && issuesLoading && getIssueLoader() === "init-loader") || !globalViewId || !groupedIssueIds) {
+  // Loading state - use reactive loader hook instead of non-reactive getIssueLoader()
+  if ((isLoading && issuesLoading && loader === "init-loader") || !globalViewId || !groupedIssueIds) {
     return <SpreadsheetLayoutLoader />;
   }
 

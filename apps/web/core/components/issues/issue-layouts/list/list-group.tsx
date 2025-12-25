@@ -21,8 +21,9 @@ import { cn } from "@plane/utils";
 // components
 import { ListLoaderItemRow } from "@/components/ui/loader/layouts/list-layout-loader";
 // hooks
+import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
-import { useIssuesStore } from "@/hooks/use-issue-layout-store";
+import { useIssuesStore, useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 // queries
 import { useProjectStates, getDefaultStateId } from "@/store/queries/state";
@@ -110,9 +111,12 @@ export function ListGroup(props: Props) {
 
   const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
 
+  const storeType = useIssueStoreType();
   const {
-    issues: { getGroupIssueCount, getPaginationData, getIssueLoader },
+    issues: { getGroupIssueCount, getPaginationData },
   } = useIssuesStore();
+  // Use reactive loader hook instead of non-reactive getIssueLoader()
+  const loader = useIssueLoader(storeType, group.id);
 
   const [intersectionElement, setIntersectionElement] = useState<HTMLDivElement | null>(null);
 
@@ -122,7 +126,7 @@ export function ListGroup(props: Props) {
 
   const groupIssueCount = getGroupIssueCount(group.id, undefined, false) ?? 0;
   const nextPageResults = getPaginationData(group.id, undefined)?.nextPageResults;
-  const isPaginating = !!getIssueLoader(group.id);
+  const isPaginating = !!loader;
 
   useIntersectionObserver(containerRef, isPaginating ? null : intersectionElement, loadMoreIssues, `100% 0% 100% 0%`);
 
