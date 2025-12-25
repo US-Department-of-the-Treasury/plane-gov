@@ -51,17 +51,17 @@ export const useProjectEstimates = () => {
   const loader = isLoading ? "init-loader" : undefined;
 
   // MobX-compatible getProjectEstimates function
-  const getProjectEstimates = async (workspaceSlug: string, projectId: string) => {
+  const getProjectEstimates = async (workspaceSlug: string, projectId: string): Promise<IEstimate[]> => {
     // This is handled automatically by TanStack Query through the useProjectEstimatesQuery hook
-    // Return the current data if available
-    return estimates;
+    // Return the current data if available, or empty array (TanStack Query requires non-undefined return)
+    return estimates ?? [];
   };
 
   // MobX-compatible getWorkspaceEstimates function
-  const getWorkspaceEstimates = async (workspaceSlug: string) => {
+  const getWorkspaceEstimates = async (workspaceSlug: string): Promise<IEstimate[]> => {
     // This is handled automatically by TanStack Query through the useWorkspaceEstimatesQuery hook
-    // Return the current data if available
-    return workspaceEstimates;
+    // Return the current data if available, or empty array (TanStack Query requires non-undefined return)
+    return workspaceEstimates ?? [];
   };
 
   // MobX-compatible createEstimate function with proper signature

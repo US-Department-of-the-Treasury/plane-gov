@@ -9,6 +9,7 @@ import { ProjectLevelWorkItemFiltersHOC } from "@/components/work-item-filters/f
 import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
 import { queryKeys } from "@/store/queries/query-keys";
 // local imports
@@ -42,23 +43,27 @@ export function ProjectLayoutRoot() {
   const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
   const projectId = routerProjectId ? routerProjectId.toString() : undefined;
   // hooks
-  const { issues, issuesFilter } = useIssues(EIssuesStoreType.PROJECT);
-  // derived values
-  const workItemFilters = projectId ? issuesFilter?.getIssueFilters(projectId) : undefined;
-  const activeLayout = workItemFilters?.displayFilters?.layout;
+  const { issuesFilter } = useIssues(EIssuesStoreType.PROJECT);
+  // Use reactive loader hook instead of non-reactive issues?.getIssueLoader()
+  const loader = useIssueLoader(EIssuesStoreType.PROJECT);
 
-  useQuery({
+  // Fetch filters and return them directly so TanStack Query tracks the data
+  // This triggers re-renders when the query completes, avoiding Zustand subscription issues
+  const { data: workItemFilters } = useQuery({
     queryKey: workspaceSlug && projectId ? queryKeys.issues.all(workspaceSlug, projectId) : [],
     queryFn: async () => {
       if (workspaceSlug && projectId) {
-        await issuesFilter?.fetchFilters(workspaceSlug, projectId);
+        // fetchFilters now returns the processed filters directly
+        return issuesFilter?.fetchFilters(workspaceSlug, projectId);
       }
-      return null;
+      return undefined;
     },
     enabled: !!(workspaceSlug && projectId),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });
+
+  const activeLayout = workItemFilters?.displayFilters?.layout;
 
   if (!workspaceSlug || !projectId || !workItemFilters) return <></>;
   return (
@@ -84,8 +89,8 @@ export function ProjectLayoutRoot() {
               />
             )}
             <div className="relative h-full w-full overflow-auto bg-layer-2">
-              {/* mutation loader */}
-              {issues?.getIssueLoader() === "mutation" && (
+              {/* mutation loader - use reactive loader hook */}
+              {loader === "mutation" && (
                 <div className="fixed w-[40px] h-[40px] z-50 right-[20px] top-[70px] flex justify-center items-center bg-layer-1 shadow-sm rounded-sm">
                   <Spinner className="w-4 h-4" />
                 </div>

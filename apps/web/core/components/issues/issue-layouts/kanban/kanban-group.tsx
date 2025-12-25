@@ -29,8 +29,9 @@ import {
 } from "@/components/issues/issue-layouts/utils";
 import { KanbanIssueBlockLoader } from "@/components/ui/loader/layouts/kanban-layout-loader";
 // hooks
+import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
-import { useIssuesStore } from "@/hooks/use-issue-layout-store";
+import { useIssuesStore, useIssueStoreType } from "@/hooks/use-issue-layout-store";
 // queries
 import { useProjectStates, getDefaultStateId } from "@/store/queries/state";
 // Plane-web
@@ -105,9 +106,12 @@ export function KanbanGroup(props: IKanbanGroup) {
 
   const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
 
+  const storeType = useIssueStoreType();
   const {
-    issues: { getGroupIssueCount, getPaginationData, getIssueLoader },
+    issues: { getGroupIssueCount, getPaginationData },
   } = useIssuesStore();
+  // Use reactive loader hook instead of non-reactive getIssueLoader()
+  const loader = useIssueLoader(storeType, groupId, sub_group_id);
 
   const [intersectionElement, setIntersectionElement] = useState<HTMLSpanElement | null>(null);
   const columnRef = useRef<HTMLDivElement | null>(null);
@@ -118,7 +122,7 @@ export function KanbanGroup(props: IKanbanGroup) {
     loadMoreIssues(groupId, sub_group_id === "null" ? undefined : sub_group_id);
   }, [loadMoreIssues, groupId, sub_group_id]);
 
-  const isPaginating = !!getIssueLoader(groupId, sub_group_id);
+  const isPaginating = !!loader;
 
   useIntersectionObserver(
     containerRef,

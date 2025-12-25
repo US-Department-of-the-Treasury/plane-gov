@@ -9,6 +9,7 @@ import { EIssuesStoreType } from "@plane/types";
 // hooks
 import { useCalendarView } from "@/hooks/store/use-calendar-view";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useGroupedIssueIds, useProjectIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -67,6 +68,14 @@ export function BaseCalendarRoot(props: IBaseCalendarRoot) {
 
   const issueCalendarView = useCalendarView();
 
+  // Initialize calendar data on mount
+  useEffect(() => {
+    issueCalendarView.initCalendar();
+  }, []);
+
+  // Use reactive hook for PROJECT store type, fall back to non-reactive for others
+  const reactiveFilters = useProjectIssueFilters();
+
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT,
@@ -76,9 +85,14 @@ export function BaseCalendarRoot(props: IBaseCalendarRoot) {
 
   const { enableInlineEditing } = issues?.viewFlags || {};
 
-  const displayFilters = issuesFilter.issueFilters?.displayFilters;
+  // Use reactive filters for PROJECT store type to ensure proper re-renders when filters load
+  const displayFilters =
+    storeType === EIssuesStoreType.PROJECT
+      ? reactiveFilters?.displayFilters
+      : issuesFilter.issueFilters?.displayFilters;
 
-  const groupedIssueIds = (issues.groupedIssueIds ?? {}) as TGroupedIssues;
+  // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
+  const groupedIssueIds = useGroupedIssueIds(storeType) as TGroupedIssues;
 
   const layout = displayFilters?.calendar?.layout ?? "month";
   const { startDate, endDate } = issueCalendarView.getStartAndEndDate(layout) ?? {};

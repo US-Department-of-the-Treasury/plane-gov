@@ -8,6 +8,7 @@ import type { IIssueDisplayFilterOptions, IIssueDisplayProperties } from "@plane
 import { EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useProjectIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 // plane web imports
 import type { TProject } from "@/plane-web/types";
 // local imports
@@ -51,8 +52,15 @@ export function HeaderFilters(props: Props) {
   const {
     issuesFilter: { issueFilters, updateFilters },
   } = useIssues(storeType);
-  // derived values
-  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
+
+  // Use reactive hook for PROJECT store type to ensure proper re-renders when filters change
+  const reactiveFilters = useProjectIssueFilters();
+
+  // derived values - use reactive filters for PROJECT store type
+  const activeLayout =
+    storeType === EIssuesStoreType.PROJECT
+      ? reactiveFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST
+      : issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
   const layoutDisplayFiltersOptions = ISSUE_STORE_TO_FILTERS_MAP[storeType]?.layoutOptions[activeLayout];
 
   const handleLayoutChange = useCallback(
