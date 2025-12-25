@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArchiveRestoreIcon, Check, ExternalLink, LinkIcon, Lock, Settings, Trash2, UserPlus } from "lucide-react";
@@ -8,17 +8,15 @@ import { useLocalStorage } from "@plane/hooks";
 import { Button } from "@plane/propel/button";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { setPromiseToast, setToast, TOAST_TYPE } from "@plane/propel/toast";
-import { Tooltip } from "@plane/propel/tooltip";
 import type { IProject } from "@plane/types";
 import type { TContextMenuItem } from "@plane/ui";
-import { Avatar, AvatarGroup, ContextMenu, FavoriteStar } from "@plane/ui";
+import { Avatar, ContextMenu, FavoriteStar } from "@plane/ui";
 import { copyUrlToClipboard, cn, getFileURL, renderFormattedDate } from "@plane/utils";
 // components
 // hooks
 import { useUpdateProject } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
-import { usePlatformOS } from "@/hooks/use-platform-os";
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // local imports
 import { DeleteProjectModal } from "./delete-project-modal";
@@ -45,10 +43,7 @@ export function ProjectCard(props: Props) {
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const { mutate: updateProject } = useUpdateProject();
   const { allowPermissions } = useUserPermissions();
-  // hooks
-  const { isMobile } = usePlatformOS();
   // derived values
-  const projectMembersIds = project.members;
   const shouldRenderFavorite = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.WORKSPACE
@@ -294,30 +289,21 @@ export function ProjectCard(props: Props) {
           </p>
           <div className="item-center flex justify-between">
             <div className="flex items-center justify-center gap-2">
-              <Tooltip
-                isMobile={isMobile}
-                tooltipHeading="Members"
-                tooltipContent={
-                  project.members && project.members.length > 0 ? `${project.members.length} Members` : "No Member"
+              {/* Gov fork: Show project lead only (not all members) for accountability */}
+              {(() => {
+                const leadId = typeof project.project_lead === "string" ? project.project_lead : project.project_lead?.id;
+                const leadMember = leadId ? getWorkspaceMemberByUserId(workspaceMembers, leadId)?.member : null;
+
+                if (leadMember) {
+                  return (
+                    <div className="flex items-center gap-2 text-secondary">
+                      <Avatar name={leadMember.display_name} src={getFileURL(leadMember.avatar_url)} size={24} />
+                      <span className="text-13 text-tertiary">{leadMember.display_name}</span>
+                    </div>
+                  );
                 }
-                position="top"
-              >
-                {projectMembersIds && projectMembersIds.length > 0 ? (
-                  <div className="flex cursor-pointer items-center gap-2 text-secondary">
-                    <AvatarGroup showTooltip={false}>
-                      {projectMembersIds.map((memberId) => {
-                        const member = getWorkspaceMemberByUserId(workspaceMembers, memberId)?.member;
-                        if (!member) return null;
-                        return (
-                          <Avatar key={member.id} name={member.display_name} src={getFileURL(member.avatar_url)} />
-                        );
-                      })}
-                    </AvatarGroup>
-                  </div>
-                ) : (
-                  <span className="text-13 italic text-placeholder">No Member Yet</span>
-                )}
-              </Tooltip>
+                return <span className="text-13 italic text-placeholder">No Lead</span>;
+              })()}
               {isArchived && <div className="text-11 text-placeholder font-medium">Archived</div>}
             </div>
             {isArchived ? (
