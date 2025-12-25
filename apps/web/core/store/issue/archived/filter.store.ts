@@ -1,4 +1,4 @@
-import { isEmpty, set as lodashSet } from "lodash-es";
+import { isEmpty } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // base class
@@ -55,6 +55,13 @@ interface ArchivedIssuesFilterState {
 }
 
 interface ArchivedIssuesFilterActions {
+  // Dedicated setters for proper Zustand reactivity
+  setFilters: (projectId: string, filters: IIssueFilters) => void;
+  setRichFilters: (projectId: string, richFilters: TWorkItemFilterExpression) => void;
+  setDisplayFilters: (projectId: string, displayFilters: Partial<IIssueDisplayFilterOptions>) => void;
+  setDisplayProperties: (projectId: string, displayProperties: Partial<IIssueDisplayProperties>) => void;
+  setKanbanFilters: (projectId: string, kanbanFilters: Partial<TIssueKanbanFilters>) => void;
+  // Getters
   getIssueFilters: (projectId: string, helperStore: IssueFilterHelperStore) => IIssueFilters | undefined;
   getAppliedFilters: (projectId: string, helperStore: IssueFilterHelperStore) => Partial<Record<TIssueParams, string | boolean>> | undefined;
   getFilterParams: (
@@ -88,6 +95,61 @@ type ArchivedIssuesFilterStore = ArchivedIssuesFilterState & ArchivedIssuesFilte
 export const useArchivedIssuesFilterStore = create<ArchivedIssuesFilterStore>()(
   immer((set, get) => ({
     filters: {},
+
+    // Dedicated setters for proper Zustand reactivity
+    setFilters: (projectId, filters) => {
+      set((state) => {
+        state.filters[projectId] = filters;
+      });
+    },
+
+    setRichFilters: (projectId, richFilters) => {
+      set((state) => {
+        if (!state.filters[projectId]) {
+          state.filters[projectId] = {} as IIssueFilters;
+        }
+        state.filters[projectId].richFilters = richFilters;
+      });
+    },
+
+    setDisplayFilters: (projectId, displayFilters) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[projectId] = {
+          ...(state.filters[projectId] ?? {}),
+          displayFilters: {
+            ...(state.filters[projectId]?.displayFilters ?? {}),
+            ...displayFilters,
+          },
+        } as IIssueFilters;
+      });
+    },
+
+    setDisplayProperties: (projectId, displayProperties) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[projectId] = {
+          ...(state.filters[projectId] ?? {}),
+          displayProperties: {
+            ...(state.filters[projectId]?.displayProperties ?? {}),
+            ...displayProperties,
+          },
+        } as IIssueFilters;
+      });
+    },
+
+    setKanbanFilters: (projectId, kanbanFilters) => {
+      set((state) => {
+        // Use explicit spread to create new references that Zustand selectors will detect
+        state.filters[projectId] = {
+          ...(state.filters[projectId] ?? {}),
+          kanbanFilters: {
+            ...(state.filters[projectId]?.kanbanFilters ?? {}),
+            ...kanbanFilters,
+          },
+        } as IIssueFilters;
+      });
+    },
 
     getIssueFilters: (projectId, helperStore) => {
       const state = get();
@@ -132,25 +194,23 @@ export const useArchivedIssuesFilterStore = create<ArchivedIssuesFilterStore>()(
       });
       const displayProperties: IIssueDisplayProperties = helperStore.computedDisplayProperties(_filters?.display_properties);
       const kanbanFilters = {
-        group_by: [],
-        sub_group_by: [],
+        group_by: _filters?.kanban_filters?.group_by || [],
+        sub_group_by: _filters?.kanban_filters?.sub_group_by || [],
       };
-      kanbanFilters.group_by = _filters?.kanban_filters?.group_by || [];
-      kanbanFilters.sub_group_by = _filters?.kanban_filters?.sub_group_by || [];
 
-      set((state) => {
-        lodashSet(state.filters, [projectId, "richFilters"], richFilters);
-        lodashSet(state.filters, [projectId, "displayFilters"], displayFilters);
-        lodashSet(state.filters, [projectId, "displayProperties"], displayProperties);
-        lodashSet(state.filters, [projectId, "kanbanFilters"], kanbanFilters);
+      // Use setFilters for proper Zustand reactivity
+      get().setFilters(projectId, {
+        richFilters,
+        displayFilters,
+        displayProperties,
+        kanbanFilters,
       });
     },
 
     updateFilterExpression: async (workspaceSlug, projectId, filters, helperStore, rootIssueStore) => {
       try {
-        set((state) => {
-          lodashSet(state.filters, [projectId, "richFilters"], filters);
-        });
+        // Use setRichFilters for proper Zustand reactivity
+        get().setRichFilters(projectId, filters);
 
         rootIssueStore.archivedIssues.fetchIssuesWithExistingPagination(workspaceSlug, projectId, "mutation");
         helperStore.handleIssuesLocalFilters.set(
@@ -205,15 +265,8 @@ export const useArchivedIssuesFilterStore = create<ArchivedIssuesFilterStore>()(
               updatedDisplayFilters.group_by = "state";
             }
 
-            set((state) => {
-              Object.keys(updatedDisplayFilters).forEach((_key) => {
-                lodashSet(
-                  state.filters,
-                  [projectId, "displayFilters", _key],
-                  updatedDisplayFilters[_key as keyof IIssueDisplayFilterOptions]
-                );
-              });
-            });
+            // Use setDisplayFilters for proper Zustand reactivity
+            get().setDisplayFilters(projectId, updatedDisplayFilters);
 
             if (helperStore.getShouldReFetchIssues(updatedDisplayFilters)) {
               rootIssueStore.archivedIssues.fetchIssuesWithExistingPagination(workspaceSlug, projectId, "mutation");
@@ -229,15 +282,8 @@ export const useArchivedIssuesFilterStore = create<ArchivedIssuesFilterStore>()(
             const updatedDisplayProperties = filters as IIssueDisplayProperties;
             _filters.displayProperties = { ..._filters.displayProperties, ...updatedDisplayProperties };
 
-            set((state) => {
-              Object.keys(updatedDisplayProperties).forEach((_key) => {
-                lodashSet(
-                  state.filters,
-                  [projectId, "displayProperties", _key],
-                  updatedDisplayProperties[_key as keyof IIssueDisplayProperties]
-                );
-              });
-            });
+            // Use setDisplayProperties for proper Zustand reactivity
+            get().setDisplayProperties(projectId, updatedDisplayProperties);
 
             helperStore.handleIssuesLocalFilters.set(EIssuesStoreType.ARCHIVED, type, workspaceSlug, projectId, undefined, {
               display_properties: _filters.displayProperties,
@@ -255,15 +301,8 @@ export const useArchivedIssuesFilterStore = create<ArchivedIssuesFilterStore>()(
                 kanban_filters: _filters.kanbanFilters,
               });
 
-            set((state) => {
-              Object.keys(updatedKanbanFilters).forEach((_key) => {
-                lodashSet(
-                  state.filters,
-                  [projectId, "kanbanFilters", _key],
-                  updatedKanbanFilters[_key as keyof TIssueKanbanFilters]
-                );
-              });
-            });
+            // Use setKanbanFilters for proper Zustand reactivity
+            get().setKanbanFilters(projectId, updatedKanbanFilters);
 
             break;
           }
