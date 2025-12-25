@@ -113,7 +113,9 @@ export function SprintIssuesHeader() {
   const isCompletedSprint = sprintDetails?.status?.toLocaleLowerCase() === "completed";
   const canUserCreateIssue = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.PROJECT
+    EUserPermissionsLevel.PROJECT,
+    workspaceSlug?.toString(),
+    projectId?.toString()
   );
 
   const switcherOptions = (sprints?.map((sprint: ISprint): ICustomSearchSelectOption => {
