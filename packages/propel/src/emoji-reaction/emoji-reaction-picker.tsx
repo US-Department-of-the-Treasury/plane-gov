@@ -1,10 +1,8 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useCallback } from "react";
+import { Popover, PopoverTrigger, PopoverContent } from "../primitives/popover";
 import { EmojiRoot } from "../emoji-icon-picker/emoji/emoji";
 import { emojiToString } from "../emoji-icon-picker/helper";
-import { Popover } from "../popover";
 import { cn } from "../utils/classname";
-import { convertPlacementToSideAndAlign } from "../utils/placement";
-import type { TPlacement, TSide, TAlign } from "../utils/placement";
 
 export interface EmojiReactionPickerProps {
   isOpen: boolean;
@@ -15,11 +13,8 @@ export interface EmojiReactionPickerProps {
   dropdownClassName?: string;
   label: React.ReactNode;
   onChange: (emoji: string) => void;
-  placement?: TPlacement;
   searchDisabled?: boolean;
   searchPlaceholder?: string;
-  side?: TSide;
-  align?: TAlign;
 }
 
 export function EmojiReactionPicker(props: EmojiReactionPickerProps) {
@@ -32,21 +27,9 @@ export function EmojiReactionPicker(props: EmojiReactionPickerProps) {
     dropdownClassName,
     label,
     onChange,
-    placement = "bottom-start",
     searchDisabled = false,
     searchPlaceholder = "Search",
-    side = "bottom",
-    align = "start",
   } = props;
-
-  // side and align calculations
-  const { finalSide, finalAlign } = useMemo(() => {
-    if (placement) {
-      const converted = convertPlacementToSideAndAlign(placement);
-      return { finalSide: converted.side, finalAlign: converted.align };
-    }
-    return { finalSide: side, finalAlign: align };
-  }, [placement, side, align]);
 
   const handleEmojiChange = useCallback(
     (value: string) => {
@@ -57,32 +40,17 @@ export function EmojiReactionPicker(props: EmojiReactionPickerProps) {
     [onChange, closeOnSelect, handleToggle]
   );
 
-  // Wrap onOpenChange to block unwanted dismiss events
-  const handleOpenChange = useCallback(
-    (open: boolean, eventDetails?: { reason?: string }) => {
-      if (!open && eventDetails?.reason) {
-        const allowedReasons = ["escape-key", "close-press"];
-        if (!allowedReasons.includes(eventDetails.reason)) {
-          return; // Block unexpected close events
-        }
-      }
-      handleToggle(open);
-    },
-    [handleToggle]
-  );
-
   return (
-    <Popover open={isOpen} onOpenChange={handleOpenChange} modal>
-      <Popover.Button className={cn("outline-none", buttonClassName)} disabled={disabled}>
-        {label}
-      </Popover.Button>
-      <Popover.Panel
-        positionerClassName="z-50"
-        className={cn("w-80 bg-surface-1 rounded-md border-[0.5px] border-strong overflow-hidden", dropdownClassName)}
-        side={finalSide}
-        align={finalAlign}
+    <Popover open={isOpen} onOpenChange={handleToggle}>
+      <PopoverTrigger asChild disabled={disabled}>
+        <button type="button" className={cn("outline-none", buttonClassName)}>
+          {label}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        className={cn("w-80 p-0 border-[0.5px] border-strong overflow-hidden", dropdownClassName)}
+        align="start"
         sideOffset={8}
-        data-prevent-outside-click="true"
       >
         <div className="h-80 overflow-hidden overflow-y-auto">
           <EmojiRoot
@@ -91,7 +59,7 @@ export function EmojiReactionPicker(props: EmojiReactionPickerProps) {
             searchDisabled={searchDisabled}
           />
         </div>
-      </Popover.Panel>
+      </PopoverContent>
     </Popover>
   );
 }

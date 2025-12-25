@@ -1,8 +1,7 @@
 import { useMemo, useCallback } from "react";
-import { Tabs } from "@base-ui-components/react";
-import { Popover } from "../popover";
+import { Popover, PopoverTrigger, PopoverContent } from "../primitives/popover";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../primitives/tabs";
 import { cn } from "../utils/classname";
-import { convertPlacementToSideAndAlign } from "../utils/placement";
 import { EmojiRoot } from "./emoji/emoji";
 import type { TCustomEmojiPicker } from "./helper";
 import { emojiToString, EmojiIconPickerTypes } from "./helper";
@@ -20,22 +19,10 @@ export function EmojiPicker(props: TCustomEmojiPicker) {
     dropdownClassName,
     label,
     onChange,
-    placement = "bottom-start",
     searchDisabled = false,
     searchPlaceholder = "Search",
     iconType = "lucide",
-    side = "bottom",
-    align = "start",
   } = props;
-
-  // side and align calculations
-  const { finalSide, finalAlign } = useMemo(() => {
-    if (placement) {
-      const converted = convertPlacementToSideAndAlign(placement);
-      return { finalSide: converted.side, finalAlign: converted.align };
-    }
-    return { finalSide: side, finalAlign: align };
-  }, [placement, side, align]);
 
   const handleEmojiChange = useCallback(
     (value: string) => {
@@ -60,104 +47,69 @@ export function EmojiPicker(props: TCustomEmojiPicker) {
   );
 
   const tabs = useMemo(
-    () =>
-      [
-        {
-          key: "emoji",
-          label: "Emoji",
-          content: (
-            <EmojiRoot
-              onChange={handleEmojiChange}
-              searchPlaceholder={searchPlaceholder}
-              searchDisabled={searchDisabled}
-            />
-          ),
-        },
-        {
-          key: "icon",
-          label: "Icon",
-          content: (
-            <IconRoot
-              defaultColor={defaultIconColor}
-              onChange={handleIconChange}
-              searchDisabled={searchDisabled}
-              iconType={iconType}
-            />
-          ),
-        },
-      ].map((tab) => ({
-        key: tab.key,
-        label: tab.label,
-        content: tab.content,
-      })),
+    () => [
+      {
+        key: "emoji",
+        label: "Emoji",
+        content: (
+          <EmojiRoot
+            onChange={handleEmojiChange}
+            searchPlaceholder={searchPlaceholder}
+            searchDisabled={searchDisabled}
+          />
+        ),
+      },
+      {
+        key: "icon",
+        label: "Icon",
+        content: (
+          <IconRoot
+            defaultColor={defaultIconColor}
+            onChange={handleIconChange}
+            searchDisabled={searchDisabled}
+            iconType={iconType}
+          />
+        ),
+      },
+    ],
     [defaultIconColor, searchDisabled, searchPlaceholder, iconType, handleEmojiChange, handleIconChange]
   );
 
-  // Wrap onOpenChange to block unwanted dismiss events
-  // Only allow closing via explicit toggle, escape key, or close button
-  const handleOpenChange = useCallback(
-    (open: boolean, eventDetails?: { reason?: string }) => {
-      if (!open && eventDetails?.reason) {
-        const allowedReasons = ["escape-key", "close-press"];
-        if (!allowedReasons.includes(eventDetails.reason)) {
-          return; // Block unexpected close events
-        }
-      }
-      handleToggle(open);
-    },
-    [handleToggle]
-  );
-
   return (
-    <Popover open={isOpen} onOpenChange={handleOpenChange} modal>
-      <Popover.Button className={cn("outline-none", buttonClassName)} disabled={disabled}>
-        {label}
-      </Popover.Button>
-      <Popover.Panel
-        positionerClassName="z-50"
-        className={cn("w-80 bg-surface-1 rounded-md border-[0.5px] border-strong overflow-hidden", dropdownClassName)}
-        side={finalSide}
-        align={finalAlign}
+    <Popover open={isOpen} onOpenChange={handleToggle}>
+      <PopoverTrigger asChild disabled={disabled}>
+        <button type="button" className={cn("outline-none", buttonClassName)}>
+          {label}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        className={cn("w-80 p-0 border-[0.5px] border-strong overflow-hidden", dropdownClassName)}
+        align="start"
         sideOffset={8}
-        data-prevent-outside-click="true"
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        onFocus={(e) => e.stopPropagation()}
-        onKeyDown={(e) => {
-          if (e.key === "Tab") {
-            return;
-          }
-          if (e.key === "Escape") {
-            handleToggle(false);
-            return;
-          }
-          e.stopPropagation();
-        }}
       >
-        <Tabs.Root defaultValue={defaultOpen}>
-          <Tabs.List className="grid grid-cols-2 gap-1 px-3.5 pt-3">
+        <Tabs defaultValue={defaultOpen}>
+          <TabsList className="grid grid-cols-2 gap-1 px-3.5 pt-3 bg-transparent h-auto">
             {tabs.map((tab) => (
-              <Tabs.Tab
+              <TabsTrigger
                 key={tab.key}
                 value={tab.key}
-                className={({ selected }) =>
-                  cn("py-1 text-13 rounded-sm border border-subtle bg-layer-1", {
-                    "bg-surface-1 text-primary": selected,
-                    "text-placeholder hover:text-tertiary hover:bg-layer-1/60": !selected,
-                  })
-                }
+                className={cn(
+                  "py-1 text-13 rounded-sm border border-subtle bg-layer-1",
+                  "data-[state=active]:bg-surface-1 data-[state=active]:text-primary data-[state=active]:shadow-none",
+                  "data-[state=inactive]:text-placeholder data-[state=inactive]:hover:text-tertiary data-[state=inactive]:hover:bg-layer-1/60"
+                )}
               >
                 {tab.label}
-              </Tabs.Tab>
+              </TabsTrigger>
             ))}
-          </Tabs.List>
+          </TabsList>
           {tabs.map((tab) => (
-            <Tabs.Panel key={tab.key} value={tab.key} className="h-80 overflow-hidden overflow-y-auto">
+            <TabsContent key={tab.key} value={tab.key} className="h-80 overflow-hidden overflow-y-auto mt-0">
               {tab.content}
-            </Tabs.Panel>
+            </TabsContent>
           ))}
-        </Tabs.Root>
-      </Popover.Panel>
+        </Tabs>
+      </PopoverContent>
     </Popover>
   );
 }
