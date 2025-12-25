@@ -7,7 +7,7 @@ from django.db.models import OuterRef, Func, F
 # Package imports
 from plane.app.views.base import BaseAPIView
 from plane.license.api.permissions import InstanceAdminPermission
-from plane.db.models import Workspace, WorkspaceMember, Project
+from plane.db.models import Workspace, WorkspaceMember, Project, Profile
 from plane.license.api.serializers import WorkspaceSerializer
 from plane.utils.constants import RESTRICTED_WORKSPACE_SLUGS
 
@@ -98,7 +98,7 @@ class InstanceWorkSpaceEndpoint(BaseAPIView):
                     )
 
             if serializer.is_valid(raise_exception=True):
-                # Use atomic transaction to ensure both workspace and member are created together
+                # Use atomic transaction to ensure workspace, member, and profile are updated together
                 with transaction.atomic():
                     workspace = serializer.save(owner=owner)
                     # Create Workspace member
@@ -107,6 +107,16 @@ class InstanceWorkSpaceEndpoint(BaseAPIView):
                         member=owner,
                         role=20,
                         company_role=request.data.get("company_role", ""),
+                    )
+                    # Mark owner as onboarded so they can access the workspace immediately
+                    Profile.objects.filter(user=owner).update(
+                        is_onboarded=True,
+                        onboarding_step={
+                            "workspace_join": True,
+                            "profile_complete": True,
+                            "workspace_create": True,
+                            "workspace_invite": True,
+                        },
                     )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(
