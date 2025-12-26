@@ -46,7 +46,6 @@ type Props = {
   issueCalendarView: ICalendarStore;
   loadMoreIssues: (dateString: string) => void;
   getPaginationData: (groupId: string | undefined) => TPaginationData | undefined;
-  getGroupIssueCount: (groupId: string | undefined) => number | undefined;
   quickAddCallback?: (projectId: string | null | undefined, data: TIssue) => Promise<TIssue | undefined>;
   quickActions: TRenderQuickActions;
   handleDragAndDrop: (
@@ -80,7 +79,6 @@ export function CalendarChart(props: Props) {
     quickAddCallback,
     addIssuesToView,
     getPaginationData,
-    getGroupIssueCount,
     updateFilters,
     canEditProperties,
     readOnly = false,
@@ -160,7 +158,6 @@ export function CalendarChart(props: Props) {
                         groupedIssueIds={groupedIssueIds}
                         loadMoreIssues={loadMoreIssues}
                         getPaginationData={getPaginationData}
-                        getGroupIssueCount={getGroupIssueCount}
                         enableQuickIssueCreate={enableQuickAdd}
                         disableIssueCreation={!enableIssueCreation}
                         quickActions={quickActions}
@@ -184,7 +181,6 @@ export function CalendarChart(props: Props) {
                   groupedIssueIds={groupedIssueIds}
                   loadMoreIssues={loadMoreIssues}
                   getPaginationData={getPaginationData}
-                  getGroupIssueCount={getGroupIssueCount}
                   enableQuickIssueCreate={enableQuickAdd}
                   disableIssueCreation={!enableIssueCreation}
                   quickActions={quickActions}
@@ -209,7 +205,6 @@ export function CalendarChart(props: Props) {
                 issueIdList={issueIdList}
                 loadMoreIssues={loadMoreIssues}
                 getPaginationData={getPaginationData}
-                getGroupIssueCount={getGroupIssueCount}
                 quickActions={quickActions}
                 enableQuickIssueCreate={enableQuickAdd}
                 disableIssueCreation={!enableIssueCreation}
@@ -238,7 +233,6 @@ export function CalendarChart(props: Props) {
             quickActions={quickActions}
             loadMoreIssues={loadMoreIssues}
             getPaginationData={getPaginationData}
-            getGroupIssueCount={getGroupIssueCount}
             enableQuickIssueCreate={enableQuickAdd}
             disableIssueCreation={!enableIssueCreation}
             quickAddCallback={quickAddCallback}

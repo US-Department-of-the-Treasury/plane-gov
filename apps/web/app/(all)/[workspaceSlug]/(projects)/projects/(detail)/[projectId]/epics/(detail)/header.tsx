@@ -32,6 +32,7 @@ import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-to
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useGroupedIssueCount } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -58,8 +59,9 @@ export function EpicIssuesHeader() {
   // store hooks
   const {
     issuesFilter: { issueFilters },
-    issues: { getGroupIssueCount },
   } = useIssues(EIssuesStoreType.EPIC);
+  // reactive issue count from Zustand
+  const workItemsCount = useGroupedIssueCount(EIssuesStoreType.EPIC);
   const { updateFilters } = useIssuesActions(EIssuesStoreType.EPIC);
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
@@ -86,7 +88,6 @@ export function EpicIssuesHeader() {
     workspaceSlug?.toString(),
     projectId?.toString()
   );
-  const workItemsCount = getGroupIssueCount(undefined, undefined, false);
 
   const toggleSidebar = () => {
     setValue(`${!isSidebarCollapsed}`);

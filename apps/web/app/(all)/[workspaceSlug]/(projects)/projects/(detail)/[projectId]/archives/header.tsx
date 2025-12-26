@@ -7,7 +7,7 @@ import { Breadcrumbs, Header } from "@plane/ui";
 // components
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 // hooks
-import { useIssues } from "@/hooks/store/use-issues";
+import { useGroupedIssueCount } from "@/hooks/store/use-issue-store-reactive";
 import { useProjects } from "@/store/queries/project";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -49,14 +49,10 @@ export function ProjectArchivesHeader(props: TProps) {
   const { workspaceSlug, projectId } = useParams();
   // queries
   const { isLoading } = useProjects(workspaceSlug?.toString() ?? "");
-  // store hooks
-  const {
-    issues: { getGroupIssueCount },
-  } = useIssues(EIssuesStoreType.ARCHIVED);
   // hooks
   const { isMobile } = usePlatformOS();
-
-  const issueCount = getGroupIssueCount(undefined, undefined, false);
+  // reactive issue count from Zustand
+  const issueCount = useGroupedIssueCount(EIssuesStoreType.ARCHIVED);
 
   const activeTabBreadcrumbDetail =
     PROJECT_ARCHIVES_BREADCRUMB_LIST[activeTab as keyof typeof PROJECT_ARCHIVES_BREADCRUMB_LIST];

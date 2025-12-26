@@ -152,11 +152,6 @@ export function BaseCalendarRoot(props: IBaseCalendarRoot) {
     [issues?.getPaginationData]
   );
 
-  const getGroupIssueCount = useCallback(
-    (groupId: string | undefined) => issues?.getGroupIssueCount(groupId, undefined, false),
-    [issues?.getGroupIssueCount]
-  );
-
   const canEditProperties = useCallback(
     (projectId: string | undefined) => {
       const isEditingAllowedBasedOnProject =
@@ -193,7 +188,6 @@ export function BaseCalendarRoot(props: IBaseCalendarRoot) {
           )}
           loadMoreIssues={loadMoreIssues}
           getPaginationData={getPaginationData}
-          getGroupIssueCount={getGroupIssueCount}
           addIssuesToView={addIssuesToView}
           quickAddCallback={quickAddIssue}
           readOnly={isCompletedSprint}

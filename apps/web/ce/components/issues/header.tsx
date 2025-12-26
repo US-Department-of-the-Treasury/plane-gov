@@ -23,7 +23,7 @@ import { HeaderFilters } from "@/components/issues/filters";
 // helpers
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useIssues } from "@/hooks/store/use-issues";
+import { useGroupedIssueCount } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
@@ -35,12 +35,10 @@ export function IssuesHeader() {
   // router
   const router = useAppRouter();
   const { workspaceSlug, projectId } = useParams();
-  // store hooks
-  const {
-    issues: { getGroupIssueCount },
-  } = useIssues(EIssuesStoreType.PROJECT);
   // i18n
   const { t } = useTranslation();
+  // reactive issue count from Zustand
+  const issuesCount = useGroupedIssueCount(EIssuesStoreType.PROJECT);
 
   const { data: currentProjectDetails, isLoading } = useProjectDetails(
     workspaceSlug?.toString() ?? "",
@@ -54,7 +52,6 @@ export function IssuesHeader() {
   const SPACE_APP_URL = (SPACE_BASE_URL.trim() === "" ? window.location.origin : SPACE_BASE_URL) + SPACE_BASE_PATH;
   const publishedURL = `${SPACE_APP_URL}/issues/${currentProjectDetails?.anchor}`;
 
-  const issuesCount = getGroupIssueCount(undefined, undefined, false);
   const canUserCreateIssue = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT,

@@ -41,6 +41,7 @@ import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-to
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useGroupedIssueCount } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
@@ -61,8 +62,9 @@ export function SprintIssuesHeader() {
   // store hooks
   const {
     issuesFilter: { issueFilters, updateFilters },
-    issues: { getGroupIssueCount },
   } = useIssues(EIssuesStoreType.SPRINT);
+  // reactive issue count from Zustand
+  const workItemsCount = useGroupedIssueCount(EIssuesStoreType.SPRINT);
   const { toggleCreateIssueModal } = useCommandPalette();
   const { isMobile } = usePlatformOS();
   const { allowPermissions } = useUserPermissions();
@@ -125,8 +127,6 @@ export function SprintIssuesHeader() {
       content: <SwitcherLabel name={sprint.name} LabelIcon={SprintIcon} />,
     };
   }) ?? []) as ICustomSearchSelectOption[];
-
-  const workItemsCount = getGroupIssueCount(undefined, undefined, false);
 
   return (
     <>
