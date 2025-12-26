@@ -5,7 +5,6 @@ import { EPageAccess } from "@plane/constants";
 import type { TChangeHandlerProps } from "@plane/propel/emoji-icon-picker";
 import type { TDocumentPayload, TLogoProps, TNameDescriptionLoader, TPage } from "@plane/types";
 // plane web store
-import type { RootStore } from "@/plane-web/store/root.store";
 import type { TBasePageServices } from "@/store/pages/base-page";
 import { getRouterWorkspaceSlug, useFavoriteStore } from "@/store/client";
 import { useUserStore } from "@/store/user";
@@ -125,7 +124,6 @@ const createInitialState = (page: TPage): BasePageStoreState => ({
  * This replaces the MobX BasePage class with a Zustand store.
  */
 export const createBasePageStore = (
-  rootStore: RootStore,
   page: TPage,
   services: TBasePageServices
 ) => {
@@ -466,12 +464,10 @@ export interface IBasePage {
  */
 export class BasePageStoreLegacy implements IBasePage {
   private store: StoreApi<BasePageStore>;
-  private rootStore: RootStore;
   private titleUpdateTimer: NodeJS.Timeout | null = null;
 
-  constructor(rootStore: RootStore, page: TPage, services: TBasePageServices) {
-    this.rootStore = rootStore;
-    this.store = createBasePageStore(rootStore, page, services);
+  constructor(_rootStore: any, page: TPage, services: TBasePageServices) {
+    this.store = createBasePageStore(page, services);
 
     // Set up title auto-save similar to MobX reaction
     // Note: In a real component, this should be handled with useEffect

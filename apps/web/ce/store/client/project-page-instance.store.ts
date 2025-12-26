@@ -1,17 +1,15 @@
-import { set as lodashSet } from "lodash-es";
 import { create } from "zustand";
 // constants
 import { EPageAccess, EUserPermissions } from "@plane/constants";
 import type { TChangeHandlerProps } from "@plane/propel/emoji-icon-picker";
 import type { TDocumentPayload, TLogoProps, TNameDescriptionLoader, TPage } from "@plane/types";
 import type { EditorRefApi, TEditorAsset } from "@plane/editor";
-// plane web store
-import type { RootStore } from "@/plane-web/store/root.store";
 // services
 import { ProjectPageService } from "@/services/page";
 import { FavoriteService } from "@/services/favorite";
 // store
-import { useFavoriteStore } from "@/store/client";
+import { useFavoriteStore, getRouterWorkspaceSlug, useBaseUserPermissionStore } from "@/store/client";
+import { useUserStore } from "@/store/user";
 
 // Service instances at module level
 const projectPageService = new ProjectPageService();
@@ -51,9 +49,6 @@ export interface ProjectPageInstanceStoreState {
   editorRef: EditorRefApi | null;
   assetsList: TEditorAsset[];
 
-  // Root store reference
-  rootStore: RootStore | null;
-
   // Workspace and project context
   workspaceSlug: string | undefined;
   projectId: string | undefined;
@@ -65,7 +60,7 @@ export interface ProjectPageInstanceStoreState {
 // Actions interface
 export interface ProjectPageInstanceStoreActions {
   // Initialization
-  initialize: (store: RootStore, page: TPage) => void;
+  initialize: (page: TPage) => void;
 
   // Helpers
   setIsSubmitting: (value: TNameDescriptionLoader) => void;
@@ -140,15 +135,15 @@ const initialState: ProjectPageInstanceStoreState = {
   oldName: "",
   editorRef: null,
   assetsList: [],
-  rootStore: null,
   workspaceSlug: undefined,
   projectId: undefined,
   disposers: [],
 };
 
 // Factory function to create project page stores
-export const createProjectPageInstanceStore = (store: RootStore, page: TPage) => {
-  const { workspaceSlug } = store.router;
+export const createProjectPageInstanceStore = (page: TPage) => {
+  // Direct Zustand store access - no rootStore indirection
+  const workspaceSlug = getRouterWorkspaceSlug();
   const projectId = page.project_ids?.[0];
 
   return create<ProjectPageInstanceStore>()((set, get) => ({
@@ -175,13 +170,13 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
     updated_at: page?.updated_at || undefined,
     deleted_at: page?.deleted_at || undefined,
     oldName: page?.name || "",
-    rootStore: store,
     workspaceSlug: workspaceSlug,
     projectId: projectId,
 
     // Initialization
-    initialize: (store: RootStore, page: TPage) => {
-      const { workspaceSlug } = store.router;
+    initialize: (page: TPage) => {
+      // Direct Zustand store access - no rootStore indirection
+      const workspaceSlug = getRouterWorkspaceSlug();
       const projectId = page.project_ids?.[0];
 
       set({
@@ -205,7 +200,6 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
         updated_at: page?.updated_at || undefined,
         deleted_at: page?.deleted_at || undefined,
         oldName: page?.name || "",
-        rootStore: store,
         workspaceSlug: workspaceSlug,
         projectId: projectId,
       });
@@ -215,17 +209,6 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
         let timeoutId: NodeJS.Timeout | null = null;
         let previousName = get().name;
 
-        // Get a reference to the store we're creating
-        // Note: We use a subscription that fires when state changes
-        const storeRef = { current: null as ReturnType<typeof createProjectPageInstanceStore> | null };
-
-        // Use setTimeout to get store reference after creation
-        setTimeout(() => {
-          // The store is `this` in context, but we need to access it differently
-          // For Zustand stores created with `create()`, we can subscribe directly
-          // Since this is inside the store creation, we need to use a workaround
-        }, 0);
-
         // For now, use a minimal interval that only checks when there's a pending change
         // This is a debounce pattern - we only save after 2 seconds of no changes
         const handleNameChange = (currentName: string | undefined) => {
@@ -233,28 +216,27 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
             previousName = currentName;
             if (timeoutId) clearTimeout(timeoutId);
 
-            timeoutId = setTimeout(async () => {
+            timeoutId = setTimeout(() => {
               const state = get();
               set({ isSubmitting: "submitting" });
 
-              try {
-                if (!state.workspaceSlug || !state.projectId || !state.id) {
-                  throw new Error("Missing required fields.");
-                }
-
-                await projectPageService.update(
-                  state.workspaceSlug,
-                  state.projectId,
-                  state.id,
-                  { name: currentName }
-                );
+              if (!state.workspaceSlug || !state.projectId || !state.id) {
                 set({ isSubmitting: "submitted" });
-              } catch (error) {
-                set({
-                  name: state.oldName,
-                  isSubmitting: "submitted"
-                });
+                return;
               }
+
+              void projectPageService
+                .update(state.workspaceSlug, state.projectId, state.id, { name: currentName })
+                .then(() => {
+                  set({ isSubmitting: "submitted" });
+                  return undefined;
+                })
+                .catch(() => {
+                  set({
+                    name: state.oldName,
+                    isSubmitting: "submitted",
+                  });
+                });
             }, 2000);
           }
         };
@@ -295,12 +277,14 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
     // Helper for permission checks
     getHighestRoleAcrossProjects: () => {
       const state = get();
-      const { workspaceSlug } = state.rootStore?.router || {};
-      if (!workspaceSlug || !state.project_ids?.length || !state.rootStore) return undefined;
+      // Direct Zustand store access - no rootStore indirection
+      const workspaceSlug = getRouterWorkspaceSlug();
+      if (!workspaceSlug || !state.project_ids?.length) return undefined;
 
       let highestRole: EUserPermissions | undefined = undefined;
       state.project_ids.forEach((projectId) => {
-        const currentUserProjectRole = state.rootStore!.user.permission.getProjectRoleByWorkspaceSlugAndProjectId(
+        // Direct Zustand store access - no rootStore indirection
+        const currentUserProjectRole = useBaseUserPermissionStore.getState().getProjectRole(
           workspaceSlug?.toString() || "",
           projectId?.toString() || ""
         );
@@ -340,7 +324,8 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
 
     getIsCurrentUserOwner: () => {
       const state = get();
-      const currentUserId = state.rootStore?.user.data?.id;
+      // Direct Zustand store access - no rootStore indirection
+      const currentUserId = useUserStore.getState().data?.id;
       if (!currentUserId) return false;
       return state.owned_by === currentUserId;
     },
@@ -411,7 +396,8 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
 
     getRedirectionLink: () => {
       const state = get();
-      const { workspaceSlug } = state.rootStore?.router || {};
+      // Direct Zustand store access - no rootStore indirection
+      const workspaceSlug = getRouterWorkspaceSlug();
       return `/${workspaceSlug}/projects/${state.project_ids?.[0]}/pages/${state.id}`;
     },
 
@@ -776,11 +762,9 @@ export interface IProjectPage extends TPage {
 // Legacy class wrapper for backward compatibility
 export class ProjectPageInstanceStoreLegacy implements IProjectPage {
   private projectPageStore: ReturnType<typeof createProjectPageInstanceStore>;
-  private rootStore: RootStore;
 
-  constructor(store: RootStore, page: TPage) {
-    this.rootStore = store;
-    this.projectPageStore = createProjectPageInstanceStore(store, page);
+  constructor(page: TPage) {
+    this.projectPageStore = createProjectPageInstanceStore(page);
   }
 
   // Getters for loaders

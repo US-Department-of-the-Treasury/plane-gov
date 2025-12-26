@@ -6,7 +6,6 @@ import type { IWorkspaceBulkInviteFormData, IWorkspaceMember, IWorkspaceMemberIn
 // services
 import { WorkspaceService } from "@/plane-web/services";
 // types
-import type { CoreRootStore } from "@/store/root.store";
 import type { IMemberFilters } from "@/store/member/utils";
 import { sortWorkspaceMembers } from "@/store/member/utils";
 import { getRouterWorkspaceSlug } from "@/store/client";
@@ -46,14 +45,10 @@ export interface WorkspaceMemberStoreState {
   workspaceMemberMap: Record<string, Record<string, IWorkspaceMembership>>;
   workspaceMemberInvitations: Record<string, IWorkspaceMemberInvitation[]>;
   filtersStore: WorkspaceMemberFiltersStore;
-  rootStore: CoreRootStore | null;
 }
 
 // Actions interface
 export interface WorkspaceMemberStoreActions {
-  // Initialization
-  setRootStore: (rootStore: CoreRootStore) => void;
-
   // Computed getters
   getWorkspaceMemberIds: (workspaceSlug: string) => string[];
   getFilteredWorkspaceMemberIds: (workspaceSlug: string) => string[];
@@ -103,7 +98,6 @@ const initialState: WorkspaceMemberStoreState = {
     updateFilters: () => {},
     getFilteredMemberIds: () => [],
   },
-  rootStore: null,
 };
 
 /**
@@ -153,11 +147,6 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
 
       return sortedMembers.map(getMemberKey);
     },
-  },
-
-  // Initialization
-  setRootStore: (rootStore) => {
-    set({ rootStore });
   },
 
   // Computed getters
@@ -499,13 +488,8 @@ export interface IWorkspaceMemberStore {
 
 // Legacy class wrapper for backward compatibility
 export class WorkspaceMemberStoreLegacy implements IWorkspaceMemberStore {
-  private rootStore: CoreRootStore;
-
-  constructor(_memberRoot: any, _rootStore: CoreRootStore) {
-    this.rootStore = _rootStore;
-
-    // Initialize the Zustand store with the root store
-    useWorkspaceMemberStore.getState().setRootStore(_rootStore);
+  constructor(_memberRoot: any, _rootStore: any) {
+    // No initialization needed - Zustand store uses direct store access
   }
 
   // Getters that delegate to Zustand store

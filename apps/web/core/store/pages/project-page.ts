@@ -1,8 +1,6 @@
 // constants
 import { EPageAccess, EUserPermissions } from "@plane/constants";
 import type { TPage } from "@plane/types";
-// plane web store
-import type { RootStore } from "@/plane-web/store/root.store";
 // services
 import { ProjectPageService } from "@/services/page";
 import { getRouterWorkspaceSlug, useBaseUserPermissionStore } from "@/store/client";
@@ -14,12 +12,12 @@ import type { TPageInstance } from "./base-page";
 export type TProjectPage = TPageInstance;
 
 export class ProjectPage extends BasePage implements TProjectPage {
-  constructor(store: RootStore, page: TPage) {
+  constructor(page: TPage) {
     // required fields for API calls
     const workspaceSlug = getRouterWorkspaceSlug();
     const projectId = page.project_ids?.[0];
     // initialize base instance
-    super(store, page, {
+    super(page, {
       update: async (payload) => {
         if (!workspaceSlug || !projectId || !page.id) throw new Error("Missing required fields.");
         return await projectPageService.update(workspaceSlug, projectId, page.id, payload);

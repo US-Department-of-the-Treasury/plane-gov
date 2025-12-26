@@ -1,4 +1,3 @@
-import { set as lodashSet } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // types
@@ -7,15 +6,10 @@ import type { TPage, TPageFilters, TPageNavigationTabs } from "@plane/types";
 import { EUserProjectRoles } from "@plane/types";
 // helpers
 import { filterPagesByPageType, getPageName, orderPages, shouldFilterPage } from "@plane/utils";
-// plane web constants
-// plane web store
-import type { RootStore } from "@/plane-web/store/root.store";
 // services
 import { ProjectPageService } from "@/services/page";
 // zustand stores
-import { useFavoriteStore } from "@/store/client";
-// store
-import type { CoreRootStore } from "../root.store";
+import { useFavoriteStore, getRouterWorkspaceSlug, getRouterProjectId, useBaseUserPermissionStore } from "@/store/client";
 import type { TProjectPage } from "./project-page";
 import { ProjectPage } from "./project-page";
 
@@ -146,13 +140,11 @@ const createProjectPageStore = () =>
 export class ProjectPageStore implements IProjectPageStore {
   // service
   service: ProjectPageService;
-  rootStore: CoreRootStore;
   // zustand store
   private pageStore: ReturnType<typeof createProjectPageStore>;
   private lastProjectId: string | null = null;
 
-  constructor(private store: RootStore) {
-    this.rootStore = store;
+  constructor() {
     // service
     this.service = new ProjectPageService();
     // init zustand store
@@ -162,7 +154,7 @@ export class ProjectPageStore implements IProjectPageStore {
   }
 
   private checkAndResetOnProjectChange() {
-    const currentProjectId = this.store.router.projectId?.toString() || null;
+    const currentProjectId = getRouterProjectId()?.toString() || null;
     if (currentProjectId !== this.lastProjectId && currentProjectId) {
       this.pageStore.getState().resetSearchQuery();
       this.lastProjectId = currentProjectId;
@@ -199,8 +191,10 @@ export class ProjectPageStore implements IProjectPageStore {
    * @description returns true if the current logged in user can create a page
    */
   get canCurrentUserCreatePage() {
-    const { workspaceSlug, projectId } = this.store.router;
-    const currentUserProjectRole = this.store.user.permission.getProjectRoleByWorkspaceSlugAndProjectId(
+    const workspaceSlug = getRouterWorkspaceSlug();
+    const projectId = getRouterProjectId();
+    // Direct Zustand store access - no rootStore indirection
+    const currentUserProjectRole = useBaseUserPermissionStore.getState().getProjectRole(
       workspaceSlug?.toString() || "",
       projectId?.toString() || ""
     );
@@ -212,7 +206,7 @@ export class ProjectPageStore implements IProjectPageStore {
    * @param {TPageNavigationTabs} pageType
    */
   getCurrentProjectPageIdsByTab = (pageType: TPageNavigationTabs) => {
-    const { projectId } = this.store.router;
+    const projectId = getRouterProjectId();
     const data = this.pageStore.getState().data;
     if (!projectId) return undefined;
     // helps to filter pages based on the pageType
@@ -240,7 +234,7 @@ export class ProjectPageStore implements IProjectPageStore {
    * @param {TPageNavigationTabs} pageType
    */
   getCurrentProjectFilteredPageIdsByTab = (pageType: TPageNavigationTabs) => {
-    const { projectId } = this.store.router;
+    const projectId = getRouterProjectId();
     const state = this.pageStore.getState();
     if (!projectId) return undefined;
 
@@ -306,7 +300,7 @@ export class ProjectPageStore implements IProjectPageStore {
             existingPage.mutateProperties(otherFields, false);
           } else {
             // If new page, create a new instance with all data
-            this.pageStore.getState().setPageData(page.id, new ProjectPage(this.store, page));
+            this.pageStore.getState().setPageData(page.id, new ProjectPage(page));
           }
         }
       }
@@ -344,7 +338,7 @@ export class ProjectPageStore implements IProjectPageStore {
         if (pageInstance) {
           pageInstance.mutateProperties(page, false);
         } else {
-          this.pageStore.getState().setPageData(page.id, new ProjectPage(this.store, page));
+          this.pageStore.getState().setPageData(page.id, new ProjectPage(page));
         }
       }
       this.pageStore.getState().setLoader(undefined);
@@ -366,7 +360,8 @@ export class ProjectPageStore implements IProjectPageStore {
    */
   createPage = async (pageData: Partial<TPage>) => {
     try {
-      const { workspaceSlug, projectId } = this.store.router;
+      const workspaceSlug = getRouterWorkspaceSlug();
+      const projectId = getRouterProjectId();
       if (!workspaceSlug || !projectId) return undefined;
 
       this.pageStore.getState().setLoader("mutation-loader");
@@ -374,7 +369,7 @@ export class ProjectPageStore implements IProjectPageStore {
 
       const page = await this.service.create(workspaceSlug, projectId, pageData);
       if (page?.id) {
-        this.pageStore.getState().setPageData(page.id, new ProjectPage(this.store, page));
+        this.pageStore.getState().setPageData(page.id, new ProjectPage(page));
       }
       this.pageStore.getState().setLoader(undefined);
 
@@ -393,9 +388,10 @@ export class ProjectPageStore implements IProjectPageStore {
    * @description delete a page
    * @param {string} pageId
    */
-  removePage = async ({ pageId, shouldSync = true }: { pageId: string; shouldSync?: boolean }) => {
+  removePage = async ({ pageId, shouldSync: _shouldSync = true }: { pageId: string; shouldSync?: boolean }) => {
     try {
-      const { workspaceSlug, projectId } = this.store.router;
+      const workspaceSlug = getRouterWorkspaceSlug();
+      const projectId = getRouterProjectId();
       if (!workspaceSlug || !projectId || !pageId) return undefined;
 
       await this.service.remove(workspaceSlug, projectId, pageId);
