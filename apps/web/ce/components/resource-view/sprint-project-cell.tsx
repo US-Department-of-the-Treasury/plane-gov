@@ -1,31 +1,41 @@
 "use client";
 
-import { useMemo } from "react";
-import { Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Plus, Loader2 } from "lucide-react";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { SelectCombobox } from "@plane/propel/combobox";
 import { cn } from "@plane/utils";
 // hooks
 import { useProjects, getProjectById, getJoinedProjectIds } from "@/store/queries/project";
+import { useMaterializeSprint } from "@/store/queries/sprint";
 
 type SprintProjectCellProps = {
   workspaceSlug: string;
   memberId: string;
-  sprintId: string;
+  /** Sprint ID (undefined for virtual sprints) */
+  sprintId: string | undefined;
+  /** Sprint number (only for virtual sprints that need materialization) */
+  sprintNumber?: number;
   assignedProjectId: string | undefined;
   onAssignmentChange: (memberId: string, sprintId: string, projectId: string | null) => void;
   isActiveSprint?: boolean;
+  /** Whether this is a virtual sprint (not yet in database) */
+  isVirtualSprint?: boolean;
 };
 
 export function SprintProjectCell({
   workspaceSlug,
   memberId,
   sprintId,
+  sprintNumber,
   assignedProjectId,
   onAssignmentChange,
   isActiveSprint = false,
+  isVirtualSprint = false,
 }: SprintProjectCellProps) {
   const { data: projects } = useProjects(workspaceSlug);
+  const { mutateAsync: materializeSprint } = useMaterializeSprint();
+  const [isMaterializing, setIsMaterializing] = useState(false);
 
   // Get project IDs
   const projectIds = useMemo(() => {
@@ -39,18 +49,65 @@ export function SprintProjectCell({
     return getProjectById(projects, assignedProjectId);
   }, [assignedProjectId, projects]);
 
-  // Handle value change
-  const handleValueChange = (value: string | string[] | null) => {
+  // Handle value change - for virtual sprints, materialize first
+  const handleValueChange = (value: string | string[] | null): void => {
+    void handleValueChangeAsync(value);
+  };
+
+  const handleValueChangeAsync = async (value: string | string[] | null) => {
     const projectId = typeof value === "string" ? value : null;
-    onAssignmentChange(memberId, sprintId, projectId === "" ? null : projectId);
+
+    // If clearing assignment and we have a real sprint ID
+    if ((projectId === "" || projectId === null) && sprintId) {
+      onAssignmentChange(memberId, sprintId, null);
+      return;
+    }
+
+    // If this is a virtual sprint, we need to materialize it first
+    if (isVirtualSprint && sprintNumber && projectId) {
+      setIsMaterializing(true);
+      try {
+        const materializedSprint = await materializeSprint({
+          workspaceSlug,
+          sprintNumber,
+        });
+        // Now create the assignment with the real sprint ID
+        onAssignmentChange(memberId, materializedSprint.id, projectId);
+      } catch (error) {
+        console.error("Failed to materialize sprint:", error);
+      } finally {
+        setIsMaterializing(false);
+      }
+      return;
+    }
+
+    // Regular real sprint assignment
+    if (sprintId && projectId) {
+      onAssignmentChange(memberId, sprintId, projectId);
+    }
   };
 
   const hasAssignment = !!assignedProject;
+
+  // Show loading state during materialization
+  if (isMaterializing) {
+    return (
+      <div
+        className={cn("group/cell flex w-36 min-w-36 items-center justify-center px-2 py-1.5", {
+          "bg-accent-primary/5": isActiveSprint,
+          "border-l border-dashed border-subtle": isVirtualSprint,
+        })}
+      >
+        <Loader2 className="h-4 w-4 animate-spin text-placeholder" />
+      </div>
+    );
+  }
 
   return (
     <div
       className={cn("group/cell flex w-36 min-w-36 items-center justify-center px-2 py-1.5", {
         "bg-accent-primary/5": isActiveSprint,
+        "border-l border-dashed border-subtle": isVirtualSprint,
       })}
     >
       <SelectCombobox value={assignedProjectId ?? null} onValueChange={handleValueChange} multiple={false}>

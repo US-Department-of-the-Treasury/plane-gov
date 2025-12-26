@@ -80,6 +80,8 @@ export {
   useSetSprintMemberProject,
   useDeleteSprintMemberProject,
   getSprintMemberProjectAssignment,
+  // Sprint materialization (for virtual sprints)
+  useMaterializeSprint,
 } from "./sprint";
 
 // Epic hooks (TanStack Query)

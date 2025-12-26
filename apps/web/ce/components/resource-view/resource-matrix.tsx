@@ -9,13 +9,20 @@ import { useWorkspaceMembers } from "@/store/queries/member";
 import {
   useWorkspaceSprints,
   getActiveSprint,
-  getSprintById,
   getCompletedSprints,
   getUpcomingSprints,
 } from "@/store/queries/sprint";
 // components
 import { SprintProjectCell } from "./sprint-project-cell";
 import { useSprintProjectAssignments } from "./use-sprint-assignments";
+// types and utilities
+import {
+  type TDisplaySprint,
+  isVirtualSprint,
+  getSprintNumber,
+  getDisplaySprintId,
+  mergeSprintsForDisplay,
+} from "./virtual-sprints";
 
 type ResourceMatrixProps = {
   workspaceSlug: string;
@@ -23,6 +30,8 @@ type ResourceMatrixProps = {
 
 // Number of past sprints to show per "expand" click (~1 quarter)
 const SPRINTS_PER_QUARTER = 6;
+// Number of future virtual sprints to generate (~1 year of 2-week sprints)
+const FUTURE_SPRINTS_COUNT = 27;
 
 export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
   const { data: members, isLoading: membersLoading } = useWorkspaceMembers(workspaceSlug);
@@ -35,12 +44,21 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
   const activeSprint = getActiveSprint(sprints);
   const activeSprintId = activeSprint?.id;
 
-  // Compute visible sprints: current + future + limited past
-  const { visibleSprintIds, hasMorePastSprints, totalPastSprints } = useMemo(() => {
-    if (!sprints) return { visibleSprintIds: [], hasMorePastSprints: false, totalPastSprints: 0 };
+  // Merge real sprints with virtual future sprints
+  const allDisplaySprints = useMemo(() => {
+    if (!sprints) return [];
+    return mergeSprintsForDisplay(sprints, FUTURE_SPRINTS_COUNT);
+  }, [sprints]);
 
-    const completed = getCompletedSprints(sprints);
-    const upcoming = getUpcomingSprints(sprints);
+  // Compute visible sprints: current + future + limited past
+  const { visibleSprints, hasMorePastSprints, totalPastSprints } = useMemo(() => {
+    if (allDisplaySprints.length === 0) {
+      return { visibleSprints: [] as TDisplaySprint[], hasMorePastSprints: false, totalPastSprints: 0 };
+    }
+
+    // Real sprints only for past/completed calculation
+    const realSprints = sprints || [];
+    const completed = getCompletedSprints(realSprints);
 
     // Sort completed by end_date descending (most recent first)
     const sortedCompleted = [...completed].sort((a, b) => {
@@ -49,36 +67,42 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
       return bDate - aDate;
     });
 
-    // Take only the most recent N past sprints
-    const visiblePast = sortedCompleted.slice(0, pastSprintsToShow);
-    // Reverse so older sprints appear first (left to right chronological)
-    const orderedPast = [...visiblePast].reverse();
+    // Get visible past sprint IDs
+    const visiblePastIds = new Set(sortedCompleted.slice(0, pastSprintsToShow).map((s) => s.id));
 
-    // Build visible sprint list: past (chronological) -> current -> future
-    const visible: string[] = [];
+    // Filter and categorize display sprints
+    const visible: TDisplaySprint[] = [];
+    const upcoming = getUpcomingSprints(realSprints);
+    const upcomingIds = new Set(upcoming.map((s) => s.id));
 
-    // Add past sprints
-    orderedPast.forEach((s) => visible.push(s.id));
+    for (const sprint of allDisplaySprints) {
+      const isVirtual = isVirtualSprint(sprint);
 
-    // Add active sprint
-    if (activeSprint) {
-      visible.push(activeSprint.id);
+      if (isVirtual) {
+        // Virtual sprints are always shown (they're future sprints)
+        visible.push(sprint);
+      } else {
+        // Real sprint - check if it should be visible
+        const sprintId = sprint.id;
+        const isActive = sprintId === activeSprintId;
+        const isPast = visiblePastIds.has(sprintId);
+        const isUpcoming = upcomingIds.has(sprintId);
+
+        if (isActive || isPast || isUpcoming) {
+          visible.push(sprint);
+        }
+      }
     }
 
-    // Add upcoming sprints (sorted by start_date)
-    const sortedUpcoming = [...upcoming].sort((a, b) => {
-      const aDate = a.start_date ? new Date(a.start_date).getTime() : 0;
-      const bDate = b.start_date ? new Date(b.start_date).getTime() : 0;
-      return aDate - bDate;
-    });
-    sortedUpcoming.forEach((s) => visible.push(s.id));
+    // Sort by sprint number (chronological order)
+    visible.sort((a, b) => getSprintNumber(a) - getSprintNumber(b));
 
     return {
-      visibleSprintIds: visible,
+      visibleSprints: visible,
       hasMorePastSprints: pastSprintsToShow < sortedCompleted.length,
       totalPastSprints: sortedCompleted.length,
     };
-  }, [sprints, pastSprintsToShow, activeSprint]);
+  }, [allDisplaySprints, sprints, pastSprintsToShow, activeSprintId]);
 
   const memberIds = members?.map((m) => m.id) || [];
 
@@ -112,7 +136,7 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
     );
   }
 
-  if (visibleSprintIds.length === 0) {
+  if (visibleSprints.length === 0) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-2">
         <Calendar className="h-12 w-12 text-custom-text-400" />
@@ -141,11 +165,11 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
             )}
           </div>
           {/* Sprint column headers */}
-          {visibleSprintIds.map((sprintId) => {
-            const sprint = getSprintById(sprints, sprintId);
-            if (!sprint) return null;
-
-            const isActive = sprintId === activeSprintId;
+          {visibleSprints.map((sprint) => {
+            const isVirtual = isVirtualSprint(sprint);
+            const sprintId = getDisplaySprintId(sprint);
+            const isActive = !isVirtual && sprint.id === activeSprintId;
+            const sprintNumber = getSprintNumber(sprint);
             const startDate = sprint.start_date ? format(new Date(sprint.start_date), "MMM d") : "";
             const endDate = sprint.end_date ? format(new Date(sprint.end_date), "MMM d") : "";
 
@@ -154,6 +178,7 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
                 key={sprintId}
                 className={cn("flex w-36 min-w-36 flex-col items-center justify-center px-2 py-1", {
                   "bg-accent-primary/5": isActive,
+                  "border-l border-dashed border-subtle": isVirtual,
                 })}
               >
                 <div className="flex items-center gap-1">
@@ -161,13 +186,14 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
                   <span
                     className={cn("text-11 font-medium truncate max-w-[110px]", {
                       "text-accent-primary": isActive,
-                      "text-tertiary": !isActive,
+                      "text-placeholder": isVirtual,
+                      "text-tertiary": !isActive && !isVirtual,
                     })}
                   >
-                    {isActive ? "Today" : sprint.name || `Sprint ${sprint.number}`}
+                    {isActive ? "Today" : isVirtual ? `Sprint ${sprintNumber}` : sprint.name || `Sprint ${sprintNumber}`}
                   </span>
                 </div>
-                <span className="text-10 text-placeholder">
+                <span className={cn("text-10", isVirtual ? "text-placeholder/70" : "text-placeholder")}>
                   {startDate} - {endDate}
                 </span>
               </div>
@@ -198,19 +224,24 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
               </div>
 
               {/* Sprint cells for this member */}
-              {visibleSprintIds.map((sprintId) => {
-                const isActive = sprintId === activeSprintId;
-                const assignedProjectId = getAssignment(member.id, sprintId);
+              {visibleSprints.map((sprint) => {
+                const isVirtual = isVirtualSprint(sprint);
+                const sprintId = getDisplaySprintId(sprint);
+                const isActive = !isVirtual && sprint.id === activeSprintId;
+                // For virtual sprints, there can be no assignment yet (sprint doesn't exist in DB)
+                const assignedProjectId = isVirtual ? undefined : getAssignment(member.id, sprint.id);
 
                 return (
                   <SprintProjectCell
                     key={`${member.id}-${sprintId}`}
                     workspaceSlug={workspaceSlug}
                     memberId={member.id}
-                    sprintId={sprintId}
+                    sprintId={isVirtual ? undefined : sprint.id}
+                    sprintNumber={isVirtual ? sprint.number : undefined}
                     assignedProjectId={assignedProjectId}
                     onAssignmentChange={setAssignment}
                     isActiveSprint={isActive}
+                    isVirtualSprint={isVirtual}
                   />
                 );
               })}

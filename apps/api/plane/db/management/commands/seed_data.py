@@ -41,6 +41,7 @@ from plane.db.models import (
     ProjectMember,
     Sprint,
     SprintIssue,
+    SprintMemberProject,
     State,
     User,
     Workspace,
@@ -401,6 +402,14 @@ class Command(BaseCommand):
                 )
                 self.stdout.write(f"    Pages: {page_count}")
 
+        # Create sprint member project assignments (for Resources view)
+        sprint_member_projects_data = self._load_json("sprint_member_projects.json")
+        if sprint_member_projects_data:
+            smp_count = self._create_sprint_member_projects(
+                workspace, team_members, sprint_map, project_map, sprint_member_projects_data
+            )
+            self.stdout.write(f"    Sprint Member Projects: {smp_count}")
+
     def _seed_random_data(self, workspace: Workspace, user: User, options: dict):
         """Seed using Faker-generated random data."""
         self.stdout.write("  Generating random data with Faker...")
@@ -749,6 +758,63 @@ class Command(BaseCommand):
                         defaults={"role": 15},  # Member role
                     )
 
+            count += 1
+
+        return count
+
+    def _create_sprint_member_projects(
+        self, workspace, team_members, sprint_map, project_map, smp_data
+    ) -> int:
+        """Create sprint member project assignments from JSON data.
+
+        This populates the Resources view by linking workspace members
+        to sprints and their assigned projects.
+
+        Args:
+            workspace: The workspace
+            team_members: List of User objects (1-indexed in JSON)
+            sprint_map: Dict mapping old sprint IDs to new Sprint UUIDs
+            project_map: Dict mapping old project IDs to Project instances
+            smp_data: List of dicts with team_member_id, sprint_id, project_id
+        """
+        count = 0
+        for record in smp_data:
+            team_member_idx = record.get("team_member_id")
+            old_sprint_id = record.get("sprint_id")
+            old_project_id = record.get("project_id")
+
+            # Skip records with missing data
+            if not all([team_member_idx, old_sprint_id, old_project_id]):
+                continue
+
+            # Get the team member (1-indexed)
+            if team_member_idx < 1 or team_member_idx > len(team_members):
+                continue
+            user = team_members[team_member_idx - 1]
+
+            # Get the workspace member for this user
+            workspace_member = WorkspaceMember.objects.filter(
+                workspace=workspace, member=user
+            ).first()
+            if not workspace_member:
+                continue
+
+            # Get the sprint UUID
+            sprint_id = sprint_map.get(old_sprint_id)
+            if not sprint_id:
+                continue
+
+            # Get the project
+            project = project_map.get(old_project_id)
+            if not project:
+                continue
+
+            # Create the SprintMemberProject record
+            SprintMemberProject.objects.get_or_create(
+                sprint_id=sprint_id,
+                member=workspace_member,
+                project=project,
+            )
             count += 1
 
         return count

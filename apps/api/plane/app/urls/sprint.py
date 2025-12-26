@@ -8,6 +8,7 @@ from plane.app.views import (
     WorkspaceSprintUserPropertiesEndpoint,
     WorkspaceSprintFavoriteEndpoint,
     SprintMemberProjectEndpoint,
+    SprintMaterializeEndpoint,
     # Project-level sprint views (filters by SprintMemberProject)
     SprintViewSet,
 )
@@ -70,5 +71,11 @@ urlpatterns = [
         "workspaces/<str:slug>/sprint-member-projects/",
         SprintMemberProjectEndpoint.as_view(),
         name="sprint-member-projects",
+    ),
+    # Sprint Materialization (create virtual sprint in database)
+    path(
+        "workspaces/<str:slug>/sprints/materialize/",
+        SprintMaterializeEndpoint.as_view(),
+        name="sprint-materialize",
     ),
 ]

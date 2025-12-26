@@ -755,6 +755,101 @@ class WorkspaceSprintsEndpoint(BaseAPIView):
         return Response(serializer, status=status.HTTP_200_OK)
 
 
+class SprintMaterializeEndpoint(BaseAPIView):
+    """
+    Materialize a virtual sprint by creating it in the database.
+
+    Virtual sprints are calculated on the frontend but don't exist in the database
+    until they're needed (e.g., when a team member is assigned to them).
+    This endpoint creates the sprint using get_or_create to handle race conditions.
+    """
+
+    permission_classes = [WorkspaceEntityPermission]
+
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
+    def post(self, request, slug):
+        """
+        Create a sprint by number if it doesn't exist.
+
+        Request body:
+        - sprint_number: The sprint number to materialize (required)
+
+        Returns the sprint (new or existing) with its UUID.
+        """
+        sprint_number = request.data.get("sprint_number")
+
+        if sprint_number is None:
+            return Response(
+                {"error": "sprint_number is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            sprint_number = int(sprint_number)
+        except (TypeError, ValueError):
+            return Response(
+                {"error": "sprint_number must be an integer"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if sprint_number < 1:
+            return Response(
+                {"error": "sprint_number must be positive"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        workspace = Workspace.objects.get(slug=slug)
+
+        # Auto-set sprint_start_date if not set
+        today = timezone.now().date()
+        if not workspace.sprint_start_date:
+            days_since_monday = today.weekday()
+            most_recent_monday = today - timedelta(days=days_since_monday)
+            workspace.sprint_start_date = most_recent_monday
+            workspace.save(update_fields=['sprint_start_date'])
+
+        sprint_start = workspace.sprint_start_date
+
+        # Calculate sprint dates
+        sprint_start_date = sprint_start + timedelta(days=(sprint_number - 1) * 14)
+
+        # Convert to datetime with workspace timezone
+        tz = pytz.timezone(workspace.timezone)
+        sprint_start_datetime = timezone.make_aware(
+            timezone.datetime.combine(sprint_start_date, timezone.datetime.min.time()),
+            tz
+        )
+        sprint_end_datetime = sprint_start_datetime + timedelta(days=13, hours=23, minutes=59, seconds=59)
+
+        # Get or create the sprint (handles race conditions)
+        sprint, created = Sprint.objects.get_or_create(
+            workspace=workspace,
+            number=sprint_number,
+            defaults={
+                'name': f'Sprint {sprint_number}',
+                'description': '',
+                'start_date': sprint_start_datetime,
+                'end_date': sprint_end_datetime,
+                'timezone': workspace.timezone,
+            }
+        )
+
+        # Return sprint data
+        data = {
+            "id": str(sprint.id),
+            "workspace_id": str(sprint.workspace_id),
+            "number": sprint.number,
+            "name": sprint.name,
+            "description": sprint.description,
+            "start_date": sprint.start_date.isoformat() if sprint.start_date else None,
+            "end_date": sprint.end_date.isoformat() if sprint.end_date else None,
+            "sort_order": sprint.number,
+            "created": created,
+        }
+
+        return Response(data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
+
 class SprintMemberProjectEndpoint(BaseAPIView):
     """
     Manage sprint-member-project assignments.
@@ -869,11 +964,10 @@ class SprintMemberProjectEndpoint(BaseAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        deleted_count, _ = SprintMemberProject.objects.filter(
+        deleted_count = SprintMemberProject.objects.filter(
             workspace__slug=slug,
             sprint_id=sprint_id,
             member_id=member_id,
-            deleted_at__isnull=True,
         ).delete()
 
         if deleted_count == 0:
