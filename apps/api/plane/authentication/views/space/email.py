@@ -68,20 +68,9 @@ class SignInAuthSpaceEndpoint(View):
             )
             return HttpResponseRedirect(url)
 
-        # Existing User
-        existing_user = User.objects.filter(email=email).first()
-
-        if not existing_user:
-            exc = AuthenticationException(
-                error_code=AUTHENTICATION_ERROR_CODES["USER_DOES_NOT_EXIST"],
-                error_message="USER_DOES_NOT_EXIST",
-                payload={"email": str(email)},
-            )
-            params = exc.get_error_dict()
-            url = get_safe_redirect_url(
-                base_url=base_host(request=request, is_space=True), next_path=next_path, params=params
-            )
-            return HttpResponseRedirect(url)
+        # SECURITY: Do NOT check if user exists before authentication
+        # This prevents account enumeration attacks (CWE-204)
+        # The EmailProvider will return a generic AUTHENTICATION_FAILED error
 
         try:
             provider = EmailProvider(request=request, key=email, code=password, is_signup=False)
@@ -152,20 +141,9 @@ class SignUpAuthSpaceEndpoint(View):
             )
             return HttpResponseRedirect(url)
 
-        # Existing User
-        existing_user = User.objects.filter(email=email).first()
-
-        if existing_user:
-            exc = AuthenticationException(
-                error_code=AUTHENTICATION_ERROR_CODES["USER_ALREADY_EXIST"],
-                error_message="USER_ALREADY_EXIST",
-                payload={"email": str(email)},
-            )
-            params = exc.get_error_dict()
-            url = get_safe_redirect_url(
-                base_url=base_host(request=request, is_space=True), next_path=next_path, params=params
-            )
-            return HttpResponseRedirect(url)
+        # SECURITY: Do NOT check if user exists before authentication
+        # This prevents account enumeration attacks (CWE-204)
+        # The EmailProvider will return a generic AUTHENTICATION_FAILED error
 
         try:
             provider = EmailProvider(request=request, key=email, code=password, is_signup=True)

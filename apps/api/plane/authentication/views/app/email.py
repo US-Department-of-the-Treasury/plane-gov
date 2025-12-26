@@ -78,22 +78,9 @@ class SignInAuthEndpoint(View):
             )
             return HttpResponseRedirect(url)
 
-        existing_user = User.objects.filter(email=email).first()
-
-        if not existing_user:
-            exc = AuthenticationException(
-                error_code=AUTHENTICATION_ERROR_CODES["USER_DOES_NOT_EXIST"],
-                error_message="USER_DOES_NOT_EXIST",
-                payload={"email": str(email)},
-            )
-            params = exc.get_error_dict()
-            url = get_safe_redirect_url(
-                base_url=base_host(request=request, is_app=True),
-                next_path=next_path,
-                params=params,
-            )
-            return HttpResponseRedirect(url)
-
+        # NOTE: We intentionally do NOT check if user exists here to prevent
+        # account enumeration attacks. The EmailProvider will return a generic
+        # AUTHENTICATION_FAILED error for both non-existent users and wrong passwords.
         try:
             provider = EmailProvider(
                 request=request,
@@ -183,24 +170,9 @@ class SignUpAuthEndpoint(View):
             )
             return HttpResponseRedirect(url)
 
-        # Existing user
-        existing_user = User.objects.filter(email=email).first()
-
-        if existing_user:
-            # Existing User
-            exc = AuthenticationException(
-                error_code=AUTHENTICATION_ERROR_CODES["USER_ALREADY_EXIST"],
-                error_message="USER_ALREADY_EXIST",
-                payload={"email": str(email)},
-            )
-            params = exc.get_error_dict()
-            url = get_safe_redirect_url(
-                base_url=base_host(request=request, is_app=True),
-                next_path=next_path,
-                params=params,
-            )
-            return HttpResponseRedirect(url)
-
+        # NOTE: We intentionally do NOT check if user exists here to prevent
+        # account enumeration attacks. The EmailProvider will return a generic
+        # AUTHENTICATION_FAILED error for both existing and new accounts.
         try:
             provider = EmailProvider(
                 request=request,

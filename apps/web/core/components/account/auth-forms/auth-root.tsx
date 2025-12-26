@@ -42,7 +42,9 @@ export function AuthRoot(props: TAuthRoot) {
   const { authMode: currentAuthMode } = props;
   // states
   const [authMode, setAuthMode] = useState<EAuthModes | undefined>(undefined);
-  const [authStep, setAuthStep] = useState<EAuthSteps>(EAuthSteps.EMAIL);
+  // SECURITY: Start with PASSWORD step to show email+password together
+  // This prevents account enumeration attacks (CWE-204)
+  const [authStep, setAuthStep] = useState<EAuthSteps>(EAuthSteps.PASSWORD);
   const [email, setEmail] = useState(emailParam ? emailParam.toString() : "");
   const [errorInfo, setErrorInfo] = useState<TAuthErrorInfo | undefined>(undefined);
   const [oidcRedirectCountdown, setOidcRedirectCountdown] = useState<number | null>(null);
@@ -95,6 +97,10 @@ export function AuthRoot(props: TAuthRoot) {
         }
         if ([EAuthenticationErrorCodes.AUTHENTICATION_FAILED_SIGN_IN].includes(errorhandler.code)) {
           setAuthMode(EAuthModes.SIGN_IN);
+          setAuthStep(EAuthSteps.PASSWORD);
+        }
+        // Generic authentication failure - stay on current mode and password step
+        if ([EAuthenticationErrorCodes.AUTHENTICATION_FAILED].includes(errorhandler.code)) {
           setAuthStep(EAuthSteps.PASSWORD);
         }
         // magic_code error handler

@@ -63,18 +63,12 @@ class MagicCodeProvider(CredentialAdapter):
 
             if data["current_attempt"] > 2:
                 email = str(self.key).replace("magic_", "", 1)
-                if User.objects.filter(email=email).exists():
-                    raise AuthenticationException(
-                        error_code=AUTHENTICATION_ERROR_CODES["EMAIL_CODE_ATTEMPT_EXHAUSTED_SIGN_IN"],
-                        error_message="EMAIL_CODE_ATTEMPT_EXHAUSTED_SIGN_IN",
-                        payload={"email": str(email)},
-                    )
-                else:
-                    raise AuthenticationException(
-                        error_code=AUTHENTICATION_ERROR_CODES["EMAIL_CODE_ATTEMPT_EXHAUSTED_SIGN_UP"],
-                        error_message="EMAIL_CODE_ATTEMPT_EXHAUSTED_SIGN_UP",
-                        payload={"email": self.key},
-                    )
+                # SECURITY: Use generic error code to prevent account enumeration (CWE-204)
+                raise AuthenticationException(
+                    error_code=AUTHENTICATION_ERROR_CODES["EMAIL_CODE_ATTEMPT_EXHAUSTED"],
+                    error_message="EMAIL_CODE_ATTEMPT_EXHAUSTED",
+                    payload={"email": str(email)},
+                )
 
             value = {
                 "current_attempt": current_attempt,
@@ -115,29 +109,17 @@ class MagicCodeProvider(CredentialAdapter):
                 return
             else:
                 email = str(self.key).replace("magic_", "", 1)
-                if User.objects.filter(email=email).exists():
-                    raise AuthenticationException(
-                        error_code=AUTHENTICATION_ERROR_CODES["INVALID_MAGIC_CODE_SIGN_IN"],
-                        error_message="INVALID_MAGIC_CODE_SIGN_IN",
-                        payload={"email": str(email)},
-                    )
-                else:
-                    raise AuthenticationException(
-                        error_code=AUTHENTICATION_ERROR_CODES["INVALID_MAGIC_CODE_SIGN_UP"],
-                        error_message="INVALID_MAGIC_CODE_SIGN_UP",
-                        payload={"email": str(email)},
-                    )
+                # SECURITY: Use generic error code to prevent account enumeration (CWE-204)
+                raise AuthenticationException(
+                    error_code=AUTHENTICATION_ERROR_CODES["INVALID_MAGIC_CODE"],
+                    error_message="INVALID_MAGIC_CODE",
+                    payload={"email": str(email)},
+                )
         else:
             email = str(self.key).replace("magic_", "", 1)
-            if User.objects.filter(email=email).exists():
-                raise AuthenticationException(
-                    error_code=AUTHENTICATION_ERROR_CODES["EXPIRED_MAGIC_CODE_SIGN_IN"],
-                    error_message="EXPIRED_MAGIC_CODE_SIGN_IN",
-                    payload={"email": str(email)},
-                )
-            else:
-                raise AuthenticationException(
-                    error_code=AUTHENTICATION_ERROR_CODES["EXPIRED_MAGIC_CODE_SIGN_UP"],
-                    error_message="EXPIRED_MAGIC_CODE_SIGN_UP",
-                    payload={"email": str(email)},
-                )
+            # SECURITY: Use generic error code to prevent account enumeration (CWE-204)
+            raise AuthenticationException(
+                error_code=AUTHENTICATION_ERROR_CODES["EXPIRED_MAGIC_CODE"],
+                error_message="EXPIRED_MAGIC_CODE",
+                payload={"email": str(email)},
+            )

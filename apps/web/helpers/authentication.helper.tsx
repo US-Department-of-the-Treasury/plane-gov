@@ -58,10 +58,13 @@ export enum EAuthenticationErrorCodes {
   MAGIC_SIGN_IN_EMAIL_CODE_REQUIRED = "5085",
   // Both Sign in and Sign up for magic
   INVALID_MAGIC_CODE_SIGN_IN = "5090",
+  INVALID_MAGIC_CODE = "5091", // Generic - prevents account enumeration
   INVALID_MAGIC_CODE_SIGN_UP = "5092",
   EXPIRED_MAGIC_CODE_SIGN_IN = "5095",
+  EXPIRED_MAGIC_CODE = "5096", // Generic - prevents account enumeration
   EXPIRED_MAGIC_CODE_SIGN_UP = "5097",
   EMAIL_CODE_ATTEMPT_EXHAUSTED_SIGN_IN = "5100",
+  EMAIL_CODE_ATTEMPT_EXHAUSTED = "5101", // Generic - prevents account enumeration
   EMAIL_CODE_ATTEMPT_EXHAUSTED_SIGN_UP = "5102",
   // Oauth
   OAUTH_NOT_CONFIGURED = "5104",
@@ -92,6 +95,8 @@ export enum EAuthenticationErrorCodes {
   ADMIN_USER_DEACTIVATED = "5190",
   // Rate limit
   RATE_LIMIT_EXCEEDED = "5900",
+  // Generic authentication failure (used to prevent account enumeration)
+  AUTHENTICATION_FAILED = "5999",
 }
 
 export type TAuthErrorInfo = {
@@ -143,20 +148,10 @@ const errorCodeMessages: {
   },
 
   // sign up
+  // SECURITY: Generic message to prevent account enumeration
   [EAuthenticationErrorCodes.USER_ALREADY_EXIST]: {
-    title: `User already exists`,
-    message: (email = undefined) => (
-      <div>
-        Your account is already registered.&nbsp;
-        <Link
-          className="underline underline-offset-4 font-medium hover:font-bold transition-all"
-          href={`/sign-in${email ? `?email=${encodeURIComponent(email)}` : ``}`}
-        >
-          Sign In
-        </Link>
-        &nbsp;now.
-      </div>
-    ),
+    title: `Authentication failed`,
+    message: () => `Unable to create account. Please check your email and password.`,
   },
   [EAuthenticationErrorCodes.REQUIRED_EMAIL_PASSWORD_SIGN_UP]: {
     title: `Email and password required`,
@@ -179,20 +174,10 @@ const errorCodeMessages: {
     message: () => `Invalid email. Please try again.`,
   },
 
+  // SECURITY: Generic message to prevent account enumeration
   [EAuthenticationErrorCodes.USER_DOES_NOT_EXIST]: {
-    title: `User does not exist`,
-    message: (email = undefined) => (
-      <div>
-        No account found.&nbsp;
-        <Link
-          className="underline underline-offset-4 font-medium hover:font-bold transition-all"
-          href={`/${email ? `?email=${encodeURIComponent(email)}` : ``}`}
-        >
-          Create one
-        </Link>
-        &nbsp;to get started.
-      </div>
-    ),
+    title: `Authentication failed`,
+    message: () => `Unable to authenticate. Please check your email and password.`,
   },
   [EAuthenticationErrorCodes.REQUIRED_EMAIL_PASSWORD_SIGN_IN]: {
     title: `Email and password required`,
@@ -237,6 +222,19 @@ const errorCodeMessages: {
     message: () => `Expired magic code. Please try again.`,
   },
   [EAuthenticationErrorCodes.EMAIL_CODE_ATTEMPT_EXHAUSTED_SIGN_UP]: {
+    title: `Expired magic code`,
+    message: () => `Expired magic code. Please try again.`,
+  },
+  // Generic magic code errors (prevents account enumeration)
+  [EAuthenticationErrorCodes.INVALID_MAGIC_CODE]: {
+    title: `Authentication failed`,
+    message: () => `Invalid magic code. Please try again.`,
+  },
+  [EAuthenticationErrorCodes.EXPIRED_MAGIC_CODE]: {
+    title: `Expired magic code`,
+    message: () => `Expired magic code. Please try again.`,
+  },
+  [EAuthenticationErrorCodes.EMAIL_CODE_ATTEMPT_EXHAUSTED]: {
     title: `Expired magic code`,
     message: () => `Expired magic code. Please try again.`,
   },
@@ -358,6 +356,11 @@ const errorCodeMessages: {
     title: "",
     message: () => `Rate limit exceeded. Please try again later.`,
   },
+  // SECURITY: Generic authentication failure (prevents account enumeration)
+  [EAuthenticationErrorCodes.AUTHENTICATION_FAILED]: {
+    title: `Authentication failed`,
+    message: () => `Unable to authenticate. Please check your email and password.`,
+  },
 };
 
 export const authErrorHandler = (errorCode: EAuthenticationErrorCodes, email?: string): TAuthErrorInfo | undefined => {
@@ -412,6 +415,7 @@ export const authErrorHandler = (errorCode: EAuthenticationErrorCodes, email?: s
     EAuthenticationErrorCodes.ADMIN_USER_DOES_NOT_EXIST,
     EAuthenticationErrorCodes.ADMIN_USER_DEACTIVATED,
     EAuthenticationErrorCodes.RATE_LIMIT_EXCEEDED,
+    EAuthenticationErrorCodes.AUTHENTICATION_FAILED,
   ];
 
   if (bannerAlertErrorCodes.includes(errorCode))

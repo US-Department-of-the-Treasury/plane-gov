@@ -27,10 +27,13 @@ AUTHENTICATION_ERROR_CODES = {
     "MAGIC_SIGN_IN_EMAIL_CODE_REQUIRED": 5085,
     # Both Sign in and Sign up for magic
     "INVALID_MAGIC_CODE_SIGN_IN": 5090,
+    "INVALID_MAGIC_CODE": 5091,  # Generic - prevents account enumeration
     "INVALID_MAGIC_CODE_SIGN_UP": 5092,
     "EXPIRED_MAGIC_CODE_SIGN_IN": 5095,
+    "EXPIRED_MAGIC_CODE": 5096,  # Generic - prevents account enumeration
     "EXPIRED_MAGIC_CODE_SIGN_UP": 5097,
     "EMAIL_CODE_ATTEMPT_EXHAUSTED_SIGN_IN": 5100,
+    "EMAIL_CODE_ATTEMPT_EXHAUSTED": 5101,  # Generic - prevents account enumeration
     "EMAIL_CODE_ATTEMPT_EXHAUSTED_SIGN_UP": 5102,
     # Oauth
     "OAUTH_NOT_CONFIGURED": 5104,

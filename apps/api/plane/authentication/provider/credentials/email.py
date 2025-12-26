@@ -1,6 +1,9 @@
 # Python imports
 import os
 
+# Django imports
+from django.contrib.auth.hashers import check_password, make_password
+
 # Package imports
 from plane.authentication.adapter.credential import CredentialAdapter
 from plane.db.models import User
@@ -9,6 +12,10 @@ from plane.authentication.adapter.error import (
     AuthenticationException,
 )
 from plane.license.utils.instance_value import get_configuration_value
+
+# Dummy password hash for timing attack prevention
+# We use a pre-computed hash to avoid revealing user existence via response timing
+DUMMY_PASSWORD_HASH = make_password("dummy_password_for_timing_attack_prevention")
 
 
 class EmailProvider(CredentialAdapter):
@@ -39,9 +46,11 @@ class EmailProvider(CredentialAdapter):
         if self.is_signup:
             # Check if the user already exists
             if User.objects.filter(email=self.key).exists():
+                # Use generic error to prevent account enumeration
+                # Don't reveal that the account already exists
                 raise AuthenticationException(
-                    error_message="USER_ALREADY_EXIST",
-                    error_code=AUTHENTICATION_ERROR_CODES["USER_ALREADY_EXIST"],
+                    error_message="AUTHENTICATION_FAILED",
+                    error_code=AUTHENTICATION_ERROR_CODES["AUTHENTICATION_FAILED"],
                 )
 
             super().set_user_data(
@@ -60,24 +69,22 @@ class EmailProvider(CredentialAdapter):
         else:
             user = User.objects.filter(email=self.key).first()
 
-            # User does not exists
-            if not user:
-                raise AuthenticationException(
-                    error_message="USER_DOES_NOT_EXIST",
-                    error_code=AUTHENTICATION_ERROR_CODES["USER_DOES_NOT_EXIST"],
-                    payload={"email": self.key},
-                )
+            # SECURITY: Timing attack prevention
+            # Always perform password check to avoid revealing user existence
+            # via response timing differences
+            if user:
+                password_valid = user.check_password(self.code)
+            else:
+                # User doesn't exist - perform dummy hash to maintain consistent timing
+                check_password(self.code, DUMMY_PASSWORD_HASH)
+                password_valid = False
 
-            # Check user password
-            if not user.check_password(self.code):
+            # Use generic error for both non-existent user and wrong password
+            # This prevents account enumeration attacks
+            if not password_valid:
                 raise AuthenticationException(
-                    error_message=(
-                        "AUTHENTICATION_FAILED_SIGN_UP" if self.is_signup else "AUTHENTICATION_FAILED_SIGN_IN"
-                    ),
-                    error_code=AUTHENTICATION_ERROR_CODES[
-                        ("AUTHENTICATION_FAILED_SIGN_UP" if self.is_signup else "AUTHENTICATION_FAILED_SIGN_IN")
-                    ],
-                    payload={"email": self.key},
+                    error_message="AUTHENTICATION_FAILED",
+                    error_code=AUTHENTICATION_ERROR_CODES["AUTHENTICATION_FAILED"],
                 )
 
             super().set_user_data(

@@ -8,7 +8,7 @@ import { useTranslation } from "@plane/i18n";
 import { Button } from "@plane/propel/button";
 import { CloseIcon } from "@plane/propel/icons";
 import { Input, PasswordStrengthIndicator, Spinner } from "@plane/ui";
-import { getPasswordStrength } from "@plane/utils";
+import { getPasswordStrength, checkEmailValidity } from "@plane/utils";
 // components
 import { ForgotPasswordPopover } from "@/components/account/auth-forms/forgot-password-popover";
 // constants
@@ -101,11 +101,13 @@ export function AuthPasswordForm(props: Props) {
   const isButtonDisabled = useMemo(
     () =>
       !isSubmitting &&
+      !!passwordFormData.email &&
+      checkEmailValidity(passwordFormData.email) &&
       !!passwordFormData.password &&
       (mode === EAuthModes.SIGN_UP ? passwordFormData.password === passwordFormData.confirm_password : true)
         ? false
         : true,
-    [isSubmitting, mode, passwordFormData.confirm_password, passwordFormData.password]
+    [isSubmitting, mode, passwordFormData.email, passwordFormData.confirm_password, passwordFormData.password]
   );
 
   const password = passwordFormData?.password ?? "";
@@ -178,7 +180,6 @@ export function AuthPasswordForm(props: Props) {
         }}
       >
         <input type="hidden" name="csrfmiddlewaretoken" />
-        <input type="hidden" value={passwordFormData.email} name="email" />
         {nextPath && <input type="hidden" value={nextPath} name="next_path" />}
         <div className="space-y-1">
           <label htmlFor="email" className="text-13 font-medium text-tertiary">
@@ -193,13 +194,13 @@ export function AuthPasswordForm(props: Props) {
               onChange={(e) => handleFormChange("email", e.target.value)}
               placeholder={t("auth.common.email.placeholder")}
               className={`disable-autofill-style h-10 w-full placeholder:text-placeholder border-0`}
-              disabled
+              autoComplete="email"
             />
             {passwordFormData.email.length > 0 && (
               <button
                 type="button"
                 className="absolute right-3 size-5"
-                onClick={handleEmailClear}
+                onClick={() => handleFormChange("email", "")}
                 aria-label={t("aria_labels.auth_forms.clear_email")}
               >
                 <XCircle className="size-5 stroke-placeholder" />
