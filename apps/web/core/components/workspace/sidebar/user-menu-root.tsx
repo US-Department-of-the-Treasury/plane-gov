@@ -1,7 +1,7 @@
 import { memo, useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 // icons
-import { LogOut, Settings, Settings2 } from "lucide-react";
+import { ClipboardList, LogOut, Settings, Settings2 } from "lucide-react";
 // plane imports
 import { GOD_MODE_URL } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -76,6 +76,12 @@ export const UserMenuRoot = memo(function UserMenuRoot(props: Props) {
     >
       <div className="flex flex-col gap-2">
         <span className="px-2 text-secondary truncate">{currentUser?.email}</span>
+        <CustomMenu.MenuItem onClick={() => router.push(`/${workspaceSlug}/profile/${currentUser?.id}/`)}>
+          <div className="flex w-full items-center gap-2 rounded-sm text-11">
+            <ClipboardList className="h-4 w-4 stroke-[1.5]" />
+            <span>{t("your_work")}</span>
+          </div>
+        </CustomMenu.MenuItem>
         <CustomMenu.MenuItem onClick={() => router.push(`/${workspaceSlug}/settings/account`)}>
           <div className="flex w-full items-center gap-2 rounded-sm text-11">
             <Settings className="h-4 w-4 stroke-[1.5]" />

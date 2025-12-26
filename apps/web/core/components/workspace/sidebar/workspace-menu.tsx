@@ -20,7 +20,7 @@ export function SidebarWorkspaceMenu() {
   const SIDEBAR_WORKSPACE_MENU_ITEMS = [
     {
       key: "projects",
-      labelTranslationKey: "sidebar.projects",
+      labelTranslationKey: "sidebar.all_projects",
       href: `/${workspaceSlug}/projects/`,
       access: [EUserWorkspaceRoles.ADMIN, EUserWorkspaceRoles.MEMBER, EUserWorkspaceRoles.GUEST],
       Icon: ProjectIcon,

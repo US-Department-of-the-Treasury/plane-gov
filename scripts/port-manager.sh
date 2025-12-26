@@ -46,12 +46,13 @@ BASE_LIVE_PORT=3100
 BASE_API_PORT=8000
 
 # Current ports (set by get_available_ports or load_ports_if_running)
+# Preserve PORT_OFFSET if already set by user (e.g., PORT_OFFSET=0 ./scripts/dev.sh)
 WEB_PORT=""
 ADMIN_PORT=""
 SPACE_PORT=""
 LIVE_PORT=""
 API_PORT=""
-PORT_OFFSET=""
+PORT_OFFSET="${PORT_OFFSET:-}"
 
 # Check if a port is in use
 is_port_in_use() {
@@ -351,6 +352,74 @@ cleanup_ports() {
         rm -f "$DEV_PORTS_FILE"
         echo -e "${GREEN}Cleaned up $DEV_PORTS_FILE${NC}"
     fi
+}
+
+# Kill dev servers for THIS WORKTREE ONLY
+# This is the SAFE way to stop dev servers - it only affects this worktree
+kill_this_worktree() {
+    if [ ! -f "$DEV_PORTS_FILE" ]; then
+        echo -e "${YELLOW}No .dev-ports file found for this worktree${NC}"
+        echo -e "${YELLOW}Dev servers may not be running, or were started without port-manager${NC}"
+        return 1
+    fi
+
+    # Load ports from this worktree's .dev-ports file
+    local wt_web wt_admin wt_space wt_live wt_api
+    wt_web=$(grep "^WEB_PORT=" "$DEV_PORTS_FILE" 2>/dev/null | cut -d= -f2)
+    wt_admin=$(grep "^ADMIN_PORT=" "$DEV_PORTS_FILE" 2>/dev/null | cut -d= -f2)
+    wt_space=$(grep "^SPACE_PORT=" "$DEV_PORTS_FILE" 2>/dev/null | cut -d= -f2)
+    wt_live=$(grep "^LIVE_PORT=" "$DEV_PORTS_FILE" 2>/dev/null | cut -d= -f2)
+    wt_api=$(grep "^API_PORT=" "$DEV_PORTS_FILE" 2>/dev/null | cut -d= -f2)
+
+    echo -e "${BLUE}Killing dev servers for this worktree only...${NC}"
+    echo -e "  Worktree: $(basename "$PROJECT_ROOT")"
+    echo -e "  Ports: web=$wt_web, admin=$wt_admin, space=$wt_space, live=$wt_live, api=$wt_api"
+
+    local killed=0
+
+    # Kill processes on each port
+    for port in $wt_web $wt_admin $wt_space $wt_live $wt_api; do
+        if [ -n "$port" ]; then
+            local pids
+            pids=$(lsof -t -i :"$port" 2>/dev/null)
+            if [ -n "$pids" ]; then
+                for pid in $pids; do
+                    echo -e "  ${RED}Killing${NC} PID $pid on port $port"
+                    kill "$pid" 2>/dev/null
+                    killed=$((killed + 1))
+                done
+            fi
+        fi
+    done
+
+    # Wait for processes to die
+    if [ $killed -gt 0 ]; then
+        sleep 1
+        # Force kill any that didn't die gracefully
+        for port in $wt_web $wt_admin $wt_space $wt_live $wt_api; do
+            if [ -n "$port" ]; then
+                local pids
+                pids=$(lsof -t -i :"$port" 2>/dev/null)
+                if [ -n "$pids" ]; then
+                    for pid in $pids; do
+                        echo -e "  ${RED}Force killing${NC} PID $pid on port $port"
+                        kill -9 "$pid" 2>/dev/null
+                    done
+                fi
+            fi
+        done
+    fi
+
+    # Clean up .dev-ports file
+    rm -f "$DEV_PORTS_FILE"
+
+    if [ $killed -eq 0 ]; then
+        echo -e "${YELLOW}No processes found on the allocated ports${NC}"
+    else
+        echo -e "${GREEN}Killed $killed process(es) for this worktree${NC}"
+    fi
+
+    return 0
 }
 
 # List all running dev servers across all worktrees

@@ -386,3 +386,26 @@ export {
   buildWikiCollectionTree,
 } from "./wiki";
 export type { TWikiPageTreeNode, TWikiCollectionTreeNode } from "./wiki";
+
+// Paginated issues hooks (TanStack Query with useInfiniteQuery)
+export {
+  useProjectIssuesPaginated,
+  useSprintIssuesPaginated,
+  useEpicIssuesPaginated,
+  useArchivedIssuesPaginated,
+  useProfileIssuesPaginated,
+  useProjectViewIssuesPaginated,
+  useWorkspaceViewIssuesPaginated,
+  // Helpers
+  extractIssuesFromPages,
+  extractGroupedIssueIds,
+} from "./issues-paginated";
+export type {
+  UseIssuesPaginatedOptions,
+  UseSprintIssuesPaginatedOptions,
+  UseEpicIssuesPaginatedOptions,
+  UseProfileIssuesPaginatedOptions,
+  UseProjectViewIssuesPaginatedOptions,
+  UseWorkspaceViewIssuesPaginatedOptions,
+  IssuesQueryParams,
+} from "./issues-paginated";

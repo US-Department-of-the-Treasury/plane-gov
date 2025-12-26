@@ -82,6 +82,37 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
     setValue("identifier", formattedValue);
   };
 
+  // Auto-save handler for logo/emoji changes
+  const handleLogoChange = async (logoProps: IProject["logo_props"]) => {
+    setValue("logo_props", logoProps);
+    await handleUpdateChange({ logo_props: logoProps });
+  };
+
+  // Auto-save handler for cover image changes
+  const handleCoverImageAutoSave = async (newCoverImageUrl: string | null) => {
+    setValue("cover_image_url", newCoverImageUrl);
+
+    try {
+      const coverImagePayload = await handleCoverImageChange(project.cover_image_url, newCoverImageUrl, {
+        workspaceSlug: workspaceSlug.toString(),
+        entityIdentifier: project.id,
+        entityType: EFileAssetType.PROJECT_COVER,
+        isUserAsset: false,
+      });
+
+      if (coverImagePayload) {
+        await handleUpdateChange(coverImagePayload);
+      }
+    } catch (error) {
+      console.error("Error handling cover image:", error);
+      setToast({
+        type: TOAST_TYPE.ERROR,
+        title: t("toast.error"),
+        message: error instanceof Error ? error.message : "Failed to process cover image",
+      });
+    }
+  };
+
   const handleUpdateChange = async (payload: Partial<IProject>) => {
     if (!workspaceSlug || !project) return;
 
@@ -160,38 +191,14 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
   const onSubmit = async (formData: IProject) => {
     if (!workspaceSlug) return;
     setIsLoading(true);
+    // Note: logo_props and cover_image_url are auto-saved immediately when changed
     const payload: Partial<IProject> = {
       name: formData.name,
       network: formData.network,
       identifier: formData.identifier,
       description: formData.description,
-
-      logo_props: formData.logo_props,
       timezone: formData.timezone,
     };
-
-    // Handle cover image changes
-    try {
-      const coverImagePayload = await handleCoverImageChange(project.cover_image_url, formData.cover_image_url, {
-        workspaceSlug: workspaceSlug.toString(),
-        entityIdentifier: project.id,
-        entityType: EFileAssetType.PROJECT_COVER,
-        isUserAsset: false,
-      });
-
-      if (coverImagePayload) {
-        Object.assign(payload, coverImagePayload);
-      }
-    } catch (error) {
-      console.error("Error handling cover image:", error);
-      setToast({
-        type: TOAST_TYPE.ERROR,
-        title: t("toast.error"),
-        message: error instanceof Error ? error.message : "Failed to process cover image",
-      });
-      setIsLoading(false);
-      return;
-    }
 
     if (project.identifier !== formData.identifier)
       await projectService
@@ -220,7 +227,7 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
             <Controller
               control={control}
               name="logo_props"
-              render={({ field: { value, onChange } }) => (
+              render={({ field: { value } }) => (
                 <EmojiPicker
                   iconType="material"
                   closeOnSelect={false}
@@ -239,10 +246,12 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
                       };
                     else if (val?.type === "icon") logoValue = val.value;
 
-                    onChange({
+                    const newLogoProps = {
                       in_use: val?.type,
                       [val?.type]: logoValue,
-                    });
+                    };
+                    // Auto-save the logo change immediately
+                    handleLogoChange(newLogoProps);
                     // Only close if shouldClose is true (default) - random emoji sets this to false
                     if (val?.shouldClose !== false) {
                       setIsOpen(false);
@@ -273,10 +282,10 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
               <Controller
                 control={control}
                 name="cover_image_url"
-                render={({ field: { value, onChange } }) => (
+                render={({ field: { value } }) => (
                   <ImagePickerPopover
                     label={t("change_cover")}
-                    onChange={onChange}
+                    onChange={handleCoverImageAutoSave}
                     value={value ?? null}
                     disabled={!isAdmin}
                     projectId={project.id}

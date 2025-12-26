@@ -18,6 +18,8 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { useGroupIssuesDragNDrop } from "@/hooks/use-group-dragndrop";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
+// TanStack Query hooks for data fetching
+import { useIssuesQuery } from "@/hooks/use-issues-query";
 import { useIssue } from "@/store/queries/issue";
 // store
 // ui
@@ -42,7 +44,7 @@ export type KanbanStoreType =
 
 export interface IBaseKanBanLayout {
   QuickActions: FC<IQuickActionProps>;
-  addIssuesToView?: (issueIds: string[]) => Promise<any>;
+  addIssuesToView?: (issueIds: string[]) => Promise<unknown>;
   canEditPropertiesBasedOnProject?: (projectId: string) => boolean;
   isCompletedSprint?: boolean;
   viewId?: string | undefined;
@@ -55,7 +57,7 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
     addIssuesToView,
     canEditPropertiesBasedOnProject,
     isCompletedSprint = false,
-    viewId,
+    viewId: _viewId,
     isEpic = false,
   } = props;
   // router
@@ -84,8 +86,11 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
     projectId?.toString() ?? draggedIssueFromMobX?.project_id ?? "",
     draggedIssueId ?? ""
   );
+  // TanStack Query for data fetching - auto-fetches when enabled
+  // Issues are synced to Zustand store inside the query hook
+  useIssuesQuery(storeType);
+
   const {
-    fetchIssues,
     fetchNextIssues,
     quickAddIssue,
     updateIssue,
@@ -124,17 +129,15 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
 
   const orderBy = displayFilters?.order_by;
 
-  useEffect(() => {
-    fetchIssues("init-loader", { canGroup: true, perPageCount: sub_group_by ? 10 : 30 }, viewId);
-  }, [fetchIssues, storeType, group_by, sub_group_by, viewId]);
+  // Note: No useEffect needed for initial fetch - TanStack Query auto-fetches
 
   const fetchMoreIssues = useCallback(
     (groupId?: string, subgroupId?: string) => {
       if (issues?.getIssueLoader(groupId, subgroupId) !== "pagination") {
-        fetchNextIssues(groupId, subgroupId);
+        void fetchNextIssues(groupId, subgroupId);
       }
     },
-    [fetchNextIssues]
+    [fetchNextIssues, issues]
   );
 
   // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
@@ -238,6 +241,7 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
           eventName: WORK_ITEM_TRACKER_EVENTS.delete,
           payload: { id: draggedIssueId },
         });
+        return undefined;
       })
       .catch(() => {
         captureError({
@@ -260,7 +264,7 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
         } else {
           collapsedGroups.push(value);
         }
-        updateFilters(projectId?.toString() ?? "", EIssueFilterType.KANBAN_FILTERS, {
+        void updateFilters(projectId?.toString() ?? "", EIssueFilterType.KANBAN_FILTERS, {
           [toggle]: collapsedGroups,
         });
       }
