@@ -12,8 +12,6 @@ import type { TProjectPage } from "@/store/pages/project-page";
 import { ProjectPage } from "@/store/pages/project-page";
 // store helpers
 import { getRouterWorkspaceSlug, getRouterProjectId, useFavoriteStore, useRouterStore, useBaseUserPermissionStore } from "@/store/client";
-// root store
-import type { RootStore } from "@/plane-web/store/root.store";
 
 type TLoader = "init-loader" | "mutation-loader" | undefined;
 
@@ -53,18 +51,16 @@ interface ProjectPageStoreActions {
   fetchPagesList: (
     workspaceSlug: string,
     projectId: string,
-    pageType?: TPageNavigationTabs,
-    rootStore?: RootStore
+    pageType?: TPageNavigationTabs
   ) => Promise<TPage[] | undefined>;
   fetchPageDetails: (
     workspaceSlug: string,
     projectId: string,
     pageId: string,
-    options?: { trackVisit?: boolean },
-    rootStore?: RootStore
+    options?: { trackVisit?: boolean }
   ) => Promise<TPage | undefined>;
-  createPage: (pageData: Partial<TPage>, rootStore?: RootStore) => Promise<TPage | undefined>;
-  removePage: (params: { pageId: string; shouldSync?: boolean }, rootStore?: RootStore) => Promise<void>;
+  createPage: (pageData: Partial<TPage>) => Promise<TPage | undefined>;
+  removePage: (params: { pageId: string; shouldSync?: boolean }) => Promise<void>;
   movePage: (workspaceSlug: string, projectId: string, pageId: string, newProjectId: string) => Promise<void>;
   // helper to reset filters on project change
   resetFiltersForProject: () => void;
@@ -144,7 +140,7 @@ export const useProjectPageStore = create<ProjectPageStore>()((set, get) => ({
   // Async Actions
   // ============================================================================
 
-  fetchPagesList: async (workspaceSlug, projectId, pageType, rootStore) => {
+  fetchPagesList: async (workspaceSlug, projectId, pageType) => {
     try {
       if (!workspaceSlug || !projectId) return undefined;
 
@@ -178,10 +174,7 @@ export const useProjectPageStore = create<ProjectPageStore>()((set, get) => ({
               existingPage.mutateProperties(otherFields, false);
             } else {
               // If new page, create a new instance with all data
-              // Note: rootStore is required for ProjectPage constructor
-              if (rootStore) {
-                updatedData[page.id] = new ProjectPage(rootStore, page);
-              }
+              updatedData[page.id] = new ProjectPage(page);
             }
           }
         }
@@ -205,7 +198,7 @@ export const useProjectPageStore = create<ProjectPageStore>()((set, get) => ({
     }
   },
 
-  fetchPageDetails: async (workspaceSlug, projectId, pageId, options, rootStore) => {
+  fetchPageDetails: async (workspaceSlug, projectId, pageId, options) => {
     const { trackVisit } = options || {};
     try {
       if (!workspaceSlug || !projectId || !pageId) return undefined;
@@ -228,9 +221,7 @@ export const useProjectPageStore = create<ProjectPageStore>()((set, get) => ({
           if (pageInstance) {
             pageInstance.mutateProperties(page, false);
           } else {
-            if (rootStore) {
-              updatedData[page.id] = new ProjectPage(rootStore, page);
-            }
+            updatedData[page.id] = new ProjectPage(page);
           }
         }
 
@@ -253,10 +244,8 @@ export const useProjectPageStore = create<ProjectPageStore>()((set, get) => ({
     }
   },
 
-  createPage: async (pageData, rootStore) => {
+  createPage: async (pageData) => {
     try {
-      if (!rootStore) return undefined;
-
       const workspaceSlug = getRouterWorkspaceSlug();
       const projectId = getRouterProjectId();
       if (!workspaceSlug || !projectId) return undefined;
@@ -272,7 +261,7 @@ export const useProjectPageStore = create<ProjectPageStore>()((set, get) => ({
         const updatedData = { ...state.data };
 
         if (page?.id) {
-          updatedData[page.id] = new ProjectPage(rootStore, page);
+          updatedData[page.id] = new ProjectPage(page);
         }
 
         return {
@@ -294,10 +283,8 @@ export const useProjectPageStore = create<ProjectPageStore>()((set, get) => ({
     }
   },
 
-  removePage: async ({ pageId, shouldSync = true }, rootStore) => {
+  removePage: async ({ pageId, shouldSync: _shouldSync = true }) => {
     try {
-      if (!rootStore) return undefined;
-
       const workspaceSlug = getRouterWorkspaceSlug();
       const projectId = getRouterProjectId();
       if (!workspaceSlug || !projectId || !pageId) return undefined;
@@ -392,12 +379,9 @@ export interface IProjectPageStore {
  * @deprecated Use useProjectPageStore hook directly in new code
  */
 export class ProjectPageStoreLegacy implements IProjectPageStore {
-  private rootStore: RootStore;
   private unsubscribe: (() => void) | null = null;
 
-  constructor(rootStore: RootStore) {
-    this.rootStore = rootStore;
-
+  constructor() {
     // Set up subscription to reset filters when project changes
     // Using Zustand's subscribe instead of setInterval polling
     let previousProjectId = getRouterProjectId();
@@ -518,7 +502,7 @@ export class ProjectPageStoreLegacy implements IProjectPageStore {
   // ============================================================================
 
   fetchPagesList = async (workspaceSlug: string, projectId: string, pageType?: TPageNavigationTabs) => {
-    return useProjectPageStore.getState().fetchPagesList(workspaceSlug, projectId, pageType, this.rootStore);
+    return useProjectPageStore.getState().fetchPagesList(workspaceSlug, projectId, pageType);
   };
 
   fetchPageDetails = async (
@@ -527,15 +511,15 @@ export class ProjectPageStoreLegacy implements IProjectPageStore {
     pageId: string,
     options?: { trackVisit?: boolean }
   ) => {
-    return useProjectPageStore.getState().fetchPageDetails(workspaceSlug, projectId, pageId, options, this.rootStore);
+    return useProjectPageStore.getState().fetchPageDetails(workspaceSlug, projectId, pageId, options);
   };
 
   createPage = async (pageData: Partial<TPage>) => {
-    return useProjectPageStore.getState().createPage(pageData, this.rootStore);
+    return useProjectPageStore.getState().createPage(pageData);
   };
 
   removePage = async (params: { pageId: string; shouldSync?: boolean }) => {
-    return useProjectPageStore.getState().removePage(params, this.rootStore);
+    return useProjectPageStore.getState().removePage(params);
   };
 
   movePage = async (workspaceSlug: string, projectId: string, pageId: string, newProjectId: string) => {

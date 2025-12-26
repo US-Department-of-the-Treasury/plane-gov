@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 // store
-import { store } from "@/lib/store-context";
 import type { IProjectPageStore } from "@/store/pages/project-page.store";
 import { useProjectPageStore, ProjectPageStoreLegacy } from "@/plane-web/store/client";
 
@@ -18,7 +17,7 @@ let projectPageInstance: ProjectPageStoreLegacy | null = null;
 
 const getProjectPageInstance = (): ProjectPageStoreLegacy => {
   if (!projectPageInstance) {
-    projectPageInstance = new ProjectPageStoreLegacy(store);
+    projectPageInstance = new ProjectPageStoreLegacy();
   }
   return projectPageInstance;
 };

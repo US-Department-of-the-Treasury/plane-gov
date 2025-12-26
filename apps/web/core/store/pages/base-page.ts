@@ -7,11 +7,11 @@ import type { TChangeHandlerProps } from "@plane/propel/emoji-icon-picker";
 import type { TDocumentPayload, TLogoProps, TNameDescriptionLoader, TPage } from "@plane/types";
 // plane web store
 import { ExtendedBasePage } from "@/plane-web/store/pages/extended-base-page";
-import type { RootStore } from "@/plane-web/store/root.store";
 // services
 import { FavoriteService } from "@/services/favorite";
 // store
-import { useFavoriteStore } from "@/store/client";
+import { useFavoriteStore, getRouterWorkspaceSlug } from "@/store/client";
+import { useUserStore } from "@/store/user";
 // local imports
 import { PageEditorInstance } from "./page-editor-info";
 
@@ -189,24 +189,17 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
   services: TBasePageServices;
   // reactions
   disposers: Array<() => void> = [];
-  // root store
-  rootStore: RootStore;
   // sub-store
   editor: PageEditorInstance;
   // zustand store
   private pageStore: ReturnType<typeof createBasePageStore>;
   private titleUpdateTimer: NodeJS.Timeout | null = null;
 
-  constructor(
-    private store: RootStore,
-    page: TPage,
-    services: TBasePageServices
-  ) {
-    super(store, page, services);
+  constructor(page: TPage, services: TBasePageServices) {
+    super(page, services);
 
     // init
     this.services = services;
-    this.rootStore = store;
     this.editor = new PageEditorInstance();
     this.pageStore = createBasePageStore(page);
 
@@ -352,7 +345,8 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
   }
 
   get isCurrentUserOwner() {
-    const currentUserId = this.store.user.data?.id;
+    // Direct Zustand store access - no rootStore indirection
+    const currentUserId = useUserStore.getState().data?.id;
     if (!currentUserId) return false;
     return this.pageStore.getState().owned_by === currentUserId;
   }
@@ -566,7 +560,8 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @description add the page to favorites
    */
   addToFavorites = async () => {
-    const { workspaceSlug } = this.store.router;
+    // Direct Zustand store access - no rootStore indirection
+    const workspaceSlug = getRouterWorkspaceSlug();
     const state = this.pageStore.getState();
     const projectId = state.project_ids?.[0] ?? null;
     if (!workspaceSlug || !state.id) return undefined;
@@ -590,7 +585,8 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
    * @description remove the page from favorites
    */
   removePageFromFavorites = async () => {
-    const { workspaceSlug } = this.store.router;
+    // Direct Zustand store access - no rootStore indirection
+    const workspaceSlug = getRouterWorkspaceSlug();
     const pageId = this.pageStore.getState().id;
     if (!workspaceSlug || !pageId) return undefined;
 
