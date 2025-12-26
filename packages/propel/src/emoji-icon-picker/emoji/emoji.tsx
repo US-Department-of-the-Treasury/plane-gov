@@ -1,6 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { EmojiPicker } from "frimousse";
+import { Shuffle } from "lucide-react";
 import { cn } from "../../utils";
+import { getRandomSafeEmoji } from "../safe-emojis";
 
 type EmojiRootProps = {
   onChange: (value: string) => void;
@@ -20,6 +22,12 @@ export function EmojiRoot(props: EmojiRootProps) {
     emojibaseUrl = DEFAULT_EMOJIBASE_URL,
   } = props;
   const searchWrapperRef = useRef<HTMLDivElement>(null);
+
+  const handleRandomEmoji = useCallback(() => {
+    const randomEmoji = getRandomSafeEmoji();
+    onChange(randomEmoji);
+  }, [onChange]);
+
   useEffect(() => {
     const focusInput = () => {
       const searchWrapper = searchWrapperRef.current;
@@ -49,10 +57,15 @@ export function EmojiRoot(props: EmojiRootProps) {
             className="block rounded-md bg-transparent placeholder-(--text-color-placeholder) focus:outline-none px-3 py-2 border-[0.5px] border-subtle text-16 p-0 h-full w-full flex-grow-0 focus:border-accent-strong"
           />
         </div>
-        <EmojiPicker.SkinToneSelector
-          data-slot="emoji-picker-skin-tone-selector"
-          className="bg-surface-1 hover:bg-accent mx-2 mb-1.5 size-8 rounded-md text-16 flex-shrink-0"
-        />
+        <button
+          type="button"
+          onClick={handleRandomEmoji}
+          data-slot="emoji-picker-random-button"
+          className="bg-surface-1 hover:bg-accent mx-2 mb-1.5 size-8 rounded-md flex items-center justify-center flex-shrink-0 text-tertiary hover:text-primary transition-colors"
+          title="Random emoji"
+        >
+          <Shuffle className="size-4" />
+        </button>
       </div>
       <EmojiPicker.Viewport data-slot="emoji-picker-content" className={cn("relative flex-1 outline-none")}>
         <EmojiPicker.Loading>

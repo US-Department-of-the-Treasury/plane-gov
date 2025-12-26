@@ -21,8 +21,33 @@
 # - PostgreSQL 14+ (running)
 # - Redis 6.2+ (running)
 # - pnpm installed
+#
+# Options:
+#   --list    Show all running dev servers across worktrees and exit
+#   --help    Show this help message
 
 set -e
+
+# Handle command line arguments
+case "${1:-}" in
+    --list)
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        source "$SCRIPT_DIR/port-manager.sh"
+        list_all_dev_servers
+        exit 0
+        ;;
+    --help|-h)
+        echo "Usage: $0 [options]"
+        echo ""
+        echo "Options:"
+        echo "  --list    Show all running dev servers across worktrees and exit"
+        echo "  --help    Show this help message"
+        echo ""
+        echo "Environment variables:"
+        echo "  PORT_OFFSET=N   Manually select port range 0-9 (default: auto-detect)"
+        exit 0
+        ;;
+esac
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -84,6 +109,24 @@ fi
 echo -e "${GREEN}✓ Redis is running${NC}"
 
 echo ""
+
+# Show any running dev servers from other worktrees
+RUNNING_COUNT=$(find "$(dirname "$PROJECT_ROOT")" -maxdepth 3 -name ".dev-ports" 2>/dev/null | wc -l | tr -d ' ')
+if [ "$RUNNING_COUNT" -gt 0 ]; then
+    echo -e "${BLUE}Found $RUNNING_COUNT other worktree(s) with dev-ports files:${NC}"
+    for ports_file in "$(dirname "$PROJECT_ROOT")"/*/.dev-ports "$(dirname "$PROJECT_ROOT")"/*/*/.dev-ports 2>/dev/null; do
+        if [ -f "$ports_file" ] && [ "$ports_file" != "$DEV_PORTS_FILE" ]; then
+            wt_name=$(grep "^WORKTREE_NAME=" "$ports_file" 2>/dev/null | cut -d= -f2)
+            wt_web=$(grep "^WEB_PORT=" "$ports_file" 2>/dev/null | cut -d= -f2)
+            if [ -n "$wt_web" ] && lsof -i :"$wt_web" > /dev/null 2>&1; then
+                echo -e "  ${GREEN}●${NC} ${wt_name:-unknown} - http://localhost:$wt_web (running)"
+            else
+                echo -e "  ${YELLOW}○${NC} ${wt_name:-unknown} - http://localhost:$wt_web (stale .dev-ports)"
+            fi
+        fi
+    done
+    echo ""
+fi
 
 # Get available ports (checks for existing .dev-ports or finds new range)
 echo -e "${YELLOW}Allocating ports...${NC}"
