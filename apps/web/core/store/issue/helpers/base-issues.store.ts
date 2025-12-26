@@ -37,6 +37,8 @@ import { EIssueServiceType, EIssueLayoutTypes } from "@plane/types";
 import { convertToISODateString } from "@plane/utils";
 // plane web imports
 import { workItemSortWithOrderByExtended } from "@/plane-web/store/issue/helpers/base-issue.store";
+// Zustand stores
+import { useStateStore } from "@/store/client";
 // services
 import { SprintService } from "@/services/sprint.service";
 import { IssueArchiveService, IssueService } from "@/services/issue";
@@ -1731,7 +1733,7 @@ export abstract class BaseIssuesStore implements IBaseIssuesStore {
   ): string[] => {
     // Handle special case for state group
     if (groupByKey === "state_detail.group") {
-      return [this.rootIssueStore.rootStore.state.stateMap?.[value]?.group ?? issueObject.state__group];
+      return [useStateStore.getState().stateMap?.[value]?.group ?? issueObject.state__group];
     }
 
     return [value];

@@ -5,6 +5,8 @@ import type { TIssue, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 // services
 import { IssueArchiveService, WorkspaceDraftService, IssueService } from "@/services/issue";
+// Zustand stores
+import { useStateStore } from "@/store/client";
 // types
 import type { IIssueDetail } from "./root.store";
 
