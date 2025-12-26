@@ -63,7 +63,7 @@ export function DateDropdown(props: Props) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
+  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
   // hooks
   const { data } = useUserProfile();
   const startOfWeek = data?.start_of_the_week;
@@ -95,19 +95,26 @@ export function DateDropdown(props: Props) {
   if (maxDate) disabledDays.push({ after: maxDate });
 
   const comboButton = (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={disabled ? -1 : 0}
       className={cn(
         "clickable block h-full max-w-full outline-none",
         {
-          "cursor-not-allowed text-secondary": disabled,
+          "cursor-not-allowed text-secondary pointer-events-none": disabled,
           "cursor-pointer": !disabled,
         },
         buttonContainerClassName
       )}
       ref={setReferenceElement}
-      onClick={handleOnClick}
-      disabled={disabled}
+      onClick={disabled ? undefined : handleOnClick}
+      onKeyDown={
+        disabled
+          ? undefined
+          : (e) => {
+              if (e.key === "Enter" || e.key === " ") handleOnClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+            }
+      }
     >
       <DropdownButton
         className={buttonClassName}
@@ -135,7 +142,7 @@ export function DateDropdown(props: Props) {
           />
         )}
       </DropdownButton>
-    </button>
+    </div>
   );
 
   return (

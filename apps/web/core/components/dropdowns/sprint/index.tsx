@@ -61,7 +61,7 @@ export const SprintDropdown = memo(function SprintDropdown(props: Props) {
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   // popper-js refs
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
+  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
 
   // TanStack Query
   const { data: sprints } = useWorkspaceSprints(workspaceSlug?.toString() ?? "");
@@ -83,31 +83,45 @@ export const SprintDropdown = memo(function SprintDropdown(props: Props) {
   const comboButton = (
     <>
       {button ? (
-        <button
+        <div
           ref={setReferenceElement}
-          type="button"
+          role="button"
+          tabIndex={disabled ? -1 : (tabIndex ?? 0)}
           className={cn("clickable block h-full w-full outline-none hover:bg-layer-1", buttonContainerClassName)}
-          onClick={handleOnClick}
-          disabled={disabled}
-          tabIndex={tabIndex}
+          onClick={disabled ? undefined : handleOnClick}
+          onKeyDown={
+            disabled
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ")
+                    handleOnClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+                }
+          }
         >
           {button}
-        </button>
+        </div>
       ) : (
-        <button
+        <div
           ref={setReferenceElement}
-          type="button"
+          role="button"
+          tabIndex={disabled ? -1 : (tabIndex ?? 0)}
           className={cn(
             "clickable block h-full max-w-full outline-none hover:bg-layer-1",
             {
-              "cursor-not-allowed text-secondary": disabled,
+              "cursor-not-allowed text-secondary pointer-events-none": disabled,
               "cursor-pointer": !disabled,
             },
             buttonContainerClassName
           )}
-          onClick={handleOnClick}
-          disabled={disabled}
-          tabIndex={tabIndex}
+          onClick={disabled ? undefined : handleOnClick}
+          onKeyDown={
+            disabled
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ")
+                    handleOnClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+                }
+          }
         >
           <DropdownButton
             className={buttonClassName}
@@ -126,7 +140,7 @@ export const SprintDropdown = memo(function SprintDropdown(props: Props) {
               <ChevronDownIcon className={cn("h-2.5 w-2.5 flex-shrink-0", dropdownArrowClassName)} aria-hidden="true" />
             )}
           </DropdownButton>
-        </button>
+        </div>
       )}
     </>
   );

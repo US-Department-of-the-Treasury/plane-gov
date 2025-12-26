@@ -154,13 +154,11 @@ const SelectComboboxTrigger = React.forwardRef<HTMLButtonElement, SelectCombobox
       );
     }
 
-    // When not using default style, render children directly as the trigger content
-    // This allows full customization of the trigger button
+    // When not using default style, pass children directly to allow full customization
+    // The consumer is responsible for providing a focusable element with proper accessibility
     return (
       <PopoverPrimitive.Trigger ref={ref} disabled={disabled} asChild className={className}>
-        <div role="button" tabIndex={disabled ? -1 : 0} className="outline-none">
-          {children}
-        </div>
+        {children}
       </PopoverPrimitive.Trigger>
     );
   }

@@ -3,14 +3,12 @@
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import type { Placement } from "@popperjs/core";
-import { Check, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { StateGroupIcon } from "@plane/propel/icons";
-import { Button } from "@plane/propel/button";
 import { SelectCombobox } from "@plane/propel/combobox";
 import { Tooltip } from "@plane/propel/tooltip";
-import type { IState } from "@plane/types";
 import { Spinner } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
@@ -122,7 +120,7 @@ export function StateCombobox(props: StateComboboxProps) {
     const side = parts[0] as "top" | "bottom" | "left" | "right";
     const align = parts[1] === "end" ? "end" : parts[1] === "start" ? "start" : "center";
 
-    return { side, align: align as "start" | "center" | "end" };
+    return { side, align: align };
   }, [placement]);
 
   // Button styling based on variant
@@ -148,12 +146,18 @@ export function StateCombobox(props: StateComboboxProps) {
       disabled={!showTooltip}
       isMobile={isMobile}
     >
-      <Button
-        variant="ghost"
-        size="sm"
-        className={cn(getButtonClassName(), "text-11", buttonClassName)}
-        disabled={disabled}
-        tabIndex={tabIndex}
+      <div
+        role="button"
+        tabIndex={disabled ? -1 : (tabIndex ?? 0)}
+        className={cn(
+          getButtonClassName(),
+          "text-11 rounded-sm px-2 py-0.5",
+          {
+            "cursor-not-allowed text-secondary pointer-events-none": disabled,
+            "cursor-pointer": !disabled,
+          },
+          buttonClassName
+        )}
       >
         {isLoading ? (
           <Spinner className="h-3.5 w-3.5" />
@@ -177,7 +181,7 @@ export function StateCombobox(props: StateComboboxProps) {
             )}
           </>
         )}
-      </Button>
+      </div>
     </Tooltip>
   );
 

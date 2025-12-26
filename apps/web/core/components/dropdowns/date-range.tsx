@@ -103,7 +103,7 @@ export function DateRangeDropdown(props: Props) {
   const startOfWeek = data?.start_of_the_week;
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
+  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
 
   const onOpen = () => {
     if (referenceElement) referenceElement.focus();
@@ -133,19 +133,26 @@ export function DateRangeDropdown(props: Props) {
   }, [value]);
 
   const comboButton = (
-    <button
+    <div
       ref={setReferenceElement}
-      type="button"
+      role="button"
+      tabIndex={disabled ? -1 : 0}
       className={cn(
         "clickable block h-full max-w-full outline-none",
         {
-          "cursor-not-allowed text-secondary": disabled,
+          "cursor-not-allowed text-secondary pointer-events-none": disabled,
           "cursor-pointer": !disabled,
         },
         buttonContainerClassName
       )}
-      onClick={handleOnClick}
-      disabled={disabled}
+      onClick={disabled ? undefined : handleOnClick}
+      onKeyDown={
+        disabled
+          ? undefined
+          : (e) => {
+              if (e.key === "Enter" || e.key === " ") handleOnClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+            }
+      }
     >
       <DropdownButton
         className={buttonClassName}
@@ -233,7 +240,7 @@ export function DateRangeDropdown(props: Props) {
           </>
         )}
       </DropdownButton>
-    </button>
+    </div>
   );
 
   return (
