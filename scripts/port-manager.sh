@@ -220,10 +220,26 @@ find_available_range_with_cleanup() {
     echo -e "${YELLOW}No port ranges available, attempting cleanup...${NC}" >&2
     cleanup_zombie_servers >&2
 
-    # Try again after cleanup
-    offset=$(find_available_range)
-    echo "$offset"
-    [ "$offset" != "-1" ]
+    # Wait a bit longer for ports to be fully released
+    sleep 2
+
+    # Retry up to 3 times with increasing delays
+    local retries=0
+    while [ $retries -lt 3 ]; do
+        offset=$(find_available_range)
+        if [ "$offset" != "-1" ]; then
+            echo "$offset"
+            return 0
+        fi
+        retries=$((retries + 1))
+        if [ $retries -lt 3 ]; then
+            echo -e "${YELLOW}Ports not yet available, retrying in 2 seconds... (attempt $((retries + 1))/3)${NC}" >&2
+            sleep 2
+        fi
+    done
+
+    echo "-1"
+    return 1
 }
 
 # Load ports from .dev-ports if servers are still running
