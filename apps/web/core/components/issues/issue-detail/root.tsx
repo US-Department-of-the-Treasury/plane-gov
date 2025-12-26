@@ -1,4 +1,3 @@
-import type { FC } from "react";
 import { useMemo } from "react";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
@@ -51,11 +50,12 @@ export type TIssueDetailRoot = {
   projectId: string;
   issueId: string;
   is_archived?: boolean;
+  issue?: TIssue;
 };
 
 export function IssueDetailRoot(props: TIssueDetailRoot) {
   const { t } = useTranslation();
-  const { workspaceSlug, projectId, issueId, is_archived = false } = props;
+  const { workspaceSlug, projectId, issueId, is_archived = false, issue: issueProp } = props;
   // router
   const router = useAppRouter();
   // hooks
@@ -277,8 +277,8 @@ export function IssueDetailRoot(props: TIssueDetailRoot) {
     ]
   );
 
-  // issue details
-  const issue = getIssueById(issueId);
+  // issue details - prefer prop (from TanStack Query) over MobX store lookup
+  const issue = issueProp ?? getIssueById(issueId);
   // checking if issue is editable, based on user role
   const isEditable = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
