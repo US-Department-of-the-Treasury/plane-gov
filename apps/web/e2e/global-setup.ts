@@ -1,4 +1,5 @@
-import { chromium, FullConfig } from "@playwright/test";
+import { chromium } from "@playwright/test";
+import type { FullConfig } from "@playwright/test";
 import { loginViaUI, AUTH_STATE_PATH, TEST_WORKSPACE_SLUG } from "./fixtures/auth";
 import fs from "fs";
 import path from "path";

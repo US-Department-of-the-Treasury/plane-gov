@@ -350,6 +350,3 @@ export class InboxIssueStoreLegacy implements IInboxIssueStore {
     return useInboxIssueStore.getState().fetchIssueActivity();
   };
 }
-
-// Export the legacy class as InboxIssueStore for backward compatibility
-export { InboxIssueStoreLegacy as InboxIssueStore };

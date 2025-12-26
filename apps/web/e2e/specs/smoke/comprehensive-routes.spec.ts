@@ -1,5 +1,5 @@
 import { test, expect } from "../../fixtures";
-import { Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import fs from "fs";
 import path from "path";
 

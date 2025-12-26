@@ -413,6 +413,3 @@ export class IssueCommentStoreLegacy implements IIssueCommentStore {
     return useIssueCommentStore.getState().removeComment(workspaceSlug, projectId, issueId, commentId);
   };
 }
-
-// Export the legacy class as IssueCommentStore for backward compatibility
-export { IssueCommentStoreLegacy as IssueCommentStore };

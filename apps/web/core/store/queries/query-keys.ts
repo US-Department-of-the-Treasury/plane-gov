@@ -66,6 +66,19 @@ export const queryKeys = {
     },
   },
 
+  // Issue Details queries (for issue detail page components)
+  issueDetails: {
+    subscription: (issueId: string) => ["issues", "detail", issueId, "subscription"] as const,
+    links: (issueId: string) => ["issues", "detail", issueId, "links"] as const,
+    attachments: (issueId: string) => ["issues", "detail", issueId, "attachments"] as const,
+    reactions: (issueId: string) => ["issues", "detail", issueId, "reactions"] as const,
+    comments: (issueId: string) => ["issues", "detail", issueId, "comments"] as const,
+    commentReactions: (commentId: string) => ["issues", "detail", "comment", commentId, "reactions"] as const,
+    activities: (issueId: string) => ["issues", "detail", issueId, "activities"] as const,
+    relations: (issueId: string) => ["issues", "detail", issueId, "relations"] as const,
+    subIssues: (parentIssueId: string) => ["issues", "detail", parentIssueId, "sub-issues"] as const,
+  },
+
   // Sprint queries
   sprints: {
     all: (workspaceSlug: string, projectId: string) => ["sprints", workspaceSlug, projectId] as const,
@@ -123,6 +136,12 @@ export const queryKeys = {
   workspaceViews: {
     all: (workspaceSlug: string) => ["workspace-views", workspaceSlug] as const,
     detail: (viewId: string) => ["workspace-views", "detail", viewId] as const,
+  },
+
+  // Workspace Link queries
+  workspaceLinks: {
+    all: (workspaceSlug: string) => ["workspace-links", workspaceSlug] as const,
+    detail: (linkId: string) => ["workspace-links", "detail", linkId] as const,
   },
 
   // Favorite queries
@@ -212,7 +231,7 @@ export const queryKeys = {
 
   // API Token queries
   apiTokens: {
-    all: () => ["api-tokens"] as const,
+    all: (workspaceSlug: string) => ["api-tokens", workspaceSlug] as const,
     detail: (tokenId: string) => ["api-tokens", "detail", tokenId] as const,
   },
 
@@ -284,6 +303,8 @@ export const queryKeys = {
     detail: (pageId: string) => ["pages", "detail", pageId] as const,
     versions: (pageId: string) => ["pages", pageId, "versions"] as const,
     versionDetail: (versionId: string) => ["pages", "version", versionId] as const,
+    archived: (workspaceSlug: string, projectId: string) => ["pages", workspaceSlug, projectId, "archived"] as const,
+    favorites: (workspaceSlug: string, projectId: string) => ["pages", workspaceSlug, projectId, "favorites"] as const,
   },
 
   // Recents queries

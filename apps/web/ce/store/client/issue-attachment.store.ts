@@ -412,6 +412,3 @@ export class IssueAttachmentStoreLegacy implements IIssueAttachmentStore {
     return useIssueAttachmentStore.getState().removeAttachment(workspaceSlug, projectId, issueId, attachmentId);
   };
 }
-
-// Export legacy class as IssueAttachmentStore for backward compatibility
-export { IssueAttachmentStoreLegacy as IssueAttachmentStore };

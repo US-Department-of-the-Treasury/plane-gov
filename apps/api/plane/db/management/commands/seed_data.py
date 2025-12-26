@@ -167,8 +167,38 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.WARNING(f"  Deleting existing workspace '{workspace_slug}'...")
                 )
-                # Use hard_delete to bypass soft-delete and actually remove the record
-                # This handles both active and soft-deleted workspaces
+                # Delete related records that have FK constraints not handled by Django cascade
+                # Multiple tables have FKs that block cascade deletion
+                from django.db import connection
+                workspace_id = str(existing.id)
+                with connection.cursor() as cursor:
+                    # Delete in correct order to avoid FK violations
+                    # 1. Sprint member projects -> workspace_members
+                    cursor.execute("""
+                        DELETE FROM sprint_member_projects
+                        WHERE member_id IN (
+                            SELECT id FROM workspace_members WHERE workspace_id = %s
+                        )
+                    """, [workspace_id])
+                    # 2. Project sprints -> sprints
+                    cursor.execute("""
+                        DELETE FROM project_sprints
+                        WHERE sprint_id IN (
+                            SELECT id FROM sprints WHERE workspace_id = %s
+                        )
+                    """, [workspace_id])
+                    # 3. Sprint issues -> sprints
+                    cursor.execute("""
+                        DELETE FROM sprint_issues
+                        WHERE sprint_id IN (
+                            SELECT id FROM sprints WHERE workspace_id = %s
+                        )
+                    """, [workspace_id])
+                    # 4. Delete sprints directly (now safe)
+                    cursor.execute("""
+                        DELETE FROM sprints WHERE workspace_id = %s
+                    """, [workspace_id])
+                    # Now we can safely delete the workspace (Django will cascade the rest)
                 Workspace.all_objects.filter(slug=workspace_slug).delete()
                 self.stdout.write(self.style.SUCCESS(f"  Deleted existing workspace."))
 

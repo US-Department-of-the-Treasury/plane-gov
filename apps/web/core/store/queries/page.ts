@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { TPage, TDocumentPayload, TChangeHandlerProps, TLogoProps } from "@plane/types";
+import type { TPage, TDocumentPayload, TLogoProps } from "@plane/types";
 import { ProjectPageService } from "@/services/page";
 import { queryKeys } from "./query-keys";
 
@@ -875,7 +875,7 @@ export function getPageNameById(pages: TPage[] | undefined, pageId: string | nul
  */
 export function getPageIds(pages: TPage[] | undefined): string[] {
   if (!pages) return [];
-  return pages.map((page) => page.id);
+  return pages.map((page) => page.id).filter((id): id is string => id !== undefined);
 }
 
 /**

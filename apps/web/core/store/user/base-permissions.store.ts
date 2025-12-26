@@ -137,7 +137,9 @@ export const useBaseUserPermissionStore = create<BaseUserPermissionStoreType>()(
             if (!state.workspaceProjectsPermissions[workspaceSlug]) {
               state.workspaceProjectsPermissions[workspaceSlug] = {};
             }
-            state.workspaceProjectsPermissions[workspaceSlug][projectId] = response.role;
+            // Type assertion needed: response.role is TUserPermissions | EUserProjectRoles but destination expects TUserPermissions
+            // These are compatible enum values at runtime
+            state.workspaceProjectsPermissions[workspaceSlug][projectId] = response.role as TUserPermissions;
           });
         }
         return response;
@@ -171,7 +173,9 @@ export const useBaseUserPermissionStore = create<BaseUserPermissionStoreType>()(
             if (!state.workspaceProjectsPermissions[workspaceSlug]) {
               state.workspaceProjectsPermissions[workspaceSlug] = {};
             }
-            state.workspaceProjectsPermissions[workspaceSlug][projectId] = projectMemberRole;
+            // Type assertion needed: projectMemberRole is TUserPermissions | EUserWorkspaceRoles but destination expects TUserPermissions
+            // These are compatible enum values at runtime
+            state.workspaceProjectsPermissions[workspaceSlug][projectId] = projectMemberRole as TUserPermissions;
           });
           void fetchWorkspaceLevelProjectEntities(workspaceSlug, projectId);
         }

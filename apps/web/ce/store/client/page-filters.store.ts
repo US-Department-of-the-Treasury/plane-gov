@@ -155,8 +155,5 @@ export class PageFiltersStoreLegacy implements IPageFiltersStore {
   };
 }
 
-// Export the legacy class as PageFiltersStore for backward compatibility
-export { PageFiltersStoreLegacy as PageFiltersStore };
-
 // Export interface for backward compatibility
 export type { IPageFiltersStore as IPageFiltersStoreType };

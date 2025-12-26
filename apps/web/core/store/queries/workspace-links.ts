@@ -75,10 +75,9 @@ export function useCreateWorkspaceLink() {
           title: data.title ?? "",
           url: data.url ?? "",
           metadata: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          created_by: "",
-          updated_by: "",
+          created_at: new Date(),
+          created_by_id: "",
+          workspace_slug: workspaceSlug,
         };
         queryClient.setQueryData<TLink[]>(queryKeys.workspaceLinks.all(workspaceSlug), [
           optimisticLink,

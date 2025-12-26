@@ -7,7 +7,8 @@
  * Import this in test files for full functionality.
  */
 
-import { test as base, expect, Page } from "@playwright/test";
+import { test as base, expect } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { ErrorTracker } from "./error-tracker";
 import { TEST_WORKSPACE_SLUG, TEST_PROJECT_ID, AUTH_STATE_PATH, urls } from "./auth";
 

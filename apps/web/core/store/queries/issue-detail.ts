@@ -1,5 +1,6 @@
 "use client";
 
+import type { AxiosProgressEvent } from "axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   TIssue,
@@ -200,13 +201,9 @@ export function useCreateIssueLink(serviceType: TIssueServiceType) {
           url: data.url ?? "",
           title: data.title ?? "",
           metadata: data.metadata ?? {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          created_by: "",
-          updated_by: "",
-          issue: issueId,
-          project: "",
-          workspace: "",
+          created_at: new Date(),
+          created_by_id: "",
+          issue_id: issueId,
         };
 
         queryClient.setQueryData<TIssueLink[]>(queryKeys.issueDetails.links(issueId), [
@@ -357,7 +354,7 @@ interface UploadAttachmentParams {
   projectId: string;
   issueId: string;
   file: File;
-  onUploadProgress?: (progressEvent: { progress: number }) => void;
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
 }
 
 /**

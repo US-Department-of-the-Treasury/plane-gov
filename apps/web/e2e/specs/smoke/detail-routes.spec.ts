@@ -32,9 +32,7 @@ test.describe("Issue Detail Routes @smoke", () => {
         break;
       }
     }
-    const hasIssues = issueLink !== null;
-
-    if (hasIssues) {
+    if (issueLink) {
       // Click on the first issue
       await issueLink.click();
       await page.waitForLoadState("networkidle");

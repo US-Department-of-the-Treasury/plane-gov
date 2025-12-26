@@ -44,3 +44,27 @@ export function useSearchParams(): URLSearchParams {
 export function useParams() {
   return useParamsRR();
 }
+
+/**
+ * Redirect function for compat with Next.js redirect()
+ *
+ * NOTE: This is a compat shim that does NOT work the same as Next.js redirect().
+ * Next.js redirect() throws a special error that Next.js catches, which doesn't
+ * work in React Router context. For redirects in page components, use:
+ *   import { Navigate } from "react-router";
+ *   return <Navigate to="/path" replace />;
+ *
+ * This function performs a hard navigation as a fallback.
+ */
+export function redirect(to: string): never {
+  // Client-side redirect using location.replace
+  if (typeof window !== "undefined") {
+    window.location.replace(to);
+  }
+  // This function should not be called in a render context
+  // If you see this error, use React Router's Navigate component instead
+  throw new Error(
+    `redirect() called server-side or in unsupported context. ` +
+      `Use <Navigate to="${to}" replace /> instead.`
+  );
+}

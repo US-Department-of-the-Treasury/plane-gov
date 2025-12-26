@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 // Note: "use" is Playwright's fixture function, not a React hook
-import { test as base, Page } from "@playwright/test";
+import { test as base } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import fs from "fs";
@@ -51,9 +52,9 @@ export const TEST_PROJECT_ID = getProjectId();
  * Perform login via UI
  * Used by global-setup to create auth state
  *
- * Note: Plane uses a multi-step login flow:
- * 1. Enter email -> Click Continue
- * 2. Enter password -> Click Sign In
+ * Note: Login flow depends on SMTP configuration:
+ * - With SMTP: Multi-step (email -> continue -> password)
+ * - Without SMTP (local dev): Single form with email + password + "Go to workspace"
  */
 export async function loginViaUI(page: Page): Promise<void> {
   await page.goto("/");
@@ -61,41 +62,60 @@ export async function loginViaUI(page: Page): Promise<void> {
   // Wait for the page to be fully hydrated - the form should be interactive
   await page.waitForLoadState("networkidle");
 
-  // Step 1: Wait for email input and enter email
-  // Use getByLabel for more reliable targeting of React controlled inputs
+  // Wait for email input
   const emailInput = page.getByLabel("Email");
   await emailInput.waitFor({ state: "visible", timeout: 10000 });
 
-  // Clear and type (more reliable than fill for React controlled inputs)
+  // Clear and type email
   await emailInput.clear();
   await emailInput.type(TEST_USER.email, { delay: 50 });
 
-  // Wait for Continue button to be enabled (validates email was entered)
-  const continueButton = page.getByRole("button", { name: /continue/i });
-  await continueButton.waitFor({ state: "visible", timeout: 5000 });
+  // Check which login flow we have:
+  // - "Continue" button = multi-step flow (SMTP enabled)
+  // - "Go to workspace" button = single form flow (local dev)
+  const continueButton = page.getByRole("button", { name: /^continue$/i });
+  const goToWorkspaceButton = page.getByRole("button", { name: /go to workspace/i });
 
   // Wait a moment for React state to settle
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(200);
 
-  // Click Continue to proceed to password step
-  await continueButton.click();
+  // Determine which flow we're in
+  const hasContinueButton = await continueButton.isVisible().catch(() => false);
 
-  // Step 2: Wait for password input (appears after email verification API call)
-  // Use ID selector to avoid matching both "Password" and "Confirm Password" labels
-  const passwordInput = page.locator("#password");
-  await passwordInput.waitFor({ state: "visible", timeout: 15000 });
+  if (hasContinueButton) {
+    // Multi-step flow: Click Continue to proceed to password step
+    await continueButton.click();
 
-  // Enter password
-  await passwordInput.clear();
-  await passwordInput.type(TEST_USER.password, { delay: 50 });
+    // Wait for password input (appears after email verification API call)
+    const passwordInput = page.locator("#password");
+    await passwordInput.waitFor({ state: "visible", timeout: 15000 });
 
-  // Submit login - find the submit button in the password form
-  // Button text varies: "Continue" (SMTP enabled), "Go to workspace" (SMTP disabled),
-  // "Sign in" (legacy), or "Create account" (sign-up flow)
-  const signInButton = page.getByRole("button", { name: /continue|go to workspace|sign in|create account/i });
-  await signInButton.waitFor({ state: "visible", timeout: 5000 });
+    // Enter password
+    await passwordInput.clear();
+    await passwordInput.type(TEST_USER.password, { delay: 50 });
 
-  await signInButton.click();
+    // Submit login
+    const signInButton = page.getByRole("button", { name: /continue|sign in/i });
+    await signInButton.waitFor({ state: "visible", timeout: 5000 });
+    await signInButton.click();
+  } else {
+    // Single form flow (local dev without SMTP)
+    // Password field should already be visible - use ID selector to be specific
+    // (getByLabel('Password') also matches "Show password" button)
+    const passwordInput = page.locator("#password");
+    await passwordInput.waitFor({ state: "visible", timeout: 5000 });
+
+    // Enter password
+    await passwordInput.clear();
+    await passwordInput.type(TEST_USER.password, { delay: 50 });
+
+    // Wait for button to be enabled (validates both fields are filled)
+    await page.waitForTimeout(200);
+
+    // Click "Go to workspace" button
+    await goToWorkspaceButton.waitFor({ state: "visible", timeout: 5000 });
+    await goToWorkspaceButton.click();
+  }
 
   // Wait for navigation - could be workspace, profile setup, or create-workspace
   // Use a broad pattern that matches any post-login state

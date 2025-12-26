@@ -43,9 +43,7 @@ test.describe("Browse Routes @smoke", () => {
         break;
       }
     }
-    const hasWorkItems = workItemLink !== null;
-
-    if (hasWorkItems) {
+    if (workItemLink) {
       await workItemLink.click();
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(2000);

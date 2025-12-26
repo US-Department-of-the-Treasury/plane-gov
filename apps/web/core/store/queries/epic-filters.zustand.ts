@@ -60,8 +60,6 @@ interface EpicFiltersState {
  */
 const DEFAULT_DISPLAY_FILTERS: TEpicDisplayFilters = {
   order_by: "sort_order",
-  group_by: null,
-  sub_group_by: null,
   layout: "list",
 };
 
@@ -69,7 +67,7 @@ const DEFAULT_DISPLAY_FILTERS: TEpicDisplayFilters = {
  * Default filters for a new project
  */
 const DEFAULT_FILTERS: TEpicFiltersByState = {
-  active: {},
+  default: {},
   archived: {},
 };
 
@@ -89,7 +87,7 @@ export const useEpicFilters = create<EpicFiltersState>((set, get) => ({
   },
 
   getFiltersByProjectId: (projectId: string) => {
-    return get().filters[projectId]?.active;
+    return get().filters[projectId]?.default;
   },
 
   getArchivedFiltersByProjectId: (projectId: string) => {
@@ -110,7 +108,7 @@ export const useEpicFilters = create<EpicFiltersState>((set, get) => ({
     get().saveToLocalStorage();
   },
 
-  updateFilters: (projectId: string, newFilters: TEpicFilters, filterState: keyof TEpicFiltersByState = "active") => {
+  updateFilters: (projectId: string, newFilters: TEpicFilters, filterState: keyof TEpicFiltersByState = "default") => {
     set((state) => {
       const projectFilters = state.filters[projectId] || DEFAULT_FILTERS;
       return {
@@ -137,7 +135,7 @@ export const useEpicFilters = create<EpicFiltersState>((set, get) => ({
     set({ archivedEpicsSearchQuery: query });
   },
 
-  clearAllFilters: (projectId: string, filterState: keyof TEpicFiltersByState = "active") => {
+  clearAllFilters: (projectId: string, filterState: keyof TEpicFiltersByState = "default") => {
     set((state) => {
       const projectFilters = state.filters[projectId] || DEFAULT_FILTERS;
       return {
