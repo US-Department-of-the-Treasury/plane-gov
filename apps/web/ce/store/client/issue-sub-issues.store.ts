@@ -701,6 +701,5 @@ export class WorkItemSubIssueFiltersStoreLegacy implements IWorkItemSubIssueFilt
   };
 }
 
-// Export legacy class as default export for backward compatibility
-export { IssueSubIssuesStoreLegacy as IssueSubIssuesStore };
+// Export legacy class for backward compatibility (WorkItemSubIssueFiltersStore only - IssueSubIssuesStore conflicts with type)
 export { WorkItemSubIssueFiltersStoreLegacy as WorkItemSubIssueFiltersStore };

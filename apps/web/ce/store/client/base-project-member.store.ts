@@ -778,6 +778,3 @@ export abstract class BaseProjectMemberStoreLegacy implements IBaseProjectMember
   ) => EUserProjectRoles;
   abstract processMemberRemoval: (projectId: string, userId: string) => void;
 }
-
-// Export types for backwards compatibility
-export type { BaseProjectMemberStoreState, BaseProjectMemberStoreActions };

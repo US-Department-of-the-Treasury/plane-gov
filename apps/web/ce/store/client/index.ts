@@ -6,8 +6,8 @@ export { useTimelineStore } from "./timeline.store";
 export type { TimelineStore, TimelineState, TimelineActions, IBaseTimelineStore } from "./timeline.store";
 
 // Inbox stores
-export { useInboxIssueStore, InboxIssueStore, InboxIssueStoreLegacy } from "./inbox-issue.store";
-export type { InboxIssueStore as InboxIssueStoreType, IInboxIssueStore } from "./inbox-issue.store";
+export { useInboxIssueStore, InboxIssueStoreLegacy } from "./inbox-issue.store";
+export type { InboxIssueStore, InboxIssueStore as InboxIssueStoreType, IInboxIssueStore } from "./inbox-issue.store";
 
 export { useProjectInboxStore, ProjectInboxStoreLegacy } from "./project-inbox.store";
 export type { ProjectInboxStore as ProjectInboxStoreType, IProjectInboxStore } from "./project-inbox.store";
@@ -27,8 +27,8 @@ export { createProjectPageInstanceStore, ProjectPage, ProjectPageInstanceStoreLe
 export type { ProjectPageInstanceStore as ProjectPageInstanceStoreType, IProjectPage } from "./project-page-instance.store";
 
 // Member stores
-export { useWorkspaceMemberStore, WorkspaceMemberStore, WorkspaceMemberStoreLegacy } from "./workspace-member.store";
-export type { WorkspaceMemberStore as WorkspaceMemberStoreType, IWorkspaceMemberStore, IWorkspaceMembership } from "./workspace-member.store";
+export { useWorkspaceMemberStore, WorkspaceMemberStoreLegacy } from "./workspace-member.store";
+export type { WorkspaceMemberStore, WorkspaceMemberStore as WorkspaceMemberStoreType, IWorkspaceMemberStore, IWorkspaceMembership } from "./workspace-member.store";
 
 export { useWorkspaceMemberFiltersStore, WorkspaceMemberFiltersStoreLegacy } from "./workspace-member-filters.store";
 export type { WorkspaceMemberFiltersStore as WorkspaceMemberFiltersStoreType, IWorkspaceMemberFilters } from "./workspace-member-filters.store";
@@ -40,24 +40,24 @@ export { useProjectMemberFiltersStore, ProjectMemberFiltersStoreLegacy } from ".
 export type { ProjectMemberFiltersStore as ProjectMemberFiltersStoreType } from "./project-member-filters.store";
 
 // Issue reaction store
-export { useIssueReactionStore, IssueReactionStore, IssueReactionStoreLegacy } from "./issue-reaction.store";
-export type { IssueReactionStore as IssueReactionStoreType, IIssueReactionStore } from "./issue-reaction.store";
+export { useIssueReactionStore, IssueReactionStoreLegacy } from "./issue-reaction.store";
+export type { IssueReactionStore, IssueReactionStore as IssueReactionStoreType, IIssueReactionStore } from "./issue-reaction.store";
 
 // Issue subscription store
 export { useIssueSubscriptionStore, IssueSubscriptionStore } from "./issue-subscription.store";
 export type { IssueSubscriptionStore as IssueSubscriptionStoreType, IIssueSubscriptionStore } from "./issue-subscription.store";
 
 // Issue attachment store
-export { useIssueAttachmentStore, IssueAttachmentStore, IssueAttachmentStoreLegacy } from "./issue-attachment.store";
-export type { IssueAttachmentStore as IssueAttachmentStoreType, IIssueAttachmentStore, TAttachmentUploadStatus } from "./issue-attachment.store";
+export { useIssueAttachmentStore, IssueAttachmentStoreLegacy } from "./issue-attachment.store";
+export type { IssueAttachmentStore, IssueAttachmentStore as IssueAttachmentStoreType, IIssueAttachmentStore, TAttachmentUploadStatus } from "./issue-attachment.store";
 
 // Issue link store
 export { useIssueLinkStore, IssueLinkStoreLegacy } from "./issue-link.store";
 export type { IssueLinkStore as IssueLinkStoreType, IIssueLinkStore } from "./issue-link.store";
 
 // Issue comment store
-export { useIssueCommentStore, IssueCommentStore, IssueCommentStoreLegacy } from "./issue-comment.store";
-export type { IssueCommentStore as IssueCommentStoreType, IIssueCommentStore, TCommentLoader } from "./issue-comment.store";
+export { useIssueCommentStore, IssueCommentStoreLegacy } from "./issue-comment.store";
+export type { IssueCommentStore, IssueCommentStore as IssueCommentStoreType, IIssueCommentStore, TCommentLoader } from "./issue-comment.store";
 
 // Issue comment reaction store
 export { useIssueCommentReactionStore, IssueCommentReactionStore, IssueCommentReactionStoreLegacy } from "./issue-comment-reaction.store";

@@ -471,6 +471,3 @@ export class IssueRelationStoreLegacy implements IIssueRelationStore {
     );
   };
 }
-
-// Export the legacy class as IssueRelationStore for backward compatibility
-export { IssueRelationStoreLegacy as IssueRelationStore };

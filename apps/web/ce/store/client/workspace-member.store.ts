@@ -618,6 +618,3 @@ export class WorkspaceMemberStoreLegacy implements IWorkspaceMemberStore {
     return useWorkspaceMemberStore.getState().generateFakeMembers(workspaceSlug, count);
   };
 }
-
-// Export the legacy class as WorkspaceMemberStore for backward compatibility
-export { WorkspaceMemberStoreLegacy as WorkspaceMemberStore };

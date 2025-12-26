@@ -308,6 +308,3 @@ export class IssueReactionStoreLegacy implements IIssueReactionStore {
     return useIssueReactionStore.getState().removeReaction(workspaceSlug, projectId, issueId, reaction, userId);
   };
 }
-
-// Export the legacy class as IssueReactionStore for backward compatibility
-export { IssueReactionStoreLegacy as IssueReactionStore };

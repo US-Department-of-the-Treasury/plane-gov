@@ -5,7 +5,7 @@
  */
 
 import { faker } from "@faker-js/faker";
-import { IssuePriority } from "./issue.factory";
+import type { IssuePriority } from "./issue.factory";
 
 export interface DraftIssueData {
   name: string;

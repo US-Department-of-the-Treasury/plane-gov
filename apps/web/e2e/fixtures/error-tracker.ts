@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 // Note: "use" is Playwright's fixture function, not a React hook
-import { test as base, Page, ConsoleMessage, Request, Response } from "@playwright/test";
+import { test as base } from "@playwright/test";
+import type { Page, ConsoleMessage, Request, Response } from "@playwright/test";
 
 /**
  * Error Tracker Fixture
