@@ -135,7 +135,8 @@ export const useEpicFilterStore = create<EpicFilterStore>()(
         set((state) => {
           const newDisplayFilters = { ...state.displayFilters };
           Object.keys(displayFilters).forEach((key) => {
-            lodashSet(newDisplayFilters, [projectId, key], displayFilters[key as keyof TEpicDisplayFilters]);
+            // Use string path for proper Zustand reactivity
+            lodashSet(newDisplayFilters, `${projectId}.${key}`, displayFilters[key as keyof TEpicDisplayFilters]);
           });
           return { displayFilters: newDisplayFilters };
         });
@@ -148,7 +149,8 @@ export const useEpicFilterStore = create<EpicFilterStore>()(
         set((prevState) => {
           const newFilters = { ...prevState.filters };
           Object.keys(filters).forEach((key) => {
-            lodashSet(newFilters, [projectId, state, key], filters[key as keyof TEpicFilters]);
+            // Use string path for proper Zustand reactivity
+            lodashSet(newFilters, `${projectId}.${state}.${key}`, filters[key as keyof TEpicFilters]);
           });
           return { filters: newFilters };
         });

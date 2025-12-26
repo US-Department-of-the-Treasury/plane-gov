@@ -175,11 +175,13 @@ export const useTimelineStore = create<TimelineStoreType>()(
       // update the store with the block updates
       set((state) => {
         for (const updatedBlock of updatedBlockMaps) {
-          lodashSet(state.blocksMap, updatedBlock.path, updatedBlock.value);
+          // Use string path for proper Zustand/immer reactivity
+          lodashSet(state.blocksMap, updatedBlock.path.join('.'), updatedBlock.value);
         }
 
         for (const newBlock of newBlocks) {
-          lodashSet(state.blocksMap, [newBlock.id], newBlock);
+          // Direct property access for proper Zustand/immer reactivity
+          state.blocksMap[newBlock.id] = newBlock;
         }
       });
     },
@@ -239,10 +241,13 @@ export const useTimelineStore = create<TimelineStoreType>()(
       const newWidth = currBlock.position.width + deltaWidth;
 
       set((state) => {
-        lodashSet(state.blocksMap, [id, "position"], {
-          marginLeft: newMarginLeft ?? currBlock.position?.marginLeft,
-          width: newWidth ?? currBlock.position?.width,
-        });
+        // Direct property access for proper Zustand/immer reactivity
+        if (state.blocksMap[id]) {
+          state.blocksMap[id].position = {
+            marginLeft: newMarginLeft ?? currBlock.position?.marginLeft,
+            width: newWidth ?? currBlock.position?.width,
+          };
+        }
       });
     },
 

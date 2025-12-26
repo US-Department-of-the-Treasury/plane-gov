@@ -121,13 +121,15 @@ const createProjectPageStore = () =>
 
       updateFilters: (filterKey, filterValue) => {
         set((state) => {
-          lodashSet(state.filters, [filterKey], filterValue);
+          // Direct property access for proper Zustand reactivity
+          state.filters[filterKey] = filterValue;
         });
       },
 
       clearAllFilters: () => {
         set((state) => {
-          lodashSet(state.filters, ["filters"], {});
+          // Direct property access for proper Zustand reactivity
+          state.filters.filters = {};
         });
       },
 

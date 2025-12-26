@@ -87,7 +87,8 @@ export const useProjectFilterStore = create<ProjectFilterStore>()((set, get) => 
     set((state) => {
       const newDisplayFilters = { ...state.displayFilters };
       Object.keys(displayFilters).forEach((key) => {
-        lodashSet(newDisplayFilters, [workspaceSlug, key], displayFilters[key as keyof TProjectDisplayFilters]);
+        // Use string path for proper Zustand reactivity
+        lodashSet(newDisplayFilters, `${workspaceSlug}.${key}`, displayFilters[key as keyof TProjectDisplayFilters]);
       });
       return { displayFilters: newDisplayFilters };
     });
@@ -97,7 +98,8 @@ export const useProjectFilterStore = create<ProjectFilterStore>()((set, get) => 
     set((state) => {
       const newFilters = { ...state.filters };
       Object.keys(filters).forEach((key) => {
-        lodashSet(newFilters, [workspaceSlug, key], filters[key as keyof TProjectFilters]);
+        // Use string path for proper Zustand reactivity
+        lodashSet(newFilters, `${workspaceSlug}.${key}`, filters[key as keyof TProjectFilters]);
       });
       return { filters: newFilters };
     });
@@ -122,7 +124,8 @@ export const useProjectFilterStore = create<ProjectFilterStore>()((set, get) => 
     set((state) => {
       const newDisplayFilters = { ...state.displayFilters };
       appliedFilters.forEach((key) => {
-        lodashSet(newDisplayFilters, [workspaceSlug, key], false);
+        // Use string path for proper Zustand reactivity
+        lodashSet(newDisplayFilters, `${workspaceSlug}.${key}`, false);
       });
       return { displayFilters: newDisplayFilters };
     });

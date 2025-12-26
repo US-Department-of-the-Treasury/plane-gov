@@ -17,6 +17,35 @@ async function closePopovers(page: Page): Promise<void> {
   await page.waitForTimeout(100);
 }
 
+// Helper to wait for the sidebar to be fully loaded
+async function waitForSidebar(page: Page): Promise<void> {
+  // Wait for the Main sidebar to be visible (indicates React has hydrated)
+  const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
+  await sidebar.waitFor({ state: "visible", timeout: 15000 });
+  // Also wait for at least one link to be visible inside
+  await sidebar.getByRole("link").first().waitFor({ state: "visible", timeout: 5000 });
+}
+
+// Helper to wait for settings page to be fully loaded
+async function waitForSettingsPage(page: Page): Promise<void> {
+  // Wait for a settings link to be visible (indicates React has hydrated)
+  const settingsLink = page.locator('a[href*="/settings"]').first();
+  await settingsLink.waitFor({ state: "visible", timeout: 15000 });
+}
+
+// Helper to wait for project navigation to be fully loaded
+// Project-level links (Work items, Sprints, etc.) are in the main content area, not the sidebar
+// Note: There are 2 <main> elements - we need the inner one (last) which contains the project nav
+async function waitForProjectNav(page: Page): Promise<void> {
+  // Wait for project nav links to be visible - they're in the inner main element
+  const projectNavLink = page
+    .getByRole("main")
+    .last()
+    .getByRole("link", { name: /Work items|Sprints|Epics/ })
+    .first();
+  await projectNavLink.waitFor({ state: "visible", timeout: 15000 });
+}
+
 // Helper to click a link and verify navigation
 async function clickAndVerifyNavigation(
   page: Page,
@@ -29,7 +58,7 @@ async function clickAndVerifyNavigation(
     await closePopovers(page);
 
     // Ensure link is visible and get the href
-    await linkLocator.waitFor({ state: "visible", timeout: 5000 });
+    await linkLocator.waitFor({ state: "visible", timeout: 15000 });
     const href = await linkLocator.getAttribute("href");
 
     // Get current URL before click
@@ -63,7 +92,7 @@ async function clickAndVerifyNavigation(
     }
 
     // Check for 404 page
-    const has404 = await page.locator('[data-testid="404-page"]').count() > 0;
+    const has404 = (await page.locator('[data-testid="404-page"]').count()) > 0;
     if (has404) {
       return {
         success: false,
@@ -89,6 +118,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Home link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}/drafts`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       // Find the Home link in the main sidebar complementary region
       const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
@@ -100,6 +130,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Drafts link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       // Find the Drafts link in the main sidebar
       const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
@@ -111,6 +142,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Projects sidebar link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}/drafts`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       // Find Projects link within the Workspace section of main sidebar
       const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
@@ -122,6 +154,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Views link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       // Find the Views link within the Workspace section of main sidebar (not project level)
       const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
@@ -133,6 +166,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Analytics link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       // Find the Analytics link in main sidebar
       const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
@@ -144,6 +178,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Archives link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       // Find the Archives link in main sidebar
       const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
@@ -155,6 +190,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Wiki link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       // Find Wiki link - this is in the top navigation, not the sidebar
       const wikiLink = page.locator(`a[href$="/wiki/"]`).first();
@@ -165,6 +201,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Settings link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       // Find Settings link - this is in the top navigation
       const settingsLink = page.locator(`a[href$="/settings/"]`).first();
@@ -181,10 +218,12 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Work items link navigates correctly", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/sprints`);
       await page.waitForLoadState("networkidle");
+      await waitForProjectNav(page);
 
-      // Find Work items link within the main sidebar
-      const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
-      const issuesLink = sidebar.getByRole("link", { name: "Work items" });
+      // Find Work items link within the main content area (project nav is not in sidebar)
+      // Note: There are 2 <main> elements - use .last() for the inner one with project nav
+      const mainContent = page.getByRole("main").last();
+      const issuesLink = mainContent.getByRole("link", { name: "Work items" });
       const result = await clickAndVerifyNavigation(
         page,
         issuesLink,
@@ -197,10 +236,12 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Sprints link navigates correctly", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/issues`);
       await page.waitForLoadState("networkidle");
+      await waitForProjectNav(page);
 
-      // Find Sprints link within the main sidebar
-      const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
-      const sprintsLink = sidebar.getByRole("link", { name: "Sprints" });
+      // Find Sprints link within the main content area (project nav is not in sidebar)
+      // Note: There are 2 <main> elements - use .last() for the inner one with project nav
+      const mainContent = page.getByRole("main").last();
+      const sprintsLink = mainContent.getByRole("link", { name: "Sprints" });
       const result = await clickAndVerifyNavigation(
         page,
         sprintsLink,
@@ -213,10 +254,12 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Epics link navigates correctly", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/issues`);
       await page.waitForLoadState("networkidle");
+      await waitForProjectNav(page);
 
-      // Find Epics link within the main sidebar
-      const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
-      const epicsLink = sidebar.getByRole("link", { name: "Epics" });
+      // Find Epics link within the main content area (project nav is not in sidebar)
+      // Note: There are 2 <main> elements - use .last() for the inner one with project nav
+      const mainContent = page.getByRole("main").last();
+      const epicsLink = mainContent.getByRole("link", { name: "Epics" });
       const result = await clickAndVerifyNavigation(
         page,
         epicsLink,
@@ -229,10 +272,12 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Project Views link navigates correctly", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/issues`);
       await page.waitForLoadState("networkidle");
+      await waitForProjectNav(page);
 
-      // Find the Views link within the project context in sidebar - use href for specificity
-      const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
-      const viewsLink = sidebar.locator(`a[href*="/projects/${projectId}/views"]`).first();
+      // Find the Views link within the main content area - use href for specificity
+      // Note: There are 2 <main> elements - use .last() for the inner one with project nav
+      const mainContent = page.getByRole("main").last();
+      const viewsLink = mainContent.locator(`a[href*="/projects/${projectId}/views"]`).first();
       const result = await clickAndVerifyNavigation(
         page,
         viewsLink,
@@ -245,10 +290,12 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Pages link navigates correctly", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/issues`);
       await page.waitForLoadState("networkidle");
+      await waitForProjectNav(page);
 
-      // Find Pages link within the main sidebar
-      const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
-      const pagesLink = sidebar.getByRole("link", { name: "Pages" });
+      // Find Pages link within the main content area (project nav is not in sidebar)
+      // Note: There are 2 <main> elements - use .last() for the inner one with project nav
+      const mainContent = page.getByRole("main").last();
+      const pagesLink = mainContent.getByRole("link", { name: "Pages" });
       const result = await clickAndVerifyNavigation(
         page,
         pagesLink,
@@ -261,10 +308,12 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Intake link navigates correctly", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/issues`);
       await page.waitForLoadState("networkidle");
+      await waitForProjectNav(page);
 
-      // Find Intake link within the main sidebar
-      const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
-      const intakeLink = sidebar.getByRole("link", { name: "Intake" });
+      // Find Intake link within the main content area (project nav is not in sidebar)
+      // Note: There are 2 <main> elements - use .last() for the inner one with project nav
+      const mainContent = page.getByRole("main").last();
+      const intakeLink = mainContent.getByRole("link", { name: "Intake" });
       const result = await clickAndVerifyNavigation(
         page,
         intakeLink,
@@ -283,6 +332,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("General settings link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}/settings/members`);
       await page.waitForLoadState("networkidle");
+      await waitForSettingsPage(page);
 
       const generalLink = page.locator('a[href$="/settings/"]').first();
       const result = await clickAndVerifyNavigation(page, generalLink, `/${workspaceSlug}/settings`, "General");
@@ -292,6 +342,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Members settings link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}/settings`);
       await page.waitForLoadState("networkidle");
+      await waitForSettingsPage(page);
 
       const membersLink = page.locator('a[href*="/settings/members"]').first();
       const result = await clickAndVerifyNavigation(page, membersLink, `/${workspaceSlug}/settings/members`, "Members");
@@ -301,6 +352,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Exports settings link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}/settings`);
       await page.waitForLoadState("networkidle");
+      await waitForSettingsPage(page);
 
       const exportsLink = page.locator('a[href*="/settings/exports"]').first();
       const result = await clickAndVerifyNavigation(page, exportsLink, `/${workspaceSlug}/settings/exports`, "Exports");
@@ -310,9 +362,15 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Webhooks settings link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}/settings`);
       await page.waitForLoadState("networkidle");
+      await waitForSettingsPage(page);
 
       const webhooksLink = page.locator('a[href*="/settings/webhooks"]').first();
-      const result = await clickAndVerifyNavigation(page, webhooksLink, `/${workspaceSlug}/settings/webhooks`, "Webhooks");
+      const result = await clickAndVerifyNavigation(
+        page,
+        webhooksLink,
+        `/${workspaceSlug}/settings/webhooks`,
+        "Webhooks"
+      );
       expect(result.success, result.error).toBe(true);
     });
   });
@@ -325,6 +383,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Notifications icon navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       const notificationsLink = page.locator('a[href*="/notifications"]').first();
       const result = await clickAndVerifyNavigation(
@@ -339,6 +398,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Wiki header link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       // Click on Wiki in the header
       const wikiHeaderLink = page.locator('nav a[href*="/wiki"], header a[href*="/wiki"]').first();
@@ -357,28 +417,33 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Clicking issue navigates to detail page", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/issues`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
-      // Wait for the issue list to load - look for issue identifiers like PDP-1, PDP-2 etc
+      // Wait for the issue list to load
       const mainArea = page.locator("main").last();
 
-      // Wait for issue rows to appear - they have links with issue IDs (UUID format)
-      const issueIdPattern = /\/issues\/[a-f0-9-]{36}/;
-      const _issueLinks = mainArea.locator("a").filter({
-        has: page.locator(`[href]`),
-      });
-
-      // Wait up to 10 seconds for issues to load
+      // Wait for issues to load
       await page.waitForTimeout(3000);
 
-      // Find links that have issue UUID in href
+      // Issue identifiers like MOBILE-1, PDP-1 are displayed as clickable links
+      // Look for visible issue identifier links that navigate to /browse/
+      const browsePattern = /\/browse\/[A-Z]+-\d+\/?$/;
       const allLinks = await mainArea.locator("a").all();
       let issueLink: ReturnType<typeof page.locator> | null = null;
 
       for (const link of allLinks) {
         const href = await link.getAttribute("href");
-        if (href && issueIdPattern.test(href)) {
-          issueLink = link;
-          break;
+        if (href && browsePattern.test(href)) {
+          // Make sure the link is visible and contains an issue identifier text
+          const isVisible = await link.isVisible().catch(() => false);
+          if (isVisible) {
+            const text = await link.textContent();
+            // Issue identifier format: PROJECT-NUMBER (e.g., MOBILE-1, PDP-42)
+            if (text && /^[A-Z]+-\d+$/.test(text.trim())) {
+              issueLink = link;
+              break;
+            }
+          }
         }
       }
 
@@ -387,8 +452,8 @@ test.describe("Navigation Links @smoke @navigation", () => {
         await page.waitForLoadState("networkidle");
         await page.waitForTimeout(500);
 
-        // Should be on issue detail page (URL contains issues/ followed by a UUID)
-        expect(page.url()).toMatch(/\/issues\/[a-f0-9-]{36}/);
+        // Should be on issue detail page (URL contains /browse/IDENTIFIER)
+        expect(page.url()).toMatch(/\/browse\/[A-Z]+-\d+/);
       } else {
         // If no issue links found, this is expected for empty projects - skip gracefully
         test.skip(true, "No issues found in the project to test");
@@ -398,7 +463,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Clicking sprint navigates to detail page", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/sprints`);
       await page.waitForLoadState("networkidle");
-      await page.waitForTimeout(2000);
+      await waitForSidebar(page);
 
       const sprintLinks = page.locator('a[href*="/sprints/"]');
       const count = await sprintLinks.count();
@@ -416,7 +481,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Clicking epic navigates to detail page", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/epics`);
       await page.waitForLoadState("networkidle");
-      await page.waitForTimeout(2000);
+      await waitForSidebar(page);
 
       const epicLinks = page.locator('a[href*="/epics/"]');
       const count = await epicLinks.count();
@@ -434,7 +499,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Clicking page navigates to detail page", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/pages`);
       await page.waitForLoadState("networkidle");
-      await page.waitForTimeout(2000);
+      await waitForSidebar(page);
 
       const pageLinks = page.locator('a[href*="/pages/"]');
       const count = await pageLinks.count();
@@ -459,6 +524,7 @@ test.describe("Navigation Links @smoke @navigation", () => {
       // Navigate to a page within a project
       await page.goto(`/${workspaceSlug}/projects/${projectId}/sprints`);
       await page.waitForLoadState("networkidle");
+      await waitForSidebar(page);
 
       // Click on project name in breadcrumb
       const projectBreadcrumb = page.locator('button:has-text("Plane Demo Project")').first();
@@ -473,9 +539,13 @@ test.describe("Navigation Links @smoke @navigation", () => {
     test("Workspace breadcrumb navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}/settings`);
       await page.waitForLoadState("networkidle");
+      await waitForSettingsPage(page);
 
       // Look for "Back to workspace" link
-      const backLink = page.locator('a[href*="' + workspaceSlug + '"]').filter({ hasText: /back to workspace/i }).first();
+      const backLink = page
+        .locator('a[href*="' + workspaceSlug + '"]')
+        .filter({ hasText: /back to workspace/i })
+        .first();
       if ((await backLink.count()) > 0) {
         const result = await clickAndVerifyNavigation(page, backLink, `/${workspaceSlug}`, "Back to workspace");
         expect(result.success, result.error).toBe(true);

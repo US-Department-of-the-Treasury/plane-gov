@@ -90,7 +90,8 @@ export const useSprintFilterStore = create<SprintFilterStore>()((set, get) => ({
     set((state) => {
       const newDisplayFilters = { ...state.displayFilters };
       Object.keys(displayFilters).forEach((key) => {
-        lodashSet(newDisplayFilters, [projectId, key], displayFilters[key as keyof TSprintDisplayFilters]);
+        // Use string path for proper Zustand reactivity
+        lodashSet(newDisplayFilters, `${projectId}.${key}`, displayFilters[key as keyof TSprintDisplayFilters]);
       });
       return { displayFilters: newDisplayFilters };
     });
@@ -100,7 +101,8 @@ export const useSprintFilterStore = create<SprintFilterStore>()((set, get) => ({
     set((prevState) => {
       const newFilters = { ...prevState.filters };
       Object.keys(filters).forEach((key) => {
-        lodashSet(newFilters, [projectId, state, key], filters[key as keyof TSprintFilters]);
+        // Use string path for proper Zustand reactivity
+        lodashSet(newFilters, `${projectId}.${state}.${key}`, filters[key as keyof TSprintFilters]);
       });
       return { filters: newFilters };
     });

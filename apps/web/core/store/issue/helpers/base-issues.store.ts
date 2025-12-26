@@ -283,17 +283,20 @@ export const createBaseIssuesStore = () =>
       },
       updateNestedGroupedIssueCount: (path: string[], value: any) => {
         set((state) => {
-          lodashSet(state.groupedIssueCount, path, value);
+          // Use string path for proper Zustand/immer reactivity
+          lodashSet(state.groupedIssueCount, path.join('.'), value);
         });
       },
       updateNestedIssuePaginationData: (path: string[], value: any) => {
         set((state) => {
-          lodashSet(state.issuePaginationData, path, value);
+          // Use string path for proper Zustand/immer reactivity
+          lodashSet(state.issuePaginationData, path.join('.'), value);
         });
       },
       updateNestedGroupedIssueIds: (path: string[], value: any) => {
         set((state) => {
-          lodashSet(state, ["groupedIssueIds", ...path], value);
+          // Use string path for proper Zustand/immer reactivity
+          lodashSet(state, `groupedIssueIds.${path.join('.')}`, value);
         });
       },
       mutateState: (mutator: (draft: BaseIssuesState) => void) => {

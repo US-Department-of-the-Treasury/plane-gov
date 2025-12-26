@@ -1,4 +1,12 @@
 import { test, expect } from "../../fixtures/auth";
+import type { Page } from "@playwright/test";
+
+// Helper to wait for settings page to be fully loaded
+async function waitForSettingsPage(page: Page): Promise<void> {
+  // Wait for a settings link to be visible (indicates React has hydrated)
+  const settingsLink = page.locator('a[href*="/settings"]').first();
+  await settingsLink.waitFor({ state: "visible", timeout: 15000 });
+}
 
 /**
  * Admin Access Verification Tests
@@ -22,9 +30,7 @@ test.describe("Admin Access Verification", () => {
 
     // Wait for page to load completely
     await page.waitForLoadState("networkidle");
-
-    // Should NOT see authorization error - wait for content to settle
-    await page.waitForTimeout(2000);
+    await waitForSettingsPage(page);
 
     // Should NOT see "Oops!" error or "not authorized" message
     const pageContent = await page.content();
@@ -50,6 +56,7 @@ test.describe("Admin Access Verification", () => {
 
       // Wait for page to load
       await page.waitForLoadState("networkidle");
+      await waitForSettingsPage(page);
 
       // Should NOT see authorization error
       const notAuthorizedText = page.getByText(/not authorized/i);
@@ -67,6 +74,7 @@ test.describe("Admin Access Verification", () => {
     await page.goto(`/${workspaceSlug}/projects/${projectId}/settings/features`);
 
     await page.waitForLoadState("networkidle");
+    await waitForSettingsPage(page);
 
     const notAuthorizedText = page.getByText(/not authorized/i);
     await expect(notAuthorizedText).not.toBeVisible({ timeout: 5000 });
@@ -80,6 +88,7 @@ test.describe("Admin Access Verification", () => {
     await page.goto(`/${workspaceSlug}/projects/${projectId}/settings/estimates`);
 
     await page.waitForLoadState("networkidle");
+    await waitForSettingsPage(page);
 
     const notAuthorizedText = page.getByText(/not authorized/i);
     await expect(notAuthorizedText).not.toBeVisible({ timeout: 5000 });
@@ -93,6 +102,7 @@ test.describe("Admin Access Verification", () => {
     await page.goto(`/${workspaceSlug}/projects/${projectId}/settings/automations`);
 
     await page.waitForLoadState("networkidle");
+    await waitForSettingsPage(page);
 
     const notAuthorizedText = page.getByText(/not authorized/i);
     await expect(notAuthorizedText).not.toBeVisible({ timeout: 5000 });

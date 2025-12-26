@@ -64,7 +64,8 @@ export const useProjectFilterStore = create<ProjectFilterStoreType>()(
     updateDisplayFilters: (workspaceSlug: string, displayFilters: TProjectDisplayFilters) => {
       set((state) => {
         Object.keys(displayFilters).forEach((key) => {
-          lodashSet(state.displayFilters, [workspaceSlug, key], displayFilters[key as keyof TProjectDisplayFilters]);
+          // Use string template notation for proper Zustand reactivity
+          lodashSet(state.displayFilters, `${workspaceSlug}.${key}`, displayFilters[key as keyof TProjectDisplayFilters]);
         });
       });
     },
@@ -77,7 +78,8 @@ export const useProjectFilterStore = create<ProjectFilterStoreType>()(
     updateFilters: (workspaceSlug: string, filters: TProjectFilters) => {
       set((state) => {
         Object.keys(filters).forEach((key) => {
-          lodashSet(state.filters, [workspaceSlug, key], filters[key as keyof TProjectFilters]);
+          // Use string template notation for proper Zustand reactivity
+          lodashSet(state.filters, `${workspaceSlug}.${key}`, filters[key as keyof TProjectFilters]);
         });
       });
     },
@@ -109,7 +111,8 @@ export const useProjectFilterStore = create<ProjectFilterStoreType>()(
     clearAllAppliedDisplayFilters: (workspaceSlug: string, appliedFilters: TProjectAppliedDisplayFilterKeys[]) => {
       set((state) => {
         appliedFilters.forEach((key) => {
-          lodashSet(state.displayFilters, [workspaceSlug, key], false);
+          // Use string template notation for proper Zustand reactivity
+          lodashSet(state.displayFilters, `${workspaceSlug}.${key}`, false);
         });
       });
     },

@@ -20,9 +20,19 @@ test.describe("Issue Detail Routes @smoke", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    // Look for any issue link in the list
-    const issueLink = page.locator('[data-testid="issue-row"], [data-testid="issue-card"], a[href*="/issues/"]').first();
-    const hasIssues = await issueLink.count() > 0;
+    // Look for any issue link in the list - issues use /browse/IDENTIFIER/ pattern
+    const browsePattern = /\/browse\/[A-Z]+-\d+\/?$/;
+    const allLinks = await page.locator("a").all();
+    let issueLink = null;
+
+    for (const link of allLinks) {
+      const href = await link.getAttribute("href");
+      if (href && browsePattern.test(href)) {
+        issueLink = link;
+        break;
+      }
+    }
+    const hasIssues = issueLink !== null;
 
     if (hasIssues) {
       // Click on the first issue
@@ -58,7 +68,7 @@ test.describe("Epic Detail Routes @smoke", () => {
 
     // Look for any epic link in the list
     const epicLink = page.locator('[data-testid="epic-row"], [data-testid="epic-card"], a[href*="/epics/"]').first();
-    const hasEpics = await epicLink.count() > 0;
+    const hasEpics = (await epicLink.count()) > 0;
 
     if (hasEpics) {
       await epicLink.click();
@@ -91,8 +101,10 @@ test.describe("Sprint Detail Routes @smoke", () => {
     await page.waitForTimeout(2000);
 
     // Look for any sprint link in the list
-    const sprintLink = page.locator('[data-testid="sprint-row"], [data-testid="sprint-card"], a[href*="/sprints/"]').first();
-    const hasSprints = await sprintLink.count() > 0;
+    const sprintLink = page
+      .locator('[data-testid="sprint-row"], [data-testid="sprint-card"], a[href*="/sprints/"]')
+      .first();
+    const hasSprints = (await sprintLink.count()) > 0;
 
     if (hasSprints) {
       await sprintLink.click();
@@ -126,7 +138,7 @@ test.describe("Page Detail Routes @smoke", () => {
 
     // Look for any page link in the list
     const pageLink = page.locator('[data-testid="page-row"], [data-testid="page-card"], a[href*="/pages/"]').first();
-    const hasPages = await pageLink.count() > 0;
+    const hasPages = (await pageLink.count()) > 0;
 
     if (hasPages) {
       await pageLink.click();
@@ -160,7 +172,7 @@ test.describe("View Detail Routes @smoke", () => {
 
     // Look for any view link in the list
     const viewLink = page.locator('[data-testid="view-row"], [data-testid="view-card"], a[href*="/views/"]').first();
-    const hasViews = await viewLink.count() > 0;
+    const hasViews = (await viewLink.count()) > 0;
 
     if (hasViews) {
       await viewLink.click();
@@ -181,41 +193,28 @@ test.describe("View Detail Routes @smoke", () => {
 });
 
 test.describe("Wiki Page Routes @smoke", () => {
-  test("/:workspaceSlug/wiki/:pageId loads without errors", async ({
-    page,
-    errorTracker,
-    workspaceSlug,
-  }) => {
+  test("/:workspaceSlug/wiki/:pageId loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
     // Navigate to wiki first
     await page.goto(`/${workspaceSlug}/wiki`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    // Look for any wiki page link that has a UUID in the URL (not just /wiki/)
-    // Wiki page URLs look like /workspace/wiki/[uuid]
-    const wikiPageLinks = page.locator('a[href*="/wiki/"]').filter({
-      has: page.locator(':scope'),
+    // Wiki pages are rendered as buttons in the sidebar, not anchor links
+    // Look for wiki page buttons that can be clicked to navigate
+    const wikiPageButtons = page.locator("button").filter({
+      hasText: /Getting Started|Architecture|API Reference|Development Guide|Deployment Guide/i,
     });
 
-    // Filter to only links with UUIDs (36 char pattern after /wiki/)
-    let wikiLink = null;
-    const allLinks = await wikiPageLinks.all();
-    for (const link of allLinks) {
-      const href = await link.getAttribute("href");
-      // Match wiki page URLs with UUID: /workspace/wiki/[uuid]
-      if (href && /\/wiki\/[a-f0-9-]{36}/i.test(href)) {
-        const isVisible = await link.isVisible().catch(() => false);
-        if (isVisible) {
-          wikiLink = link;
-          break;
-        }
-      }
-    }
+    const count = await wikiPageButtons.count();
 
-    if (wikiLink) {
-      await wikiLink.click();
+    if (count > 0) {
+      // Click the first wiki page button
+      await wikiPageButtons.first().click();
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(2000);
+
+      // Verify we're on a wiki page detail (URL should contain /wiki/ with UUID)
+      expect(page.url()).toMatch(/\/wiki\/[a-f0-9-]{36}/i);
 
       const pageErrors = errorTracker.getPageErrors();
       if (pageErrors.length > 0) {

@@ -166,14 +166,16 @@ export const useUserStore = create<UserStoreType>()(
         if (currentUserData && currentUserData.is_password_autoset && get().data) {
           const user = await authService.setPassword(csrfToken, { password: data.password });
           set((state) => {
-            if (state.data) lodashSet(state.data, ["is_password_autoset"], false);
+            // Direct property access for proper Zustand reactivity
+            if (state.data) state.data.is_password_autoset = false;
           });
           return user;
         }
         return undefined;
       } catch (error) {
         set((state) => {
-          if (state.data) lodashSet(state.data, ["is_password_autoset"], true);
+          // Direct property access for proper Zustand reactivity
+          if (state.data) state.data.is_password_autoset = true;
           state.error = {
             status: "user-update-error",
             message: "Failed to update current user",
@@ -187,7 +189,8 @@ export const useUserStore = create<UserStoreType>()(
       try {
         const user = await userService.changePassword(csrfToken, payload);
         set((state) => {
-          if (state.data) lodashSet(state.data, ["is_password_autoset"], false);
+          // Direct property access for proper Zustand reactivity
+          if (state.data) state.data.is_password_autoset = false;
         });
         return user;
       } catch (error) {

@@ -134,7 +134,12 @@ export const createSprintIssuesStore = () =>
       },
       updateActiveSprintId: (sprintId: string, path: string[], value: any) => {
         set((state) => {
-          lodashSet(state.activeSprintIds, [sprintId, ...path], value);
+          // Initialize if needed
+          if (!state.activeSprintIds[sprintId]) {
+            state.activeSprintIds[sprintId] = {} as ActiveSprintIssueDetails;
+          }
+          // Use string path for proper Zustand/immer reactivity
+          lodashSet(state.activeSprintIds, `${sprintId}.${path.join('.')}`, value);
         });
       },
       updateActiveSprintIdIssueIds: (

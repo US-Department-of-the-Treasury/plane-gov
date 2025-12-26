@@ -8,11 +8,7 @@ import { test, expect } from "../../fixtures";
  */
 
 test.describe("Browse Routes @smoke", () => {
-  test("/:workspaceSlug/browse loads without errors", async ({
-    page,
-    errorTracker,
-    workspaceSlug,
-  }) => {
+  test("/:workspaceSlug/browse loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
     await page.goto(`/${workspaceSlug}/browse`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
@@ -34,9 +30,20 @@ test.describe("Browse Routes @smoke", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    // Look for any work item link
-    const workItemLink = page.locator('[data-testid="work-item-row"], [data-testid="browse-item"], a[href*="/browse/"]').first();
-    const hasWorkItems = await workItemLink.count() > 0;
+    // Look for any work item link - use browse URL pattern (e.g., /browse/MOBILE-1/)
+    // Work items have URLs like /workspace/browse/IDENTIFIER/
+    const browsePattern = /\/browse\/[A-Z]+-\d+\/?$/;
+    const allLinks = await page.locator("a").all();
+    let workItemLink = null;
+
+    for (const link of allLinks) {
+      const href = await link.getAttribute("href");
+      if (href && browsePattern.test(href)) {
+        workItemLink = link;
+        break;
+      }
+    }
+    const hasWorkItems = workItemLink !== null;
 
     if (hasWorkItems) {
       await workItemLink.click();
@@ -57,11 +64,7 @@ test.describe("Browse Routes @smoke", () => {
 });
 
 test.describe("Timeline Routes @smoke", () => {
-  test("/:workspaceSlug/timeline loads without errors", async ({
-    page,
-    errorTracker,
-    workspaceSlug,
-  }) => {
+  test("/:workspaceSlug/timeline loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
     await page.goto(`/${workspaceSlug}/timeline`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
@@ -75,11 +78,7 @@ test.describe("Timeline Routes @smoke", () => {
 });
 
 test.describe("My Work Routes @smoke", () => {
-  test("/:workspaceSlug/my-work loads without errors", async ({
-    page,
-    errorTracker,
-    workspaceSlug,
-  }) => {
+  test("/:workspaceSlug/my-work loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
     await page.goto(`/${workspaceSlug}/my-work`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
@@ -93,11 +92,7 @@ test.describe("My Work Routes @smoke", () => {
 });
 
 test.describe("Favorites Routes @smoke", () => {
-  test("/:workspaceSlug/favorites loads without errors", async ({
-    page,
-    errorTracker,
-    workspaceSlug,
-  }) => {
+  test("/:workspaceSlug/favorites loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
     await page.goto(`/${workspaceSlug}/favorites`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
@@ -111,11 +106,7 @@ test.describe("Favorites Routes @smoke", () => {
 });
 
 test.describe("Search Routes @smoke", () => {
-  test("/:workspaceSlug/search loads without errors", async ({
-    page,
-    errorTracker,
-    workspaceSlug,
-  }) => {
+  test("/:workspaceSlug/search loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
     await page.goto(`/${workspaceSlug}/search`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);

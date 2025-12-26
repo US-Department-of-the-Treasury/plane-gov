@@ -1,4 +1,4 @@
-import { unset as lodashUnset, set as lodashSet } from "lodash-es";
+import { unset as lodashUnset } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // plane imports
@@ -95,7 +95,8 @@ export const useBaseUserPermissionStore = create<BaseUserPermissionStoreType>()(
         const response = await workspaceService.workspaceMemberMe(workspaceSlug);
         if (response) {
           set((state) => {
-            lodashSet(state.workspaceUserInfo, [workspaceSlug], response);
+            // Direct property access for proper Zustand reactivity
+            state.workspaceUserInfo[workspaceSlug] = response;
             state.loader = false;
           });
         }
@@ -128,8 +129,15 @@ export const useBaseUserPermissionStore = create<BaseUserPermissionStoreType>()(
         const response = await projectMemberService.projectMemberMe(workspaceSlug, projectId);
         if (response) {
           set((state) => {
-            lodashSet(state.projectUserInfo, [workspaceSlug, projectId], response);
-            lodashSet(state.workspaceProjectsPermissions, [workspaceSlug, projectId], response.role);
+            // Direct property access for proper Zustand reactivity
+            if (!state.projectUserInfo[workspaceSlug]) {
+              state.projectUserInfo[workspaceSlug] = {};
+            }
+            state.projectUserInfo[workspaceSlug][projectId] = response;
+            if (!state.workspaceProjectsPermissions[workspaceSlug]) {
+              state.workspaceProjectsPermissions[workspaceSlug] = {};
+            }
+            state.workspaceProjectsPermissions[workspaceSlug][projectId] = response.role;
           });
         }
         return response;
@@ -143,7 +151,8 @@ export const useBaseUserPermissionStore = create<BaseUserPermissionStoreType>()(
       try {
         const response = await workspaceService.getWorkspaceUserProjectsRole(workspaceSlug);
         set((state) => {
-          lodashSet(state.workspaceProjectsPermissions, [workspaceSlug], response);
+          // Direct property access for proper Zustand reactivity
+          state.workspaceProjectsPermissions[workspaceSlug] = response;
         });
         return response;
       } catch (error) {
@@ -158,7 +167,11 @@ export const useBaseUserPermissionStore = create<BaseUserPermissionStoreType>()(
         const projectMemberRole = getWorkspaceRoleByWorkspaceSlug(workspaceSlug) ?? (EUserPermissions.MEMBER as EUserPermissions);
         if (response) {
           set((state) => {
-            lodashSet(state.workspaceProjectsPermissions, [workspaceSlug, projectId], projectMemberRole);
+            // Direct property access for proper Zustand reactivity
+            if (!state.workspaceProjectsPermissions[workspaceSlug]) {
+              state.workspaceProjectsPermissions[workspaceSlug] = {};
+            }
+            state.workspaceProjectsPermissions[workspaceSlug][projectId] = projectMemberRole;
           });
           void fetchWorkspaceLevelProjectEntities(workspaceSlug, projectId);
         }
@@ -172,11 +185,16 @@ export const useBaseUserPermissionStore = create<BaseUserPermissionStoreType>()(
       try {
         await userService.leaveProject(workspaceSlug, projectId);
         set((state) => {
-          lodashUnset(state.workspaceProjectsPermissions, [workspaceSlug, projectId]);
-          lodashUnset(state.projectUserInfo, [workspaceSlug, projectId]);
+          // Direct property access for proper Zustand reactivity
+          if (state.workspaceProjectsPermissions[workspaceSlug]) {
+            delete state.workspaceProjectsPermissions[workspaceSlug][projectId];
+          }
+          if (state.projectUserInfo[workspaceSlug]) {
+            delete state.projectUserInfo[workspaceSlug][projectId];
+          }
         });
         // Also remove from project store
-        lodashUnset(store.projectRoot.project.projectMap, [projectId]);
+        delete store.projectRoot.project.projectMap[projectId];
       } catch (error) {
         console.error("Error user leaving the project", error);
         throw error;
