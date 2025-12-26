@@ -1,12 +1,8 @@
 // plane imports
 import { FALLBACK_LANGUAGE, LANGUAGE_STORAGE_KEY } from "@plane/i18n";
 // plane web store
-import type { IAnalyticsStore } from "@/plane-web/store/analytics.store";
-import { AnalyticsStore } from "@/plane-web/store/analytics.store";
 import type { ICommandPaletteStore } from "@/plane-web/store/command-palette.store";
 import { CommandPaletteStore } from "@/plane-web/store/command-palette.store";
-import { PowerKStore } from "@/plane-web/store/power-k.store";
-import type { IPowerKStore } from "@/plane-web/store/power-k.store";
 import type { RootStore } from "@/plane-web/store/root.store";
 import type { IStateStore } from "@/plane-web/store/state.store";
 import { StateStore } from "@/plane-web/store/state.store";
@@ -16,8 +12,8 @@ import type { ISprintStore, ISprintFilterStore } from "./client";
 import { SprintStore, SprintFilterStore } from "./client";
 import type { IDashboardStore } from "./client";
 import { DashboardStore } from "./client";
-import type { IEditorAssetStore, IInstanceStore, ILabelStore } from "./client";
-import { EditorAssetStore, InstanceStore, LabelStore } from "./client";
+import type { IInstanceStore, ILabelStore } from "./client";
+import { InstanceStore, LabelStore } from "./client";
 import type { IProjectEstimateStore } from "./estimates/project-estimate.store";
 import { ProjectEstimateStore } from "./estimates/project-estimate.store";
 import type { IFavoriteStore } from "./client";
@@ -32,16 +28,14 @@ import type { IMemberRootStore } from "./member";
 import { MemberRootStore } from "./member";
 import type { IEpicStore, IEpicFilterStore } from "./client";
 import { EpicsStore, EpicFilterStore } from "./client";
-import type { IMultipleSelectStore } from "./client";
-import { MultipleSelectStore } from "./client";
 import type { IWorkspaceNotificationStore } from "./notifications/workspace-notifications.store";
 import { WorkspaceNotificationStore } from "./notifications/workspace-notifications.store";
 import type { IProjectPageStore } from "./pages/project-page.store";
 import { ProjectPageStore } from "./pages/project-page.store";
 import type { IProjectRootStore } from "./project";
 import { ProjectRootStore } from "./project";
-import type { IRouterStore, IThemeStore } from "./client";
-import { RouterStore, ThemeStore } from "./client";
+import type { IRouterStore } from "./client";
+import { RouterStore } from "./client";
 import type { IUserStore } from "./user";
 import { UserStore } from "./user";
 import type { IWorkspaceRootStore } from "./workspace";
@@ -60,27 +54,21 @@ export class CoreRootStore {
   state: IStateStore;
   label: ILabelStore;
   dashboard: IDashboardStore;
-  analytics: IAnalyticsStore;
   projectPages: IProjectPageStore;
   router: IRouterStore;
   commandPalette: ICommandPaletteStore;
-  theme: IThemeStore;
   instance: IInstanceStore;
   user: IUserStore;
   projectInbox: IProjectInboxStore;
   projectEstimate: IProjectEstimateStore;
-  multipleSelect: IMultipleSelectStore;
   workspaceNotification: IWorkspaceNotificationStore;
   favorite: IFavoriteStore;
-  editorAssetStore: IEditorAssetStore;
-  powerK: IPowerKStore;
 
   constructor() {
     this.router = new RouterStore();
     this.commandPalette = new CommandPaletteStore();
     this.instance = new InstanceStore();
     this.user = new UserStore(this as unknown as RootStore);
-    this.theme = new ThemeStore();
     this.workspaceRoot = new WorkspaceRootStore(this as unknown as RootStore);
     this.projectRoot = new ProjectRootStore(this);
     this.memberRoot = new MemberRootStore(this as unknown as RootStore);
@@ -94,15 +82,11 @@ export class CoreRootStore {
     this.state = new StateStore(this as unknown as RootStore);
     this.label = new LabelStore(this);
     this.dashboard = new DashboardStore(this);
-    this.multipleSelect = new MultipleSelectStore();
     this.projectInbox = new ProjectInboxStore(this);
     this.projectPages = new ProjectPageStore(this as unknown as RootStore);
     this.projectEstimate = new ProjectEstimateStore(this);
     this.workspaceNotification = new WorkspaceNotificationStore(this);
     this.favorite = new FavoriteStore(this);
-    this.editorAssetStore = new EditorAssetStore();
-    this.analytics = new AnalyticsStore();
-    this.powerK = new PowerKStore();
   }
 
   resetOnSignOut() {
@@ -128,11 +112,8 @@ export class CoreRootStore {
     this.dashboard = new DashboardStore(this);
     this.projectInbox = new ProjectInboxStore(this);
     this.projectPages = new ProjectPageStore(this as unknown as RootStore);
-    this.multipleSelect = new MultipleSelectStore();
     this.projectEstimate = new ProjectEstimateStore(this);
     this.workspaceNotification = new WorkspaceNotificationStore(this);
     this.favorite = new FavoriteStore(this);
-    this.editorAssetStore = new EditorAssetStore();
-    this.powerK = new PowerKStore();
   }
 }
