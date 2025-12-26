@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { set as lodashSet, unset } from "lodash-es";
 // types
 import { EUserPermissions } from "@plane/constants";
 import type { TPage, TPageFilters, TPageNavigationTabs } from "@plane/types";
@@ -12,7 +11,7 @@ import { ProjectPageService } from "@/services/page";
 import type { TProjectPage } from "@/store/pages/project-page";
 import { ProjectPage } from "@/store/pages/project-page";
 // store helpers
-import { getRouterWorkspaceSlug, getRouterProjectId, useFavoriteStore, useRouterStore } from "@/store/client";
+import { getRouterWorkspaceSlug, getRouterProjectId, useFavoriteStore, useRouterStore, useBaseUserPermissionStore } from "@/store/client";
 // root store
 import type { RootStore } from "@/plane-web/store/root.store";
 
@@ -447,7 +446,8 @@ export class ProjectPageStoreLegacy implements IProjectPageStore {
   get canCurrentUserCreatePage() {
     const workspaceSlug = getRouterWorkspaceSlug();
     const projectId = getRouterProjectId();
-    const currentUserProjectRole = this.rootStore.user.permission.getProjectRoleByWorkspaceSlugAndProjectId(
+    // Direct Zustand store access - no rootStore indirection
+    const currentUserProjectRole = useBaseUserPermissionStore.getState().getProjectRole(
       workspaceSlug?.toString() || "",
       projectId?.toString() || ""
     );
