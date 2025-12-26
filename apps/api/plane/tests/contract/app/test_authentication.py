@@ -144,12 +144,12 @@ class TestSignInEndpoint:
 
     @pytest.mark.django_db
     def test_user_exists(self, django_client, setup_user, setup_instance):
-        """Test sign-in with non-existent user"""
+        """Test sign-in with non-existent user - should return generic error to prevent enumeration"""
         url = reverse("sign-in")
         response = django_client.post(url, {"email": "user@email.so", "password": "user123"}, follow=True)
 
-        # Check redirect contains error code
-        assert "USER_DOES_NOT_EXIST" in response.redirect_chain[-1][0]
+        # SECURITY: Should return generic AUTHENTICATION_FAILED to prevent account enumeration
+        assert "AUTHENTICATION_FAILED" in response.redirect_chain[-1][0]
 
     @pytest.mark.django_db
     def test_password_validity(self, django_client, setup_user, setup_instance):
@@ -238,13 +238,12 @@ class TestMagicSignIn:
         # Check that we get a redirect
         assert response.status_code == 302
 
-        # The actual error code is EXPIRED_MAGIC_CODE_SIGN_IN (when key doesn't exist)
-        # or INVALID_MAGIC_CODE_SIGN_IN (when key exists but code doesn't match)
-        assert "EXPIRED_MAGIC_CODE_SIGN_IN" in response.url or "INVALID_MAGIC_CODE_SIGN_IN" in response.url
+        # SECURITY: Now returns generic error codes to prevent account enumeration
+        assert "EXPIRED_MAGIC_CODE" in response.url or "INVALID_MAGIC_CODE" in response.url
 
     @pytest.mark.django_db
     def test_user_does_not_exist(self, django_client, setup_instance):
-        """Test magic sign-in with non-existent user"""
+        """Test magic sign-in with non-existent user - should return generic error to prevent enumeration"""
         url = reverse("magic-sign-in")
         response = django_client.post(
             url,
@@ -252,8 +251,9 @@ class TestMagicSignIn:
             follow=True,
         )
 
-        # Check redirect contains error code
-        assert "USER_DOES_NOT_EXIST" in response.redirect_chain[-1][0]
+        # SECURITY: Should return generic EXPIRED_MAGIC_CODE to prevent account enumeration
+        # (no longer reveals whether user exists)
+        assert "EXPIRED_MAGIC_CODE" in response.redirect_chain[-1][0]
 
     @pytest.mark.django_db
     @patch("plane.bgtasks.magic_link_code_task.magic_link.delay")
@@ -333,15 +333,16 @@ class TestMagicSignUp:
 
     @pytest.mark.django_db
     def test_user_already_exists(self, django_client, db, setup_instance):
-        """Test magic sign-up with existing user"""
+        """Test magic sign-up with existing user - should return generic error to prevent enumeration"""
         # Create a user that already exists
         User.objects.create(email="existing@plane.so")
 
         url = reverse("magic-sign-up")
         response = django_client.post(url, {"email": "existing@plane.so", "code": "xxxx-xxxxx-xxxx"}, follow=True)
 
-        # Check redirect contains error code
-        assert "USER_ALREADY_EXIST" in response.redirect_chain[-1][0]
+        # SECURITY: Should return generic EXPIRED_MAGIC_CODE to prevent account enumeration
+        # (no longer reveals whether user already exists)
+        assert "EXPIRED_MAGIC_CODE" in response.redirect_chain[-1][0]
 
     @pytest.mark.django_db
     def test_expired_invalid_magic_link(self, django_client, setup_instance):
@@ -352,9 +353,8 @@ class TestMagicSignUp:
         # Check that we get a redirect
         assert response.status_code == 302
 
-        # The actual error code is EXPIRED_MAGIC_CODE_SIGN_UP (when key doesn't exist)
-        # or INVALID_MAGIC_CODE_SIGN_UP (when key exists but code doesn't match)
-        assert "EXPIRED_MAGIC_CODE_SIGN_UP" in response.url or "INVALID_MAGIC_CODE_SIGN_UP" in response.url
+        # SECURITY: Now returns generic error codes to prevent account enumeration
+        assert "EXPIRED_MAGIC_CODE" in response.url or "INVALID_MAGIC_CODE" in response.url
 
     @pytest.mark.django_db
     @patch("plane.bgtasks.magic_link_code_task.magic_link.delay")

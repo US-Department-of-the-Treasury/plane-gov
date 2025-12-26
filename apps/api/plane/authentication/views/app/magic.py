@@ -74,21 +74,9 @@ class MagicSignInEndpoint(View):
             )
             return HttpResponseRedirect(url)
 
-        # Existing User
-        existing_user = User.objects.filter(email=email).first()
-
-        if not existing_user:
-            exc = AuthenticationException(
-                error_code=AUTHENTICATION_ERROR_CODES["USER_DOES_NOT_EXIST"],
-                error_message="USER_DOES_NOT_EXIST",
-            )
-            params = exc.get_error_dict()
-            url = get_safe_redirect_url(
-                base_url=base_host(request=request, is_app=True),
-                next_path=next_path,
-                params=params,
-            )
-            return HttpResponseRedirect(url)
+        # SECURITY: Do NOT check if user exists before validating magic code
+        # This prevents account enumeration attacks (CWE-204)
+        # The MagicCodeProvider will return a generic error if the code is invalid
 
         try:
             provider = MagicCodeProvider(
@@ -144,20 +132,9 @@ class MagicSignUpEndpoint(View):
                 params=params,
             )
             return HttpResponseRedirect(url)
-        # Existing user
-        existing_user = User.objects.filter(email=email).first()
-        if existing_user:
-            exc = AuthenticationException(
-                error_code=AUTHENTICATION_ERROR_CODES["USER_ALREADY_EXIST"],
-                error_message="USER_ALREADY_EXIST",
-            )
-            params = exc.get_error_dict()
-            url = get_safe_redirect_url(
-                base_url=base_host(request=request, is_app=True),
-                next_path=next_path,
-                params=params,
-            )
-            return HttpResponseRedirect(url)
+        # SECURITY: Do NOT check if user already exists before validating magic code
+        # This prevents account enumeration attacks (CWE-204)
+        # The MagicCodeProvider will handle user creation and return generic errors
 
         try:
             provider = MagicCodeProvider(

@@ -12,7 +12,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 ## Package imports
-from plane.db.models import User
 from plane.license.models import Instance
 from plane.authentication.adapter.error import (
     AuthenticationException,
@@ -72,28 +71,20 @@ class EmailCheckEndpoint(APIView):
                 error_message="INVALID_EMAIL",
             )
             return Response(exc.get_error_dict(), status=status.HTTP_400_BAD_REQUEST)
-        # Check if a user already exists with the given email
-        existing_user = User.objects.filter(email=email).first()
-
-        # If existing user
-        if existing_user:
-            # Return response
-            return Response(
-                {
-                    "existing": True,
-                    "status": (
-                        "MAGIC_CODE"
-                        if existing_user.is_password_autoset and smtp_configured and is_magic_login_enabled
-                        else "CREDENTIAL"
-                    ),
-                },
-                status=status.HTTP_200_OK,
-            )
-        # Else return response
-        return Response(
+        # SECURITY: Do NOT reveal whether an account exists
+        # This prevents account enumeration attacks (CWE-204)
+        # Always return the same response regardless of account existence
+        #
+        # DEPRECATION NOTICE: This endpoint is deprecated.
+        # Frontend should collect email+password together and submit directly
+        # to /auth/sign-in/ or /auth/sign-up/
+        response = Response(
             {
-                "existing": False,
+                "existing": False,  # Always false to prevent enumeration
                 "status": ("MAGIC_CODE" if smtp_configured and is_magic_login_enabled else "CREDENTIAL"),
             },
             status=status.HTTP_200_OK,
         )
+        response["X-Deprecated"] = "true"
+        response["X-Deprecation-Notice"] = "This endpoint is deprecated. Use /auth/sign-in/ or /auth/sign-up/ directly."
+        return response
