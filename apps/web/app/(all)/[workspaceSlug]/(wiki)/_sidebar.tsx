@@ -13,11 +13,12 @@ import {
   DropdownMenuTrigger,
 } from "@plane/propel/primitives";
 import { Logo } from "@plane/propel/emoji-icon-picker";
+import { IconButton } from "@plane/propel/icon-button";
 import { SIDEBAR_WIDTH } from "@plane/constants";
 import { useLocalStorage } from "@plane/hooks";
 import { ChevronRightIcon, HomeIcon } from "@plane/propel/icons";
 import { cn } from "@plane/utils";
-import { Tooltip } from "@plane/ui";
+import { Tooltip } from "@plane/propel/tooltip";
 import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // components
 import { ResizableSidebar } from "@/components/sidebar/resizable-sidebar";
@@ -58,12 +59,12 @@ const WikiPageItem = memo(function WikiPageItem({
           role="button"
           tabIndex={0}
           className={cn(
-            "group flex items-center gap-1.5 rounded-sm px-2 py-1.5 text-13 cursor-pointer hover:bg-layer-transparent-hover",
+            "group flex items-center gap-1.5 rounded-md px-2 py-1.5 text-13 cursor-pointer hover:bg-layer-transparent-hover",
             {
               "bg-layer-transparent-hover": isActive,
             }
           )}
-          style={{ paddingLeft: `${depth * 12 + 8}px` }}
+          style={depth > 0 ? { paddingLeft: `${depth * 12 + 8}px` } : undefined}
           onClick={() => router.push(`/${workspaceSlug}/wiki/${page.id}`)}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -72,7 +73,7 @@ const WikiPageItem = memo(function WikiPageItem({
             }
           }}
         >
-          {/* Expand/collapse toggle */}
+          {/* Expand/collapse toggle - only show spacer for nested items */}
           {hasChildren ? (
             <CollapsibleTrigger asChild>
               <button
@@ -87,9 +88,9 @@ const WikiPageItem = memo(function WikiPageItem({
                 />
               </button>
             </CollapsibleTrigger>
-          ) : (
+          ) : depth > 0 ? (
             <div className="w-4.5" />
-          )}
+          ) : null}
 
           {/* Page icon or default document icon */}
           {hasIcon ? (
@@ -101,7 +102,7 @@ const WikiPageItem = memo(function WikiPageItem({
           )}
 
           {/* Page name */}
-          <span className="flex-1 truncate text-primary">{page.name || "Untitled"}</span>
+          <span className="flex-1 truncate text-13 font-medium text-secondary">{page.name || "Untitled"}</span>
 
           {/* Lock indicator */}
           {page.is_locked && <Lock className="size-3 flex-shrink-0 text-placeholder" />}
@@ -189,9 +190,9 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
       <div>
         <div
           className={cn(
-            "group w-full flex items-center gap-1.5 rounded-sm px-2 py-1.5 text-13 cursor-pointer hover:bg-layer-transparent-hover"
+            "group w-full flex items-center gap-1.5 rounded-md px-2 py-1.5 text-13 cursor-pointer hover:bg-layer-transparent-hover"
           )}
-          style={{ paddingLeft: `${depth * 12 + 8}px` }}
+          style={depth > 0 ? { paddingLeft: `${depth * 12 + 8}px` } : undefined}
         >
           <CollapsibleTrigger asChild>
             <button type="button" className="flex-shrink-0 p-0.5 rounded-sm hover:bg-layer-1">
@@ -203,7 +204,7 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
             </button>
           </CollapsibleTrigger>
           <FolderClosed className="size-4 flex-shrink-0 text-tertiary" />
-          <span className="flex-1 truncate text-left font-medium text-primary">{collection.name}</span>
+          <span className="flex-1 truncate text-left text-13 font-medium text-secondary">{collection.name}</span>
 
           {/* Hover actions for collection */}
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -319,7 +320,7 @@ const WikiNavigationItems = memo(function WikiNavigationItems({ workspaceSlug }:
           <SidebarNavItem isActive={item.isActive(pathname)}>
             <div className="flex items-center gap-1.5 py-[1px]">
               <item.icon className="size-4 flex-shrink-0" />
-              <span className="text-13 font-medium">{item.label}</span>
+              <span className="text-13 leading-5 font-medium">{item.label}</span>
             </div>
           </SidebarNavItem>
         </Link>
@@ -374,17 +375,28 @@ const WikiPagesSection = memo(function WikiPagesSection({
         >
           <span className="text-13 font-semibold">Pages</span>
         </CollapsibleTrigger>
-        <div className="flex items-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
-          <CollapsibleTrigger
-            className="p-0.5 rounded-sm hover:bg-layer-1 flex-shrink-0"
-            aria-label={isPagesOpen ? "Close pages menu" : "Open pages menu"}
-          >
-            <ChevronRightIcon
-              className={cn("flex-shrink-0 size-3 transition-all", {
-                "rotate-90": isPagesOpen,
-              })}
+        <div className="flex items-center gap-1">
+          <Tooltip tooltipHeading="Create page" tooltipContent="">
+            <IconButton
+              variant="ghost"
+              size="sm"
+              icon={Plus}
+              onClick={onCreatePage}
+              className="text-placeholder"
+              aria-label="Create new page"
             />
-          </CollapsibleTrigger>
+          </Tooltip>
+          <IconButton
+            variant="ghost"
+            size="sm"
+            icon={ChevronRightIcon}
+            onClick={() => togglePagesOpen(!isPagesOpen)}
+            className="text-placeholder"
+            iconClassName={cn("transition-transform", {
+              "rotate-90": isPagesOpen,
+            })}
+            aria-label={isPagesOpen ? "Close pages menu" : "Open pages menu"}
+          />
         </div>
       </div>
       <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
