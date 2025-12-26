@@ -6,7 +6,8 @@ import { cn, calculateTimeAgo, renderFormattedDate, renderFormattedTime, getFile
 // hooks
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 import { useNotification } from "@/hooks/store/notifications/use-notification";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useWorkspaces, getWorkspaceBySlug } from "@/store/queries/workspace";
 // local imports
 import { NotificationContent } from "./content";
@@ -22,7 +23,7 @@ export function NotificationItem(props: TNotificationItem) {
   // hooks
   const { currentSelectedNotificationId, setCurrentSelectedNotificationId } = useWorkspaceNotifications();
   const { asJson: notification, markNotificationAsRead } = useNotification(workspaceSlug, { snoozed: false, archived: false }, notificationId);
-  const { getIsIssuePeeked, setPeekIssue } = useIssueDetail();
+  const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
   const { data: workspaces } = useWorkspaces();
   // states
   const [isSnoozeStateModalOpen, setIsSnoozeStateModalOpen] = useState(false);
@@ -51,7 +52,8 @@ export function NotificationItem(props: TNotificationItem) {
       }
 
       if (notification?.is_inbox_issue === false) {
-        if (!getIsIssuePeeked(issueId)) {
+        const isAlreadyPeeked = useIssueDetailUIStore.getState().peekIssue?.issueId === issueId;
+        if (!isAlreadyPeeked) {
           setPeekIssue({ workspaceSlug, projectId, issueId });
         }
       }

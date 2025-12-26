@@ -1,4 +1,3 @@
-import type { FC } from "react";
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 // plane imports
@@ -7,8 +6,9 @@ import type { TNameDescriptionLoader } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 import { cn } from "@plane/utils";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import useKeypress from "@/hooks/use-keypress";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import usePeekOverviewOutsideClickDetector from "@/hooks/use-peek-overview-outside-click";
 import { useIssue } from "@/store/queries/issue";
 // local imports
@@ -58,9 +58,10 @@ export function IssueView(props: IIssueView) {
   // ref
   const issuePeekOverviewRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRefApi>(null);
-  // hooks
-  const { setPeekIssue, isAnyModalOpen } = useIssueDetail();
-  const { isAnyModalOpen: isAnyEpicModalOpen } = useIssueDetail(EIssueServiceType.EPICS);
+  // UI state from Zustand (reactive)
+  const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
+  const isAnyModalOpen = useIssueDetailUIStore((state) => state.isAnyModalOpen);
+  // queries
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
   // remove peek id
   const removeRoutePeekId = () => {
@@ -81,7 +82,7 @@ export function IssueView(props: IIssueView) {
     () => {
       const isAnyDropbarOpen = editorRef.current?.isAnyDropbarOpen();
       if (!embedIssue) {
-        if (!isAnyModalOpen && !isAnyEpicModalOpen && !isAnyLocalModalOpen && !isAnyDropbarOpen) {
+        if (!isAnyModalOpen && !isAnyLocalModalOpen && !isAnyDropbarOpen) {
           removeRoutePeekId();
         }
       }

@@ -1,5 +1,5 @@
-import type { FC } from "react";
 import { useCallback, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { isEmpty } from "lodash-es";
 import { useTheme } from "next-themes";
 import { CalendarCheck } from "lucide-react";
@@ -10,7 +10,7 @@ import { useTranslation } from "@plane/i18n";
 import { PriorityIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import type { TWorkItemFilterCondition } from "@plane/shared-state";
-import type { ISprint } from "@plane/types";
+import type { ISprint, TIssue } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
 // ui
 import { Loader, Avatar } from "@plane/ui";
@@ -28,8 +28,10 @@ import { SingleProgressStats } from "@/components/core/sidebar/single-progress-s
 import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 import { SimpleEmptyState } from "@/components/empty-state/simple-empty-state-root";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
+import { queryKeys } from "@/store/queries/query-keys";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import useLocalStorage from "@/hooks/use-local-storage";
 // plane web components
@@ -78,10 +80,12 @@ export function ActiveSprintStats(props: ActiveSprintStatsProps) {
   const {
     issues: { fetchNextActiveSprintIssues },
   } = useIssues(EIssuesStoreType.SPRINT);
-  const {
-    issue: { getIssueById },
-    setPeekIssue,
-  } = useIssueDetail();
+  // UI state from Zustand (reactive)
+  const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
+  // TanStack Query client for cache access
+  const queryClient = useQueryClient();
+  const getIssueById = (issueId: string): TIssue | undefined =>
+    queryClient.getQueryData<TIssue>(queryKeys.issues.detail(issueId));
   const loadMoreIssues = useCallback(() => {
     if (!sprintId) return;
     fetchNextActiveSprintIssues(workspaceSlug, projectId, sprintId);

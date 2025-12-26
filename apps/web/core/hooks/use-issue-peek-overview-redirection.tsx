@@ -1,19 +1,16 @@
 import { useRouter } from "next/navigation";
 // types
 import type { TIssue } from "@plane/types";
-import { EIssueServiceType } from "@plane/types";
 // helpers
 import { generateWorkItemLink } from "@plane/utils";
-// hooks
-import { useIssueDetail } from "./store/use-issue-detail";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 
 const useIssuePeekOverviewRedirection = (isEpic: boolean = false) => {
   // router
   const router = useRouter();
-  //   store hooks
-  const { getIsIssuePeeked, setPeekIssue } = useIssueDetail(
-    isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES
-  );
+  // store hooks
+  const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
 
   const handleRedirection = (
     workspaceSlug: string | undefined,
@@ -36,7 +33,8 @@ const useIssuePeekOverviewRedirection = (isEpic: boolean = false) => {
       isEpic,
       isArchived: !!archived_at,
     });
-    if (workspaceSlug && project_id && id && !getIsIssuePeeked(id) && !tempId) {
+    const isAlreadyPeeked = useIssueDetailUIStore.getState().peekIssue?.issueId === id;
+    if (workspaceSlug && project_id && id && !isAlreadyPeeked && !tempId) {
       if (isMobile) {
         router.push(workItemLink);
       } else {

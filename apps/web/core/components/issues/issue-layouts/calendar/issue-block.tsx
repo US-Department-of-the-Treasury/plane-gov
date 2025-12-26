@@ -8,11 +8,12 @@ import type { TIssue } from "@plane/types";
 import { ControlLink } from "@plane/ui";
 import { cn, generateWorkItemLink } from "@plane/utils";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIsIssuePeeked } from "@/store/issue/issue-details/ui.store";
 // queries
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";
@@ -41,7 +42,7 @@ export function CalendarIssueBlock(
   const menuActionRef = useRef<HTMLDivElement | null>(null);
   // hooks
   const { workspaceSlug } = useParams();
-  const { getIsIssuePeeked } = useIssueDetail();
+  const isIssuePeeked = useIsIssuePeeked(issue.id);
   const { handleRedirection } = useIssuePeekOverviewRedirection(isEpic);
   const { isMobile } = usePlatformOS();
   const storeType = useIssueStoreType() as CalendarStoreType;
@@ -114,7 +115,7 @@ export function CalendarIssueBlock(
                   {
                     "bg-surface-2 shadow-raised-200 border-accent-strong": isDragging,
                     "bg-surface-1 hover:bg-surface-2": !isDragging,
-                    "border border-accent-strong hover:border-accent-strong": getIsIssuePeeked(issue.id),
+                    "border border-accent-strong hover:border-accent-strong": isIssuePeeked,
                   }
                 )}
               >

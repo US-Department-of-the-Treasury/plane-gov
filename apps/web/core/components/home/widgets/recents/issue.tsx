@@ -2,15 +2,13 @@
 import { PriorityIcon, StateGroupIcon, WorkItemsIcon } from "@plane/propel/icons";
 import { Tooltip } from "@plane/propel/tooltip";
 import type { TActivityEntityData, TIssueEntityData } from "@plane/types";
-import { EIssueServiceType } from "@plane/types";
 // plane ui
 import { calculateTimeAgo, generateWorkItemLink } from "@plane/utils";
 // components
 import { ListItem } from "@/components/core/list";
 import { MemberCombobox } from "@/components/dropdowns/member/member-combobox";
-// helpers
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";
 // plane web components
@@ -23,9 +21,8 @@ type BlockProps = {
 };
 export function RecentIssue(props: BlockProps) {
   const { activity, ref, workspaceSlug } = props;
-  // hooks
-  const { setPeekIssue } = useIssueDetail();
-  const { setPeekIssue: setPeekEpic } = useIssueDetail(EIssueServiceType.EPICS);
+  // UI state from Zustand (reactive) - same setter for both issues and epics
+  const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
 
   // derived values
   const issueDetails: TIssueEntityData = activity.entity_data as TIssueEntityData;
@@ -53,13 +50,12 @@ export function RecentIssue(props: BlockProps) {
   const handlePeekOverview = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    const peekDetails = {
+    // Same setPeekIssue works for both issues and epics
+    setPeekIssue({
       workspaceSlug,
       projectId: issueDetails?.project_id,
       issueId: activity.entity_data.id,
-    };
-    if (issueDetails?.is_epic) setPeekEpic(peekDetails);
-    else setPeekIssue(peekDetails);
+    });
   };
 
   return (

@@ -11,6 +11,8 @@ import { copyUrlToClipboard } from "@plane/utils";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useAddSubIssues, useUpdateIssue, useDeleteIssue, useIssue } from "@/store/queries/issue";
 import { getStateById } from "@/store/queries/state";
 import { queryKeys } from "@/store/queries/query-keys";
@@ -24,11 +26,12 @@ export const useSubIssueOperations = (issueServiceType: TIssueServiceType): TSub
   const { t } = useTranslation();
   // query client
   const queryClient = useQueryClient();
-  // store hooks
+  // store hooks - data operations
   const {
     subIssues: { setSubIssueHelpers },
   } = useIssueDetail(issueServiceType);
-  const { peekIssue: epicPeekIssue } = useIssueDetail(EIssueServiceType.EPICS);
+  // UI state from Zustand (reactive)
+  const epicPeekIssue = useIssueDetailUIStore((state) => state.peekIssue);
   // mutations
   const { mutateAsync: addSubIssues } = useAddSubIssues();
   const { mutateAsync: updateIssue } = useUpdateIssue();

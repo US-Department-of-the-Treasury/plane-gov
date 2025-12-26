@@ -8,8 +8,9 @@ import { getTextContent } from "@plane/utils";
 import { DescriptionVersionsRoot } from "@/components/core/description-versions";
 import { DescriptionInput } from "@/components/editor/rich-text/description-input";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useUser } from "@/hooks/store/user";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import useReloadConfirmations from "@/hooks/use-reload-confirmation";
 import useSize from "@/hooks/use-window-size";
 import { useIssue } from "@/store/queries/issue";
@@ -53,7 +54,8 @@ export function IssueMainContent(props: Props) {
   const { data: currentUser } = useUser();
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
-  const { peekIssue } = useIssueDetail();
+  // UI state from Zustand (reactive)
+  const peekIssue = useIssueDetailUIStore((state) => state.peekIssue);
   const { setShowAlert } = useReloadConfirmations(isSubmitting === "submitting");
   const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId);
   // debounced duplicate issues swr

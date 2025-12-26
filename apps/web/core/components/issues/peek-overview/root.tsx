@@ -11,10 +11,11 @@ import { EIssueServiceType, EIssuesStoreType } from "@plane/types";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useWorkItemProperties } from "@/plane-web/hooks/use-issue-properties";
-import { useIssueDetailRootStore } from "@/store/issue/issue-details/root.store";
 import { useUpdateIssue, useDeleteIssue, useArchiveIssue } from "@/store/queries/issue";
 // local imports
 import type { TIssueOperations } from "../issue-detail";
@@ -36,10 +37,10 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
   const {
     issues: { restoreIssue },
   } = useIssues(EIssuesStoreType.ARCHIVED);
-  // Use Zustand hook directly for reactive peekIssue subscription
-  // The MobX class getter (useIssueDetail().peekIssue) accesses getState() which is not reactive
-  const peekIssue = useIssueDetailRootStore((state) => state.peekIssue);
-  const setPeekIssue = useIssueDetailRootStore((state) => state.setPeekIssue);
+  // UI state from Zustand (reactive)
+  const peekIssue = useIssueDetailUIStore((state) => state.peekIssue);
+  const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
+  // Data operations from useIssueDetail
   const {
     issue: { fetchIssue },
     fetchActivities,

@@ -1,5 +1,3 @@
-import { create } from "zustand";
-import { immer } from "zustand/middleware/immer";
 // types
 import type {
   TIssue,
@@ -18,7 +16,7 @@ import type {
   IIssueActivityStoreActions,
   TActivityLoader,
 } from "@/plane-web/store/issue/issue-details/activity.store";
-import type { RootStore } from "@/plane-web/store/root.store";
+import type { RootStore as _RootStore } from "@/plane-web/store/root.store";
 import type { TIssueRelationTypes } from "@/plane-web/types";
 import type { IIssueRootStore } from "../root.store";
 // Zustand stores
@@ -40,6 +38,18 @@ import { useIssueSubIssuesStore } from "./sub_issues.store";
 import type { IIssueSubIssuesStore } from "./sub_issues.store";
 import { useIssueSubscriptionStore } from "./subscription.store";
 import type { IIssueSubscriptionStore } from "./subscription.store";
+// Import the canonical UI store (consolidating duplicate state)
+import { useIssueDetailUIStore } from "./ui.store";
+import type {
+  TPeekIssue,
+  TIssueRelationModal,
+  TIssueCrudState,
+  TIssueCrudOperationState,
+} from "./ui.store";
+// Re-export types for backward compatibility
+export type { TPeekIssue, TIssueRelationModal, TIssueCrudState, TIssueCrudOperationState };
+// Re-export store for backward compatibility
+export { useIssueDetailUIStore };
 
 // Action interfaces (kept for backward compatibility)
 export interface IIssueAttachmentStoreActions {
@@ -99,25 +109,9 @@ export interface IIssueCommentReactionStoreActions {
   removeCommentReaction: (workspaceSlug: string, projectId: string, commentId: string, reaction: string, userId: string) => Promise<void>;
 }
 
-export type TPeekIssue = {
-  workspaceSlug: string;
-  projectId: string;
-  issueId: string;
-  nestingLevel?: number;
-  isArchived?: boolean;
-};
-
-export type TIssueRelationModal = {
-  issueId: string | null;
-  relationType: TIssueRelationTypes | null;
-};
-
-export type TIssueCrudState = { toggle: boolean; parentIssueId: string | undefined; issue: TIssue | undefined };
-
-export type TIssueCrudOperationState = {
-  create: TIssueCrudState;
-  existing: TIssueCrudState;
-};
+// Types imported from ui.store.ts - these are re-exported above
+// Backward compatible alias - useIssueDetailRootStore is now useIssueDetailUIStore
+export const useIssueDetailRootStore = useIssueDetailUIStore;
 
 export interface IIssueDetail
   extends
@@ -180,158 +174,6 @@ export interface IIssueDetail
   subscription: IIssueSubscriptionStore;
   relation: IIssueRelationStore;
 }
-
-// Zustand Store
-interface IssueDetailRootState {
-  peekIssue: TPeekIssue | undefined;
-  relationKey: TIssueRelationTypes | null;
-  issueLinkData: TIssueLink | null;
-  issueCrudOperationState: TIssueCrudOperationState;
-  openWidgets: TWorkItemWidgets[];
-  lastWidgetAction: TWorkItemWidgets | null;
-  isCreateIssueModalOpen: boolean;
-  isIssueLinkModalOpen: boolean;
-  isParentIssueModalOpen: string | null;
-  isDeleteIssueModalOpen: string | null;
-  isArchiveIssueModalOpen: string | null;
-  isRelationModalOpen: TIssueRelationModal | null;
-  isSubIssuesModalOpen: string | null;
-  attachmentDeleteModalId: string | null;
-}
-
-interface IssueDetailRootActions {
-  setPeekIssue: (peekIssue: TPeekIssue | undefined) => void;
-  setIssueLinkData: (issueLinkData: TIssueLink | null) => void;
-  toggleCreateIssueModal: (value: boolean) => void;
-  toggleIssueLinkModal: (value: boolean) => void;
-  toggleParentIssueModal: (issueId: string | null) => void;
-  toggleDeleteIssueModal: (issueId: string | null) => void;
-  toggleArchiveIssueModal: (value: string | null) => void;
-  toggleRelationModal: (issueId: string | null, relationType: TIssueRelationTypes | null) => void;
-  toggleSubIssuesModal: (value: string | null) => void;
-  toggleDeleteAttachmentModal: (attachmentId: string | null) => void;
-  setOpenWidgets: (state: TWorkItemWidgets[]) => void;
-  setLastWidgetAction: (action: TWorkItemWidgets) => void;
-  toggleOpenWidget: (state: TWorkItemWidgets) => void;
-  setRelationKey: (relationKey: TIssueRelationTypes | null) => void;
-  setIssueCrudOperationState: (state: TIssueCrudOperationState) => void;
-}
-
-type IssueDetailRootStoreType = IssueDetailRootState & IssueDetailRootActions;
-
-export const useIssueDetailRootStore = create<IssueDetailRootStoreType>()(
-  immer((set) => ({
-    // State
-    peekIssue: undefined,
-    relationKey: null,
-    issueLinkData: null,
-    issueCrudOperationState: {
-      create: {
-        toggle: false,
-        parentIssueId: undefined,
-        issue: undefined,
-      },
-      existing: {
-        toggle: false,
-        parentIssueId: undefined,
-        issue: undefined,
-      },
-    },
-    openWidgets: ["sub-work-items", "links", "attachments"],
-    lastWidgetAction: null,
-    isCreateIssueModalOpen: false,
-    isIssueLinkModalOpen: false,
-    isParentIssueModalOpen: null,
-    isDeleteIssueModalOpen: null,
-    isArchiveIssueModalOpen: null,
-    isRelationModalOpen: null,
-    isSubIssuesModalOpen: null,
-    attachmentDeleteModalId: null,
-
-    // Actions
-    setRelationKey: (relationKey: TIssueRelationTypes | null) => {
-      set((state) => {
-        state.relationKey = relationKey;
-      });
-    },
-    setIssueCrudOperationState: (operationState: TIssueCrudOperationState) => {
-      set((state) => {
-        state.issueCrudOperationState = operationState;
-      });
-    },
-    setPeekIssue: (peekIssue: TPeekIssue | undefined) => {
-      set((state) => {
-        state.peekIssue = peekIssue;
-      });
-    },
-    toggleCreateIssueModal: (value: boolean) => {
-      set((state) => {
-        state.isCreateIssueModalOpen = value;
-      });
-    },
-    toggleIssueLinkModal: (value: boolean) => {
-      set((state) => {
-        state.isIssueLinkModalOpen = value;
-      });
-    },
-    toggleParentIssueModal: (issueId: string | null) => {
-      set((state) => {
-        state.isParentIssueModalOpen = issueId;
-      });
-    },
-    toggleDeleteIssueModal: (issueId: string | null) => {
-      set((state) => {
-        state.isDeleteIssueModalOpen = issueId;
-      });
-    },
-    toggleArchiveIssueModal: (issueId: string | null) => {
-      set((state) => {
-        state.isArchiveIssueModalOpen = issueId;
-      });
-    },
-    toggleRelationModal: (issueId: string | null, relationType: TIssueRelationTypes | null) => {
-      set((state) => {
-        state.isRelationModalOpen = { issueId, relationType };
-      });
-    },
-    toggleSubIssuesModal: (issueId: string | null) => {
-      set((state) => {
-        state.isSubIssuesModalOpen = issueId;
-      });
-    },
-    toggleDeleteAttachmentModal: (attachmentId: string | null) => {
-      set((state) => {
-        state.attachmentDeleteModalId = attachmentId;
-      });
-    },
-    setOpenWidgets: (widgets: TWorkItemWidgets[]) => {
-      set((state) => {
-        state.openWidgets = widgets;
-        state.lastWidgetAction = null;
-      });
-    },
-    setLastWidgetAction: (action: TWorkItemWidgets) => {
-      set((state) => {
-        state.openWidgets = [action];
-        state.lastWidgetAction = action;
-      });
-    },
-    toggleOpenWidget: (widget: TWorkItemWidgets) => {
-      set((state) => {
-        if (state.openWidgets && state.openWidgets.includes(widget)) {
-          state.openWidgets = state.openWidgets.filter((s) => s !== widget);
-        } else {
-          state.openWidgets = [widget, ...state.openWidgets];
-        }
-      });
-    },
-    setIssueLinkData: (issueLinkData: TIssueLink | null) => {
-      set((state) => {
-        state.issueLinkData = issueLinkData;
-      });
-    },
-  }))
-);
 
 export abstract class IssueDetail implements IIssueDetail {
   // service type

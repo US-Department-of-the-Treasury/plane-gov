@@ -21,6 +21,8 @@ import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIsIssuePeeked, useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
@@ -76,29 +78,28 @@ export function IssueBlock(props: IssueBlockProps) {
   const { sidebarCollapsed: isSidebarCollapsed } = useAppTheme();
   const { data: projects } = useProjects(workspaceSlug ?? "");
   const currentProject = getProjectById(projects, projectId);
-  const {
-    getIsIssuePeeked,
-    peekIssue,
-    setPeekIssue,
-    subIssues: subIssuesStore,
-  } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
+  // Data operations from useIssueDetail
+  const { subIssues: subIssuesStore } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
+  // UI state from Zustand
+  const peekIssue = useIssueDetailUIStore((state) => state.peekIssue);
+  const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
 
-  const handleIssuePeekOverview = (issueToOpen: TIssue) =>
-    workspaceSlug &&
-    issueToOpen &&
-    issueToOpen.project_id &&
-    issueToOpen.id &&
-    !getIsIssuePeeked(issueToOpen.id) &&
-    setPeekIssue({
-      workspaceSlug,
-      projectId: issueToOpen.project_id,
-      issueId: issueToOpen.id,
-      nestingLevel: nestingLevel,
-      isArchived: !!issueToOpen.archived_at,
-    });
+  const handleIssuePeekOverview = (issueToOpen: TIssue) => {
+    const isAlreadyPeeked = useIssueDetailUIStore.getState().peekIssue?.issueId === issueToOpen.id;
+    if (workspaceSlug && issueToOpen && issueToOpen.project_id && issueToOpen.id && !isAlreadyPeeked) {
+      setPeekIssue({
+        workspaceSlug,
+        projectId: issueToOpen.project_id,
+        issueId: issueToOpen.id,
+        nestingLevel: nestingLevel,
+        isArchived: !!issueToOpen.archived_at,
+      });
+    }
+  };
 
   // derived values
   const issueId = issue.id;
+  const isIssuePeeked = useIsIssuePeeked(issueId);
   const subIssuesCount = issue?.sub_issues_count ?? 0;
   const canEditIssueProperties = canEditProperties(issue?.project_id ?? undefined);
   const isDraggingAllowed = canDrag && canEditIssueProperties;
@@ -178,9 +179,9 @@ export function IssueBlock(props: IssueBlockProps) {
         className={cn(
           "group/list-block min-h-11 relative flex flex-col gap-3 bg-layer-transparent hover:bg-layer-transparent-hover py-3 text-13 transition-colors",
           {
-            "border-accent-strong": getIsIssuePeeked(issue.id) && peekIssue?.nestingLevel === nestingLevel,
+            "border-accent-strong": isIssuePeeked && peekIssue?.nestingLevel === nestingLevel,
             "border-strong-1": isIssueActive,
-            "last:border-b-transparent": !getIsIssuePeeked(issue.id) && !isIssueActive,
+            "last:border-b-transparent": !isIssuePeeked && !isIssueActive,
             "bg-accent-primary/5 hover:bg-accent-primary/10": isIssueSelected,
             "bg-layer-1": isCurrentBlockDragging,
             "md:flex-row md:items-center": isSidebarCollapsed,

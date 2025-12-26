@@ -19,6 +19,8 @@ import { useIssues } from "@/hooks/store/use-issues";
 import { useUser } from "@/hooks/store/user";
 // hooks
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useIssue } from "@/store/queries/issue";
 // local imports
@@ -88,7 +90,8 @@ export function IssuePeekOverviewHeader(props: PeekOverviewHeaderProps) {
   const { t } = useTranslation();
   // hooks
   const { data: currentUser } = useUser();
-  const { setPeekIssue, removeIssue, archiveIssue, getIsIssuePeeked } = useIssueDetail();
+  const { removeIssue, archiveIssue } = useIssueDetail();
+  const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
   const { isMobile } = usePlatformOS();
   const { data: projects } = useProjects(workspaceSlug);
   const { data: issueDetails } = useIssue(workspaceSlug, projectId, issueId);
@@ -149,7 +152,8 @@ export function IssuePeekOverviewHeader(props: PeekOverviewHeaderProps) {
     try {
       await archiveIssue(workspaceSlug, projectId, issueId);
       // check and remove if issue is peeked
-      if (getIsIssuePeeked(issueId)) {
+      const isIssuePeeked = useIssueDetailUIStore.getState().peekIssue?.issueId === issueId;
+      if (isIssuePeeked) {
         removeRoutePeekId();
       }
       captureSuccess({

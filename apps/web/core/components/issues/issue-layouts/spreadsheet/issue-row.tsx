@@ -22,6 +22,8 @@ import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIsIssuePeeked, useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
@@ -188,7 +190,8 @@ function IssueRowDetails(props: IssueRowDetailsProps) {
   const { workspaceSlug, projectId } = useParams();
   // hooks
   const { data: projects } = useProjects(workspaceSlug?.toString() ?? "");
-  const { getIsIssuePeeked, peekIssue } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
+  const peekIssue = useIssueDetailUIStore((state) => state.peekIssue);
+  const isIssuePeeked = useIsIssuePeeked(issueId);
   const { handleRedirection } = useIssuePeekOverviewRedirection(isEpic);
   const { isMobile } = usePlatformOS();
 
@@ -266,9 +269,9 @@ function IssueRowDetails(props: IssueRowDetailsProps) {
             className={cn(
               "group clickable cursor-pointer h-11 w-full flex items-center text-13 after:absolute border-r-[0.5px] z-10 border-subtle-1 bg-transparent group-[.selected-issue-row]:bg-accent-primary/5 group-[.selected-issue-row]:hover:bg-accent-primary/10",
               {
-                "border-b-[0.5px]": !getIsIssuePeeked(issueDetail.id),
+                "border-b-[0.5px]": !isIssuePeeked,
                 "border border-accent-strong hover:border-accent-strong":
-                  getIsIssuePeeked(issueDetail.id) && nestingLevel === peekIssue?.nestingLevel,
+                  isIssuePeeked && nestingLevel === peekIssue?.nestingLevel,
                 "shadow-[8px_22px_22px_10px_rgba(0,0,0,0.05)]": isScrolled.current,
               }
             )}

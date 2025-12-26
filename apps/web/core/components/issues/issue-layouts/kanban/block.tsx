@@ -19,10 +19,10 @@ import RenderIfVisible from "@/components/core/render-if-visible-HOC";
 import { HIGHLIGHT_CLASS, getIssueBlockId } from "@/components/issues/issue-layouts/utils";
 // helpers
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useKanbanView } from "@/hooks/store/use-kanban-view";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import { useIsIssuePeeked } from "@/store/issue/issue-details/ui.store";
 import { useIssue } from "@/store/queries/issue";
 import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
@@ -171,7 +171,7 @@ export function KanbanIssueBlock(props: IssueBlockProps) {
   const projectId = routerProjectId?.toString();
   // hooks
   const { data: projects } = useProjects(workspaceSlug ?? "");
-  const { getIsIssuePeeked } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
+  const isIssuePeeked = useIsIssuePeeked(issueId);
   const { handleRedirection } = useIssuePeekOverviewRedirection(isEpic);
   const { isMobile } = usePlatformOS();
 
@@ -276,7 +276,7 @@ export function KanbanIssueBlock(props: IssueBlockProps) {
           className={cn(
             "block rounded-lg border outline-[0.5px] outline-transparent shadow-raised-100 w-full border-subtle bg-layer-2 text-13 transition-all p-3 hover:shadow-raised-200 hover:border-strong",
             { "hover:cursor-pointer": isDragAllowed },
-            { "border border-accent-strong hover:border-accent-strong": getIsIssuePeeked(issue.id) },
+            { "border border-accent-strong hover:border-accent-strong": isIssuePeeked },
             { "bg-layer-1 z-[100]": isCurrentBlockDragging }
           )}
           onClick={() => handleIssuePeekOverview(issue)}

@@ -1,8 +1,7 @@
 import type { IWorkItemPeekOverview } from "@plane/types";
-import { EIssueServiceType } from "@plane/types";
 import { IssuePeekOverview } from "@/components/issues/peek-overview";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import type { TPeekIssue } from "@/store/issue/issue-details/root.store";
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 
 export type TNotificationPreview = {
   isWorkItem: boolean;
@@ -15,7 +14,9 @@ export type TNotificationPreview = {
  * @returns isWorkItem: boolean, peekOverviewComponent: IWorkItemPeekOverview, setPeekWorkItem
  */
 export const useNotificationPreview = (): TNotificationPreview => {
-  const { peekIssue, setPeekIssue } = useIssueDetail(EIssueServiceType.ISSUES);
+  // UI state from Zustand (reactive)
+  const peekIssue = useIssueDetailUIStore((state) => state.peekIssue);
+  const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
 
   return {
     isWorkItem: Boolean(peekIssue),

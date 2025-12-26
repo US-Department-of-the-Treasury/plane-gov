@@ -4,9 +4,10 @@ import { ArrowRight } from "lucide-react";
 import type { IBlockUpdateData, IGanttBlock } from "@plane/types";
 import { cn } from "@plane/utils";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { useTimeLineChartStore } from "@/hooks/use-timeline-chart";
+// stores
+import { useIsIssuePeeked } from "@/store/issue/issue-details/ui.store";
 //
 import { BLOCK_HEIGHT, SIDEBAR_WIDTH } from "../constants";
 import { ChartAddBlock } from "../helpers";
@@ -28,7 +29,7 @@ export function BlockRow(props: Props) {
   const [isBlockHiddenOnLeft, setIsBlockHiddenOnLeft] = useState(false);
   // store hooks
   const { getBlockById, updateActiveBlockId, isBlockActive } = useTimeLineChartStore();
-  const { getIsIssuePeeked } = useIssueDetail();
+  const isIssuePeeked = useIsIssuePeeked(blockId);
 
   const block = getBlockById(blockId);
 
@@ -83,7 +84,7 @@ export function BlockRow(props: Props) {
     >
       <div
         className={cn("relative h-full bg-layer-transparent hover:bg-layer-transparent-hover", {
-          "rounded-l-sm border border-r-0 border-accent-strong": getIsIssuePeeked(block.data.id),
+          "rounded-l-sm border border-r-0 border-accent-strong": isIssuePeeked,
           "bg-layer-transparent-hover": isBlockHoveredOn,
           "bg-accent-primary/5 hover:bg-accent-primary/10": isBlockSelected,
           "bg-accent-primary/10": isBlockSelected && isBlockHoveredOn,

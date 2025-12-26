@@ -6,9 +6,10 @@ import { cn } from "@plane/utils";
 import { MultipleSelectEntityAction } from "@/components/core/multiple-select";
 import { IssueGanttSidebarBlock } from "@/components/issues/issue-layouts/gantt/blocks";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { useTimeLineChartStore } from "@/hooks/use-timeline-chart";
+// stores
+import { useIsIssuePeeked } from "@/store/issue/issue-details/ui.store";
 // local imports
 import { BLOCK_HEIGHT, GANTT_SELECT_GROUP } from "../../constants";
 
@@ -24,7 +25,7 @@ export function IssuesSidebarBlock(props: Props) {
   const { block, enableSelection, isDragging, selectionHelpers, isEpic = false } = props;
   // store hooks
   const { updateActiveBlockId, isBlockActive, getNumberOfDaysFromPosition } = useTimeLineChartStore();
-  const { getIsIssuePeeked } = useIssueDetail();
+  const isIssuePeeked = useIsIssuePeeked(block?.data?.id ?? "");
 
   const isBlockComplete = !!block?.start_date && !!block?.target_date;
   const duration = isBlockComplete ? getNumberOfDaysFromPosition(block?.position?.width) : undefined;
@@ -39,7 +40,7 @@ export function IssuesSidebarBlock(props: Props) {
     <div
       className={cn("group/list-block", {
         "rounded-sm bg-layer-1": isDragging,
-        "rounded-l-sm border border-r-0 border-accent-strong": getIsIssuePeeked(block.data.id),
+        "rounded-l-sm border border-r-0 border-accent-strong": isIssuePeeked,
         "border border-r-0 border-strong-1": isIssueFocused,
       })}
       onMouseEnter={() => updateActiveBlockId(block.id)}

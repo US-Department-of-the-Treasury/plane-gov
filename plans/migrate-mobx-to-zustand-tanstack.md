@@ -788,21 +788,140 @@ function IssueList({ projectId }: { projectId: string }) {
 
 ---
 
-## Timeline Summary
+## Migration Status (Updated 2025-12-25)
 
-| Phase                   | Duration        | Key Deliverables                               |
-| ----------------------- | --------------- | ---------------------------------------------- |
-| Phase 1: Foundation     | 2-3 weeks       | Infrastructure, ThemeStore, UserStore migrated |
-| Phase 2: Core Entities  | 6-8 weeks       | All non-issue stores, base IssueStore          |
-| Phase 3: Complex Stores | 4-6 weeks       | Issue sub-stores, Kanban, bulk operations      |
-| Phase 4: Cleanup        | 2-3 weeks       | Remove MobX, optimize, document                |
-| **Total**               | **14-20 weeks** | **Full migration complete**                    |
+### Completed
+
+| Item | Status | Notes |
+|------|--------|-------|
+| MobX dependency removed | ✅ Done | No mobx, mobx-react, or mobx-react-lite in package.json |
+| TanStack Query infrastructure | ✅ Done | QueryClient, QueryProvider, DevTools configured |
+| Zustand infrastructure | ✅ Done | 112 Zustand stores created |
+| TanStack Query hooks | ✅ Done | 31 query files covering all major domains |
+| Critical reactivity bugs | ✅ Done | Fixed infinite skeleton loader, useEditorAsset loop |
+| Filter store reactivity | ✅ Done | All filter stores use proper Zustand patterns |
+| Issue detail page | ✅ Done | Uses TanStack Query data instead of MobX store lookup |
+| E2E tests passing | ✅ Done | 182 tests pass |
+
+### Remaining Work
+
+| Item | Count | Description |
+|------|-------|-------------|
+| Legacy wrapper classes | 45 files | `*StoreLegacy` classes bridging old API to Zustand |
+| `useIssues` consumers | 54 files | Components importing deprecated `use-issues` hook |
+| `useIssueDetail` consumers | 91 files | Components using legacy issue detail hook |
+| Root store architecture | 1 file | `CoreRootStore` class instantiating legacy wrappers |
+
+### Architecture Current State
+
+```
+Current (Hybrid):
+┌─────────────────────────────────────────────────────────┐
+│ Components                                               │
+│   ├── 74 files use TanStack Query directly ✅           │
+│   ├── 58 files use Zustand hooks directly ✅            │
+│   ├── 54 files use deprecated useIssues hook ❌         │
+│   └── 91 files use legacy useIssueDetail hook ❌        │
+├─────────────────────────────────────────────────────────┤
+│ Hooks Layer                                              │
+│   ├── TanStack Query hooks (31 files) ✅                │
+│   ├── Reactive Zustand hooks ✅                         │
+│   └── Legacy hooks (useIssues, useIssueDetail) ❌       │
+├─────────────────────────────────────────────────────────┤
+│ Store Layer                                              │
+│   ├── Zustand stores (112 files) ✅                     │
+│   ├── Legacy wrapper classes (45 files) ❌              │
+│   └── CoreRootStore (bridges legacy to new) ❌          │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Target Architecture
+
+```
+Target (Clean):
+┌─────────────────────────────────────────────────────────┐
+│ Components                                               │
+│   └── All use TanStack Query + Zustand hooks directly   │
+├─────────────────────────────────────────────────────────┤
+│ Hooks Layer                                              │
+│   ├── TanStack Query: Server state (issues, projects)   │
+│   └── Zustand hooks: Client state (UI, filters)         │
+├─────────────────────────────────────────────────────────┤
+│ Store Layer                                              │
+│   ├── Zustand stores (client state only)                │
+│   └── No legacy wrappers, no root store class           │
+└─────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Next Steps
+## Next Steps (Phase 2: Remove Legacy Patterns)
 
-1. **Immediate**: Team review of this plan, decide on critical decisions (query keys, SWR fate, filter location)
-2. **Week 1**: Set up infrastructure, establish performance baseline
-3. **Week 2-3**: Migrate ThemeStore and UserStore as proof of concept
-4. **Week 4+**: Begin core entity migration if PoC successful
+### Step 1: Migrate useIssueDetail Consumers (91 files)
+
+The `useIssueDetail` hook is heavily used. Replace with TanStack Query hooks:
+
+```typescript
+// BEFORE (legacy)
+const { issue: { getIssueById }, fetchIssue } = useIssueDetail();
+const issue = getIssueById(issueId);
+
+// AFTER (TanStack Query)
+const { data: issue, isLoading } = useIssueByIdentifier(workspaceSlug, projectId, issueId);
+```
+
+**Files to migrate:**
+- `apps/web/core/components/issues/` (majority of consumers)
+- `apps/web/ce/components/` (CE-specific components)
+
+### Step 2: Migrate useIssues Consumers (54 files)
+
+Replace deprecated `useIssues(storeType)` pattern:
+
+```typescript
+// BEFORE (legacy)
+const { issues } = useIssues(EIssuesStoreType.PROJECT);
+const issueIds = issues.groupedIssueIds;
+
+// AFTER (TanStack Query + Zustand)
+const { data: issues } = useProjectIssues(workspaceSlug, projectId);
+const groupedIds = useGroupedIssueIds(storeType); // From reactive hook
+```
+
+### Step 3: Remove Legacy Wrapper Classes (45 files)
+
+Each legacy wrapper class like `LabelStoreLegacy` should be deleted once all consumers use the TanStack Query hook (`useProjectLabels`) directly.
+
+**Order of removal:**
+1. Stores with 0 direct consumers (already fully migrated)
+2. Simple stores (Label, State, Theme)
+3. Complex stores (Issue, Member, Project)
+
+### Step 4: Simplify Root Store
+
+Once all legacy wrappers are removed, `CoreRootStore` can be simplified to only contain Zustand store references (or removed entirely if all access is via hooks).
+
+---
+
+## Validation Plan
+
+### After Each Migration Step
+
+1. `pnpm check:types` - Ensure no type errors
+2. `pnpm check:lint` - Ensure no lint errors
+3. `pnpm test:e2e` - Run full E2E suite (182 tests)
+4. Manual testing with Playwright MCP:
+   - Navigate to affected views
+   - Verify data loads (no infinite spinners)
+   - Verify CRUD operations work
+   - Verify filters and sorting work
+
+### Final Validation
+
+- [ ] No `*StoreLegacy` classes remain
+- [ ] No imports from `use-issues.ts`
+- [ ] No imports from legacy `useIssueDetail`
+- [ ] `CoreRootStore` simplified or removed
+- [ ] Bundle size same or smaller
+- [ ] All 182 E2E tests pass
+- [ ] No reactivity bugs (infinite spinners, stale data)

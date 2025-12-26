@@ -1,8 +1,9 @@
 import { IssuePeekOverview } from "@/components/issues/peek-overview";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 
 export function HomePeekOverviewsRoot() {
-  const { peekIssue } = useIssueDetail();
+  // UI state from Zustand (reactive)
+  const peekIssue = useIssueDetailUIStore((state) => state.peekIssue);
 
   return peekIssue ? <IssuePeekOverview /> : null;
 }
