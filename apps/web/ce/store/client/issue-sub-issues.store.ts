@@ -25,7 +25,7 @@ import {
   updateSubWorkItemFilters,
 } from "@/store/issue/helpers/base-issues-utils";
 // store
-import type { IIssueDetail } from "../../core/store/issue/issue-details/root.store";
+import type { IIssueDetail } from "@/store/issue/issue-details/root.store";
 
 // Service instance at module level
 const issueService = new IssueService();

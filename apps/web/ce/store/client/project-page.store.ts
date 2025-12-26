@@ -12,7 +12,7 @@ import { ProjectPageService } from "@/services/page";
 import type { TProjectPage } from "@/store/pages/project-page";
 import { ProjectPage } from "@/store/pages/project-page";
 // store helpers
-import { getRouterWorkspaceSlug, getRouterProjectId } from "@/store/client";
+import { getRouterWorkspaceSlug, getRouterProjectId, useFavoriteStore } from "@/store/client";
 // root store
 import type { RootStore } from "@/plane-web/store/root.store";
 
@@ -313,8 +313,8 @@ export const useProjectPageStore = create<ProjectPageStore>()((set, get) => ({
       });
 
       // Remove from favorites if needed
-      if (rootStore.favorite?.entityMap[pageId]) {
-        rootStore.favorite.removeFavoriteFromStore(pageId);
+      if (useFavoriteStore.getState().entityMap[pageId]) {
+        useFavoriteStore.getState().removeFavorite(pageId);
       }
     } catch (error) {
       set({
@@ -394,26 +394,27 @@ export interface IProjectPageStore {
  */
 export class ProjectPageStoreLegacy implements IProjectPageStore {
   private rootStore: RootStore;
+  private unsubscribe: (() => void) | null = null;
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
 
-    // Set up reaction to reset filters when project changes
-    // This mimics the MobX reaction from the original implementation
+    // Set up subscription to reset filters when project changes
+    // Using Zustand's subscribe instead of setInterval polling
     let previousProjectId = getRouterProjectId();
-    const checkProjectChange = () => {
-      const currentProjectId = getRouterProjectId();
+
+    // Import useRouterStore from the client store
+    const { useRouterStore } = require("@/store/client");
+
+    this.unsubscribe = useRouterStore.subscribe((state: { query: Record<string, unknown> }) => {
+      const currentProjectId = state.query?.projectId?.toString();
       if (currentProjectId !== previousProjectId) {
         previousProjectId = currentProjectId;
         if (currentProjectId) {
           useProjectPageStore.getState().resetFiltersForProject();
         }
       }
-    };
-
-    // Check for project changes periodically (you may want to use a better approach)
-    // In a real implementation, this would be handled by the component using useEffect
-    setInterval(checkProjectChange, 100);
+    });
   }
 
   // ============================================================================

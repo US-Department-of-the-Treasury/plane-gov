@@ -44,7 +44,7 @@ export { useIssueReactionStore, IssueReactionStore, IssueReactionStoreLegacy } f
 export type { IssueReactionStore as IssueReactionStoreType, IIssueReactionStore } from "./issue-reaction.store";
 
 // Issue subscription store
-export { useIssueSubscriptionStore, IssueSubscriptionStore, IssueSubscriptionStoreLegacy } from "./issue-subscription.store";
+export { useIssueSubscriptionStore, IssueSubscriptionStore } from "./issue-subscription.store";
 export type { IssueSubscriptionStore as IssueSubscriptionStoreType, IIssueSubscriptionStore } from "./issue-subscription.store";
 
 // Issue attachment store

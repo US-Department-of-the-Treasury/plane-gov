@@ -6,8 +6,8 @@ import type { TIssueAttachment, TIssueAttachmentMap, TIssueAttachmentIdMap, TIss
 // services
 import { IssueAttachmentService } from "@/services/issue";
 // types
-import type { IIssueRootStore } from "@/core/store/issue/root.store";
-import type { IIssueDetail } from "@/core/store/issue/issue-details/root.store";
+import type { IIssueRootStore } from "@/store/issue/root.store";
+import type { IIssueDetail } from "@/store/issue/issue-details/root.store";
 
 export type TAttachmentUploadStatus = {
   id: string;

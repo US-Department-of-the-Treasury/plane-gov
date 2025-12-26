@@ -1,7 +1,7 @@
-import { store } from "@/lib/store-context";
+import { useInstanceStore } from "@/store/client";
 
 export const getIsWorkspaceCreationDisabled = () => {
-  const instanceConfig = store.instance.config;
+  const instanceConfig = useInstanceStore.getState().config;
 
   return instanceConfig?.is_workspace_creation_disabled;
 };

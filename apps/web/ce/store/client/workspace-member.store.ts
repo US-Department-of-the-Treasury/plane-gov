@@ -6,7 +6,7 @@ import type { IWorkspaceBulkInviteFormData, IWorkspaceMember, IWorkspaceMemberIn
 // services
 import { WorkspaceService } from "@/plane-web/services";
 // types
-import type { CoreRootStore } from "../../core/store/root.store";
+import type { CoreRootStore } from "@/store/root.store";
 import type { IMemberFilters } from "@/store/member/utils";
 import { sortWorkspaceMembers } from "@/store/member/utils";
 import { getRouterWorkspaceSlug } from "@/store/client";

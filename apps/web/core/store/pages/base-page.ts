@@ -8,8 +8,15 @@ import type { TDocumentPayload, TLogoProps, TNameDescriptionLoader, TPage } from
 // plane web store
 import { ExtendedBasePage } from "@/plane-web/store/pages/extended-base-page";
 import type { RootStore } from "@/plane-web/store/root.store";
+// services
+import { FavoriteService } from "@/services/favorite";
+// store
+import { useFavoriteStore } from "@/store/client";
 // local imports
 import { PageEditorInstance } from "./page-editor-info";
+
+// Service instance at module level
+const favoriteService = new FavoriteService();
 
 export type TBasePage = TPage & {
   // observables
@@ -497,7 +504,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
         archived_at: archived_at ?? new Date().toISOString()
       });
 
-      if (this.rootStore.favorite.entityMap[pageId]) this.rootStore.favorite.removeFavoriteFromStore(pageId);
+      if (useFavoriteStore.getState().entityMap[pageId]) useFavoriteStore.getState().removeFavorite(pageId);
 
       if (shouldSync) {
         const response = await this.services.archive();
@@ -566,7 +573,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
 
     const pageIsFavorite = state.is_favorite;
     this.pageStore.getState().updateState({ is_favorite: true });
-    await this.rootStore.favorite
+    await favoriteService
       .addFavorite(workspaceSlug.toString(), {
         entity_type: "page",
         entity_identifier: state.id,
@@ -590,7 +597,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
     const pageIsFavorite = this.pageStore.getState().is_favorite;
     this.pageStore.getState().updateState({ is_favorite: false });
 
-    await this.rootStore.favorite.removeFavoriteEntity(workspaceSlug, pageId).catch((error) => {
+    await favoriteService.removeFavoriteEntity(workspaceSlug, pageId).catch((error) => {
       this.pageStore.getState().updateState({ is_favorite: pageIsFavorite });
       throw error;
     });

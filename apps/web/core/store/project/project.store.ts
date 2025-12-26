@@ -9,9 +9,13 @@ import { orderProjects, shouldFilterProject } from "@plane/utils";
 import type { TProject, TPartialProject } from "@/plane-web/types/projects";
 import { IssueLabelService, IssueService } from "@/services/issue";
 import { ProjectService, ProjectStateService, ProjectArchiveService } from "@/services/project";
+import { FavoriteService } from "@/services/favorite";
 // store
-import { getRouterProjectId } from "@/store/client";
+import { getRouterProjectId, useFavoriteStore } from "@/store/client";
 import type { CoreRootStore } from "../root.store";
+
+// Service instance at module level
+const favoriteService = new FavoriteService();
 
 type ProjectOverviewCollapsible = "links" | "attachments" | "milestones";
 
@@ -226,7 +230,7 @@ export const useProjectStore = create<ProjectStoreType>()(
             state.projectMap[projectId].is_favorite = true;
           }
         });
-        const response = await rootStore.favorite.addFavorite(workspaceSlug.toString(), {
+        const response = await favoriteService.addFavorite(workspaceSlug.toString(), {
           entity_type: "project",
           entity_identifier: projectId,
           project_id: projectId,
@@ -261,7 +265,7 @@ export const useProjectStore = create<ProjectStoreType>()(
             state.projectMap[projectId].is_favorite = false;
           }
         });
-        const response = await rootStore.favorite.removeFavoriteEntity(workspaceSlug.toString(), projectId);
+        const response = await favoriteService.removeFavoriteEntity(workspaceSlug.toString(), projectId);
 
         return response;
       } catch (error) {
@@ -367,7 +371,7 @@ export const useProjectStore = create<ProjectStoreType>()(
         set((state) => {
           delete state.projectMap[projectId];
         });
-        if (rootStore.favorite.entityMap[projectId]) rootStore.favorite.removeFavoriteFromStore(projectId);
+        if (useFavoriteStore.getState().entityMap[projectId]) useFavoriteStore.getState().removeFavorite(projectId);
         delete rootStore.user.permission.workspaceProjectsPermissions[workspaceSlug][projectId];
       } catch (error) {
         console.log("Failed to delete project from project store");
@@ -391,7 +395,7 @@ export const useProjectStore = create<ProjectStoreType>()(
               state.projectMap[projectId].archived_at = response.archived_at;
             }
           });
-          rootStore.favorite.removeFavoriteFromStore(projectId);
+          useFavoriteStore.getState().removeFavorite(projectId);
         })
         .catch((error) => {
           console.log("Failed to archive project from project store");

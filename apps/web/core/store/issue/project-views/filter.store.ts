@@ -19,6 +19,8 @@ import { EIssuesStoreType } from "@plane/types";
 import { handleIssueQueryParamsByLayout } from "@plane/utils";
 // services
 import { ViewService } from "@/plane-web/services";
+// zustand stores
+import { useProjectViewStore } from "@/store/client";
 import type { IBaseIssueFilterStore } from "../helpers/issue-filter-helper.store";
 import { IssueFilterHelperStore } from "../helpers/issue-filter-helper.store";
 // helpers
@@ -394,7 +396,7 @@ export class ProjectViewIssuesFilter extends IssueFilterHelperStore implements I
    * @param viewId
    */
   resetFilters: IProjectViewIssuesFilter["resetFilters"] = (workspaceSlug, viewId) => {
-    const viewDetails = this.rootIssueStore.rootStore.projectView.getViewById(viewId);
+    const viewDetails = useProjectViewStore.getState().getViewById(viewId);
     if (!viewDetails) return;
     this.mutateFilters(workspaceSlug, viewId, viewDetails);
   };

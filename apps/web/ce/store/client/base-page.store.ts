@@ -1,4 +1,5 @@
-import { create, StoreApi } from "zustand";
+import { create } from "zustand";
+import type { StoreApi } from "zustand";
 import { set as lodashSet } from "lodash-es";
 // plane imports
 import { EPageAccess } from "@plane/constants";
@@ -7,9 +8,13 @@ import type { TDocumentPayload, TLogoProps, TNameDescriptionLoader, TPage } from
 // plane web store
 import type { RootStore } from "@/plane-web/store/root.store";
 import type { TBasePageServices } from "@/store/pages/base-page";
-import { getRouterWorkspaceSlug } from "@/store/client";
+import { getRouterWorkspaceSlug, useFavoriteStore } from "@/store/client";
+import { FavoriteService } from "@/services/favorite";
 // local imports
 import { usePageEditorStore } from "@/store/ui/page-editor.store";
+
+// Service instance at module level
+const favoriteService = new FavoriteService();
 
 /**
  * Base Page State Interface
@@ -279,8 +284,8 @@ export const createBasePageStore = (
       try {
         set({ archived_at: archived_at ?? new Date().toISOString() });
 
-        if (rootStore.favorite.entityMap[state.id]) {
-          rootStore.favorite.removeFavoriteFromStore(state.id);
+        if (useFavoriteStore.getState().entityMap[state.id]) {
+          useFavoriteStore.getState().removeFavorite(state.id);
         }
 
         if (shouldSync) {
@@ -344,7 +349,7 @@ export const createBasePageStore = (
       set({ is_favorite: true });
 
       try {
-        await rootStore.favorite.addFavorite(workspaceSlug.toString(), {
+        await favoriteService.addFavorite(workspaceSlug.toString(), {
           entity_type: "page",
           entity_identifier: state.id,
           project_id: projectId,
@@ -365,7 +370,7 @@ export const createBasePageStore = (
       set({ is_favorite: false });
 
       try {
-        await rootStore.favorite.removeFavoriteEntity(workspaceSlug, state.id);
+        await favoriteService.removeFavoriteEntity(workspaceSlug, state.id);
       } catch (error) {
         set({ is_favorite: pageIsFavorite });
         throw error;

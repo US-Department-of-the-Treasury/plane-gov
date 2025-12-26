@@ -23,8 +23,8 @@ export type { RouterStoreType, IRouterStore } from "./router.store";
 export { useMultipleSelectStore, MultipleSelectStoreLegacy as MultipleSelectStore } from "./multiple-select.store";
 export type { MultipleSelectStore as MultipleSelectStoreType, IMultipleSelectStore } from "./multiple-select.store";
 
-export { useCommandPaletteStore, CommandPaletteStoreLegacy as CommandPaletteStore } from "./command-palette.store";
-export type { CommandPaletteStore as CommandPaletteStoreType, ICommandPaletteStore } from "./command-palette.store";
+export { useCommandPaletteStore } from "./command-palette.store";
+export type { CommandPaletteStore, CommandPaletteStore as CommandPaletteStoreType, ICommandPaletteStore } from "./command-palette.store";
 
 export { useWorkspaceDraftFilterStore } from "./workspace-draft-filter.store";
 export type { WorkspaceDraftFilterStore } from "./workspace-draft-filter.store";
@@ -50,8 +50,8 @@ export type { PowerKStore as PowerKStoreType, ModalData, IPowerKStore } from "./
 export { useEditorAssetStore, EditorAssetStoreLegacy as EditorAssetStore } from "./editor-asset.store";
 export type { EditorAssetStore as EditorAssetStoreType, IEditorAssetStore } from "./editor-asset.store";
 
-export { useInstanceStore, InstanceStoreLegacy as InstanceStore } from "./instance.store";
-export type { InstanceStore as InstanceStoreType, IInstanceStore } from "./instance.store";
+export { useInstanceStore } from "./instance.store";
+export type { InstanceStore, InstanceStore as InstanceStoreType, IInstanceStore } from "./instance.store";
 
 export { useAnalyticsStore, AnalyticsStoreLegacy as AnalyticsStore } from "./analytics.store";
 export type { AnalyticsStore as AnalyticsStoreType, IAnalyticsStore } from "./analytics.store";
@@ -62,11 +62,11 @@ export type { LabelStore as LabelStoreType, ILabelStore } from "./label.store";
 export { useStateStore, StateStoreLegacy as StateStore } from "./state.store";
 export type { StateStore as StateStoreType, IStateStore } from "./state.store";
 
-export { useFavoriteStore, FavoriteStoreLegacy as FavoriteStore } from "./favorite.store";
-export type { FavoriteStore as FavoriteStoreType, IFavoriteStore } from "./favorite.store";
+export { useFavoriteStore } from "./favorite.store";
+export type { FavoriteStore, FavoriteStore as FavoriteStoreType, IFavoriteStore } from "./favorite.store";
 
-export { useDashboardStore, DashboardStoreLegacy as DashboardStore } from "./dashboard.store";
-export type { DashboardStore as DashboardStoreType, IDashboardStore } from "./dashboard.store";
+export { useDashboardStore } from "./dashboard.store";
+export type { DashboardStore, DashboardStore as DashboardStoreType, IDashboardStore } from "./dashboard.store";
 
 export { useEpicStore, EpicStoreLegacy as EpicsStore } from "./epic.store";
 export type { EpicStore as EpicStoreType, IEpicStore } from "./epic.store";

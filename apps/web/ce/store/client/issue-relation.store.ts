@@ -10,7 +10,7 @@ import type { TIssueRelationTypes } from "@/plane-web/types";
 // services
 import { IssueRelationService } from "@/services/issue";
 // types
-import type { IIssueDetail } from "@/core/store/issue/issue-details/root.store";
+import type { IIssueDetail } from "@/store/issue/issue-details/root.store";
 
 // Service instance at module level
 const issueRelationService = new IssueRelationService();

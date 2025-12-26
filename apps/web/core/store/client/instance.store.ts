@@ -77,27 +77,3 @@ export const useInstanceStore = create<InstanceStore>()((set) => ({
   },
 }));
 
-/**
- * Legacy class wrapper for backward compatibility with MobX patterns.
- * Used by root.store.ts to maintain API compatibility during migration.
- * @deprecated Use useInstanceStore hook or useInstance() from hooks/store
- */
-export class InstanceStoreLegacy implements IInstanceStore {
-  get isLoading() {
-    return useInstanceStore.getState().isLoading;
-  }
-
-  get instance() {
-    return useInstanceStore.getState().instance;
-  }
-
-  get config() {
-    return useInstanceStore.getState().config;
-  }
-
-  get error() {
-    return useInstanceStore.getState().error;
-  }
-
-  fetchInstanceInfo = () => useInstanceStore.getState().fetchInstanceInfo();
-}

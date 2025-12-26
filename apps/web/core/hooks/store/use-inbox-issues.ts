@@ -1,7 +1,5 @@
-import { useContext } from "react";
-// mobx store
-import { StoreContext } from "@/lib/store-context";
 import type { IInboxIssueStore } from "@/store/inbox/inbox-issue.store";
+import { useProjectInboxStore } from "@/plane-web/store/client";
 
 /**
  * Legacy MobX-style hook for accessing individual inbox issue functionality.
@@ -15,10 +13,9 @@ import type { IInboxIssueStore } from "@/store/inbox/inbox-issue.store";
  *
  * @deprecated Use individual TanStack Query hooks from @/store/queries instead
  */
-export const useInboxIssues = (inboxIssueId: string): IInboxIssueStore => {
-  const context = useContext(StoreContext);
-  if (context === undefined) throw new Error("useInboxIssues must be used within StoreProvider");
-  return context.projectInbox.getIssueInboxByIssueId(inboxIssueId);
+export const useInboxIssues = (inboxIssueId: string): IInboxIssueStore | undefined => {
+  // Access the Zustand store directly
+  return useProjectInboxStore.getState().getIssueInboxByIssueId(inboxIssueId);
 };
 
 // Re-export all inbox issue hooks from queries for direct access

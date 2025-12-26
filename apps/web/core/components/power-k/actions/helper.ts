@@ -1,4 +1,4 @@
-import { store } from "@/lib/store-context";
+import { useCommandPaletteStore } from "@/store/client";
 
 export const openProjectAndScrollToSidebar = (itemProjectId: string | undefined) => {
   if (!itemProjectId) {
@@ -6,7 +6,7 @@ export const openProjectAndScrollToSidebar = (itemProjectId: string | undefined)
     return;
   }
   // open the project list
-  store.commandPalette.toggleProjectListOpen(itemProjectId, true);
+  useCommandPaletteStore.getState().toggleProjectListOpen(itemProjectId, true);
   // scroll to the element
   const scrollElementId = `sidebar-${itemProjectId}-JOINED`;
   const scrollElement = document.getElementById(scrollElementId);
