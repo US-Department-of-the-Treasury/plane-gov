@@ -11,6 +11,8 @@ import type {
 import { getDistributionPathsPostUpdate } from "@plane/utils";
 import type { IBaseIssuesStore } from "../helpers/base-issues.store";
 import { BaseIssuesStore } from "../helpers/base-issues.store";
+// Zustand stores
+import { useStateStore } from "@/store/client";
 //
 import type { IIssueRootStore } from "../root.store";
 import type { IEpicIssuesFilter } from "./filter.store";
@@ -92,7 +94,7 @@ export class EpicIssues extends BaseIssuesStore implements IEpicIssues {
       const distributionUpdates = getDistributionPathsPostUpdate(
         prevIssueState,
         nextIssueState,
-        this.rootIssueStore.rootStore.state.stateMap,
+        useStateStore.getState().stateMap,
         this.rootIssueStore.rootStore.projectEstimate?.currentActiveEstimate?.estimatePointById
       );
 

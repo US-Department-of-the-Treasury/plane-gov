@@ -17,6 +17,8 @@ import { getDistributionPathsPostUpdate } from "@plane/utils";
 import { storage } from "@/lib/local-storage";
 import type { IBaseIssuesStore } from "../helpers/base-issues.store";
 import { BaseIssuesStore } from "../helpers/base-issues.store";
+// Zustand stores
+import { useStateStore } from "@/store/client";
 //
 import type { IIssueRootStore } from "../root.store";
 import type { ISprintIssuesFilter } from "./filter.store";
@@ -210,7 +212,7 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
       const distributionUpdates = getDistributionPathsPostUpdate(
         prevIssueState,
         nextIssueState,
-        this.rootIssueStore.rootStore.state.stateMap,
+        useStateStore.getState().stateMap,
         this.rootIssueStore.rootStore.projectEstimate?.currentActiveEstimate?.estimatePointById
       );
 

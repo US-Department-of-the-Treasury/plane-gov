@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { cloneDeep, isEqual } from "lodash-es";
 import type { IWorkspaceView } from "@plane/types";
 import { WorkspaceService } from "@/plane-web/services";
+import { useWorkspaceRootStore } from "@/store/workspace";
+import { getRouterWorkspaceSlug } from "@/store/client";
 
 /**
  * Global view state managed by Zustand.
@@ -120,8 +122,8 @@ export interface IGlobalViewStore {
  * @deprecated Use useGlobalViewStore hook directly in React components
  */
 export class GlobalViewStoreLegacy implements IGlobalViewStore {
+  // Keep rootStore reference only for issue methods (IssueRootStore not yet fully migrated)
   private rootStore: {
-    workspaceRoot: { currentWorkspace: { id: string } | null };
     issue: {
       workspaceIssuesFilter: {
         updateFilterExpression: (workspaceSlug: string, viewId: string, filters: any) => Promise<void>;
@@ -136,18 +138,32 @@ export class GlobalViewStoreLegacy implements IGlobalViewStore {
     this.rootStore = rootStore;
   }
 
+  /**
+   * @description Get current workspace directly from Zustand store
+   * Direct Zustand store access - no rootStore indirection for workspace data
+   */
+  private getCurrentWorkspace = (): { id: string } | null => {
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return null;
+    const workspaces = useWorkspaceRootStore.getState().workspaces;
+    const workspace = Object.values(workspaces ?? {}).find((w) => w.slug === workspaceSlug);
+    return workspace || null;
+  };
+
   get globalViewMap() {
     return useGlobalViewStore.getState().globalViewMap;
   }
 
   get currentWorkspaceViews() {
-    const currentWorkspace = this.rootStore.workspaceRoot.currentWorkspace;
+    // Direct Zustand store access - no rootStore indirection
+    const currentWorkspace = this.getCurrentWorkspace();
     if (!currentWorkspace) return null;
     return useGlobalViewStore.getState().getCurrentWorkspaceViews(currentWorkspace.id);
   }
 
   getSearchedViews = (searchQuery: string) => {
-    const currentWorkspace = this.rootStore.workspaceRoot.currentWorkspace;
+    // Direct Zustand store access - no rootStore indirection
+    const currentWorkspace = this.getCurrentWorkspace();
     if (!currentWorkspace) return null;
     return useGlobalViewStore.getState().getSearchedViews(currentWorkspace.id, searchQuery);
   };

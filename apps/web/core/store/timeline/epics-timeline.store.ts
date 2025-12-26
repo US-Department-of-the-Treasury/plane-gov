@@ -4,6 +4,7 @@ import type { RootStore } from "@/plane-web/store/root.store";
 import { BaseTimeLineStore } from "@/plane-web/store/timeline/base-timeline.store";
 import type { IBaseTimelineStore } from "@/plane-web/store/timeline/base-timeline.store";
 import { useTimelineStore } from "@/plane-web/store/client/timeline.store";
+import { useEpicStore } from "@/store/client";
 
 export interface IEpicsTimeLineStore extends IBaseTimelineStore {
   isDependencyEnabled: boolean;
@@ -51,7 +52,7 @@ export const useEpicsTimelineStore = create<EpicsTimelineStoreType>()((set, get)
     const state = get();
     if (!state.rootStore) return;
 
-    const getEpicById = state.rootStore.epic.getEpicById;
+    const getEpicById = useEpicStore.getState().getEpicById;
     const timelineStore = useTimelineStore.getState();
     timelineStore.updateBlocks(getEpicById);
   },

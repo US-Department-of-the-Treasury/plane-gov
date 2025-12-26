@@ -17,8 +17,9 @@ import { ProjectMemberService } from "@/services/project";
 // store
 import type { IProjectStore } from "@/store/project/project.store";
 import type { IRouterStore } from "@/store/client";
-import { getRouterProjectId } from "@/store/client";
+import { getRouterProjectId, useBaseUserPermissionStore } from "@/store/client";
 import type { IUserStore } from "@/store/user";
+import { useUserStore } from "@/store/user";
 // local imports
 import type { IMemberRootStore } from "../index";
 import { sortProjectMembers } from "../utils";
@@ -434,22 +435,23 @@ export abstract class BaseProjectMemberStore implements IBaseProjectMemberStore 
     const memberDetails = this.getProjectMemberDetails(userId, projectId);
     if (!memberDetails || !memberDetails?.id) throw new Error("Member not found");
     // original data to revert back in case of error
-    const isCurrentUser = this.rootStore.user.data?.id === userId;
+    // Direct Zustand store access - no rootStore indirection
+    const currentUserId = useUserStore.getState().data?.id;
+    const isCurrentUser = currentUserId === userId;
     const membershipBeforeUpdate = { ...this.getProjectMembershipByUserId(userId, projectId) };
+    // Direct Zustand store access - no rootStore indirection
     const permissionBeforeUpdate = isCurrentUser
-      ? this.rootStore.user.permission.getProjectRoleByWorkspaceSlugAndProjectId(workspaceSlug, projectId)
+      ? useBaseUserPermissionStore.getState().getProjectRole(workspaceSlug, projectId)
       : undefined;
     const updatedProjectRole = this.getProjectMemberRoleForUpdate(projectId, userId, role);
     try {
       this.store.updateProjectMemberRole(projectId, userId, updatedProjectRole, role);
       if (isCurrentUser) {
-        set(
-          this.rootStore.user.permission.workspaceProjectsPermissions,
-          [workspaceSlug, projectId],
-          updatedProjectRole
-        );
+        // Direct Zustand store action - no rootStore indirection
+        useBaseUserPermissionStore.getState().setProjectPermission(workspaceSlug, projectId, updatedProjectRole);
       }
-      set(this.rootStore.user.permission.projectUserInfo, [workspaceSlug, projectId, "role"], updatedProjectRole);
+      // Direct Zustand store action - no rootStore indirection
+      useBaseUserPermissionStore.getState().setProjectUserInfoRole(workspaceSlug, projectId, updatedProjectRole);
       const response = await this.projectMemberService.updateProjectMember(
         workspaceSlug,
         projectId,
@@ -467,17 +469,15 @@ export abstract class BaseProjectMemberStore implements IBaseProjectMemberStore 
         membershipBeforeUpdate?.role as EUserProjectRoles,
         membershipBeforeUpdate?.original_role as EUserProjectRoles
       );
-      if (isCurrentUser) {
-        set(
-          this.rootStore.user.permission.workspaceProjectsPermissions,
-          [workspaceSlug, projectId],
-          membershipBeforeUpdate?.original_role
-        );
-        set(
-          this.rootStore.user.permission.projectUserInfo,
-          [workspaceSlug, projectId, "role"],
-          permissionBeforeUpdate
-        );
+      if (isCurrentUser && membershipBeforeUpdate?.original_role !== undefined) {
+        // Direct Zustand store action - no rootStore indirection
+        useBaseUserPermissionStore
+          .getState()
+          .setProjectPermission(workspaceSlug, projectId, membershipBeforeUpdate.original_role as EUserProjectRoles);
+      }
+      if (permissionBeforeUpdate !== undefined) {
+        // Direct Zustand store action - no rootStore indirection
+        useBaseUserPermissionStore.getState().setProjectUserInfoRole(workspaceSlug, projectId, permissionBeforeUpdate);
       }
       throw error;
     }

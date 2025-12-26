@@ -77,6 +77,10 @@ interface BaseUserPermissionActions {
     projectId?: string,
     onPermissionAllowed?: () => boolean
   ) => boolean;
+  // Direct state update actions (for optimistic updates)
+  setProjectPermission: (workspaceSlug: string, projectId: string, role: EUserPermissions | EUserProjectRoles) => void;
+  setProjectUserInfoRole: (workspaceSlug: string, projectId: string, role: EUserPermissions | EUserProjectRoles) => void;
+  removeProjectPermission: (workspaceSlug: string, projectId: string) => void;
   // Actions
   fetchUserWorkspaceInfo: (workspaceSlug: string) => Promise<IWorkspaceMemberMe>;
   leaveWorkspace: (workspaceSlug: string) => Promise<void>;
@@ -193,6 +197,36 @@ export const useBaseUserPermissionStore = create<BaseUserPermissionStoreType>()(
       }
 
       return false;
+    },
+
+    // Direct state update actions (for optimistic updates)
+    setProjectPermission: (workspaceSlug: string, projectId: string, role: EUserPermissions | EUserProjectRoles) => {
+      set((state) => {
+        if (!state.workspaceProjectsPermissions[workspaceSlug]) {
+          state.workspaceProjectsPermissions[workspaceSlug] = {};
+        }
+        state.workspaceProjectsPermissions[workspaceSlug][projectId] = role as EUserPermissions;
+      });
+    },
+
+    setProjectUserInfoRole: (workspaceSlug: string, projectId: string, role: EUserPermissions | EUserProjectRoles) => {
+      set((state) => {
+        if (!state.projectUserInfo[workspaceSlug]) {
+          state.projectUserInfo[workspaceSlug] = {};
+        }
+        if (!state.projectUserInfo[workspaceSlug][projectId]) {
+          state.projectUserInfo[workspaceSlug][projectId] = {} as TProjectMembership;
+        }
+        state.projectUserInfo[workspaceSlug][projectId].role = role as any;
+      });
+    },
+
+    removeProjectPermission: (workspaceSlug: string, projectId: string) => {
+      set((state) => {
+        if (state.workspaceProjectsPermissions[workspaceSlug]) {
+          delete state.workspaceProjectsPermissions[workspaceSlug][projectId];
+        }
+      });
     },
 
     // Actions
