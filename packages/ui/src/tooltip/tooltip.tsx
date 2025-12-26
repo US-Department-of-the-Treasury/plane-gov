@@ -1,7 +1,5 @@
-import { Tooltip2 } from "@blueprintjs/popover2";
-import { cloneElement, useEffect, useRef, useState } from "react";
-import type { ReactElement, ReactNode, Ref } from "react";
-// helpers
+import * as React from "react";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { cn } from "../utils";
 
 export type TPosition =
@@ -21,11 +19,33 @@ export type TPosition =
   | "top-left"
   | "top-right";
 
+type TSide = "top" | "bottom" | "left" | "right";
+type TAlign = "start" | "center" | "end";
+
+// Map Blueprint position names to Radix side/align
+const POSITION_MAP: Record<TPosition, { side: TSide; align: TAlign }> = {
+  top: { side: "top", align: "center" },
+  bottom: { side: "bottom", align: "center" },
+  left: { side: "left", align: "center" },
+  right: { side: "right", align: "center" },
+  auto: { side: "bottom", align: "center" },
+  "auto-start": { side: "bottom", align: "start" },
+  "auto-end": { side: "bottom", align: "end" },
+  "top-left": { side: "top", align: "start" },
+  "top-right": { side: "top", align: "end" },
+  "bottom-left": { side: "bottom", align: "start" },
+  "bottom-right": { side: "bottom", align: "end" },
+  "left-top": { side: "left", align: "start" },
+  "left-bottom": { side: "left", align: "end" },
+  "right-top": { side: "right", align: "start" },
+  "right-bottom": { side: "right", align: "end" },
+};
+
 interface ITooltipProps {
   tooltipHeading?: string;
-  tooltipContent: string | ReactNode;
+  tooltipContent: string | React.ReactNode;
   position?: TPosition;
-  children: ReactElement<{ ref?: Ref<unknown> } & Record<string, unknown>>;
+  children: React.ReactElement<Record<string, unknown>>;
   disabled?: boolean;
   className?: string;
   openDelay?: number;
@@ -44,65 +64,36 @@ export function Tooltip({
   openDelay = 200,
   closeDelay,
   isMobile = false,
-
-  //FIXME: tooltip should always render on hover and not by default, this is a temporary fix
-  renderByDefault = true,
 }: ITooltipProps) {
-  const toolTipRef = useRef<HTMLDivElement | null>(null);
+  const { side, align } = POSITION_MAP[position] || POSITION_MAP.top;
 
-  const [shouldRender, setShouldRender] = useState(renderByDefault);
-
-  const onHover = () => {
-    setShouldRender(true);
-  };
-
-  useEffect(() => {
-    const element = toolTipRef.current;
-
-    if (!element) return;
-
-    element.addEventListener("mouseenter", onHover);
-
-    return () => {
-      element.removeEventListener("mouseenter", onHover);
-    };
-  }, [toolTipRef, shouldRender]);
-
-  if (!shouldRender) {
-    return (
-      <div ref={toolTipRef} className="h-full flex items-center">
-        {children}
-      </div>
-    );
+  if (disabled) {
+    return children;
   }
 
   return (
-    <Tooltip2
-      disabled={disabled}
-      hoverOpenDelay={openDelay}
-      hoverCloseDelay={closeDelay}
-      content={
-        <div
-          className={cn(
-            "relative block z-50 max-w-xs gap-1 overflow-hidden break-words rounded-md bg-surface-1 p-2 text-11 text-secondary shadow-md",
-            {
-              hidden: isMobile,
-            },
-            className
-          )}
-        >
-          {tooltipHeading && <h5 className="font-medium text-primary">{tooltipHeading}</h5>}
-          {tooltipContent}
-        </div>
-      }
-      position={position}
-      renderTarget={({ isOpen: isTooltipOpen, ref: eleReference, ...tooltipProps }) =>
-        cloneElement(children, {
-          ref: eleReference,
-          ...tooltipProps,
-          ...(children.props as Record<string, unknown>),
-        })
-      }
-    />
+    <TooltipPrimitive.Provider delayDuration={openDelay} skipDelayDuration={closeDelay}>
+      <TooltipPrimitive.Root>
+        <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Portal>
+          <TooltipPrimitive.Content
+            className={cn(
+              "relative block z-50 max-w-xs gap-1 overflow-hidden break-words rounded-md bg-surface-1 p-2 text-11 text-secondary shadow-md",
+              "animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+              {
+                hidden: isMobile,
+              },
+              className
+            )}
+            side={side}
+            sideOffset={4}
+            align={align}
+          >
+            {tooltipHeading && <h5 className="font-medium text-primary">{tooltipHeading}</h5>}
+            {tooltipContent}
+          </TooltipPrimitive.Content>
+        </TooltipPrimitive.Portal>
+      </TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
   );
 }
