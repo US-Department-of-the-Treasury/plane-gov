@@ -225,10 +225,14 @@ class Command(BaseCommand):
 
     def _create_workspace(self, name: str, slug: str, owner: User) -> Workspace:
         """Create a workspace with the owner as admin member."""
+        # Set sprint_start_date to match our seed sprint data (Sep 29, 2025)
+        # This ensures auto-generated sprints align with seeded sprints
+        sprint_start = datetime(2025, 9, 29, 0, 0, 0)
         workspace = Workspace.objects.create(
             name=name,
             slug=slug,
             owner=owner,
+            sprint_start_date=sprint_start,
         )
         WorkspaceMember.objects.create(
             workspace=workspace,
@@ -236,6 +240,45 @@ class Command(BaseCommand):
             role=20,  # Admin role
         )
         return workspace
+
+    def _create_team_members(self, workspace: Workspace, team_members_data: list) -> list:
+        """Create team members as users and workspace members."""
+        from plane.db.models.user import Profile
+
+        team_members = []
+        for member_info in team_members_data:
+            # Create or get user
+            user, created = User.objects.get_or_create(
+                email=member_info["email"],
+                defaults={
+                    "username": member_info["email"],
+                    "first_name": member_info.get("first_name", ""),
+                    "last_name": member_info.get("last_name", ""),
+                    "is_active": True,
+                    "is_email_verified": True,
+                    "is_password_autoset": False,
+                },
+            )
+            if created:
+                user.set_password("password123")
+                user.save()
+
+            # Create profile with onboarding complete
+            profile, _ = Profile.objects.get_or_create(user=user)
+            profile.is_onboarded = True
+            profile.is_tour_completed = True
+            profile.save()
+
+            # Add as workspace member (role 15 = Member)
+            WorkspaceMember.objects.get_or_create(
+                workspace=workspace,
+                member=user,
+                defaults={"role": member_info.get("role", 15)},
+            )
+
+            team_members.append(user)
+
+        return team_members
 
     def _seed_demo_data(self, workspace: Workspace, user: User):
         """Seed using curated JSON data from seeds/data/."""
@@ -250,6 +293,11 @@ class Command(BaseCommand):
         issues_data = self._load_json("issues.json")
         pages_data = self._load_json("pages.json")
         views_data = self._load_json("views.json")
+        team_members_data = self._load_json("team_members.json")
+
+        # Create team members (workspace members for assignment)
+        team_members = self._create_team_members(workspace, team_members_data)
+        self.stdout.write(f"    Team members: {len(team_members)}")
 
         # Create sprints first (workspace-wide, shared across all projects)
         sprint_map = self._create_sprints(workspace, None, user, sprints_data)
@@ -306,7 +354,7 @@ class Command(BaseCommand):
                 issue_count = self._create_issues(
                     workspace, project, user, project_issues,
                     state_maps[project.id], label_maps[project.id],
-                    sprint_map, epic_maps[project.id]
+                    sprint_map, epic_maps[project.id], team_members
                 )
                 total_issue_count += issue_count
                 self.stdout.write(f"      Issues for {project.name}: {issue_count}")
@@ -568,7 +616,8 @@ class Command(BaseCommand):
         return epics
 
     def _create_issues(
-        self, workspace, project, user, issues_data, state_map, label_map, sprint_map, epic_map
+        self, workspace, project, user, issues_data, state_map, label_map, sprint_map, epic_map,
+        team_members=None
     ) -> int:
         """Create issues from JSON data with all relationships."""
         count = 0
@@ -644,6 +693,24 @@ class Command(BaseCommand):
                         epic_id=epic_id,
                         project=project,
                         workspace=workspace,
+                    )
+
+            # Assign random team members (1-2 per issue)
+            if team_members:
+                num_assignees = random.randint(1, min(2, len(team_members)))
+                assignees = random.sample(team_members, num_assignees)
+                for assignee in assignees:
+                    IssueAssignee.objects.create(
+                        issue=issue,
+                        assignee=assignee,
+                        project=project,
+                        workspace=workspace,
+                    )
+                    # Also add as project member if not already
+                    ProjectMember.objects.get_or_create(
+                        project=project,
+                        member=assignee,
+                        defaults={"role": 15},  # Member role
                     )
 
             count += 1

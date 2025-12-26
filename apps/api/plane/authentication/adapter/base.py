@@ -91,8 +91,9 @@ class Adapter:
         """Check if sign up is enabled or not and raise exception if not enabled"""
 
         # Get configuration value
+        # Default to "0" (disabled) for government deployments - users join via invite only
         (ENABLE_SIGNUP,) = get_configuration_value(
-            [{"key": "ENABLE_SIGNUP", "default": os.environ.get("ENABLE_SIGNUP", "1")}]
+            [{"key": "ENABLE_SIGNUP", "default": os.environ.get("ENABLE_SIGNUP", "0")}]
         )
 
         # If signup is enabled, allow
