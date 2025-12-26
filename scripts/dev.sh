@@ -103,6 +103,18 @@ if [ $MISSING -eq 1 ]; then
     exit 1
 fi
 
+# Check if dependencies are installed
+echo ""
+echo -e "${YELLOW}Checking dependencies...${NC}"
+if [ ! -d "$PROJECT_ROOT/node_modules" ]; then
+    echo -e "${YELLOW}node_modules not found. Installing dependencies...${NC}"
+    cd "$PROJECT_ROOT"
+    pnpm install
+    echo -e "${GREEN}✓ Dependencies installed${NC}"
+else
+    echo -e "${GREEN}✓ node_modules exists${NC}"
+fi
+
 # Check if PostgreSQL is running
 if ! pg_isready -q 2>/dev/null; then
     echo -e "${RED}x PostgreSQL is not running${NC}"

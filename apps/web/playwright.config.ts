@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
+import { existsSync, readFileSync } from "fs";
 
 /**
  * Playwright Configuration
@@ -14,10 +15,11 @@ import { dirname, resolve } from "path";
  *   pnpm test:smoke        # Quick smoke tests only
  *
  * Or manually start services first, then run tests:
- *   1. pnpm dev:all        # Start all services (API + frontend)
+ *   1. pnpm dev            # Start all services (uses correct ports for this worktree)
  *   2. cd apps/web && npx playwright test
  *
- * DO NOT use `pnpm dev` alone - it only starts frontend without the API server.
+ * WORKTREE ISOLATION: This config auto-reads from .dev-ports to ensure tests
+ * run against THIS worktree's dev servers, not another worktree's servers.
  *
  * Supports multiple test suites:
  * - smoke: Quick route loading tests (~2 min)
@@ -31,8 +33,45 @@ import { dirname, resolve } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Base URL from environment or default to localhost
-const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
+/**
+ * Get the base URL for E2E tests, ensuring worktree isolation.
+ *
+ * Priority:
+ * 1. E2E_BASE_URL environment variable (explicit override)
+ * 2. Read from .dev-ports file (auto-detect this worktree's ports)
+ * 3. Error - never silently default to port 3000 (could hit wrong worktree)
+ */
+function getBaseURL(): string {
+  // 1. Check environment variable first
+  if (process.env.E2E_BASE_URL) {
+    return process.env.E2E_BASE_URL;
+  }
+
+  // 2. Try to read from .dev-ports file in project root
+  const projectRoot = resolve(__dirname, "../..");
+  const devPortsPath = resolve(projectRoot, ".dev-ports");
+
+  if (existsSync(devPortsPath)) {
+    const content = readFileSync(devPortsPath, "utf-8");
+    const match = content.match(/^E2E_BASE_URL=(.+)$/m);
+    if (match) {
+      console.log(`[Playwright] Using E2E_BASE_URL from .dev-ports: ${match[1]}`);
+      return match[1];
+    }
+  }
+
+  // 3. No .dev-ports file - error out to prevent testing against wrong worktree
+  throw new Error(
+    `E2E_BASE_URL not set and no .dev-ports file found.\n\n` +
+      `This prevents accidentally testing against another worktree's dev servers.\n\n` +
+      `To fix:\n` +
+      `  1. Start dev servers: pnpm dev\n` +
+      `  2. Or run tests via: pnpm test:e2e\n` +
+      `  3. Or set E2E_BASE_URL manually: E2E_BASE_URL=http://localhost:3000 npx playwright test`
+  );
+}
+
+const baseURL = getBaseURL();
 
 // Determine which tests to run based on environment
 const testMatch = process.env.E2E_TEST_MATCH ?? "**/*.spec.ts";
