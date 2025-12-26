@@ -47,7 +47,8 @@ export const useProjectPublishStore = create<ProjectPublishStore>()((set, get) =
   setPublishSettings: (projectID, settings) => {
     set((state) => {
       const newMap = { ...state.publishSettingsMap };
-      lodashSet(newMap, [projectID], settings);
+      // Direct property access for proper Zustand reactivity
+      newMap[projectID] = settings;
       return { publishSettingsMap: newMap };
     });
   },
@@ -55,7 +56,7 @@ export const useProjectPublishStore = create<ProjectPublishStore>()((set, get) =
   removePublishSettings: (projectID) => {
     set((state) => {
       const newMap = { ...state.publishSettingsMap };
-      lodashUnset(newMap, [projectID]);
+      delete newMap[projectID];
       return { publishSettingsMap: newMap };
     });
   },
@@ -167,8 +168,8 @@ export class ProjectPublishStoreLegacy implements IProjectPublishStore {
       setGeneralLoader(true);
       const response = await projectPublishService.publishProject(workspaceSlug, projectID, data);
       setPublishSettings(projectID, response);
-      // Update project anchor in root store
-      lodashSet(this.rootStore.project.projectMap, [projectID, "anchor"], response.anchor);
+      // Update project anchor in root store - use string path for proper reactivity
+      lodashSet(this.rootStore.project.projectMap, `${projectID}.anchor`, response.anchor);
       setGeneralLoader(false);
       return response;
     } catch (error) {
@@ -222,8 +223,8 @@ export class ProjectPublishStoreLegacy implements IProjectPublishStore {
       setGeneralLoader(true);
       await projectPublishService.unpublishProject(workspaceSlug, projectID, projectPublishId);
       removePublishSettings(projectID);
-      // Update project anchor in root store
-      lodashSet(this.rootStore.project.projectMap, [projectID, "anchor"], null);
+      // Update project anchor in root store - use string path for proper reactivity
+      lodashSet(this.rootStore.project.projectMap, `${projectID}.anchor`, null);
       setGeneralLoader(false);
     } catch (error) {
       setGeneralLoader(false);

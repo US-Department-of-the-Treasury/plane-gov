@@ -1,4 +1,3 @@
-import { set as lodashSet } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // types
@@ -43,7 +42,8 @@ export const useAccountStore = create<AccountStoreType>()(
     setAccountData: (account) => {
       set((state) => {
         Object.entries(account).forEach(([key, value]) => {
-          lodashSet(state, [key], value ?? undefined);
+          // Direct property access for proper Zustand reactivity
+          (state as Record<string, unknown>)[key] = value ?? undefined;
         });
       });
     },

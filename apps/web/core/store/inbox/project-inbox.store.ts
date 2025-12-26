@@ -266,7 +266,8 @@ export const useProjectInboxStore = create<ProjectInboxStoreType>()(
             if (!draft.filtersMap[projectId]) {
               draft.filtersMap[projectId] = {};
             }
-            lodashSet(draft.filtersMap, [projectId, key], value);
+            // Use string path for proper Zustand reactivity
+            lodashSet(draft.filtersMap, `${projectId}.${key}`, value);
             draft.inboxIssuePaginationInfo = undefined;
           });
           get().fetchInboxIssues(workspaceSlug, projectId, "filter-loading");
@@ -281,7 +282,8 @@ export const useProjectInboxStore = create<ProjectInboxStoreType>()(
             if (!draft.sortingMap[projectId]) {
               draft.sortingMap[projectId] = {};
             }
-            lodashSet(draft.sortingMap, [projectId, key], value);
+            // Use string path for proper Zustand reactivity
+            lodashSet(draft.sortingMap, `${projectId}.${key}`, value);
             draft.inboxIssuePaginationInfo = undefined;
           });
           get().fetchInboxIssues(workspaceSlug, projectId, "filter-loading");

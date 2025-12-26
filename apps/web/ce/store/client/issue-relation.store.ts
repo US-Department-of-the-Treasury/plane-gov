@@ -131,9 +131,10 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
         state.rootIssueDetailStore?.rootIssueStore.issues.addIssue(issues);
       }
 
+      // Use string path for proper Zustand reactivity
       lodashSet(
         updatedRelationMap,
-        [issueId, relation_key],
+        `${issueId}.${relation_key}`,
         issues && issues.length > 0 ? issues.map((issue) => issue.id) : []
       );
     });
@@ -161,14 +162,15 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
         state.rootIssueDetailStore?.rootIssueStore.issues.addIssue([issue]);
         issuesOfRelation.push(issue.id);
 
+        // Use string paths for proper Zustand reactivity
         if (!issuesOfRelated) {
-          lodashSet(updatedRelationMap, [issue.id, reverseRelatedType], [issueId]);
+          lodashSet(updatedRelationMap, `${issue.id}.${reverseRelatedType}`, [issueId]);
         } else {
-          lodashSet(updatedRelationMap, [issue.id, reverseRelatedType], uniq([...issuesOfRelated, issueId]));
+          lodashSet(updatedRelationMap, `${issue.id}.${reverseRelatedType}`, uniq([...issuesOfRelated, issueId]));
         }
       });
 
-      lodashSet(updatedRelationMap, [issueId, relationType], uniq(issuesOfRelation));
+      lodashSet(updatedRelationMap, `${issueId}.${relationType}`, uniq(issuesOfRelation));
       set({ relationMap: updatedRelationMap });
     }
 
@@ -201,16 +203,17 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
       // update relations before API call (optimistic update)
       const updatedRelationMap = { ...state.relationMap };
 
+      // Use string paths for proper Zustand reactivity
       if (!issuesOfRelation) {
-        lodashSet(updatedRelationMap, [issueId, relationType], [relatedIssueId]);
+        lodashSet(updatedRelationMap, `${issueId}.${relationType}`, [relatedIssueId]);
       } else {
-        lodashSet(updatedRelationMap, [issueId, relationType], uniq([...issuesOfRelation, relatedIssueId]));
+        lodashSet(updatedRelationMap, `${issueId}.${relationType}`, uniq([...issuesOfRelation, relatedIssueId]));
       }
 
       if (!issuesOfRelated) {
-        lodashSet(updatedRelationMap, [relatedIssueId, reverseRelatedType], [issueId]);
+        lodashSet(updatedRelationMap, `${relatedIssueId}.${reverseRelatedType}`, [issueId]);
       } else {
-        lodashSet(updatedRelationMap, [relatedIssueId, reverseRelatedType], uniq([...issuesOfRelated, issueId]));
+        lodashSet(updatedRelationMap, `${relatedIssueId}.${reverseRelatedType}`, uniq([...issuesOfRelated, issueId]));
       }
 
       set({ relationMap: updatedRelationMap });
@@ -224,12 +227,13 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
       // Revert back store changes if API fails
       const rollbackRelationMap = { ...get().relationMap };
 
+      // Use string paths for proper Zustand reactivity
       if (issuesOfRelation) {
-        lodashSet(rollbackRelationMap, [issueId, relationType], issuesOfRelation);
+        lodashSet(rollbackRelationMap, `${issueId}.${relationType}`, issuesOfRelation);
       }
 
       if (issuesOfRelated) {
-        lodashSet(rollbackRelationMap, [relatedIssueId, reverseRelatedType], issuesOfRelated);
+        lodashSet(rollbackRelationMap, `${relatedIssueId}.${reverseRelatedType}`, issuesOfRelated);
       }
 
       set({ relationMap: rollbackRelationMap });
@@ -341,7 +345,8 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
           }
         }
 
-        lodashSet(updatedRelationMap, [issueId], issueRelations);
+        // Use string path for proper Zustand reactivity (single key is fine but using string for consistency)
+        lodashSet(updatedRelationMap, issueId, issueRelations);
       }
 
       set({ relationMap: updatedRelationMap });

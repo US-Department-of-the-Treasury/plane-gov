@@ -78,7 +78,8 @@ export const useProjectPublishStore = create<ProjectPublishStoreType>()(
         const response = await projectPublishService.fetchPublishSettings(workspaceSlug, projectID);
 
         set((state) => {
-          lodashSet(state.publishSettingsMap, [projectID], response);
+          // Direct property access for proper Zustand/immer reactivity
+          state.publishSettingsMap[projectID] = response;
           state.fetchSettingsLoader = false;
         });
         return response;
@@ -110,11 +111,12 @@ export const useProjectPublishStore = create<ProjectPublishStoreType>()(
         });
         const response = await projectPublishService.publishProject(workspaceSlug, projectID, data);
         set((state) => {
-          lodashSet(state.publishSettingsMap, [projectID], response);
+          // Direct property access for proper Zustand/immer reactivity
+          state.publishSettingsMap[projectID] = response;
           state.generalLoader = false;
         });
-        // Update project map in project root store
-        lodashSet(projectRootStore.project.projectMap, [projectID, "anchor"], response.anchor);
+        // Update project map in project root store - use string path for proper reactivity
+        lodashSet(projectRootStore.project.projectMap, `${projectID}.anchor`, response.anchor);
         return response;
       } catch (error) {
         set((state) => {
@@ -150,7 +152,8 @@ export const useProjectPublishStore = create<ProjectPublishStoreType>()(
           data
         );
         set((state) => {
-          lodashSet(state.publishSettingsMap, [projectID], response);
+          // Direct property access for proper Zustand/immer reactivity
+          state.publishSettingsMap[projectID] = response;
           state.generalLoader = false;
         });
         return response;
@@ -182,11 +185,12 @@ export const useProjectPublishStore = create<ProjectPublishStoreType>()(
         });
         const response = await projectPublishService.unpublishProject(workspaceSlug, projectID, projectPublishId);
         set((state) => {
-          lodashUnset(state.publishSettingsMap, [projectID]);
+          // Direct property access for proper Zustand/immer reactivity
+          delete state.publishSettingsMap[projectID];
           state.generalLoader = false;
         });
-        // Update project map in project root store
-        lodashSet(projectRootStore.project.projectMap, [projectID, "anchor"], null);
+        // Update project map in project root store - use string path for proper reactivity
+        lodashSet(projectRootStore.project.projectMap, `${projectID}.anchor`, null);
         return response;
       } catch (error) {
         set((state) => {

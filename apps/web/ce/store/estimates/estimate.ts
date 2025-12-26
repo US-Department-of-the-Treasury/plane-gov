@@ -104,7 +104,8 @@ const createEstimateStore = () =>
       // Actions
       addEstimatePoint: (estimatePointId: string, estimatePoint: IEstimatePoint) => {
         set((state) => {
-          lodashSet(state.estimatePoints, [estimatePointId], estimatePoint);
+          // Direct property access for proper Zustand/immer reactivity
+          state.estimatePoints[estimatePointId] = estimatePoint;
         });
       },
 

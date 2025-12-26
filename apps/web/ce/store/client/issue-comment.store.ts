@@ -210,7 +210,8 @@ export const useIssueCommentStore = create<IssueCommentStore>()((set, get) => ({
         const updatedCommentMap = { ...state.commentMap };
 
         Object.keys(data).forEach((key) => {
-          lodashSet(updatedCommentMap, [commentId, key], data[key as keyof TIssueComment]);
+          // Use string path for proper Zustand reactivity
+          lodashSet(updatedCommentMap, `${commentId}.${key}`, data[key as keyof TIssueComment]);
         });
 
         return { commentMap: updatedCommentMap };
@@ -227,8 +228,9 @@ export const useIssueCommentStore = create<IssueCommentStore>()((set, get) => ({
       // Update with server response
       set((state) => {
         const updatedCommentMap = { ...state.commentMap };
-        lodashSet(updatedCommentMap, [commentId, "updated_at"], response.updated_at);
-        lodashSet(updatedCommentMap, [commentId, "edited_at"], response.edited_at);
+        // Use string paths for proper Zustand reactivity
+        lodashSet(updatedCommentMap, `${commentId}.updated_at`, response.updated_at);
+        lodashSet(updatedCommentMap, `${commentId}.edited_at`, response.edited_at);
 
         return { commentMap: updatedCommentMap };
       });

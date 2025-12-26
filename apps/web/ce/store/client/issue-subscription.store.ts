@@ -84,7 +84,8 @@ export const useIssueSubscriptionStore = create<IssueSubscriptionStoreZustand>()
     if (!currentUserId) throw new Error("user id not available");
 
     const newSubscriptionMap = { ...state.subscriptionMap };
-    lodashSet(newSubscriptionMap, [issueId, currentUserId], isSubscribed ?? false);
+    // Use string path for proper Zustand reactivity
+    lodashSet(newSubscriptionMap, `${issueId}.${currentUserId}`, isSubscribed ?? false);
 
     set({ subscriptionMap: newSubscriptionMap });
   },
@@ -114,7 +115,8 @@ export const useIssueSubscriptionStore = create<IssueSubscriptionStoreZustand>()
     // Optimistically update the subscription
     const previousSubscriptionMap = { ...state.subscriptionMap };
     const newSubscriptionMap = { ...state.subscriptionMap };
-    lodashSet(newSubscriptionMap, [issueId, currentUserId], true);
+    // Use string path for proper Zustand reactivity
+    lodashSet(newSubscriptionMap, `${issueId}.${currentUserId}`, true);
     set({ subscriptionMap: newSubscriptionMap });
 
     try {
@@ -138,7 +140,8 @@ export const useIssueSubscriptionStore = create<IssueSubscriptionStoreZustand>()
     // Optimistically update the subscription
     const previousSubscriptionMap = { ...state.subscriptionMap };
     const newSubscriptionMap = { ...state.subscriptionMap };
-    lodashSet(newSubscriptionMap, [issueId, currentUserId], false);
+    // Use string path for proper Zustand reactivity
+    lodashSet(newSubscriptionMap, `${issueId}.${currentUserId}`, false);
     set({ subscriptionMap: newSubscriptionMap });
 
     try {

@@ -274,7 +274,8 @@ export const useIssueSubIssuesStore = create<IssueSubIssuesStore>()((set, get) =
 
     // update sub-issues_count of the parent issue
     const updatedIssuesMap = clone(state.rootIssueDetailStore.rootIssueStore.issues.issuesMap);
-    lodashSet(updatedIssuesMap, [parentIssueId, "sub_issues_count"], newSubIssues[parentIssueId].length);
+    // Use string path for proper Zustand reactivity
+    lodashSet(updatedIssuesMap, `${parentIssueId}.sub_issues_count`, newSubIssues[parentIssueId].length);
     state.rootIssueDetailStore.rootIssueStore.issues.issuesMap = updatedIssuesMap;
   },
 
@@ -307,7 +308,8 @@ export const useIssueSubIssuesStore = create<IssueSubIssuesStore>()((set, get) =
         pull(newSubIssues[oldIssue.parent_id], issueId);
       }
       if (issueData.parent_id) {
-        lodashSet(newSubIssues, [issueData.parent_id], concat(newSubIssues[issueData.parent_id], issueId));
+        // Use string path for proper Zustand reactivity
+        lodashSet(newSubIssues, issueData.parent_id, concat(newSubIssues[issueData.parent_id], issueId));
       }
 
       set({ subIssues: newSubIssues });
@@ -379,7 +381,8 @@ export const useIssueSubIssuesStore = create<IssueSubIssuesStore>()((set, get) =
 
     // update sub-issues_count of the parent issue
     const updatedIssuesMap = clone(state.rootIssueDetailStore.rootIssueStore.issues.issuesMap);
-    lodashSet(updatedIssuesMap, [parentIssueId, "sub_issues_count"], newSubIssues[parentIssueId]?.length);
+    // Use string path for proper Zustand reactivity
+    lodashSet(updatedIssuesMap, `${parentIssueId}.sub_issues_count`, newSubIssues[parentIssueId]?.length);
     state.rootIssueDetailStore.rootIssueStore.issues.issuesMap = updatedIssuesMap;
 
     set({ subIssues: newSubIssues });
@@ -412,7 +415,8 @@ export const useIssueSubIssuesStore = create<IssueSubIssuesStore>()((set, get) =
 
     // update sub-issues_count of the parent issue
     const updatedIssuesMap = clone(state.rootIssueDetailStore.rootIssueStore.issues.issuesMap);
-    lodashSet(updatedIssuesMap, [parentIssueId, "sub_issues_count"], newSubIssues[parentIssueId]?.length);
+    // Use string path for proper Zustand reactivity
+    lodashSet(updatedIssuesMap, `${parentIssueId}.sub_issues_count`, newSubIssues[parentIssueId]?.length);
     state.rootIssueDetailStore.rootIssueStore.issues.issuesMap = updatedIssuesMap;
 
     set({ subIssues: newSubIssues });
@@ -450,9 +454,10 @@ export const useIssueSubIssuesStore = create<IssueSubIssuesStore>()((set, get) =
   initializeFilters: (workItemId: string) => {
     const state = get();
     const newFilters = clone(state.subIssueFilters);
-    lodashSet(newFilters, [workItemId, "displayProperties"], DEFAULT_DISPLAY_PROPERTIES);
-    lodashSet(newFilters, [workItemId, "filters"], {});
-    lodashSet(newFilters, [workItemId, "displayFilters"], {});
+    // Use string paths for proper Zustand reactivity
+    lodashSet(newFilters, `${workItemId}.displayProperties`, DEFAULT_DISPLAY_PROPERTIES);
+    lodashSet(newFilters, `${workItemId}.filters`, {});
+    lodashSet(newFilters, `${workItemId}.displayFilters`, {});
     set({ subIssueFilters: newFilters });
   },
 

@@ -1,4 +1,4 @@
-import { sortBy, cloneDeep, update as lodashUpdate, set as lodashSet } from "lodash-es";
+import { sortBy, cloneDeep, set as lodashSet } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // plane imports
@@ -92,10 +92,11 @@ export const useProjectStore = create<ProjectStoreType>()(
      */
     processProjectAfterCreation: (workspaceSlug: string, data: TProject, rootStore: CoreRootStore) => {
       set((state) => {
-        lodashSet(state.projectMap, [data.id], data);
+        // Direct property access for proper Zustand reactivity
+        state.projectMap[data.id] = data;
       });
       // updating the user project role in workspaceProjectsPermissions
-      lodashSet(rootStore.user.permission.workspaceProjectsPermissions, [workspaceSlug, data.id], data.member_role);
+      lodashSet(rootStore.user.permission.workspaceProjectsPermissions, `${workspaceSlug}.${data.id}`, data.member_role);
     },
 
     /**
@@ -112,7 +113,8 @@ export const useProjectStore = create<ProjectStoreType>()(
         const projectsResponse = await projectService.getProjectsLite(workspaceSlug);
         set((state) => {
           projectsResponse.forEach((project) => {
-            lodashUpdate(state.projectMap, [project.id], (p) => ({ ...p, ...project }));
+            // Direct property access for proper Zustand reactivity
+            state.projectMap[project.id] = { ...state.projectMap[project.id], ...project };
           });
           state.loader = "loaded";
           if (!state.fetchStatus) state.fetchStatus = "partial";
@@ -145,7 +147,8 @@ export const useProjectStore = create<ProjectStoreType>()(
         const projectsResponse = await projectService.getProjects(workspaceSlug);
         set((state) => {
           projectsResponse.forEach((project) => {
-            lodashUpdate(state.projectMap, [project.id], (p) => ({ ...p, ...project }));
+            // Direct property access for proper Zustand reactivity
+            state.projectMap[project.id] = { ...state.projectMap[project.id], ...project };
           });
           state.loader = "loaded";
           state.fetchStatus = "complete";
@@ -170,7 +173,8 @@ export const useProjectStore = create<ProjectStoreType>()(
       try {
         const response = await projectService.getProject(workspaceSlug, projectId);
         set((state) => {
-          lodashUpdate(state.projectMap, [projectId], (p) => ({ ...p, ...response }));
+          // Direct property access for proper Zustand reactivity
+          state.projectMap[projectId] = { ...state.projectMap[projectId], ...response };
         });
         return response;
       } catch (error) {
@@ -194,7 +198,8 @@ export const useProjectStore = create<ProjectStoreType>()(
         const response = await projectService.getProjectAnalyticsCount(workspaceSlug, params);
         set((state) => {
           for (const analyticsData of response) {
-            lodashSet(state.projectAnalyticsCountMap, [analyticsData.id], analyticsData);
+            // Direct property access for proper Zustand reactivity
+            state.projectAnalyticsCountMap[analyticsData.id] = analyticsData;
           }
         });
         return response;
@@ -215,7 +220,10 @@ export const useProjectStore = create<ProjectStoreType>()(
         const currentProject = get().projectMap[projectId];
         if (currentProject?.is_favorite) return;
         set((state) => {
-          lodashSet(state.projectMap, [projectId, "is_favorite"], true);
+          // Direct property access for proper Zustand reactivity
+          if (state.projectMap[projectId]) {
+            state.projectMap[projectId].is_favorite = true;
+          }
         });
         const response = await rootStore.favorite.addFavorite(workspaceSlug.toString(), {
           entity_type: "project",
@@ -227,7 +235,10 @@ export const useProjectStore = create<ProjectStoreType>()(
       } catch (error) {
         console.log("Failed to add project to favorite");
         set((state) => {
-          lodashSet(state.projectMap, [projectId, "is_favorite"], false);
+          // Direct property access for proper Zustand reactivity
+          if (state.projectMap[projectId]) {
+            state.projectMap[projectId].is_favorite = false;
+          }
         });
         throw error;
       }
@@ -244,7 +255,10 @@ export const useProjectStore = create<ProjectStoreType>()(
         const currentProject = get().projectMap[projectId];
         if (!currentProject?.is_favorite) return;
         set((state) => {
-          lodashSet(state.projectMap, [projectId, "is_favorite"], false);
+          // Direct property access for proper Zustand reactivity
+          if (state.projectMap[projectId]) {
+            state.projectMap[projectId].is_favorite = false;
+          }
         });
         const response = await rootStore.favorite.removeFavoriteEntity(workspaceSlug.toString(), projectId);
 
@@ -252,7 +266,10 @@ export const useProjectStore = create<ProjectStoreType>()(
       } catch (error) {
         console.log("Failed to add project to favorite");
         set((state) => {
-          lodashSet(state.projectMap, [projectId, "is_favorite"], true);
+          // Direct property access for proper Zustand reactivity
+          if (state.projectMap[projectId]) {
+            state.projectMap[projectId].is_favorite = true;
+          }
         });
         throw error;
       }
@@ -269,13 +286,19 @@ export const useProjectStore = create<ProjectStoreType>()(
       const currentProjectSortOrder = get().projectMap[projectId]?.sort_order;
       try {
         set((state) => {
-          lodashSet(state.projectMap, [projectId, "sort_order"], viewProps?.sort_order);
+          // Direct property access for proper Zustand reactivity
+          if (state.projectMap[projectId]) {
+            state.projectMap[projectId].sort_order = viewProps?.sort_order;
+          }
         });
         const response = await projectService.setProjectView(workspaceSlug, projectId, viewProps);
         return response;
       } catch (error) {
         set((state) => {
-          lodashSet(state.projectMap, [projectId, "sort_order"], currentProjectSortOrder);
+          // Direct property access for proper Zustand reactivity
+          if (state.projectMap[projectId]) {
+            state.projectMap[projectId].sort_order = currentProjectSortOrder;
+          }
         });
         console.log("Failed to update sort order of the projects");
         throw error;
@@ -310,7 +333,8 @@ export const useProjectStore = create<ProjectStoreType>()(
       const projectDetails = cloneDeep(get().projectMap[projectId]);
       try {
         set((state) => {
-          lodashSet(state.projectMap, [projectId], { ...projectDetails, ...data });
+          // Direct property access for proper Zustand reactivity
+          state.projectMap[projectId] = { ...projectDetails, ...data };
           state.isUpdatingProject = true;
         });
         const response = await projectService.updateProject(workspaceSlug, projectId, data);
@@ -321,7 +345,8 @@ export const useProjectStore = create<ProjectStoreType>()(
       } catch (error) {
         console.log("Failed to create project from project store");
         set((state) => {
-          lodashSet(state.projectMap, [projectId], projectDetails);
+          // Direct property access for proper Zustand reactivity
+          state.projectMap[projectId] = projectDetails;
           state.isUpdatingProject = false;
         });
         throw error;
@@ -360,7 +385,10 @@ export const useProjectStore = create<ProjectStoreType>()(
         .archiveProject(workspaceSlug, projectId)
         .then((response) => {
           set((state) => {
-            lodashSet(state.projectMap, [projectId, "archived_at"], response.archived_at);
+            // Direct property access for proper Zustand reactivity
+            if (state.projectMap[projectId]) {
+              state.projectMap[projectId].archived_at = response.archived_at;
+            }
           });
           rootStore.favorite.removeFavoriteFromStore(projectId);
         })
@@ -381,7 +409,10 @@ export const useProjectStore = create<ProjectStoreType>()(
         .restoreProject(workspaceSlug, projectId)
         .then(() => {
           set((state) => {
-            lodashSet(state.projectMap, [projectId, "archived_at"], null);
+            // Direct property access for proper Zustand reactivity
+            if (state.projectMap[projectId]) {
+              state.projectMap[projectId].archived_at = null;
+            }
           });
         })
         .catch((error) => {

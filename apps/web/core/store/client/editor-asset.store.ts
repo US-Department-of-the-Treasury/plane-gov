@@ -111,7 +111,8 @@ export const useEditorAssetStore = create<EditorAssetStore>()((set, get) => ({
   _updateAssetUploadProgress: (blockId, progress) => {
     set((state) => {
       const newStatus = { ...state.assetsUploadStatus };
-      lodashSet(newStatus, [blockId, "progress"], progress);
+      // Use string path for proper Zustand reactivity
+      lodashSet(newStatus, `${blockId}.progress`, progress);
       return { assetsUploadStatus: newStatus };
     });
   },

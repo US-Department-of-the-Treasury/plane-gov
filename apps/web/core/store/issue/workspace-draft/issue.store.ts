@@ -239,7 +239,8 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
     const workspaceUserInfo = this.issueStore.rootStore.user.permission.workspaceUserInfo;
     const currentCount = workspaceUserInfo[workspaceSlug]?.draft_issue_count ?? 0;
 
-    lodashSet(workspaceUserInfo, [workspaceSlug, "draft_issue_count"], currentCount + increment);
+    // Use string path for proper reactivity
+    lodashSet(workspaceUserInfo, `${workspaceSlug}.draft_issue_count`, currentCount + increment);
   }
 
   // computed
