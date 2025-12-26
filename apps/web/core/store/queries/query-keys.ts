@@ -40,6 +40,30 @@ export const queryKeys = {
     sprint: (sprintId: string) => ["issues", "sprint", sprintId] as const,
     module: (moduleId: string) => ["issues", "module", moduleId] as const,
     workspace: (workspaceSlug: string) => ["issues", "workspace", workspaceSlug] as const,
+
+    // Paginated list query keys for TanStack Query infinite queries
+    list: {
+      project: (workspaceSlug: string, projectId: string, filters?: Record<string, unknown>) =>
+        ["issues", "list", "project", workspaceSlug, projectId, filters ?? {}] as const,
+      sprint: (workspaceSlug: string, projectId: string, sprintId: string, filters?: Record<string, unknown>) =>
+        ["issues", "list", "sprint", workspaceSlug, projectId, sprintId, filters ?? {}] as const,
+      epic: (workspaceSlug: string, projectId: string, epicId: string, filters?: Record<string, unknown>) =>
+        ["issues", "list", "epic", workspaceSlug, projectId, epicId, filters ?? {}] as const,
+      archived: (workspaceSlug: string, projectId: string, filters?: Record<string, unknown>) =>
+        ["issues", "list", "archived", workspaceSlug, projectId, filters ?? {}] as const,
+      profile: (workspaceSlug: string, userId: string, view: string, filters?: Record<string, unknown>) =>
+        ["issues", "list", "profile", workspaceSlug, userId, view, filters ?? {}] as const,
+      projectView: (workspaceSlug: string, projectId: string, viewId: string, filters?: Record<string, unknown>) =>
+        ["issues", "list", "project-view", workspaceSlug, projectId, viewId, filters ?? {}] as const,
+      workspaceView: (workspaceSlug: string, viewId: string, filters?: Record<string, unknown>) =>
+        ["issues", "list", "workspace-view", workspaceSlug, viewId, filters ?? {}] as const,
+      // Per-group pagination for Kanban views
+      group: (
+        baseKey: readonly unknown[],
+        groupId: string,
+        subGroupId?: string
+      ) => [...baseKey, "group", groupId, subGroupId] as const,
+    },
   },
 
   // Sprint queries
