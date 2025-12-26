@@ -138,6 +138,7 @@ export default {
   your_work: "Your work",
   drafts: "Drafts",
   projects: "Projects",
+  all_projects: "All Projects",
   views: "Views",
   workspace: "Workspace",
   archives: "Archives",
@@ -2720,5 +2721,11 @@ export default {
   sidebar: {
     stickies: "Stickies",
     your_work: "Your work",
+    projects: "Projects",
+    all_projects: "All Projects",
+    views: "Views",
+    sprints: "Sprints",
+    resource_view: "Resource View",
+    analytics: "Analytics",
   },
 } as const;

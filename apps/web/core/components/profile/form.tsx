@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
@@ -111,6 +111,35 @@ export function ProfileForm(props: TProfileFormProps) {
       });
   };
 
+  // Auto-save handler for cover image changes
+  const handleCoverImageAutoSave = async (newCoverImageUrl: string | null) => {
+    setValue("cover_image_url", newCoverImageUrl ?? "");
+
+    try {
+      const coverImagePayload = await handleCoverImageChange(user.cover_image_url, newCoverImageUrl, {
+        entityIdentifier: "",
+        entityType: EFileAssetType.USER_COVER,
+        isUserAsset: true,
+      });
+
+      if (coverImagePayload) {
+        await updateCurrentUser(coverImagePayload);
+        setToast({
+          type: TOAST_TYPE.SUCCESS,
+          title: "Success!",
+          message: "Cover image updated successfully.",
+        });
+      }
+    } catch (error) {
+      console.error("Error handling cover image:", error);
+      setToast({
+        type: TOAST_TYPE.ERROR,
+        title: t("toast.error"),
+        message: error instanceof Error ? error.message : "Failed to process cover image",
+      });
+    }
+  };
+
   const onSubmit = async (formData: TUserProfileForm) => {
     setIsLoading(true);
     const userPayload: Partial<IUser> = {
@@ -120,26 +149,7 @@ export function ProfileForm(props: TProfileFormProps) {
       display_name: formData?.display_name,
     };
 
-    try {
-      const coverImagePayload = await handleCoverImageChange(user.cover_image_url, formData.cover_image_url, {
-        entityIdentifier: "",
-        entityType: EFileAssetType.USER_COVER,
-        isUserAsset: true,
-      });
-
-      if (coverImagePayload) {
-        Object.assign(userPayload, coverImagePayload);
-      }
-    } catch (error) {
-      console.error("Error handling cover image:", error);
-      setToast({
-        type: TOAST_TYPE.ERROR,
-        title: t("toast.error"),
-        message: error instanceof Error ? error.message : "Failed to process cover image",
-      });
-      setIsLoading(false);
-      return;
-    }
+    // Note: cover_image is auto-saved via handleCoverImageAutoSave, not included here
 
     const profilePayload: Partial<TUserProfile> = {
       role: formData.role,
@@ -241,10 +251,10 @@ export function ProfileForm(props: TProfileFormProps) {
               <Controller
                 control={control}
                 name="cover_image_url"
-                render={({ field: { value, onChange } }) => (
+                render={({ field: { value } }) => (
                   <ImagePickerPopover
                     label={t("change_cover")}
-                    onChange={(imageUrl) => onChange(imageUrl)}
+                    onChange={handleCoverImageAutoSave}
                     value={value}
                     isProfileCover
                   />

@@ -169,21 +169,19 @@ export const SidebarProjectsList = memo(function SidebarProjectsList() {
               <span className="text-13 font-semibold">{t("projects")}</span>
             </CollapsibleTrigger>
             <div className="flex items-center gap-1">
-              {isAuthorizedUser && (
-                <Tooltip tooltipHeading={t("create_project")} tooltipContent="">
-                  <IconButton
-                    variant="ghost"
-                    size="sm"
-                    icon={Plus}
-                    onClick={() => {
-                      setIsProjectModalOpen(true);
-                    }}
-                    data-ph-element={PROJECT_TRACKER_ELEMENTS.SIDEBAR_CREATE_PROJECT_TOOLTIP}
-                    className="hidden group-hover:inline-flex text-placeholder"
-                    aria-label={t("aria_labels.projects_sidebar.create_new_project")}
-                  />
-                </Tooltip>
-              )}
+              <Tooltip tooltipHeading={t("create_project")} tooltipContent="">
+                <IconButton
+                  variant="ghost"
+                  size="sm"
+                  icon={Plus}
+                  onClick={() => {
+                    setIsProjectModalOpen(true);
+                  }}
+                  data-ph-element={PROJECT_TRACKER_ELEMENTS.SIDEBAR_CREATE_PROJECT_TOOLTIP}
+                  className="inline-flex text-placeholder"
+                  aria-label={t("aria_labels.projects_sidebar.create_new_project")}
+                />
+              </Tooltip>
               <IconButton
                 variant="ghost"
                 size="sm"
