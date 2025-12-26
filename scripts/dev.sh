@@ -24,6 +24,7 @@
 #
 # Options:
 #   --list     Show all running dev servers across worktrees and exit
+#   --kill     Kill dev servers for THIS WORKTREE ONLY (safe - won't affect other worktrees)
 #   --cleanup  Kill zombie/orphan dev servers and clean stale .dev-ports files
 #   --help     Show this help message
 
@@ -37,6 +38,12 @@ case "${1:-}" in
         list_all_dev_servers
         exit 0
         ;;
+    --kill)
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        source "$SCRIPT_DIR/port-manager.sh"
+        kill_this_worktree
+        exit 0
+        ;;
     --cleanup)
         SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
         source "$SCRIPT_DIR/port-manager.sh"
@@ -48,6 +55,7 @@ case "${1:-}" in
         echo ""
         echo "Options:"
         echo "  --list     Show all running dev servers across worktrees and exit"
+        echo "  --kill     Kill dev servers for THIS WORKTREE ONLY (safe)"
         echo "  --cleanup  Kill zombie/orphan dev servers and clean stale .dev-ports files"
         echo "  --help     Show this help message"
         echo ""
