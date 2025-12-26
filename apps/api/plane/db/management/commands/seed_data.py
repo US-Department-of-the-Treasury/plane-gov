@@ -376,11 +376,16 @@ class Command(BaseCommand):
         self.stdout.write("  Generating random data with Faker...")
         fake = Faker()
 
-        # Create project
+        # Create project with random emoji
+        project_emojis = ["128640", "128187", "9881", "128161", "128200", "128736", "127919", "128269"]  # 🚀💻⚙️💡📈🔧🎯🔍
         project_info = {
             "name": fake.company(),
             "identifier": fake.lexify(text="???").upper(),
             "description": fake.paragraph(),
+            "logo_props": {
+                "emoji": {"value": random.choice(project_emojis)},
+                "in_use": "emoji",
+            },
         }
         project = self._create_project(workspace, user, project_info)
         self.stdout.write(self.style.SUCCESS(f"    Project: {project.name}"))
@@ -439,6 +444,7 @@ class Command(BaseCommand):
             identifier=info.get("identifier", "DEMO")[:12].upper(),
             description=info.get("description", ""),
             network=info.get("network", 2),
+            logo_props=info.get("logo_props", {}),
             created_by=user,
             intake_view=True,
         )
