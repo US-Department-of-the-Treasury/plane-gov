@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useParams } from "next/navigation";
 // plane constants
 import { EIssueFilterType, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
@@ -15,6 +15,8 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { useGroupIssuesDragNDrop } from "@/hooks/use-group-dragndrop";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
+// TanStack Query hooks for data fetching
+import { useIssuesQuery } from "@/hooks/use-issues-query";
 // components
 import { IssueLayoutHOC } from "../issue-layout-HOC";
 import { List } from "./default";
@@ -35,7 +37,7 @@ type ListStoreType =
 
 interface IBaseListRoot {
   QuickActions: FC<IQuickActionProps>;
-  addIssuesToView?: (issueIds: string[]) => Promise<any>;
+  addIssuesToView?: (issueIds: string[]) => Promise<unknown>;
   canEditPropertiesBasedOnProject?: (projectId: string) => boolean;
   viewId?: string | undefined;
   isCompletedSprint?: boolean;
@@ -44,7 +46,7 @@ interface IBaseListRoot {
 export function BaseListRoot(props: IBaseListRoot) {
   const {
     QuickActions,
-    viewId,
+    viewId: _viewId,
     addIssuesToView,
     canEditPropertiesBasedOnProject,
     isCompletedSprint = false,
@@ -54,8 +56,12 @@ export function BaseListRoot(props: IBaseListRoot) {
   const storeType = useIssueStoreType() as ListStoreType;
   //stores
   const { issuesFilter, issues } = useIssues(storeType);
+
+  // TanStack Query for data fetching - auto-fetches when enabled
+  // Issues are synced to Zustand store inside the query hook
+  useIssuesQuery(storeType);
+
   const {
-    fetchIssues,
     fetchNextIssues,
     quickAddIssue,
     updateIssue,
@@ -95,9 +101,7 @@ export function BaseListRoot(props: IBaseListRoot) {
   const collapsedGroups =
     issuesFilter?.issueFilters?.kanbanFilters || ({ group_by: [], sub_group_by: [] } as TIssueKanbanFilters);
 
-  useEffect(() => {
-    fetchIssues("init-loader", { canGroup: true, perPageCount: group_by ? 50 : 100 }, viewId);
-  }, [fetchIssues, storeType, group_by, viewId]);
+  // Note: No useEffect needed for initial fetch - TanStack Query auto-fetches
 
   // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
   const groupedIssueIds = useGroupedIssueIds(storeType) as TGroupedIssues | undefined;
@@ -141,7 +145,7 @@ export function BaseListRoot(props: IBaseListRoot) {
 
   const loadMoreIssues = useCallback(
     (groupId?: string) => {
-      fetchNextIssues(groupId);
+      void fetchNextIssues(groupId);
     },
     [fetchNextIssues]
   );
@@ -156,7 +160,7 @@ export function BaseListRoot(props: IBaseListRoot) {
         } else {
           collapsedGroups.push(value);
         }
-        updateFilters(projectId?.toString() ?? "", EIssueFilterType.KANBAN_FILTERS, {
+        void updateFilters(projectId?.toString() ?? "", EIssueFilterType.KANBAN_FILTERS, {
           group_by: collapsedGroups,
         } as TIssueKanbanFilters);
       }
