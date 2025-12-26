@@ -1,7 +1,8 @@
 import { create } from "zustand";
-import { set as lodashSet, unset as lodashUnset } from "lodash-es";
 import type { TProjectPublishSettings } from "@plane/types";
 import { ProjectPublishService } from "@/services/project";
+// store
+import { useProjectStore } from "@/store/project/project.store";
 
 /**
  * Project publish settings state managed by Zustand.
@@ -103,15 +104,8 @@ export interface IProjectPublishStore {
  * @deprecated Use TanStack Query hooks directly in React components
  */
 export class ProjectPublishStoreLegacy implements IProjectPublishStore {
-  // Store reference for accessing project store
-  private rootStore: {
-    project: {
-      projectMap: Record<string, any>;
-    };
-  };
-
-  constructor(rootStore: { project: { projectMap: Record<string, any> } }) {
-    this.rootStore = rootStore;
+  constructor() {
+    // No rootStore needed - uses direct Zustand store access
   }
 
   get generalLoader() {
@@ -168,8 +162,8 @@ export class ProjectPublishStoreLegacy implements IProjectPublishStore {
       setGeneralLoader(true);
       const response = await projectPublishService.publishProject(workspaceSlug, projectID, data);
       setPublishSettings(projectID, response);
-      // Update project anchor in root store - use string path for proper reactivity
-      lodashSet(this.rootStore.project.projectMap, `${projectID}.anchor`, response.anchor);
+      // Update project anchor - direct Zustand store access
+      useProjectStore.getState().updateProjectAnchor(projectID, response.anchor);
       setGeneralLoader(false);
       return response;
     } catch (error) {
@@ -223,8 +217,8 @@ export class ProjectPublishStoreLegacy implements IProjectPublishStore {
       setGeneralLoader(true);
       await projectPublishService.unpublishProject(workspaceSlug, projectID, projectPublishId);
       removePublishSettings(projectID);
-      // Update project anchor in root store - use string path for proper reactivity
-      lodashSet(this.rootStore.project.projectMap, `${projectID}.anchor`, null);
+      // Update project anchor - direct Zustand store access
+      useProjectStore.getState().updateProjectAnchor(projectID, null);
       setGeneralLoader(false);
     } catch (error) {
       setGeneralLoader(false);

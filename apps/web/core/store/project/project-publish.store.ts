@@ -1,4 +1,3 @@
-import { unset as lodashUnset, set as lodashSet } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // types
@@ -7,6 +6,7 @@ import type { TProjectPublishSettings } from "@plane/types";
 import { ProjectPublishService } from "@/services/project";
 // store
 import type { ProjectRootStore } from "@/store/project";
+import { useProjectStore } from "@/store/project/project.store";
 
 // Zustand Store
 interface ProjectPublishState {
@@ -33,15 +33,13 @@ interface ProjectPublishActions {
     workspaceSlug: string,
     projectID: string,
     data: Partial<TProjectPublishSettings>,
-    projectPublishService: ProjectPublishService,
-    projectRootStore: ProjectRootStore
+    projectPublishService: ProjectPublishService
   ) => Promise<TProjectPublishSettings>;
   unPublishProject: (
     workspaceSlug: string,
     projectID: string,
     projectPublishId: string,
-    projectPublishService: ProjectPublishService,
-    projectRootStore: ProjectRootStore
+    projectPublishService: ProjectPublishService
   ) => Promise<void>;
 }
 
@@ -102,8 +100,7 @@ export const useProjectPublishStore = create<ProjectPublishStoreType>()(
       workspaceSlug: string,
       projectID: string,
       data: Partial<TProjectPublishSettings>,
-      projectPublishService: ProjectPublishService,
-      projectRootStore: ProjectRootStore
+      projectPublishService: ProjectPublishService
     ) => {
       try {
         set((state) => {
@@ -115,8 +112,8 @@ export const useProjectPublishStore = create<ProjectPublishStoreType>()(
           state.publishSettingsMap[projectID] = response;
           state.generalLoader = false;
         });
-        // Update project map in project root store - use string path for proper reactivity
-        lodashSet(projectRootStore.project.projectMap, `${projectID}.anchor`, response.anchor);
+        // Update project anchor - direct Zustand store access
+        useProjectStore.getState().updateProjectAnchor(projectID, response.anchor);
         return response;
       } catch (error) {
         set((state) => {
@@ -176,8 +173,7 @@ export const useProjectPublishStore = create<ProjectPublishStoreType>()(
       workspaceSlug: string,
       projectID: string,
       projectPublishId: string,
-      projectPublishService: ProjectPublishService,
-      projectRootStore: ProjectRootStore
+      projectPublishService: ProjectPublishService
     ) => {
       try {
         set((state) => {
@@ -189,8 +185,8 @@ export const useProjectPublishStore = create<ProjectPublishStoreType>()(
           delete state.publishSettingsMap[projectID];
           state.generalLoader = false;
         });
-        // Update project map in project root store - use string path for proper reactivity
-        lodashSet(projectRootStore.project.projectMap, `${projectID}.anchor`, null);
+        // Update project anchor - direct Zustand store access
+        useProjectStore.getState().updateProjectAnchor(projectID, null);
         return response;
       } catch (error) {
         set((state) => {
@@ -282,7 +278,7 @@ export class ProjectPublishStore implements IProjectPublishStore {
    * @returns
    */
   publishProject = async (workspaceSlug: string, projectID: string, data: Partial<TProjectPublishSettings>) => {
-    return this.store.publishProject(workspaceSlug, projectID, data, this.projectPublishService, this.projectRootStore);
+    return this.store.publishProject(workspaceSlug, projectID, data, this.projectPublishService);
   };
 
   /**
@@ -310,6 +306,6 @@ export class ProjectPublishStore implements IProjectPublishStore {
    * @returns
    */
   unPublishProject = async (workspaceSlug: string, projectID: string, projectPublishId: string) => {
-    return this.store.unPublishProject(workspaceSlug, projectID, projectPublishId, this.projectPublishService, this.projectRootStore);
+    return this.store.unPublishProject(workspaceSlug, projectID, projectPublishId, this.projectPublishService);
   };
 }
