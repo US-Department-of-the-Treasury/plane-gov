@@ -1,9 +1,10 @@
 import { useCallback, useEffect } from "react";
+import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import type { TProjectAppliedDisplayFilterKeys, TProjectFilters } from "@plane/types";
-import { calculateTotalFilters } from "@plane/utils";
+import { calculateTotalFilters, cn } from "@plane/utils";
 // components
 import { PageHead } from "@/components/core/page-title";
 // hooks
@@ -13,6 +14,12 @@ import { useWorkspaceDetails } from "@/store/queries/workspace";
 // local imports
 import { ProjectAppliedFiltersList } from "./applied-filters";
 import { ProjectCardList } from "./card-list";
+
+// Tab configuration for Projects / Drafts navigation
+const PROJECT_TABS = [
+  { key: "projects", labelKey: "projects", href: (ws: string) => `/${ws}/projects/` },
+  { key: "drafts", labelKey: "drafts", href: (ws: string) => `/${ws}/drafts/` },
+] as const;
 
 export function ProjectRoot() {
   const { workspaceSlug } = useParams();
@@ -73,10 +80,30 @@ export function ProjectRoot() {
     updateDisplayFilters(workspaceSlug.toString(), { archived_projects: isArchived });
   }, [pathname]);
 
+  // Determine active tab based on pathname
+  const activeTab = pathname.includes("/drafts") ? "drafts" : "projects";
+
   return (
     <>
       <PageHead title={pageTitle} />
       <div className="flex h-full w-full flex-col">
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-1 border-b border-subtle px-4 py-2">
+          {PROJECT_TABS.map((tab) => (
+            <Link
+              key={tab.key}
+              href={tab.href(workspaceSlug?.toString() ?? "")}
+              className={cn(
+                "px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
+                activeTab === tab.key
+                  ? "bg-layer-2 text-primary"
+                  : "text-secondary hover:bg-layer-transparent-hover hover:text-primary"
+              )}
+            >
+              {t(tab.labelKey)}
+            </Link>
+          ))}
+        </div>
         {(calculateTotalFilters(currentWorkspaceFilters ?? {}) !== 0 || allowedDisplayFilters.length > 0) && (
           <ProjectAppliedFiltersList
             appliedFilters={currentWorkspaceFilters ?? {}}
