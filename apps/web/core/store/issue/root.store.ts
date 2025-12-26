@@ -13,6 +13,13 @@ import {
   getRouterProjectId,
   getRouterWorkspaceSlug,
 } from "@/store/client";
+// member stores
+import { useMemberRootStore } from "@/store/member";
+import { useWorkspaceMemberStore } from "@/store/member/workspace/workspace-member.store";
+// project store
+import { useProjectStore } from "@/store/project/project.store";
+// user store
+import { useUserStore } from "@/store/user";
 // state sorting utility
 import { sortStates } from "@plane/utils";
 // plane web store
@@ -241,15 +248,15 @@ export class IssueRootStore implements IIssueRootStore {
     return this.issueRootStore.getState().userId;
   }
 
-  // Lazy getters for store maps - access Zustand stores directly instead of through rootStore
-  // This eliminates the indirection through legacy class wrappers and ensures data is always fresh
+  // Lazy getters for store maps - all now use direct Zustand store access
+  // This eliminates indirection through legacy class wrappers and ensures data is always fresh
 
-  // User ID still requires rootStore (user store not yet migrated to Zustand)
+  // User ID - now directly from Zustand store
   get currentUserId() {
-    return this.rootStore?.user?.data?.id;
+    return useUserStore.getState().data?.id;
   }
 
-  // State data - now directly from Zustand store
+  // State data - directly from Zustand store
   get stateMap() {
     return useStateStore.getState().stateMap;
   }
@@ -265,30 +272,32 @@ export class IssueRootStore implements IIssueRootStore {
     return sortStates(Object.values(stateMap));
   }
 
-  // Label data - now directly from Zustand store
+  // Label data - directly from Zustand store
   get labelMap() {
     return useLabelStore.getState().labelMap;
   }
 
-  // Member data still requires rootStore (member stores not yet migrated to Zustand)
+  // Member data - now directly from Zustand stores
   get workSpaceMemberRolesMap() {
-    return this.rootStore?.memberRoot?.workspace?.memberMap ?? undefined;
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return undefined;
+    return useWorkspaceMemberStore.getState().workspaceMemberMap[workspaceSlug] ?? undefined;
   }
   get memberMap() {
-    return this.rootStore?.memberRoot?.memberMap ?? undefined;
+    return useMemberRootStore.getState().memberMap;
   }
 
-  // Project data still requires rootStore (project store not yet migrated to Zustand)
+  // Project data - now directly from Zustand store
   get projectMap() {
-    return this.rootStore?.projectRoot?.project?.projectMap ?? undefined;
+    return useProjectStore.getState().projectMap;
   }
 
-  // Epic data - now directly from Zustand store
+  // Epic data - directly from Zustand store
   get epicMap() {
     return useEpicStore.getState().epicMap;
   }
 
-  // Sprint data - now directly from Zustand store
+  // Sprint data - directly from Zustand store
   get sprintMap() {
     return useSprintStore.getState().sprintMap;
   }
