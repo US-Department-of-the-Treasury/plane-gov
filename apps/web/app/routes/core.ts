@@ -292,6 +292,10 @@ export const coreRoutes: RouteConfigEntry[] = [
         // Resources
         layout("./(all)/[workspaceSlug]/(resources)/resources/layout.tsx", [
           route(":workspaceSlug/resources", "./(all)/[workspaceSlug]/(resources)/resources/page.tsx"),
+          route(
+            ":workspaceSlug/resources/assignments",
+            "./(all)/[workspaceSlug]/(resources)/resources/assignments/page.tsx"
+          ),
         ]),
       ]),
 
