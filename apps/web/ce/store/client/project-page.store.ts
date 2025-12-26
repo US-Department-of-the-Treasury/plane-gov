@@ -12,7 +12,7 @@ import { ProjectPageService } from "@/services/page";
 import type { TProjectPage } from "@/store/pages/project-page";
 import { ProjectPage } from "@/store/pages/project-page";
 // store helpers
-import { getRouterWorkspaceSlug, getRouterProjectId, useFavoriteStore } from "@/store/client";
+import { getRouterWorkspaceSlug, getRouterProjectId, useFavoriteStore, useRouterStore } from "@/store/client";
 // root store
 import type { RootStore } from "@/plane-web/store/root.store";
 
@@ -402,9 +402,6 @@ export class ProjectPageStoreLegacy implements IProjectPageStore {
     // Set up subscription to reset filters when project changes
     // Using Zustand's subscribe instead of setInterval polling
     let previousProjectId = getRouterProjectId();
-
-    // Import useRouterStore from the client store
-    const { useRouterStore } = require("@/store/client");
 
     this.unsubscribe = useRouterStore.subscribe((state: { query: Record<string, unknown> }) => {
       const currentProjectId = state.query?.projectId?.toString();

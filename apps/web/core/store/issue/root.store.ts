@@ -5,7 +5,7 @@ import { immer } from "zustand/middleware/immer";
 import type { ISprint, IIssueLabel, IEpic, IProject, IState, IUserLite, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 // store helpers
-import { getRouterWorkspaceSlug, getRouterTeamspaceId, getRouterProjectId, getRouterSprintId, getRouterEpicId, getRouterViewId, getRouterGlobalViewId, getRouterUserId } from "@/store/client";
+import { getRouterWorkspaceSlug, getRouterTeamspaceId, getRouterProjectId, getRouterSprintId, getRouterEpicId, getRouterViewId, getRouterGlobalViewId, getRouterUserId, useRouterStore } from "@/store/client";
 // plane web store
 import type { IProjectEpics, IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
 import { ProjectEpics, ProjectEpicsFilter } from "@/plane-web/store/issue/epic";
@@ -286,9 +286,6 @@ export class IssueRootStore implements IIssueRootStore {
     this.serviceType = serviceType;
     this.rootStore = rootStore;
     this.issueRootStore = createIssueRootStore();
-
-    // Import useRouterStore for subscriptions
-    const { useRouterStore } = require("@/store/client");
 
     // Setup router subscription (replaces setInterval for router values)
     const unsubscribeRouter = useRouterStore.subscribe((state: { query: Record<string, unknown> }) => {
