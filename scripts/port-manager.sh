@@ -46,12 +46,13 @@ BASE_LIVE_PORT=3100
 BASE_API_PORT=8000
 
 # Current ports (set by get_available_ports or load_ports_if_running)
+# Preserve PORT_OFFSET if already set by user (e.g., PORT_OFFSET=0 ./scripts/dev.sh)
 WEB_PORT=""
 ADMIN_PORT=""
 SPACE_PORT=""
 LIVE_PORT=""
 API_PORT=""
-PORT_OFFSET=""
+PORT_OFFSET="${PORT_OFFSET:-}"
 
 # Check if a port is in use
 is_port_in_use() {
