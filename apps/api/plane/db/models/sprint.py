@@ -237,3 +237,57 @@ class SprintUserProperties(BaseModel):
 
     def __str__(self):
         return f"{self.sprint.name} {self.user.email}"
+
+
+class SprintMemberProject(BaseModel):
+    """
+    Links a workspace member to a project for a specific sprint.
+
+    This is the source of truth for sprint visibility in projects.
+    A sprint only appears in a project's sprint view if there's at least
+    one SprintMemberProject assignment for that sprint+project combination.
+    """
+
+    workspace = models.ForeignKey(
+        "db.Workspace",
+        on_delete=models.CASCADE,
+        related_name="workspace_sprint_member_projects",
+    )
+    sprint = models.ForeignKey(
+        Sprint,
+        on_delete=models.CASCADE,
+        related_name="sprint_member_projects",
+    )
+    member = models.ForeignKey(
+        "db.WorkspaceMember",
+        on_delete=models.CASCADE,
+        related_name="sprint_project_assignments",
+    )
+    project = models.ForeignKey(
+        "db.Project",
+        on_delete=models.CASCADE,
+        related_name="sprint_member_assignments",
+    )
+
+    class Meta:
+        verbose_name = "Sprint Member Project"
+        verbose_name_plural = "Sprint Member Projects"
+        db_table = "sprint_member_projects"
+        ordering = ("-created_at",)
+        unique_together = ["sprint", "member", "deleted_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["sprint", "member"],
+                condition=models.Q(deleted_at__isnull=True),
+                name="sprint_member_project_unique_when_deleted_at_null",
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        # Auto-set workspace from sprint
+        if self.sprint:
+            self.workspace = self.sprint.workspace
+        super(SprintMemberProject, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.member} -> {self.project.name} in {self.sprint.name}"

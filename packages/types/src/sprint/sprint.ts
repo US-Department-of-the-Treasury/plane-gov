@@ -147,3 +147,17 @@ export type TProgressChartData = {
   ideal: number;
   actual: number;
 }[];
+
+/**
+ * Sprint-member-project assignment.
+ * This is the source of truth for which sprints appear in a project's sprint view.
+ */
+export type TSprintMemberProject = {
+  id: string;
+  workspace: string;
+  sprint: string;
+  member: string;
+  project: string;
+  created_at: string;
+  updated_at: string;
+};

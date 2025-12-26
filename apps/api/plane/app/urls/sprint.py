@@ -7,10 +7,27 @@ from plane.app.views import (
     WorkspaceSprintIssuesEndpoint,
     WorkspaceSprintUserPropertiesEndpoint,
     WorkspaceSprintFavoriteEndpoint,
+    SprintMemberProjectEndpoint,
+    # Project-level sprint views (filters by SprintMemberProject)
+    SprintViewSet,
 )
 
 
 urlpatterns = [
+    # Project-scoped Sprint ViewSet (filters by SprintMemberProject assignments)
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/",
+        SprintViewSet.as_view({"get": "list"}),
+        name="project-sprints",
+    ),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/sprints/<uuid:pk>/",
+        SprintViewSet.as_view({
+            "get": "retrieve",
+            "patch": "partial_update",
+        }),
+        name="project-sprint-detail",
+    ),
     # Workspace Sprint ViewSet (CRUD operations)
     path(
         "workspaces/<str:slug>/sprints/",
@@ -47,5 +64,11 @@ urlpatterns = [
         "workspaces/<str:slug>/sprints/<uuid:sprint_id>/favorite/",
         WorkspaceSprintFavoriteEndpoint.as_view(),
         name="workspace-sprint-favorite",
+    ),
+    # Sprint Member Project Assignments (source of truth for sprint visibility in projects)
+    path(
+        "workspaces/<str:slug>/sprint-member-projects/",
+        SprintMemberProjectEndpoint.as_view(),
+        name="sprint-member-projects",
     ),
 ]

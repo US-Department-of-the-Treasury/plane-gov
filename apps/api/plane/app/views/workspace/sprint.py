@@ -33,13 +33,16 @@ from plane.app.views.base import BaseAPIView, BaseViewSet
 from plane.db.models import (
     Sprint,
     SprintIssue,
+    SprintMemberProject,
     SprintUserProperties,
     Workspace,
+    WorkspaceMember,
     UserFavorite,
     Issue,
     Label,
     User,
     UserRecentVisit,
+    Project,
 )
 from plane.app.permissions import (
     WorkspaceEntityPermission,
@@ -51,6 +54,7 @@ from plane.app.serializers import (
     SprintSerializer,
     SprintWriteSerializer,
     SprintUserPropertiesSerializer,
+    SprintMemberProjectSerializer,
 )
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.bgtasks.recent_visited_task import recent_visited_task
@@ -749,3 +753,133 @@ class WorkspaceSprintsEndpoint(BaseAPIView):
         )
         serializer = SprintSerializer(sprints, many=True).data
         return Response(serializer, status=status.HTTP_200_OK)
+
+
+class SprintMemberProjectEndpoint(BaseAPIView):
+    """
+    Manage sprint-member-project assignments.
+
+    These assignments determine which sprints are visible in a project's sprint view.
+    When a member is assigned to a project for a sprint, that sprint becomes visible
+    in the project's sprint list.
+    """
+
+    permission_classes = [WorkspaceEntityPermission]
+
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST], level="WORKSPACE")
+    def get(self, request, slug):
+        """
+        List all sprint-member-project assignments for a workspace.
+
+        Returns a list of assignments that can be used to populate
+        the Resources view matrix.
+        """
+        assignments = SprintMemberProject.objects.filter(
+            workspace__slug=slug,
+            deleted_at__isnull=True,
+        ).select_related("sprint", "member", "project")
+
+        serializer = SprintMemberProjectSerializer(assignments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
+    def post(self, request, slug):
+        """
+        Create a sprint-member-project assignment.
+
+        Required fields:
+        - sprint: UUID of the sprint
+        - member: UUID of the workspace member
+        - project: UUID of the project
+
+        This will make the sprint visible in the project's sprint view.
+        """
+        sprint_id = request.data.get("sprint")
+        member_id = request.data.get("member")
+        project_id = request.data.get("project")
+
+        if not all([sprint_id, member_id, project_id]):
+            return Response(
+                {"error": "sprint, member, and project are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        workspace = Workspace.objects.get(slug=slug)
+
+        # Validate sprint exists in workspace
+        try:
+            sprint = Sprint.objects.get(pk=sprint_id, workspace=workspace)
+        except Sprint.DoesNotExist:
+            return Response(
+                {"error": "Sprint not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Validate member exists in workspace
+        try:
+            member = WorkspaceMember.objects.get(pk=member_id, workspace=workspace)
+        except WorkspaceMember.DoesNotExist:
+            return Response(
+                {"error": "Workspace member not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Validate project exists in workspace
+        try:
+            project = Project.objects.get(pk=project_id, workspace=workspace)
+        except Project.DoesNotExist:
+            return Response(
+                {"error": "Project not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Create or update assignment (using get_or_create to handle duplicates)
+        assignment, created = SprintMemberProject.objects.update_or_create(
+            sprint=sprint,
+            member=member,
+            defaults={
+                "project": project,
+                "workspace": workspace,
+            },
+        )
+
+        serializer = SprintMemberProjectSerializer(assignment)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
+
+    @allow_permission([ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
+    def delete(self, request, slug):
+        """
+        Delete a sprint-member-project assignment.
+
+        Query params:
+        - sprint: UUID of the sprint
+        - member: UUID of the workspace member
+
+        This will remove the sprint from the project's view for that member.
+        """
+        sprint_id = request.query_params.get("sprint")
+        member_id = request.query_params.get("member")
+
+        if not all([sprint_id, member_id]):
+            return Response(
+                {"error": "sprint and member query params are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        deleted_count, _ = SprintMemberProject.objects.filter(
+            workspace__slug=slug,
+            sprint_id=sprint_id,
+            member_id=member_id,
+            deleted_at__isnull=True,
+        ).delete()
+
+        if deleted_count == 0:
+            return Response(
+                {"error": "Assignment not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

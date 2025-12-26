@@ -81,6 +81,7 @@ from .workspace.sprint import (
     WorkspaceSprintIssuesEndpoint,
     WorkspaceSprintUserPropertiesEndpoint,
     WorkspaceSprintFavoriteEndpoint,
+    SprintMemberProjectEndpoint,
 )
 from .workspace.quick_link import QuickLinkViewSet
 from .workspace.sticky import WorkspaceStickyViewSet

@@ -1,51 +1,57 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { useLocalStorage } from "@plane/hooks";
-
-// Type for sprint assignments: maps "memberId-sprintId" to projectId
-type TSprintAssignments = Record<string, string>;
+import {
+  useSprintMemberProjects,
+  useSetSprintMemberProject,
+  useDeleteSprintMemberProject,
+  getSprintMemberProjectAssignment,
+} from "@/store/queries";
 
 /**
- * Hook to manage sprint project assignments in localStorage.
- * Assignments are workspace-scoped for data isolation.
+ * Hook to manage sprint project assignments via the API.
+ * Assignments are stored in the database (SprintMemberProject table).
+ * This is the source of truth for which sprints appear in each project's sprint view.
  *
  * @example
- * const { getAssignment, setAssignment, clearAssignment } = useSprintProjectAssignments(workspaceSlug);
+ * const { getAssignment, setAssignment, clearAssignment, isLoading } = useSprintProjectAssignments(workspaceSlug);
  * const projectId = getAssignment(memberId, sprintId);
  * setAssignment(memberId, sprintId, projectId);
  */
 export function useSprintProjectAssignments(workspaceSlug: string) {
-  const storageKey = `plane_sprint_assignments_${workspaceSlug}`;
-  const { storedValue, setValue } = useLocalStorage<TSprintAssignments>(storageKey, {});
-
-  // Create a composite key for member+sprint combination
-  const makeKey = useCallback((memberId: string, sprintId: string) => `${memberId}-${sprintId}`, []);
+  const { data: assignments, isLoading, error } = useSprintMemberProjects(workspaceSlug);
+  const { mutate: setAssignmentMutation } = useSetSprintMemberProject();
+  const { mutate: deleteAssignmentMutation } = useDeleteSprintMemberProject();
 
   // Get the assigned project for a member's sprint
   const getAssignment = useCallback(
     (memberId: string, sprintId: string): string | undefined => {
-      const key = makeKey(memberId, sprintId);
-      return storedValue?.[key];
+      return getSprintMemberProjectAssignment(assignments, memberId, sprintId);
     },
-    [storedValue, makeKey]
+    [assignments]
   );
 
   // Set or update the project assignment for a member's sprint
   const setAssignment = useCallback(
     (memberId: string, sprintId: string, projectId: string | null) => {
-      const key = makeKey(memberId, sprintId);
-      const newAssignments = { ...storedValue };
-
       if (projectId === null || projectId === "") {
-        delete newAssignments[key];
+        // Clear assignment
+        deleteAssignmentMutation({
+          workspaceSlug,
+          sprintId,
+          memberId,
+        });
       } else {
-        newAssignments[key] = projectId;
+        // Set or update assignment
+        setAssignmentMutation({
+          workspaceSlug,
+          sprintId,
+          memberId,
+          projectId,
+        });
       }
-
-      setValue(newAssignments);
     },
-    [storedValue, setValue, makeKey]
+    [workspaceSlug, setAssignmentMutation, deleteAssignmentMutation]
   );
 
   // Clear assignment for a member's sprint
@@ -56,19 +62,31 @@ export function useSprintProjectAssignments(workspaceSlug: string) {
     [setAssignment]
   );
 
-  // Clear all assignments (useful for reset)
+  // Clear all assignments - not commonly used, but kept for compatibility
   const clearAllAssignments = useCallback(() => {
-    setValue({});
-  }, [setValue]);
+    // This would require a bulk delete endpoint which we don't have
+    // For now, do nothing - individual assignments should be cleared via clearAssignment
+    console.warn("clearAllAssignments is not supported with database-backed assignments");
+  }, []);
 
-  // Get all assignments as a map
-  const assignments = useMemo(() => storedValue ?? {}, [storedValue]);
+  // Get all assignments as a map (for compatibility with old interface)
+  const assignmentsMap = useMemo(() => {
+    if (!assignments) return {};
+    const map: Record<string, string> = {};
+    for (const assignment of assignments) {
+      const key = `${assignment.member}-${assignment.sprint}`;
+      map[key] = assignment.project;
+    }
+    return map;
+  }, [assignments]);
 
   return {
-    assignments,
+    assignments: assignmentsMap,
     getAssignment,
     setAssignment,
     clearAssignment,
     clearAllAssignments,
+    isLoading,
+    error,
   };
 }

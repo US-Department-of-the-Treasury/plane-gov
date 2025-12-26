@@ -7,6 +7,7 @@ import type {
   TSprintDistribution,
   TProgressSnapshot,
   TSprintEstimateDistribution,
+  TSprintMemberProject,
 } from "@plane/types";
 import { APIService } from "@/services/api.service";
 
@@ -29,6 +30,18 @@ export class SprintService extends APIService {
    */
   async getWorkspaceSprints(workspaceSlug: string): Promise<ISprint[]> {
     return this.get(`/api/workspaces/${workspaceSlug}/sprints/`)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
+
+  /**
+   * Get sprints for a specific project.
+   * Only returns sprints that have SprintMemberProject assignments for this project.
+   */
+  async getProjectSprints(workspaceSlug: string, projectId: string): Promise<ISprint[]> {
+    return this.get(`/api/workspaces/${workspaceSlug}/projects/${projectId}/sprints/`)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -186,6 +199,51 @@ export class SprintService extends APIService {
       .then((res) => res?.data)
       .catch((err) => {
         throw err?.response?.data;
+      });
+  }
+
+  // Sprint Member Project Assignments (source of truth for sprint visibility in projects)
+
+  /**
+   * Get all sprint-member-project assignments for a workspace.
+   */
+  async getSprintMemberProjects(workspaceSlug: string): Promise<TSprintMemberProject[]> {
+    return this.get(`/api/workspaces/${workspaceSlug}/sprint-member-projects/`)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
+
+  /**
+   * Create or update a sprint-member-project assignment.
+   * This is the source of truth for which sprints appear in a project's sprint view.
+   */
+  async setSprintMemberProject(
+    workspaceSlug: string,
+    data: { sprint: string; member: string; project: string }
+  ): Promise<TSprintMemberProject> {
+    return this.post(`/api/workspaces/${workspaceSlug}/sprint-member-projects/`, data)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
+
+  /**
+   * Delete a sprint-member-project assignment.
+   */
+  async deleteSprintMemberProject(
+    workspaceSlug: string,
+    sprintId: string,
+    memberId: string
+  ): Promise<void> {
+    return this.delete(`/api/workspaces/${workspaceSlug}/sprint-member-projects/`, {
+      params: { sprint: sprintId, member: memberId },
+    })
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
       });
   }
 }

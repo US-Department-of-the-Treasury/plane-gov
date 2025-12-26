@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ISprint } from "@plane/types";
+import type { ISprint, TSprintMemberProject } from "@plane/types";
 import { SprintService } from "@/services/sprint.service";
 import { SprintArchiveService } from "@/services/sprint_archive.service";
 import { queryKeys } from "./query-keys";
@@ -11,11 +11,11 @@ const sprintService = new SprintService();
 const sprintArchiveService = new SprintArchiveService();
 
 /**
- * Hook to fetch all sprints for a project.
+ * Hook to fetch sprints assigned to a specific project.
  * Replaces MobX SprintStore.fetchAllSprints for read operations.
  *
- * Note: Sprints are now workspace-wide, so this fetches all workspace sprints.
- * Filter by projectId on the client side if needed.
+ * Only returns sprints that have SprintMemberProject assignments for this project.
+ * This is the source of truth for which sprints should appear in a project's sprint view.
  *
  * @example
  * const { data: sprints, isLoading } = useProjectSprints(workspaceSlug, projectId);
@@ -23,7 +23,7 @@ const sprintArchiveService = new SprintArchiveService();
 export function useProjectSprints(workspaceSlug: string, projectId: string) {
   return useQuery({
     queryKey: queryKeys.sprints.all(workspaceSlug, projectId),
-    queryFn: () => sprintService.getWorkspaceSprints(workspaceSlug),
+    queryFn: () => sprintService.getProjectSprints(workspaceSlug, projectId),
     enabled: !!workspaceSlug && !!projectId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
@@ -49,22 +49,22 @@ export function useWorkspaceSprints(workspaceSlug: string) {
 
 /**
  * Hook to fetch active sprint for a project.
- * Replaces MobX SprintStore.fetchActiveSprint for read operations.
+ * Uses the same data as useProjectSprints but provides a consistent interface
+ * for components that specifically need the active sprint.
  *
- * Note: Uses deprecated workspaceActiveSprints method for backward compatibility.
- * This will be replaced with a proper active sprints endpoint in the future.
+ * Returns all sprints assigned to the project - use getActiveSprint() helper
+ * to find the current sprint from the results.
  *
  * @example
- * const { data: activeSprints, isLoading } = useActiveSprint(workspaceSlug, projectId);
+ * const { data: sprints, isLoading } = useActiveSprint(workspaceSlug, projectId);
+ * const activeSprint = getActiveSprint(sprints);
  */
 export function useActiveSprint(workspaceSlug: string, projectId: string) {
+  // Use the same query as useProjectSprints to avoid duplicate requests
+  // and ensure consistency between the sprint list and active sprint views
   return useQuery({
-    queryKey: queryKeys.sprints.active(workspaceSlug, projectId),
-    queryFn: async () => {
-      const response = await sprintService.workspaceActiveSprints(workspaceSlug, "0", 100);
-      // Extract results array from paginated response
-      return response.results;
-    },
+    queryKey: queryKeys.sprints.all(workspaceSlug, projectId),
+    queryFn: () => sprintService.getProjectSprints(workspaceSlug, projectId),
     enabled: !!workspaceSlug && !!projectId,
     staleTime: 2 * 60 * 1000, // 2 minutes - active sprint changes more frequently
     gcTime: 30 * 60 * 1000,
@@ -532,4 +532,174 @@ export function getUpcomingSprints(sprints: ISprint[] | undefined): ISprint[] {
     const startDate = new Date(sprint.start_date);
     return startDate > now;
   });
+}
+
+// Sprint Member Project Assignment Hooks
+// These control which sprints appear in each project's sprint view
+
+/**
+ * Hook to fetch all sprint-member-project assignments for a workspace.
+ * This is the source of truth for sprint visibility in project views.
+ *
+ * @example
+ * const { data: assignments, isLoading } = useSprintMemberProjects(workspaceSlug);
+ */
+export function useSprintMemberProjects(workspaceSlug: string) {
+  return useQuery({
+    queryKey: queryKeys.sprints.memberProjects(workspaceSlug),
+    queryFn: () => sprintService.getSprintMemberProjects(workspaceSlug),
+    enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
+
+interface SetSprintMemberProjectParams {
+  workspaceSlug: string;
+  sprintId: string;
+  memberId: string;
+  projectId: string;
+}
+
+/**
+ * Hook to create or update a sprint-member-project assignment.
+ * This determines which sprints appear in a project's sprint view.
+ *
+ * @example
+ * const { mutate: setAssignment, isPending } = useSetSprintMemberProject();
+ * setAssignment({ workspaceSlug, sprintId, memberId, projectId });
+ */
+export function useSetSprintMemberProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, sprintId, memberId, projectId }: SetSprintMemberProjectParams) =>
+      sprintService.setSprintMemberProject(workspaceSlug, {
+        sprint: sprintId,
+        member: memberId,
+        project: projectId,
+      }),
+    onMutate: async ({ workspaceSlug, sprintId, memberId, projectId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.sprints.memberProjects(workspaceSlug) });
+
+      const previousAssignments = queryClient.getQueryData<TSprintMemberProject[]>(
+        queryKeys.sprints.memberProjects(workspaceSlug)
+      );
+
+      // Optimistic update
+      if (previousAssignments) {
+        const existingIndex = previousAssignments.findIndex(
+          (a) => a.sprint === sprintId && a.member === memberId
+        );
+        const optimisticAssignment: TSprintMemberProject = {
+          id: `temp-${Date.now()}`,
+          workspace: workspaceSlug,
+          sprint: sprintId,
+          member: memberId,
+          project: projectId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        if (existingIndex >= 0) {
+          // Update existing
+          const updated = [...previousAssignments];
+          updated[existingIndex] = { ...updated[existingIndex], project: projectId };
+          queryClient.setQueryData(queryKeys.sprints.memberProjects(workspaceSlug), updated);
+        } else {
+          // Add new
+          queryClient.setQueryData(queryKeys.sprints.memberProjects(workspaceSlug), [
+            ...previousAssignments,
+            optimisticAssignment,
+          ]);
+        }
+      }
+
+      return { previousAssignments, workspaceSlug, projectId };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousAssignments && context.workspaceSlug) {
+        queryClient.setQueryData(
+          queryKeys.sprints.memberProjects(context.workspaceSlug),
+          context.previousAssignments
+        );
+      }
+    },
+    onSettled: (_data, _error, { workspaceSlug }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.sprints.memberProjects(workspaceSlug) });
+      // Invalidate ALL project sprint queries for this workspace since visibility may have changed
+      // Using partial match on ["sprints", workspaceSlug] to catch all projects
+      void queryClient.invalidateQueries({ queryKey: ["sprints", workspaceSlug] });
+    },
+  });
+}
+
+interface DeleteSprintMemberProjectParams {
+  workspaceSlug: string;
+  sprintId: string;
+  memberId: string;
+}
+
+/**
+ * Hook to delete a sprint-member-project assignment.
+ * This removes a sprint from a project's sprint view.
+ *
+ * @example
+ * const { mutate: deleteAssignment, isPending } = useDeleteSprintMemberProject();
+ * deleteAssignment({ workspaceSlug, sprintId, memberId });
+ */
+export function useDeleteSprintMemberProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, sprintId, memberId }: DeleteSprintMemberProjectParams) =>
+      sprintService.deleteSprintMemberProject(workspaceSlug, sprintId, memberId),
+    onMutate: async ({ workspaceSlug, sprintId, memberId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.sprints.memberProjects(workspaceSlug) });
+
+      const previousAssignments = queryClient.getQueryData<TSprintMemberProject[]>(
+        queryKeys.sprints.memberProjects(workspaceSlug)
+      );
+
+      // Optimistic update - remove the assignment
+      if (previousAssignments) {
+        queryClient.setQueryData(
+          queryKeys.sprints.memberProjects(workspaceSlug),
+          previousAssignments.filter((a) => !(a.sprint === sprintId && a.member === memberId))
+        );
+      }
+
+      return { previousAssignments, workspaceSlug };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousAssignments && context.workspaceSlug) {
+        queryClient.setQueryData(
+          queryKeys.sprints.memberProjects(context.workspaceSlug),
+          context.previousAssignments
+        );
+      }
+    },
+    onSettled: (_data, _error, { workspaceSlug }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.sprints.memberProjects(workspaceSlug) });
+      // Also invalidate all project sprints since visibility may have changed
+      void queryClient.invalidateQueries({ queryKey: ["sprints", workspaceSlug] });
+    },
+  });
+}
+
+/**
+ * Get assignment for a specific member and sprint from assignments array.
+ *
+ * @example
+ * const { data: assignments } = useSprintMemberProjects(workspaceSlug);
+ * const projectId = getSprintMemberProjectAssignment(assignments, memberId, sprintId);
+ */
+export function getSprintMemberProjectAssignment(
+  assignments: TSprintMemberProject[] | undefined,
+  memberId: string,
+  sprintId: string
+): string | undefined {
+  if (!assignments) return undefined;
+  const assignment = assignments.find((a) => a.member === memberId && a.sprint === sprintId);
+  return assignment?.project;
 }
