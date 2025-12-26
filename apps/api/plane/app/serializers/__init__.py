@@ -46,6 +46,7 @@ from .sprint import (
     SprintIssueSerializer,
     SprintWriteSerializer,
     SprintUserPropertiesSerializer,
+    SprintMemberProjectSerializer,
 )
 from .asset import FileAssetSerializer
 from .issue import (

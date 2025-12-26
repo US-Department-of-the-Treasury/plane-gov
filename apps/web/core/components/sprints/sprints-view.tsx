@@ -52,12 +52,15 @@ export function SprintsView(props: ISprintsView) {
 
       // Get completed sprints
       const completedSprints = getCompletedSprints(filtered);
+      const completedSprintIds = completedSprints.map((s) => s.id);
 
       // Get all filtered sprint IDs
       const allFilteredIds = filtered.map((sprint: ISprint) => sprint.id);
 
-      // Get upcoming sprint IDs (filtered, excluding active)
-      const upcomingIds = allFilteredIds.filter((id: string) => id !== activeSprintId);
+      // Get upcoming sprint IDs (filtered, excluding active AND completed)
+      const upcomingIds = allFilteredIds.filter(
+        (id: string) => id !== activeSprintId && !completedSprintIds.includes(id)
+      );
 
       return {
         filteredSprintIds: allFilteredIds,

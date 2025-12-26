@@ -40,6 +40,7 @@ from plane.bgtasks.issue_activities_task import issue_activity
 from plane.db.models import (
     Sprint,
     SprintIssue,
+    SprintMemberProject,
     UserFavorite,
     SprintUserProperties,
     Issue,
@@ -63,15 +64,25 @@ class SprintViewSet(BaseViewSet):
     webhook_event = "sprint"
 
     def get_queryset(self):
+        project_id = self.kwargs.get("project_id")
+        slug = self.kwargs.get("slug")
+
         favorite_subquery = UserFavorite.objects.filter(
             user=self.request.user,
             entity_identifier=OuterRef("pk"),
             entity_type="sprint",
-            project_id=self.kwargs.get("project_id"),
-            workspace__slug=self.kwargs.get("slug"),
+            project_id=project_id,
+            workspace__slug=slug,
         )
 
-        project = Project.objects.get(id=self.kwargs.get("project_id"))
+        # Subquery to check if sprint has at least one SprintMemberProject for this project
+        has_project_assignment = SprintMemberProject.objects.filter(
+            sprint_id=OuterRef("pk"),
+            project_id=project_id,
+            deleted_at__isnull=True,
+        )
+
+        project = Project.objects.get(id=project_id)
 
         # Fetch project for the specific record or pass project_id dynamically
         project_timezone = project.timezone
@@ -86,62 +97,63 @@ class SprintViewSet(BaseViewSet):
         return self.filter_queryset(
             super()
             .get_queryset()
-            .filter(workspace__slug=self.kwargs.get("slug"))
-            .filter(project_id=self.kwargs.get("project_id"))
-            .filter(
-                project__project_projectmember__member=self.request.user,
-                project__project_projectmember__is_active=True,
-            )
-            .filter(project__archived_at__isnull=True)
-            .select_related("project", "workspace", "owned_by")
+            .filter(workspace__slug=slug)
+            # Filter sprints that have at least one SprintMemberProject assignment for this project
+            .filter(Exists(has_project_assignment))
+            .filter(archived_at__isnull=True)
+            .select_related("workspace")
             .prefetch_related(
                 Prefetch(
-                    "issue_sprint__issue__assignees",
+                    "sprint_issues__issue__assignees",
                     queryset=User.objects.only("avatar_asset", "first_name", "id").distinct(),
                 )
             )
             .prefetch_related(
                 Prefetch(
-                    "issue_sprint__issue__labels",
+                    "sprint_issues__issue__labels",
                     queryset=Label.objects.only("name", "color", "id").distinct(),
                 )
             )
             .annotate(is_favorite=Exists(favorite_subquery))
+            # Count only issues from this specific project
             .annotate(
                 total_issues=Count(
-                    "issue_sprint__issue__id",
+                    "sprint_issues__issue__id",
                     distinct=True,
                     filter=Q(
-                        issue_sprint__issue__archived_at__isnull=True,
-                        issue_sprint__issue__is_draft=False,
-                        issue_sprint__deleted_at__isnull=True,
-                        issue_sprint__issue__deleted_at__isnull=True,
+                        sprint_issues__issue__project_id=project_id,
+                        sprint_issues__issue__archived_at__isnull=True,
+                        sprint_issues__issue__is_draft=False,
+                        sprint_issues__deleted_at__isnull=True,
+                        sprint_issues__issue__deleted_at__isnull=True,
                     ),
                 )
             )
             .annotate(
                 completed_issues=Count(
-                    "issue_sprint__issue__id",
+                    "sprint_issues__issue__id",
                     distinct=True,
                     filter=Q(
-                        issue_sprint__issue__state__group="completed",
-                        issue_sprint__issue__archived_at__isnull=True,
-                        issue_sprint__issue__is_draft=False,
-                        issue_sprint__deleted_at__isnull=True,
-                        issue_sprint__issue__deleted_at__isnull=True,
+                        sprint_issues__issue__project_id=project_id,
+                        sprint_issues__issue__state__group="completed",
+                        sprint_issues__issue__archived_at__isnull=True,
+                        sprint_issues__issue__is_draft=False,
+                        sprint_issues__deleted_at__isnull=True,
+                        sprint_issues__issue__deleted_at__isnull=True,
                     ),
                 )
             )
             .annotate(
                 cancelled_issues=Count(
-                    "issue_sprint__issue__id",
+                    "sprint_issues__issue__id",
                     distinct=True,
                     filter=Q(
-                        issue_sprint__issue__state__group__in=["cancelled"],
-                        issue_sprint__issue__archived_at__isnull=True,
-                        issue_sprint__issue__is_draft=False,
-                        issue_sprint__deleted_at__isnull=True,
-                        issue_sprint__issue__deleted_at__isnull=True,
+                        sprint_issues__issue__project_id=project_id,
+                        sprint_issues__issue__state__group__in=["cancelled"],
+                        sprint_issues__issue__archived_at__isnull=True,
+                        sprint_issues__issue__is_draft=False,
+                        sprint_issues__deleted_at__isnull=True,
+                        sprint_issues__issue__deleted_at__isnull=True,
                     ),
                 )
             )
@@ -164,10 +176,11 @@ class SprintViewSet(BaseViewSet):
             .annotate(
                 assignee_ids=Coalesce(
                     ArrayAgg(
-                        "issue_sprint__issue__assignees__id",
+                        "sprint_issues__issue__assignees__id",
                         distinct=True,
-                        filter=~Q(issue_sprint__issue__assignees__id__isnull=True)
-                        & (Q(issue_sprint__issue__issue_assignee__deleted_at__isnull=True)),
+                        filter=Q(sprint_issues__issue__project_id=project_id)
+                        & ~Q(sprint_issues__issue__assignees__id__isnull=True)
+                        & Q(sprint_issues__issue__issue_assignee__deleted_at__isnull=True),
                     ),
                     Value([], output_field=ArrayField(UUIDField())),
                 )
@@ -204,13 +217,12 @@ class SprintViewSet(BaseViewSet):
                 # necessary fields
                 "id",
                 "workspace_id",
-                "project_id",
+                "number",
                 # model fields
                 "name",
                 "description",
                 "start_date",
                 "end_date",
-                "owned_by_id",
                 "view_props",
                 "sort_order",
                 "external_source",
@@ -236,13 +248,12 @@ class SprintViewSet(BaseViewSet):
             # necessary fields
             "id",
             "workspace_id",
-            "project_id",
+            "number",
             # model fields
             "name",
             "description",
             "start_date",
             "end_date",
-            "owned_by_id",
             "view_props",
             "sort_order",
             "external_source",
@@ -270,7 +281,9 @@ class SprintViewSet(BaseViewSet):
         ):
             serializer = SprintWriteSerializer(data=request.data, context={"project_id": project_id})
             if serializer.is_valid():
-                serializer.save(project_id=project_id, owned_by=request.user)
+                # Note: Sprints are now workspace-wide and auto-generated.
+                # This create method is kept for backward compatibility but should not be used.
+                serializer.save()
                 sprint = (
                     self.get_queryset()
                     .filter(pk=serializer.data["id"])
@@ -278,13 +291,12 @@ class SprintViewSet(BaseViewSet):
                         # necessary fields
                         "id",
                         "workspace_id",
-                        "project_id",
+                        "number",
                         # model fields
                         "name",
                         "description",
                         "start_date",
                         "end_date",
-                        "owned_by_id",
                         "view_props",
                         "sort_order",
                         "external_source",
@@ -330,7 +342,8 @@ class SprintViewSet(BaseViewSet):
 
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
     def partial_update(self, request, slug, project_id, pk):
-        queryset = self.get_queryset().filter(workspace__slug=slug, project_id=project_id, pk=pk)
+        # Filter by pk only - get_queryset already ensures sprint has SprintMemberProject for this project
+        queryset = self.get_queryset().filter(workspace__slug=slug, pk=pk)
         sprint = queryset.first()
         if sprint.archived_at:
             return Response(
@@ -359,13 +372,12 @@ class SprintViewSet(BaseViewSet):
                 # necessary fields
                 "id",
                 "workspace_id",
-                "project_id",
+                "number",
                 # model fields
                 "name",
                 "description",
                 "start_date",
                 "end_date",
-                "owned_by_id",
                 "view_props",
                 "sort_order",
                 "external_source",
@@ -414,8 +426,8 @@ class SprintViewSet(BaseViewSet):
                 sub_issues=Issue.issue_objects.filter(
                     project_id=self.kwargs.get("project_id"),
                     parent__isnull=False,
-                    issue_sprint__sprint_id=pk,
-                    issue_sprint__deleted_at__isnull=True,
+                    sprint_issues__sprint_id=pk,
+                    sprint_issues__deleted_at__isnull=True,
                 )
                 .order_by()
                 .annotate(count=Func(F("id"), function="Count"))
@@ -425,13 +437,12 @@ class SprintViewSet(BaseViewSet):
                 # necessary fields
                 "id",
                 "workspace_id",
-                "project_id",
+                "number",
                 # model fields
                 "name",
                 "description",
                 "start_date",
                 "end_date",
-                "owned_by_id",
                 "view_props",
                 "sort_order",
                 "external_source",
@@ -660,8 +671,8 @@ class SprintProgressEndpoint(BaseAPIView):
         aggregate_estimates = (
             Issue.issue_objects.filter(
                 estimate_point__estimate__type="points",
-                issue_sprint__sprint_id=sprint_id,
-                issue_sprint__deleted_at__isnull=True,
+                sprint_issues__sprint_id=sprint_id,
+                sprint_issues__deleted_at__isnull=True,
                 workspace__slug=slug,
                 project_id=project_id,
             )
@@ -714,48 +725,48 @@ class SprintProgressEndpoint(BaseAPIView):
             total_issues = sprint.progress_snapshot.get("total_issues", 0)
         else:
             backlog_issues = Issue.issue_objects.filter(
-                issue_sprint__sprint_id=sprint_id,
-                issue_sprint__deleted_at__isnull=True,
+                sprint_issues__sprint_id=sprint_id,
+                sprint_issues__deleted_at__isnull=True,
                 workspace__slug=slug,
                 project_id=project_id,
                 state__group="backlog",
             ).count()
 
             unstarted_issues = Issue.issue_objects.filter(
-                issue_sprint__sprint_id=sprint_id,
-                issue_sprint__deleted_at__isnull=True,
+                sprint_issues__sprint_id=sprint_id,
+                sprint_issues__deleted_at__isnull=True,
                 workspace__slug=slug,
                 project_id=project_id,
                 state__group="unstarted",
             ).count()
 
             started_issues = Issue.issue_objects.filter(
-                issue_sprint__sprint_id=sprint_id,
-                issue_sprint__deleted_at__isnull=True,
+                sprint_issues__sprint_id=sprint_id,
+                sprint_issues__deleted_at__isnull=True,
                 workspace__slug=slug,
                 project_id=project_id,
                 state__group="started",
             ).count()
 
             cancelled_issues = Issue.issue_objects.filter(
-                issue_sprint__sprint_id=sprint_id,
-                issue_sprint__deleted_at__isnull=True,
+                sprint_issues__sprint_id=sprint_id,
+                sprint_issues__deleted_at__isnull=True,
                 workspace__slug=slug,
                 project_id=project_id,
                 state__group="cancelled",
             ).count()
 
             completed_issues = Issue.issue_objects.filter(
-                issue_sprint__sprint_id=sprint_id,
-                issue_sprint__deleted_at__isnull=True,
+                sprint_issues__sprint_id=sprint_id,
+                sprint_issues__deleted_at__isnull=True,
                 workspace__slug=slug,
                 project_id=project_id,
                 state__group="completed",
             ).count()
 
             total_issues = Issue.issue_objects.filter(
-                issue_sprint__sprint_id=sprint_id,
-                issue_sprint__deleted_at__isnull=True,
+                sprint_issues__sprint_id=sprint_id,
+                sprint_issues__deleted_at__isnull=True,
                 workspace__slug=slug,
                 project_id=project_id,
             ).count()
@@ -787,13 +798,13 @@ class SprintAnalyticsEndpoint(BaseAPIView):
             Sprint.objects.filter(workspace__slug=slug, project_id=project_id, id=sprint_id)
             .annotate(
                 total_issues=Count(
-                    "issue_sprint__issue__id",
+                    "sprint_issues__issue__id",
                     distinct=True,
                     filter=Q(
-                        issue_sprint__issue__archived_at__isnull=True,
-                        issue_sprint__issue__is_draft=False,
-                        issue_sprint__issue__deleted_at__isnull=True,
-                        issue_sprint__deleted_at__isnull=True,
+                        sprint_issues__issue__archived_at__isnull=True,
+                        sprint_issues__issue__is_draft=False,
+                        sprint_issues__issue__deleted_at__isnull=True,
+                        sprint_issues__deleted_at__isnull=True,
                     ),
                 )
             )
@@ -839,8 +850,8 @@ class SprintAnalyticsEndpoint(BaseAPIView):
         if analytic_type == "points" and estimate_type:
             assignee_distribution = (
                 Issue.issue_objects.filter(
-                    issue_sprint__sprint_id=sprint_id,
-                    issue_sprint__deleted_at__isnull=True,
+                    sprint_issues__sprint_id=sprint_id,
+                    sprint_issues__deleted_at__isnull=True,
                     workspace__slug=slug,
                     project_id=project_id,
                 )
@@ -893,8 +904,8 @@ class SprintAnalyticsEndpoint(BaseAPIView):
 
             label_distribution = (
                 Issue.issue_objects.filter(
-                    issue_sprint__sprint_id=sprint_id,
-                    issue_sprint__deleted_at__isnull=True,
+                    sprint_issues__sprint_id=sprint_id,
+                    sprint_issues__deleted_at__isnull=True,
                     workspace__slug=slug,
                     project_id=project_id,
                 )
@@ -936,8 +947,8 @@ class SprintAnalyticsEndpoint(BaseAPIView):
         if analytic_type == "issues":
             assignee_distribution = (
                 Issue.issue_objects.filter(
-                    issue_sprint__sprint_id=sprint_id,
-                    issue_sprint__deleted_at__isnull=True,
+                    sprint_issues__sprint_id=sprint_id,
+                    sprint_issues__deleted_at__isnull=True,
                     project_id=project_id,
                     workspace__slug=slug,
                 )
@@ -995,8 +1006,8 @@ class SprintAnalyticsEndpoint(BaseAPIView):
 
             label_distribution = (
                 Issue.issue_objects.filter(
-                    issue_sprint__sprint_id=sprint_id,
-                    issue_sprint__deleted_at__isnull=True,
+                    sprint_issues__sprint_id=sprint_id,
+                    sprint_issues__deleted_at__isnull=True,
                     project_id=project_id,
                     workspace__slug=slug,
                 )

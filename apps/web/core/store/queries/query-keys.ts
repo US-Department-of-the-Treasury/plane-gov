@@ -84,6 +84,7 @@ export const queryKeys = {
     all: (workspaceSlug: string, projectId: string) => ["sprints", workspaceSlug, projectId] as const,
     detail: (sprintId: string) => ["sprints", "detail", sprintId] as const,
     active: (workspaceSlug: string, projectId: string) => ["sprints", workspaceSlug, projectId, "active"] as const,
+    memberProjects: (workspaceSlug: string) => ["sprints", "member-projects", workspaceSlug] as const,
   },
 
   // Module queries

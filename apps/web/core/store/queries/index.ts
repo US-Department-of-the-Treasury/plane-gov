@@ -75,6 +75,11 @@ export {
   useDeleteSprint,
   useArchiveSprint,
   useRestoreSprint,
+  // Sprint member project assignments (source of truth for sprint visibility in projects)
+  useSprintMemberProjects,
+  useSetSprintMemberProject,
+  useDeleteSprintMemberProject,
+  getSprintMemberProjectAssignment,
 } from "./sprint";
 
 // Epic hooks (TanStack Query)

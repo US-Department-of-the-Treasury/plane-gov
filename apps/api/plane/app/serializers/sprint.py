@@ -4,7 +4,7 @@ from rest_framework import serializers
 # Package imports
 from .base import BaseSerializer
 from .issue import IssueStateSerializer
-from plane.db.models import Sprint, SprintIssue, SprintUserProperties
+from plane.db.models import Sprint, SprintIssue, SprintUserProperties, SprintMemberProject
 
 
 class SprintWriteSerializer(BaseSerializer):
@@ -87,3 +87,25 @@ class SprintUserPropertiesSerializer(BaseSerializer):
         model = SprintUserProperties
         fields = "__all__"
         read_only_fields = ["workspace", "sprint", "user"]
+
+
+class SprintMemberProjectSerializer(BaseSerializer):
+    """
+    Serializer for sprint-member-project assignments.
+
+    Used to assign workspace members to projects for specific sprints.
+    This is the source of truth for sprint visibility in project views.
+    """
+
+    class Meta:
+        model = SprintMemberProject
+        fields = [
+            "id",
+            "workspace",
+            "sprint",
+            "member",
+            "project",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["workspace", "created_at", "updated_at"]

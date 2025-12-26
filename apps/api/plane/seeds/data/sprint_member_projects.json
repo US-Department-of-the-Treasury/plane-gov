@@ -1,0 +1,267 @@
+[
+  {
+    "team_member_id": 1,
+    "sprint_id": 1,
+    "project_id": 1
+  },
+  {
+    "team_member_id": 2,
+    "sprint_id": 1,
+    "project_id": 1
+  },
+  {
+    "team_member_id": 3,
+    "sprint_id": 1,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 4,
+    "sprint_id": 1,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 5,
+    "sprint_id": 1,
+    "project_id": 3
+  },
+  {
+    "team_member_id": 6,
+    "sprint_id": 1,
+    "project_id": 3
+  },
+  {
+    "team_member_id": 7,
+    "sprint_id": 1,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 8,
+    "sprint_id": 1,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 1,
+    "sprint_id": 2,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 2,
+    "sprint_id": 2,
+    "project_id": 1
+  },
+  {
+    "team_member_id": 3,
+    "sprint_id": 2,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 4,
+    "sprint_id": 2,
+    "project_id": 3
+  },
+  {
+    "team_member_id": 5,
+    "sprint_id": 2,
+    "project_id": 3
+  },
+  {
+    "team_member_id": 6,
+    "sprint_id": 2,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 7,
+    "sprint_id": 2,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 8,
+    "sprint_id": 2,
+    "project_id": 1
+  },
+  {
+    "team_member_id": 9,
+    "sprint_id": 2,
+    "project_id": 1
+  },
+  {
+    "team_member_id": 10,
+    "sprint_id": 2,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 1,
+    "sprint_id": 3,
+    "project_id": 3
+  },
+  {
+    "team_member_id": 2,
+    "sprint_id": 3,
+    "project_id": 3
+  },
+  {
+    "team_member_id": 3,
+    "sprint_id": 3,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 4,
+    "sprint_id": 3,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 5,
+    "sprint_id": 3,
+    "project_id": 1
+  },
+  {
+    "team_member_id": 6,
+    "sprint_id": 3,
+    "project_id": 1
+  },
+  {
+    "team_member_id": 7,
+    "sprint_id": 3,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 8,
+    "sprint_id": 3,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 9,
+    "sprint_id": 3,
+    "project_id": 3
+  },
+  {
+    "team_member_id": 10,
+    "sprint_id": 3,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 1,
+    "sprint_id": 4,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 2,
+    "sprint_id": 4,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 3,
+    "sprint_id": 4,
+    "project_id": 1
+  },
+  {
+    "team_member_id": 4,
+    "sprint_id": 4,
+    "project_id": 1
+  },
+  {
+    "team_member_id": 5,
+    "sprint_id": 4,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 6,
+    "sprint_id": 4,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 7,
+    "sprint_id": 4,
+    "project_id": 3
+  },
+  {
+    "team_member_id": 8,
+    "sprint_id": 4,
+    "project_id": 3
+  },
+  {
+    "team_member_id": 1,
+    "sprint_id": 5,
+    "project_id": 2,
+    "comment": "Infrastructure - issues 16-17"
+  },
+  {
+    "team_member_id": 2,
+    "sprint_id": 5,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 3,
+    "sprint_id": 5,
+    "project_id": 3,
+    "comment": "Customer Portal - issues 29-30"
+  },
+  {
+    "team_member_id": 4,
+    "sprint_id": 5,
+    "project_id": 3
+  },
+  {
+    "team_member_id": 5,
+    "sprint_id": 5,
+    "project_id": 4,
+    "comment": "Mobile App - issues 41-42"
+  },
+  {
+    "team_member_id": 6,
+    "sprint_id": 5,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 7,
+    "sprint_id": 6,
+    "project_id": 2,
+    "comment": "Infrastructure - issue 18"
+  },
+  {
+    "team_member_id": 8,
+    "sprint_id": 6,
+    "project_id": 3,
+    "comment": "Customer Portal - issue 31"
+  },
+  {
+    "team_member_id": 9,
+    "sprint_id": 6,
+    "project_id": 4,
+    "comment": "Mobile App - issue 43"
+  },
+  {
+    "team_member_id": 10,
+    "sprint_id": 7,
+    "project_id": 2,
+    "comment": "Infrastructure - issues 19-20 (current sprint)"
+  },
+  {
+    "team_member_id": 1,
+    "sprint_id": 7,
+    "project_id": 2
+  },
+  {
+    "team_member_id": 2,
+    "sprint_id": 7,
+    "project_id": 3,
+    "comment": "Customer Portal - issue 32 (current sprint)"
+  },
+  {
+    "team_member_id": 3,
+    "sprint_id": 7,
+    "project_id": 4,
+    "comment": "Mobile App - issues 44-45 (current sprint)"
+  },
+  {
+    "team_member_id": 4,
+    "sprint_id": 7,
+    "project_id": 4
+  },
+  {
+    "team_member_id": 6,
+    "sprint_id": 8,
+    "project_id": 4,
+    "comment": "Mobile App - issue 46 (upcoming sprint). NOTE: Sprint 8 Project 3 (Portal) has issue 33 but NO assignment - intentional orphan for testing"
+  }
+]
