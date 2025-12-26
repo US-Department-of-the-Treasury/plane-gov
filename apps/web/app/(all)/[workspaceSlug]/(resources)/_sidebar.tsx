@@ -1,18 +1,25 @@
 import { useState, memo } from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { Users, UserPlus, Calendar, BarChart3, ChevronRight, UserCheck } from "lucide-react";
+import { Users, Plus, Calendar, BarChart3, ChevronRight, UserCheck } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
-import { SIDEBAR_WIDTH } from "@plane/constants";
+import { SIDEBAR_WIDTH, MEMBER_TRACKER_EVENTS } from "@plane/constants";
+import { useTranslation } from "@plane/i18n";
 import { useLocalStorage } from "@plane/hooks";
+import { TOAST_TYPE, setToast } from "@plane/propel/toast";
+import type { IWorkspaceBulkInviteFormData } from "@plane/types";
 import { cn } from "@plane/utils";
+import { Tooltip } from "@plane/ui";
 // components
 import { ResizableSidebar } from "@/components/sidebar/resizable-sidebar";
 import { SidebarWrapper } from "@/components/sidebar/sidebar-wrapper";
 import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
-import { SidebarAddButton } from "@/components/sidebar/add-button";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
+import { captureSuccess, captureError } from "@/helpers/event-tracker.helper";
+import { useInviteWorkspaceMembers } from "@/store/queries/member";
+// plane web components
+import { SendWorkspaceInvitationModal } from "@/plane-web/components/workspace/members";
 
 // Navigation items for resources mode
 const RESOURCES_PERSONAL_ITEMS = [
@@ -125,31 +132,86 @@ const ResourcesMenuItems = memo(function ResourcesMenuItems() {
   );
 });
 
-const ResourcesQuickActions = memo(function ResourcesQuickActions() {
-  return (
-    <div className="flex items-center justify-between gap-2 cursor-pointer">
-      <SidebarAddButton
-        label={
-          <>
-            <UserPlus className="size-4" />
-            <span className="text-13 font-medium truncate max-w-[145px]">Add team member</span>
-          </>
-        }
-        onClick={() => {
-          // TODO: Implement add team member modal
-          console.log("Add team member clicked");
-        }}
-        disabled={false}
-      />
-    </div>
-  );
-});
-
 function ResourcesSidebarContent() {
+  const { workspaceSlug } = useParams();
+  const { t } = useTranslation();
+  const [inviteModal, setInviteModal] = useState(false);
+  const { mutate: inviteWorkspaceMembers } = useInviteWorkspaceMembers();
+
+  const handleWorkspaceInvite = (data: IWorkspaceBulkInviteFormData): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      inviteWorkspaceMembers(
+        {
+          workspaceSlug: workspaceSlug?.toString() ?? "",
+          data,
+        },
+        {
+          onSuccess: () => {
+            setInviteModal(false);
+
+            captureSuccess({
+              eventName: MEMBER_TRACKER_EVENTS.invite,
+              payload: {
+                emails: data.emails.map((email) => email.email),
+              },
+            });
+
+            setToast({
+              type: TOAST_TYPE.SUCCESS,
+              title: "Success!",
+              message: t("workspace_settings.settings.members.invitations_sent_successfully"),
+            });
+            resolve();
+          },
+          onError: (error: unknown) => {
+            let message = undefined;
+            if (error instanceof Error) {
+              const err = error as Error & { error?: string };
+              message = err.error;
+            }
+            captureError({
+              eventName: MEMBER_TRACKER_EVENTS.invite,
+              payload: {
+                emails: data.emails.map((email) => email.email),
+              },
+              error: error as Error,
+            });
+
+            setToast({
+              type: TOAST_TYPE.ERROR,
+              title: "Error!",
+              message: `${message ?? t("something_went_wrong_please_try_again")}`,
+            });
+            reject(error instanceof Error ? error : new Error(String(error)));
+          },
+        }
+      );
+    });
+  };
+
+  const headerActions = (
+    <Tooltip tooltipContent="Invite member">
+      <button
+        type="button"
+        className="p-1 rounded hover:bg-layer-transparent-hover"
+        onClick={() => setInviteModal(true)}
+      >
+        <Plus className="size-4" />
+      </button>
+    </Tooltip>
+  );
+
   return (
-    <SidebarWrapper title="Resources" quickActions={<ResourcesQuickActions />}>
-      <ResourcesMenuItems />
-    </SidebarWrapper>
+    <>
+      <SendWorkspaceInvitationModal
+        isOpen={inviteModal}
+        onClose={() => setInviteModal(false)}
+        onSubmit={handleWorkspaceInvite}
+      />
+      <SidebarWrapper title="Resources" headerActions={headerActions}>
+        <ResourcesMenuItems />
+      </SidebarWrapper>
+    </>
   );
 }
 
