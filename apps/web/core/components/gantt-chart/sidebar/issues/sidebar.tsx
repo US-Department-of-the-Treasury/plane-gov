@@ -8,8 +8,9 @@ import { Loader } from "@plane/ui";
 import RenderIfVisible from "@/components/core/render-if-visible-HOC";
 import { GanttLayoutListItemLoader } from "@/components/ui/loader/layouts/gantt-layout-loader";
 //hooks
+import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
-import { useIssuesStore } from "@/hooks/use-issue-layout-store";
+import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 // local imports
 import { useTimeLineChart } from "../../../../hooks/use-timeline-chart";
@@ -18,6 +19,7 @@ import { handleOrderChange } from "../utils";
 import { IssuesSidebarBlock } from "./block";
 
 type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- pre-existing pattern across gantt components
   blockUpdateHandler: (block: any, payload: IBlockUpdateData) => void;
   canLoadMoreBlocks?: boolean;
   loadMoreBlocks?: () => void;
@@ -46,13 +48,13 @@ export function IssueGanttSidebar(props: Props) {
 
   const { getBlockById } = useTimeLineChart(GANTT_TIMELINE_TYPE.ISSUE);
 
-  const {
-    issues: { getIssueLoader },
-  } = useIssuesStore();
+  // Get store type from context/router params and use reactive loader hook
+  const storeType = useIssueStoreType();
+  const loader = useIssueLoader(storeType);
 
   const [intersectionElement, setIntersectionElement] = useState<HTMLDivElement | null>(null);
 
-  const isPaginating = !!getIssueLoader();
+  const isPaginating = !!loader;
 
   useIntersectionObserver(
     ganttContainerRef,
