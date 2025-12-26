@@ -28,7 +28,6 @@ type Props = {
   groupedIssueIds: TGroupedIssues;
   loadMoreIssues: (dateString: string) => void;
   getPaginationData: (groupId: string | undefined) => TPaginationData | undefined;
-  getGroupIssueCount: (groupId: string | undefined) => number | undefined;
   enableQuickIssueCreate?: boolean;
   disableIssueCreation?: boolean;
   quickAddCallback?: (projectId: string | null | undefined, data: TIssue) => Promise<TIssue | undefined>;
@@ -55,7 +54,6 @@ export function CalendarDayTile(props: Props) {
     groupedIssueIds,
     loadMoreIssues,
     getPaginationData,
-    getGroupIssueCount,
     quickActions,
     enableQuickIssueCreate,
     disableIssueCreation,
@@ -176,7 +174,6 @@ export function CalendarDayTile(props: Props) {
               quickActions={quickActions}
               loadMoreIssues={loadMoreIssues}
               getPaginationData={getPaginationData}
-              getGroupIssueCount={getGroupIssueCount}
               isDragDisabled={readOnly}
               addIssuesToView={addIssuesToView}
               disableIssueCreation={disableIssueCreation}

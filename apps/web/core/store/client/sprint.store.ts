@@ -4,7 +4,10 @@ import { sortBy } from "lodash-es";
 import type { ISprint, TSprintPlotType, TSprintEstimateType } from "@plane/types";
 import type { DistributionUpdates } from "@plane/utils";
 import { orderSprints, shouldFilterSprint, getDate, updateDistribution } from "@plane/utils";
+import { FavoriteService } from "@/services/favorite";
 import { SprintService } from "@/services/sprint.service";
+import { getRouterWorkspaceSlug } from "./router.store";
+import { useSprintFilterStore } from "./sprint-filter.store";
 
 /**
  * Sprint state managed by Zustand.
@@ -115,8 +118,9 @@ export const useSprintStore = create<SprintStore>()((set, get) => ({
   getEstimateTypeBySprintId: (sprintId) => get().estimatedType[sprintId] || "issues",
 }));
 
-// Service instance
+// Service instances
 const sprintService = new SprintService();
+const favoriteService = new FavoriteService();
 
 /**
  * Legacy interface for backward compatibility with MobX store.
@@ -154,20 +158,8 @@ export interface ISprintStore {
  * @deprecated Use useSprintStore hook directly in React components
  */
 export class SprintStoreLegacy implements ISprintStore {
-  private rootStore: {
-    router: { workspaceSlug: string | null };
-    sprintFilter: {
-      getFiltersByProjectId: (workspaceId: string) => any;
-      searchQuery: string;
-    };
-    favorite: {
-      addFavorite: (workspaceSlug: string, data: any) => Promise<any>;
-      removeFavoriteEntity: (workspaceSlug: string, entityId: string) => Promise<void>;
-    };
-  };
-
-  constructor(rootStore: any) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    // rootStore no longer needed - using direct Zustand store access
   }
 
   get loader() {
@@ -191,7 +183,7 @@ export class SprintStoreLegacy implements ISprintStore {
   }
 
   get currentWorkspaceSprintIds(): string[] | null {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const { sprintMap, fetchedMap } = useSprintStore.getState();
     if (!workspaceSlug || !fetchedMap[workspaceSlug]) return null;
 
@@ -201,7 +193,7 @@ export class SprintStoreLegacy implements ISprintStore {
   }
 
   get currentWorkspaceCompletedSprintIds(): string[] | null {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const { sprintMap, fetchedMap } = useSprintStore.getState();
     if (!workspaceSlug || !fetchedMap[workspaceSlug]) return null;
 
@@ -216,7 +208,7 @@ export class SprintStoreLegacy implements ISprintStore {
   }
 
   get currentWorkspaceActiveSprintId(): string | null {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return null;
 
     const { sprintMap } = useSprintStore.getState();
@@ -241,8 +233,9 @@ export class SprintStoreLegacy implements ISprintStore {
 
   getFilteredSprintIds = (workspaceId: string, sortByManual: boolean): string[] | null => {
     const { sprintMap } = useSprintStore.getState();
-    const filters = this.rootStore.sprintFilter.getFiltersByProjectId(workspaceId);
-    const searchQuery = this.rootStore.sprintFilter.searchQuery;
+    const sprintFilterState = useSprintFilterStore.getState();
+    const filters = sprintFilterState.getFiltersByProjectId(workspaceId);
+    const searchQuery = sprintFilterState.searchQuery;
 
     let sprints = Object.values(sprintMap ?? {}).filter(
       (c) =>
@@ -256,7 +249,7 @@ export class SprintStoreLegacy implements ISprintStore {
   };
 
   getProjectSprintDetails = (projectId: string): ISprint[] | undefined => {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const { sprintMap, fetchedMap } = useSprintStore.getState();
     if (!workspaceSlug || !fetchedMap[workspaceSlug]) return undefined;
 
@@ -328,7 +321,7 @@ export class SprintStoreLegacy implements ISprintStore {
     const currentSprint = getSprintById(sprintId);
     try {
       if (currentSprint) updateSprintField(sprintId, "is_favorite", true);
-      const response = await this.rootStore.favorite.addFavorite(workspaceSlug.toString(), {
+      const response = await favoriteService.addFavorite(workspaceSlug.toString(), {
         entity_type: "sprint",
         entity_identifier: sprintId,
         entity_data: { name: currentSprint?.name || "" },
@@ -345,7 +338,7 @@ export class SprintStoreLegacy implements ISprintStore {
     const currentSprint = getSprintById(sprintId);
     try {
       if (currentSprint) updateSprintField(sprintId, "is_favorite", false);
-      await this.rootStore.favorite.removeFavoriteEntity(workspaceSlug, sprintId);
+      await favoriteService.removeFavoriteEntity(workspaceSlug, sprintId);
     } catch (error) {
       if (currentSprint) updateSprintField(sprintId, "is_favorite", true);
       throw error;

@@ -3,7 +3,7 @@ import type { TIssue, TPaginationData } from "@plane/types";
 // components
 import { renderFormattedPayloadDate } from "@plane/utils";
 // helpers
-import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
+import { useIssueLoader, useGroupedIssueCount } from "@/hooks/store/use-issue-store-reactive";
 import { useIssuesStore, useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import type { TRenderQuickActions } from "../list/list-view-types";
 import { CalendarIssueBlockRoot } from "./issue-block-root";
@@ -14,7 +14,6 @@ type Props = {
   date: Date;
   loadMoreIssues: (dateString: string) => void;
   getPaginationData: (groupId: string | undefined) => TPaginationData | undefined;
-  getGroupIssueCount: (groupId: string | undefined) => number | undefined;
   issueIdList: string[];
   quickActions: TRenderQuickActions;
   isDragDisabled?: boolean;
@@ -49,14 +48,14 @@ export function CalendarIssueBlocks(props: Props) {
 
   const storeType = useIssueStoreType();
   const {
-    issues: { getGroupIssueCount, getPaginationData },
+    issues: { getPaginationData },
   } = useIssuesStore();
   // Use reactive loader hook instead of non-reactive getIssueLoader()
   const loader = useIssueLoader(storeType, formattedDatePayload ?? undefined);
+  // Use reactive issue count hook instead of non-reactive getGroupIssueCount()
+  const dayIssueCount = useGroupedIssueCount(storeType, formattedDatePayload ?? undefined, undefined, false);
 
   if (!formattedDatePayload) return null;
-
-  const dayIssueCount = getGroupIssueCount(formattedDatePayload, undefined, false);
   const nextPageResults = getPaginationData(formattedDatePayload, undefined)?.nextPageResults;
   const isPaginating = !!loader;
 

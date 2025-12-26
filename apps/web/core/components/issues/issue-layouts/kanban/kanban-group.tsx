@@ -29,7 +29,7 @@ import {
 } from "@/components/issues/issue-layouts/utils";
 import { KanbanIssueBlockLoader } from "@/components/ui/loader/layouts/kanban-layout-loader";
 // hooks
-import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
+import { useIssueLoader, useGroupedIssueCount } from "@/hooks/store/use-issue-store-reactive";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useIssuesStore, useIssueStoreType } from "@/hooks/use-issue-layout-store";
 // queries
@@ -108,10 +108,12 @@ export function KanbanGroup(props: IKanbanGroup) {
 
   const storeType = useIssueStoreType();
   const {
-    issues: { getGroupIssueCount, getPaginationData },
+    issues: { getPaginationData },
   } = useIssuesStore();
   // Use reactive loader hook instead of non-reactive getIssueLoader()
   const loader = useIssueLoader(storeType, groupId, sub_group_id);
+  // Use reactive issue count hook instead of non-reactive getGroupIssueCount()
+  const groupIssueCount = useGroupedIssueCount(storeType, groupId, sub_group_id, false) ?? 0;
 
   const [intersectionElement, setIntersectionElement] = useState<HTMLSpanElement | null>(null);
   const columnRef = useRef<HTMLDivElement | null>(null);
@@ -255,8 +257,6 @@ export function KanbanGroup(props: IKanbanGroup) {
 
     return preloadedData;
   };
-
-  const groupIssueCount = getGroupIssueCount(groupId, sub_group_id, false) ?? 0;
 
   const nextPageResults = getPaginationData(groupId, sub_group_id)?.nextPageResults;
 

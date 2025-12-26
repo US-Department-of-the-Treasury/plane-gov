@@ -20,7 +20,6 @@ type Props = {
   quickActions: TRenderQuickActions;
   loadMoreIssues: (dateString: string) => void;
   getPaginationData: (groupId: string | undefined) => TPaginationData | undefined;
-  getGroupIssueCount: (groupId: string | undefined) => number | undefined;
   enableQuickIssueCreate?: boolean;
   disableIssueCreation?: boolean;
   quickAddCallback?: (projectId: string | null | undefined, data: TIssue) => Promise<TIssue | undefined>;
@@ -47,7 +46,6 @@ export function CalendarWeekDays(props: Props) {
     week,
     loadMoreIssues,
     getPaginationData,
-    getGroupIssueCount,
     quickActions,
     enableQuickIssueCreate,
     disableIssueCreation,
@@ -98,7 +96,6 @@ export function CalendarWeekDays(props: Props) {
             groupedIssueIds={groupedIssueIds}
             loadMoreIssues={loadMoreIssues}
             getPaginationData={getPaginationData}
-            getGroupIssueCount={getGroupIssueCount}
             quickActions={quickActions}
             enableQuickIssueCreate={enableQuickIssueCreate}
             disableIssueCreation={disableIssueCreation}

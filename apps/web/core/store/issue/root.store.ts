@@ -4,6 +4,8 @@ import { immer } from "zustand/middleware/immer";
 // types
 import type { ISprint, IIssueLabel, IEpic, IProject, IState, IUserLite, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
+// store helpers
+import { getRouterWorkspaceSlug, getRouterTeamspaceId, getRouterProjectId, getRouterSprintId, getRouterEpicId, getRouterViewId, getRouterGlobalViewId, getRouterUserId, useRouterStore } from "@/store/client";
 // plane web store
 import type { IProjectEpics, IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
 import { ProjectEpics, ProjectEpicsFilter } from "@/plane-web/store/issue/epic";
@@ -285,36 +287,40 @@ export class IssueRootStore implements IIssueRootStore {
     this.rootStore = rootStore;
     this.issueRootStore = createIssueRootStore();
 
-    // Setup sync with root store using setInterval (replacing autorun)
-    const syncWithRootStore = () => {
+    // Setup router subscription (replaces setInterval for router values)
+    const unsubscribeRouter = useRouterStore.subscribe((state: { query: Record<string, unknown> }) => {
+      const updates: Partial<IssueRootState> = {};
+
+      const workspaceSlug = state.query?.workspaceSlug?.toString();
+      const teamspaceId = state.query?.teamspaceId?.toString();
+      const projectId = state.query?.projectId?.toString();
+      const sprintId = state.query?.sprintId?.toString();
+      const epicId = state.query?.epicId?.toString();
+      const viewId = state.query?.viewId?.toString();
+      const globalViewId = state.query?.globalViewId?.toString();
+      const userId = state.query?.userId?.toString();
+
+      if (this.workspaceSlug !== workspaceSlug) updates.workspaceSlug = workspaceSlug;
+      if (this.teamspaceId !== teamspaceId) updates.teamspaceId = teamspaceId;
+      if (this.projectId !== projectId) updates.projectId = projectId;
+      if (this.sprintId !== sprintId) updates.sprintId = sprintId;
+      if (this.epicId !== epicId) updates.epicId = epicId;
+      if (this.viewId !== viewId) updates.viewId = viewId;
+      if (this.globalViewId !== globalViewId) updates.globalViewId = globalViewId;
+      if (this.userId !== userId) updates.userId = userId;
+
+      if (Object.keys(updates).length > 0) {
+        this.issueRootStore.getState().updateState(updates);
+      }
+    });
+
+    // Sync store maps from rootStore (still needs polling until those stores are migrated)
+    // Reduced from 100ms to 500ms since store maps change less frequently
+    const syncStoreMaps = () => {
       const updates: Partial<IssueRootState> = {};
 
       if (rootStore?.user?.data?.id && this.currentUserId !== rootStore.user.data.id) {
         updates.currentUserId = rootStore.user.data.id;
-      }
-      if (this.workspaceSlug !== rootStore.router.workspaceSlug) {
-        updates.workspaceSlug = rootStore.router.workspaceSlug;
-      }
-      if (this.teamspaceId !== rootStore.router.teamspaceId) {
-        updates.teamspaceId = rootStore.router.teamspaceId;
-      }
-      if (this.projectId !== rootStore.router.projectId) {
-        updates.projectId = rootStore.router.projectId;
-      }
-      if (this.sprintId !== rootStore.router.sprintId) {
-        updates.sprintId = rootStore.router.sprintId;
-      }
-      if (this.epicId !== rootStore.router.epicId) {
-        updates.epicId = rootStore.router.epicId;
-      }
-      if (this.viewId !== rootStore.router.viewId) {
-        updates.viewId = rootStore.router.viewId;
-      }
-      if (this.globalViewId !== rootStore.router.globalViewId) {
-        updates.globalViewId = rootStore.router.globalViewId;
-      }
-      if (this.userId !== rootStore.router.userId) {
-        updates.userId = rootStore.router.userId;
       }
       if (!isEmpty(rootStore?.state?.stateMap)) {
         updates.stateMap = rootStore.state.stateMap;
@@ -350,11 +356,16 @@ export class IssueRootStore implements IIssueRootStore {
     };
 
     // Initial sync
-    syncWithRootStore();
+    syncStoreMaps();
 
-    // Setup periodic sync (can be replaced with proper reactive solution later)
-    const intervalId = setInterval(syncWithRootStore, 100);
-    this.unsubscribe = () => clearInterval(intervalId);
+    // Setup periodic sync for store maps (500ms is sufficient for map updates)
+    const intervalId = setInterval(syncStoreMaps, 500);
+
+    // Cleanup function for both router subscription and interval
+    this.unsubscribe = () => {
+      unsubscribeRouter();
+      clearInterval(intervalId);
+    };
 
     this.issues = new IssueStore();
 

@@ -5,6 +5,10 @@ import type { DistributionUpdates } from "@plane/utils";
 import { updateDistribution, orderEpics, shouldFilterEpic } from "@plane/utils";
 import { EpicService } from "@/services/epic.service";
 import { EpicArchiveService } from "@/services/epic_archive.service";
+import { FavoriteService } from "@/services/favorite";
+import { getRouterProjectId } from "./router.store";
+import { useEpicFilterStore } from "./epic-filter.store";
+import { useFavoriteStore } from "./favorite.store";
 
 /**
  * Epic state managed by Zustand.
@@ -152,6 +156,7 @@ export const useEpicStore = create<EpicStore>()((set, get) => ({
 // Service instances for legacy wrapper
 const epicService = new EpicService();
 const epicArchiveService = new EpicArchiveService();
+const favoriteService = new FavoriteService();
 
 /**
  * Legacy interface for backward compatibility with MobX store.
@@ -208,26 +213,13 @@ export interface IEpicStore {
  * @deprecated Use TanStack Query hooks directly in React components
  */
 export class EpicStoreLegacy implements IEpicStore {
+  // Keep minimal rootStore reference for projectEstimate (complex cross-store dependency)
   private rootStore: {
-    router: { projectId: string | null };
-    epicFilter: {
-      getDisplayFiltersByProjectId: (projectId: string) => any;
-      getFiltersByProjectId: (projectId: string) => any;
-      getArchivedFiltersByProjectId: (projectId: string) => any;
-      searchQuery: string;
-      archivedEpicsSearchQuery: string;
-    };
     projectEstimate: { areEstimateEnabledByProjectId: (projectId: string) => boolean };
-    favorite: {
-      entityMap: Record<string, any>;
-      addFavorite: (workspaceSlug: string, data: any) => Promise<any>;
-      removeFavoriteEntity: (workspaceSlug: string, entityId: string) => Promise<void>;
-      removeFavoriteFromStore: (entityId: string) => void;
-    };
   };
 
-  constructor(rootStore: any) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    this.rootStore = _rootStore as any;
   }
 
   get loader() {
@@ -247,12 +239,12 @@ export class EpicStoreLegacy implements IEpicStore {
   }
 
   get projectEpicIds() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useEpicStore.getState().getProjectEpicIds(projectId);
   }
 
   get projectArchivedEpicIds() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useEpicStore.getState().getProjectArchivedEpicIds(projectId);
   }
 
@@ -262,9 +254,10 @@ export class EpicStoreLegacy implements IEpicStore {
 
   getFilteredEpicIds = (projectId: string) => {
     const { epicMap, fetchedMap } = useEpicStore.getState();
-    const displayFilters = this.rootStore.epicFilter.getDisplayFiltersByProjectId(projectId);
-    const filters = this.rootStore.epicFilter.getFiltersByProjectId(projectId);
-    const searchQuery = this.rootStore.epicFilter.searchQuery;
+    const epicFilterState = useEpicFilterStore.getState();
+    const displayFilters = epicFilterState.getDisplayFiltersByProjectId(projectId);
+    const filters = epicFilterState.getFiltersByProjectId(projectId);
+    const searchQuery = epicFilterState.searchQuery;
     if (!fetchedMap[projectId]) return null;
     let epics = Object.values(epicMap ?? {}).filter(
       (m) =>
@@ -279,9 +272,10 @@ export class EpicStoreLegacy implements IEpicStore {
 
   getFilteredArchivedEpicIds = (projectId: string) => {
     const { epicMap, fetchedMap } = useEpicStore.getState();
-    const displayFilters = this.rootStore.epicFilter.getDisplayFiltersByProjectId(projectId);
-    const filters = this.rootStore.epicFilter.getArchivedFiltersByProjectId(projectId);
-    const searchQuery = this.rootStore.epicFilter.archivedEpicsSearchQuery;
+    const epicFilterState = useEpicFilterStore.getState();
+    const displayFilters = epicFilterState.getDisplayFiltersByProjectId(projectId);
+    const filters = epicFilterState.getArchivedFiltersByProjectId(projectId);
+    const searchQuery = epicFilterState.archivedEpicsSearchQuery;
     if (!fetchedMap[projectId]) return null;
     let epics = Object.values(epicMap ?? {}).filter(
       (m) =>
@@ -311,7 +305,7 @@ export class EpicStoreLegacy implements IEpicStore {
   };
 
   getPlotTypeByEpicId = (epicId: string) => {
-    const { projectId } = this.rootStore.router;
+    const projectId = getRouterProjectId();
     const { plotType } = useEpicStore.getState();
     return projectId && this.rootStore.projectEstimate.areEstimateEnabledByProjectId(projectId)
       ? plotType[epicId] || "burndown"
@@ -422,8 +416,11 @@ export class EpicStoreLegacy implements IEpicStore {
     if (!epicDetails) return;
     await epicService.deleteEpic(workspaceSlug, projectId, epicId);
     removeEpic(epicId);
-    if (this.rootStore.favorite.entityMap[epicId]) {
-      this.rootStore.favorite.removeFavoriteFromStore(epicId);
+    // Remove from favorites Zustand store if it exists
+    const favoriteState = useFavoriteStore.getState();
+    const favorite = favoriteState.entityMap[epicId];
+    if (favorite) {
+      favoriteState.removeFavorite(favorite.id, epicId);
     }
   };
 
@@ -480,7 +477,7 @@ export class EpicStoreLegacy implements IEpicStore {
       const epicDetails = getEpicById(epicId);
       if (epicDetails?.is_favorite) return;
       updateEpicField(epicId, "is_favorite", true);
-      await this.rootStore.favorite.addFavorite(workspaceSlug.toString(), {
+      await favoriteService.addFavorite(workspaceSlug.toString(), {
         entity_type: "epic",
         entity_identifier: epicId,
         project_id: projectId,
@@ -498,7 +495,7 @@ export class EpicStoreLegacy implements IEpicStore {
       const epicDetails = getEpicById(epicId);
       if (!epicDetails?.is_favorite) return;
       updateEpicField(epicId, "is_favorite", false);
-      await this.rootStore.favorite.removeFavoriteEntity(workspaceSlug, epicId);
+      await favoriteService.removeFavoriteEntity(workspaceSlug, epicId);
     } catch (error) {
       console.error("Failed to remove epic from favorites in epic.store", error);
       updateEpicField(epicId, "is_favorite", true);
@@ -512,8 +509,11 @@ export class EpicStoreLegacy implements IEpicStore {
     try {
       const response = await epicArchiveService.archiveEpic(workspaceSlug, projectId, epicId);
       updateEpicField(epicId, "archived_at", response.archived_at);
-      if (this.rootStore.favorite.entityMap[epicId]) {
-        this.rootStore.favorite.removeFavoriteFromStore(epicId);
+      // Remove from favorites Zustand store if it exists
+      const favoriteState = useFavoriteStore.getState();
+      const favorite = favoriteState.entityMap[epicId];
+      if (favorite) {
+        favoriteState.removeFavorite(favorite.id, epicId);
       }
     } catch (error) {
       console.error("Failed to archive epic in epic.store", error);

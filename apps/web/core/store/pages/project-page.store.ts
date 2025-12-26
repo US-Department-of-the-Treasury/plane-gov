@@ -12,6 +12,8 @@ import { filterPagesByPageType, getPageName, orderPages, shouldFilterPage } from
 import type { RootStore } from "@/plane-web/store/root.store";
 // services
 import { ProjectPageService } from "@/services/page";
+// zustand stores
+import { useFavoriteStore } from "@/store/client";
 // store
 import type { CoreRootStore } from "../root.store";
 import type { TProjectPage } from "./project-page";
@@ -398,8 +400,8 @@ export class ProjectPageStore implements IProjectPageStore {
 
       await this.service.remove(workspaceSlug, projectId, pageId);
       this.pageStore.getState().removePage(pageId);
-      if (this.rootStore.favorite.entityMap[pageId]) {
-        this.rootStore.favorite.removeFavoriteFromStore(pageId);
+      if (useFavoriteStore.getState().entityMap[pageId]) {
+        useFavoriteStore.getState().removeFavorite(pageId);
       }
     } catch (error) {
       this.pageStore.getState().setLoader(undefined);

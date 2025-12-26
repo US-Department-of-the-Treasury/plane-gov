@@ -7,6 +7,7 @@ import type { IWorkspaceSidebarNavigationItem, IWorkspace, IWorkspaceSidebarNavi
 import { WorkspaceService } from "@/plane-web/services";
 // store
 import type { CoreRootStore } from "@/store/root.store";
+import { getRouterWorkspaceSlug } from "@/store/client";
 // sub-stores
 import type { IApiTokenStore } from "./api-token.store";
 import { ApiTokenStore } from "./api-token.store";
@@ -286,7 +287,7 @@ export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
    * computed value of current workspace based on workspace slug saved in the query store
    */
   get currentWorkspace() {
-    const workspaceSlug = this.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return null;
     const workspaceDetails = Object.values(this.store.workspaces ?? {})?.find((w) => w.slug === workspaceSlug);
     return workspaceDetails || null;

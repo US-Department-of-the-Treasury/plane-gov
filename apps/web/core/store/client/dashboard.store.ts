@@ -1,14 +1,9 @@
 import { create } from "zustand";
-import { set } from "lodash-es";
 import type {
-  THomeDashboardResponse,
   TWidget,
-  TWidgetFiltersFormData,
   TWidgetStatsResponse,
   TWidgetKeys,
-  TWidgetStatsRequestParams,
 } from "@plane/types";
-import { DashboardService } from "@/services/dashboard.service";
 
 /**
  * Dashboard state managed by Zustand.
@@ -126,11 +121,9 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
   },
 }));
 
-// Service instance for legacy wrapper
-const dashboardService = new DashboardService();
-
 /**
- * Legacy interface for backward compatibility with MobX store.
+ * Legacy interface for backward compatibility.
+ * @deprecated Use DashboardStore type directly
  */
 export interface IDashboardStore {
   // error states
@@ -145,177 +138,4 @@ export interface IDashboardStore {
   getWidgetDetails: (workspaceSlug: string, dashboardId: string, widgetKey: TWidgetKeys) => TWidget | undefined;
   getWidgetStats: <T>(workspaceSlug: string, dashboardId: string, widgetKey: TWidgetKeys) => T | undefined;
   getWidgetStatsError: (workspaceSlug: string, dashboardId: string, widgetKey: TWidgetKeys) => any | null;
-  // actions
-  fetchHomeDashboardWidgets: (workspaceSlug: string) => Promise<THomeDashboardResponse>;
-  fetchWidgetStats: (
-    workspaceSlug: string,
-    dashboardId: string,
-    params: TWidgetStatsRequestParams
-  ) => Promise<TWidgetStatsResponse>;
-  updateDashboardWidget: (
-    workspaceSlug: string,
-    dashboardId: string,
-    widgetId: string,
-    data: Partial<TWidget>
-  ) => Promise<any>;
-  updateDashboardWidgetFilters: (
-    workspaceSlug: string,
-    dashboardId: string,
-    widgetId: string,
-    data: TWidgetFiltersFormData
-  ) => Promise<any>;
-}
-
-/**
- * Legacy class wrapper for backward compatibility with MobX patterns.
- * Used by root.store.ts to maintain API compatibility during migration.
- * @deprecated Use TanStack Query hooks directly in React components
- */
-export class DashboardStoreLegacy implements IDashboardStore {
-  private rootStore: {
-    router: { workspaceSlug: string | null };
-    issue: { issues: { addIssue: (issues: any[]) => void } };
-  };
-
-  constructor(rootStore: any) {
-    this.rootStore = rootStore;
-  }
-
-  get widgetStatsError() {
-    return useDashboardStore.getState().widgetStatsError;
-  }
-
-  get homeDashboardId() {
-    return useDashboardStore.getState().homeDashboardId;
-  }
-
-  get widgetDetails() {
-    return useDashboardStore.getState().widgetDetails;
-  }
-
-  get widgetStats() {
-    return useDashboardStore.getState().widgetStats;
-  }
-
-  get homeDashboardWidgets() {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
-    return useDashboardStore.getState().getHomeDashboardWidgets(workspaceSlug);
-  }
-
-  getWidgetDetails = (workspaceSlug: string, dashboardId: string, widgetKey: TWidgetKeys) => {
-    return useDashboardStore.getState().getWidgetDetails(workspaceSlug, dashboardId, widgetKey);
-  };
-
-  getWidgetStats = <T>(workspaceSlug: string, dashboardId: string, widgetKey: TWidgetKeys): T | undefined => {
-    return useDashboardStore.getState().getWidgetStats<T>(workspaceSlug, dashboardId, widgetKey);
-  };
-
-  getWidgetStatsError = (workspaceSlug: string, dashboardId: string, widgetKey: TWidgetKeys) => {
-    return useDashboardStore.getState().getWidgetStatsError(workspaceSlug, dashboardId, widgetKey);
-  };
-
-  fetchHomeDashboardWidgets = async (workspaceSlug: string): Promise<THomeDashboardResponse> => {
-    const { setHomeDashboardId, setWidgetDetails } = useDashboardStore.getState();
-    try {
-      const response = await dashboardService.getHomeDashboardWidgets(workspaceSlug);
-      setHomeDashboardId(response.dashboard.id);
-      setWidgetDetails(workspaceSlug, response.dashboard.id, response.widgets);
-      return response;
-    } catch (error) {
-      setHomeDashboardId(null);
-      throw error;
-    }
-  };
-
-  fetchWidgetStats = async (workspaceSlug: string, dashboardId: string, params: TWidgetStatsRequestParams) => {
-    const { setWidgetStats, setWidgetStatsError } = useDashboardStore.getState();
-    try {
-      const res = await dashboardService.getWidgetStats(workspaceSlug, dashboardId, params);
-      if (res.issues) {
-        this.rootStore.issue.issues.addIssue(res.issues);
-      }
-      setWidgetStats(workspaceSlug, dashboardId, params.widget_key, res);
-      setWidgetStatsError(workspaceSlug, dashboardId, params.widget_key, null);
-      return res;
-    } catch (error) {
-      setWidgetStatsError(workspaceSlug, dashboardId, params.widget_key, error);
-      throw error;
-    }
-  };
-
-  updateDashboardWidget = async (
-    workspaceSlug: string,
-    dashboardId: string,
-    widgetId: string,
-    data: Partial<TWidget>
-  ): Promise<any> => {
-    const { widgetDetails, updateWidgetInDetails } = useDashboardStore.getState();
-    const widgets = widgetDetails?.[workspaceSlug]?.[dashboardId];
-    if (!widgets) throw new Error("Dashboard not found");
-
-    const widgetIndex = widgets.findIndex((widget) => widget.id === widgetId);
-    if (widgetIndex === -1) throw new Error("Widget not found");
-
-    const originalWidget = { ...widgets[widgetIndex] };
-
-    try {
-      updateWidgetInDetails(workspaceSlug, dashboardId, widgetIndex, {
-        ...widgets[widgetIndex],
-        ...data,
-      });
-      const response = await dashboardService.updateDashboardWidget(dashboardId, widgetId, data);
-      return response;
-    } catch (error) {
-      // Revert on error
-      updateWidgetInDetails(workspaceSlug, dashboardId, widgetIndex, originalWidget);
-      throw error;
-    }
-  };
-
-  updateDashboardWidgetFilters = async (
-    workspaceSlug: string,
-    dashboardId: string,
-    widgetId: string,
-    data: TWidgetFiltersFormData
-  ): Promise<TWidget> => {
-    const { widgetDetails, setWidgetDetails } = useDashboardStore.getState();
-    const widgetDetailsItem = this.getWidgetDetails(workspaceSlug, dashboardId, data.widgetKey);
-    if (!widgetDetailsItem) throw new Error("Widget not found");
-
-    const originalWidgets = widgetDetails?.[workspaceSlug]?.[dashboardId] || [];
-
-    try {
-      const updatedWidget = {
-        ...widgetDetailsItem,
-        widget_filters: {
-          ...widgetDetailsItem.widget_filters,
-          ...data.filters,
-        },
-      };
-
-      // Optimistic update
-      setWidgetDetails(
-        workspaceSlug,
-        dashboardId,
-        originalWidgets.map((w) => (w.id === widgetId ? updatedWidget : w))
-      );
-
-      const response = await this.updateDashboardWidget(workspaceSlug, dashboardId, widgetId, {
-        filters: {
-          ...widgetDetailsItem.widget_filters,
-          ...data.filters,
-        },
-      });
-
-      return response;
-    } catch (error) {
-      // Revert on error
-      setWidgetDetails(
-        workspaceSlug,
-        dashboardId,
-        originalWidgets.map((w) => (w.id === widgetId ? widgetDetailsItem : w))
-      );
-      throw error;
-    }
-  };
 }

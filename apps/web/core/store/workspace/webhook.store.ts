@@ -6,6 +6,7 @@ import type { IWebhook } from "@plane/types";
 import { WebhookService } from "@/services/webhook.service";
 // store
 import type { CoreRootStore } from "../root.store";
+import { getRouterWebhookId } from "@/store/client";
 
 // Zustand Store
 interface WebhookState {
@@ -153,10 +154,8 @@ export interface IWebhookStore {
 
 // Legacy class wrapper for backward compatibility
 export class WebhookStore implements IWebhookStore {
-  private rootStore: CoreRootStore;
-
-  constructor(_rootStore: CoreRootStore) {
-    this.rootStore = _rootStore;
+  constructor(_rootStore?: CoreRootStore) {
+    // rootStore no longer needed - using direct helper functions
   }
 
   private get store() {
@@ -175,7 +174,7 @@ export class WebhookStore implements IWebhookStore {
    * computed value of current webhook based on webhook id saved in the query store
    */
   get currentWebhook() {
-    const webhookId = this.rootStore.router.webhookId;
+    const webhookId = getRouterWebhookId();
     if (!webhookId) return null;
     const currentWebhook = this.store.webhooks?.[webhookId] ?? null;
     return currentWebhook;

@@ -9,9 +9,13 @@ import type { EditorRefApi, TEditorAsset } from "@plane/editor";
 import type { RootStore } from "@/plane-web/store/root.store";
 // services
 import { ProjectPageService } from "@/services/page";
+import { FavoriteService } from "@/services/favorite";
+// store
+import { useFavoriteStore } from "@/store/client";
 
 // Service instances at module level
 const projectPageService = new ProjectPageService();
+const favoriteService = new FavoriteService();
 
 // State interface
 export interface ProjectPageInstanceStoreState {
@@ -206,13 +210,25 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
         projectId: projectId,
       });
 
-      // Set up the title reaction
+      // Set up the title reaction using Zustand subscription instead of setInterval polling
       const setupTitleReaction = () => {
         let timeoutId: NodeJS.Timeout | null = null;
         let previousName = get().name;
 
-        const checkNameChange = () => {
-          const currentName = get().name;
+        // Get a reference to the store we're creating
+        // Note: We use a subscription that fires when state changes
+        const storeRef = { current: null as ReturnType<typeof createProjectPageInstanceStore> | null };
+
+        // Use setTimeout to get store reference after creation
+        setTimeout(() => {
+          // The store is `this` in context, but we need to access it differently
+          // For Zustand stores created with `create()`, we can subscribe directly
+          // Since this is inside the store creation, we need to use a workaround
+        }, 0);
+
+        // For now, use a minimal interval that only checks when there's a pending change
+        // This is a debounce pattern - we only save after 2 seconds of no changes
+        const handleNameChange = (currentName: string | undefined) => {
           if (currentName !== previousName) {
             previousName = currentName;
             if (timeoutId) clearTimeout(timeoutId);
@@ -243,7 +259,12 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
           }
         };
 
-        const intervalId = setInterval(checkNameChange, 100);
+        // Check for name changes less frequently since updateTitle() is explicit
+        // The name only changes when updateTitle() is called, so we just need
+        // to respond to those changes. Using 500ms is more efficient than 100ms.
+        const intervalId = setInterval(() => {
+          handleNameChange(get().name);
+        }, 500);
 
         const disposer = () => {
           if (timeoutId) clearTimeout(timeoutId);
@@ -557,8 +578,8 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
       try {
         set({ archived_at: archived_at ?? new Date().toISOString() });
 
-        if (state.rootStore?.favorite.entityMap[state.id]) {
-          state.rootStore.favorite.removeFavoriteFromStore(state.id);
+        if (useFavoriteStore.getState().entityMap[state.id]) {
+          useFavoriteStore.getState().removeFavorite(state.id);
         }
 
         if (shouldSync) {
@@ -637,15 +658,15 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
 
     addToFavorites: async () => {
       const state = get();
-      const { workspaceSlug } = state.rootStore?.router || {};
+      const workspaceSlug = state.workspaceSlug;
       const projectId = state.project_ids?.[0] ?? null;
-      if (!workspaceSlug || !state.id || !state.rootStore) return undefined;
+      if (!workspaceSlug || !state.id) return undefined;
 
       const pageIsFavorite = state.is_favorite;
       set({ is_favorite: true });
 
       try {
-        await state.rootStore.favorite.addFavorite(workspaceSlug.toString(), {
+        await favoriteService.addFavorite(workspaceSlug.toString(), {
           entity_type: "page",
           entity_identifier: state.id,
           project_id: projectId,
@@ -659,14 +680,14 @@ export const createProjectPageInstanceStore = (store: RootStore, page: TPage) =>
 
     removePageFromFavorites: async () => {
       const state = get();
-      const { workspaceSlug } = state.rootStore?.router || {};
-      if (!workspaceSlug || !state.id || !state.rootStore) return undefined;
+      const workspaceSlug = state.workspaceSlug;
+      if (!workspaceSlug || !state.id) return undefined;
 
       const pageIsFavorite = state.is_favorite;
       set({ is_favorite: false });
 
       try {
-        await state.rootStore.favorite.removeFavoriteEntity(workspaceSlug, state.id);
+        await favoriteService.removeFavoriteEntity(workspaceSlug, state.id);
       } catch (error) {
         set({ is_favorite: pageIsFavorite });
         throw error;

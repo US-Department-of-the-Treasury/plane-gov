@@ -21,7 +21,7 @@ import { cn } from "@plane/utils";
 // components
 import { ListLoaderItemRow } from "@/components/ui/loader/layouts/list-layout-loader";
 // hooks
-import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
+import { useIssueLoader, useGroupedIssueCount } from "@/hooks/store/use-issue-store-reactive";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useIssuesStore, useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
@@ -113,10 +113,12 @@ export function ListGroup(props: Props) {
 
   const storeType = useIssueStoreType();
   const {
-    issues: { getGroupIssueCount, getPaginationData },
+    issues: { getPaginationData },
   } = useIssuesStore();
   // Use reactive loader hook instead of non-reactive getIssueLoader()
   const loader = useIssueLoader(storeType, group.id);
+  // Use reactive issue count hook instead of non-reactive getGroupIssueCount()
+  const groupIssueCount = useGroupedIssueCount(storeType, group.id, undefined, false) ?? 0;
 
   const [intersectionElement, setIntersectionElement] = useState<HTMLDivElement | null>(null);
 
@@ -124,7 +126,6 @@ export function ListGroup(props: Props) {
     useWorkFlowFDragNDrop(group_by);
   const isWorkflowIssueCreationDisabled = getIsWorkflowWorkItemCreationDisabled(group.id);
 
-  const groupIssueCount = getGroupIssueCount(group.id, undefined, false) ?? 0;
   const nextPageResults = getPaginationData(group.id, undefined)?.nextPageResults;
   const isPaginating = !!loader;
 

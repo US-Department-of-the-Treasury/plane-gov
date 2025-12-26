@@ -3,6 +3,7 @@ import { sortBy } from "lodash-es";
 import type { IIssueLabel, IIssueLabelTree } from "@plane/types";
 import { buildTree } from "@plane/utils";
 import { IssueLabelService } from "@/services/issue/issue_label.service";
+import { getRouterProjectId, getRouterWorkspaceSlug } from "./router.store";
 
 /**
  * Label state managed by Zustand.
@@ -150,11 +151,9 @@ export interface ILabelStore {
  * @deprecated Use TanStack Query hooks (useProjectLabels, useCreateLabel, etc.) directly in React components
  */
 export class LabelStoreLegacy implements ILabelStore {
-  // Store reference for accessing router info
-  private rootStore: { router: { projectId: string | null; workspaceSlug: string | null } };
-
-  constructor(rootStore: { router: { projectId: string | null; workspaceSlug: string | null } }) {
-    this.rootStore = rootStore;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor(_rootStore?: unknown) {
+    // rootStore no longer needed - using getRouterProjectId/getRouterWorkspaceSlug helpers
   }
 
   get fetchedMap() {
@@ -166,17 +165,17 @@ export class LabelStoreLegacy implements ILabelStore {
   }
 
   get projectLabels() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useLabelStore.getState().getProjectLabels(projectId);
   }
 
   get projectLabelsTree() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useLabelStore.getState().getProjectLabelsTree(projectId);
   }
 
   get workspaceLabels() {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return undefined;
     // Note: This requires workspace ID, not slug. May need adjustment.
     return useLabelStore.getState().getWorkspaceLabels(workspaceSlug);

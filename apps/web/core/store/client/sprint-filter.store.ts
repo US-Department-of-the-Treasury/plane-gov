@@ -1,6 +1,7 @@
 import { set as lodashSet } from "lodash-es";
 import { create } from "zustand";
 import type { TSprintDisplayFilters, TSprintFilters, TSprintFiltersByState } from "@plane/types";
+import { getRouterProjectId } from "./router.store";
 
 interface SprintFilterState {
   // State
@@ -158,12 +159,8 @@ export interface ISprintFilterStore {
  * @deprecated Use useSprintFilterStore hook directly in React components
  */
 export class SprintFilterStoreLegacy implements ISprintFilterStore {
-  private rootStore: {
-    router: { projectId: string | null };
-  };
-
-  constructor(rootStore: any) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    // rootStore no longer needed - using getRouterProjectId() for non-reactive access
   }
 
   get displayFilters() {
@@ -183,17 +180,17 @@ export class SprintFilterStoreLegacy implements ISprintFilterStore {
   }
 
   get currentProjectDisplayFilters() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useSprintFilterStore.getState().getCurrentProjectDisplayFilters(projectId ?? undefined);
   }
 
   get currentProjectFilters() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useSprintFilterStore.getState().getCurrentProjectFilters(projectId ?? undefined);
   }
 
   get currentProjectArchivedFilters() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useSprintFilterStore.getState().getCurrentProjectArchivedFilters(projectId ?? undefined);
   }
 

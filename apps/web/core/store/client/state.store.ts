@@ -4,6 +4,7 @@ import { STATE_GROUPS } from "@plane/constants";
 import type { IIntakeState, IState } from "@plane/types";
 import { sortStates } from "@plane/utils";
 import { ProjectStateService } from "@/services/project/project-state.service";
+import { getRouterProjectId, getRouterWorkspaceSlug } from "./router.store";
 
 /**
  * State store managed by Zustand.
@@ -195,10 +196,8 @@ export interface IStateStore {
  * @deprecated Use TanStack Query hooks (useProjectStates, useCreateState, etc.) directly in React components
  */
 export class StateStoreLegacy implements IStateStore {
-  private rootStore: { router: { projectId: string | null; workspaceSlug: string | null } };
-
-  constructor(rootStore: { router: { projectId: string | null; workspaceSlug: string | null } }) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    // Router access now uses direct functions instead of rootStore
   }
 
   get fetchedMap() {
@@ -218,7 +217,7 @@ export class StateStoreLegacy implements IStateStore {
   }
 
   get workspaceStates() {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return undefined;
     const { stateMap, fetchedMap } = useStateStore.getState();
     if (!fetchedMap[workspaceSlug]) return undefined;
@@ -226,12 +225,12 @@ export class StateStoreLegacy implements IStateStore {
   }
 
   get projectStates() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useStateStore.getState().getProjectStates(projectId);
   }
 
   get groupedProjectStates() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useStateStore.getState().getGroupedProjectStates(projectId);
   }
 
@@ -348,7 +347,7 @@ export class StateStoreLegacy implements IStateStore {
   };
 
   getStatePercentageInGroup = (stateId: string | null | undefined) => {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useStateStore.getState().getStatePercentageInGroup(stateId, projectId);
   };
 }

@@ -11,6 +11,7 @@ import type {
 // base class
 import type { IBaseIssuesStore } from "../helpers/base-issues.store";
 import { BaseIssuesStore } from "../helpers/base-issues.store";
+import { getRouterProjectId } from "@/store/client";
 // services
 import type { IIssueRootStore } from "../root.store";
 import type { IProjectIssuesFilter } from "./filter.store";
@@ -51,7 +52,6 @@ export class ProjectIssues extends BaseIssuesStore implements IProjectIssues {
     enableIssueCreation: true,
     enableInlineEditing: true,
   };
-  router;
 
   // filter store
   issueFilterStore: IProjectIssuesFilter;
@@ -60,7 +60,6 @@ export class ProjectIssues extends BaseIssuesStore implements IProjectIssues {
     super(_rootStore, issueFilterStore);
     // filter store
     this.issueFilterStore = issueFilterStore;
-    this.router = _rootStore.rootStore.router;
   }
 
   /**
@@ -175,7 +174,7 @@ export class ProjectIssues extends BaseIssuesStore implements IProjectIssues {
    * @returns
    */
   override createIssue = async (workspaceSlug: string, projectId: string, data: Partial<TIssue>) => {
-    const response = await super.createIssue(workspaceSlug, projectId, data, "", projectId === this.router.projectId);
+    const response = await super.createIssue(workspaceSlug, projectId, data, "", projectId === getRouterProjectId());
     return response;
   };
 

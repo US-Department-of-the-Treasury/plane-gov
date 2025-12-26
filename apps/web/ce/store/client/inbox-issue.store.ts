@@ -12,7 +12,7 @@ import { EInboxIssueStatus } from "@plane/types";
 import { InboxIssueService } from "@/services/inbox";
 import { IssueService } from "@/services/issue";
 // store
-import type { CoreRootStore } from "../../core/store/root.store";
+import type { CoreRootStore } from "@/store/root.store";
 
 // Service instances at module level
 const inboxIssueService = new InboxIssueService();

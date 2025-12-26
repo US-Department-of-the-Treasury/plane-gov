@@ -2,6 +2,12 @@ import { create } from "zustand";
 import type { IProjectView, TViewFilters } from "@plane/types";
 import { getValidatedViewFilters, getViewName, orderViews, shouldFilterView } from "@plane/utils";
 import { ViewService } from "@/plane-web/services";
+import { FavoriteService } from "@/services/favorite";
+import { getRouterProjectId } from "./router.store";
+import { useFavoriteStore } from "./favorite.store";
+
+// Service instances at module level
+const favoriteService = new FavoriteService();
 
 /**
  * Project view state managed by Zustand.
@@ -170,18 +176,8 @@ export interface IProjectViewStore {
  * @deprecated Use useProjectViewStore hook directly in React components
  */
 export class ProjectViewStoreLegacy implements IProjectViewStore {
-  private rootStore: {
-    router: { projectId: string | null };
-    favorite: {
-      entityMap: Record<string, any>;
-      addFavorite: (workspaceSlug: string, data: any) => Promise<any>;
-      removeFavoriteEntity: (workspaceSlug: string, entityId: string) => Promise<void>;
-      removeFavoriteFromStore: (entityId: string) => void;
-    };
-  };
-
-  constructor(rootStore: any) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    // rootStore no longer needed - using direct Zustand store access
   }
 
   get loader() {
@@ -201,7 +197,7 @@ export class ProjectViewStoreLegacy implements IProjectViewStore {
   }
 
   get projectViewIds() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useProjectViewStore.getState().getProjectViewIds(projectId);
   }
 
@@ -272,8 +268,8 @@ export class ProjectViewStoreLegacy implements IProjectViewStore {
   deleteView = async (workspaceSlug: string, projectId: string, viewId: string): Promise<any> => {
     await viewService.deleteView(workspaceSlug, projectId, viewId);
     useProjectViewStore.getState().removeView(viewId);
-    if (this.rootStore.favorite.entityMap[viewId]) {
-      this.rootStore.favorite.removeFavoriteFromStore(viewId);
+    if (useFavoriteStore.getState().entityMap[viewId]) {
+      useFavoriteStore.getState().removeFavorite(viewId);
     }
   };
 
@@ -283,7 +279,7 @@ export class ProjectViewStoreLegacy implements IProjectViewStore {
       const currentView = getViewById(viewId);
       if (currentView?.is_favorite) return;
       updateViewField(viewId, "is_favorite", true);
-      await this.rootStore.favorite.addFavorite(workspaceSlug.toString(), {
+      await favoriteService.addFavorite(workspaceSlug.toString(), {
         entity_type: "view",
         entity_identifier: viewId,
         project_id: projectId,
@@ -301,7 +297,7 @@ export class ProjectViewStoreLegacy implements IProjectViewStore {
       const currentView = getViewById(viewId);
       if (!currentView?.is_favorite) return;
       updateViewField(viewId, "is_favorite", false);
-      await this.rootStore.favorite.removeFavoriteEntity(workspaceSlug, viewId);
+      await favoriteService.removeFavoriteEntity(workspaceSlug, viewId);
     } catch (error) {
       console.error("Failed to remove view from favorites in view store", error);
       updateViewField(viewId, "is_favorite", true);

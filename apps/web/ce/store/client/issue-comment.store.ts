@@ -5,7 +5,7 @@ import type { TIssueComment, TIssueCommentMap, TIssueCommentIdMap, TIssueService
 // services
 import { IssueCommentService } from "@/services/issue";
 // types
-import type { IIssueDetail } from "@/core/store/issue/issue-details/root.store";
+import type { IIssueDetail } from "@/store/issue/issue-details/root.store";
 
 export type TCommentLoader = "fetch" | "create" | "update" | "delete" | "mutate" | undefined;
 

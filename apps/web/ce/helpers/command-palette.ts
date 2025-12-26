@@ -10,10 +10,10 @@ import {
 import type { TCommandPaletteActionList, TCommandPaletteShortcut, TCommandPaletteShortcutList } from "@plane/types";
 // store
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { store } from "@/lib/store-context";
+import { useCommandPaletteStore } from "@/store/client";
 
 export const getGlobalShortcutsList: () => TCommandPaletteActionList = () => {
-  const { toggleCreateIssueModal } = store.commandPalette;
+  const { toggleCreateIssueModal } = useCommandPaletteStore.getState();
 
   return {
     c: {
@@ -28,7 +28,7 @@ export const getGlobalShortcutsList: () => TCommandPaletteActionList = () => {
 };
 
 export const getWorkspaceShortcutsList: () => TCommandPaletteActionList = () => {
-  const { toggleCreateProjectModal } = store.commandPalette;
+  const { toggleCreateProjectModal } = useCommandPaletteStore.getState();
 
   return {
     p: {
@@ -49,7 +49,7 @@ export const getProjectShortcutsList: () => TCommandPaletteActionList = () => {
     toggleCreateSprintModal,
     toggleCreateViewModal,
     toggleBulkDeleteIssueModal,
-  } = store.commandPalette;
+  } = useCommandPaletteStore.getState();
 
   return {
     d: {

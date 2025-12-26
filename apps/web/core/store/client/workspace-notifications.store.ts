@@ -19,6 +19,7 @@ import workspaceNotificationService from "@/services/workspace-notification.serv
 // store
 import type { INotification } from "@/store/client/notification.store";
 import { NotificationStoreLegacy } from "@/store/client/notification.store";
+import { getRouterWorkspaceSlug } from "@/store/client/router.store";
 import type { CoreRootStore } from "@/store/root.store";
 
 type TNotificationLoader = ENotificationLoader | undefined;
@@ -401,10 +402,10 @@ export interface IWorkspaceNotificationStore {
 export class WorkspaceNotificationStoreLegacy implements IWorkspaceNotificationStore {
   private rootStore: CoreRootStore;
 
-  constructor(rootStore: CoreRootStore) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    this.rootStore = _rootStore as CoreRootStore;
     // Store the rootStore reference in the Zustand store for use in mutations
-    (useWorkspaceNotificationStore.getState() as any)._rootStore = rootStore;
+    (useWorkspaceNotificationStore.getState() as any)._rootStore = _rootStore;
   }
 
   get loader() {
@@ -441,7 +442,7 @@ export class WorkspaceNotificationStoreLegacy implements IWorkspaceNotificationS
   };
 
   notificationLiteByNotificationId = (notificationId: string | undefined) => {
-    return notificationLiteByNotificationId(notificationId, this.rootStore.router.workspaceSlug || undefined);
+    return notificationLiteByNotificationId(notificationId, getRouterWorkspaceSlug() || undefined);
   };
 
   // helper actions
