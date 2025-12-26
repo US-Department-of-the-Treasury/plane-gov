@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import type { StoreApi } from "zustand";
-import { set as lodashSet } from "lodash-es";
 // plane imports
 import { EPageAccess } from "@plane/constants";
 import type { TChangeHandlerProps } from "@plane/propel/emoji-icon-picker";
@@ -9,6 +8,7 @@ import type { TDocumentPayload, TLogoProps, TNameDescriptionLoader, TPage } from
 import type { RootStore } from "@/plane-web/store/root.store";
 import type { TBasePageServices } from "@/store/pages/base-page";
 import { getRouterWorkspaceSlug, useFavoriteStore } from "@/store/client";
+import { useUserStore } from "@/store/user";
 import { FavoriteService } from "@/services/favorite";
 // local imports
 import { usePageEditorStore } from "@/store/ui/page-editor.store";
@@ -593,7 +593,8 @@ export class BasePageStoreLegacy implements IBasePage {
   }
 
   get isCurrentUserOwner() {
-    const currentUserId = this.rootStore.user.data?.id;
+    // Direct Zustand store access - no rootStore indirection
+    const currentUserId = useUserStore.getState().data?.id;
     return this.store.getState().getIsCurrentUserOwner(currentUserId);
   }
 

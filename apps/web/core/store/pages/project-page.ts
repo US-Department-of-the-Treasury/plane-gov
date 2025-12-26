@@ -5,7 +5,7 @@ import type { TPage } from "@plane/types";
 import type { RootStore } from "@/plane-web/store/root.store";
 // services
 import { ProjectPageService } from "@/services/page";
-import { getRouterWorkspaceSlug } from "@/store/client";
+import { getRouterWorkspaceSlug, useBaseUserPermissionStore } from "@/store/client";
 const projectPageService = new ProjectPageService();
 // store
 import { BasePage } from "./base-page";
@@ -61,7 +61,8 @@ export class ProjectPage extends BasePage implements TProjectPage {
     if (!workspaceSlug || !projectIds?.length) return;
     let highestRole: EUserPermissions | undefined = undefined;
     projectIds.map((projectId) => {
-      const currentUserProjectRole = this.rootStore.user.permission.getProjectRoleByWorkspaceSlugAndProjectId(
+      // Direct Zustand store access - no rootStore indirection
+      const currentUserProjectRole = useBaseUserPermissionStore.getState().getProjectRole(
         workspaceSlug?.toString() || "",
         projectId?.toString() || ""
       );
