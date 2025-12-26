@@ -17,6 +17,7 @@ export function WorkItemDetailRoot(props: TWorkItemDetailRoot) {
       projectId={projectId.toString()}
       issueId={issueId.toString()}
       is_archived={!!issue?.archived_at}
+      issue={issue}
     />
   );
 }
