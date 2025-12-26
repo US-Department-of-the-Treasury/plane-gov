@@ -1,126 +1,160 @@
 import { useState, memo } from "react";
-import { Users, Filter, UserCheck, UserX, Calendar, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
+import { Users, UserPlus, Calendar, BarChart3, ChevronRight, UserCheck } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
 import { SIDEBAR_WIDTH } from "@plane/constants";
 import { useLocalStorage } from "@plane/hooks";
 import { cn } from "@plane/utils";
 // components
 import { ResizableSidebar } from "@/components/sidebar/resizable-sidebar";
+import { SidebarWrapper } from "@/components/sidebar/sidebar-wrapper";
+import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
+import { SidebarAddButton } from "@/components/sidebar/add-button";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 
-// Team member view filters
-const TEAM_FILTERS = [
-  { id: "all", label: "All Team Members", icon: Users },
-  { id: "assigned", label: "Assigned to Sprint", icon: UserCheck },
-  { id: "unassigned", label: "Unassigned", icon: UserX },
-  { id: "current-sprint", label: "Current Sprint Only", icon: Calendar },
-] as const;
+// Navigation items for resources mode
+const RESOURCES_PERSONAL_ITEMS = [
+  {
+    key: "team",
+    label: "Team Members",
+    href: "/resources/",
+    icon: <Users className="size-4" />,
+    highlight: (pathname: string, _url: string) => pathname === _url || pathname.endsWith("/resources/"),
+  },
+  {
+    key: "assignments",
+    label: "Assignments",
+    href: "/resources/assignments/",
+    icon: <UserCheck className="size-4" />,
+    highlight: (pathname: string, _url: string) => pathname.includes("/assignments"),
+  },
+  {
+    key: "capacity",
+    label: "Capacity",
+    href: "/resources/capacity/",
+    icon: <BarChart3 className="size-4" />,
+    highlight: (pathname: string, _url: string) => pathname.includes("/capacity"),
+  },
+];
 
-type TeamFilterId = (typeof TEAM_FILTERS)[number]["id"];
+const RESOURCES_WORKSPACE_ITEMS = [
+  {
+    key: "sprints",
+    label: "Sprints",
+    href: "/resources/sprints/",
+    icon: <Calendar className="size-4" />,
+    highlight: (pathname: string, _url: string) => pathname.includes("/sprints"),
+  },
+];
 
-const TeamFilterItem = memo(function TeamFilterItem({
-  filter,
-  isActive,
-  onClick,
+const ResourcesNavItem = memo(function ResourcesNavItem({
+  item,
+  workspaceSlug,
 }: {
-  filter: (typeof TEAM_FILTERS)[number];
-  isActive: boolean;
-  onClick: () => void;
+  item: (typeof RESOURCES_PERSONAL_ITEMS)[number];
+  workspaceSlug: string;
 }) {
-  const Icon = filter.icon;
+  const pathname = usePathname();
+  const { toggleSidebar, isExtendedSidebarOpened, toggleExtendedSidebar } = useAppTheme();
+
+  const handleLinkClick = () => {
+    if (window.innerWidth < 768) toggleSidebar();
+    if (isExtendedSidebarOpened) toggleExtendedSidebar(false);
+  };
+
+  const itemHref = `/${workspaceSlug}${item.href}`;
+  const isActive = item.highlight(pathname, itemHref);
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
-        isActive
-          ? "bg-custom-primary-100/10 text-custom-primary-100"
-          : "text-custom-text-200 hover:bg-custom-background-80"
-      )}
-    >
-      <Icon className="size-4 flex-shrink-0" />
-      <span className="flex-1 text-left">{filter.label}</span>
-    </button>
+    <Link href={itemHref} onClick={handleLinkClick}>
+      <SidebarNavItem isActive={isActive}>
+        <div className="flex items-center gap-1.5 py-[1px]">
+          {item.icon}
+          <p className="text-13 leading-5 font-medium">{item.label}</p>
+        </div>
+      </SidebarNavItem>
+    </Link>
   );
 });
 
-const TeamFiltersSection = memo(function TeamFiltersSection({
-  activeFilter,
-  setActiveFilter,
-}: {
-  activeFilter: TeamFilterId;
-  setActiveFilter: (id: TeamFilterId) => void;
-}) {
-  const [isOpen, setIsOpen] = useState(true);
+const ResourcesMenuItems = memo(function ResourcesMenuItems() {
+  const { workspaceSlug } = useParams();
+  const slug = workspaceSlug?.toString() || "";
+
+  const { setValue: toggleWorkspaceMenu, storedValue: isWorkspaceMenuOpen } = useLocalStorage<boolean>(
+    "is_resources_workspace_menu_open",
+    true
+  );
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className="border-b border-custom-border-200">
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-custom-text-400 uppercase hover:bg-custom-background-80"
-          >
-            <ChevronRight
-              className={cn("size-3 transition-transform", {
-                "rotate-90": isOpen,
-              })}
-            />
-            <span>View Options</span>
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-          <div className="px-2 pb-2">
-            {TEAM_FILTERS.map((filter) => (
-              <TeamFilterItem
-                key={filter.id}
-                filter={filter}
-                isActive={activeFilter === filter.id}
-                onClick={() => setActiveFilter(filter.id)}
+    <>
+      {/* Personal Section */}
+      <div className="flex flex-col gap-0.5">
+        {RESOURCES_PERSONAL_ITEMS.map((item) => (
+          <ResourcesNavItem key={item.key} item={item} workspaceSlug={slug} />
+        ))}
+      </div>
+
+      {/* Workspace Section */}
+      <Collapsible open={!!isWorkspaceMenuOpen} onOpenChange={toggleWorkspaceMenu} className="flex flex-col">
+        <div className="group w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-placeholder hover:bg-layer-transparent-hover">
+          <CollapsibleTrigger className="w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder">
+            <span className="text-13 font-semibold">Planning</span>
+          </CollapsibleTrigger>
+          <div className="flex items-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
+            <CollapsibleTrigger className="p-0.5 rounded-sm hover:bg-layer-1 flex-shrink-0">
+              <ChevronRight
+                className={cn("flex-shrink-0 size-3 transition-all", {
+                  "rotate-90": isWorkspaceMenuOpen,
+                })}
               />
+            </CollapsibleTrigger>
+          </div>
+        </div>
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+          <div className="flex flex-col gap-0.5">
+            {RESOURCES_WORKSPACE_ITEMS.map((item) => (
+              <ResourcesNavItem key={item.key} item={item} workspaceSlug={slug} />
             ))}
           </div>
         </CollapsibleContent>
-      </div>
-    </Collapsible>
+      </Collapsible>
+    </>
   );
 });
 
-const QuickActionsSection = memo(function QuickActionsSection() {
-  const [isOpen, setIsOpen] = useState(true);
-
+const ResourcesQuickActions = memo(function ResourcesQuickActions() {
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className="border-b border-custom-border-200">
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-custom-text-400 uppercase hover:bg-custom-background-80"
-          >
-            <ChevronRight
-              className={cn("size-3 transition-transform", {
-                "rotate-90": isOpen,
-              })}
-            />
-            <span>Quick Actions</span>
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-          <div className="px-4 pb-3 space-y-2">
-            <div className="text-sm text-custom-text-300">Export Assignments</div>
-            <div className="text-sm text-custom-text-300">View Capacity</div>
-            <div className="text-sm text-custom-text-300">Sprint Summary</div>
-          </div>
-        </CollapsibleContent>
-      </div>
-    </Collapsible>
+    <div className="flex items-center justify-between gap-2 cursor-pointer">
+      <SidebarAddButton
+        label={
+          <>
+            <UserPlus className="size-4" />
+            <span className="text-13 font-medium truncate max-w-[145px]">Add team member</span>
+          </>
+        }
+        onClick={() => {
+          // TODO: Implement add team member modal
+          console.log("Add team member clicked");
+        }}
+        disabled={false}
+      />
+    </div>
   );
 });
+
+function ResourcesSidebarContent() {
+  return (
+    <SidebarWrapper title="Resources" quickActions={<ResourcesQuickActions />}>
+      <ResourcesMenuItems />
+    </SidebarWrapper>
+  );
+}
 
 /**
- * Resources mode sidebar with team/HR-focused filter options
+ * Resources mode sidebar with team/HR-focused navigation
  * Uses per-mode sidebar collapse state for independent collapse behavior
  */
 export function ResourcesSidebar() {
@@ -136,7 +170,6 @@ export function ResourcesSidebar() {
 
   // states
   const [sidebarWidth, setSidebarWidth] = useState<number>(storedValue ?? SIDEBAR_WIDTH);
-  const [activeFilter, setActiveFilter] = useState<TeamFilterId>("all");
 
   // handlers
   const handleWidthChange = (width: number) => setValue(width);
@@ -157,33 +190,7 @@ export function ResourcesSidebar() {
       isAnyExtendedSidebarExpanded={false}
       isAnySidebarDropdownOpen={isAnySidebarDropdownOpen}
     >
-      <div className="flex flex-col h-full">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-custom-border-200">
-          <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-custom-text-200" />
-            <h2 className="text-base font-semibold">Team Resources</h2>
-          </div>
-          <button className="p-1 rounded hover:bg-custom-background-80 text-custom-text-200" title="Filter options">
-            <Filter className="h-4 w-4" />
-          </button>
-        </div>
-
-        {/* Team Filters */}
-        <TeamFiltersSection activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
-
-        {/* Quick Actions */}
-        <QuickActionsSection />
-
-        {/* Info section */}
-        <div className="flex-1 overflow-y-auto px-4 py-4">
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <Users className="size-8 text-custom-text-400 mb-2" />
-            <p className="text-sm text-custom-text-300">Sprint Assignment Matrix</p>
-            <p className="text-xs text-custom-text-400 mt-1">Assign team members to projects by sprint</p>
-          </div>
-        </div>
-      </div>
+      <ResourcesSidebarContent />
     </ResizableSidebar>
   );
 }
