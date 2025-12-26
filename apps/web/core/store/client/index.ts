@@ -2,7 +2,22 @@
 export { useThemeStore, ThemeStoreLegacy as ThemeStore } from "./theme.store";
 export type { ThemeStore as ThemeStoreType, IThemeStore } from "./theme.store";
 
-export { useRouterStore, RouterStoreLegacy as RouterStore } from "./router.store";
+export {
+  useRouterStore,
+  RouterStoreLegacy as RouterStore,
+  getRouterWorkspaceSlug,
+  getRouterProjectId,
+  getRouterSprintId,
+  getRouterEpicId,
+  getRouterViewId,
+  getRouterGlobalViewId,
+  getRouterUserId,
+  getRouterPeekId,
+  getRouterIssueId,
+  getRouterInboxId,
+  getRouterWebhookId,
+  getRouterTeamspaceId,
+} from "./router.store";
 export type { RouterStoreType, IRouterStore } from "./router.store";
 
 export { useMultipleSelectStore, MultipleSelectStoreLegacy as MultipleSelectStore } from "./multiple-select.store";

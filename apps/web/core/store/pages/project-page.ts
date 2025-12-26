@@ -5,6 +5,7 @@ import type { TPage } from "@plane/types";
 import type { RootStore } from "@/plane-web/store/root.store";
 // services
 import { ProjectPageService } from "@/services/page";
+import { getRouterWorkspaceSlug } from "@/store/client";
 const projectPageService = new ProjectPageService();
 // store
 import { BasePage } from "./base-page";
@@ -15,7 +16,7 @@ export type TProjectPage = TPageInstance;
 export class ProjectPage extends BasePage implements TProjectPage {
   constructor(store: RootStore, page: TPage) {
     // required fields for API calls
-    const { workspaceSlug } = store.router;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const projectId = page.project_ids?.[0];
     // initialize base instance
     super(store, page, {
@@ -55,7 +56,7 @@ export class ProjectPage extends BasePage implements TProjectPage {
   }
 
   private getHighestRoleAcrossProjects = (): EUserPermissions | undefined => {
-    const { workspaceSlug } = this.rootStore.router;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const projectIds = this.project_ids;
     if (!workspaceSlug || !projectIds?.length) return;
     let highestRole: EUserPermissions | undefined = undefined;
@@ -164,7 +165,7 @@ export class ProjectPage extends BasePage implements TProjectPage {
   }
 
   getRedirectionLink = () => {
-    const { workspaceSlug } = this.rootStore.router;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const projectIds = this.project_ids;
     const pageId = this.id;
     return `/${workspaceSlug}/projects/${projectIds?.[0]}/pages/${pageId}`;

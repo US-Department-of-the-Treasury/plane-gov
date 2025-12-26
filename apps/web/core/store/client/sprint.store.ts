@@ -5,6 +5,7 @@ import type { ISprint, TSprintPlotType, TSprintEstimateType } from "@plane/types
 import type { DistributionUpdates } from "@plane/utils";
 import { orderSprints, shouldFilterSprint, getDate, updateDistribution } from "@plane/utils";
 import { SprintService } from "@/services/sprint.service";
+import { getRouterWorkspaceSlug } from "./router.store";
 
 /**
  * Sprint state managed by Zustand.
@@ -166,8 +167,8 @@ export class SprintStoreLegacy implements ISprintStore {
     };
   };
 
-  constructor(rootStore: any) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    this.rootStore = _rootStore as any;
   }
 
   get loader() {
@@ -191,7 +192,7 @@ export class SprintStoreLegacy implements ISprintStore {
   }
 
   get currentWorkspaceSprintIds(): string[] | null {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const { sprintMap, fetchedMap } = useSprintStore.getState();
     if (!workspaceSlug || !fetchedMap[workspaceSlug]) return null;
 
@@ -201,7 +202,7 @@ export class SprintStoreLegacy implements ISprintStore {
   }
 
   get currentWorkspaceCompletedSprintIds(): string[] | null {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const { sprintMap, fetchedMap } = useSprintStore.getState();
     if (!workspaceSlug || !fetchedMap[workspaceSlug]) return null;
 
@@ -216,7 +217,7 @@ export class SprintStoreLegacy implements ISprintStore {
   }
 
   get currentWorkspaceActiveSprintId(): string | null {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return null;
 
     const { sprintMap } = useSprintStore.getState();
@@ -256,7 +257,7 @@ export class SprintStoreLegacy implements ISprintStore {
   };
 
   getProjectSprintDetails = (projectId: string): ISprint[] | undefined => {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const { sprintMap, fetchedMap } = useSprintStore.getState();
     if (!workspaceSlug || !fetchedMap[workspaceSlug]) return undefined;
 

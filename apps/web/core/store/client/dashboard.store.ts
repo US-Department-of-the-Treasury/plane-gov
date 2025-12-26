@@ -9,6 +9,7 @@ import type {
   TWidgetStatsRequestParams,
 } from "@plane/types";
 import { DashboardService } from "@/services/dashboard.service";
+import { getRouterWorkspaceSlug } from "./router.store";
 
 /**
  * Dashboard state managed by Zustand.
@@ -177,8 +178,8 @@ export class DashboardStoreLegacy implements IDashboardStore {
     issue: { issues: { addIssue: (issues: any[]) => void } };
   };
 
-  constructor(rootStore: any) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    this.rootStore = _rootStore as any;
   }
 
   get widgetStatsError() {
@@ -198,7 +199,7 @@ export class DashboardStoreLegacy implements IDashboardStore {
   }
 
   get homeDashboardWidgets() {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     return useDashboardStore.getState().getHomeDashboardWidgets(workspaceSlug);
   }
 

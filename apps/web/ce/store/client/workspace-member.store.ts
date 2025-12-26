@@ -9,6 +9,7 @@ import { WorkspaceService } from "@/plane-web/services";
 import type { CoreRootStore } from "../../core/store/root.store";
 import type { IMemberFilters } from "@/store/member/utils";
 import { sortWorkspaceMembers } from "@/store/member/utils";
+import { getRouterWorkspaceSlug } from "@/store/client";
 
 // Service instance at module level
 const workspaceService = new WorkspaceService();
@@ -509,21 +510,21 @@ export class WorkspaceMemberStoreLegacy implements IWorkspaceMemberStore {
   }
 
   get workspaceMemberIds(): string[] | null {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return null;
 
     return this.getWorkspaceMemberIds(workspaceSlug);
   }
 
   get memberMap(): Record<string, IWorkspaceMembership> | null {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return null;
 
     return this.workspaceMemberMap?.[workspaceSlug] ?? {};
   }
 
   get workspaceMemberInvitationIds(): string[] | null {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return null;
 
     return this.workspaceMemberInvitations?.[workspaceSlug]?.map((inv) => inv.id);
@@ -539,28 +540,28 @@ export class WorkspaceMemberStoreLegacy implements IWorkspaceMemberStore {
   };
 
   getSearchedWorkspaceMemberIds = (searchQuery: string): string[] | null => {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return null;
 
     return useWorkspaceMemberStore.getState().getSearchedWorkspaceMemberIds(workspaceSlug, searchQuery);
   };
 
   getSearchedWorkspaceInvitationIds = (searchQuery: string): string[] | null => {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return null;
 
     return useWorkspaceMemberStore.getState().getSearchedWorkspaceInvitationIds(workspaceSlug, searchQuery);
   };
 
   getWorkspaceMemberDetails = (userId: string): IWorkspaceMember | null => {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return null;
 
     return useWorkspaceMemberStore.getState().getWorkspaceMemberDetails(workspaceSlug, userId);
   };
 
   getWorkspaceInvitationDetails = (invitationId: string): IWorkspaceMemberInvitation | null => {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return null;
 
     return useWorkspaceMemberStore.getState().getWorkspaceInvitationDetails(workspaceSlug, invitationId);

@@ -48,6 +48,46 @@ const getQueryValue = (query: ParsedUrlQuery, key: string): string | undefined =
 };
 
 /**
+ * Helper functions to get router values directly from the Zustand store.
+ * Use these in store classes instead of rootStore.router.
+ */
+export const getRouterWorkspaceSlug = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "workspaceSlug");
+
+export const getRouterProjectId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "projectId");
+
+export const getRouterSprintId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "sprintId");
+
+export const getRouterEpicId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "epicId");
+
+export const getRouterViewId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "viewId");
+
+export const getRouterGlobalViewId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "globalViewId");
+
+export const getRouterUserId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "userId");
+
+export const getRouterPeekId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "peekId");
+
+export const getRouterIssueId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "issueId");
+
+export const getRouterInboxId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "inboxId");
+
+export const getRouterWebhookId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "webhookId");
+
+export const getRouterTeamspaceId = (): string | undefined =>
+  getQueryValue(useRouterStore.getState().query, "teamspaceId");
+
+/**
  * Legacy class wrapper for backward compatibility with MobX patterns.
  * Used by root.store.ts to maintain API compatibility during migration.
  * @deprecated Use useRouterStore hook directly in React components

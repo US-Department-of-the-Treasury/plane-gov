@@ -14,6 +14,7 @@ import { getCustomDates } from "@plane/utils";
 import { InboxIssueService } from "@/services/inbox";
 import type { IInboxIssueStore } from "@/store/inbox/inbox-issue.store";
 import { InboxIssueStore } from "@/store/inbox/inbox-issue.store";
+import { getRouterWorkspaceSlug } from "@/store/client";
 import type { CoreRootStore } from "@/store/root.store";
 
 type TLoader =
@@ -478,7 +479,7 @@ export class ProjectInboxStoreLegacy implements IProjectInboxStore {
   };
 
   handleInboxIssueFilters = <T extends keyof TInboxIssueFilter>(key: T, value: TInboxIssueFilter[T]) => {
-    const { workspaceSlug } = this.rootStore.router;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const projectId = this.currentInboxProjectId;
     if (workspaceSlug && projectId) {
       const state = useProjectInboxStore.getState();
@@ -490,7 +491,7 @@ export class ProjectInboxStoreLegacy implements IProjectInboxStore {
   };
 
   handleInboxIssueSorting = <T extends keyof TInboxIssueSorting>(key: T, value: TInboxIssueSorting[T]) => {
-    const { workspaceSlug } = this.rootStore.router;
+    const workspaceSlug = getRouterWorkspaceSlug();
     const projectId = this.currentInboxProjectId;
     if (workspaceSlug && projectId) {
       const state = useProjectInboxStore.getState();

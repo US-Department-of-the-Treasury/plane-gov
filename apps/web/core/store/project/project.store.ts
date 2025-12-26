@@ -10,6 +10,7 @@ import type { TProject, TPartialProject } from "@/plane-web/types/projects";
 import { IssueLabelService, IssueService } from "@/services/issue";
 import { ProjectService, ProjectStateService, ProjectArchiveService } from "@/services/project";
 // store
+import { getRouterProjectId } from "@/store/client";
 import type { CoreRootStore } from "../root.store";
 
 type ProjectOverviewCollapsible = "links" | "attachments" | "milestones";
@@ -608,8 +609,9 @@ export class ProjectStore implements IProjectStore {
    * Returns current project details
    */
   get currentProjectDetails() {
-    if (!this.rootStore.router.projectId) return;
-    return this.store.projectMap?.[this.rootStore.router.projectId];
+    const projectId = getRouterProjectId();
+    if (!projectId) return;
+    return this.store.projectMap?.[projectId];
   }
 
   /**
@@ -617,7 +619,8 @@ export class ProjectStore implements IProjectStore {
    * Used for calculating identifier width in list layouts
    */
   get currentProjectNextSequenceId() {
-    if (!this.rootStore.router.projectId) return undefined;
+    const projectId = getRouterProjectId();
+    if (!projectId) return undefined;
     return this.currentProjectDetails?.next_work_item_sequence;
   }
 

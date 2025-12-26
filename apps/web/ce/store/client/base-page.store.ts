@@ -7,6 +7,7 @@ import type { TDocumentPayload, TLogoProps, TNameDescriptionLoader, TPage } from
 // plane web store
 import type { RootStore } from "@/plane-web/store/root.store";
 import type { TBasePageServices } from "@/store/pages/base-page";
+import { getRouterWorkspaceSlug } from "@/store/client";
 // local imports
 import { usePageEditorStore } from "@/store/ui/page-editor.store";
 
@@ -335,7 +336,7 @@ export const createBasePageStore = (
 
     addToFavorites: async () => {
       const state = get();
-      const { workspaceSlug } = rootStore.router;
+      const workspaceSlug = getRouterWorkspaceSlug();
       const projectId = state.project_ids?.[0] ?? null;
       if (!workspaceSlug || !state.id) return undefined;
 
@@ -357,7 +358,7 @@ export const createBasePageStore = (
 
     removePageFromFavorites: async () => {
       const state = get();
-      const { workspaceSlug } = rootStore.router;
+      const workspaceSlug = getRouterWorkspaceSlug();
       if (!workspaceSlug || !state.id) return undefined;
 
       const pageIsFavorite = state.is_favorite;

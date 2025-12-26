@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { IWebhook } from "@plane/types";
 import { WebhookService } from "@/services/webhook.service";
+import { getRouterWebhookId } from "./router.store";
 
 /**
  * Webhook Store State
@@ -239,10 +240,8 @@ export interface IWebhookStore {
  * @deprecated Use useWebhookStore hook directly in React components
  */
 export class WebhookStoreLegacy implements IWebhookStore {
-  private rootStore: { router: { webhookId: string | undefined } };
-
-  constructor(rootStore: { router: { webhookId: string | undefined } }) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    // rootStore no longer needed - router access is direct via getRouterWebhookId()
   }
 
   get webhooks() {
@@ -257,7 +256,7 @@ export class WebhookStoreLegacy implements IWebhookStore {
    * Computed value of current webhook based on webhook id saved in the router store
    */
   get currentWebhook() {
-    const webhookId = this.rootStore.router.webhookId;
+    const webhookId = getRouterWebhookId();
     if (!webhookId) return null;
     const currentWebhook = this.webhooks?.[webhookId] ?? null;
     return currentWebhook;

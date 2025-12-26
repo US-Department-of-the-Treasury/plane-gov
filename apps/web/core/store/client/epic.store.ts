@@ -5,6 +5,7 @@ import type { DistributionUpdates } from "@plane/utils";
 import { updateDistribution, orderEpics, shouldFilterEpic } from "@plane/utils";
 import { EpicService } from "@/services/epic.service";
 import { EpicArchiveService } from "@/services/epic_archive.service";
+import { getRouterProjectId } from "./router.store";
 
 /**
  * Epic state managed by Zustand.
@@ -226,8 +227,8 @@ export class EpicStoreLegacy implements IEpicStore {
     };
   };
 
-  constructor(rootStore: any) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    this.rootStore = _rootStore as any;
   }
 
   get loader() {
@@ -247,12 +248,12 @@ export class EpicStoreLegacy implements IEpicStore {
   }
 
   get projectEpicIds() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useEpicStore.getState().getProjectEpicIds(projectId);
   }
 
   get projectArchivedEpicIds() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useEpicStore.getState().getProjectArchivedEpicIds(projectId);
   }
 
@@ -311,7 +312,7 @@ export class EpicStoreLegacy implements IEpicStore {
   };
 
   getPlotTypeByEpicId = (epicId: string) => {
-    const { projectId } = this.rootStore.router;
+    const projectId = getRouterProjectId();
     const { plotType } = useEpicStore.getState();
     return projectId && this.rootStore.projectEstimate.areEstimateEnabledByProjectId(projectId)
       ? plotType[epicId] || "burndown"

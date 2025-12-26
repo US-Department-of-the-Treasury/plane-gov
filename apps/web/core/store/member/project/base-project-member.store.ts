@@ -17,6 +17,7 @@ import { ProjectMemberService } from "@/services/project";
 // store
 import type { IProjectStore } from "@/store/project/project.store";
 import type { IRouterStore } from "@/store/client";
+import { getRouterProjectId } from "@/store/client";
 import type { IUserStore } from "@/store/user";
 // local imports
 import type { IMemberRootStore } from "../index";
@@ -229,7 +230,7 @@ export abstract class BaseProjectMemberStore implements IBaseProjectMemberStore 
    * Returns filtered and sorted member IDs based on current filters
    */
   get projectMemberIds() {
-    const projectId = this.routerStore.projectId;
+    const projectId = getRouterProjectId();
     if (!projectId) return null;
 
     const members = Object.values(this.projectMemberMap?.[projectId] ?? {});

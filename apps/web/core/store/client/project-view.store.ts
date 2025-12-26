@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { IProjectView, TViewFilters } from "@plane/types";
 import { getValidatedViewFilters, getViewName, orderViews, shouldFilterView } from "@plane/utils";
 import { ViewService } from "@/plane-web/services";
+import { getRouterProjectId } from "./router.store";
 
 /**
  * Project view state managed by Zustand.
@@ -171,7 +172,6 @@ export interface IProjectViewStore {
  */
 export class ProjectViewStoreLegacy implements IProjectViewStore {
   private rootStore: {
-    router: { projectId: string | null };
     favorite: {
       entityMap: Record<string, any>;
       addFavorite: (workspaceSlug: string, data: any) => Promise<any>;
@@ -180,8 +180,8 @@ export class ProjectViewStoreLegacy implements IProjectViewStore {
     };
   };
 
-  constructor(rootStore: any) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    this.rootStore = _rootStore as any;
   }
 
   get loader() {
@@ -201,7 +201,7 @@ export class ProjectViewStoreLegacy implements IProjectViewStore {
   }
 
   get projectViewIds() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useProjectViewStore.getState().getProjectViewIds(projectId);
   }
 

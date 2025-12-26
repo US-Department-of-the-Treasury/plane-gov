@@ -5,6 +5,7 @@ import { immer } from "zustand/middleware/immer";
 import type { TProjectDisplayFilters, TProjectFilters, TProjectAppliedDisplayFilterKeys } from "@plane/types";
 // store
 import type { CoreRootStore } from "../root.store";
+import { getRouterWorkspaceSlug } from "@/store/client";
 
 // Zustand Store
 interface ProjectFilterState {
@@ -151,7 +152,7 @@ export class ProjectFilterStore implements IProjectFilterStore {
     // Set up reaction equivalent using subscription
     let previousWorkspaceSlug: string | undefined;
     useProjectFilterStore.subscribe((state) => {
-      const currentWorkspaceSlug = this.rootStore.router.workspaceSlug;
+      const currentWorkspaceSlug = getRouterWorkspaceSlug();
       if (currentWorkspaceSlug && currentWorkspaceSlug !== previousWorkspaceSlug) {
         this.initWorkspaceFilters(currentWorkspaceSlug);
         state.searchQuery = "";
@@ -180,7 +181,7 @@ export class ProjectFilterStore implements IProjectFilterStore {
    * @description get display filters of the current workspace
    */
   get currentWorkspaceDisplayFilters() {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return;
     return this.store.displayFilters[workspaceSlug];
   }
@@ -191,7 +192,7 @@ export class ProjectFilterStore implements IProjectFilterStore {
    */
   // TODO: Figure out a better approach for this
   get currentWorkspaceAppliedDisplayFilters() {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return;
     const displayFilters = this.store.displayFilters[workspaceSlug];
     if (!displayFilters) return;
@@ -205,7 +206,7 @@ export class ProjectFilterStore implements IProjectFilterStore {
    * @description get filters of the current workspace
    */
   get currentWorkspaceFilters() {
-    const workspaceSlug = this.rootStore.router.workspaceSlug;
+    const workspaceSlug = getRouterWorkspaceSlug();
     if (!workspaceSlug) return;
     return this.store.filters[workspaceSlug];
   }

@@ -11,6 +11,8 @@ import type {
 } from "@plane/types";
 // services
 import { ProjectMemberService } from "@/services/project";
+// store helpers
+import { getRouterProjectId } from "@/store/client";
 // utils
 import type { IMemberFilters } from "@/store/member/utils";
 import { sortProjectMembers } from "@/store/member/utils";
@@ -586,7 +588,7 @@ export abstract class BaseProjectMemberStoreLegacy implements IBaseProjectMember
   }
 
   get projectMemberIds(): string[] | null {
-    const projectId = this.routerStore.projectId;
+    const projectId = getRouterProjectId();
     if (!projectId) return null;
 
     const members = Object.values(this.projectMemberMap?.[projectId] ?? {});

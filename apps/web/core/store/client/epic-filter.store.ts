@@ -2,6 +2,7 @@ import { set as lodashSet } from "lodash-es";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { TEpicDisplayFilters, TEpicFilters, TEpicFiltersByState } from "@plane/types";
+import { getRouterProjectId } from "./router.store";
 
 // localStorage keys (matching MobX store for migration compatibility)
 const EPIC_DISPLAY_FILTERS_KEY = "epic_display_filters";
@@ -236,12 +237,8 @@ export interface IEpicFilterStore {
  * @deprecated Use useEpicFilterStore hook directly in React components
  */
 export class EpicFilterStoreLegacy implements IEpicFilterStore {
-  private rootStore: {
-    router: { projectId: string | null };
-  };
-
-  constructor(rootStore: any) {
-    this.rootStore = rootStore;
+  constructor(_rootStore?: unknown) {
+    // rootStore no longer needed - using getRouterProjectId() directly
   }
 
   get displayFilters() {
@@ -261,17 +258,17 @@ export class EpicFilterStoreLegacy implements IEpicFilterStore {
   }
 
   get currentProjectDisplayFilters() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useEpicFilterStore.getState().getCurrentProjectDisplayFilters(projectId ?? undefined);
   }
 
   get currentProjectFilters() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useEpicFilterStore.getState().getCurrentProjectFilters(projectId ?? undefined);
   }
 
   get currentProjectArchivedFilters() {
-    const projectId = this.rootStore.router.projectId;
+    const projectId = getRouterProjectId();
     return useEpicFilterStore.getState().getCurrentProjectArchivedFilters(projectId ?? undefined);
   }
 

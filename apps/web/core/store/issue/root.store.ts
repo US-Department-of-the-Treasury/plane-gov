@@ -4,6 +4,8 @@ import { immer } from "zustand/middleware/immer";
 // types
 import type { ISprint, IIssueLabel, IEpic, IProject, IState, IUserLite, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
+// store helpers
+import { getRouterWorkspaceSlug, getRouterTeamspaceId, getRouterProjectId, getRouterSprintId, getRouterEpicId, getRouterViewId, getRouterGlobalViewId, getRouterUserId } from "@/store/client";
 // plane web store
 import type { IProjectEpics, IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
 import { ProjectEpics, ProjectEpicsFilter } from "@/plane-web/store/issue/epic";
@@ -292,29 +294,29 @@ export class IssueRootStore implements IIssueRootStore {
       if (rootStore?.user?.data?.id && this.currentUserId !== rootStore.user.data.id) {
         updates.currentUserId = rootStore.user.data.id;
       }
-      if (this.workspaceSlug !== rootStore.router.workspaceSlug) {
-        updates.workspaceSlug = rootStore.router.workspaceSlug;
+      if (this.workspaceSlug !== getRouterWorkspaceSlug()) {
+        updates.workspaceSlug = getRouterWorkspaceSlug();
       }
-      if (this.teamspaceId !== rootStore.router.teamspaceId) {
-        updates.teamspaceId = rootStore.router.teamspaceId;
+      if (this.teamspaceId !== getRouterTeamspaceId()) {
+        updates.teamspaceId = getRouterTeamspaceId();
       }
-      if (this.projectId !== rootStore.router.projectId) {
-        updates.projectId = rootStore.router.projectId;
+      if (this.projectId !== getRouterProjectId()) {
+        updates.projectId = getRouterProjectId();
       }
-      if (this.sprintId !== rootStore.router.sprintId) {
-        updates.sprintId = rootStore.router.sprintId;
+      if (this.sprintId !== getRouterSprintId()) {
+        updates.sprintId = getRouterSprintId();
       }
-      if (this.epicId !== rootStore.router.epicId) {
-        updates.epicId = rootStore.router.epicId;
+      if (this.epicId !== getRouterEpicId()) {
+        updates.epicId = getRouterEpicId();
       }
-      if (this.viewId !== rootStore.router.viewId) {
-        updates.viewId = rootStore.router.viewId;
+      if (this.viewId !== getRouterViewId()) {
+        updates.viewId = getRouterViewId();
       }
-      if (this.globalViewId !== rootStore.router.globalViewId) {
-        updates.globalViewId = rootStore.router.globalViewId;
+      if (this.globalViewId !== getRouterGlobalViewId()) {
+        updates.globalViewId = getRouterGlobalViewId();
       }
-      if (this.userId !== rootStore.router.userId) {
-        updates.userId = rootStore.router.userId;
+      if (this.userId !== getRouterUserId()) {
+        updates.userId = getRouterUserId();
       }
       if (!isEmpty(rootStore?.state?.stateMap)) {
         updates.stateMap = rootStore.state.stateMap;
