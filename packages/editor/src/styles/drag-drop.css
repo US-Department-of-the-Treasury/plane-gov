@@ -5,6 +5,9 @@
   align-items: center;
   opacity: 1;
   transition: opacity 0.2s ease 0.2s;
+  /* Extend hover area to the right to bridge the gap between content and handle */
+  padding-right: 30px;
+  margin-right: -30px;
 
   &.side-menu-hidden {
     opacity: 0;

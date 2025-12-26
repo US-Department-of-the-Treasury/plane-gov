@@ -27,6 +27,7 @@ export type SideMenuPluginProps = {
 export type SideMenuHandleOptions = {
   view: (view: EditorView, sideMenu: HTMLDivElement | null) => void;
   domEvents?: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: (...args: any) => void;
   };
 };
@@ -65,11 +66,43 @@ const SideMenu = (options: SideMenuPluginProps) => {
   const { handlesConfig } = options;
   const editorSideMenu: HTMLDivElement | null = document.createElement("div");
   editorSideMenu.id = "editor-side-menu";
+  // Track if the side menu is being hovered (prevents hiding when moving to drag handle)
+  let isSideMenuHovered = false;
+  let hideTimeout: ReturnType<typeof setTimeout> | null = null;
   // side menu view actions
   const hideSideMenu = () => {
-    if (!editorSideMenu?.classList.contains("side-menu-hidden")) editorSideMenu?.classList.add("side-menu-hidden");
+    // Don't hide if the user is hovering over the side menu (e.g., to grab the drag handle)
+    if (isSideMenuHovered) return;
+    // Add a small delay before hiding to allow user to reach the drag handle
+    if (hideTimeout) clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => {
+      if (!isSideMenuHovered && !editorSideMenu?.classList.contains("side-menu-hidden")) {
+        editorSideMenu?.classList.add("side-menu-hidden");
+      }
+    }, 300);
   };
-  const showSideMenu = () => editorSideMenu?.classList.remove("side-menu-hidden");
+  const showSideMenu = () => {
+    // Cancel any pending hide when showing
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+    editorSideMenu?.classList.remove("side-menu-hidden");
+  };
+
+  // Add hover tracking directly on the side menu element
+  editorSideMenu.addEventListener("mouseenter", () => {
+    isSideMenuHovered = true;
+    // Cancel any pending hide
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+  });
+  editorSideMenu.addEventListener("mouseleave", () => {
+    isSideMenuHovered = false;
+    hideSideMenu();
+  });
   // side menu elements
   const { view: dragHandleView, domEvents: dragHandleDOMEvents } = DragHandlePlugin(options);
   const { view: aiHandleView, domEvents: aiHandleDOMEvents } = AIHandlePlugin(options);
