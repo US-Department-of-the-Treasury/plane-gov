@@ -154,7 +154,7 @@ export function useCreateSprint() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, projectId, data }: CreateSprintParams) => {
+    mutationFn: ({ workspaceSlug: _workspaceSlug, projectId: _projectId, data: _data }: CreateSprintParams) => {
       throw new Error(
         "Sprint creation is disabled. Sprints are now workspace-wide and auto-generated. " +
           "Configure workspace.sprint_start_date to enable automatic sprint generation."
@@ -237,7 +237,7 @@ export function useUpdateSprint() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, projectId, sprintId, data }: UpdateSprintParams) =>
+    mutationFn: ({ workspaceSlug, projectId: _projectId, sprintId, data }: UpdateSprintParams) =>
       sprintService.patchSprint(workspaceSlug, sprintId, data),
     onMutate: async ({ workspaceSlug, projectId, sprintId, data }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.sprints.all(workspaceSlug, projectId) });
@@ -305,7 +305,7 @@ export function useDeleteSprint() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, projectId, sprintId }: DeleteSprintParams) => {
+    mutationFn: ({ workspaceSlug: _workspaceSlug, projectId: _projectId, sprintId: _sprintId }: DeleteSprintParams) => {
       throw new Error(
         "Sprint deletion is disabled. Sprints are workspace-wide and auto-generated. " +
           "Use archiveSprint instead to archive a sprint."
@@ -359,7 +359,7 @@ export function useArchiveSprint() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, projectId, sprintId }: ArchiveSprintParams) =>
+    mutationFn: ({ workspaceSlug, projectId: _projectId, sprintId }: ArchiveSprintParams) =>
       sprintArchiveService.archiveSprint(workspaceSlug, sprintId),
     onMutate: async ({ workspaceSlug, projectId, sprintId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.sprints.all(workspaceSlug, projectId) });
@@ -406,7 +406,7 @@ export function useRestoreSprint() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, projectId, sprintId }: ArchiveSprintParams) =>
+    mutationFn: ({ workspaceSlug, projectId: _projectId, sprintId }: ArchiveSprintParams) =>
       sprintArchiveService.restoreSprint(workspaceSlug, sprintId),
     onMutate: async ({ workspaceSlug, projectId, sprintId }) => {
       const archivedKey = [...queryKeys.sprints.all(workspaceSlug, projectId), "archived"];
@@ -702,4 +702,36 @@ export function getSprintMemberProjectAssignment(
   if (!assignments) return undefined;
   const assignment = assignments.find((a) => a.member === memberId && a.sprint === sprintId);
   return assignment?.project;
+}
+
+// Sprint Materialization
+
+interface MaterializeSprintParams {
+  workspaceSlug: string;
+  sprintNumber: number;
+}
+
+/**
+ * Hook to materialize a virtual sprint by creating it in the database.
+ * Virtual sprints are calculated on the frontend but don't exist until they're needed.
+ * Returns the created sprint with its UUID.
+ *
+ * @example
+ * const { mutateAsync: materializeSprint, isPending } = useMaterializeSprint();
+ * const sprint = await materializeSprint({ workspaceSlug, sprintNumber: 15 });
+ * // Now use sprint.id for assignment
+ */
+export function useMaterializeSprint() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, sprintNumber }: MaterializeSprintParams) =>
+      sprintService.materializeSprint(workspaceSlug, sprintNumber),
+    onSuccess: (_data, { workspaceSlug }) => {
+      // Invalidate workspace sprints to include the newly materialized sprint
+      void queryClient.invalidateQueries({
+        queryKey: ["sprints", workspaceSlug],
+      });
+    },
+  });
 }

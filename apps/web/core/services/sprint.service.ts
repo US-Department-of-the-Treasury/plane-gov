@@ -4,9 +4,6 @@ import type {
   ISprint,
   TIssuesResponse,
   IWorkspaceActiveSprintsResponse,
-  TSprintDistribution,
-  TProgressSnapshot,
-  TSprintEstimateDistribution,
   TSprintMemberProject,
 } from "@plane/types";
 import { APIService } from "@/services/api.service";
@@ -173,9 +170,9 @@ export class SprintService extends APIService {
    * Remove calls to this method from components.
    */
   async sprintDateCheck(
-    workspaceSlug: string,
-    projectId: string,
-    params: any
+    _workspaceSlug: string,
+    _projectId: string,
+    _params: unknown
   ): Promise<{ status: boolean }> {
     // Sprint dates are auto-calculated, so date validation is no longer needed
     // Return success to maintain backward compatibility
@@ -238,8 +235,28 @@ export class SprintService extends APIService {
     sprintId: string,
     memberId: string
   ): Promise<void> {
-    return this.delete(`/api/workspaces/${workspaceSlug}/sprint-member-projects/`, {
+    return this.delete(`/api/workspaces/${workspaceSlug}/sprint-member-projects/`, undefined, {
       params: { sprint: sprintId, member: memberId },
+    })
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
+
+  // Sprint Materialization
+
+  /**
+   * Materialize a virtual sprint by creating it in the database.
+   * Virtual sprints are calculated on the frontend but don't exist until they're needed.
+   * This endpoint uses get_or_create to handle race conditions.
+   */
+  async materializeSprint(
+    workspaceSlug: string,
+    sprintNumber: number
+  ): Promise<ISprint & { created: boolean }> {
+    return this.post(`/api/workspaces/${workspaceSlug}/sprints/materialize/`, {
+      sprint_number: sprintNumber,
     })
       .then((response) => response?.data)
       .catch((error) => {
