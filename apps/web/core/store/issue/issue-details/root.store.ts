@@ -439,7 +439,9 @@ export abstract class IssueDetail implements IIssueDetail {
   // subscription
   addSubscription = (issueId: string, isSubscribed: boolean | undefined | null) => {
     const currentUserId = this.rootIssueStore.rootStore.user.data?.id;
-    if (!currentUserId) throw new Error("user id not available");
+    // Silently skip if user ID not available yet - subscription state is non-critical
+    // and will be properly cached when user data loads
+    if (!currentUserId) return;
     this.subscription.addSubscription(issueId, currentUserId, isSubscribed);
   };
   fetchSubscriptions = async (workspaceSlug: string, projectId: string, issueId: string) => {
