@@ -358,8 +358,9 @@ export const filterActivityOnSelectedFilters = (
   filters: TActivityFilters[]
 ): TIssueActivityComment[] =>
   activity.filter((activity) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison -- pre-existing type mismatch
     if (activity.activity_type === EActivityFilterType.DEFAULT) return true;
     return filters.includes(activity.activity_type as TActivityFilters);
   });
 
-export const ENABLE_ISSUE_DEPENDENCIES = false;
+export const ENABLE_ISSUE_DEPENDENCIES = true;
