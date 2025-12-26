@@ -38,6 +38,7 @@ from plane.db.models import (
     User,
     BotTypeEnum,
 )
+from plane.seeds.safe_emojis import get_random_logo_props
 
 logger = logging.getLogger("plane.worker")
 
@@ -93,12 +94,15 @@ def create_project_and_member(workspace: Workspace, bot_user: User) -> Dict[int,
         # Remove the name from seed data since we want to use workspace name
         project_seed.pop("name", None)
         project_seed.pop("identifier", None)
+        # Remove static logo_props - we'll assign a random emoji
+        project_seed.pop("logo_props", None)
 
         project = Project.objects.create(
             **project_seed,
             workspace=workspace,
             name=workspace.name,  # Use workspace name
             identifier=project_identifier,
+            logo_props=get_random_logo_props(),  # Assign random emoji
             created_by_id=bot_user.id,
             # Enable all views in seed data
             sprint_view=True,
