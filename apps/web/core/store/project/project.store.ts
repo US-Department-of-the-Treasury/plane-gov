@@ -51,6 +51,8 @@ interface ProjectActions {
   deleteProject: (workspaceSlug: string, projectId: string, projectService: ProjectService, rootStore: CoreRootStore) => Promise<void>;
   archiveProject: (workspaceSlug: string, projectId: string, projectArchiveService: ProjectArchiveService, rootStore: CoreRootStore) => Promise<void>;
   restoreProject: (workspaceSlug: string, projectId: string, projectArchiveService: ProjectArchiveService) => Promise<void>;
+  // Local state updates (no API call)
+  updateProjectAnchor: (projectId: string, anchor: string | null) => void;
 }
 
 type ProjectStoreType = ProjectState & ProjectActions;
@@ -424,6 +426,20 @@ export const useProjectStore = create<ProjectStoreType>()(
           console.log("Failed to restore project from project store");
           throw error;
         });
+    },
+
+    /**
+     * Updates the project anchor (publish URL) in local state
+     * Called after publish/unpublish API calls succeed
+     * @param projectId
+     * @param anchor
+     */
+    updateProjectAnchor: (projectId: string, anchor: string | null) => {
+      set((state) => {
+        if (state.projectMap[projectId]) {
+          state.projectMap[projectId].anchor = anchor;
+        }
+      });
     },
   }))
 );
