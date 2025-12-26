@@ -2,13 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { ChevronDown, ListFilter, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { ArrowDownAZ, ArrowUpAZ, Calendar, ChevronDown, ListFilter, Loader2 } from "lucide-react";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { StateGroupIcon } from "@plane/propel/icons";
 import { SelectCombobox } from "@plane/propel/combobox";
 import { cn, getFileURL } from "@plane/utils";
 import { Avatar } from "@plane/ui";
-import type { TIssue, IWorkspaceMember, IState } from "@plane/types";
+import type { TIssue, IWorkspaceMember, IState, TIssueOrderByOptions } from "@plane/types";
 import type { TProject } from "@/plane-web/types/projects";
 // hooks
 import { useWorkspaceMembers, getWorkspaceMembersMap } from "@/store/queries/member";
@@ -16,16 +17,56 @@ import { useProjects, getProjectById } from "@/store/queries/project";
 import { useWorkspaceStates, getStateById } from "@/store/queries/state";
 import { useWorkspaceViewIssuesPaginated, extractIssuesFromPages } from "@/store/queries/issues-paginated";
 
+// Date range presets
+const DATE_RANGE_PRESETS = [
+  { id: "7d", label: "Last 7 days", days: 7 },
+  { id: "30d", label: "Last 30 days", days: 30 },
+  { id: "90d", label: "Last 3 months", days: 90 },
+  { id: "365d", label: "Last year", days: 365 },
+] as const;
+
+// Status group options
+const STATUS_GROUPS = [
+  { id: "backlog", label: "Backlog", color: "text-custom-text-400" },
+  { id: "unstarted", label: "Todo", color: "text-custom-text-400" },
+  { id: "started", label: "In Progress", color: "text-amber-500" },
+  { id: "completed", label: "Done", color: "text-green-500" },
+  { id: "cancelled", label: "Cancelled", color: "text-red-500" },
+] as const;
+
+// Sort options
+const SORT_OPTIONS: { id: TIssueOrderByOptions; label: string; icon: "asc" | "desc" }[] = [
+  { id: "-updated_at", label: "Recently updated", icon: "desc" },
+  { id: "updated_at", label: "Oldest updated", icon: "asc" },
+  { id: "-created_at", label: "Recently created", icon: "desc" },
+  { id: "created_at", label: "Oldest created", icon: "asc" },
+  { id: "state__name", label: "Status A-Z", icon: "asc" },
+  { id: "-state__name", label: "Status Z-A", icon: "desc" },
+];
+
 type FilterState = {
   assigneeId: string | null;
   projectId: string | null;
+  dateRange: string | null;
+  statusGroup: string | null;
+  orderBy: TIssueOrderByOptions;
 };
+
+// Helper to get date string for N days ago
+function getDateNDaysAgo(days: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date.toISOString().split("T")[0];
+}
 
 export function AssignmentsView() {
   const { workspaceSlug } = useParams<{ workspaceSlug: string }>();
   const [filters, setFilters] = useState<FilterState>({
     assigneeId: null,
     projectId: null,
+    dateRange: null,
+    statusGroup: null,
+    orderBy: "-updated_at",
   });
 
   // Fetch workspace members
@@ -46,6 +87,20 @@ export function AssignmentsView() {
     }
     if (filters.projectId) {
       params.project = filters.projectId;
+    }
+    if (filters.statusGroup) {
+      params.state_group = filters.statusGroup;
+    }
+    if (filters.dateRange) {
+      const preset = DATE_RANGE_PRESETS.find((p) => p.id === filters.dateRange);
+      if (preset) {
+        // Filter issues updated within the date range
+        const startDate = getDateNDaysAgo(preset.days);
+        params.target_date = `${startDate};after`;
+      }
+    }
+    if (filters.orderBy) {
+      params.order_by = filters.orderBy;
     }
     return params;
   }, [filters]);
@@ -100,8 +155,37 @@ export function AssignmentsView() {
     setFilters((prev) => ({ ...prev, projectId: projectId === "" ? null : projectId }));
   };
 
+  const handleDateRangeChange = (value: string | string[] | null) => {
+    const dateRange = typeof value === "string" ? value : null;
+    setFilters((prev) => ({ ...prev, dateRange: dateRange === "" ? null : dateRange }));
+  };
+
+  const handleStatusGroupChange = (value: string | string[] | null) => {
+    const statusGroup = typeof value === "string" ? value : null;
+    setFilters((prev) => ({ ...prev, statusGroup: statusGroup === "" ? null : statusGroup }));
+  };
+
+  const handleSortChange = (value: string | string[] | null) => {
+    const orderBy = typeof value === "string" ? (value as TIssueOrderByOptions) : "-updated_at";
+    setFilters((prev) => ({ ...prev, orderBy }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      assigneeId: null,
+      projectId: null,
+      dateRange: null,
+      statusGroup: null,
+      orderBy: "-updated_at",
+    });
+  };
+
   const selectedAssignee = filters.assigneeId ? assigneeOptions.find((a) => a.id === filters.assigneeId) : null;
   const selectedProject = filters.projectId ? projectOptions.find((p) => p.id === filters.projectId) : null;
+  const selectedDateRange = filters.dateRange ? DATE_RANGE_PRESETS.find((p) => p.id === filters.dateRange) : null;
+  const selectedStatusGroup = filters.statusGroup ? STATUS_GROUPS.find((s) => s.id === filters.statusGroup) : null;
+  const selectedSort = SORT_OPTIONS.find((s) => s.id === filters.orderBy) || SORT_OPTIONS[0];
+  const hasActiveFilters = filters.assigneeId || filters.projectId || filters.dateRange || filters.statusGroup;
 
   const isLoading = membersLoading || projectsLoading || statesLoading || issuesLoading;
 
@@ -212,9 +296,113 @@ export function AssignmentsView() {
           </SelectCombobox.Content>
         </SelectCombobox>
 
-        {/* Results count */}
-        <div className="ml-auto text-13 text-placeholder">
-          {isLoading ? "Loading..." : `${issues.length} work items`}
+        {/* Status filter */}
+        <SelectCombobox value={filters.statusGroup ?? null} onValueChange={handleStatusGroupChange} multiple={false}>
+          <SelectCombobox.Trigger className="w-auto">
+            <button
+              type="button"
+              className={cn(
+                "flex items-center gap-1.5 px-2 py-1 text-13 rounded border border-strong",
+                "hover:bg-layer-transparent-hover transition-colors",
+                filters.statusGroup ? "text-primary" : "text-placeholder"
+              )}
+            >
+              {selectedStatusGroup ? (
+                <>
+                  <StateGroupIcon stateGroup={selectedStatusGroup.id} className="size-3.5" />
+                  <span>{selectedStatusGroup.label}</span>
+                </>
+              ) : (
+                <span>All statuses</span>
+              )}
+              <ChevronDown className="size-3 ml-1" />
+            </button>
+          </SelectCombobox.Trigger>
+          <SelectCombobox.Content emptyMessage="No statuses" maxHeight="md" width="auto" className="w-44">
+            {filters.statusGroup && (
+              <SelectCombobox.Item value="" keywords={["all", "clear"]}>
+                <span className="text-custom-text-400">All statuses</span>
+              </SelectCombobox.Item>
+            )}
+            {STATUS_GROUPS.map((status) => (
+              <SelectCombobox.Item key={status.id} value={status.id} keywords={[status.label]}>
+                <div className="flex items-center gap-2">
+                  <StateGroupIcon stateGroup={status.id} className="size-3.5" />
+                  <span>{status.label}</span>
+                </div>
+              </SelectCombobox.Item>
+            ))}
+          </SelectCombobox.Content>
+        </SelectCombobox>
+
+        {/* Date range filter */}
+        <SelectCombobox value={filters.dateRange ?? null} onValueChange={handleDateRangeChange} multiple={false}>
+          <SelectCombobox.Trigger className="w-auto">
+            <button
+              type="button"
+              className={cn(
+                "flex items-center gap-1.5 px-2 py-1 text-13 rounded border border-strong",
+                "hover:bg-layer-transparent-hover transition-colors",
+                filters.dateRange ? "text-primary" : "text-placeholder"
+              )}
+            >
+              <Calendar className="size-3.5" />
+              <span>{selectedDateRange?.label || "Any time"}</span>
+              <ChevronDown className="size-3 ml-1" />
+            </button>
+          </SelectCombobox.Trigger>
+          <SelectCombobox.Content emptyMessage="No options" maxHeight="md" width="auto" className="w-44">
+            {filters.dateRange && (
+              <SelectCombobox.Item value="" keywords={["all", "clear", "any"]}>
+                <span className="text-custom-text-400">Any time</span>
+              </SelectCombobox.Item>
+            )}
+            {DATE_RANGE_PRESETS.map((preset) => (
+              <SelectCombobox.Item key={preset.id} value={preset.id} keywords={[preset.label]}>
+                {preset.label}
+              </SelectCombobox.Item>
+            ))}
+          </SelectCombobox.Content>
+        </SelectCombobox>
+
+        {/* Clear filters */}
+        {hasActiveFilters && (
+          <button type="button" onClick={clearFilters} className="text-13 text-accent-primary hover:underline">
+            Clear
+          </button>
+        )}
+
+        {/* Sort */}
+        <div className="ml-auto flex items-center gap-2">
+          <SelectCombobox value={filters.orderBy} onValueChange={handleSortChange} multiple={false}>
+            <SelectCombobox.Trigger className="w-auto">
+              <button
+                type="button"
+                className="flex items-center gap-1.5 px-2 py-1 text-13 rounded border border-strong hover:bg-layer-transparent-hover transition-colors text-secondary"
+              >
+                {selectedSort.icon === "asc" ? (
+                  <ArrowUpAZ className="size-3.5" />
+                ) : (
+                  <ArrowDownAZ className="size-3.5" />
+                )}
+                <span>{selectedSort.label}</span>
+                <ChevronDown className="size-3 ml-1" />
+              </button>
+            </SelectCombobox.Trigger>
+            <SelectCombobox.Content emptyMessage="No options" maxHeight="md" width="auto" className="w-48">
+              {SORT_OPTIONS.map((option) => (
+                <SelectCombobox.Item key={option.id} value={option.id} keywords={[option.label]}>
+                  <div className="flex items-center gap-2">
+                    {option.icon === "asc" ? <ArrowUpAZ className="size-3.5" /> : <ArrowDownAZ className="size-3.5" />}
+                    <span>{option.label}</span>
+                  </div>
+                </SelectCombobox.Item>
+              ))}
+            </SelectCombobox.Content>
+          </SelectCombobox>
+
+          {/* Results count */}
+          <div className="text-13 text-placeholder">{isLoading ? "Loading..." : `${issues.length} work items`}</div>
         </div>
       </div>
 
@@ -227,12 +415,8 @@ export function AssignmentsView() {
         ) : issues.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-32 gap-2 text-placeholder">
             <span className="text-14">No work items found</span>
-            {(filters.assigneeId || filters.projectId) && (
-              <button
-                type="button"
-                onClick={() => setFilters({ assigneeId: null, projectId: null })}
-                className="text-13 text-accent-primary hover:underline"
-              >
+            {hasActiveFilters && (
+              <button type="button" onClick={clearFilters} className="text-13 text-accent-primary hover:underline">
                 Clear filters
               </button>
             )}
@@ -249,7 +433,14 @@ export function AssignmentsView() {
             </thead>
             <tbody>
               {issues.map((issue) => (
-                <IssueRow key={issue.id} issue={issue} membersMap={membersMap} projects={projects} states={states} />
+                <IssueRow
+                  key={issue.id}
+                  issue={issue}
+                  membersMap={membersMap}
+                  projects={projects}
+                  states={states}
+                  workspaceSlug={workspaceSlug}
+                />
               ))}
             </tbody>
           </table>
@@ -278,9 +469,10 @@ type IssueRowProps = {
   membersMap: Map<string, IWorkspaceMember>;
   projects: TProject[] | undefined;
   states: IState[] | undefined;
+  workspaceSlug: string;
 };
 
-function IssueRow({ issue, membersMap, projects, states }: IssueRowProps) {
+function IssueRow({ issue, membersMap, projects, states, workspaceSlug }: IssueRowProps) {
   const project = getProjectById(projects, issue.project_id);
   const assignees = issue.assignee_ids || [];
   const primaryAssignee = assignees.length > 0 ? membersMap.get(assignees[0]) : undefined;
@@ -288,15 +480,20 @@ function IssueRow({ issue, membersMap, projects, states }: IssueRowProps) {
   // Get state info from workspace states (states is a flat array with project_id on each state)
   const state = getStateById(states, issue.state_id);
 
+  // Build issue URL
+  const issueUrl = project
+    ? `/${workspaceSlug}/projects/${project.id}/issues/${issue.id}`
+    : `/${workspaceSlug}/workspace-views/all-issues/?peek=${issue.id}`;
+
   return (
-    <tr className="border-b border-subtle hover:bg-layer-transparent-hover transition-colors">
+    <tr className="border-b border-subtle hover:bg-layer-transparent-hover transition-colors group">
       <td className="px-4 py-2.5">
-        <div className="flex items-center gap-2">
+        <Link href={issueUrl} className="flex items-center gap-2 group-hover:text-accent-primary">
           <span className="text-13 text-placeholder font-mono">
             {project?.identifier ?? "?"}-{issue.sequence_id}
           </span>
-          <span className="text-13 text-primary truncate">{issue.name}</span>
-        </div>
+          <span className="text-13 text-primary truncate group-hover:text-accent-primary">{issue.name}</span>
+        </Link>
       </td>
       <td className="px-4 py-2.5">
         <div className="flex items-center gap-1.5">

@@ -109,18 +109,15 @@ export function SprintProjectCell({
             if (!project) return null;
 
             return (
-              <SelectCombobox.Item
-                key={projectId}
-                value={projectId}
-                keywords={[project.name ?? ""]}
-                className="flex items-center gap-2"
-              >
-                {project.logo_props && (
-                  <span className="flex-shrink-0">
-                    <Logo logo={project.logo_props} size={14} />
-                  </span>
-                )}
-                <span className="truncate">{project.name}</span>
+              <SelectCombobox.Item key={projectId} value={projectId} keywords={[project.name ?? ""]}>
+                <div className="flex items-center gap-2">
+                  {project.logo_props && (
+                    <span className="flex-shrink-0">
+                      <Logo logo={project.logo_props} size={14} />
+                    </span>
+                  )}
+                  <span className="truncate">{project.name}</span>
+                </div>
               </SelectCombobox.Item>
             );
           })}
