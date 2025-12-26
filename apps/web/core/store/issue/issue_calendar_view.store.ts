@@ -4,6 +4,8 @@ import { immer } from "zustand/middleware/immer";
 import type { ICalendarPayload, ICalendarWeek } from "@plane/types";
 import { EStartOfTheWeek } from "@plane/types";
 import { generateCalendarData, getWeekNumberOfDate } from "@plane/utils";
+// store helpers
+import { useUserProfileStore } from "@/store/client";
 // types
 import type { IIssueRootStore } from "./root.store";
 
@@ -40,11 +42,9 @@ interface CalendarState {
     activeWeekDate: Date;
   };
   calendarPayload: ICalendarPayload | null;
-  rootStore: IIssueRootStore | null;
 }
 
 interface CalendarActions {
-  setRootStore: (rootStore: IIssueRootStore) => void;
   updateCalendarFilters: (filters: Partial<{ activeMonthDate: Date; activeWeekDate: Date }>) => void;
   updateCalendarPayload: (date: Date) => void;
   regenerateCalendar: () => void;
@@ -63,15 +63,8 @@ export const useCalendarStore = create<CalendarStoreType>()(
       activeWeekDate: new Date(),
     },
     calendarPayload: null,
-    rootStore: null,
 
     // Actions
-    setRootStore: (rootStore) => {
-      set((state) => {
-        state.rootStore = rootStore;
-      });
-    },
-
     updateCalendarFilters: (filters) => {
       const date = filters.activeMonthDate || filters.activeWeekDate || new Date();
       get().updateCalendarPayload(date);
@@ -89,7 +82,8 @@ export const useCalendarStore = create<CalendarStoreType>()(
       if (!state.calendarPayload) return;
 
       const nextDate = new Date(date);
-      const startOfWeek = state.rootStore?.rootStore?.user?.userProfile?.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
+      // Direct Zustand store access - no rootStore indirection
+      const startOfWeek = useUserProfileStore.getState().data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
 
       set((draftState) => {
         draftState.calendarPayload = generateCalendarData(state.calendarPayload, nextDate, startOfWeek);
@@ -97,8 +91,8 @@ export const useCalendarStore = create<CalendarStoreType>()(
     },
 
     initCalendar: () => {
-      const state = get();
-      const startOfWeek = state.rootStore?.rootStore?.user?.userProfile?.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
+      // Direct Zustand store access - no rootStore indirection
+      const startOfWeek = useUserProfileStore.getState().data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
       const newCalendarPayload = generateCalendarData(null, new Date(), startOfWeek);
 
       set((draftState) => {
@@ -108,7 +102,8 @@ export const useCalendarStore = create<CalendarStoreType>()(
 
     regenerateCalendar: () => {
       const state = get();
-      const startOfWeek = state.rootStore?.rootStore?.user?.userProfile?.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
+      // Direct Zustand store access - no rootStore indirection
+      const startOfWeek = useUserProfileStore.getState().data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
       const { activeMonthDate } = state.calendarFilters;
 
       // Force complete regeneration by passing null to clear all cached data
@@ -129,13 +124,13 @@ export class CalendarStore implements ICalendarStore {
   constructor(_rootStore: IIssueRootStore) {
     this.rootStoreRef = _rootStore;
     const store = useCalendarStore.getState();
-    store.setRootStore(_rootStore);
     store.initCalendar();
 
     // Watch for changes in startOfWeek preference and regenerate calendar
-    let previousStartOfWeek = _rootStore.rootStore.user.userProfile.data?.start_of_the_week;
-    this.unsubscribe = useCalendarStore.subscribe(() => {
-      const currentStartOfWeek = this.rootStoreRef.rootStore.user.userProfile.data?.start_of_the_week;
+    // Direct Zustand store subscription - no rootStore indirection
+    let previousStartOfWeek = useUserProfileStore.getState().data?.start_of_the_week;
+    this.unsubscribe = useUserProfileStore.subscribe((state) => {
+      const currentStartOfWeek = state.data?.start_of_the_week;
       if (currentStartOfWeek !== previousStartOfWeek) {
         previousStartOfWeek = currentStartOfWeek;
         this.regenerateCalendar();
@@ -219,7 +214,8 @@ export class CalendarStore implements ICalendarStore {
     if (!monthData) return undefined;
 
     // Calculate firstDayOfMonth offset (same logic as calendar generation)
-    const startOfWeek = this.rootStoreRef?.rootStore?.user?.userProfile?.data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
+    // Direct Zustand store access - no rootStore indirection
+    const startOfWeek = useUserProfileStore.getState().data?.start_of_the_week ?? EStartOfTheWeek.SUNDAY;
     const firstDayOfMonthRaw = new Date(year, month, 1).getDay();
     const firstDayOfMonth = (firstDayOfMonthRaw - startOfWeek + 7) % 7;
 
