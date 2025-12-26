@@ -4,7 +4,17 @@ import { immer } from "zustand/middleware/immer";
 import type { ISprint, IIssueLabel, IEpic, IProject, IState, IUserLite, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 // store helpers
-import { useRouterStore } from "@/store/client";
+import {
+  useRouterStore,
+  useStateStore,
+  useLabelStore,
+  useEpicStore,
+  useSprintStore,
+  getRouterProjectId,
+  getRouterWorkspaceSlug,
+} from "@/store/client";
+// state sorting utility
+import { sortStates } from "@plane/utils";
 // plane web store
 import type { IProjectEpics, IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
 import { ProjectEpics, ProjectEpicsFilter } from "@/plane-web/store/issue/epic";
@@ -231,37 +241,56 @@ export class IssueRootStore implements IIssueRootStore {
     return this.issueRootStore.getState().userId;
   }
 
-  // Lazy getters for store maps - access rootStore directly instead of polling with setInterval
-  // This eliminates the 500ms polling interval and ensures data is always fresh
+  // Lazy getters for store maps - access Zustand stores directly instead of through rootStore
+  // This eliminates the indirection through legacy class wrappers and ensures data is always fresh
+
+  // User ID still requires rootStore (user store not yet migrated to Zustand)
   get currentUserId() {
     return this.rootStore?.user?.data?.id;
   }
+
+  // State data - now directly from Zustand store
   get stateMap() {
-    return this.rootStore?.state?.stateMap;
+    return useStateStore.getState().stateMap;
   }
   get stateDetails() {
-    return this.rootStore?.state?.projectStates;
+    const projectId = getRouterProjectId();
+    return useStateStore.getState().getProjectStates(projectId);
   }
   get workspaceStateDetails() {
-    return this.rootStore?.state?.workspaceStates;
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return undefined;
+    const { stateMap, fetchedMap } = useStateStore.getState();
+    if (!fetchedMap[workspaceSlug]) return undefined;
+    return sortStates(Object.values(stateMap));
   }
+
+  // Label data - now directly from Zustand store
   get labelMap() {
-    return this.rootStore?.label?.labelMap;
+    return useLabelStore.getState().labelMap;
   }
+
+  // Member data still requires rootStore (member stores not yet migrated to Zustand)
   get workSpaceMemberRolesMap() {
-    return this.rootStore?.memberRoot?.workspace?.memberMap;
+    return this.rootStore?.memberRoot?.workspace?.memberMap ?? undefined;
   }
   get memberMap() {
-    return this.rootStore?.memberRoot?.memberMap;
+    return this.rootStore?.memberRoot?.memberMap ?? undefined;
   }
+
+  // Project data still requires rootStore (project store not yet migrated to Zustand)
   get projectMap() {
-    return this.rootStore?.projectRoot?.project?.projectMap;
+    return this.rootStore?.projectRoot?.project?.projectMap ?? undefined;
   }
+
+  // Epic data - now directly from Zustand store
   get epicMap() {
-    return this.rootStore?.epic?.epicMap;
+    return useEpicStore.getState().epicMap;
   }
+
+  // Sprint data - now directly from Zustand store
   get sprintMap() {
-    return this.rootStore?.sprint?.sprintMap;
+    return useSprintStore.getState().sprintMap;
   }
 
   constructor(rootStore: RootStore, serviceType: TIssueServiceType = EIssueServiceType.ISSUES) {
@@ -270,8 +299,8 @@ export class IssueRootStore implements IIssueRootStore {
     this.issueRootStore = createIssueRootStore();
 
     // Setup router subscription for router values only
-    // Store maps (stateMap, labelMap, etc.) are now accessed lazily via getters
-    // that read directly from rootStore, eliminating the need for polling
+    // Store maps (stateMap, labelMap, epicMap, sprintMap) are now accessed lazily via getters
+    // that read directly from Zustand stores, eliminating the indirection through legacy class wrappers
     const unsubscribeRouter = useRouterStore.subscribe((state: { query: Record<string, unknown> }) => {
       const updates: Partial<IssueRootState> = {};
 
