@@ -326,8 +326,9 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
                 onChange={(e) => void handleTitleChange(e.target.value)}
                 placeholder="Untitled"
                 rows={1}
+                style={{ fontSize: "40px" }}
                 className={cn(
-                  "flex-1 text-[40px] leading-[1.2] font-bold bg-transparent border-none outline-none resize-none overflow-hidden",
+                  "flex-1 leading-[1.2] font-bold bg-transparent border-none outline-none resize-none overflow-hidden",
                   "text-[#37352f] dark:text-[#ffffffcf]",
                   "placeholder:text-[#37352f40] dark:placeholder:text-[#ffffff40]"
                 )}
