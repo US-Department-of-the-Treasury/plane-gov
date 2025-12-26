@@ -32,11 +32,9 @@ interface KanbanState {
     subgroupByIssuesVisibility: string[];
   };
   isDragging: boolean;
-  rootStore: IssueRootStore | null;
 }
 
 interface KanbanActions {
-  setRootStore: (rootStore: IssueRootStore) => void;
   handleKanBanToggle: (toggle: "groupByHeaderMinMax" | "subgroupByIssuesVisibility", value: string) => void;
   setIsDragging: (isDragging: boolean) => void;
 }
@@ -51,15 +49,8 @@ export const useKanbanStore = create<KanbanStoreType>()(
       subgroupByIssuesVisibility: [],
     },
     isDragging: false,
-    rootStore: null,
 
     // Actions
-    setRootStore: (rootStore) => {
-      set((state) => {
-        state.rootStore = rootStore;
-      });
-    },
-
     setIsDragging: (isDragging) => {
       set((state) => {
         state.isDragging = isDragging;
@@ -83,8 +74,8 @@ export class IssueKanBanViewStore implements IIssueKanBanViewStore {
 
   constructor(_rootStore: IssueRootStore) {
     this.rootStoreRef = _rootStore;
-    const store = useKanbanStore.getState();
-    store.setRootStore(_rootStore);
+    // Note: rootStore reference kept in legacy class for interface compatibility
+    // but Zustand store no longer stores it since it's not used for data access
   }
 
   private get store() {
