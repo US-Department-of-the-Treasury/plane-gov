@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTranslation } from "@plane/i18n";
+import { Plus } from "lucide-react";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { SelectCombobox } from "@plane/propel/combobox";
 import { cn } from "@plane/utils";
@@ -25,7 +25,6 @@ export function SprintProjectCell({
   onAssignmentChange,
   isActiveSprint = false,
 }: SprintProjectCellProps) {
-  const { t } = useTranslation();
   const { data: projects } = useProjects(workspaceSlug);
 
   // Get project IDs
@@ -46,46 +45,63 @@ export function SprintProjectCell({
     onAssignmentChange(memberId, sprintId, projectId === "" ? null : projectId);
   };
 
-  // Render project name or placeholder
-  const displayText = assignedProject?.name ?? "—";
+  const hasAssignment = !!assignedProject;
 
   return (
     <div
-      className={cn("flex w-40 min-w-40 items-center justify-center border-l border-custom-border-100 px-1 py-1", {
-        "bg-custom-primary-100/5": isActiveSprint,
+      className={cn("group/cell flex w-36 min-w-36 items-center justify-center px-2 py-1.5", {
+        "bg-accent-primary/5": isActiveSprint,
       })}
     >
       <SelectCombobox value={assignedProjectId ?? null} onValueChange={handleValueChange} multiple={false}>
         <SelectCombobox.Trigger className="w-full">
-          <button
-            type="button"
-            className={cn(
-              "w-full px-2 py-1.5 text-xs rounded hover:bg-custom-background-80 transition-colors",
-              "flex items-center gap-1.5 min-w-0",
-              assignedProject ? "text-custom-text-200" : "text-custom-text-400"
-            )}
-          >
-            {assignedProject?.logo_props && (
-              <span className="flex-shrink-0">
-                <Logo logo={assignedProject.logo_props} size={12} />
-              </span>
-            )}
-            <span className="truncate">{displayText}</span>
-          </button>
+          {hasAssignment ? (
+            <button
+              type="button"
+              className={cn(
+                "w-full px-2 py-0.5 text-13 rounded transition-colors",
+                "flex items-center gap-1.5 min-w-0",
+                "hover:bg-layer-transparent-hover",
+                "text-primary"
+              )}
+            >
+              {assignedProject?.logo_props && (
+                <span className="flex-shrink-0">
+                  <Logo logo={assignedProject.logo_props} size={12} />
+                </span>
+              )}
+              <span className="truncate">{assignedProject.name}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={cn(
+                "w-full h-6 rounded transition-all",
+                "flex items-center justify-center",
+                "border border-dashed border-transparent",
+                "group-hover/cell:border-subtle group-hover/cell:bg-layer-transparent-hover",
+                "text-placeholder hover:text-tertiary"
+              )}
+            >
+              <Plus className="h-3.5 w-3.5 opacity-0 group-hover/cell:opacity-100 transition-opacity" />
+            </button>
+          )}
         </SelectCombobox.Trigger>
 
         <SelectCombobox.Content
-          showSearch={projectIds.length > 3}
-          searchPlaceholder={t("search")}
-          emptyMessage={t("no_matching_results")}
+          showSearch
+          searchPlaceholder="Search projects..."
+          emptyMessage="No matching projects"
           maxHeight="md"
           width="auto"
-          className="w-48"
+          className="w-56"
         >
-          {/* Clear option */}
-          <SelectCombobox.Item value="" keywords={["none", "clear", "no project"]}>
-            <span className="text-custom-text-400">— {t("no_project") || "No project"}</span>
-          </SelectCombobox.Item>
+          {/* Clear option - only show if there's an assignment */}
+          {hasAssignment && (
+            <SelectCombobox.Item value="" keywords={["none", "clear", "no project", "remove"]}>
+              <span className="text-custom-text-400">Remove assignment</span>
+            </SelectCombobox.Item>
+          )}
 
           {/* Project options */}
           {projectIds.map((projectId) => {
@@ -101,7 +117,7 @@ export function SprintProjectCell({
               >
                 {project.logo_props && (
                   <span className="flex-shrink-0">
-                    <Logo logo={project.logo_props} size={12} />
+                    <Logo logo={project.logo_props} size={14} />
                   </span>
                 )}
                 <span className="truncate">{project.name}</span>

@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useTranslation } from "@plane/i18n";
+import { Calendar, Users } from "lucide-react";
 // ui
 import { Avatar, Loader } from "@plane/ui";
 import { cn } from "@plane/utils";
@@ -15,7 +15,6 @@ type ResourceMatrixProps = {
 };
 
 export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
-  const { t } = useTranslation();
   const { data: members, isLoading: membersLoading } = useWorkspaceMembers(workspaceSlug);
   const { data: sprints, isLoading: sprintsLoading } = useWorkspaceSprints(workspaceSlug);
   const { getAssignment, setAssignment } = useSprintProjectAssignments(workspaceSlug);
@@ -31,11 +30,11 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
     return (
       <div className="flex h-full w-full items-center justify-center p-8">
         <Loader className="flex flex-col gap-4 w-full max-w-4xl">
-          <Loader.Item height="40px" width="100%" />
-          <Loader.Item height="40px" width="100%" />
-          <Loader.Item height="40px" width="100%" />
-          <Loader.Item height="40px" width="100%" />
-          <Loader.Item height="40px" width="100%" />
+          <Loader.Item height="44px" width="100%" />
+          <Loader.Item height="44px" width="100%" />
+          <Loader.Item height="44px" width="100%" />
+          <Loader.Item height="44px" width="100%" />
+          <Loader.Item height="44px" width="100%" />
         </Loader>
       </div>
     );
@@ -43,29 +42,31 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
 
   if (memberIds.length === 0) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
-        <p className="text-custom-text-300">{t("no_members_found")}</p>
+      <div className="flex h-full w-full flex-col items-center justify-center gap-2">
+        <Users className="h-12 w-12 text-custom-text-400" />
+        <p className="text-custom-text-300 text-sm">No team members found</p>
+        <p className="text-custom-text-400 text-xs">Add team members to start planning resources</p>
       </div>
     );
   }
 
   if (sprintIds.length === 0) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
-        <p className="text-custom-text-300">{t("no_sprints_found")}</p>
+      <div className="flex h-full w-full flex-col items-center justify-center gap-2">
+        <Calendar className="h-12 w-12 text-custom-text-400" />
+        <p className="text-custom-text-300 text-sm">No sprints found</p>
+        <p className="text-custom-text-400 text-xs">Create sprints to assign team members to projects</p>
       </div>
     );
   }
 
   return (
-    <div className="h-full w-full overflow-auto p-4">
+    <div className="h-full w-full overflow-auto">
       <div className="min-w-max">
         {/* Header row with sprint columns */}
-        <div className="flex border-b border-custom-border-200">
-          {/* Member column header */}
-          <div className="sticky left-0 z-10 flex w-64 min-w-64 items-center bg-custom-background-100 px-4 py-3 font-medium text-custom-text-200">
-            {t("team_members")}
-          </div>
+        <div className="sticky top-0 z-10 flex border-b border-subtle bg-surface-1">
+          {/* Member column header - empty to match projects list */}
+          <div className="sticky left-0 z-20 flex w-56 min-w-56 items-center bg-surface-1 px-page-x py-1.5" />
           {/* Sprint column headers */}
           {sprintIds.map((sprintId) => {
             const sprint = getSprintById(sprints, sprintId);
@@ -78,51 +79,49 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
             return (
               <div
                 key={sprintId}
-                className={cn(
-                  "flex w-40 min-w-40 flex-col items-center justify-center border-l border-custom-border-200 px-3 py-2",
-                  {
-                    "bg-custom-primary-100/10": isActive,
-                  }
-                )}
+                className={cn("flex w-36 min-w-36 flex-col items-center justify-center px-2 py-1", {
+                  "bg-accent-primary/5": isActive,
+                })}
               >
-                <span
-                  className={cn("text-sm font-medium", {
-                    "text-custom-primary-100": isActive,
-                    "text-custom-text-200": !isActive,
-                  })}
-                >
-                  {sprint.name || `Sprint ${sprint.number}`}
-                </span>
-                <span className="text-xs text-custom-text-400">
+                <div className="flex items-center gap-1">
+                  {isActive && <span className="h-1.5 w-1.5 rounded-full bg-accent-primary" />}
+                  <span
+                    className={cn("text-11 font-medium truncate max-w-[110px]", {
+                      "text-accent-primary": isActive,
+                      "text-tertiary": !isActive,
+                    })}
+                  >
+                    {sprint.name || `Sprint ${sprint.number}`}
+                  </span>
+                </div>
+                <span className="text-10 text-placeholder">
                   {startDate} - {endDate}
                 </span>
-                {isActive && (
-                  <span className="mt-1 rounded-full bg-custom-primary-100 px-2 py-0.5 text-xs text-white">
-                    {t("current")}
-                  </span>
-                )}
               </div>
             );
           })}
         </div>
 
-        {/* Member rows */}
-        {members?.map((member) => {
+        {/* Member rows - clean list style */}
+        {members?.map((member, index) => {
           // Access user data from the nested member object
           const user = member.member;
           const displayName = user?.display_name || user?.first_name || user?.email || "Unknown";
-          const email = user?.email;
           const avatarUrl = user?.avatar_url;
+          const isLastRow = index === members.length - 1;
 
           return (
-            <div key={member.id} className="flex border-b border-custom-border-100 hover:bg-custom-background-90">
+            <div
+              key={member.id}
+              className={cn(
+                "group flex min-h-11 transition-colors hover:bg-layer-transparent-hover",
+                !isLastRow && "border-b border-subtle"
+              )}
+            >
               {/* Member info */}
-              <div className="sticky left-0 z-10 flex w-64 min-w-64 items-center gap-3 bg-custom-background-100 px-4 py-3">
+              <div className="sticky left-0 z-10 flex w-56 min-w-56 items-center gap-2.5 bg-layer-transparent px-page-x py-2 group-hover:bg-layer-transparent-hover transition-colors">
                 <Avatar name={displayName} src={avatarUrl} size="md" showTooltip={false} />
-                <div className="flex flex-col overflow-hidden">
-                  <span className="truncate text-sm font-medium text-custom-text-100">{displayName}</span>
-                  {email && <span className="truncate text-xs text-custom-text-400">{email}</span>}
-                </div>
+                <span className="truncate text-13 text-primary">{displayName}</span>
               </div>
 
               {/* Sprint cells for this member */}
