@@ -1,6 +1,8 @@
 import { useState, useMemo, memo, useCallback } from "react";
 import { useParams } from "react-router";
-import { Plus, Search, ChevronRight, FileText, FolderClosed, Lock, MoreHorizontal, Trash2, Copy } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Plus, FileText, FolderClosed, Lock, MoreHorizontal, Trash2, Copy, Clock, Star } from "lucide-react";
 import {
   Collapsible,
   CollapsibleTrigger,
@@ -13,12 +15,15 @@ import {
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { SIDEBAR_WIDTH } from "@plane/constants";
 import { useLocalStorage } from "@plane/hooks";
-import { useTranslation } from "@plane/i18n";
+import { ChevronRightIcon, HomeIcon } from "@plane/propel/icons";
 import { cn } from "@plane/utils";
 import { Tooltip } from "@plane/ui";
+import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // components
 import { ResizableSidebar } from "@/components/sidebar/resizable-sidebar";
+import { SidebarWrapper } from "@/components/sidebar/sidebar-wrapper";
 import { WikiEmptyState, WikiSidebarSkeleton } from "@/components/wiki/empty-states";
+import { CreateWikiPageModal } from "@/components/wiki/modals";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 // queries
@@ -53,9 +58,9 @@ const WikiPageItem = memo(function WikiPageItem({
           role="button"
           tabIndex={0}
           className={cn(
-            "group flex items-center gap-1 rounded-md px-2 py-1 text-sm cursor-pointer hover:bg-custom-background-80",
+            "group flex items-center gap-1.5 rounded-sm px-2 py-1.5 text-13 cursor-pointer hover:bg-layer-transparent-hover",
             {
-              "bg-custom-background-80": isActive,
+              "bg-layer-transparent-hover": isActive,
             }
           )}
           style={{ paddingLeft: `${depth * 12 + 8}px` }}
@@ -72,11 +77,11 @@ const WikiPageItem = memo(function WikiPageItem({
             <CollapsibleTrigger asChild>
               <button
                 type="button"
-                className="flex-shrink-0 p-0.5 rounded hover:bg-custom-background-90"
+                className="flex-shrink-0 p-0.5 rounded-sm hover:bg-layer-1"
                 onClick={(e) => e.stopPropagation()}
               >
-                <ChevronRight
-                  className={cn("size-3.5 text-custom-text-400 transition-transform duration-200", {
+                <ChevronRightIcon
+                  className={cn("size-3.5 text-tertiary transition-transform duration-200", {
                     "rotate-90": isOpen,
                   })}
                 />
@@ -92,28 +97,28 @@ const WikiPageItem = memo(function WikiPageItem({
               <Logo logo={page.logo_props} size={16} type="lucide" />
             </div>
           ) : (
-            <FileText className="size-4 flex-shrink-0 text-custom-text-400" />
+            <FileText className="size-4 flex-shrink-0 text-tertiary" />
           )}
 
           {/* Page name */}
-          <span className="flex-1 truncate text-custom-text-200">{page.name || "Untitled"}</span>
+          <span className="flex-1 truncate text-primary">{page.name || "Untitled"}</span>
 
           {/* Lock indicator */}
-          {page.is_locked && <Lock className="size-3 flex-shrink-0 text-custom-text-400" />}
+          {page.is_locked && <Lock className="size-3 flex-shrink-0 text-placeholder" />}
 
-          {/* Hover actions - Notion-style */}
+          {/* Hover actions */}
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             {/* Add child page */}
             <Tooltip tooltipContent="Add sub-page">
               <button
                 type="button"
-                className="p-0.5 rounded hover:bg-custom-background-90"
+                className="p-0.5 rounded-sm hover:bg-layer-1"
                 onClick={(e) => {
                   e.stopPropagation();
                   onCreateChildPage?.(page.id);
                 }}
               >
-                <Plus className="size-3.5 text-custom-text-400" />
+                <Plus className="size-3.5 text-tertiary" />
               </button>
             </Tooltip>
 
@@ -122,10 +127,10 @@ const WikiPageItem = memo(function WikiPageItem({
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="p-0.5 rounded hover:bg-custom-background-90"
+                  className="p-0.5 rounded-sm hover:bg-layer-1"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <MoreHorizontal className="size-3.5 text-custom-text-400" />
+                  <MoreHorizontal className="size-3.5 text-tertiary" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-48">
@@ -184,41 +189,37 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
       <div>
         <div
           className={cn(
-            "group w-full flex items-center gap-1 rounded-md px-2 py-1 text-sm cursor-pointer hover:bg-custom-background-80"
+            "group w-full flex items-center gap-1.5 rounded-sm px-2 py-1.5 text-13 cursor-pointer hover:bg-layer-transparent-hover"
           )}
           style={{ paddingLeft: `${depth * 12 + 8}px` }}
         >
           <CollapsibleTrigger asChild>
-            <button type="button" className="flex-shrink-0 p-0.5 rounded hover:bg-custom-background-90">
-              <ChevronRight
-                className={cn("size-3.5 text-custom-text-400 transition-transform duration-200", {
+            <button type="button" className="flex-shrink-0 p-0.5 rounded-sm hover:bg-layer-1">
+              <ChevronRightIcon
+                className={cn("size-3.5 text-tertiary transition-transform duration-200", {
                   "rotate-90": isOpen,
                 })}
               />
             </button>
           </CollapsibleTrigger>
-          <FolderClosed className="size-4 flex-shrink-0 text-custom-text-400" />
-          <span className="flex-1 truncate text-left font-medium text-custom-text-200">{collection.name}</span>
+          <FolderClosed className="size-4 flex-shrink-0 text-tertiary" />
+          <span className="flex-1 truncate text-left font-medium text-primary">{collection.name}</span>
 
           {/* Hover actions for collection */}
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <Tooltip tooltipContent="Add page to collection">
-              <button
-                type="button"
-                className="p-0.5 rounded hover:bg-custom-background-90"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Plus className="size-3.5 text-custom-text-400" />
+              <button type="button" className="p-0.5 rounded-sm hover:bg-layer-1" onClick={(e) => e.stopPropagation()}>
+                <Plus className="size-3.5 text-tertiary" />
               </button>
             </Tooltip>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="p-0.5 rounded hover:bg-custom-background-90"
+                  className="p-0.5 rounded-sm hover:bg-layer-1"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <MoreHorizontal className="size-3.5 text-custom-text-400" />
+                  <MoreHorizontal className="size-3.5 text-tertiary" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-48">
@@ -265,12 +266,163 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
 });
 
 /**
+ * Header action button for creating new pages - Notion-style icon button
+ */
+const WikiHeaderActions = memo(function WikiHeaderActions({ onCreatePage }: { onCreatePage: () => void }) {
+  return (
+    <Tooltip tooltipContent="New page">
+      <button
+        type="button"
+        className="p-1 rounded-sm text-tertiary hover:bg-layer-transparent-hover hover:text-primary transition-colors"
+        onClick={onCreatePage}
+      >
+        <Plus className="size-4" />
+      </button>
+    </Tooltip>
+  );
+});
+
+/**
+ * Wiki navigation items - matches Projects sidebar pattern with Home, Your work, Drafts
+ */
+const WikiNavigationItems = memo(function WikiNavigationItems({ workspaceSlug }: { workspaceSlug: string }) {
+  const pathname = usePathname();
+
+  const navItems = [
+    {
+      key: "all-pages",
+      label: "All pages",
+      href: `/${workspaceSlug}/wiki`,
+      icon: HomeIcon,
+      isActive: (path: string) => path === `/${workspaceSlug}/wiki` || path === `/${workspaceSlug}/wiki/`,
+    },
+    {
+      key: "recent",
+      label: "Recent",
+      href: `/${workspaceSlug}/wiki/recent`,
+      icon: Clock,
+      isActive: (path: string) => path.includes("/wiki/recent"),
+    },
+    {
+      key: "starred",
+      label: "Starred",
+      href: `/${workspaceSlug}/wiki/starred`,
+      icon: Star,
+      isActive: (path: string) => path.includes("/wiki/starred"),
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-0.5">
+      {navItems.map((item) => (
+        <Link key={item.key} href={item.href}>
+          <SidebarNavItem isActive={item.isActive(pathname)}>
+            <div className="flex items-center gap-1.5 py-[1px]">
+              <item.icon className="size-4 flex-shrink-0" />
+              <span className="text-13 font-medium">{item.label}</span>
+            </div>
+          </SidebarNavItem>
+        </Link>
+      ))}
+    </div>
+  );
+});
+
+/**
+ * Pages section - collapsible like Projects section in Projects sidebar
+ */
+const WikiPagesSection = memo(function WikiPagesSection({
+  pages,
+  collections,
+  workspaceSlug,
+  activePageId,
+  onCreateChildPage,
+  isLoading,
+  onCreatePage,
+}: {
+  pages: TWikiPageTreeNode[];
+  collections: TWikiCollectionTreeNode[];
+  workspaceSlug: string;
+  activePageId?: string;
+  onCreateChildPage: (parentId: string) => void;
+  isLoading: boolean;
+  onCreatePage: () => void;
+}) {
+  const { storedValue: isPagesOpen, setValue: togglePagesOpen } = useLocalStorage<boolean>("is_wiki_pages_open", true);
+
+  // Filter root pages (no collection)
+  const rootPages = useMemo(() => pages.filter((p) => !p.collection), [pages]);
+
+  if (isLoading) {
+    return <WikiSidebarSkeleton />;
+  }
+
+  const isEmpty = rootPages.length === 0 && collections.length === 0;
+
+  if (isEmpty) {
+    return (
+      <WikiEmptyState type="no-pages" onAction={onCreatePage} actionLabel="Create your first page" className="py-8" />
+    );
+  }
+
+  return (
+    <Collapsible open={!!isPagesOpen} onOpenChange={togglePagesOpen} className="flex flex-col">
+      <div className="group w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-placeholder hover:bg-layer-transparent-hover">
+        <CollapsibleTrigger
+          className="w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder"
+          aria-label={isPagesOpen ? "Close pages menu" : "Open pages menu"}
+        >
+          <span className="text-13 font-semibold">Pages</span>
+        </CollapsibleTrigger>
+        <div className="flex items-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
+          <CollapsibleTrigger
+            className="p-0.5 rounded-sm hover:bg-layer-1 flex-shrink-0"
+            aria-label={isPagesOpen ? "Close pages menu" : "Open pages menu"}
+          >
+            <ChevronRightIcon
+              className={cn("flex-shrink-0 size-3 transition-all", {
+                "rotate-90": isPagesOpen,
+              })}
+            />
+          </CollapsibleTrigger>
+        </div>
+      </div>
+      <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+        <div className="flex flex-col gap-0.5">
+          {/* Collections */}
+          {collections.map((collection) => (
+            <WikiCollectionItem
+              key={collection.id}
+              collection={collection}
+              pages={pages}
+              workspaceSlug={workspaceSlug}
+              activePageId={activePageId}
+              onCreateChildPage={onCreateChildPage}
+            />
+          ))}
+
+          {/* Root pages (no collection) */}
+          {rootPages.map((page) => (
+            <WikiPageItem
+              key={page.id}
+              page={page}
+              workspaceSlug={workspaceSlug}
+              activePageId={activePageId}
+              onCreateChildPage={onCreateChildPage}
+            />
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+});
+
+/**
  * Wiki mode sidebar with page tree and collections
- * Uses per-mode sidebar collapse state for independent collapse behavior
+ * Uses SidebarWrapper to match Projects sidebar pattern
  */
 export function WikiSidebar() {
   const { workspaceSlug, pageId } = useParams<{ workspaceSlug: string; pageId?: string }>();
-  const { t } = useTranslation();
   const router = useAppRouter();
 
   // store hooks - using wiki-specific collapse state
@@ -280,7 +432,7 @@ export function WikiSidebar() {
 
   // states
   const [sidebarWidth, setSidebarWidth] = useState<number>(storedValue ?? SIDEBAR_WIDTH);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [isCreatePageModalOpen, setIsCreatePageModalOpen] = useState(false);
 
   // Queries
   const { data: pages, isLoading: pagesLoading } = useWikiPages(workspaceSlug || "");
@@ -290,23 +442,13 @@ export function WikiSidebar() {
   const pageTree = useMemo(() => buildWikiPageTree(pages), [pages]);
   const collectionTree = useMemo(() => buildWikiCollectionTree(collections), [collections]);
 
-  // Filter pages without collection (root pages)
-  const rootPages = useMemo(() => pageTree.filter((p) => !p.collection), [pageTree]);
-
-  // Filter by search
-  const filteredPages = useMemo(() => {
-    if (!searchQuery) return rootPages;
-    const query = searchQuery.toLowerCase();
-    return rootPages.filter((p) => p.name.toLowerCase().includes(query));
-  }, [rootPages, searchQuery]);
-
   const isLoading = pagesLoading || collectionsLoading;
 
   // handlers
   const handleWidthChange = (width: number) => setValue(width);
   const handleCreatePage = useCallback(() => {
-    router.push(`/${workspaceSlug}/wiki?create=true`);
-  }, [router, workspaceSlug]);
+    setIsCreatePageModalOpen(true);
+  }, []);
 
   const handleCreateChildPage = useCallback(
     (parentId: string) => {
@@ -331,83 +473,32 @@ export function WikiSidebar() {
       isAnyExtendedSidebarExpanded={false}
       isAnySidebarDropdownOpen={isAnySidebarDropdownOpen}
     >
-      <div className="flex flex-col h-full">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-custom-border-200">
-          <h2 className="text-base font-semibold">{t("wiki") || "Wiki"}</h2>
-          <div className="flex items-center gap-1">
-            <Tooltip tooltipContent="Create page">
-              <button type="button" className="p-1.5 rounded hover:bg-custom-background-80" onClick={handleCreatePage}>
-                <Plus className="size-4" />
-              </button>
-            </Tooltip>
-          </div>
-        </div>
+      <SidebarWrapper
+        title="Wiki"
+        headerActions={<WikiHeaderActions onCreatePage={handleCreatePage} />}
+        onToggle={toggleWikiSidebar}
+      >
+        {/* Navigation items - matches Projects sidebar pattern */}
+        <WikiNavigationItems workspaceSlug={workspaceSlug || ""} />
 
-        {/* Search */}
-        <div className="px-3 py-2">
-          <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-custom-background-80">
-            <Search className="size-4 text-custom-text-400" />
-            <input
-              type="text"
-              placeholder="Search pages..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-custom-text-400"
-            />
-          </div>
-        </div>
+        {/* Pages section - collapsible like Projects section */}
+        <WikiPagesSection
+          pages={pageTree}
+          collections={collectionTree}
+          workspaceSlug={workspaceSlug || ""}
+          activePageId={pageId}
+          onCreateChildPage={handleCreateChildPage}
+          isLoading={isLoading}
+          onCreatePage={handleCreatePage}
+        />
+      </SidebarWrapper>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-2 py-2">
-          {isLoading ? (
-            <WikiSidebarSkeleton />
-          ) : (
-            <>
-              {/* Collections */}
-              {collectionTree.map((collection) => (
-                <WikiCollectionItem
-                  key={collection.id}
-                  collection={collection}
-                  pages={pageTree}
-                  workspaceSlug={workspaceSlug || ""}
-                  activePageId={pageId}
-                  onCreateChildPage={handleCreateChildPage}
-                />
-              ))}
-
-              {/* Root pages (no collection) */}
-              {filteredPages.length > 0 && (
-                <div className="mt-2">
-                  {collectionTree.length > 0 && (
-                    <div className="px-2 py-1 text-xs font-medium text-custom-text-400 uppercase">Pages</div>
-                  )}
-                  {filteredPages.map((page) => (
-                    <WikiPageItem
-                      key={page.id}
-                      page={page}
-                      workspaceSlug={workspaceSlug || ""}
-                      activePageId={pageId}
-                      onCreateChildPage={handleCreateChildPage}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Empty state */}
-              {!isLoading && filteredPages.length === 0 && collectionTree.length === 0 && (
-                <WikiEmptyState
-                  type={searchQuery ? "no-search-results" : "no-pages"}
-                  searchQuery={searchQuery}
-                  onAction={searchQuery ? undefined : handleCreatePage}
-                  actionLabel="Create your first page"
-                  className="py-8"
-                />
-              )}
-            </>
-          )}
-        </div>
-      </div>
+      {/* Create page modal */}
+      <CreateWikiPageModal
+        workspaceSlug={workspaceSlug || ""}
+        isOpen={isCreatePageModalOpen}
+        onClose={() => setIsCreatePageModalOpen(false)}
+      />
     </ResizableSidebar>
   );
 }

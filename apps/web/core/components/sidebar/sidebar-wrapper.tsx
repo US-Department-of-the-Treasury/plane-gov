@@ -11,10 +11,12 @@ type TSidebarWrapperProps = {
   title: string;
   children: React.ReactNode;
   quickActions?: React.ReactNode;
+  headerActions?: React.ReactNode;
+  onToggle?: () => void;
 };
 
 export function SidebarWrapper(props: TSidebarWrapperProps) {
-  const { title, children, quickActions } = props;
+  const { title, children, quickActions, headerActions, onToggle } = props;
   // store hooks
   const { toggleSidebar, sidebarCollapsed } = useAppTheme();
   const windowSize = useSize();
@@ -39,7 +41,10 @@ export function SidebarWrapper(props: TSidebarWrapperProps) {
 
         <div className="flex items-center justify-between gap-2 px-2">
           <span className="text-16 text-primary font-medium pt-1">{title}</span>
-          <AppSidebarToggleButton />
+          <div className="flex items-center gap-1">
+            {headerActions}
+            <AppSidebarToggleButton onToggle={onToggle} />
+          </div>
         </div>
         {/* Quick actions */}
         {quickActions}

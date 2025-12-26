@@ -4,7 +4,11 @@ import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { isSidebarToggleVisible } from "@/plane-web/components/desktop";
 import { IconButton } from "@plane/propel/icon-button";
 
-export function AppSidebarToggleButton() {
+type AppSidebarToggleButtonProps = {
+  onToggle?: () => void;
+};
+
+export function AppSidebarToggleButton({ onToggle }: AppSidebarToggleButtonProps) {
   // store hooks
   const { toggleSidebar, sidebarPeek, toggleSidebarPeek } = useAppTheme();
 
@@ -16,7 +20,12 @@ export function AppSidebarToggleButton() {
       icon={PanelLeft}
       onClick={() => {
         if (sidebarPeek) toggleSidebarPeek(false);
-        toggleSidebar();
+        // Use custom toggle if provided, otherwise use default
+        if (onToggle) {
+          onToggle();
+        } else {
+          toggleSidebar();
+        }
       }}
     />
   );

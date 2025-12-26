@@ -125,7 +125,7 @@ echo ""
 RUNNING_COUNT=$(find "$(dirname "$PROJECT_ROOT")" -maxdepth 3 -name ".dev-ports" 2>/dev/null | wc -l | tr -d ' ')
 if [ "$RUNNING_COUNT" -gt 0 ]; then
     echo -e "${BLUE}Found $RUNNING_COUNT other worktree(s) with dev-ports files:${NC}"
-    for ports_file in "$(dirname "$PROJECT_ROOT")"/*/.dev-ports "$(dirname "$PROJECT_ROOT")"/*/*/.dev-ports 2>/dev/null; do
+    for ports_file in "$(dirname "$PROJECT_ROOT")"/*/.dev-ports "$(dirname "$PROJECT_ROOT")"/*/*/.dev-ports; do
         if [ -f "$ports_file" ] && [ "$ports_file" != "$DEV_PORTS_FILE" ]; then
             wt_name=$(grep "^WORKTREE_NAME=" "$ports_file" 2>/dev/null | cut -d= -f2)
             wt_web=$(grep "^WEB_PORT=" "$ports_file" 2>/dev/null | cut -d= -f2)
