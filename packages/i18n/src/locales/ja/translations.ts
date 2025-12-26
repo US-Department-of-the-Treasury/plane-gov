@@ -679,8 +679,6 @@ export default {
       message: "エラーが発生しました。もう一度お試しください。",
     },
     group_by: "グループ化",
-    epic: "エピック",
-    epics: "エピック",
     work_item: "作業項目",
     work_items: "作業項目",
     sub_work_item: "サブ作業項目",
@@ -946,6 +944,7 @@ export default {
     label: "{count, plural, one {エピック} other {エピック}}",
     new: "新規エピック",
     adding: "エピックを追加中",
+    no_epic: "エピックなし",
     create: {
       success: "エピックを作成しました",
     },
@@ -2589,10 +2588,6 @@ export default {
   sprint: {
     label: "{count, plural, one {サイクル} other {サイクル}}",
     no_sprint: "サイクルなし",
-  },
-  epic: {
-    label: "{count, plural, one {エピック} other {エピック}}",
-    no_epic: "エピックなし",
   },
   description_versions: {
     last_edited_by: "最終編集者",

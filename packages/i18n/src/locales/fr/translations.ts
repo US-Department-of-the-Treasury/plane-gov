@@ -691,8 +691,6 @@ export default {
       message: "Une erreur s’est produite. Veuillez réessayer.",
     },
     group_by: "Grouper par",
-    epic: "Epic",
-    epics: "Epics",
     work_item: "Élément de travail",
     work_items: "Éléments de travail",
     sub_work_item: "Sous-élément de travail",
@@ -957,7 +955,8 @@ export default {
     all: "Tous les Epics",
     label: "{count, plural, one {Epic} other {Epics}}",
     new: "Nouvel Epic",
-    adding: "Ajout d’un epic",
+    adding: "Ajout d'un epic",
+    no_epic: "Pas d'épique",
     create: {
       success: "Epic créé avec succès",
     },
@@ -966,8 +965,8 @@ export default {
       label: "Ajouter un Epic",
     },
     title: {
-      label: "Titre de l’Epic",
-      required: "Le titre de l’Epic est requis.",
+      label: "Titre de l'Epic",
+      required: "Le titre de l'Epic est requis.",
     },
   },
   issue: {
@@ -2619,10 +2618,6 @@ export default {
   sprint: {
     label: "{count, plural, one {Sprint} other {Sprints}}",
     no_sprint: "Pas de sprint",
-  },
-  epic: {
-    label: "{count, plural, one {Épique} other {Épiques}}",
-    no_epic: "Pas d'épique",
   },
   description_versions: {
     last_edited_by: "Dernière modification par",

@@ -687,8 +687,6 @@ export default {
       message: "Đã xảy ra lỗi. Vui lòng thử lại.",
     },
     group_by: "Nhóm theo",
-    epic: "Sử thi",
-    epics: "Sử thi",
     work_item: "Mục công việc",
     work_items: "Mục công việc",
     sub_work_item: "Mục công việc con",
@@ -954,6 +952,7 @@ export default {
     label: "{count, plural, one {sử thi} other {sử thi}}",
     new: "Sử thi mới",
     adding: "Đang thêm sử thi",
+    no_epic: "Không có epic",
     create: {
       success: "Đã tạo sử thi thành công",
     },
@@ -2599,10 +2598,6 @@ export default {
   sprint: {
     label: "{count, plural, one {chu kỳ} other {chu kỳ}}",
     no_sprint: "Không có chu kỳ",
-  },
-  epic: {
-    label: "{count, plural, one {epic} other {epic}}",
-    no_epic: "Không có epic",
   },
   description_versions: {
     last_edited_by: "Chỉnh sửa lần cuối bởi",

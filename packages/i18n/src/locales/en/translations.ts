@@ -522,8 +522,6 @@ export default {
       message: "Some error occurred. Please try again.",
     },
     group_by: "Group by",
-    epic: "Epic",
-    epics: "Epics",
     work_item: "Work item",
     work_items: "Work items",
     sub_work_item: "Sub-work item",
@@ -789,6 +787,7 @@ export default {
     label: "{count, plural, one {Epic} other {Epics}}",
     new: "New Epic",
     adding: "Adding epic",
+    no_epic: "No epic",
     create: {
       success: "Epic created successfully",
     },
@@ -2460,10 +2459,6 @@ export default {
   sprint: {
     label: "{count, plural, one {Sprint} other {Sprints}}",
     no_sprint: "No sprint",
-  },
-  epic: {
-    label: "{count, plural, one {Epic} other {Epics}}",
-    no_epic: "No epic",
   },
   description_versions: {
     last_edited_by: "Last edited by",

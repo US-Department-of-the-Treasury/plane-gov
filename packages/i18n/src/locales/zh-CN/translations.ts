@@ -668,8 +668,6 @@ export default {
       message: "发生错误。请重试。",
     },
     group_by: "分组方式",
-    epic: "史诗",
-    epics: "史诗",
     work_item: "工作项",
     work_items: "工作项",
     sub_work_item: "子工作项",
@@ -935,6 +933,7 @@ export default {
     label: "{count, plural, one {史诗} other {史诗}}",
     new: "新建史诗",
     adding: "正在添加史诗",
+    no_epic: "无史诗",
     create: {
       success: "史诗创建成功",
     },
@@ -2531,10 +2530,6 @@ export default {
   sprint: {
     label: "{count, plural, one {周期} other {周期}}",
     no_sprint: "无周期",
-  },
-  epic: {
-    label: "{count, plural, one {史诗} other {史诗}}",
-    no_epic: "无史诗",
   },
   description_versions: {
     last_edited_by: "最后编辑者",

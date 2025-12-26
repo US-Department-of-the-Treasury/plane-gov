@@ -685,8 +685,6 @@ export default {
       message: "A apărut o eroare. Te rugăm să încerci din nou.",
     },
     group_by: "Grupează după",
-    epic: "Sarcină majoră",
-    epics: "Sarcini majore",
     work_item: "Activitate",
     work_items: "Activități",
     sub_work_item: "Sub-activitate",

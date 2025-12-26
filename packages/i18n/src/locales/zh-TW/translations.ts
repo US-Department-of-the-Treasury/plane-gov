@@ -667,8 +667,6 @@ export default {
       message: "發生錯誤。請再試一次。",
     },
     group_by: "分組依據",
-    epic: "Epic",
-    epics: "Epic",
     work_item: "工作事項",
     work_items: "工作事項",
     sub_work_item: "子工作事項",
@@ -935,6 +933,7 @@ export default {
     label: "{count, plural, one {Epic} other {Epic}}",
     new: "新 Epic",
     adding: "新增 Epic 中",
+    no_epic: "無epic",
     create: {
       success: "Epic 建立成功",
     },
@@ -2552,10 +2551,6 @@ export default {
   sprint: {
     label: "{count, plural, one {週期} other {週期}}",
     no_sprint: "無週期",
-  },
-  epic: {
-    label: "{count, plural, one {epic} other {epic}}",
-    no_epic: "無epic",
   },
   description_versions: {
     last_edited_by: "最後編輯者",

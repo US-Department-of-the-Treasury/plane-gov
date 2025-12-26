@@ -690,8 +690,6 @@ export default {
       message: "Ocorreu algum erro. Por favor, tente novamente.",
     },
     group_by: "Agrupar por",
-    epic: "Épico",
-    epics: "Épicos",
     work_item: "Item de trabalho",
     work_items: "Itens de trabalho",
     sub_work_item: "Sub-item de trabalho",
@@ -958,6 +956,7 @@ export default {
     label: "{count, plural, one {Épico} other {Épicos}}",
     new: "Novo Épico",
     adding: "Adicionando épico",
+    no_epic: "Nenhum epic",
     create: {
       success: "Épico criado com sucesso",
     },
@@ -2611,10 +2610,6 @@ export default {
   sprint: {
     label: "{count, plural, one {Ciclo} other {Ciclos}}",
     no_sprint: "Nenhum ciclo",
-  },
-  epic: {
-    label: "{count, plural, one {Módulo} other {Módulos}}",
-    no_epic: "Nenhum epic",
   },
   description_versions: {
     last_edited_by: "Última edição por",

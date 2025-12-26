@@ -673,8 +673,6 @@ export default {
       message: "오류가 발생했습니다. 다시 시도해주세요.",
     },
     group_by: "그룹화 기준",
-    epic: "에픽",
-    epics: "에픽",
     work_item: "작업 항목",
     work_items: "작업 항목",
     sub_work_item: "하위 작업 항목",
@@ -941,6 +939,7 @@ export default {
     label: "{count, plural, one {에픽} other {에픽}}",
     new: "새 에픽",
     adding: "에픽 추가 중",
+    no_epic: "모듈 없음",
     create: {
       success: "에픽이 성공적으로 생성되었습니다",
     },
@@ -2574,10 +2573,6 @@ export default {
   sprint: {
     label: "{count, plural, one {주기} other {주기}}",
     no_sprint: "주기 없음",
-  },
-  epic: {
-    label: "{count, plural, one {모듈} other {모듈}}",
-    no_epic: "모듈 없음",
   },
   description_versions: {
     last_edited_by: "마지막 편집자",
