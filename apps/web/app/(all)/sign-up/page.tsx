@@ -1,19 +1,8 @@
-// components
-import { AuthBase } from "@/components/auth-screens/auth-base";
-// helpers
-import { EAuthModes, EPageTypes } from "@/helpers/authentication.helper";
-// assets
-import DefaultLayout from "@/layouts/default-layout";
-import { AuthenticationWrapper } from "@/lib/wrappers/authentication-wrapper";
+import { redirect } from "next/navigation";
 
-function SignUpPage() {
-  return (
-    <DefaultLayout>
-      <AuthenticationWrapper pageType={EPageTypes.NON_AUTHENTICATED}>
-        <AuthBase authType={EAuthModes.SIGN_UP} />
-      </AuthenticationWrapper>
-    </DefaultLayout>
-  );
+// Government deployment: Sign-up is disabled
+// Users can only join via workspace invites
+export default function SignUpPage(): never {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
+  return redirect("/sign-in");
 }
-
-export default SignUpPage;
