@@ -120,7 +120,7 @@ export function ResourceMatrix({ workspaceSlug }: ResourceMatrixProps) {
             >
               {/* Member info */}
               <div className="sticky left-0 z-10 flex w-56 min-w-56 items-center gap-2.5 bg-layer-transparent px-page-x py-2 group-hover:bg-layer-transparent-hover transition-colors">
-                <Avatar name={displayName} src={avatarUrl} size="sm" showTooltip={false} />
+                <Avatar name={displayName} src={avatarUrl} size="md" showTooltip={false} />
                 <span className="truncate text-13 text-primary">{displayName}</span>
               </div>
 
