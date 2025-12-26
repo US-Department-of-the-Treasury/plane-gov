@@ -29,10 +29,24 @@ export function EmojiPicker(props: TCustomEmojiPicker) {
       onChange({
         type: EmojiIconPickerTypes.EMOJI,
         value: emojiToString(value),
+        shouldClose: true,
       });
       if (closeOnSelect) handleToggle(false);
     },
     [onChange, closeOnSelect, handleToggle]
+  );
+
+  // Random emoji handler - updates emoji but keeps dropdown open
+  const handleRandomEmoji = useCallback(
+    (value: string) => {
+      onChange({
+        type: EmojiIconPickerTypes.EMOJI,
+        value: emojiToString(value),
+        shouldClose: false,
+      });
+      // Don't close dropdown - let user click multiple times to find one they like
+    },
+    [onChange]
   );
 
   const handleIconChange = useCallback(
@@ -40,6 +54,7 @@ export function EmojiPicker(props: TCustomEmojiPicker) {
       onChange({
         type: EmojiIconPickerTypes.ICON,
         value: value,
+        shouldClose: true,
       });
       if (closeOnSelect) handleToggle(false);
     },
@@ -54,6 +69,7 @@ export function EmojiPicker(props: TCustomEmojiPicker) {
         content: (
           <EmojiRoot
             onChange={handleEmojiChange}
+            onRandomEmoji={handleRandomEmoji}
             searchPlaceholder={searchPlaceholder}
             searchDisabled={searchDisabled}
           />
@@ -72,7 +88,7 @@ export function EmojiPicker(props: TCustomEmojiPicker) {
         ),
       },
     ],
-    [defaultIconColor, searchDisabled, searchPlaceholder, iconType, handleEmojiChange, handleIconChange]
+    [defaultIconColor, searchDisabled, searchPlaceholder, iconType, handleEmojiChange, handleRandomEmoji, handleIconChange]
   );
 
   return (

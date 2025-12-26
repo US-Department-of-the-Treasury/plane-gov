@@ -91,7 +91,10 @@ function ProjectCreateHeader(props: Props) {
                   in_use: val?.type,
                   [val?.type]: logoValue,
                 });
-                setIsOpen(false);
+                // Only close if shouldClose is true (default) - random emoji sets this to false
+                if (val?.shouldClose !== false) {
+                  setIsOpen(false);
+                }
               }}
               defaultIconColor={value.in_use && value.in_use === "icon" ? value.icon?.color : undefined}
               defaultOpen={

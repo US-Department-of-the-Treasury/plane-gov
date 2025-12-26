@@ -6,6 +6,7 @@ import { getRandomSafeEmoji } from "../safe-emojis";
 
 type EmojiRootProps = {
   onChange: (value: string) => void;
+  onRandomEmoji?: (value: string) => void;
   searchPlaceholder?: string;
   searchDisabled?: boolean;
   emojibaseUrl?: string;
@@ -17,6 +18,7 @@ const DEFAULT_EMOJIBASE_URL = "/emojibase-data";
 export function EmojiRoot(props: EmojiRootProps) {
   const {
     onChange,
+    onRandomEmoji,
     searchPlaceholder = "Search",
     searchDisabled = false,
     emojibaseUrl = DEFAULT_EMOJIBASE_URL,
@@ -25,8 +27,14 @@ export function EmojiRoot(props: EmojiRootProps) {
 
   const handleRandomEmoji = useCallback(() => {
     const randomEmoji = getRandomSafeEmoji();
-    onChange(randomEmoji);
-  }, [onChange]);
+    // Use dedicated random handler if provided (keeps dropdown open),
+    // otherwise fall back to onChange (closes dropdown)
+    if (onRandomEmoji) {
+      onRandomEmoji(randomEmoji);
+    } else {
+      onChange(randomEmoji);
+    }
+  }, [onChange, onRandomEmoji]);
 
   useEffect(() => {
     const focusInput = () => {

@@ -9,6 +9,7 @@ export type TChangeHandlerProps =
   | {
       type: typeof EmojiIconPickerTypes.EMOJI;
       value: string;
+      shouldClose?: boolean;
     }
   | {
       type: typeof EmojiIconPickerTypes.ICON;
@@ -16,6 +17,7 @@ export type TChangeHandlerProps =
         name: string;
         color: string;
       };
+      shouldClose?: boolean;
     };
 
 export type TEmojiIconPickerTypes = typeof EmojiIconPickerTypes.EMOJI | typeof EmojiIconPickerTypes.ICON;
