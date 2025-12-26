@@ -1,11 +1,10 @@
-import { isEmpty } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // types
 import type { ISprint, IIssueLabel, IEpic, IProject, IState, IUserLite, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 // store helpers
-import { getRouterWorkspaceSlug, getRouterTeamspaceId, getRouterProjectId, getRouterSprintId, getRouterEpicId, getRouterViewId, getRouterGlobalViewId, getRouterUserId, useRouterStore } from "@/store/client";
+import { useRouterStore } from "@/store/client";
 // plane web store
 import type { IProjectEpics, IProjectEpicsFilter } from "@/plane-web/store/issue/epic";
 import { ProjectEpics, ProjectEpicsFilter } from "@/plane-web/store/issue/epic";
@@ -116,9 +115,8 @@ export interface IIssueRootStore {
   projectEpics: IProjectEpics;
 }
 
-// Zustand Store
+// Zustand Store - only stores router values, maps are accessed lazily from rootStore
 interface IssueRootState {
-  currentUserId: string | undefined;
   workspaceSlug: string | undefined;
   teamspaceId: string | undefined;
   projectId: string | undefined;
@@ -127,15 +125,6 @@ interface IssueRootState {
   viewId: string | undefined;
   globalViewId: string | undefined;
   userId: string | undefined;
-  stateMap: Record<string, IState> | undefined;
-  stateDetails: IState[] | undefined;
-  workspaceStateDetails: IState[] | undefined;
-  labelMap: Record<string, IIssueLabel> | undefined;
-  workSpaceMemberRolesMap: Record<string, IWorkspaceMembership> | undefined;
-  memberMap: Record<string, IUserLite> | undefined;
-  projectMap: Record<string, IProject> | undefined;
-  epicMap: Record<string, IEpic> | undefined;
-  sprintMap: Record<string, ISprint> | undefined;
 }
 
 interface IssueRootActions {
@@ -147,8 +136,7 @@ type IssueRootStoreType = IssueRootState & IssueRootActions;
 export const createIssueRootStore = () =>
   create<IssueRootStoreType>()(
     immer((set) => ({
-      // State
-      currentUserId: undefined,
+      // State - only router values, maps are accessed lazily from rootStore
       workspaceSlug: undefined,
       teamspaceId: undefined,
       projectId: undefined,
@@ -157,15 +145,6 @@ export const createIssueRootStore = () =>
       viewId: undefined,
       globalViewId: undefined,
       userId: undefined,
-      stateMap: undefined,
-      stateDetails: undefined,
-      workspaceStateDetails: undefined,
-      labelMap: undefined,
-      workSpaceMemberRolesMap: undefined,
-      memberMap: undefined,
-      projectMap: undefined,
-      epicMap: undefined,
-      sprintMap: undefined,
 
       // Actions
       updateState: (updates: Partial<IssueRootState>) => {
@@ -226,10 +205,7 @@ export class IssueRootStore implements IIssueRootStore {
   projectEpicsFilter: IProjectEpicsFilter;
   projectEpics: IProjectEpics;
 
-  // Getters for Zustand store properties
-  get currentUserId() {
-    return this.issueRootStore.getState().currentUserId;
-  }
+  // Getters for router values (from Zustand store)
   get workspaceSlug() {
     return this.issueRootStore.getState().workspaceSlug;
   }
@@ -254,32 +230,38 @@ export class IssueRootStore implements IIssueRootStore {
   get userId() {
     return this.issueRootStore.getState().userId;
   }
+
+  // Lazy getters for store maps - access rootStore directly instead of polling with setInterval
+  // This eliminates the 500ms polling interval and ensures data is always fresh
+  get currentUserId() {
+    return this.rootStore?.user?.data?.id;
+  }
   get stateMap() {
-    return this.issueRootStore.getState().stateMap;
+    return this.rootStore?.state?.stateMap;
   }
   get stateDetails() {
-    return this.issueRootStore.getState().stateDetails;
+    return this.rootStore?.state?.projectStates;
   }
   get workspaceStateDetails() {
-    return this.issueRootStore.getState().workspaceStateDetails;
+    return this.rootStore?.state?.workspaceStates;
   }
   get labelMap() {
-    return this.issueRootStore.getState().labelMap;
+    return this.rootStore?.label?.labelMap;
   }
   get workSpaceMemberRolesMap() {
-    return this.issueRootStore.getState().workSpaceMemberRolesMap;
+    return this.rootStore?.memberRoot?.workspace?.memberMap;
   }
   get memberMap() {
-    return this.issueRootStore.getState().memberMap;
+    return this.rootStore?.memberRoot?.memberMap;
   }
   get projectMap() {
-    return this.issueRootStore.getState().projectMap;
+    return this.rootStore?.projectRoot?.project?.projectMap;
   }
   get epicMap() {
-    return this.issueRootStore.getState().epicMap;
+    return this.rootStore?.epic?.epicMap;
   }
   get sprintMap() {
-    return this.issueRootStore.getState().sprintMap;
+    return this.rootStore?.sprint?.sprintMap;
   }
 
   constructor(rootStore: RootStore, serviceType: TIssueServiceType = EIssueServiceType.ISSUES) {
@@ -287,7 +269,9 @@ export class IssueRootStore implements IIssueRootStore {
     this.rootStore = rootStore;
     this.issueRootStore = createIssueRootStore();
 
-    // Setup router subscription (replaces setInterval for router values)
+    // Setup router subscription for router values only
+    // Store maps (stateMap, labelMap, etc.) are now accessed lazily via getters
+    // that read directly from rootStore, eliminating the need for polling
     const unsubscribeRouter = useRouterStore.subscribe((state: { query: Record<string, unknown> }) => {
       const updates: Partial<IssueRootState> = {};
 
@@ -314,57 +298,9 @@ export class IssueRootStore implements IIssueRootStore {
       }
     });
 
-    // Sync store maps from rootStore (still needs polling until those stores are migrated)
-    // Reduced from 100ms to 500ms since store maps change less frequently
-    const syncStoreMaps = () => {
-      const updates: Partial<IssueRootState> = {};
-
-      if (rootStore?.user?.data?.id && this.currentUserId !== rootStore.user.data.id) {
-        updates.currentUserId = rootStore.user.data.id;
-      }
-      if (!isEmpty(rootStore?.state?.stateMap)) {
-        updates.stateMap = rootStore.state.stateMap;
-      }
-      if (!isEmpty(rootStore?.state?.projectStates)) {
-        updates.stateDetails = rootStore.state.projectStates;
-      }
-      if (!isEmpty(rootStore?.state?.workspaceStates)) {
-        updates.workspaceStateDetails = rootStore.state.workspaceStates;
-      }
-      if (!isEmpty(rootStore?.label?.labelMap)) {
-        updates.labelMap = rootStore.label.labelMap;
-      }
-      if (!isEmpty(rootStore?.memberRoot?.workspace?.workspaceMemberMap)) {
-        updates.workSpaceMemberRolesMap = rootStore.memberRoot.workspace.memberMap || undefined;
-      }
-      if (!isEmpty(rootStore?.memberRoot?.memberMap)) {
-        updates.memberMap = rootStore.memberRoot.memberMap || undefined;
-      }
-      if (!isEmpty(rootStore?.projectRoot?.project?.projectMap)) {
-        updates.projectMap = rootStore.projectRoot.project.projectMap;
-      }
-      if (!isEmpty(rootStore?.epic?.epicMap)) {
-        updates.epicMap = rootStore.epic.epicMap;
-      }
-      if (!isEmpty(rootStore?.sprint?.sprintMap)) {
-        updates.sprintMap = rootStore.sprint.sprintMap;
-      }
-
-      if (Object.keys(updates).length > 0) {
-        this.issueRootStore.getState().updateState(updates);
-      }
-    };
-
-    // Initial sync
-    syncStoreMaps();
-
-    // Setup periodic sync for store maps (500ms is sufficient for map updates)
-    const intervalId = setInterval(syncStoreMaps, 500);
-
-    // Cleanup function for both router subscription and interval
+    // Cleanup function for router subscription
     this.unsubscribe = () => {
       unsubscribeRouter();
-      clearInterval(intervalId);
     };
 
     this.issues = new IssueStore();
