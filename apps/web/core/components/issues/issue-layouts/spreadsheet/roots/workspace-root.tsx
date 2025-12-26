@@ -8,7 +8,7 @@ import { AllIssueQuickActions } from "@/components/issues/issue-layouts/quick-ac
 import { SpreadsheetLayoutLoader } from "@/components/ui/loader/layouts/spreadsheet-layout-loader";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
+import { useGroupedIssueIds, useIssueLoader } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
 import { useWorkspaceIssueProperties } from "@/hooks/use-workspace-issue-properties";
@@ -40,8 +40,10 @@ export function WorkspaceSpreadsheetRoot(props: Props) {
   // Store hooks
   const {
     issuesFilter: { filters, updateFilters },
-    issues: { getPaginationData, groupedIssueIds },
+    issues: { getPaginationData },
   } = useIssues(EIssuesStoreType.GLOBAL);
+  // Use reactive hook to get grouped issue IDs from TanStack Query data
+  const groupedIssueIds = useGroupedIssueIds(EIssuesStoreType.GLOBAL);
   // Use reactive loader hook instead of non-reactive getIssueLoader()
   const loader = useIssueLoader(EIssuesStoreType.GLOBAL);
   const { updateIssue, removeIssue, archiveIssue } = useIssuesActions(EIssuesStoreType.GLOBAL);
@@ -99,7 +101,9 @@ export function WorkspaceSpreadsheetRoot(props: Props) {
   );
 
   // Loading state - use reactive loader hook instead of non-reactive getIssueLoader()
-  if ((isLoading && issuesLoading && loader === "init-loader") || !globalViewId || !groupedIssueIds) {
+  // useGroupedIssueIds returns {} when empty, so check for empty object
+  const hasIssues = groupedIssueIds && Object.keys(groupedIssueIds).length > 0;
+  if ((isLoading && issuesLoading && loader === "init-loader") || !globalViewId || (!hasIssues && issuesLoading)) {
     return <SpreadsheetLayoutLoader />;
   }
 
