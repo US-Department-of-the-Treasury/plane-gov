@@ -244,6 +244,12 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
   const hasIcon = page.logo_props?.in_use;
   const isEditable = !page.is_locked;
 
+  // handle click on empty area below content to focus editor at end
+  const handleEmptyAreaClick = useCallback(() => {
+    if (!isEditable) return;
+    editorRef.current?.focus("end");
+  }, [isEditable]);
+
   // block width class for consistent Notion-style styling (768px = max-w-3xl)
   const blockWidthClassName = cn(
     "block bg-transparent w-full max-w-3xl mx-auto transition-all duration-200 ease-in-out",
@@ -265,7 +271,7 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
     <div className="flex flex-col h-full bg-white dark:bg-[#191919]">
       {/* Notion-style content area with generous padding */}
       <div className="flex-1 overflow-y-auto">
-        <div className={cn(blockWidthClassName, "px-12 pt-20 pb-48")}>
+        <div className={cn(blockWidthClassName, "px-12 pt-20 pb-8")}>
           {/* Icon section - Notion-style large emoji/icon */}
           <div className="group/icon mb-4">
             {hasIcon ? (
@@ -381,6 +387,10 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
             flaggedExtensions={documentEditorExtensions.flagged}
             extendedEditorProps={{}}
           />
+          {/* Clickable empty area below content - clicking here focuses editor at end */}
+          {isEditable && (
+            <div className="min-h-[200px] cursor-text" onClick={handleEmptyAreaClick} aria-hidden="true" />
+          )}
         </div>
       </div>
     </div>
