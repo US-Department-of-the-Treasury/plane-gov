@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { Plus } from "lucide-react";
-import { useTranslation } from "@plane/i18n";
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { SelectCombobox } from "@plane/propel/combobox";
 import { cn } from "@plane/utils";
@@ -26,7 +25,6 @@ export function SprintProjectCell({
   onAssignmentChange,
   isActiveSprint = false,
 }: SprintProjectCellProps) {
-  const { t } = useTranslation();
   const { data: projects } = useProjects(workspaceSlug);
 
   // Get project IDs
@@ -91,9 +89,9 @@ export function SprintProjectCell({
         </SelectCombobox.Trigger>
 
         <SelectCombobox.Content
-          showSearch={projectIds.length > 5}
-          searchPlaceholder={t("search")}
-          emptyMessage={t("no_matching_results")}
+          showSearch
+          searchPlaceholder="Search projects..."
+          emptyMessage="No matching projects"
           maxHeight="md"
           width="auto"
           className="w-56"
