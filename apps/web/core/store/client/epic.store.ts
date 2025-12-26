@@ -9,6 +9,7 @@ import { FavoriteService } from "@/services/favorite";
 import { getRouterProjectId } from "./router.store";
 import { useEpicFilterStore } from "./epic-filter.store";
 import { useFavoriteStore } from "./favorite.store";
+import { useProjectStore } from "@/store/project/project.store";
 
 /**
  * Epic state managed by Zustand.
@@ -213,14 +214,19 @@ export interface IEpicStore {
  * @deprecated Use TanStack Query hooks directly in React components
  */
 export class EpicStoreLegacy implements IEpicStore {
-  // Keep minimal rootStore reference for projectEstimate (complex cross-store dependency)
-  private rootStore: {
-    projectEstimate: { areEstimateEnabledByProjectId: (projectId: string) => boolean };
-  };
-
   constructor(_rootStore?: unknown) {
-    this.rootStore = _rootStore as any;
+    // rootStore no longer needed - all dependencies are now direct Zustand store access
   }
+
+  /**
+   * @description Checks if estimates are enabled for a project
+   * Direct Zustand store access - no rootStore indirection
+   */
+  private areEstimateEnabledByProjectId = (projectId: string): boolean => {
+    if (!projectId) return false;
+    const projectDetails = useProjectStore.getState().projectMap[projectId];
+    return Boolean(projectDetails?.estimate) || false;
+  };
 
   get loader() {
     return useEpicStore.getState().loader;
@@ -307,7 +313,8 @@ export class EpicStoreLegacy implements IEpicStore {
   getPlotTypeByEpicId = (epicId: string) => {
     const projectId = getRouterProjectId();
     const { plotType } = useEpicStore.getState();
-    return projectId && this.rootStore.projectEstimate.areEstimateEnabledByProjectId(projectId)
+    // Direct Zustand store access - no rootStore indirection
+    return projectId && this.areEstimateEnabledByProjectId(projectId)
       ? plotType[epicId] || "burndown"
       : "burndown";
   };

@@ -11,7 +11,7 @@ import { IssueLabelService, IssueService } from "@/services/issue";
 import { ProjectService, ProjectStateService, ProjectArchiveService } from "@/services/project";
 import { FavoriteService } from "@/services/favorite";
 // store
-import { getRouterProjectId, useFavoriteStore } from "@/store/client";
+import { getRouterProjectId, useFavoriteStore, useBaseUserPermissionStore } from "@/store/client";
 import type { CoreRootStore } from "../root.store";
 
 // Service instance at module level
@@ -97,13 +97,16 @@ export const useProjectStore = create<ProjectStoreType>()(
      * @param workspaceSlug
      * @param data
      */
-    processProjectAfterCreation: (workspaceSlug: string, data: TProject, rootStore: CoreRootStore) => {
+    processProjectAfterCreation: (workspaceSlug: string, data: TProject, _rootStore: CoreRootStore) => {
       set((state) => {
         // Direct property access for proper Zustand reactivity
         state.projectMap[data.id] = data;
       });
+      // Direct Zustand store action - no rootStore indirection
       // updating the user project role in workspaceProjectsPermissions
-      lodashSet(rootStore.user.permission.workspaceProjectsPermissions, `${workspaceSlug}.${data.id}`, data.member_role);
+      if (data.member_role) {
+        useBaseUserPermissionStore.getState().setProjectPermission(workspaceSlug, data.id, data.member_role);
+      }
     },
 
     /**
@@ -366,7 +369,7 @@ export const useProjectStore = create<ProjectStoreType>()(
      * @param projectId
      * @returns Promise<void>
      */
-    deleteProject: async (workspaceSlug: string, projectId: string, projectService: ProjectService, rootStore: CoreRootStore) => {
+    deleteProject: async (workspaceSlug: string, projectId: string, projectService: ProjectService, _rootStore: CoreRootStore) => {
       try {
         if (!get().projectMap?.[projectId]) return;
         await projectService.deleteProject(workspaceSlug, projectId);
@@ -374,7 +377,8 @@ export const useProjectStore = create<ProjectStoreType>()(
           delete state.projectMap[projectId];
         });
         if (useFavoriteStore.getState().entityMap[projectId]) useFavoriteStore.getState().removeFavorite(projectId);
-        delete rootStore.user.permission.workspaceProjectsPermissions[workspaceSlug][projectId];
+        // Direct Zustand store action - no rootStore indirection
+        useBaseUserPermissionStore.getState().removeProjectPermission(workspaceSlug, projectId);
       } catch (error) {
         console.log("Failed to delete project from project store");
         throw error;

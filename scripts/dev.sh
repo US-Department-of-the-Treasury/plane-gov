@@ -23,8 +23,9 @@
 # - pnpm installed
 #
 # Options:
-#   --list    Show all running dev servers across worktrees and exit
-#   --help    Show this help message
+#   --list     Show all running dev servers across worktrees and exit
+#   --cleanup  Kill zombie/orphan dev servers and clean stale .dev-ports files
+#   --help     Show this help message
 
 set -e
 
@@ -36,15 +37,25 @@ case "${1:-}" in
         list_all_dev_servers
         exit 0
         ;;
+    --cleanup)
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        source "$SCRIPT_DIR/port-manager.sh"
+        cleanup_zombie_servers
+        exit 0
+        ;;
     --help|-h)
         echo "Usage: $0 [options]"
         echo ""
         echo "Options:"
-        echo "  --list    Show all running dev servers across worktrees and exit"
-        echo "  --help    Show this help message"
+        echo "  --list     Show all running dev servers across worktrees and exit"
+        echo "  --cleanup  Kill zombie/orphan dev servers and clean stale .dev-ports files"
+        echo "  --help     Show this help message"
         echo ""
         echo "Environment variables:"
         echo "  PORT_OFFSET=N   Manually select port range 0-9 (default: auto-detect)"
+        echo ""
+        echo "Port ranges are automatically cleaned up when no ranges are available."
+        echo "Zombie servers (processes without valid .dev-ports) are killed automatically."
         exit 0
         ;;
 esac

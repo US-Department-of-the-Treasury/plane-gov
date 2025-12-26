@@ -107,6 +107,125 @@ find_available_range() {
     return 1
 }
 
+# Clean up zombie/orphan dev servers that are no longer in use
+# This kills processes on dev ports that don't have a valid .dev-ports file
+cleanup_zombie_servers() {
+    local cleaned=0
+    local search_dir
+    search_dir=$(dirname "$PROJECT_ROOT")
+
+    echo -e "${YELLOW}Scanning for zombie dev servers...${NC}"
+
+    # Step 1: Clean up stale .dev-ports files (where servers aren't actually running)
+    shopt -s nullglob
+    local all_ports_files=("$search_dir"/*/.dev-ports "$search_dir"/*/*/.dev-ports)
+    shopt -u nullglob
+
+    for ports_file in "${all_ports_files[@]}"; do
+        if [ -f "$ports_file" ]; then
+            local wt_web wt_api wt_path
+            wt_web=$(grep "^WEB_PORT=" "$ports_file" 2>/dev/null | cut -d= -f2)
+            wt_api=$(grep "^API_PORT=" "$ports_file" 2>/dev/null | cut -d= -f2)
+            wt_path=$(grep "^WORKTREE_PATH=" "$ports_file" 2>/dev/null | cut -d= -f2)
+
+            # Check if NEITHER the web nor API port is in use (server is dead)
+            if [ -n "$wt_web" ] && ! is_port_in_use "$wt_web" && ! is_port_in_use "$wt_api"; then
+                echo -e "  ${YELLOW}Removing stale .dev-ports:${NC} $ports_file"
+                rm -f "$ports_file"
+                cleaned=$((cleaned + 1))
+            fi
+        fi
+    done
+
+    # Step 2: Build a list of ports that ARE legitimately in use (have running .dev-ports)
+    # Using a simple string instead of associative array for bash 3 compatibility
+    local legitimate_ports=""
+
+    # Re-glob after cleanup since some files may have been removed
+    shopt -s nullglob
+    all_ports_files=("$search_dir"/*/.dev-ports "$search_dir"/*/*/.dev-ports)
+    shopt -u nullglob
+
+    for ports_file in "${all_ports_files[@]}"; do
+        if [ -f "$ports_file" ]; then
+            local wt_web wt_api
+            wt_web=$(grep "^WEB_PORT=" "$ports_file" 2>/dev/null | cut -d= -f2)
+            wt_api=$(grep "^API_PORT=" "$ports_file" 2>/dev/null | cut -d= -f2)
+            if [ -n "$wt_web" ] && is_port_in_use "$wt_web"; then
+                legitimate_ports="$legitimate_ports:$wt_web:"
+                [ -n "$wt_api" ] && legitimate_ports="$legitimate_ports:$wt_api:"
+            fi
+        fi
+    done
+
+    # Step 3: Find orphan processes on dev ports (not in legitimate_ports list)
+    local orphan_pids=""
+    local port_info
+    port_info=$(lsof -i :3000-3099 -i :8000-8099 -P -n 2>/dev/null | grep LISTEN | awk '{split($9,a,":"); print $2 ":" a[2]}' | sort -u)
+
+    if [ -n "$port_info" ]; then
+        while IFS=: read -r pid port; do
+            # Check if port is NOT in legitimate_ports (using string search)
+            if [ -n "$port" ] && [[ "$legitimate_ports" != *":$port:"* ]]; then
+                # This is an orphan - port not associated with any valid .dev-ports file
+                local cmd
+                cmd=$(ps -p "$pid" -o comm= 2>/dev/null || echo "unknown")
+                # Only kill node/python processes (our dev servers)
+                case "$cmd" in
+                    *node*|*python*|*Python*)
+                        echo -e "  ${RED}Killing orphan:${NC} PID $pid ($cmd) on port $port"
+                        kill "$pid" 2>/dev/null || true
+                        cleaned=$((cleaned + 1))
+                        orphan_pids="$orphan_pids $pid"
+                        ;;
+                esac
+            fi
+        done <<< "$port_info"
+    fi
+
+    # Wait a moment for processes to die
+    if [ -n "$orphan_pids" ]; then
+        sleep 1
+        # Force kill any that didn't die gracefully
+        for pid in $orphan_pids; do
+            if kill -0 "$pid" 2>/dev/null; then
+                echo -e "  ${RED}Force killing:${NC} PID $pid"
+                kill -9 "$pid" 2>/dev/null || true
+            fi
+        done
+        sleep 1
+    fi
+
+    if [ $cleaned -eq 0 ]; then
+        echo -e "  ${GREEN}No zombie servers found${NC}"
+    else
+        echo -e "  ${GREEN}Cleaned up $cleaned zombie server(s)${NC}"
+    fi
+
+    return 0
+}
+
+# Find available range, with automatic zombie cleanup if none found
+find_available_range_with_cleanup() {
+    # First try without cleanup
+    local offset
+    offset=$(find_available_range)
+
+    if [ "$offset" != "-1" ]; then
+        echo "$offset"
+        return 0
+    fi
+
+    # No ports available, try cleaning up zombies
+    echo -e "${YELLOW}No port ranges available, attempting cleanup...${NC}" >&2
+    cleanup_zombie_servers >&2
+
+    # Try again after cleanup
+    offset=$(find_available_range)
+    echo "$offset"
+    [ "$offset" != "-1" ]
+}
+
 # Load ports from .dev-ports if servers are still running
 load_ports_if_running() {
     if [ ! -f "$DEV_PORTS_FILE" ]; then
@@ -135,20 +254,22 @@ load_ports_if_running() {
 }
 
 # Get available ports (either from existing .dev-ports or scan for new range)
+# Automatically cleans up zombie servers if no ports are available
 get_available_ports() {
     # First, check if we have running servers for this worktree
     if load_ports_if_running; then
         return 0
     fi
 
-    # Find an available range
+    # Find an available range (with automatic zombie cleanup if needed)
     local offset
-    offset=$(find_available_range)
+    offset=$(find_available_range_with_cleanup)
 
     if [ "$offset" = "-1" ]; then
         echo -e "${RED}ERROR: No available port ranges found (checked offsets 0-9)${NC}"
-        echo -e "${YELLOW}You may have too many concurrent dev servers running.${NC}"
-        echo -e "${YELLOW}Run 'lsof -i :3000-3100' to see what's using ports.${NC}"
+        echo -e "${YELLOW}Even after cleanup, all port ranges are in use.${NC}"
+        echo -e "${YELLOW}Run './scripts/dev.sh --list' to see running servers.${NC}"
+        echo -e "${YELLOW}Or manually kill processes: lsof -i :3000-3100 | grep LISTEN${NC}"
         return 1
     fi
 

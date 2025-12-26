@@ -26,6 +26,7 @@ import {
 } from "@/store/issue/helpers/base-issues-utils";
 // store
 import type { IIssueDetail } from "@/store/issue/issue-details/root.store";
+import { useStateStore } from "@/store/client";
 
 // Service instance at module level
 const issueService = new IssueService();
@@ -321,12 +322,12 @@ export const useIssueSubIssuesStore = create<IssueSubIssuesStore>()((set, get) =
       let issueStateGroup: string | undefined = undefined;
 
       if (oldIssue.state_id) {
-        const stateObj = state.rootIssueDetailStore.rootIssueStore.rootStore.state.getStateById(oldIssue.state_id);
+        const stateObj = useStateStore.getState().getStateById(oldIssue.state_id);
         if (stateObj?.group) oldIssueStateGroup = stateObj.group;
       }
 
       if (issueData.state_id) {
-        const stateObj = state.rootIssueDetailStore.rootIssueStore.rootStore.state.getStateById(issueData.state_id);
+        const stateObj = useStateStore.getState().getStateById(issueData.state_id);
         if (stateObj?.group) issueStateGroup = stateObj.group;
       }
 
@@ -363,7 +364,7 @@ export const useIssueSubIssuesStore = create<IssueSubIssuesStore>()((set, get) =
     const issue = state.rootIssueDetailStore.issue.getIssueById(issueId);
     if (issue && issue.state_id) {
       let issueStateGroup: string | undefined = undefined;
-      const stateObj = state.rootIssueDetailStore.rootIssueStore.rootStore.state.getStateById(issue.state_id);
+      const stateObj = useStateStore.getState().getStateById(issue.state_id);
       if (stateObj?.group) issueStateGroup = stateObj.group;
 
       if (issueStateGroup) {
@@ -397,7 +398,7 @@ export const useIssueSubIssuesStore = create<IssueSubIssuesStore>()((set, get) =
     const issue = state.rootIssueDetailStore.issue.getIssueById(issueId);
     if (issue && issue.state_id) {
       let issueStateGroup: string | undefined = undefined;
-      const stateObj = state.rootIssueDetailStore.rootIssueStore.rootStore.state.getStateById(issue.state_id);
+      const stateObj = useStateStore.getState().getStateById(issue.state_id);
       if (stateObj?.group) issueStateGroup = stateObj.group;
 
       if (issueStateGroup) {

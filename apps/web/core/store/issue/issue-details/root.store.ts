@@ -9,6 +9,8 @@ import type {
   TIssueServiceType,
   TWorkItemWidgets,
 } from "@plane/types";
+// Zustand stores
+import { useStateStore } from "@/store/client";
 // plane web store
 import { IssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 import type {
@@ -409,7 +411,7 @@ export abstract class IssueDetail implements IIssueDetail {
       oldIssue,
       fromModal,
       (ws, pId, iId, d) => this.rootIssueStore.updateIssue(ws, pId, iId, d),
-      (stateId) => this.rootIssueStore.rootStore.state.getStateById(stateId)
+      (stateId) => useStateStore.getState().getStateById(stateId)
     );
   removeSubIssue = async (workspaceSlug: string, projectId: string, parentIssueId: string, issueId: string) =>
     this.subIssues.removeSubIssue(
@@ -419,7 +421,7 @@ export abstract class IssueDetail implements IIssueDetail {
       issueId,
       (ws, pId, iId, d) => this.rootIssueStore.updateIssue(ws, pId, iId, d),
       (iId) => this.rootIssueStore.issues.getIssueById(iId),
-      (stateId) => this.rootIssueStore.rootStore.state.getStateById(stateId),
+      (stateId) => useStateStore.getState().getStateById(stateId),
       (id, d) => this.rootIssueStore.issues.updateIssue(id, d)
     );
   deleteSubIssue = async (workspaceSlug: string, projectId: string, parentIssueId: string, issueId: string) =>
@@ -430,7 +432,7 @@ export abstract class IssueDetail implements IIssueDetail {
       issueId,
       (ws, pId, iId) => this.rootIssueStore.removeIssue(ws, pId, iId),
       (iId) => this.rootIssueStore.issues.getIssueById(iId),
-      (stateId) => this.rootIssueStore.rootStore.state.getStateById(stateId),
+      (stateId) => useStateStore.getState().getStateById(stateId),
       (id, d) => this.rootIssueStore.issues.updateIssue(id, d)
     );
 
