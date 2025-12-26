@@ -1,4 +1,4 @@
-import { sortBy, cloneDeep, set as lodashSet } from "lodash-es";
+import { sortBy, cloneDeep } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // plane imports
@@ -11,7 +11,9 @@ import { IssueLabelService, IssueService } from "@/services/issue";
 import { ProjectService, ProjectStateService, ProjectArchiveService } from "@/services/project";
 import { FavoriteService } from "@/services/favorite";
 // store
-import { getRouterProjectId, useFavoriteStore, useBaseUserPermissionStore } from "@/store/client";
+import { getRouterProjectId, useFavoriteStore, useBaseUserPermissionStore, getRouterWorkspaceSlug } from "@/store/client";
+import { useWorkspaceRootStore } from "@/store/workspace";
+import { useProjectFilterStore } from "@/store/client/project-filter.store";
 import type { CoreRootStore } from "../root.store";
 
 // Service instance at module level
@@ -569,16 +571,23 @@ export class ProjectStore implements IProjectStore {
    * @description returns filtered projects based on filters and search query
    */
   get filteredProjectIds() {
-    const workspaceDetails = this.rootStore.workspaceRoot.currentWorkspace;
-    const {
-      currentWorkspaceDisplayFilters: displayFilters,
-      currentWorkspaceFilters: filters,
-      searchQuery,
-    } = this.rootStore.projectRoot.projectFilter;
-    if (!workspaceDetails || !displayFilters || !filters) return;
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return;
+
+    // Direct Zustand store access - no rootStore indirection
+    const workspaceDetails = useWorkspaceRootStore.getState().workspaces;
+    const workspace = Object.values(workspaceDetails).find((w) => w.slug === workspaceSlug);
+    if (!workspace) return;
+
+    const projectFilterStore = useProjectFilterStore.getState();
+    const displayFilters = projectFilterStore.getCurrentWorkspaceDisplayFilters(workspaceSlug);
+    const filters = projectFilterStore.getCurrentWorkspaceFilters(workspaceSlug);
+    const searchQuery = projectFilterStore.searchQuery;
+
+    if (!displayFilters || !filters) return;
     let workspaceProjects = Object.values(this.store.projectMap).filter(
       (p) =>
-        p.workspace === workspaceDetails.id &&
+        p.workspace === workspace.id &&
         (p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.identifier.toLowerCase().includes(searchQuery.toLowerCase())) &&
         shouldFilterProject(p, displayFilters, filters)
@@ -591,10 +600,15 @@ export class ProjectStore implements IProjectStore {
    * Returns project IDs belong to the current workspace
    */
   get workspaceProjectIds() {
-    const workspaceDetails = this.rootStore.workspaceRoot.currentWorkspace;
-    if (!workspaceDetails) return;
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return;
+
+    // Direct Zustand store access - no rootStore indirection
+    const workspace = Object.values(useWorkspaceRootStore.getState().workspaces).find((w) => w.slug === workspaceSlug);
+    if (!workspace) return;
+
     const workspaceProjects = Object.values(this.store.projectMap).filter(
-      (p) => p.workspace === workspaceDetails.id && !p.archived_at
+      (p) => p.workspace === workspace.id && !p.archived_at
     );
     const projectIds = workspaceProjects.map((p) => p.id);
     return projectIds ?? null;
@@ -604,14 +618,18 @@ export class ProjectStore implements IProjectStore {
    * Returns archived project IDs belong to current workspace.
    */
   get archivedProjectIds() {
-    const currentWorkspace = this.rootStore.workspaceRoot.currentWorkspace;
-    if (!currentWorkspace) return;
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return;
+
+    // Direct Zustand store access - no rootStore indirection
+    const workspace = Object.values(useWorkspaceRootStore.getState().workspaces).find((w) => w.slug === workspaceSlug);
+    if (!workspace) return;
 
     let projects = Object.values(this.store.projectMap ?? {});
     projects = sortBy(projects, "archived_at");
 
     const projectIds = projects
-      .filter((project) => project.workspace === currentWorkspace.id && !!project.archived_at)
+      .filter((project) => project.workspace === workspace.id && !!project.archived_at)
       .map((project) => project.id);
     return projectIds;
   }
@@ -621,8 +639,8 @@ export class ProjectStore implements IProjectStore {
    */
   // workspaceProjectIds + archivedProjectIds
   get totalProjectIds() {
-    const currentWorkspace = this.rootStore.workspaceRoot.currentWorkspace;
-    if (!currentWorkspace) return;
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return;
 
     const workspaceProjects = this.workspaceProjectIds ?? [];
     const archivedProjects = this.archivedProjectIds ?? [];
@@ -652,14 +670,18 @@ export class ProjectStore implements IProjectStore {
    * Returns joined project IDs belong to the current workspace
    */
   get joinedProjectIds() {
-    const currentWorkspace = this.rootStore.workspaceRoot.currentWorkspace;
-    if (!currentWorkspace) return [];
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return [];
+
+    // Direct Zustand store access - no rootStore indirection
+    const workspace = Object.values(useWorkspaceRootStore.getState().workspaces).find((w) => w.slug === workspaceSlug);
+    if (!workspace) return [];
 
     let projects = Object.values(this.store.projectMap ?? {});
     projects = sortBy(projects, "sort_order");
 
     const projectIds = projects
-      .filter((project) => project.workspace === currentWorkspace.id && !!project.member_role && !project.archived_at)
+      .filter((project) => project.workspace === workspace.id && !!project.member_role && !project.archived_at)
       .map((project) => project.id);
     return projectIds;
   }
@@ -668,8 +690,12 @@ export class ProjectStore implements IProjectStore {
    * Returns favorite project IDs belong to the current workspace
    */
   get favoriteProjectIds() {
-    const currentWorkspace = this.rootStore.workspaceRoot.currentWorkspace;
-    if (!currentWorkspace) return [];
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return [];
+
+    // Direct Zustand store access - no rootStore indirection
+    const workspace = Object.values(useWorkspaceRootStore.getState().workspaces).find((w) => w.slug === workspaceSlug);
+    if (!workspace) return [];
 
     let projects = Object.values(this.store.projectMap ?? {});
     projects = sortBy(projects, "created_at");
@@ -677,7 +703,7 @@ export class ProjectStore implements IProjectStore {
     const projectIds = projects
       .filter(
         (project) =>
-          project.workspace === currentWorkspace.id &&
+          project.workspace === workspace.id &&
           !!project.member_role &&
           project.is_favorite &&
           !project.archived_at

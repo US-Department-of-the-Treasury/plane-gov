@@ -682,8 +682,6 @@ export default {
       message: "Произошла ошибка. Пожалуйста, попробуйте снова.",
     },
     group_by: "Группировать по",
-    epic: "Эпик",
-    epics: "Эпики",
     work_item: "Рабочий элемент",
     work_items: "Рабочие элементы",
     sub_work_item: "Подэлемент",
@@ -950,6 +948,7 @@ export default {
     label: "{count, plural, one {Эпик} other {Эпики}}",
     new: "Новый эпик",
     adding: "Добавление эпика",
+    no_epic: "Нет модуля",
     create: {
       success: "Эпик успешно создан",
     },
@@ -2580,10 +2579,6 @@ export default {
   sprint: {
     label: "{count, plural, one {Цикл} other {Циклы}}",
     no_sprint: "Нет цикла",
-  },
-  epic: {
-    label: "{count, plural, one {Модуль} other {Модули}}",
-    no_epic: "Нет модуля",
   },
   description_versions: {
     last_edited_by: "Последнее редактирование",

@@ -680,8 +680,6 @@ export default {
       message: "Si è verificato un errore. Per favore, riprova.",
     },
     group_by: "Raggruppa per",
-    epic: "Epic",
-    epics: "Epic",
     work_item: "Elemento di lavoro",
     work_items: "Elementi di lavoro",
     sub_work_item: "Sotto-elemento di lavoro",
@@ -951,6 +949,7 @@ export default {
     label: "{count, plural, one {Epic} other {Epic}}",
     new: "Nuovo Epic",
     adding: "Aggiungendo Epic",
+    no_epic: "Nessun epic",
     create: {
       success: "Epic creato con successo",
     },
@@ -2607,10 +2606,6 @@ export default {
   sprint: {
     label: "{count, plural, one {Ciclo} other {Cicli}}",
     no_sprint: "Nessun ciclo",
-  },
-  epic: {
-    label: "{count, plural, one {Modulo} other {Moduli}}",
-    no_epic: "Nessun epic",
   },
   description_versions: {
     last_edited_by: "Ultima modifica di",

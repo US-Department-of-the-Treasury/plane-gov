@@ -10,6 +10,8 @@ import type { CoreRootStore } from "@/store/root.store";
 import type { IMemberFilters } from "@/store/member/utils";
 import { sortWorkspaceMembers } from "@/store/member/utils";
 import { getRouterWorkspaceSlug } from "@/store/client";
+import { useMemberRootStore } from "@/store/member";
+import { useUserStore } from "@/store/user";
 
 // Service instance at module level
 const workspaceService = new WorkspaceService();
@@ -163,14 +165,18 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
     const state = get();
     const members = Object.values(state.workspaceMemberMap?.[workspaceSlug] ?? {});
 
+    // Direct Zustand store access - no rootStore indirection
+    const currentUserId = useUserStore.getState().data?.id;
+    const memberMap = useMemberRootStore.getState().memberMap;
+
     const sortedMembers = sortBy(members, [
-      (m) => m.member !== state.rootStore?.user?.data?.id,
-      (m) => state.rootStore?.member?.memberMap?.[m.member]?.display_name?.toLowerCase(),
+      (m) => m.member !== currentUserId,
+      (m) => memberMap?.[m.member]?.display_name?.toLowerCase(),
     ]);
 
     // Filter out bots
     const memberIds = sortedMembers
-      .filter((m) => !state.rootStore?.member?.memberMap?.[m.member]?.is_bot)
+      .filter((m) => !memberMap?.[m.member]?.is_bot)
       .map((m) => m.member);
 
     return memberIds;
@@ -180,13 +186,16 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
     const state = get();
     let members = Object.values(state.workspaceMemberMap?.[workspaceSlug] ?? {});
 
+    // Direct Zustand store access - no rootStore indirection
+    const memberMap = useMemberRootStore.getState().memberMap;
+
     // Filter out bots and inactive members
-    members = members.filter((m) => !state.rootStore?.member?.memberMap?.[m.member]?.is_bot);
+    members = members.filter((m) => !memberMap?.[m.member]?.is_bot);
 
     // Use filters store to get filtered member ids
     const memberIds = state.filtersStore.getFilteredMemberIds(
       members,
-      state.rootStore?.member?.memberMap || {},
+      memberMap || {},
       (member) => member.member
     );
 
@@ -233,10 +242,13 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
     const workspaceMember = state.workspaceMemberMap?.[workspaceSlug]?.[userId];
     if (!workspaceMember) return null;
 
+    // Direct Zustand store access - no rootStore indirection
+    const memberMap = useMemberRootStore.getState().memberMap;
+
     const memberDetails: IWorkspaceMember = {
       id: workspaceMember.id,
       role: workspaceMember.role,
-      member: state.rootStore?.member?.memberMap?.[workspaceMember.member],
+      member: memberMap?.[workspaceMember.member],
       is_active: workspaceMember.is_active,
     };
 
@@ -272,7 +284,9 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
       updatedMemberMap[workspaceSlug] = { ...updatedMemberMap[workspaceSlug] };
     }
 
-    const updatedRootMemberMap = { ...state.rootStore?.member?.memberMap };
+    // Direct Zustand store access - no rootStore indirection
+    const memberRootStore = useMemberRootStore.getState();
+    const updatedRootMemberMap = { ...memberRootStore.memberMap };
 
     response.forEach((member) => {
       updatedRootMemberMap[member.member.id] = { ...member.member, joining_date: member.created_at };
@@ -286,10 +300,8 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
 
     set({ workspaceMemberMap: updatedMemberMap });
 
-    // Update root store member map if available
-    if (state.rootStore?.member) {
-      state.rootStore.member.memberMap = updatedRootMemberMap;
-    }
+    // Update member root store directly via Zustand
+    useMemberRootStore.setState({ memberMap: updatedRootMemberMap });
 
     return response;
   },

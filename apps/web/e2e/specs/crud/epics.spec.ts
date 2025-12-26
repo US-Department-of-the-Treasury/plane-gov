@@ -79,29 +79,33 @@ test.describe("Epics CRUD @crud", () => {
         // Try keyboard shortcut
         await page.keyboard.press("c");
       }
-      await page.waitForTimeout(500);
 
-      // Wait for modal/form and fill name
+      // Wait for modal/form to appear by waiting for the name input
       const nameInput = page.locator('input[name="name"], input[placeholder*="name" i]').first();
-      if (await nameInput.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await nameInput.fill(epicData.name);
+      await nameInput.waitFor({ state: "visible", timeout: 5000 });
+      await nameInput.fill(epicData.name);
 
-        // Fill description if available
-        const descriptionEditor = page.locator(".ProseMirror, textarea").first();
-        if (await descriptionEditor.isVisible().catch(() => false)) {
-          await descriptionEditor.click();
-          if (epicData.description) {
-            await page.keyboard.type(epicData.description);
-          }
+      // Fill description if available
+      const descriptionEditor = page.locator(".ProseMirror, textarea").first();
+      if (await descriptionEditor.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await descriptionEditor.click();
+        if (epicData.description) {
+          await page.keyboard.type(epicData.description);
         }
-
-        // Submit
-        const submitButton = page.getByRole("button", { name: /create|save|submit/i }).first();
-        if (await submitButton.isVisible()) {
-          await submitButton.click();
-        }
-        await page.waitForTimeout(2000);
       }
+
+      // Find submit button within the modal - use more specific selector
+      // Look for a button that's near the name input (same form context)
+      const formContainer = nameInput.locator("xpath=ancestor::form | ancestor::div[contains(@class, 'modal') or contains(@role, 'dialog')]").first();
+      const submitButton = formContainer.getByRole("button", { name: /create|save|add epic/i }).first();
+
+      // Wait for button to be enabled and click
+      await submitButton.waitFor({ state: "visible", timeout: 3000 });
+      await submitButton.click();
+
+      // Wait for modal to close
+      await nameInput.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {});
+      await page.waitForTimeout(1000);
 
       const pageErrors = errorTracker.getPageErrors();
       expect(pageErrors).toHaveLength(0);
@@ -124,13 +128,11 @@ test.describe("Epics CRUD @crud", () => {
       const createButton = page.getByRole("button", { name: /add.*epic|create.*epic|new.*epic/i }).first();
       if (await createButton.isVisible({ timeout: 3000 }).catch(() => false)) {
         await createButton.click();
-        await page.waitForTimeout(500);
 
-        // Fill name
+        // Wait for modal to appear by waiting for the name input
         const nameInput = page.locator('input[name="name"]').first();
-        if (await nameInput.isVisible()) {
-          await nameInput.fill(epicData.name);
-        }
+        await nameInput.waitFor({ state: "visible", timeout: 5000 });
+        await nameInput.fill(epicData.name);
 
         // Fill dates if inputs exist
         const dateInputs = page.locator('input[type="date"]');
@@ -139,12 +141,17 @@ test.describe("Epics CRUD @crud", () => {
           await dateInputs.nth(1).fill(epicData.target_date);
         }
 
-        // Submit
-        const submitButton = page.getByRole("button", { name: /create|save/i }).first();
-        if (await submitButton.isVisible()) {
-          await submitButton.click();
-        }
-        await page.waitForTimeout(2000);
+        // Find submit button within the modal
+        const formContainer = nameInput.locator("xpath=ancestor::form | ancestor::div[contains(@class, 'modal') or contains(@role, 'dialog')]").first();
+        const submitButton = formContainer.getByRole("button", { name: /create|save|add epic/i }).first();
+
+        // Wait for button to be enabled and click
+        await submitButton.waitFor({ state: "visible", timeout: 3000 });
+        await submitButton.click();
+
+        // Wait for modal to close
+        await nameInput.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {});
+        await page.waitForTimeout(1000);
       }
 
       const pageErrors = errorTracker.getPageErrors();

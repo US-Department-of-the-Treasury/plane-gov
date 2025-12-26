@@ -681,8 +681,6 @@ export default {
       message: "Bir hata oluştu. Lütfen tekrar deneyin.",
     },
     group_by: "Gruplandır",
-    epic: "Epik",
-    epics: "Epikler",
     work_item: "İş öğesi",
     work_items: "İş Öğeleri",
     sub_work_item: "Alt iş öğesi",
@@ -950,6 +948,7 @@ export default {
     label: "{count, plural, one {Epik} other {Epikler}}",
     new: "Yeni Epik",
     adding: "Epik ekleniyor",
+    no_epic: "Modül yok",
     create: {
       success: "Epik başarıyla oluşturuldu",
     },
@@ -2575,10 +2574,6 @@ export default {
   sprint: {
     label: "{count, plural, one {Döngü} other {Döngüler}}",
     no_sprint: "Döngü yok",
-  },
-  epic: {
-    label: "{count, plural, one {Modül} other {Modüller}}",
-    no_epic: "Modül yok",
   },
   description_versions: {
     last_edited_by: "Son düzenleyen",

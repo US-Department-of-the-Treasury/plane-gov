@@ -683,8 +683,6 @@ export default {
       message: "Terjadi kesalahan. Silakan coba lagi.",
     },
     group_by: "Kelompok berdasarkan",
-    epic: "Epik",
-    epics: "Epik",
     work_item: "Item kerja",
     work_items: "Item kerja",
     sub_work_item: "Sub-item kerja",

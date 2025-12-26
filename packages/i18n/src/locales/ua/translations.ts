@@ -682,8 +682,6 @@ export default {
       message: "Сталася помилка. Спробуйте ще раз.",
     },
     group_by: "Групувати за",
-    epic: "Епік",
-    epics: "Епіки",
     work_item: "Робоча одиниця",
     work_items: "Робочі одиниці",
     sub_work_item: "Похідна робоча одиниця",
@@ -950,6 +948,7 @@ export default {
     label: "{count, plural, one {Епік} other {Епіки}}",
     new: "Новий епік",
     adding: "Додавання епіку",
+    no_epic: "Немає модуля",
     create: {
       success: "Епік успішно створено",
     },
@@ -959,7 +958,7 @@ export default {
     },
     title: {
       label: "Назва епіку",
-      required: "Назва епіку є обов’язковою.",
+      required: "Назва епіку є обов'язковою.",
     },
   },
   issue: {
@@ -2570,10 +2569,6 @@ export default {
   sprint: {
     label: "{count, plural, one {Цикл} few {Цикли} other {Циклів}}",
     no_sprint: "Немає циклу",
-  },
-  epic: {
-    label: "{count, plural, one {Модуль} few {Модулі} other {Модулів}}",
-    no_epic: "Немає модуля",
   },
   description_versions: {
     last_edited_by: "Останнє редагування",

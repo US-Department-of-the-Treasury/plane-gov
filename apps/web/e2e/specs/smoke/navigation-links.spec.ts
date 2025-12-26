@@ -115,29 +115,8 @@ test.describe("Navigation Links @smoke @navigation", () => {
   // ============================================
 
   test.describe("Sidebar Navigation", () => {
-    test("Home link navigates correctly", async ({ page, workspaceSlug }) => {
-      await page.goto(`/${workspaceSlug}/drafts`);
-      await page.waitForLoadState("networkidle");
-      await waitForSidebar(page);
-
-      // Find the Home link in the main sidebar complementary region
-      const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
-      const homeLink = sidebar.getByRole("link", { name: "Home" });
-      const result = await clickAndVerifyNavigation(page, homeLink, `/${workspaceSlug}`, "Home");
-      expect(result.success, result.error).toBe(true);
-    });
-
-    test("Drafts link navigates correctly", async ({ page, workspaceSlug }) => {
-      await page.goto(`/${workspaceSlug}`);
-      await page.waitForLoadState("networkidle");
-      await waitForSidebar(page);
-
-      // Find the Drafts link in the main sidebar
-      const sidebar = page.getByRole("complementary", { name: "Main sidebar" });
-      const draftsLink = sidebar.getByRole("link", { name: "Drafts" });
-      const result = await clickAndVerifyNavigation(page, draftsLink, `/${workspaceSlug}/drafts`, "Drafts");
-      expect(result.success, result.error).toBe(true);
-    });
+    // NOTE: "Home" and "Drafts" links were removed from the sidebar in the navigation simplification
+    // These pages are still accessible via direct URL but no longer have sidebar navigation links
 
     test("Projects sidebar link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}/drafts`);

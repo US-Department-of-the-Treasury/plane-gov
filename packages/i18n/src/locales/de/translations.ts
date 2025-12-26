@@ -692,8 +692,6 @@ export default {
       message: "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
     },
     group_by: "Gruppieren nach",
-    epic: "Epik",
-    epics: "Epiks",
     work_item: "Arbeitselement",
     work_items: "Arbeitselemente",
     sub_work_item: "Untergeordnetes Arbeitselement",
@@ -960,6 +958,7 @@ export default {
     label: "{count, plural, one {Epik} other {Epiks}}",
     new: "Neuer Epik",
     adding: "Epik wird hinzugefügt",
+    no_epic: "Kein Modul",
     create: {
       success: "Epik erfolgreich erstellt",
     },
@@ -2591,10 +2590,6 @@ export default {
   sprint: {
     label: "{count, plural, one {Zyklus} few {Zyklen} other {Zyklen}}",
     no_sprint: "Kein Zyklus",
-  },
-  epic: {
-    label: "{count, plural, one {Epic} few {Epics} other {Epics}}",
-    no_epic: "Kein Modul",
   },
   description_versions: {
     last_edited_by: "Zuletzt bearbeitet von",

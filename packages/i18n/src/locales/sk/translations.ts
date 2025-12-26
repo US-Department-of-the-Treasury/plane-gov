@@ -680,8 +680,6 @@ export default {
       message: "Došlo k chybe. Skúste to prosím znova.",
     },
     group_by: "Zoskupiť podľa",
-    epic: "Epika",
-    epics: "Epiky",
     work_item: "Pracovná položka",
     work_items: "Pracovné položky",
     sub_work_item: "Podriadená pracovná položka",
