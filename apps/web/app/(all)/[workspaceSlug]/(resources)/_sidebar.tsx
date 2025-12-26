@@ -1,14 +1,12 @@
 import { useState, memo } from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { Users, Plus, Calendar, BarChart3, ChevronRight, UserCheck } from "lucide-react";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@plane/propel/primitives";
+import { Users, Plus, UserCheck } from "lucide-react";
 import { SIDEBAR_WIDTH, MEMBER_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { useLocalStorage } from "@plane/hooks";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IWorkspaceBulkInviteFormData } from "@plane/types";
-import { cn } from "@plane/utils";
 import { Tooltip } from "@plane/ui";
 // components
 import { ResizableSidebar } from "@/components/sidebar/resizable-sidebar";
@@ -22,7 +20,7 @@ import { useInviteWorkspaceMembers } from "@/store/queries/member";
 import { SendWorkspaceInvitationModal } from "@/plane-web/components/workspace/members";
 
 // Navigation items for resources mode
-const RESOURCES_PERSONAL_ITEMS = [
+const RESOURCES_NAV_ITEMS = [
   {
     key: "team",
     label: "Team Members",
@@ -37,30 +35,13 @@ const RESOURCES_PERSONAL_ITEMS = [
     icon: <UserCheck className="size-4" />,
     highlight: (pathname: string, _url: string) => pathname.includes("/assignments"),
   },
-  {
-    key: "capacity",
-    label: "Capacity",
-    href: "/resources/capacity/",
-    icon: <BarChart3 className="size-4" />,
-    highlight: (pathname: string, _url: string) => pathname.includes("/capacity"),
-  },
-];
-
-const RESOURCES_WORKSPACE_ITEMS = [
-  {
-    key: "sprints",
-    label: "Sprints",
-    href: "/resources/sprints/",
-    icon: <Calendar className="size-4" />,
-    highlight: (pathname: string, _url: string) => pathname.includes("/sprints"),
-  },
 ];
 
 const ResourcesNavItem = memo(function ResourcesNavItem({
   item,
   workspaceSlug,
 }: {
-  item: (typeof RESOURCES_PERSONAL_ITEMS)[number];
+  item: (typeof RESOURCES_NAV_ITEMS)[number];
   workspaceSlug: string;
 }) {
   const pathname = usePathname();
@@ -90,45 +71,12 @@ const ResourcesMenuItems = memo(function ResourcesMenuItems() {
   const { workspaceSlug } = useParams();
   const slug = workspaceSlug?.toString() || "";
 
-  const { setValue: toggleWorkspaceMenu, storedValue: isWorkspaceMenuOpen } = useLocalStorage<boolean>(
-    "is_resources_workspace_menu_open",
-    true
-  );
-
   return (
-    <>
-      {/* Personal Section */}
-      <div className="flex flex-col gap-0.5">
-        {RESOURCES_PERSONAL_ITEMS.map((item) => (
-          <ResourcesNavItem key={item.key} item={item} workspaceSlug={slug} />
-        ))}
-      </div>
-
-      {/* Workspace Section */}
-      <Collapsible open={!!isWorkspaceMenuOpen} onOpenChange={toggleWorkspaceMenu} className="flex flex-col">
-        <div className="group w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-placeholder hover:bg-layer-transparent-hover">
-          <CollapsibleTrigger className="w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder">
-            <span className="text-13 font-semibold">Planning</span>
-          </CollapsibleTrigger>
-          <div className="flex items-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
-            <CollapsibleTrigger className="p-0.5 rounded-sm hover:bg-layer-1 flex-shrink-0">
-              <ChevronRight
-                className={cn("flex-shrink-0 size-3 transition-all", {
-                  "rotate-90": isWorkspaceMenuOpen,
-                })}
-              />
-            </CollapsibleTrigger>
-          </div>
-        </div>
-        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-          <div className="flex flex-col gap-0.5">
-            {RESOURCES_WORKSPACE_ITEMS.map((item) => (
-              <ResourcesNavItem key={item.key} item={item} workspaceSlug={slug} />
-            ))}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </>
+    <div className="flex flex-col gap-0.5">
+      {RESOURCES_NAV_ITEMS.map((item) => (
+        <ResourcesNavItem key={item.key} item={item} workspaceSlug={slug} />
+      ))}
+    </div>
   );
 });
 
