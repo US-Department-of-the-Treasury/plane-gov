@@ -7,8 +7,17 @@ import { Check, ChevronDown } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 import { SuspendedUserIcon, MembersPropertyIcon } from "@plane/propel/icons";
-import { Button } from "@plane/propel/button";
-import { Popover, PopoverTrigger, PopoverContent , Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@plane/propel/primitives";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@plane/propel/primitives";
 import { EPillSize, EPillVariant, Pill } from "@plane/propel/pill";
 import { Tooltip } from "@plane/propel/tooltip";
 import type { IUserLite, IWorkspaceMember } from "@plane/types";
@@ -279,12 +288,18 @@ export function MemberCombobox(props: MemberComboboxProps) {
       disabled={!showTooltip}
       isMobile={isMobile}
     >
-      <Button
-        variant="ghost"
-        size="sm"
-        className={cn(getButtonClassName(), "text-11", buttonClassName)}
-        disabled={disabled}
-        tabIndex={tabIndex}
+      <div
+        role="button"
+        tabIndex={disabled ? -1 : (tabIndex ?? 0)}
+        className={cn(
+          getButtonClassName(),
+          "text-11 rounded-sm px-2 py-0.5",
+          {
+            "cursor-not-allowed text-secondary pointer-events-none": disabled,
+            "cursor-pointer": !disabled,
+          },
+          buttonClassName
+        )}
       >
         {renderAvatars()}
         {BUTTON_VARIANTS_WITH_TEXT.includes(buttonVariant) && (
@@ -293,7 +308,7 @@ export function MemberCombobox(props: MemberComboboxProps) {
         {dropdownArrow && (
           <ChevronDown className={cn("h-2.5 w-2.5 flex-shrink-0", dropdownArrowClassName)} aria-hidden="true" />
         )}
-      </Button>
+      </div>
     </Tooltip>
   );
 

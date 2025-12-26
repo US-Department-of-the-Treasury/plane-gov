@@ -1,6 +1,5 @@
 import React from "react";
 // helpers
-import { Button } from "@plane/propel/button";
 import { Tooltip } from "@plane/propel/tooltip";
 import { cn } from "@plane/utils";
 // types
@@ -72,11 +71,9 @@ function BorderButton(props: ButtonProps) {
       isMobile={isMobile}
       renderByDefault={renderToolTipByDefault}
     >
-      <Button
-        variant="ghost"
-        size="sm"
+      <div
         className={cn(
-          "h-full w-full flex items-center justify-start gap-1.5 border-[0.5px] border-strong",
+          "h-full w-full flex items-center justify-start gap-1.5 border-[0.5px] border-strong rounded-sm px-2 py-0.5 text-11",
           {
             "bg-layer-transparent-active": isActive,
           },
@@ -84,7 +81,7 @@ function BorderButton(props: ButtonProps) {
         )}
       >
         {children}
-      </Button>
+      </div>
     </Tooltip>
   );
 }
@@ -100,16 +97,14 @@ function BackgroundButton(props: ButtonProps) {
       isMobile={isMobile}
       renderByDefault={renderToolTipByDefault}
     >
-      <Button
-        variant="ghost"
-        size="sm"
+      <div
         className={cn(
-          "h-full w-full flex items-center justify-start gap-1.5 bg-layer-3 hover:bg-layer-1-hover",
+          "h-full w-full flex items-center justify-start gap-1.5 bg-layer-3 hover:bg-layer-1-hover rounded-sm px-2 py-0.5 text-11",
           className
         )}
       >
         {children}
-      </Button>
+      </div>
     </Tooltip>
   );
 }
@@ -125,11 +120,9 @@ function TransparentButton(props: ButtonProps) {
       isMobile={isMobile}
       renderByDefault={renderToolTipByDefault}
     >
-      <Button
-        variant="ghost"
-        size="sm"
+      <div
         className={cn(
-          "h-full w-full flex items-center justify-start gap-1.5",
+          "h-full w-full flex items-center justify-start gap-1.5 rounded-sm px-2 py-0.5 text-11",
           {
             "bg-layer-transparent-active": isActive,
           },
@@ -137,7 +130,7 @@ function TransparentButton(props: ButtonProps) {
         )}
       >
         {children}
-      </Button>
+      </div>
     </Tooltip>
   );
 }

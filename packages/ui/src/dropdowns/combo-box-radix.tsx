@@ -137,7 +137,7 @@ const RadixComboDropDown = forwardRef<HTMLDivElement, RadixComboDropDownProps>(f
 
   if (!shouldRender) {
     return (
-      <div ref={dropDownButtonRef} className="h-full flex items-center">
+      <div ref={dropDownButtonRef} className="h-full flex items-center" onMouseEnter={onHover}>
         {button}
       </div>
     );
@@ -147,10 +147,8 @@ const RadixComboDropDown = forwardRef<HTMLDivElement, RadixComboDropDownProps>(f
     <ComboContext.Provider value={contextValue}>
       <PopoverPrimitive.Root open={isOpen} onOpenChange={handleSetIsOpen}>
         <Component {...rest} ref={ref} className={resolvedClassName} tabIndex={tabIndex} onKeyDown={onKeyDown}>
-          <PopoverPrimitive.Trigger asChild disabled={disabled}>
-            <div ref={dropDownButtonRef} role="button" tabIndex={disabled ? -1 : 0} className="outline-none">
-              {button}
-            </div>
+          <PopoverPrimitive.Trigger ref={dropDownButtonRef} asChild disabled={disabled}>
+            {button}
           </PopoverPrimitive.Trigger>
           {children}
         </Component>

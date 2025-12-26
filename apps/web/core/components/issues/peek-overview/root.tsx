@@ -1,4 +1,3 @@
-import type { FC } from "react";
 import { useState, useMemo, useCallback } from "react";
 import { usePathname } from "next/navigation";
 // Plane imports
@@ -15,8 +14,8 @@ import { useIssues } from "@/hooks/store/use-issues";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useWorkItemProperties } from "@/plane-web/hooks/use-issue-properties";
+import { useIssueDetailRootStore } from "@/store/issue/issue-details/root.store";
 import { useUpdateIssue, useDeleteIssue, useArchiveIssue } from "@/store/queries/issue";
-import { queryKeys } from "@/store/queries/query-keys";
 // local imports
 import type { TIssueOperations } from "../issue-detail";
 import { IssueView } from "./view";
@@ -37,9 +36,11 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
   const {
     issues: { restoreIssue },
   } = useIssues(EIssuesStoreType.ARCHIVED);
+  // Use Zustand hook directly for reactive peekIssue subscription
+  // The MobX class getter (useIssueDetail().peekIssue) accesses getState() which is not reactive
+  const peekIssue = useIssueDetailRootStore((state) => state.peekIssue);
+  const setPeekIssue = useIssueDetailRootStore((state) => state.setPeekIssue);
   const {
-    peekIssue,
-    setPeekIssue,
     issue: { fetchIssue },
     fetchActivities,
   } = useIssueDetail();
@@ -80,7 +81,7 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
       update: async (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssue>) => {
         try {
           await updateIssue({ workspaceSlug, projectId, issueId, data });
-          fetchActivities(workspaceSlug, projectId, issueId);
+          void fetchActivities(workspaceSlug, projectId, issueId);
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,
             payload: { id: issueId },
@@ -162,7 +163,7 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
       addSprintToIssue: async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => {
         try {
           await issues.addSprintToIssue(workspaceSlug, projectId, sprintId, issueId);
-          fetchActivities(workspaceSlug, projectId, issueId);
+          void fetchActivities(workspaceSlug, projectId, issueId);
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,
             payload: { id: issueId },
@@ -215,7 +216,7 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
             },
           });
           await removeFromSprintPromise;
-          fetchActivities(workspaceSlug, projectId, issueId);
+          void fetchActivities(workspaceSlug, projectId, issueId);
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,
             payload: { id: issueId },
@@ -236,7 +237,7 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
         removeEpicIds: string[]
       ) => {
         const promise = await issues.changeEpicsInIssue(workspaceSlug, projectId, issueId, addEpicIds, removeEpicIds);
-        fetchActivities(workspaceSlug, projectId, issueId);
+        void fetchActivities(workspaceSlug, projectId, issueId);
         captureSuccess({
           eventName: WORK_ITEM_TRACKER_EVENTS.update,
           payload: { id: issueId },
@@ -258,7 +259,7 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
             },
           });
           await removeFromEpicPromise;
-          fetchActivities(workspaceSlug, projectId, issueId);
+          void fetchActivities(workspaceSlug, projectId, issueId);
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,
             payload: { id: issueId },
@@ -277,9 +278,7 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
   );
 
   const { isPending } = useQuery({
-    queryKey: peekIssue?.issueId
-      ? ["peek-issue", peekIssue.workspaceSlug, peekIssue.projectId, peekIssue.issueId]
-      : [],
+    queryKey: peekIssue?.issueId ? ["peek-issue", peekIssue.workspaceSlug, peekIssue.projectId, peekIssue.issueId] : [],
     queryFn: async () => {
       if (peekIssue) {
         await issueOperations.fetch(peekIssue.workspaceSlug, peekIssue.projectId, peekIssue.issueId);

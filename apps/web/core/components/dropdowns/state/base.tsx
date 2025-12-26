@@ -65,7 +65,7 @@ export function WorkItemStateDropdownBase(props: TWorkItemStateDropdownBaseProps
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   // button ref
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
+  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
   // states
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -116,31 +116,45 @@ export function WorkItemStateDropdownBase(props: TWorkItemStateDropdownBaseProps
   const comboButton = (
     <>
       {button ? (
-        <button
+        <div
           ref={setReferenceElement}
-          type="button"
+          role="button"
+          tabIndex={disabled ? -1 : (tabIndex ?? 0)}
           className={cn("clickable block h-full w-full outline-none", buttonContainerClassName)}
-          onClick={handleOnClick}
-          disabled={disabled}
-          tabIndex={tabIndex}
+          onClick={disabled ? undefined : handleOnClick}
+          onKeyDown={
+            disabled
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ")
+                    handleOnClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+                }
+          }
         >
           {button}
-        </button>
+        </div>
       ) : (
-        <button
-          tabIndex={tabIndex}
+        <div
+          tabIndex={disabled ? -1 : (tabIndex ?? 0)}
           ref={setReferenceElement}
-          type="button"
+          role="button"
           className={cn(
             "clickable block h-full max-w-full outline-none",
             {
-              "cursor-not-allowed text-secondary": disabled,
+              "cursor-not-allowed text-secondary pointer-events-none": disabled,
               "cursor-pointer": !disabled,
             },
             buttonContainerClassName
           )}
-          onClick={handleOnClick}
-          disabled={disabled}
+          onClick={disabled ? undefined : handleOnClick}
+          onKeyDown={
+            disabled
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ")
+                    handleOnClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+                }
+          }
         >
           <DropdownButton
             className={buttonClassName}
@@ -175,7 +189,7 @@ export function WorkItemStateDropdownBase(props: TWorkItemStateDropdownBaseProps
               </>
             )}
           </DropdownButton>
-        </button>
+        </div>
       )}
     </>
   );

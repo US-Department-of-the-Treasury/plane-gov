@@ -98,29 +98,47 @@ export const EpicDropdownBase = memo(function EpicDropdownBase(props: TEpicDropd
   const comboButton = (
     <>
       {button ? (
-        <button
-          type="button"
-          className={cn("clickable block h-full w-full outline-none hover:bg-layer-1", buttonContainerClassName)}
-          onClick={handleOnClick}
-          disabled={disabled}
-          tabIndex={tabIndex}
+        <div
+          role="button"
+          tabIndex={disabled ? -1 : (tabIndex ?? 0)}
+          className={cn(
+            "clickable block h-full w-full outline-none hover:bg-layer-1",
+            { "pointer-events-none": disabled },
+            buttonContainerClassName
+          )}
+          onClick={disabled ? undefined : handleOnClick}
+          onKeyDown={
+            disabled
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ")
+                    handleOnClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+                }
+          }
         >
           {button}
-        </button>
+        </div>
       ) : (
-        <button
-          type="button"
+        <div
+          role="button"
+          tabIndex={disabled ? -1 : (tabIndex ?? 0)}
           className={cn(
             "clickable block h-full max-w-full outline-none hover:bg-layer-1",
             {
-              "cursor-not-allowed text-secondary": disabled,
+              "cursor-not-allowed text-secondary pointer-events-none": disabled,
               "cursor-pointer": !disabled,
             },
             buttonContainerClassName
           )}
-          onClick={handleOnClick}
-          disabled={disabled}
-          tabIndex={tabIndex}
+          onClick={disabled ? undefined : handleOnClick}
+          onKeyDown={
+            disabled
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ")
+                    handleOnClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+                }
+          }
         >
           <DropdownButton
             className={buttonClassName}
@@ -148,11 +166,11 @@ export const EpicDropdownBase = memo(function EpicDropdownBase(props: TEpicDropd
               showCount={showCount}
               showTooltip={showTooltip}
               value={value}
-              onChange={onChange as any}
+              onChange={onChange as (value: string | string[] | undefined) => void}
               className={itemClassName}
             />
           </DropdownButton>
-        </button>
+        </div>
       )}
     </>
   );

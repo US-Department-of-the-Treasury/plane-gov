@@ -7,7 +7,6 @@ import { ChevronDown, SignalHigh } from "lucide-react";
 import { ISSUE_PRIORITIES } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { PriorityIcon } from "@plane/propel/icons";
-import { Button } from "@plane/propel/button";
 import { SelectCombobox } from "@plane/propel/combobox";
 import { Tooltip } from "@plane/propel/tooltip";
 import type { TIssuePriorities } from "@plane/types";
@@ -94,7 +93,7 @@ export function PriorityCombobox(props: PriorityComboboxProps) {
     const side = parts[0] as "top" | "bottom" | "left" | "right";
     const align = parts[1] === "end" ? "end" : parts[1] === "start" ? "start" : "center";
 
-    return { side, align: align as "start" | "center" | "end" };
+    return { side, align: align };
   }, [placement]);
 
   // Priority-specific styles
@@ -112,15 +111,10 @@ export function PriorityCombobox(props: PriorityComboboxProps) {
     const priority = value ?? "none";
 
     if (BORDER_BUTTON_VARIANTS.includes(buttonVariant)) {
-      return cn(
-        baseClasses,
-        "border-[0.5px] rounded-sm px-2 py-0.5 bg-layer-2",
-        priorityClasses[priority],
-        {
-          "px-0.5": hideText,
-          "border-priority-urgent": priority === "urgent" && hideText && highlightUrgent,
-        }
-      );
+      return cn(baseClasses, "border-[0.5px] rounded-sm px-2 py-0.5 bg-layer-2", priorityClasses[priority], {
+        "px-0.5": hideText,
+        "border-priority-urgent": priority === "urgent" && hideText && highlightUrgent,
+      });
     }
     if (BACKGROUND_BUTTON_VARIANTS.includes(buttonVariant)) {
       return cn(baseClasses, "bg-layer-3 hover:bg-layer-1-hover rounded-sm px-2 py-0.5", {
@@ -151,11 +145,7 @@ export function PriorityCombobox(props: PriorityComboboxProps) {
       );
 
       if (value === "urgent" && !hideText && highlightUrgent) {
-        return (
-          <div className="p-0.5 rounded-sm border border-priority-urgent">
-            {iconWrapper}
-          </div>
-        );
+        return <div className="p-0.5 rounded-sm border border-priority-urgent">{iconWrapper}</div>;
       }
       return iconWrapper;
     }
@@ -173,12 +163,18 @@ export function PriorityCombobox(props: PriorityComboboxProps) {
       disabled={!showTooltip}
       isMobile={isMobile}
     >
-      <Button
-        variant="ghost"
-        size="sm"
-        className={cn(getButtonClassName(), "text-11", buttonClassName)}
-        disabled={disabled}
-        tabIndex={tabIndex}
+      <div
+        role="button"
+        tabIndex={disabled ? -1 : (tabIndex ?? 0)}
+        className={cn(
+          getButtonClassName(),
+          "text-11",
+          {
+            "cursor-not-allowed text-secondary pointer-events-none": disabled,
+            "cursor-pointer": !disabled,
+          },
+          buttonClassName
+        )}
       >
         {renderIcon()}
         {!hideText && (
@@ -194,7 +190,7 @@ export function PriorityCombobox(props: PriorityComboboxProps) {
         {dropdownArrow && (
           <ChevronDown className={cn("h-2.5 w-2.5 flex-shrink-0", dropdownArrowClassName)} aria-hidden="true" />
         )}
-      </Button>
+      </div>
     </Tooltip>
   );
 
