@@ -136,7 +136,10 @@ export function ProjectViewForm(props: Props) {
                   in_use: val?.type,
                   [val?.type]: logoValue,
                 });
-                setIsOpen(false);
+                // Only close if shouldClose is true (default) - random emoji sets this to false
+                if (val?.shouldClose !== false) {
+                  setIsOpen(false);
+                }
               }}
               defaultIconColor={logoValue?.in_use && logoValue?.in_use === "icon" ? logoValue?.icon?.color : undefined}
               defaultOpen={
