@@ -160,10 +160,6 @@ export class IssueStore implements IIssueStore {
     // fetch issue relations
     this.rootIssueDetailStore.relation.fetchRelations(workspaceSlug, projectId, issueId);
 
-    // fetching states
-    // TODO: check if this function is required
-    this.rootIssueDetailStore.rootIssueStore.rootStore.state.fetchProjectStates(workspaceSlug, projectId);
-
     return issue;
   };
 
@@ -351,10 +347,6 @@ export class IssueStore implements IIssueStore {
 
     // fetch issue relations
     rootWorkItemDetailStore.relation.fetchRelations(workspaceSlug, projectId, issueId);
-
-    // fetching states
-    // TODO: check if this function is required
-    rootWorkItemDetailStore.rootIssueStore.rootStore.state.fetchProjectStates(workspaceSlug, projectId);
 
     return issue;
   };

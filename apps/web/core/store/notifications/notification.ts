@@ -5,10 +5,7 @@
  */
 
 export type {
-  INotification,
-  NotificationStoreState,
-  NotificationStoreActions,
   NotificationStore,
 } from "@/store/client/notification.store";
 
-export { createNotificationStore, NotificationStoreLegacy as Notification } from "@/store/client/notification.store";
+export { createNotificationStore } from "@/store/client/notification.store";

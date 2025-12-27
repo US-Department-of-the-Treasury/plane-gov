@@ -8,7 +8,6 @@ import type { IWorkspaceBulkInviteFormData, IWorkspaceMember, IWorkspaceMemberIn
 // services
 import { WorkspaceService } from "@/plane-web/services";
 // types
-import type { IRouterStore } from "@/store/client";
 import { getRouterWorkspaceSlug } from "@/store/client";
 import type { IUserStore } from "@/store/user";
 // store
@@ -160,7 +159,6 @@ export class WorkspaceMemberStore implements IWorkspaceMemberStore {
   // filters store
   filtersStore: IWorkspaceMemberFiltersStore;
   // stores
-  routerStore: IRouterStore;
   userStore: IUserStore;
   memberRoot: IMemberRootStore;
   // services
@@ -170,7 +168,6 @@ export class WorkspaceMemberStore implements IWorkspaceMemberStore {
     // initialize filters store
     this.filtersStore = new WorkspaceMemberFiltersStore();
     // root store
-    this.routerStore = _rootStore.router;
     this.userStore = _rootStore.user;
     this.memberRoot = _memberRoot;
     // services

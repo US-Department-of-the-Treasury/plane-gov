@@ -4,18 +4,21 @@ import { NOTIFICATION_TRACKER_ELEMENTS, NOTIFICATION_TRACKER_EVENTS } from "@pla
 import { useTranslation } from "@plane/i18n";
 import { ArchiveIcon } from "@plane/propel/icons";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
+import type { TNotification } from "@plane/types";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
-// store
-import type { INotification } from "@/store/notifications/notification";
 // local imports
 import { NotificationItemOptionButton } from "./button";
 
 type TNotificationItemArchiveOption = {
   workspaceSlug: string;
-  notification: INotification;
+  notification: {
+    asJson: TNotification;
+    archiveNotification: (workspaceSlug: string) => Promise<TNotification | undefined>;
+    unArchiveNotification: (workspaceSlug: string) => Promise<TNotification | undefined>;
+  };
 };
 
 export function NotificationItemArchiveOption(props: TNotificationItemArchiveOption) {

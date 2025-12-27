@@ -6,18 +6,21 @@ import { NOTIFICATION_SNOOZE_OPTIONS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { Tooltip } from "@plane/propel/tooltip";
+import type { TNotification } from "@plane/types";
 import { cn } from "@plane/utils";
 // hooks
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 import { usePlatformOS } from "@/hooks/use-platform-os";
-// store
-import type { INotification } from "@/store/notifications/notification";
 // local imports
 import { NotificationSnoozeModal } from "./modal";
 
 type TNotificationItemSnoozeOption = {
   workspaceSlug: string;
-  notification: INotification;
+  notification: {
+    asJson: TNotification;
+    snoozeNotification: (workspaceSlug: string, snoozeTill: Date) => Promise<TNotification | undefined>;
+    unSnoozeNotification: (workspaceSlug: string) => Promise<TNotification | undefined>;
+  };
   setIsSnoozeStateModalOpen: Dispatch<SetStateAction<boolean>>;
   customSnoozeModal: boolean;
   setCustomSnoozeModal: Dispatch<SetStateAction<boolean>>;

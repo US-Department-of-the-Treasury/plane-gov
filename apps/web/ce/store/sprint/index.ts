@@ -1,1 +1,1 @@
-export type { ISprintStore } from "@/store/client";
+export type { SprintStore } from "@/store/client";

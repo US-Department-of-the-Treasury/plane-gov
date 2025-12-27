@@ -10,6 +10,7 @@ import type { IEstimate } from "@/plane-web/store/estimates/estimate";
 import { Estimate } from "@/plane-web/store/estimates/estimate";
 // store
 import type { CoreRootStore } from "../root.store";
+import { getRouterWorkspaceSlug, getRouterProjectId } from "@/store/client/router.store";
 
 type TEstimateLoader = "init-loader" | "mutation-loader" | undefined;
 type TErrorCodes = {
@@ -258,7 +259,7 @@ export class ProjectEstimateStore implements IProjectEstimateStore {
    * @returns { string | undefined }
    */
   get currentActiveEstimateId(): string | undefined {
-    const { projectId } = this.store.router;
+    const projectId = getRouterProjectId();
     if (!projectId) return undefined;
     const currentActiveEstimateId = Object.values(this.estimates || {}).find(
       (p) => p.project === projectId && p.last_used
@@ -272,7 +273,7 @@ export class ProjectEstimateStore implements IProjectEstimateStore {
    * @returns { string | undefined }
    */
   get currentActiveEstimate(): IEstimate | undefined {
-    const { projectId } = this.store.router;
+    const projectId = getRouterProjectId();
     if (!projectId) return undefined;
     const currentActiveEstimate = Object.values(this.estimates || {}).find(
       (p) => p.project === projectId && p.last_used
@@ -285,7 +286,7 @@ export class ProjectEstimateStore implements IProjectEstimateStore {
    * @returns { string[] | undefined }
    */
   get archivedEstimateIds(): string[] | undefined {
-    const { projectId } = this.store.router;
+    const projectId = getRouterProjectId();
     if (!projectId) return undefined;
     const archivedEstimates = orderBy(
       Object.values(this.estimates || {}).filter((p) => p.project === projectId && !p.last_used),

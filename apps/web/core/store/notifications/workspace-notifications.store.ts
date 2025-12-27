@@ -6,12 +6,10 @@
 
 export type {
   WorkspaceNotificationStoreType,
-  IWorkspaceNotificationStore,
 } from "@/store/client/workspace-notifications.store";
 
 export {
   useWorkspaceNotificationStore,
-  WorkspaceNotificationStoreLegacy as WorkspaceNotificationStore,
   notificationIdsByWorkspaceId,
   notificationLiteByNotificationId,
 } from "@/store/client/workspace-notifications.store";

@@ -18,7 +18,7 @@ import { storage } from "@/lib/local-storage";
 import type { IBaseIssuesStore } from "../helpers/base-issues.store";
 import { BaseIssuesStore } from "../helpers/base-issues.store";
 // Zustand stores
-import { useStateStore } from "@/store/client";
+import { useStateStore, fetchSprintDetails, updateSprintDistribution } from "@/store/client";
 //
 import type { IIssueRootStore } from "../root.store";
 import type { ISprintIssuesFilter } from "./filter.store";
@@ -191,7 +191,7 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
     const sprintId = id ?? this.sprintId;
 
     if (projectId && sprintId) {
-      this.rootIssueStore.rootStore.sprint.fetchSprintDetails(workspaceSlug, sprintId);
+      fetchSprintDetails(workspaceSlug, sprintId);
     }
     // fetch sprint progress - migrated to TanStack Query (useSprintProgress hook)
     // const isSidebarCollapsed = storage.get("sprint_sidebar_collapsed");
@@ -218,7 +218,7 @@ export class SprintIssues extends BaseIssuesStore implements ISprintIssues {
 
       const sprintId = id ?? this.sprintId;
       if (sprintId) {
-        this.rootIssueStore.rootStore.sprint.updateSprintDistribution(distributionUpdates, sprintId);
+        updateSprintDistribution(distributionUpdates, sprintId);
       }
     } catch (_e) {
       console.warn("could not update sprint statistics");

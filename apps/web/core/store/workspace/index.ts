@@ -7,7 +7,7 @@ import type { IWorkspaceSidebarNavigationItem, IWorkspace, IWorkspaceSidebarNavi
 import { WorkspaceService } from "@/plane-web/services";
 // store
 import type { CoreRootStore } from "@/store/root.store";
-import { getRouterWorkspaceSlug } from "@/store/client";
+import { getRouterWorkspaceSlug } from "@/store/client/router.store";
 // sub-stores
 import type { IApiTokenStore } from "./api-token.store";
 import { ApiTokenStore } from "./api-token.store";
@@ -231,7 +231,6 @@ export interface IWorkspaceRootStore {
 export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
   // root store references
   protected rootStore: CoreRootStore;
-  router;
   user;
 
   // sub-stores
@@ -241,7 +240,6 @@ export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
 
   constructor(_rootStore: CoreRootStore) {
     this.rootStore = _rootStore;
-    this.router = _rootStore.router;
     this.user = _rootStore.user;
     this.home = new HomeStore();
     this.webhook = new WebhookStore(_rootStore);

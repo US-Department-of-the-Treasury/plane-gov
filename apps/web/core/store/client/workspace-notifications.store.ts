@@ -17,10 +17,9 @@ import { convertToEpoch } from "@plane/utils";
 // services
 import workspaceNotificationService from "@/services/workspace-notification.service";
 // store
-import type { INotification } from "@/store/client/notification.store";
-import { NotificationStoreLegacy } from "@/store/client/notification.store";
+import type { NotificationStore } from "@/store/client/notification.store";
+import { createNotificationStore } from "@/store/client/notification.store";
 import { getRouterWorkspaceSlug } from "@/store/client/router.store";
-import type { CoreRootStore } from "@/store/root.store";
 
 type TNotificationLoader = ENotificationLoader | undefined;
 type TNotificationQueryParamType = ENotificationQueryParamType;
@@ -30,7 +29,7 @@ interface WorkspaceNotificationState {
   // observables
   loader: TNotificationLoader;
   unreadNotificationsCount: TUnreadNotificationsCount;
-  notifications: Record<string, INotification>; // notification_id -> notification
+  notifications: Record<string, ReturnType<typeof createNotificationStore>>; // notification_id -> notification store
   currentNotificationTab: TNotificationTab;
   currentSelectedNotificationId: string | undefined;
   paginationInfo: Omit<TNotificationPaginatedInfo, "results"> | undefined;
@@ -42,15 +41,14 @@ interface WorkspaceNotificationState {
 // Actions interface
 interface WorkspaceNotificationActions {
   // helper actions
-  mutateNotifications: (notifications: TNotification[], store: CoreRootStore) => void;
+  mutateNotifications: (notifications: TNotification[]) => void;
   updateFilters: <T extends keyof TNotificationFilter>(
     key: T,
-    value: TNotificationFilter[T],
-    store: CoreRootStore
+    value: TNotificationFilter[T]
   ) => void;
-  updateBulkFilters: (filters: Partial<TNotificationFilter>, store: CoreRootStore) => void;
+  updateBulkFilters: (filters: Partial<TNotificationFilter>) => void;
   // actions
-  setCurrentNotificationTab: (tab: TNotificationTab, store: CoreRootStore) => void;
+  setCurrentNotificationTab: (tab: TNotificationTab) => void;
   setCurrentSelectedNotificationId: (notificationId: string | undefined) => void;
   setUnreadNotificationsCount: (type: "increment" | "decrement", newCount?: number) => void;
   getUnreadNotificationsCount: (workspaceSlug: string) => Promise<TUnreadNotificationsCount | undefined>;
@@ -97,32 +95,32 @@ export const useWorkspaceNotificationStore = create<WorkspaceNotificationStoreTy
     ...initialState,
 
     // helper actions
-    mutateNotifications: (notifications, store) => {
+    mutateNotifications: (notifications) => {
       set((state) => {
         (notifications || []).forEach((notification) => {
           if (!notification.id) return;
           if (state.notifications[notification.id]) {
-            state.notifications[notification.id].mutateNotification(notification);
+            state.notifications[notification.id].getState().mutateNotification(notification);
           } else {
-            state.notifications[notification.id] = new NotificationStoreLegacy(store, notification);
+            state.notifications[notification.id] = createNotificationStore(notification);
           }
         });
       });
     },
 
-    updateFilters: (key, value, store) => {
+    updateFilters: (key, value) => {
       set((state) => {
         lodashSet(state.filters, key, value);
         state.notifications = {};
       });
 
-      const workspaceSlug = store.router.workspaceSlug;
+      const workspaceSlug = getRouterWorkspaceSlug();
       if (!workspaceSlug) return;
 
       get().getNotifications(workspaceSlug, ENotificationLoader.INIT_LOADER, ENotificationQueryParamType.INIT);
     },
 
-    updateBulkFilters: (filters, store) => {
+    updateBulkFilters: (filters) => {
       set((state) => {
         Object.entries(filters).forEach(([key, value]) => {
           lodashSet(state.filters, key, value);
@@ -130,20 +128,20 @@ export const useWorkspaceNotificationStore = create<WorkspaceNotificationStoreTy
         state.notifications = {};
       });
 
-      const workspaceSlug = store.router.workspaceSlug;
+      const workspaceSlug = getRouterWorkspaceSlug();
       if (!workspaceSlug) return;
 
       get().getNotifications(workspaceSlug, ENotificationLoader.INIT_LOADER, ENotificationQueryParamType.INIT);
     },
 
     // actions
-    setCurrentNotificationTab: (tab, store) => {
+    setCurrentNotificationTab: (tab) => {
       set((state) => {
         state.currentNotificationTab = tab;
         state.notifications = {};
       });
 
-      const workspaceSlug = store.router.workspaceSlug;
+      const workspaceSlug = getRouterWorkspaceSlug();
       if (!workspaceSlug) return;
 
       get().getNotifications(workspaceSlug, ENotificationLoader.INIT_LOADER, ENotificationQueryParamType.INIT);
@@ -209,14 +207,10 @@ export const useWorkspaceNotificationStore = create<WorkspaceNotificationStoreTy
 
         if (notificationResponse) {
           const { results, ...paginationInfo } = notificationResponse;
+          if (results) {
+            get().mutateNotifications(results);
+          }
           set((state) => {
-            if (results) {
-              // Need to pass store reference - will be handled by Legacy wrapper
-              const storeRef = (state as any)._rootStore;
-              if (storeRef) {
-                get().mutateNotifications(results, storeRef);
-              }
-            }
             state.paginationInfo = paginationInfo;
           });
         }
@@ -255,7 +249,7 @@ export const useWorkspaceNotificationStore = create<WorkspaceNotificationStoreTy
           state.unreadNotificationsCount[countKey] = 0;
 
           Object.values(state.notifications).forEach((notification) =>
-            notification.mutateNotification({
+            notification.getState().mutateNotification({
               read_at: new Date().toUTCString(),
             })
           );
@@ -313,7 +307,7 @@ export const notificationIdsByWorkspaceId = (workspaceId: string): string[] | un
   if (!workspaceId || isEmpty(state.notifications)) return undefined;
 
   const workspaceNotifications = orderBy(
-    Object.values(state.notifications || []),
+    Object.values(state.notifications || []).map((store) => store.getState()),
     (n) => convertToEpoch(n.created_at),
     ["desc"]
   );
@@ -352,8 +346,9 @@ export const notificationIdsByWorkspaceId = (workspaceId: string): string[] | un
 export const notificationLiteByNotificationId = (notificationId: string | undefined, workspaceSlug: string | undefined): TNotificationLite => {
   if (!notificationId) return {} as TNotificationLite;
   const state = useWorkspaceNotificationStore.getState();
-  const notification = state.notifications[notificationId];
-  if (!notification || !workspaceSlug) return {} as TNotificationLite;
+  const notificationStore = state.notifications[notificationId];
+  if (!notificationStore || !workspaceSlug) return {} as TNotificationLite;
+  const notification = notificationStore.getState();
 
   return {
     workspace_slug: workspaceSlug,
@@ -363,127 +358,3 @@ export const notificationLiteByNotificationId = (notificationId: string | undefi
     is_inbox_issue: notification.is_inbox_issue || false,
   };
 };
-
-// Legacy interface for backward compatibility
-export interface IWorkspaceNotificationStore {
-  // observables
-  loader: TNotificationLoader;
-  unreadNotificationsCount: TUnreadNotificationsCount;
-  notifications: Record<string, INotification>;
-  currentNotificationTab: TNotificationTab;
-  currentSelectedNotificationId: string | undefined;
-  paginationInfo: Omit<TNotificationPaginatedInfo, "results"> | undefined;
-  filters: TNotificationFilter;
-  // computed functions
-  notificationIdsByWorkspaceId: (workspaceId: string) => string[] | undefined;
-  notificationLiteByNotificationId: (notificationId: string | undefined) => TNotificationLite;
-  // helper actions
-  mutateNotifications: (notifications: TNotification[]) => void;
-  updateFilters: <T extends keyof TNotificationFilter>(key: T, value: TNotificationFilter[T]) => void;
-  updateBulkFilters: (filters: Partial<TNotificationFilter>) => void;
-  // actions
-  setCurrentNotificationTab: (tab: TNotificationTab) => void;
-  setCurrentSelectedNotificationId: (notificationId: string | undefined) => void;
-  setUnreadNotificationsCount: (type: "increment" | "decrement", newCount?: number) => void;
-  getUnreadNotificationsCount: (workspaceSlug: string) => Promise<TUnreadNotificationsCount | undefined>;
-  getNotifications: (
-    workspaceSlug: string,
-    loader?: TNotificationLoader,
-    queryCursorType?: TNotificationQueryParamType
-  ) => Promise<TNotificationPaginatedInfo | undefined>;
-  markAllNotificationsAsRead: (workspaceId: string) => Promise<void>;
-}
-
-/**
- * Legacy class wrapper for backward compatibility with MobX patterns.
- * Used by root.store.ts to maintain API compatibility during migration.
- * @deprecated Use useWorkspaceNotificationStore hook directly in React components
- */
-export class WorkspaceNotificationStoreLegacy implements IWorkspaceNotificationStore {
-  private rootStore: CoreRootStore;
-
-  constructor(_rootStore?: unknown) {
-    this.rootStore = _rootStore as CoreRootStore;
-    // Store the rootStore reference in the Zustand store for use in mutations
-    (useWorkspaceNotificationStore.getState() as any)._rootStore = _rootStore;
-  }
-
-  get loader() {
-    return useWorkspaceNotificationStore.getState().loader;
-  }
-
-  get unreadNotificationsCount() {
-    return useWorkspaceNotificationStore.getState().unreadNotificationsCount;
-  }
-
-  get notifications() {
-    return useWorkspaceNotificationStore.getState().notifications;
-  }
-
-  get currentNotificationTab() {
-    return useWorkspaceNotificationStore.getState().currentNotificationTab;
-  }
-
-  get currentSelectedNotificationId() {
-    return useWorkspaceNotificationStore.getState().currentSelectedNotificationId;
-  }
-
-  get paginationInfo() {
-    return useWorkspaceNotificationStore.getState().paginationInfo;
-  }
-
-  get filters() {
-    return useWorkspaceNotificationStore.getState().filters;
-  }
-
-  // computed functions
-  notificationIdsByWorkspaceId = (workspaceId: string) => {
-    return notificationIdsByWorkspaceId(workspaceId);
-  };
-
-  notificationLiteByNotificationId = (notificationId: string | undefined) => {
-    return notificationLiteByNotificationId(notificationId, getRouterWorkspaceSlug() || undefined);
-  };
-
-  // helper actions
-  mutateNotifications = (notifications: TNotification[]) => {
-    useWorkspaceNotificationStore.getState().mutateNotifications(notifications, this.rootStore);
-  };
-
-  updateFilters = <T extends keyof TNotificationFilter>(key: T, value: TNotificationFilter[T]) => {
-    useWorkspaceNotificationStore.getState().updateFilters(key, value, this.rootStore);
-  };
-
-  updateBulkFilters = (filters: Partial<TNotificationFilter>) => {
-    useWorkspaceNotificationStore.getState().updateBulkFilters(filters, this.rootStore);
-  };
-
-  // actions
-  setCurrentNotificationTab = (tab: TNotificationTab) => {
-    useWorkspaceNotificationStore.getState().setCurrentNotificationTab(tab, this.rootStore);
-  };
-
-  setCurrentSelectedNotificationId = (notificationId: string | undefined) => {
-    useWorkspaceNotificationStore.getState().setCurrentSelectedNotificationId(notificationId);
-  };
-
-  setUnreadNotificationsCount = (type: "increment" | "decrement", newCount?: number) => {
-    useWorkspaceNotificationStore.getState().setUnreadNotificationsCount(type, newCount);
-  };
-
-  getUnreadNotificationsCount = async (workspaceSlug: string) => {
-    return useWorkspaceNotificationStore.getState().getUnreadNotificationsCount(workspaceSlug);
-  };
-
-  getNotifications = async (
-    workspaceSlug: string,
-    loader?: TNotificationLoader,
-    queryCursorType?: TNotificationQueryParamType
-  ) => {
-    return useWorkspaceNotificationStore.getState().getNotifications(workspaceSlug, loader, queryCursorType);
-  };
-
-  markAllNotificationsAsRead = async (workspaceId: string) => {
-    return useWorkspaceNotificationStore.getState().markAllNotificationsAsRead(workspaceId);
-  };
-}

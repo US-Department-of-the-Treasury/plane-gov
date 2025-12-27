@@ -19,6 +19,7 @@ import { InboxIssueService } from "@/services/inbox";
 // root store
 import type { IInboxIssueStore } from "@/store/inbox/inbox-issue.store";
 import { InboxIssueStore } from "@/store/inbox/inbox-issue.store";
+import { getRouterWorkspaceSlug, getRouterProjectId } from "@/store/client/router.store";
 import type { CoreRootStore } from "../root.store";
 
 type TLoader =
@@ -258,7 +259,7 @@ export const useProjectInboxStore = create<ProjectInboxStoreType>()(
       },
 
       handleInboxIssueFilters: <T extends keyof TInboxIssueFilter>(key: T, value: TInboxIssueFilter[T], store: CoreRootStore) => {
-        const { workspaceSlug } = store.router;
+        const workspaceSlug = getRouterWorkspaceSlug();
         const projectId = get().currentInboxProjectId;
         if (workspaceSlug && projectId) {
           set((draft) => {
@@ -274,7 +275,7 @@ export const useProjectInboxStore = create<ProjectInboxStoreType>()(
       },
 
       handleInboxIssueSorting: <T extends keyof TInboxIssueSorting>(key: T, value: TInboxIssueSorting[T], store: CoreRootStore) => {
-        const { workspaceSlug } = store.router;
+        const workspaceSlug = getRouterWorkspaceSlug();
         const projectId = get().currentInboxProjectId;
         if (workspaceSlug && projectId) {
           set((draft) => {
