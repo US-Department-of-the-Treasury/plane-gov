@@ -51,7 +51,7 @@ import { CopyLinkIcon } from "./actions/copy-link";
 import { LabelFilledIcon } from "./properties/label-filled-icon";
 import { PiChatLogo } from "./sub-brand/pi-chat";
 import { PlaneNewIcon } from "./sub-brand/plane-icon";
-import { WikiIcon } from "./sub-brand/wiki-icon";
+import { DocumentIcon } from "./sub-brand/document-icon";
 import { AnalyticsIcon } from "./workspace/analytics-icon";
 import { ArchiveIcon } from "./workspace/archive-icon";
 import { DashboardIcon } from "./workspace/dashboard-icon";
@@ -65,7 +65,7 @@ import { YourWorkIcon } from "./workspace/your-work-icon";
 export const ICON_REGISTRY = {
   // Sub-brand icons
   "sub-brand.plane": PlaneNewIcon,
-  "sub-brand.wiki": WikiIcon,
+  "sub-brand.documents": DocumentIcon,
   "sub-brand.pi-chat": PiChatLogo,
 
   // Workspace icons

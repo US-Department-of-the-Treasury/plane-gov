@@ -30,10 +30,6 @@ from plane.db.models import (
     IssueLabel,
     IssueSequence,
     Label,
-    Page,
-    PageLabel,
-    PagePropertyValue,
-    ProjectPage,
     Project,
     ProjectMember,
     PropertyDefinition,
@@ -44,11 +40,12 @@ from plane.db.models import (
     User,
     Workspace,
     WorkspaceMember,
-    WikiPageAssignee,
-    PageActivity,
+    DocumentAssignee,
+    DocumentActivity,
+    DocumentPropertyValue,
 )
 from plane.db.models.view import IssueView
-from plane.db.models.wiki import WikiPage
+from plane.db.models.documents import Document
 from plane.db.models.webhook import Webhook
 from plane.utils.html_processor import strip_tags
 
@@ -111,22 +108,16 @@ class Command(BaseCommand):
             help="Number of epics to create (random mode only)",
         )
         parser.add_argument(
-            "--pages",
-            type=int,
-            default=10,
-            help="Number of pages to create (random mode only)",
-        )
-        parser.add_argument(
             "--views",
             type=int,
             default=5,
             help="Number of views to create (random mode only)",
         )
         parser.add_argument(
-            "--wiki-pages",
+            "--documents",
             type=int,
             default=5,
-            help="Number of wiki pages to create (random mode only)",
+            help="Number of documents to create (random mode only)",
         )
         parser.add_argument(
             "--webhooks",
@@ -289,7 +280,7 @@ class Command(BaseCommand):
                 "slug": "priority",
                 "property_type": "select",
                 "description": "Priority level of the work item",
-                "page_types": ["issue", "task"],
+                "document_types": ["issue", "task"],
                 "sort_order": 100,
                 "options": [
                     {"id": "urgent", "label": "Urgent", "color": "#ef4444", "order": 1},
@@ -305,7 +296,7 @@ class Command(BaseCommand):
                 "slug": "start_date",
                 "property_type": "date",
                 "description": "When work on this item should begin",
-                "page_types": ["issue", "task", "epic"],
+                "document_types": ["issue", "task", "epic"],
                 "sort_order": 200,
                 "options": [],
                 "default_value": None,
@@ -315,7 +306,7 @@ class Command(BaseCommand):
                 "slug": "target_date",
                 "property_type": "date",
                 "description": "When this item should be completed",
-                "page_types": ["issue", "task", "epic"],
+                "document_types": ["issue", "task", "epic"],
                 "sort_order": 300,
                 "options": [],
                 "default_value": None,
@@ -325,7 +316,7 @@ class Command(BaseCommand):
                 "slug": "estimate",
                 "property_type": "number",
                 "description": "Estimated effort (points or hours)",
-                "page_types": ["issue", "task"],
+                "document_types": ["issue", "task"],
                 "sort_order": 400,
                 "options": [],
                 "default_value": None,
@@ -340,7 +331,7 @@ class Command(BaseCommand):
                 slug=prop_def["slug"],
                 property_type=prop_def["property_type"],
                 description=prop_def["description"],
-                page_types=prop_def["page_types"],
+                document_types=prop_def["document_types"],
                 sort_order=prop_def["sort_order"],
                 options=prop_def["options"],
                 default_value=prop_def["default_value"],
@@ -399,7 +390,6 @@ class Command(BaseCommand):
         sprints_data = self._load_json("sprints.json")
         epics_data = self._load_json("epics.json")
         issues_data = self._load_json("issues.json")
-        pages_data = self._load_json("pages.json")
         views_data = self._load_json("views.json")
         team_members_data = self._load_json("team_members.json")
 
@@ -411,9 +401,9 @@ class Command(BaseCommand):
         sprint_map = self._create_sprints(workspace, None, user, sprints_data)
         self.stdout.write(f"    Sprints: {len(sprint_map)}")
 
-        # Create wiki pages (workspace-wide)
-        wiki_count = self._create_default_wiki_pages(workspace, user)
-        self.stdout.write(f"    Wiki pages: {wiki_count}")
+        # Create documents (workspace-wide)
+        document_count = self._create_default_documents(workspace, user)
+        self.stdout.write(f"    Documents: {document_count}")
 
         # Create webhooks (workspace-wide)
         webhook_count = self._create_default_webhooks(workspace, user)
@@ -469,24 +459,17 @@ class Command(BaseCommand):
 
         self.stdout.write(f"    Total Issues: {total_issue_count}")
 
-        # Create pages for the first project only (demo pages)
+        # Create Document-based work items (unified document model demo)
         if project_map:
             first_project = project_map.get(1)
             if first_project:
-                page_count = self._create_pages(
-                    workspace, first_project, user, pages_data,
-                    label_maps.get(first_project.id, {})
-                )
-                self.stdout.write(f"    Pages: {page_count}")
-
-                # Create WikiPage-based work items (unified page model demo)
-                wiki_work_items_count = self._create_wiki_work_items(
+                document_work_items_count = self._create_document_work_items(
                     workspace, first_project, user,
                     state_maps.get(first_project.id, {}),
                     label_maps.get(first_project.id, {}),
                     team_members
                 )
-                self.stdout.write(f"    Wiki work items: {wiki_work_items_count}")
+                self.stdout.write(f"    Document work items: {document_work_items_count}")
 
         # Create sprint member project assignments (for Resources view)
         sprint_member_projects_data = self._load_json("sprint_member_projects.json")
@@ -537,26 +520,22 @@ class Command(BaseCommand):
         )
         self.stdout.write(f"    Issues: {len(issues)}")
 
-        # Create pages
-        pages = self._create_random_pages(workspace, project, user, options["pages"], labels)
-        self.stdout.write(f"    Pages: {len(pages)}")
-
         # Create views
         views = self._create_random_views(workspace, project, user, options["views"])
         self.stdout.write(f"    Views: {len(views)}")
 
-        # Create wiki pages
-        wiki_pages = self._create_random_wiki_pages(workspace, user, options["wiki_pages"])
-        self.stdout.write(f"    Wiki pages: {len(wiki_pages)}")
+        # Create documents
+        documents = self._create_random_documents(workspace, user, options["documents"])
+        self.stdout.write(f"    Documents: {len(documents)}")
 
-        # Create WikiPage-based work items (unified page model demo)
+        # Create Document-based work items (unified page model demo)
         # Build state_map from created states (1-indexed like JSON data)
         state_map = {i + 1: state.id for i, state in enumerate(states)}
         label_map = {i + 1: label.id for i, label in enumerate(labels)}
-        wiki_work_items_count = self._create_wiki_work_items(
+        document_work_items_count = self._create_document_work_items(
             workspace, project, user, state_map, label_map, team_members=None
         )
-        self.stdout.write(f"    Wiki work items: {wiki_work_items_count}")
+        self.stdout.write(f"    Document work items: {document_work_items_count}")
 
         # Create webhooks
         webhooks = self._create_random_webhooks(workspace, user, options["webhooks"])
@@ -976,59 +955,6 @@ class Command(BaseCommand):
 
         return issues
 
-    def _create_pages(self, workspace, project, user, pages_data, label_map) -> int:
-        """Create pages from JSON data."""
-        count = 0
-        for page_info in pages_data:
-            page = Page.objects.create(
-                workspace=workspace,
-                name=page_info["name"],
-                description_html=page_info.get("description_html", ""),
-                owned_by=user,
-                access=page_info.get("access", 0),
-                color=page_info.get("color") or "",  # color cannot be NULL
-            )
-            ProjectPage.objects.create(
-                page=page,
-                project=project,
-                workspace=workspace,
-            )
-            count += 1
-        return count
-
-    def _create_random_pages(self, workspace, project, user, count: int, labels) -> list:
-        """Create random pages using Faker."""
-        fake = Faker()
-        pages = []
-        label_ids = [l.id for l in labels]
-
-        for _ in range(count):
-            page = Page.objects.create(
-                workspace=workspace,
-                name=fake.sentence(nb_words=4),
-                description_html=f"<p>{fake.paragraphs(nb=3)}</p>",
-                owned_by=user,
-                access=random.choice([0, 1]),
-                color=fake.hex_color(),
-            )
-            ProjectPage.objects.create(
-                page=page,
-                project=project,
-                workspace=workspace,
-            )
-
-            # Add random labels (0-2)
-            for label_id in random.sample(label_ids, min(random.randint(0, 2), len(label_ids))):
-                PageLabel.objects.create(
-                    page=page,
-                    label_id=label_id,
-                    workspace=workspace,
-                )
-
-            pages.append(page)
-
-        return pages
-
     def _create_default_views(self, workspace, project, user) -> int:
         """Create default project views for demo data."""
         views_data = [
@@ -1072,12 +998,12 @@ class Command(BaseCommand):
             )
         return views
 
-    def _create_default_wiki_pages(self, workspace, user) -> int:
-        """Create default wiki pages for demo data."""
-        wiki_data = [
+    def _create_default_documents(self, workspace, user) -> int:
+        """Create default documents for demo data."""
+        document_data = [
             {
                 "name": "Getting Started",
-                "description_html": "<h1>Getting Started</h1><p>Welcome to the wiki! This page helps you get started with the project.</p>",
+                "description_html": "<h1>Getting Started</h1><p>Welcome to the documents! This page helps you get started with the project.</p>",
             },
             {
                 "name": "Architecture Overview",
@@ -1097,24 +1023,24 @@ class Command(BaseCommand):
             },
         ]
         count = 0
-        for wiki_info in wiki_data:
-            WikiPage.objects.create(
+        for document_info in document_data:
+            Document.objects.create(
                 workspace=workspace,
-                name=wiki_info["name"],
-                description_html=wiki_info["description_html"],
+                name=document_info["name"],
+                description_html=document_info["description_html"],
                 owned_by=user,
-                access=WikiPage.SHARED_ACCESS,  # Shared with workspace
+                access=Document.SHARED_ACCESS,  # Shared with workspace
             )
             count += 1
         return count
 
-    def _create_wiki_work_items(
+    def _create_document_work_items(
         self, workspace, project, user, state_map, label_map, team_members=None
     ) -> int:
-        """Create WikiPage-based work items with page_type='issue'.
+        """Create Document-based work items with document_type='issue'.
 
         This demonstrates the unified page model where work items are pages
-        with page_type='issue' and properties instead of a separate Issue model.
+        with document_type='issue' and properties instead of a separate Issue model.
         """
         # Sample work items for the unified model
         work_items = [
@@ -1125,8 +1051,8 @@ class Command(BaseCommand):
                 "state_id": 3,  # In Progress
             },
             {
-                "name": "Migrate existing issues to wiki pages",
-                "description_html": "<p>Run the migration command to convert Issue records to WikiPage records.</p>",
+                "name": "Migrate existing issues to documents",
+                "description_html": "<p>Run the migration command to convert Issue records to Document records.</p>",
                 "priority": "urgent",
                 "state_id": 2,  # Todo
             },
@@ -1138,7 +1064,7 @@ class Command(BaseCommand):
             },
             {
                 "name": "Test page comments and activity",
-                "description_html": "<p>Verify that comments and activity tracking work correctly on wiki pages.</p>",
+                "description_html": "<p>Verify that comments and activity tracking work correctly on documents.</p>",
                 "priority": "medium",
                 "state_id": 2,  # Todo
             },
@@ -1168,26 +1094,26 @@ class Command(BaseCommand):
                 default_state = State.objects.filter(project=project, default=True).first()
                 state_id = default_state.id if default_state else None
 
-            # Create WikiPage with page_type='issue'
-            page = WikiPage.objects.create(
+            # Create Document with document_type='issue'
+            doc = Document.objects.create(
                 workspace=workspace,
                 project=project,
                 name=item["name"],
                 description_html=item["description_html"],
                 description_stripped=strip_tags(item["description_html"]),
-                page_type=WikiPage.PAGE_TYPE_ISSUE,
+                document_type=Document.DOCUMENT_TYPE_ISSUE,
                 sequence_id=i + 1,
                 sort_order=(i + 1) * 1000,
                 state_id=state_id,
                 owned_by=user,
-                access=WikiPage.SHARED_ACCESS,
+                access=Document.SHARED_ACCESS,
                 created_by=user,
             )
 
-            # Create activity for the page
-            PageActivity.objects.create(
+            # Create activity for the document
+            DocumentActivity.objects.create(
                 workspace=workspace,
-                page=page,
+                document=doc,
                 actor=user,
                 verb="created",
                 comment="created the work item",
@@ -1196,9 +1122,9 @@ class Command(BaseCommand):
 
             # Set priority property value
             if priority_prop and item.get("priority"):
-                PagePropertyValue.objects.create(
+                DocumentPropertyValue.objects.create(
                     workspace=workspace,
-                    page=page,
+                    document=doc,
                     property=priority_prop,
                     value_json={"id": item["priority"]},
                     created_by=user,
@@ -1209,8 +1135,8 @@ class Command(BaseCommand):
                 num_assignees = random.randint(1, min(2, len(team_members)))
                 assignees = random.sample(team_members, num_assignees)
                 for assignee in assignees:
-                    WikiPageAssignee.objects.create(
-                        page=page,
+                    DocumentAssignee.objects.create(
+                        document=doc,
                         assignee=assignee,
                         workspace=workspace,
                         created_by=user,
@@ -1220,22 +1146,22 @@ class Command(BaseCommand):
 
         return count
 
-    def _create_random_wiki_pages(self, workspace, user, count: int) -> list:
-        """Create random wiki pages using Faker."""
+    def _create_random_documents(self, workspace, user, count: int) -> list:
+        """Create random documents using Faker."""
         fake = Faker()
-        wiki_pages = []
+        documents = []
 
         for _ in range(count):
-            wiki_pages.append(
-                WikiPage.objects.create(
+            documents.append(
+                Document.objects.create(
                     workspace=workspace,
                     name=fake.sentence(nb_words=4),
                     description_html=f"<h1>{fake.sentence()}</h1><p>{fake.paragraph(nb_sentences=5)}</p>",
                     owned_by=user,
-                    access=WikiPage.SHARED_ACCESS,
+                    access=Document.SHARED_ACCESS,
                 )
             )
-        return wiki_pages
+        return documents
 
     def _create_default_webhooks(self, workspace, user) -> int:
         """Create default webhooks for demo data.

@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 
 # Package imports
-from plane.db.models import FileAsset, Page, Issue
+from plane.db.models import FileAsset, Document, Issue
 from plane.utils.exception_logger import log_exception
 from plane.settings.storage import S3Storage
 from celery import shared_task
@@ -23,7 +23,7 @@ def get_entity_id_field(entity_type, entity_id):
         FileAsset.EntityTypeContext.USER_COVER: {"user_id": entity_id},
         FileAsset.EntityTypeContext.ISSUE_ATTACHMENT: {"issue_id": entity_id},
         FileAsset.EntityTypeContext.ISSUE_DESCRIPTION: {"issue_id": entity_id},
-        FileAsset.EntityTypeContext.PAGE_DESCRIPTION: {"page_id": entity_id},
+        FileAsset.EntityTypeContext.PAGE_DESCRIPTION: {"document_id": entity_id},
         FileAsset.EntityTypeContext.COMMENT_DESCRIPTION: {"comment_id": entity_id},
         FileAsset.EntityTypeContext.DRAFT_ISSUE_DESCRIPTION: {"draft_issue_id": entity_id},
     }
@@ -127,7 +127,7 @@ def copy_s3_objects_of_description_and_assets(entity_name, entity_identifier, pr
 
     """
     try:
-        model_class = {"PAGE": Page, "ISSUE": Issue}.get(entity_name)
+        model_class = {"DOCUMENT": Document, "ISSUE": Issue}.get(entity_name)
         if not model_class:
             raise ValueError(f"Unsupported entity_name: {entity_name}")
 

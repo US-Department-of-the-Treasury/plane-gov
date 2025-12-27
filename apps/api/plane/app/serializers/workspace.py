@@ -15,7 +15,7 @@ from plane.db.models import (
     WorkspaceUserLink,
     UserRecentVisit,
     Issue,
-    Page,
+    Document,
     Project,
     ProjectMember,
     WorkspaceHomePreference,
@@ -233,12 +233,12 @@ class ProjectRecentVisitSerializer(serializers.ModelSerializer):
         return members
 
 
-class PageRecentVisitSerializer(serializers.ModelSerializer):
+class DocumentRecentVisitSerializer(serializers.ModelSerializer):
     project_id = serializers.SerializerMethodField()
     project_identifier = serializers.SerializerMethodField()
 
     class Meta:
-        model = Page
+        model = Document
         fields = [
             "id",
             "name",
@@ -249,18 +249,16 @@ class PageRecentVisitSerializer(serializers.ModelSerializer):
         ]
 
     def get_project_id(self, obj):
-        return obj.project_id if hasattr(obj, "project_id") else obj.projects.values_list("id", flat=True).first()
+        return obj.project_id
 
     def get_project_identifier(self, obj):
-        project = obj.projects.first()
-
-        return project.identifier if project else None
+        return obj.project.identifier if obj.project else None
 
 
 def get_entity_model_and_serializer(entity_type):
     entity_map = {
         "issue": (Issue, IssueRecentVisitSerializer),
-        "page": (Page, PageRecentVisitSerializer),
+        "document": (Document, DocumentRecentVisitSerializer),
         "project": (Project, ProjectRecentVisitSerializer),
     }
     return entity_map.get(entity_type, (None, None))

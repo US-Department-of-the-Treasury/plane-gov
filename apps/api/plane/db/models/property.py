@@ -1,8 +1,8 @@
 """
-Property system models for the unified page model.
+Property system models for the unified document model.
 
-This implements a flexible property system inspired by Notion where pages can have
-typed properties. PropertyDefinition defines the schema, PagePropertyValue stores
+This implements a flexible property system inspired by Notion where documents can have
+typed properties. PropertyDefinition defines the schema, DocumentPropertyValue stores
 instance data.
 """
 
@@ -15,9 +15,9 @@ from .base import BaseModel
 
 class PropertyDefinition(BaseModel):
     """
-    Defines a property that can be applied to pages.
+    Defines a property that can be applied to documents.
 
-    Properties are workspace-scoped and can be restricted to specific page types.
+    Properties are workspace-scoped and can be restricted to specific document types.
     System properties (is_system=True) cannot be deleted by users.
     """
 
@@ -48,12 +48,12 @@ class PropertyDefinition(BaseModel):
     # Default value (JSON for flexibility)
     default_value = models.JSONField(null=True, blank=True)
 
-    # Which page types show this property (empty = all types)
-    page_types = ArrayField(
+    # Which document types show this property (empty = all types)
+    document_types = ArrayField(
         models.CharField(max_length=50),
         default=list,
         blank=True,
-        help_text="Page types that show this property. Empty means all types.",
+        help_text="Document types that show this property. Empty means all types.",
     )
 
     # Ordering in property panel
@@ -87,22 +87,22 @@ class PropertyDefinition(BaseModel):
         return f"{self.workspace.name} - {self.name} ({self.property_type})"
 
 
-class PagePropertyValue(BaseModel):
+class DocumentPropertyValue(BaseModel):
     """
-    Stores a property value for a specific page.
+    Stores a property value for a specific document.
 
     Uses typed columns for different property types to enable efficient queries.
     Only one value column should be set based on the property_type.
     """
 
-    page = models.ForeignKey(
-        "db.WikiPage", on_delete=models.CASCADE, related_name="property_values"
+    document = models.ForeignKey(
+        "db.Document", on_delete=models.CASCADE, related_name="property_values"
     )
     property = models.ForeignKey(
         PropertyDefinition, on_delete=models.CASCADE, related_name="values"
     )
     workspace = models.ForeignKey(
-        "db.Workspace", on_delete=models.CASCADE, related_name="page_property_values"
+        "db.Workspace", on_delete=models.CASCADE, related_name="document_property_values"
     )
 
     # Typed value columns (only one should be set based on property_type)
@@ -117,29 +117,29 @@ class PagePropertyValue(BaseModel):
     value_json = models.JSONField(null=True, blank=True)
 
     class Meta:
-        verbose_name = "Page Property Value"
-        verbose_name_plural = "Page Property Values"
-        db_table = "page_property_values"
-        unique_together = [["page", "property", "deleted_at"]]
+        verbose_name = "Document Property Value"
+        verbose_name_plural = "Document Property Values"
+        db_table = "document_property_values"
+        unique_together = [["document", "property", "deleted_at"]]
         constraints = [
             models.UniqueConstraint(
-                fields=["page", "property"],
+                fields=["document", "property"],
                 condition=models.Q(deleted_at__isnull=True),
-                name="page_prop_value_unique_when_not_deleted",
+                name="doc_prop_value_unique_when_not_deleted",
             )
         ]
         indexes = [
-            models.Index(fields=["page", "property"], name="pageprop_page_prop_idx"),
-            models.Index(fields=["workspace", "property"], name="pageprop_ws_prop_idx"),
-            models.Index(fields=["value_date"], name="pageprop_date_idx"),
-            models.Index(fields=["value_datetime"], name="pageprop_datetime_idx"),
+            models.Index(fields=["document", "property"], name="docprop_doc_prop_idx"),
+            models.Index(fields=["workspace", "property"], name="docprop_ws_prop_idx"),
+            models.Index(fields=["value_date"], name="docprop_date_idx"),
+            models.Index(fields=["value_datetime"], name="docprop_datetime_idx"),
         ]
 
     def __str__(self):
-        return f"{self.page.name} - {self.property.name}"
+        return f"{self.document.name} - {self.property.name}"
 
     def save(self, *args, **kwargs):
-        # Auto-set workspace from page
-        if self.page_id and not self.workspace_id:
-            self.workspace_id = self.page.workspace_id
+        # Auto-set workspace from document
+        if self.document_id and not self.workspace_id:
+            self.workspace_id = self.document.workspace_id
         super().save(*args, **kwargs)

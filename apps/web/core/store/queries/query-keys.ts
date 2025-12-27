@@ -294,7 +294,7 @@ export const queryKeys = {
     detail: (versionId: string) => ["description-versions", "detail", versionId] as const,
   },
 
-  // Pages queries (project pages, distinct from wiki pages)
+  // Pages queries (project pages, distinct from document pages)
   pages: {
     all: (workspaceSlug: string, projectId: string) => ["pages", workspaceSlug, projectId] as const,
     list: (workspaceSlug: string, projectId: string, pageType: string) =>
@@ -311,55 +311,55 @@ export const queryKeys = {
     activity: (workspaceSlug: string, filter: string) => ["recents", workspaceSlug, filter] as const,
   },
 
-  // Wiki queries
-  wiki: {
+  // Document queries
+  document: {
     // Pages
     pages: {
-      all: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug] as const,
+      all: (workspaceSlug: string) => ["document", "pages", workspaceSlug] as const,
       project: (workspaceSlug: string, projectId: string) =>
-        ["wiki", "pages", workspaceSlug, "project", projectId] as const,
-      detail: (pageId: string) => ["wiki", "pages", "detail", pageId] as const,
-      archived: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug, "archived"] as const,
-      shared: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug, "shared"] as const,
-      private: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug, "private"] as const,
-      search: (workspaceSlug: string, query: string) => ["wiki", "pages", workspaceSlug, "search", query] as const,
+        ["document", "pages", workspaceSlug, "project", projectId] as const,
+      detail: (pageId: string) => ["document", "pages", "detail", pageId] as const,
+      archived: (workspaceSlug: string) => ["document", "pages", workspaceSlug, "archived"] as const,
+      shared: (workspaceSlug: string) => ["document", "pages", workspaceSlug, "shared"] as const,
+      private: (workspaceSlug: string) => ["document", "pages", workspaceSlug, "private"] as const,
+      search: (workspaceSlug: string, query: string) => ["document", "pages", workspaceSlug, "search", query] as const,
     },
     // Collections
     collections: {
-      all: (workspaceSlug: string) => ["wiki", "collections", workspaceSlug] as const,
-      detail: (collectionId: string) => ["wiki", "collections", "detail", collectionId] as const,
+      all: (workspaceSlug: string) => ["document", "collections", workspaceSlug] as const,
+      detail: (collectionId: string) => ["document", "collections", "detail", collectionId] as const,
     },
     // Shares
     shares: {
-      all: (pageId: string) => ["wiki", "shares", pageId] as const,
+      all: (pageId: string) => ["document", "shares", pageId] as const,
     },
     // Versions
     versions: {
-      all: (pageId: string) => ["wiki", "versions", pageId] as const,
-      detail: (versionId: string) => ["wiki", "versions", "detail", versionId] as const,
+      all: (pageId: string) => ["document", "versions", pageId] as const,
+      detail: (versionId: string) => ["document", "versions", "detail", versionId] as const,
     },
     // Comments (unified page model)
     comments: {
-      all: (pageId: string) => ["wiki", "comments", pageId] as const,
-      detail: (commentId: string) => ["wiki", "comments", "detail", commentId] as const,
-      reactions: (commentId: string) => ["wiki", "comments", commentId, "reactions"] as const,
+      all: (pageId: string) => ["document", "comments", pageId] as const,
+      detail: (commentId: string) => ["document", "comments", "detail", commentId] as const,
+      reactions: (commentId: string) => ["document", "comments", commentId, "reactions"] as const,
     },
     // Relations (page-to-page relations)
     relations: {
-      all: (pageId: string) => ["wiki", "relations", pageId] as const,
+      all: (pageId: string) => ["document", "relations", pageId] as const,
     },
     // Links (external URLs)
     links: {
-      all: (pageId: string) => ["wiki", "links", pageId] as const,
+      all: (pageId: string) => ["document", "links", pageId] as const,
     },
     // Properties (page property values)
     properties: {
-      all: (pageId: string) => ["wiki", "properties", pageId] as const,
+      all: (pageId: string) => ["document", "properties", pageId] as const,
     },
     // Property definitions (workspace-scoped schemas)
     propertyDefinitions: {
-      all: (workspaceSlug: string) => ["wiki", "property-definitions", workspaceSlug] as const,
-      detail: (propertyId: string) => ["wiki", "property-definitions", "detail", propertyId] as const,
+      all: (workspaceSlug: string) => ["document", "property-definitions", workspaceSlug] as const,
+      detail: (propertyId: string) => ["document", "property-definitions", "detail", propertyId] as const,
     },
   },
 } as const;

@@ -54,10 +54,10 @@ LIVE_PORT=""
 API_PORT=""
 PORT_OFFSET="${PORT_OFFSET:-}"
 
-# Check if a port is in use
+# Check if a port is in use (only considers LISTENING sockets, not CLOSED connections)
 is_port_in_use() {
     local port=$1
-    lsof -i :"$port" > /dev/null 2>&1
+    lsof -i :"$port" -sTCP:LISTEN > /dev/null 2>&1
 }
 
 # Check if a port is in use by OUR dev server (check .dev-ports from other worktrees)

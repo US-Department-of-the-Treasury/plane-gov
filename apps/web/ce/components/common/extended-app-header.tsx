@@ -11,18 +11,18 @@ export function ExtendedAppHeader(props: { header: ReactNode }) {
   const { projectId, workItem } = useParams();
   const location = useLocation();
   // store hooks
-  const { sidebarCollapsed, wikiSidebarCollapsed, toggleWikiSidebar } = useAppTheme();
+  const { sidebarCollapsed, documentsSidebarCollapsed, toggleDocumentsSidebar } = useAppTheme();
 
-  // Detect if we're in Wiki mode
-  const isWikiMode = location.pathname.includes("/wiki");
+  // Detect if we're in Documents mode
+  const isDocumentsMode = location.pathname.includes("/documents");
 
   // Show sidebar toggle button only when sidebar is collapsed AND not in project/work item context
   // (project/work item pages have the tab navigation header which includes its own toggle)
   const shouldShowSidebarToggleButton = !projectId && !workItem;
 
   // Use appropriate sidebar state based on mode
-  const isCollapsed = isWikiMode ? wikiSidebarCollapsed : sidebarCollapsed;
-  const onToggle = isWikiMode ? toggleWikiSidebar : undefined;
+  const isCollapsed = isDocumentsMode ? documentsSidebarCollapsed : sidebarCollapsed;
+  const onToggle = isDocumentsMode ? toggleDocumentsSidebar : undefined;
 
   return (
     <>

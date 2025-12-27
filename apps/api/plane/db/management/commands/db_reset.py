@@ -82,10 +82,10 @@ class Command(BaseCommand):
             help="Number of views to create (random mode only)",
         )
         parser.add_argument(
-            "--wiki-pages",
+            "--documents",
             type=int,
             default=5,
-            help="Number of wiki pages to create (random mode only)",
+            help="Number of documents to create (random mode only)",
         )
         parser.add_argument(
             "--webhooks",
@@ -147,7 +147,7 @@ class Command(BaseCommand):
                     "epics": options["epics"],
                     "pages": options["pages"],
                     "views": options["views"],
-                    "wiki_pages": options["wiki_pages"],
+                    "documents": options["documents"],
                     "webhooks": options["webhooks"],
                     "force": True,  # Always force since we just flushed
                 }

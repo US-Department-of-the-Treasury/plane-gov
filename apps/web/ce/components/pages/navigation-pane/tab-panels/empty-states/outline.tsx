@@ -2,8 +2,8 @@ import { useTheme } from "next-themes";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 // assets
-import darkOutlineAsset from "@/app/assets/empty-state/wiki/navigation-pane/outline-dark.webp?url";
-import lightOutlineAsset from "@/app/assets/empty-state/wiki/navigation-pane/outline-light.webp?url";
+import darkOutlineAsset from "@/app/assets/empty-state/documents/navigation-pane/outline-dark.webp?url";
+import lightOutlineAsset from "@/app/assets/empty-state/documents/navigation-pane/outline-light.webp?url";
 
 export function PageNavigationPaneOutlineTabEmptyState() {
   // theme hook

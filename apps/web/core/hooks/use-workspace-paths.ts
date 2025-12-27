@@ -9,16 +9,16 @@ export const useWorkspacePaths = () => {
   const pathname = usePathname();
 
   const isSettingsPath = pathname.includes(`/${workspaceSlug}/settings`);
-  const isWikiPath = pathname.includes(`/${workspaceSlug}/wiki`);
+  const isDocumentsPath = pathname.includes(`/${workspaceSlug}/documents`);
   const isResourcesPath = pathname.includes(`/${workspaceSlug}/resources`);
   const isAiPath = pathname.includes(`/${workspaceSlug}/pi-chat`);
   const isProjectsPath =
-    pathname.includes(`/${workspaceSlug}/`) && !isWikiPath && !isResourcesPath && !isAiPath && !isSettingsPath;
+    pathname.includes(`/${workspaceSlug}/`) && !isDocumentsPath && !isResourcesPath && !isAiPath && !isSettingsPath;
   const isNotificationsPath = pathname.includes(`/${workspaceSlug}/notifications`);
 
   return {
     isSettingsPath,
-    isWikiPath,
+    isDocumentsPath,
     isResourcesPath,
     isAiPath,
     isProjectsPath,

@@ -255,10 +255,10 @@ export interface IWorkspaceSidebarNavigationItem {
 }
 
 export const WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS: Record<string, IWorkspaceSidebarNavigationItem> = {
-  wiki: {
-    key: "wiki",
-    labelTranslationKey: "wiki",
-    href: `/wiki`,
+  documents: {
+    key: "documents",
+    labelTranslationKey: "documents",
+    href: `/documents`,
     access: [EUserWorkspaceRoles.ADMIN, EUserWorkspaceRoles.MEMBER],
     highlight: (pathname: string, url: string) => pathname.includes(url),
   },
@@ -293,7 +293,7 @@ export const WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS: Record<string, IWorkspa
 };
 
 export const WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS_LINKS: IWorkspaceSidebarNavigationItem[] = [
-  // wiki and resource_view removed - now top-level modes accessed via mode switcher
+  // documents and resource_view removed - now top-level modes accessed via mode switcher
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["views"],
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["analytics"],
   WORKSPACE_SIDEBAR_DYNAMIC_NAVIGATION_ITEMS["archives"],

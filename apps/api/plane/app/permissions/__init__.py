@@ -14,5 +14,4 @@ from .project import (
     ProjectAdminPermission,
 )
 from .base import allow_permission, ROLE
-from .page import ProjectPagePermission
-from .wiki import WikiPagePermission, WikiCollectionPermission
+from .documents import DocumentPermission, DocumentCollectionPermission

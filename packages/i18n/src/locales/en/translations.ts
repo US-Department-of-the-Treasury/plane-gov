@@ -142,7 +142,7 @@ export default {
   views: "Views",
   workspace: "Workspace",
   archives: "Archives",
-  wiki: "Wiki",
+  documents: "Documents",
   settings: "Settings",
   failed_to_move_favorite: "Failed to move favorite",
   favorites: "Favorites",

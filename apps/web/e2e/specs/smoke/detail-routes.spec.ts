@@ -190,39 +190,39 @@ test.describe("View Detail Routes @smoke", () => {
   });
 });
 
-test.describe("Wiki Page Routes @smoke", () => {
-  test("/:workspaceSlug/wiki/:pageId loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
-    // Navigate to wiki first
-    await page.goto(`/${workspaceSlug}/wiki`);
+test.describe("Document Page Routes @smoke", () => {
+  test("/:workspaceSlug/documents/:pageId loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
+    // Navigate to documents first
+    await page.goto(`/${workspaceSlug}/documents`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    // Wiki pages are rendered as buttons in the sidebar, not anchor links
-    // Look for wiki page buttons that can be clicked to navigate
-    const wikiPageButtons = page.locator("button").filter({
+    // Document pages are rendered as buttons in the sidebar, not anchor links
+    // Look for document page buttons that can be clicked to navigate
+    const documentPageButtons = page.locator("button").filter({
       hasText: /Getting Started|Architecture|API Reference|Development Guide|Deployment Guide/i,
     });
 
-    const count = await wikiPageButtons.count();
+    const count = await documentPageButtons.count();
 
     if (count > 0) {
-      // Click the first wiki page button
-      await wikiPageButtons.first().click();
+      // Click the first document page button
+      await documentPageButtons.first().click();
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(2000);
 
-      // Verify we're on a wiki page detail (URL should contain /wiki/ with UUID)
-      expect(page.url()).toMatch(/\/wiki\/[a-f0-9-]{36}/i);
+      // Verify we're on a document page detail (URL should contain /documents/ with UUID)
+      expect(page.url()).toMatch(/\/documents\/[a-f0-9-]{36}/i);
 
       const pageErrors = errorTracker.getPageErrors();
       if (pageErrors.length > 0) {
-        console.log("Wiki page detail errors:", errorTracker.getSummary());
+        console.log("Document page detail errors:", errorTracker.getSummary());
       }
       expect(pageErrors).toHaveLength(0);
     } else {
       const pageErrors = errorTracker.getPageErrors();
       expect(pageErrors).toHaveLength(0);
-      test.skip(true, "No wiki pages exist to test detail view");
+      test.skip(true, "No document pages exist to test detail view");
     }
   });
 });

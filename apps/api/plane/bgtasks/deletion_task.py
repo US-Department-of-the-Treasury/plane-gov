@@ -114,7 +114,7 @@ def hard_delete():
         Sprint,
         Epic,
         Issue,
-        Page,
+        Document,
         IssueView,
         Label,
         State,
@@ -145,8 +145,8 @@ def hard_delete():
     # check delete issue
     _ = Issue.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 
-    # check delete page
-    _ = Page.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
+    # check delete document
+    _ = Document.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()
 
     # check delete view
     _ = IssueView.all_objects.filter(deleted_at__lt=timezone.now() - timezone.timedelta(days=days)).delete()

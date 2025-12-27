@@ -56,9 +56,9 @@ export const getProjectFeatureNavigation = (
     sortOrder: 4,
   },
   {
-    i18n_key: "sidebar.wiki",
+    i18n_key: "sidebar.pages",
     key: EProjectFeatureKey.PAGES,
-    name: "Wiki",
+    name: "Pages",
     href: `/${workspaceSlug}/projects/${projectId}/pages`,
     icon: PageIcon,
     access: [EUserPermissions.ADMIN, EUserPermissions.MEMBER, EUserPermissions.GUEST],

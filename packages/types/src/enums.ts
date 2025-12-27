@@ -84,20 +84,20 @@ export enum EUpdateStatus {
   AT_RISK = "AT-RISK",
 }
 
-// wiki pages
-export enum EWikiPageAccess {
+// documents
+export enum EDocumentAccess {
   PUBLIC = 0, // Disabled for government compliance
   PRIVATE = 1,
   SHARED = 2,
 }
 
-export enum EWikiSharePermission {
+export enum EDocumentSharePermission {
   VIEW = 0,
   EDIT = 1,
   ADMIN = 2,
 }
 
-export enum EWikiAccessLogType {
+export enum EDocumentAccessLogType {
   VIEW = "view",
   EDIT = "edit",
   ADMIN_VIEW = "admin_view",

@@ -144,8 +144,11 @@ async function validateRoute(
     });
 
     // Check for 404 page content - more specific patterns to avoid false positives
-    const has404Page = await page.locator('[data-testid="404-page"], [class*="not-found"]').count() > 0;
-    const has404Title = await page.title().then((t) => t.toLowerCase().includes("not found")).catch(() => false);
+    const has404Page = (await page.locator('[data-testid="404-page"], [class*="not-found"]').count()) > 0;
+    const has404Title = await page
+      .title()
+      .then((t) => t.toLowerCase().includes("not found"))
+      .catch(() => false);
 
     if (has404Page || has404Title) {
       result.has404 = true;
@@ -168,12 +171,10 @@ async function validateRoute(
         const count = await skeletons.count();
         if (count > 0) {
           // Wait for skeletons to disappear
-          await page
-            .waitForSelector(selector, { state: "hidden", timeout: 10000 })
-            .catch(() => {
-              result.hasStuckLoader = true;
-              result.errors.push(`Skeleton loader stuck: ${selector}`);
-            });
+          await page.waitForSelector(selector, { state: "hidden", timeout: 10000 }).catch(() => {
+            result.hasStuckLoader = true;
+            result.errors.push(`Skeleton loader stuck: ${selector}`);
+          });
         }
       } catch {
         // Selector not found, that's fine
@@ -349,8 +350,10 @@ test.describe("Comprehensive Routes @smoke @comprehensive", () => {
       expect(result.status).toBe("pass");
     });
 
-    test("/:workspaceSlug/wiki loads correctly", async ({ page, workspaceSlug }) => {
-      const result = await validateRoute(page, `/${workspaceSlug}/wiki`, "Workspace - Wiki", { allowEmpty: true });
+    test("/:workspaceSlug/documents loads correctly", async ({ page, workspaceSlug }) => {
+      const result = await validateRoute(page, `/${workspaceSlug}/documents`, "Workspace - Documents", {
+        allowEmpty: true,
+      });
       expect(result.status).toBe("pass");
     });
 
@@ -383,7 +386,9 @@ test.describe("Comprehensive Routes @smoke @comprehensive", () => {
     });
 
     test("/:workspaceSlug/my-work loads correctly", async ({ page, workspaceSlug }) => {
-      const result = await validateRoute(page, `/${workspaceSlug}/my-work`, "Workspace - My Work", { allowEmpty: true });
+      const result = await validateRoute(page, `/${workspaceSlug}/my-work`, "Workspace - My Work", {
+        allowEmpty: true,
+      });
       if (result.has404) {
         results[results.length - 1].status = "skip";
         results[results.length - 1].errors.push("Route may not exist in gov fork");
@@ -493,12 +498,9 @@ test.describe("Comprehensive Routes @smoke @comprehensive", () => {
     });
 
     test("/:workspaceSlug/projects/:projectId/intake loads correctly", async ({ page, workspaceSlug, projectId }) => {
-      const result = await validateRoute(
-        page,
-        `/${workspaceSlug}/projects/${projectId}/intake`,
-        "Project - Intake",
-        { allowEmpty: true }
-      );
+      const result = await validateRoute(page, `/${workspaceSlug}/projects/${projectId}/intake`, "Project - Intake", {
+        allowEmpty: true,
+      });
       expect(result.status).toBe("pass");
     });
   });
@@ -623,11 +625,7 @@ test.describe("Comprehensive Routes @smoke @comprehensive", () => {
   // ============================================
 
   test.describe("Project Settings Routes", () => {
-    test("/:workspaceSlug/settings/projects/:projectId loads correctly", async ({
-      page,
-      workspaceSlug,
-      projectId,
-    }) => {
+    test("/:workspaceSlug/settings/projects/:projectId loads correctly", async ({ page, workspaceSlug, projectId }) => {
       const result = await validateRoute(
         page,
         `/${workspaceSlug}/settings/projects/${projectId}`,
@@ -929,32 +927,32 @@ test.describe("Comprehensive Routes @smoke @comprehensive", () => {
       }
     });
 
-    test("Wiki page detail loads correctly", async ({ page, workspaceSlug }) => {
-      await page.goto(`/${workspaceSlug}/wiki`);
+    test("Document page detail loads correctly", async ({ page, workspaceSlug }) => {
+      await page.goto(`/${workspaceSlug}/documents`);
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(2000);
 
-      const wikiLinks = page.locator('a[href*="/wiki/"]');
-      const count = await wikiLinks.count();
+      const documentLinks = page.locator('a[href*="/documents/"]');
+      const count = await documentLinks.count();
 
       if (count === 0) {
         results.push({
-          route: "Detail - Wiki Page",
-          url: `/${workspaceSlug}/wiki/:pageId`,
+          route: "Detail - Document Page",
+          url: `/${workspaceSlug}/documents/:pageId`,
           status: "skip",
           has404: false,
           hasJsErrors: false,
           hasStuckLoader: false,
           hasMissingData: true,
-          errors: ["No wiki pages found"],
+          errors: ["No document pages found"],
           duration: 0,
         });
         return;
       }
 
-      const href = await wikiLinks.first().getAttribute("href");
-      if (href && href.match(/\/wiki\/[a-f0-9-]{36}/)) {
-        const result = await validateRoute(page, href, "Detail - Wiki Page");
+      const href = await documentLinks.first().getAttribute("href");
+      if (href && href.match(/\/documents\/[a-f0-9-]{36}/)) {
+        const result = await validateRoute(page, href, "Detail - Document Page");
         expect(result.status).toBe("pass");
       }
     });

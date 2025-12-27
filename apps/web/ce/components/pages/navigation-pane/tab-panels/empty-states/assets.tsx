@@ -2,8 +2,8 @@ import { useTheme } from "next-themes";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 // assets
-import darkAssetsAsset from "@/app/assets/empty-state/wiki/navigation-pane/assets-dark.webp?url";
-import lightAssetsAsset from "@/app/assets/empty-state/wiki/navigation-pane/assets-light.webp?url";
+import darkAssetsAsset from "@/app/assets/empty-state/documents/navigation-pane/assets-dark.webp?url";
+import lightAssetsAsset from "@/app/assets/empty-state/documents/navigation-pane/assets-light.webp?url";
 
 export function PageNavigationPaneAssetsTabEmptyState() {
   // theme hook

@@ -6,7 +6,7 @@ import django.db.models.deletion
 import django.utils.timezone
 import uuid
 
-import plane.db.models.wiki
+import plane.db.models.documents
 
 
 class Migration(migrations.Migration):
@@ -154,7 +154,7 @@ class Migration(migrations.Migration):
                 (
                     "logo_props",
                     models.JSONField(
-                        default=plane.db.models.wiki.get_default_logo_props
+                        default=plane.db.models.documents.get_default_logo_props
                     ),
                 ),
                 ("archived_at", models.DateField(blank=True, null=True)),

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useParams, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 // plane imports
@@ -64,7 +65,7 @@ export function DashboardWidgets() {
   const noWidgetsResolvedPath = resolvedTheme === "light" ? lightWidgetsAsset : darkWidgetsAsset;
 
   // derived values
-  const isWikiApp = pathname.includes(`/${workspaceSlug.toString()}/pages`);
+  const isDocumentsApp = pathname.includes(`/${workspaceSlug.toString()}/documents`);
   if (!workspaceSlug) return null;
   if (loading || isProjectsLoading) return <HomeLoader />;
 
@@ -76,7 +77,7 @@ export function DashboardWidgets() {
         isModalOpen={showWidgetSettings}
         handleOnClose={() => toggleWidgetSettings(false)}
       />
-      {!isWikiApp && <NoProjectsEmptyState />}
+      {!isDocumentsApp && <NoProjectsEmptyState />}
 
       {isAnyWidgetEnabled ? (
         <div className="flex flex-col">

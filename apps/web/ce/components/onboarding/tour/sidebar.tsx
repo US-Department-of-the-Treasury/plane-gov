@@ -31,7 +31,7 @@ const sidebarOptions: {
   },
   {
     key: "pages",
-    label: "Wiki",
+    label: "Pages",
     Icon: PageIcon,
   },
 ];

@@ -14,7 +14,6 @@ from plane.db.models import (
     Sprint,
     Epic,
     IssueView,
-    ProjectPage,
     Workspace,
     ProjectMember,
 )
@@ -188,7 +187,6 @@ class AdvanceAnalyticsChartEndpoint(AdvanceAnalyticsBaseView):
         total_members = WorkspaceMember.objects.filter(
             workspace__slug=self._workspace_slug, is_active=True, **date_filter
         ).count()
-        total_pages = ProjectPage.objects.filter(**self.filters["base_filters"], **date_filter).count()
         total_views = IssueView.objects.filter(**self.filters["base_filters"], **date_filter).count()
 
         data = {
@@ -197,7 +195,6 @@ class AdvanceAnalyticsChartEndpoint(AdvanceAnalyticsBaseView):
             "epics": total_epics,
             "intake": total_intake,
             "members": total_members,
-            "pages": total_pages,
             "views": total_views,
         }
 

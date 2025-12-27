@@ -15,7 +15,7 @@ from plane.db.models import PropertyDefinition, Workspace
 
 
 # System property definitions
-# Note: Status uses State FK on WikiPage (not a property) for performance
+# Note: Status uses State FK on DocumentPage (not a property) for performance
 # Note: Labels and Assignees use M2M relationships (tech debt - will become properties later)
 SYSTEM_PROPERTIES = [
     {
@@ -23,7 +23,7 @@ SYSTEM_PROPERTIES = [
         "slug": "priority",
         "property_type": "select",
         "description": "Priority level of the work item",
-        "page_types": ["issue", "task"],
+        "document_types": ["issue", "task"],
         "sort_order": 100,
         "options": [
             {"id": "urgent", "label": "Urgent", "color": "#ef4444", "order": 1},
@@ -39,7 +39,7 @@ SYSTEM_PROPERTIES = [
         "slug": "start_date",
         "property_type": "date",
         "description": "When work on this item should begin",
-        "page_types": ["issue", "task", "epic"],
+        "document_types": ["issue", "task", "epic"],
         "sort_order": 200,
         "options": [],
         "default_value": None,
@@ -49,7 +49,7 @@ SYSTEM_PROPERTIES = [
         "slug": "target_date",
         "property_type": "date",
         "description": "When this item should be completed",
-        "page_types": ["issue", "task", "epic"],
+        "document_types": ["issue", "task", "epic"],
         "sort_order": 300,
         "options": [],
         "default_value": None,
@@ -59,7 +59,7 @@ SYSTEM_PROPERTIES = [
         "slug": "estimate",
         "property_type": "number",
         "description": "Estimated effort (points or hours)",
-        "page_types": ["issue", "task"],
+        "document_types": ["issue", "task"],
         "sort_order": 400,
         "options": [],
         "default_value": None,
@@ -134,7 +134,7 @@ class Command(BaseCommand):
                     existing.name = prop_def["name"]
                     existing.property_type = prop_def["property_type"]
                     existing.description = prop_def["description"]
-                    existing.page_types = prop_def["page_types"]
+                    existing.document_types = prop_def["document_types"]
                     existing.sort_order = prop_def["sort_order"]
                     existing.options = prop_def["options"]
                     existing.default_value = prop_def["default_value"]
@@ -157,7 +157,7 @@ class Command(BaseCommand):
                     slug=prop_def["slug"],
                     property_type=prop_def["property_type"],
                     description=prop_def["description"],
-                    page_types=prop_def["page_types"],
+                    document_types=prop_def["document_types"],
                     sort_order=prop_def["sort_order"],
                     options=prop_def["options"],
                     default_value=prop_def["default_value"],
