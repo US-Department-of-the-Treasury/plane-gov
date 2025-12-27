@@ -33,7 +33,7 @@ export interface IWorkspaceModeConfig {
  */
 export const WORKSPACE_MODES: IWorkspaceModeConfig[] = [
   { key: "projects", label: "Projects", pathSegment: null, shortcutKey: 1 },
-  { key: "documents", label: "Documents", pathSegment: "documents", shortcutKey: 2 },
+  { key: "documents", label: "Docs", pathSegment: "documents", shortcutKey: 2 },
   { key: "resources", label: "Resources", pathSegment: "resources", shortcutKey: 3 },
 ];
 
