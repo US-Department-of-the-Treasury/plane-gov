@@ -531,7 +531,6 @@ export interface IProjectMemberFiltersStore {
  */
 export abstract class BaseProjectMemberStoreLegacy implements IBaseProjectMemberStore {
   protected rootStore: RootStore;
-  protected routerStore: any;
   protected userStore: any;
   protected memberRoot: any;
   protected projectRoot: any;
@@ -541,7 +540,6 @@ export abstract class BaseProjectMemberStoreLegacy implements IBaseProjectMember
 
   constructor(_memberRoot: any, _rootStore: RootStore) {
     this.rootStore = _rootStore;
-    this.routerStore = _rootStore.router;
     this.userStore = _rootStore.user;
     this.memberRoot = _memberRoot;
     this.projectRoot = _rootStore.projectRoot.project;

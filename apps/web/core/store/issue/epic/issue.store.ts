@@ -8,11 +8,13 @@ import type {
   TBulkOperationsPayload,
 } from "@plane/types";
 // helpers
-import { getDistributionPathsPostUpdate } from "@plane/utils";
+import { getDistributionPathsPostUpdate, updateDistribution } from "@plane/utils";
 import type { IBaseIssuesStore } from "../helpers/base-issues.store";
 import { BaseIssuesStore } from "../helpers/base-issues.store";
 // Zustand stores
-import { useStateStore } from "@/store/client";
+import { useStateStore, useEpicStore } from "@/store/client";
+// Services
+import { EpicService } from "@/services/epic.service";
 //
 import type { IIssueRootStore } from "../root.store";
 import type { IEpicIssuesFilter } from "./filter.store";
@@ -64,6 +66,8 @@ export class EpicIssues extends BaseIssuesStore implements IEpicIssues {
   };
   // filter store
   issueFilterStore: IEpicIssuesFilter;
+  // epic service for fetching epic details
+  epicService = new EpicService();
 
   constructor(_rootStore: IIssueRootStore, issueFilterStore: IEpicIssuesFilter) {
     super(_rootStore, issueFilterStore);
@@ -77,9 +81,12 @@ export class EpicIssues extends BaseIssuesStore implements IEpicIssues {
    * @param projectId
    * @param id is the epic Id
    */
-  fetchParentStats = (workspaceSlug: string, projectId?: string, id?: string) => {
+  fetchParentStats = async (workspaceSlug: string, projectId?: string, id?: string) => {
     const epicId = id ?? this.epicId;
-    projectId && epicId && this.rootIssueStore.rootStore.epic.fetchEpicDetails(workspaceSlug, projectId, epicId);
+    if (projectId && epicId) {
+      const response = await this.epicService.getEpicDetails(workspaceSlug, projectId, epicId);
+      useEpicStore.getState().syncEpic(response);
+    }
   };
 
   /**
@@ -100,7 +107,15 @@ export class EpicIssues extends BaseIssuesStore implements IEpicIssues {
 
       const epicId = id ?? this.epicId;
 
-      epicId && this.rootIssueStore.rootStore.epic.updateEpicDistribution(distributionUpdates, epicId);
+      if (epicId) {
+        const { epicMap, syncEpic } = useEpicStore.getState();
+        const epicInfo = epicMap[epicId];
+        if (epicInfo) {
+          const updatedEpic = { ...epicInfo };
+          updateDistribution(updatedEpic, distributionUpdates);
+          syncEpic(updatedEpic);
+        }
+      }
     } catch (e) {
       console.warn("could not update epic statistics");
     }

@@ -429,19 +429,16 @@ export const useIssueSubIssuesStore = create<IssueSubIssuesStore>()((set, get) =
 
     if (projectIds.length > 0) {
       for (const projectId of projectIds) {
-        // fetching other project states
-        state.rootIssueDetailStore.rootIssueStore.rootStore.state.fetchProjectStates(workspaceSlug, projectId);
+        // fetching other project states - migrated to TanStack Query, no need to fetch explicitly
         // fetching other project members
         state.rootIssueDetailStore.rootIssueStore.rootStore.memberRoot.project.fetchProjectMembers(
           workspaceSlug,
           projectId
         );
-        // fetching other project labels
-        state.rootIssueDetailStore.rootIssueStore.rootStore.label.fetchProjectLabels(workspaceSlug, projectId);
+        // fetching other project labels - migrated to TanStack Query, no need to fetch explicitly
         // fetching other project sprints - migrated to TanStack Query, no need to fetch explicitly
         // state.rootIssueDetailStore.rootIssueStore.rootStore.sprint.fetchAllSprints(workspaceSlug, projectId);
-        // fetching other project epics
-        state.rootIssueDetailStore.rootIssueStore.rootStore.epic.fetchEpics(workspaceSlug, projectId);
+        // fetching other project epics - migrated to TanStack Query, no need to fetch explicitly
         // fetching other project estimates
         state.rootIssueDetailStore.rootIssueStore.rootStore.projectEstimate.getProjectEstimates(
           workspaceSlug,

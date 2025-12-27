@@ -1,9 +1,4 @@
-import type { IAnalyticsStore as IBaseAnalyticsStore } from "@/store/client/analytics.store";
-import { AnalyticsStoreLegacy as BaseAnalyticsStore } from "@/store/client/analytics.store";
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface IAnalyticsStore extends IBaseAnalyticsStore {
-  //observables
-}
-
-export class AnalyticsStore extends BaseAnalyticsStore {}
+// Re-export from the Zustand store in client folder
+// EE version has no additional analytics functionality
+export { useAnalyticsStore } from "@/store/client/analytics.store";
+export type { AnalyticsStore } from "@/store/client/analytics.store";

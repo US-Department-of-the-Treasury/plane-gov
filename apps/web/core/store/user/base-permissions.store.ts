@@ -16,6 +16,7 @@ import type { RootStore } from "@/plane-web/store/root.store";
 // services
 import projectMemberService from "@/services/project/project-member.service";
 import userService from "@/services/user.service";
+import { getRouterWorkspaceSlug, getRouterProjectId } from "@/store/client/router.store";
 
 // derived services
 const workspaceService = new WorkspaceService();
@@ -337,7 +338,8 @@ export abstract class BaseUserPermissionStore implements IBaseUserPermissionStor
     projectId?: string,
     onPermissionAllowed?: () => boolean
   ): boolean => {
-    const { workspaceSlug: currentWorkspaceSlug, projectId: currentProjectId } = this.store.router;
+    const currentWorkspaceSlug = getRouterWorkspaceSlug();
+    const currentProjectId = getRouterProjectId();
     if (!workspaceSlug) workspaceSlug = currentWorkspaceSlug;
     if (!projectId) projectId = currentProjectId;
 

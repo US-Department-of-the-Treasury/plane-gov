@@ -11,6 +11,7 @@ import type {
   GroupByColumnTypes,
   IGroupByColumn,
   ISprint,
+  IEpic,
   TSprintGroups,
   IIssueDisplayProperties,
   IPragmaticDropPayload,
@@ -29,6 +30,10 @@ import { renderFormattedDate, getFileURL } from "@plane/utils";
 // helpers
 // store
 import { store } from "@/lib/store-context";
+import { useLabelStore } from "@/store/client/label.store";
+import { getRouterWorkspaceSlug, getRouterProjectId } from "@/store/client/router.store";
+import { useStateStore } from "@/store/client/state.store";
+import { getProjectSprintDetails, getProjectEpicDetails, useEpicStore } from "@/store/client";
 // plane web store
 import {
   getScopeMemberIds,
@@ -150,7 +155,6 @@ const getSprintColumns = (): IGroupByColumn[] | undefined => {
   const { currentProjectDetails } = store.projectRoot.project;
   // Check for the current project details
   if (!currentProjectDetails || !currentProjectDetails?.id) return;
-  const { getProjectSprintDetails } = store.sprint;
   // Get the sprint details for the current project
   const sprintDetails = currentProjectDetails?.id ? getProjectSprintDetails(currentProjectDetails?.id) : undefined;
   // Map the sprint details to the group by columns
@@ -180,13 +184,11 @@ const getEpicColumns = (): IGroupByColumn[] | undefined => {
   // get current project details
   const { currentProjectDetails } = store.projectRoot.project;
   if (!currentProjectDetails || !currentProjectDetails?.id) return;
-  // get project epic ids and epic details
-  const { getProjectEpicDetails } = store.epic;
-  // get epic details
+  // get epic details from Zustand store
   const epicDetails = currentProjectDetails?.id ? getProjectEpicDetails(currentProjectDetails?.id) : undefined;
   // map epic details to group by columns
   const epics: IGroupByColumn[] = [];
-  epicDetails?.map((epic) => {
+  epicDetails?.map((epic: IEpic) => {
     epics.push({
       id: epic.id,
       name: epic.name,
@@ -204,8 +206,8 @@ const getEpicColumns = (): IGroupByColumn[] | undefined => {
 };
 
 const getStateColumns = ({ projectId }: TGetColumns): IGroupByColumn[] | undefined => {
-  const { getProjectStates, projectStates } = store.state;
-  const _states = projectId ? getProjectStates(projectId) : projectStates;
+  const stateStore = useStateStore.getState();
+  const _states = projectId ? stateStore.getProjectStates(projectId) : stateStore.getProjectStates(getRouterProjectId());
   if (!_states) return;
   // map project states to group by columns
   return _states.map((state) => ({
@@ -247,7 +249,13 @@ const getPriorityColumns = (): IGroupByColumn[] => {
 };
 
 const getLabelsColumns = ({ isWorkspaceLevel }: TGetColumns): IGroupByColumn[] => {
-  const { workspaceLabels, projectLabels } = store.label;
+  const labelStore = useLabelStore.getState();
+  const workspaceSlug = getRouterWorkspaceSlug();
+  const projectId = getRouterProjectId();
+
+  const workspaceLabels = workspaceSlug ? labelStore.getWorkspaceLabels(workspaceSlug) : undefined;
+  const projectLabels = labelStore.getProjectLabels(projectId);
+
   // map labels to group by columns
   const labels = [
     ...(isWorkspaceLevel ? workspaceLabels || [] : projectLabels || []),

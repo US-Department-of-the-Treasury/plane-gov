@@ -15,6 +15,7 @@ import { UserService } from "@/services/user.service";
 import type { IAccountStore } from "@/store/user/account.store";
 import type { IUserProfileStore } from "@/store/user/profile.store";
 import { ProfileStore } from "@/store/user/profile.store";
+import { getRouterWorkspaceSlug } from "@/store/client/router.store";
 // local imports
 import type { IUserSettingsStore } from "./settings.store";
 import { UserSettingsStore } from "./settings.store";
@@ -294,7 +295,7 @@ export class UserStore implements IUserStore {
    * @returns {{[projectId: string]: number} || null}
    */
   fetchProjectsWithCreatePermissions = (): { [key: string]: TUserPermissions } => {
-    const { workspaceSlug } = this.store.router;
+    const workspaceSlug = getRouterWorkspaceSlug();
 
     const allWorkspaceProjectRoles = this.permission.getProjectRolesByWorkspaceSlug(workspaceSlug || "");
 

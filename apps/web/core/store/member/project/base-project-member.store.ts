@@ -17,7 +17,7 @@ import { ProjectMemberService } from "@/services/project";
 // store
 import type { IProjectStore } from "@/store/project/project.store";
 import type { IRouterStore } from "@/store/client";
-import { getRouterProjectId, useBaseUserPermissionStore } from "@/store/client";
+import { getRouterProjectId, getRouterWorkspaceSlug, useBaseUserPermissionStore } from "@/store/client";
 import type { IUserStore } from "@/store/user";
 import { useUserStore } from "@/store/user";
 // local imports
@@ -189,7 +189,6 @@ export abstract class BaseProjectMemberStore implements IBaseProjectMemberStore 
   // filters store
   filters: IProjectMemberFiltersStore;
   // stores
-  routerStore: IRouterStore;
   userStore: IUserStore;
   memberRoot: IMemberRootStore;
   projectRoot: IProjectStore;
@@ -200,7 +199,6 @@ export abstract class BaseProjectMemberStore implements IBaseProjectMemberStore 
   constructor(_memberRoot: IMemberRootStore, _rootStore: RootStore) {
     // root store
     this.rootStore = _rootStore;
-    this.routerStore = _rootStore.router;
     this.userStore = _rootStore.user;
     this.memberRoot = _memberRoot;
     this.projectRoot = _rootStore.projectRoot.project;
