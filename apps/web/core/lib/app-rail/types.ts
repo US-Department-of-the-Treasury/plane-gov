@@ -9,18 +9,7 @@ export interface IAppRailVisibilityContext {
   isEnabled: boolean;
 
   /**
-   * Whether the app rail is collapsed (user preference from localStorage)
-   */
-  isCollapsed: boolean;
-
-  /**
-   * Computed property: whether the app rail should actually render
-   * True only if isEnabled && !isCollapsed
+   * Whether the app rail should render (same as isEnabled)
    */
   shouldRenderAppRail: boolean;
-
-  /**
-   * Toggle the collapse state of the app rail
-   */
-  toggleAppRail: () => void;
 }

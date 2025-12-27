@@ -1,6 +1,4 @@
-import React, { useCallback, useMemo } from "react";
-import { useParams } from "next/navigation";
-import useLocalStorage from "@/hooks/use-local-storage";
+import React, { useMemo } from "react";
 import { AppRailVisibilityContext } from "./context";
 import type { IAppRailVisibilityContext } from "./types";
 
@@ -14,29 +12,12 @@ interface AppRailVisibilityProviderProps {
  * Base provider that accepts isEnabled as a prop
  */
 export function AppRailVisibilityProvider({ children, isEnabled = false }: AppRailVisibilityProviderProps) {
-  const { workspaceSlug } = useParams();
-
-  // User preference from localStorage
-  const { storedValue: isCollapsed, setValue: setIsCollapsed } = useLocalStorage<boolean>(
-    `APP_RAIL_${workspaceSlug}`,
-    false // Default: not collapsed (app rail visible)
-  );
-
-  const toggleAppRail = useCallback(() => {
-    setIsCollapsed(!isCollapsed);
-  }, [isCollapsed, setIsCollapsed]);
-
-  // Compute final visibility: enabled and not collapsed
-  const shouldRenderAppRail = isEnabled && !isCollapsed;
-
   const value: IAppRailVisibilityContext = useMemo(
     () => ({
       isEnabled,
-      isCollapsed: isCollapsed ?? false,
-      shouldRenderAppRail,
-      toggleAppRail,
+      shouldRenderAppRail: isEnabled,
     }),
-    [isEnabled, isCollapsed, shouldRenderAppRail, toggleAppRail]
+    [isEnabled]
   );
 
   return <AppRailVisibilityContext.Provider value={value}>{children}</AppRailVisibilityContext.Provider>;
