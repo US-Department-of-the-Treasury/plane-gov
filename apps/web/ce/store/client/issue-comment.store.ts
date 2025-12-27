@@ -1,4 +1,5 @@
-import { pull, concat, update, uniq, set as lodashSet } from "lodash-es";
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
+import { concat, update, uniq, set as lodashSet } from "lodash-es";
 import { create } from "zustand";
 // types
 import type { TIssueComment, TIssueCommentMap, TIssueCommentIdMap, TIssueServiceType } from "@plane/types";
@@ -217,13 +218,7 @@ export const useIssueCommentStore = create<IssueCommentStore>()((set, get) => ({
         return { commentMap: updatedCommentMap };
       });
 
-      const response = await issueCommentService.patchIssueComment(
-        workspaceSlug,
-        projectId,
-        issueId,
-        commentId,
-        data
-      );
+      const response = await issueCommentService.patchIssueComment(workspaceSlug, projectId, issueId, commentId, data);
 
       // Update with server response
       set((state) => {
@@ -249,7 +244,7 @@ export const useIssueCommentStore = create<IssueCommentStore>()((set, get) => ({
 
       // Fetch activities on error
       if (state.rootStore?.activity) {
-        state.rootStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
+        void state.rootStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
       }
 
       throw error;
@@ -320,96 +315,4 @@ export interface IIssueCommentStore extends IIssueCommentStoreActions {
   // helper methods
   getCommentsByIssueId: (issueId: string) => string[] | undefined;
   getCommentById: (activityId: string) => TIssueComment | undefined;
-}
-
-// ============================================================================
-// Legacy Class Wrapper (for backwards compatibility)
-// ============================================================================
-
-/**
- * Legacy IssueCommentStore class wrapper.
- * Provides MobX-like API by delegating to Zustand store.
- *
- * @deprecated Use useIssueCommentStore hook directly in new code
- */
-export class IssueCommentStoreLegacy implements IIssueCommentStore {
-  private rootIssueDetail: IIssueDetail;
-  private serviceType: TIssueServiceType;
-
-  constructor(rootStore: IIssueDetail, serviceType: TIssueServiceType) {
-    this.rootIssueDetail = rootStore;
-    this.serviceType = serviceType;
-
-    // Initialize the Zustand store
-    useIssueCommentStore.getState().initialize(rootStore, serviceType);
-  }
-
-  // ============================================================================
-  // Observable Properties (via getters)
-  // ============================================================================
-
-  get loader(): TCommentLoader {
-    return useIssueCommentStore.getState().loader;
-  }
-
-  get comments(): TIssueCommentIdMap {
-    return useIssueCommentStore.getState().comments;
-  }
-
-  get commentMap(): TIssueCommentMap {
-    return useIssueCommentStore.getState().commentMap;
-  }
-
-  // ============================================================================
-  // Helper Methods
-  // ============================================================================
-
-  getCommentsByIssueId = (issueId: string): string[] | undefined => {
-    return useIssueCommentStore.getState().getCommentsByIssueId(issueId);
-  };
-
-  getCommentById = (commentId: string): TIssueComment | undefined => {
-    return useIssueCommentStore.getState().getCommentById(commentId);
-  };
-
-  // ============================================================================
-  // Actions
-  // ============================================================================
-
-  fetchComments = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    loaderType?: TCommentLoader
-  ): Promise<TIssueComment[]> => {
-    return useIssueCommentStore.getState().fetchComments(workspaceSlug, projectId, issueId, loaderType);
-  };
-
-  createComment = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    data: Partial<TIssueComment>
-  ): Promise<any> => {
-    return useIssueCommentStore.getState().createComment(workspaceSlug, projectId, issueId, data);
-  };
-
-  updateComment = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    commentId: string,
-    data: Partial<TIssueComment>
-  ): Promise<any> => {
-    return useIssueCommentStore.getState().updateComment(workspaceSlug, projectId, issueId, commentId, data);
-  };
-
-  removeComment = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    commentId: string
-  ): Promise<any> => {
-    return useIssueCommentStore.getState().removeComment(workspaceSlug, projectId, issueId, commentId);
-  };
 }

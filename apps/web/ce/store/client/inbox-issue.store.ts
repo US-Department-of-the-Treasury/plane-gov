@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access */
 import { clone } from "lodash-es";
 import { create } from "zustand";
 import type {
@@ -14,7 +15,7 @@ import { InboxIssueService } from "@/services/inbox";
 import { IssueActivityService, IssueService } from "@/services/issue";
 // store
 import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
-import type { CoreRootStore } from "@/store/root.store";
+import { useIssueStore } from "@/store/issue/issue.store";
 
 // Service instances at module level
 const inboxIssueService = new InboxIssueService();
@@ -35,17 +36,11 @@ export interface InboxIssueStoreState {
   duplicate_issue_detail: TInboxDuplicateIssueDetails | undefined;
   workspaceSlug: string;
   projectId: string;
-  rootStore: CoreRootStore | null;
 }
 
 // Actions interface
 export interface InboxIssueStoreActions {
-  initialize: (
-    workspaceSlug: string,
-    projectId: string,
-    data: TInboxIssue,
-    rootStore: CoreRootStore
-  ) => void;
+  initialize: (workspaceSlug: string, projectId: string, data: TInboxIssue) => void;
   updateInboxIssueStatus: (status: TInboxIssueStatus) => Promise<void>;
   updateInboxIssueDuplicateTo: (issueId: string) => Promise<void>;
   updateInboxIssueSnoozeTill: (date: Date | undefined) => Promise<void>;
@@ -70,14 +65,13 @@ const initialState: InboxIssueStoreState = {
   duplicate_issue_detail: undefined,
   workspaceSlug: "",
   projectId: "",
-  rootStore: null,
 };
 
 // Zustand store
 export const useInboxIssueStore = create<InboxIssueStore>((set, get) => ({
   ...initialState,
 
-  initialize: (workspaceSlug: string, projectId: string, data: TInboxIssue, rootStore: CoreRootStore) => {
+  initialize: (workspaceSlug: string, projectId: string, data: TInboxIssue) => {
     set({
       id: data.id,
       status: data.status,
@@ -89,7 +83,6 @@ export const useInboxIssueStore = create<InboxIssueStore>((set, get) => ({
       duplicate_issue_detail: data?.duplicate_issue_detail || undefined,
       workspaceSlug,
       projectId,
-      rootStore,
     });
   },
 
@@ -108,10 +101,10 @@ export const useInboxIssueStore = create<InboxIssueStore>((set, get) => ({
 
       set({ status: inboxIssue?.status });
 
-      // If issue accepted sync issue to local db
-      if (status === EInboxIssueStatus.ACCEPTED && state.rootStore) {
+      // If issue accepted sync issue to local Zustand store
+      if (status === EInboxIssueStatus.ACCEPTED) {
         const updatedIssue = { ...state.issue, ...inboxIssue.issue };
-        state.rootStore.issue.issues.addIssue([updatedIssue]);
+        useIssueStore.getState().addIssue([updatedIssue as TIssue]);
       }
     } catch {
       set({ status: previousData.status });
@@ -200,7 +193,7 @@ export const useInboxIssueStore = create<InboxIssueStore>((set, get) => ({
       await inboxIssueService.updateIssue(state.workspaceSlug, state.projectId, state.issue.id, issue);
 
       // Fetching activity
-      get().fetchIssueActivity();
+      void get().fetchIssueActivity();
     } catch {
       set({ issue: inboxIssue });
     }
@@ -244,7 +237,7 @@ export const useInboxIssueStore = create<InboxIssueStore>((set, get) => ({
       }
 
       // Fetching activity
-      get().fetchIssueActivity();
+      void get().fetchIssueActivity();
     } catch {
       set({ issue: inboxIssue });
     }
@@ -303,82 +296,4 @@ export interface IInboxIssueStore {
   updateIssue: (issue: Partial<TIssue>) => Promise<void>;
   updateProjectIssue: (issue: Partial<TIssue>) => Promise<void>;
   fetchIssueActivity: () => Promise<void>;
-}
-
-// Legacy class wrapper for backward compatibility
-export class InboxIssueStoreLegacy implements IInboxIssueStore {
-  private workspaceSlug: string;
-  private projectId: string;
-  private rootStore: CoreRootStore;
-
-  constructor(workspaceSlug: string, projectId: string, data: TInboxIssue, store: CoreRootStore) {
-    this.workspaceSlug = workspaceSlug;
-    this.projectId = projectId;
-    this.rootStore = store;
-
-    // Initialize the Zustand store with the data
-    useInboxIssueStore.getState().initialize(workspaceSlug, projectId, data, store);
-  }
-
-  // Getters that delegate to Zustand store
-  get isLoading(): boolean {
-    return useInboxIssueStore.getState().isLoading;
-  }
-
-  get id(): string {
-    return useInboxIssueStore.getState().id;
-  }
-
-  get status(): TInboxIssueStatus {
-    return useInboxIssueStore.getState().status;
-  }
-
-  get issue(): Partial<TIssue> {
-    return useInboxIssueStore.getState().issue;
-  }
-
-  get snoozed_till(): Date | undefined {
-    return useInboxIssueStore.getState().snoozed_till;
-  }
-
-  get source(): EInboxIssueSource | undefined {
-    return useInboxIssueStore.getState().source;
-  }
-
-  get duplicate_to(): string | undefined {
-    return useInboxIssueStore.getState().duplicate_to;
-  }
-
-  get created_by(): string | undefined {
-    return useInboxIssueStore.getState().created_by;
-  }
-
-  get duplicate_issue_detail(): TInboxDuplicateIssueDetails | undefined {
-    return useInboxIssueStore.getState().duplicate_issue_detail;
-  }
-
-  // Action methods that delegate to Zustand store
-  updateInboxIssueStatus = async (status: TInboxIssueStatus): Promise<void> => {
-    return useInboxIssueStore.getState().updateInboxIssueStatus(status);
-  };
-
-  updateInboxIssueDuplicateTo = async (issueId: string): Promise<void> => {
-    return useInboxIssueStore.getState().updateInboxIssueDuplicateTo(issueId);
-  };
-
-  updateInboxIssueSnoozeTill = async (date: Date | undefined): Promise<void> => {
-    return useInboxIssueStore.getState().updateInboxIssueSnoozeTill(date);
-  };
-
-  updateIssue = async (issue: Partial<TIssue>): Promise<void> => {
-    return useInboxIssueStore.getState().updateIssue(issue);
-  };
-
-  updateProjectIssue = async (issue: Partial<TIssue>): Promise<void> => {
-    return useInboxIssueStore.getState().updateProjectIssue(issue);
-  };
-
-  fetchIssueActivity = async (): Promise<void> => {
-    return useInboxIssueStore.getState().fetchIssueActivity();
-  };
 }
