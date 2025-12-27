@@ -267,3 +267,45 @@ Phase 2 (Remove Root Store Files) cannot proceed until Phase 4 (Non-Legacy Store
 The remaining stores in CoreRootStore (workspaceRoot, projectRoot, memberRoot, issue, user, projectEstimate)
 are complex class-based stores that coordinate multiple sub-stores. These need to be migrated to Zustand
 or replaced with TanStack Query hooks before the root store can be removed.
+
+---
+
+## Current Architecture (Post-Phase 1)
+
+The codebase now uses a hybrid architecture:
+
+### Data Layer
+- **Server state**: TanStack Query hooks in `@/store/queries/`
+  - `useIssues`, `useIssue`, `useCreateIssue`, `useUpdateIssue`, `useDeleteIssue`
+  - `useProjectLabels`, `useCreateLabel`, `useUpdateLabel`, `useDeleteLabel`
+  - `useProjectStates`, `useWorkspaceMembers`, `useProjectMembers`
+  - And many more...
+
+### Client State Layer
+- **Zustand stores** in `@/store/client/`
+  - Theme, Router, CommandPalette, PowerK (UI state)
+  - Sprint, Epic, Label, State (entity caches)
+  - SprintFilter, EpicFilter, ProjectFilter (filter state)
+  - KanbanView, CalendarView (layout state)
+
+### Filter State Layer
+- **Zustand filter stores** in `@/store/issue/*/filter.store.ts`
+  - `useProjectIssuesFilterStore`, `useSprintIssuesFilterStore`
+  - `useEpicIssuesFilterStore`, `useWorkspaceIssuesFilterStore`
+  - Handle display filters, issue filters, pagination
+
+### Coordination Layer (Remaining Class Stores)
+- **IssueRootStore** - Coordinates all issue stores
+- Sub-stores: `projectIssues`, `sprintIssues`, `epicIssues`, etc.
+- Handle complex logic: grouping, sub-grouping, loading states
+
+### Backward Compatibility
+- Hooks like `useIssues(EIssuesStoreType.PROJECT)` provide backward compatibility
+- These are marked `@deprecated` and re-export TanStack Query hooks
+- 236 component usages need gradual migration to new hooks
+
+### Metrics
+- **Lines removed in Phase 1**: 3,152
+- **Legacy classes removed**: 22
+- **E2E tests passing**: 211/211
+- **Remaining hook migrations**: ~236 component files
