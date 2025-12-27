@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 # Package imports
-from plane.app.permissions import WikiPagePermission, WorkspaceAdminPermission
+from plane.app.permissions import WikiPagePermission, WorkSpaceAdminPermission
 from plane.app.serializers import (
     PropertyDefinitionSerializer,
     PagePropertyValueSerializer,
@@ -32,7 +32,7 @@ class PropertyDefinitionViewSet(BaseViewSet):
 
     serializer_class = PropertyDefinitionSerializer
     model = PropertyDefinition
-    permission_classes = [WorkspaceAdminPermission]
+    permission_classes = [WorkSpaceAdminPermission]
 
     def get_queryset(self):
         slug = self.kwargs.get("slug")

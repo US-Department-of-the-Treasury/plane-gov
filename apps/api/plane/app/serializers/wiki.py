@@ -141,6 +141,11 @@ class WikiPageSerializer(BaseSerializer):
             "is_owner",
             "can_edit",
             "child_count",
+            # Unified page model fields
+            "page_type",
+            "sequence_id",
+            "state",
+            "completed_at",
         ]
         read_only_fields = ["workspace", "owned_by", "created_by", "updated_by"]
 
