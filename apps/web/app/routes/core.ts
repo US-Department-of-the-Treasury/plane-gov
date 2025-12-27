@@ -121,7 +121,7 @@ export const coreRoutes: RouteConfigEntry[] = [
           ),
         ]),
 
-        // NOTE: Wiki routes have moved to (wiki) route group - see below
+        // NOTE: Documents routes have moved to (documents) route group - see below
 
         // Workspace Views
         layout("./(all)/[workspaceSlug]/(projects)/workspace-views/layout.tsx", [
@@ -212,21 +212,7 @@ export const coreRoutes: RouteConfigEntry[] = [
             ),
           ]),
 
-          // Page Detail
-          layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/pages/(detail)/layout.tsx", [
-            route(
-              ":workspaceSlug/projects/:projectId/pages/:pageId",
-              "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/pages/(detail)/[pageId]/page.tsx"
-            ),
-          ]),
-
-          // Pages List
-          layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/pages/(list)/layout.tsx", [
-            route(
-              ":workspaceSlug/projects/:projectId/pages",
-              "./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/pages/(list)/page.tsx"
-            ),
-          ]),
+          // Project Pages removed - use Documents for all documentation
           // Intake list
           layout("./(all)/[workspaceSlug]/(projects)/projects/(detail)/[projectId]/intake/layout.tsx", [
             route(
@@ -271,17 +257,26 @@ export const coreRoutes: RouteConfigEntry[] = [
       ]),
 
       // ====================================================================
-      // WIKI MODE SECTION
+      // DOCUMENTS MODE SECTION
       // ====================================================================
-      layout("./(all)/[workspaceSlug]/(wiki)/layout.tsx", [
-        // Wiki List
-        layout("./(all)/[workspaceSlug]/(wiki)/wiki/(list)/layout.tsx", [
-          route(":workspaceSlug/wiki", "./(all)/[workspaceSlug]/(wiki)/wiki/(list)/page.tsx"),
+      layout("./(all)/[workspaceSlug]/(documents)/layout.tsx", [
+        // Documents List
+        layout("./(all)/[workspaceSlug]/(documents)/documents/(list)/layout.tsx", [
+          route(":workspaceSlug/documents", "./(all)/[workspaceSlug]/(documents)/documents/(list)/page.tsx"),
         ]),
 
-        // Wiki Detail
-        layout("./(all)/[workspaceSlug]/(wiki)/wiki/(detail)/[pageId]/layout.tsx", [
-          route(":workspaceSlug/wiki/:pageId", "./(all)/[workspaceSlug]/(wiki)/wiki/(detail)/[pageId]/page.tsx"),
+        // Recent Documents - must be before :pageId to match first
+        route(":workspaceSlug/documents/recent", "./(all)/[workspaceSlug]/(documents)/documents/recent/page.tsx"),
+
+        // Starred Documents - must be before :pageId to match first
+        route(":workspaceSlug/documents/starred", "./(all)/[workspaceSlug]/(documents)/documents/starred/page.tsx"),
+
+        // Document Detail
+        layout("./(all)/[workspaceSlug]/(documents)/documents/(detail)/[pageId]/layout.tsx", [
+          route(
+            ":workspaceSlug/documents/:pageId",
+            "./(all)/[workspaceSlug]/(documents)/documents/(detail)/[pageId]/page.tsx"
+          ),
         ]),
       ]),
 

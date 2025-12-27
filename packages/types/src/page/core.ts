@@ -70,7 +70,7 @@ export type TDocumentPayload = {
 };
 
 export type TWebhookConnectionQueryParams = {
-  documentType: "project_page" | "team_page" | "workspace_page" | "wiki_page";
+  documentType: "project_page" | "team_page" | "workspace_page" | "document_page";
   projectId?: string;
   teamId?: string;
   workspaceSlug: string;

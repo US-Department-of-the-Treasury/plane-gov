@@ -6,11 +6,11 @@ import useLocalStorage from "./use-local-storage";
 
 /**
  * Keyboard shortcut key to mode mapping
- * Cmd/Ctrl + 1 = Projects, 2 = Wiki, 3 = Resources
+ * Cmd/Ctrl + 1 = Projects, 2 = Documents, 3 = Resources
  */
 const SHORTCUT_KEY_TO_MODE: Record<string, TWorkspaceMode> = {
   "1": "projects",
-  "2": "wiki",
+  "2": "documents",
   "3": "resources",
 };
 
@@ -27,9 +27,9 @@ export function useModeFromPath(): TWorkspaceMode {
 
     const basePath = `/${workspaceSlug}`;
 
-    // Check for wiki mode
-    if (pathname.startsWith(`${basePath}/wiki`)) {
-      return "wiki";
+    // Check for documents mode
+    if (pathname.startsWith(`${basePath}/documents`)) {
+      return "documents";
     }
 
     // Check for resources mode
@@ -44,7 +44,7 @@ export function useModeFromPath(): TWorkspaceMode {
 
 const DEFAULT_LAST_VISITED: IWorkspaceModeLastVisited = {
   projects: null,
-  wiki: null,
+  documents: null,
   resources: null,
 };
 
@@ -96,8 +96,8 @@ export function useModeNavigation() {
       if (!workspaceSlug) return "/";
 
       switch (mode) {
-        case "wiki":
-          return `/${workspaceSlug}/wiki`;
+        case "documents":
+          return `/${workspaceSlug}/documents`;
         case "resources":
           return `/${workspaceSlug}/resources`;
         case "projects":

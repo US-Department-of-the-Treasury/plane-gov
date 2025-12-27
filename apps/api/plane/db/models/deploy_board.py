@@ -18,7 +18,7 @@ class DeployBoard(WorkspaceBaseModel):
         ("issue", "Issue"),
         ("epic", "Epic"),
         ("sprint", "Sprint"),
-        ("page", "Page"),
+        ("document", "Document"),
         ("view", "View"),
         ("intake", "Intake"),
     )

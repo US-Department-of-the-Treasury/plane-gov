@@ -166,14 +166,14 @@ test.describe("Navigation Links @smoke @navigation", () => {
       expect(result.success, result.error).toBe(true);
     });
 
-    test("Wiki link navigates correctly", async ({ page, workspaceSlug }) => {
+    test("Documents link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}`);
       await page.waitForLoadState("networkidle");
       await waitForSidebar(page);
 
-      // Find Wiki link - this is in the top navigation, not the sidebar
-      const wikiLink = page.locator(`a[href$="/wiki/"]`).first();
-      const result = await clickAndVerifyNavigation(page, wikiLink, `/${workspaceSlug}/wiki`, "Wiki");
+      // Find Documents link - this is in the top navigation, not the sidebar
+      const documentsLink = page.locator(`a[href$="/documents/"]`).first();
+      const result = await clickAndVerifyNavigation(page, documentsLink, `/${workspaceSlug}/documents`, "Documents");
       expect(result.success, result.error).toBe(true);
     });
 
@@ -266,20 +266,20 @@ test.describe("Navigation Links @smoke @navigation", () => {
       expect(result.success, result.error).toBe(true);
     });
 
-    test("Wiki link navigates correctly", async ({ page, workspaceSlug, projectId }) => {
+    test("Pages link navigates correctly", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/issues`);
       await page.waitForLoadState("networkidle");
       await waitForProjectNav(page);
 
-      // Find Wiki link within the main content area (project nav is not in sidebar)
+      // Find Pages link within the main content area (project nav is not in sidebar)
       // Note: There are 2 <main> elements - use .last() for the inner one with project nav
       const mainContent = page.getByRole("main").last();
-      const wikiLink = mainContent.getByRole("link", { name: "Wiki" });
+      const pagesLink = mainContent.getByRole("link", { name: "Pages" });
       const result = await clickAndVerifyNavigation(
         page,
-        wikiLink,
+        pagesLink,
         `/${workspaceSlug}/projects/${projectId}/pages`,
-        "Wiki"
+        "Pages"
       );
       expect(result.success, result.error).toBe(true);
     });
@@ -374,15 +374,20 @@ test.describe("Navigation Links @smoke @navigation", () => {
       expect(result.success, result.error).toBe(true);
     });
 
-    test("Wiki header link navigates correctly", async ({ page, workspaceSlug }) => {
+    test("Documents header link navigates correctly", async ({ page, workspaceSlug }) => {
       await page.goto(`/${workspaceSlug}`);
       await page.waitForLoadState("networkidle");
       await waitForSidebar(page);
 
-      // Click on Wiki in the header
-      const wikiHeaderLink = page.locator('nav a[href*="/wiki"], header a[href*="/wiki"]').first();
-      if ((await wikiHeaderLink.count()) > 0) {
-        const result = await clickAndVerifyNavigation(page, wikiHeaderLink, `/${workspaceSlug}/wiki`, "Wiki Header");
+      // Click on Documents in the header
+      const documentsHeaderLink = page.locator('nav a[href*="/documents"], header a[href*="/documents"]').first();
+      if ((await documentsHeaderLink.count()) > 0) {
+        const result = await clickAndVerifyNavigation(
+          page,
+          documentsHeaderLink,
+          `/${workspaceSlug}/documents`,
+          "Documents Header"
+        );
         expect(result.success, result.error).toBe(true);
       }
     });

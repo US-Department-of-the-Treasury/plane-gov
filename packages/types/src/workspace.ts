@@ -14,7 +14,7 @@ import type { IWorkspaceViewProps } from "./view-props";
  * Workspace modes represent the primary navigation contexts within a workspace.
  * Mode is derived from URL path, not stored in state.
  */
-export type TWorkspaceMode = "projects" | "wiki" | "resources";
+export type TWorkspaceMode = "projects" | "documents" | "resources";
 
 /**
  * Configuration for a workspace mode
@@ -22,7 +22,7 @@ export type TWorkspaceMode = "projects" | "wiki" | "resources";
 export interface IWorkspaceModeConfig {
   key: TWorkspaceMode;
   label: string;
-  /** URL path segment that identifies this mode (e.g., "wiki", "resources") */
+  /** URL path segment that identifies this mode (e.g., "documents", "resources") */
   pathSegment: string | null;
   /** Keyboard shortcut number (1, 2, 3) */
   shortcutKey: number;
@@ -33,7 +33,7 @@ export interface IWorkspaceModeConfig {
  */
 export const WORKSPACE_MODES: IWorkspaceModeConfig[] = [
   { key: "projects", label: "Projects", pathSegment: null, shortcutKey: 1 },
-  { key: "wiki", label: "Wiki", pathSegment: "wiki", shortcutKey: 2 },
+  { key: "documents", label: "Documents", pathSegment: "documents", shortcutKey: 2 },
   { key: "resources", label: "Resources", pathSegment: "resources", shortcutKey: 3 },
 ];
 
@@ -42,7 +42,7 @@ export const WORKSPACE_MODES: IWorkspaceModeConfig[] = [
  */
 export interface IWorkspaceModeLastVisited {
   projects: string | null;
-  wiki: string | null;
+  documents: string | null;
   resources: string | null;
 }
 

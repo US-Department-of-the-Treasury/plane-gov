@@ -93,9 +93,9 @@ export const commandGroups: TCommandGroups = {
       if (!!projectId && page?.project_ids?.includes(projectId)) redirectProjectId = projectId;
       return redirectProjectId
         ? `/${page?.workspace__slug}/projects/${redirectProjectId}/pages/${page?.id}`
-        : `/${page?.workspace__slug}/wiki/${page?.id}`;
+        : `/${page?.workspace__slug}/documents/${page?.id}`;
     },
-    title: "Wikis",
+    title: "Documents",
   },
   project: {
     icon: <ProjectIcon className="h-3 w-3" />,

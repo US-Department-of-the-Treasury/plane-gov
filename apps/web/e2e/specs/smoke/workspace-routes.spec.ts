@@ -113,14 +113,14 @@ test.describe("Workspace Routes @smoke", () => {
     expect(pageErrors).toHaveLength(0);
   });
 
-  test("/:workspaceSlug/wiki loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
-    await page.goto(`/${workspaceSlug}/wiki`);
+  test("/:workspaceSlug/documents loads without errors", async ({ page, errorTracker, workspaceSlug }) => {
+    await page.goto(`/${workspaceSlug}/documents`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
     const pageErrors = errorTracker.getPageErrors();
     if (pageErrors.length > 0) {
-      console.log("Wiki errors:", errorTracker.getSummary());
+      console.log("Documents errors:", errorTracker.getSummary());
     }
     expect(pageErrors).toHaveLength(0);
   });

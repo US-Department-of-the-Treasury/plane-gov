@@ -338,40 +338,40 @@ export {
   getPublishSettingsByProjectId,
 } from "./project-publish";
 
-// Wiki hooks (TanStack Query)
+// Document hooks (TanStack Query)
 export {
-  // Wiki pages
-  useWikiPages,
-  useProjectWikiPages,
-  useArchivedWikiPages,
-  useSharedWikiPages,
-  usePrivateWikiPages,
-  useWikiPageDetails,
-  useSearchWikiPages,
-  useCreateWikiPage,
-  useUpdateWikiPage,
-  useDeleteWikiPage,
-  useArchiveWikiPage,
-  useUnarchiveWikiPage,
-  useLockWikiPage,
-  useUnlockWikiPage,
-  useDuplicateWikiPage,
-  useUpdateWikiPageDescription,
-  // Wiki collections
-  useWikiCollections,
-  useWikiCollectionDetails,
-  useCreateWikiCollection,
-  useUpdateWikiCollection,
-  useDeleteWikiCollection,
-  // Wiki shares
-  useWikiPageShares,
-  useCreateWikiPageShare,
-  useUpdateWikiPageShare,
-  useDeleteWikiPageShare,
-  // Wiki versions
-  useWikiPageVersions,
-  useWikiPageVersionDetails,
-  useRestoreWikiPageVersion,
+  // Documents
+  useDocuments,
+  useProjectDocuments,
+  useArchivedDocuments,
+  useSharedDocuments,
+  usePrivateDocuments,
+  useDocumentDetails,
+  useSearchDocuments,
+  useCreateDocument,
+  useUpdateDocument,
+  useDeleteDocument,
+  useArchiveDocument,
+  useUnarchiveDocument,
+  useLockDocument,
+  useUnlockDocument,
+  useDuplicateDocument,
+  useUpdateDocumentDescription,
+  // Document collections
+  useDocumentCollections,
+  useDocumentCollectionDetails,
+  useCreateDocumentCollection,
+  useUpdateDocumentCollection,
+  useDeleteDocumentCollection,
+  // Document shares
+  useDocumentShares,
+  useCreateDocumentShare,
+  useUpdateDocumentShare,
+  useDeleteDocumentShare,
+  // Document versions
+  useDocumentVersions,
+  useDocumentVersionDetails,
+  useRestoreDocumentVersion,
   // Page comments (unified page model)
   usePageComments,
   useCreatePageComment,
@@ -403,15 +403,15 @@ export {
   useDeletePageProperty,
   useBulkUpdatePageProperties,
   // Utility functions
-  getWikiPageById,
-  getWikiCollectionById,
-  getWikiPagesByCollection,
-  getRootWikiPages,
-  getChildWikiPages,
-  buildWikiPageTree,
-  buildWikiCollectionTree,
-} from "./wiki";
-export type { TWikiPageTreeNode, TWikiCollectionTreeNode } from "./wiki";
+  getDocumentById,
+  getDocumentCollectionById,
+  getDocumentsByCollection,
+  getRootDocuments,
+  getChildDocuments,
+  buildDocumentTree,
+  buildDocumentCollectionTree,
+} from "./documents";
+export type { TDocumentTreeNode, TDocumentCollectionTreeNode } from "./documents";
 
 // Paginated issues hooks (TanStack Query with useInfiniteQuery)
 export {

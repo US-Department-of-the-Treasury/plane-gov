@@ -21,7 +21,7 @@ export const PRO_PLAN_FEATURES = [
   "Full Time Tracking + Bulk Ops",
   "Teamspaces",
   "Trigger And Action",
-  "Wikis",
+  "Documents",
   "Popular integrations",
 ];
 

@@ -92,14 +92,6 @@ from .api import APITokenSerializer, APITokenReadSerializer
 
 from .importer import ImporterSerializer
 
-from .page import (
-    PageSerializer,
-    PageDetailSerializer,
-    PageVersionSerializer,
-    PageBinaryUpdateSerializer,
-    PageVersionDetailSerializer,
-)
-
 from .estimate import (
     EstimateSerializer,
     EstimatePointSerializer,
@@ -131,31 +123,31 @@ from .draft import (
     DraftIssueDetailSerializer,
 )
 
-from .wiki import (
-    WikiCollectionSerializer,
-    WikiCollectionLiteSerializer,
-    WikiPageSerializer,
-    WikiPageDetailSerializer,
-    WikiPageLiteSerializer,
-    WikiPageShareSerializer,
-    WikiPageVersionSerializer,
-    WikiPageVersionDetailSerializer,
-    WikiPageAccessLogSerializer,
-    WikiPageBinaryUpdateSerializer,
+from .documents import (
+    DocumentCollectionSerializer,
+    DocumentCollectionLiteSerializer,
+    DocumentSerializer,
+    DocumentDetailSerializer,
+    DocumentLiteSerializer,
+    DocumentShareSerializer,
+    DocumentVersionSerializer,
+    DocumentVersionDetailSerializer,
+    DocumentAccessLogSerializer,
+    DocumentBinaryUpdateSerializer,
     # Property system
     PropertyDefinitionSerializer,
     PropertyDefinitionLiteSerializer,
-    PagePropertyValueSerializer,
+    DocumentPropertyValueSerializer,
     # Comments & Activity
-    PageCommentSerializer,
-    PageCommentReactionSerializer,
-    PageActivitySerializer,
-    PageSubscriberSerializer,
-    PageMentionSerializer,
+    DocumentCommentSerializer,
+    DocumentCommentReactionSerializer,
+    DocumentActivitySerializer,
+    DocumentSubscriberSerializer,
+    DocumentMentionSerializer,
     # Relations & Links
-    PageRelationSerializer,
-    PageLinkSerializer,
-    # Unified page serializers
-    WikiPageUnifiedSerializer,
-    WikiPageUnifiedDetailSerializer,
+    DocumentRelationSerializer,
+    DocumentLinkSerializer,
+    # Unified document serializers
+    DocumentUnifiedSerializer,
+    DocumentUnifiedDetailSerializer,
 )

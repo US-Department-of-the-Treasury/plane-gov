@@ -45,7 +45,7 @@ from .issue import (
 )
 from .epic import Epic, EpicIssue, EpicLink, EpicMember, EpicUserProperties
 from .notification import EmailNotificationLog, Notification, UserNotificationPreference
-from .page import Page, PageLabel, PageLog, ProjectPage, PageVersion
+# Page model removed - Documents are the unified system
 from .project import (
     Project,
     ProjectBaseModel,
@@ -86,27 +86,27 @@ from .device import Device, DeviceSession
 from .sticky import Sticky
 
 from .description import Description, DescriptionVersion
-from .wiki import (
-    WikiCollection,
-    WikiPage,
-    WikiPageLabel,
-    WikiPageAssignee,
-    WikiPageShare,
-    WikiPageVersion,
-    WikiPageAccessLog,
-    PageComment,
-    PageCommentReaction,
-    PageActivity,
-    PageSubscriber,
-    PageMention,
-    PageRelation,
-    PageRelationChoices,
-    PageLink,
-    IssueToPageMapping,
+from .documents import (
+    DocumentCollection,
+    Document,
+    DocumentLabel,
+    DocumentAssignee,
+    DocumentShare,
+    DocumentVersion,
+    DocumentAccessLog,
+    DocumentComment,
+    DocumentCommentReaction,
+    DocumentActivity,
+    DocumentSubscriber,
+    DocumentMention,
+    DocumentRelation,
+    DocumentRelationChoices,
+    DocumentLink,
+    IssueToDocumentMapping,
 )
 from .property import (
     PropertyDefinition,
-    PagePropertyValue,
+    DocumentPropertyValue,
 )
 from .contract import (
     Contract,

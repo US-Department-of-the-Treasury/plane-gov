@@ -13,7 +13,7 @@ const STORAGE_KEYS = {
   initiativesSidebar: "initiatives_sidebar_collapsed",
   projectOverviewSidebar: "project_overview_sidebar_collapsed",
   // Per-mode sidebar states
-  wikiSidebar: "wiki_sidebar_collapsed",
+  documentsSidebar: "documents_sidebar_collapsed",
   resourcesSidebar: "resources_sidebar_collapsed",
   projectsSidebar: "projects_sidebar_collapsed",
 } as const;
@@ -32,7 +32,7 @@ interface ThemeState {
   initiativesSidebarCollapsed: boolean;
   projectOverviewSidebarCollapsed: boolean;
   // Per-mode sidebar states
-  wikiSidebarCollapsed: boolean;
+  documentsSidebarCollapsed: boolean;
   resourcesSidebarCollapsed: boolean;
   projectsSidebarCollapsed: boolean;
 }
@@ -51,7 +51,7 @@ interface ThemeActions {
   toggleInitiativesSidebar: (collapsed?: boolean) => void;
   toggleProjectOverviewSidebar: (collapsed?: boolean) => void;
   // Per-mode sidebar actions
-  toggleWikiSidebar: (collapsed?: boolean) => void;
+  toggleDocumentsSidebar: (collapsed?: boolean) => void;
   toggleResourcesSidebar: (collapsed?: boolean) => void;
   toggleProjectsSidebar: (collapsed?: boolean) => void;
 }
@@ -80,7 +80,7 @@ const getInitialState = (): ThemeState => ({
   initiativesSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.initiativesSidebar, false),
   projectOverviewSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.projectOverviewSidebar, false),
   // Per-mode sidebar states
-  wikiSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.wikiSidebar, false),
+  documentsSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.documentsSidebar, false),
   resourcesSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.resourcesSidebar, false),
   projectsSidebarCollapsed: getStoredBoolean(STORAGE_KEYS.projectsSidebar, false),
 });
@@ -165,11 +165,11 @@ export const useThemeStore = create<ThemeStore>()(
         }),
 
       // Per-mode sidebar toggle actions
-      toggleWikiSidebar: (collapsed) =>
+      toggleDocumentsSidebar: (collapsed) =>
         set((state) => {
-          const newValue = collapsed ?? !state.wikiSidebarCollapsed;
-          localStorage.setItem(STORAGE_KEYS.wikiSidebar, newValue.toString());
-          return { wikiSidebarCollapsed: newValue };
+          const newValue = collapsed ?? !state.documentsSidebarCollapsed;
+          localStorage.setItem(STORAGE_KEYS.documentsSidebar, newValue.toString());
+          return { documentsSidebarCollapsed: newValue };
         }),
 
       toggleResourcesSidebar: (collapsed) =>
@@ -201,11 +201,10 @@ export const useThemeStore = create<ThemeStore>()(
         initiativesSidebarCollapsed: state.initiativesSidebarCollapsed,
         projectOverviewSidebarCollapsed: state.projectOverviewSidebarCollapsed,
         // Per-mode sidebar states
-        wikiSidebarCollapsed: state.wikiSidebarCollapsed,
+        documentsSidebarCollapsed: state.documentsSidebarCollapsed,
         resourcesSidebarCollapsed: state.resourcesSidebarCollapsed,
         projectsSidebarCollapsed: state.projectsSidebarCollapsed,
       }),
     }
   )
 );
-

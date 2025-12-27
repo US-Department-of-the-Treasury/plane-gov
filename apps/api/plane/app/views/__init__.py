@@ -172,14 +172,6 @@ from .epic.archive import EpicArchiveUnarchiveEndpoint
 
 from .api import ApiTokenEndpoint, ServiceApiTokenEndpoint
 
-from .page.base import (
-    PageViewSet,
-    PageFavoriteViewSet,
-    PagesDescriptionViewSet,
-    PageDuplicateEndpoint,
-)
-from .page.version import PageVersionEndpoint
-
 from .search.base import GlobalSearchEndpoint, SearchEndpoint
 from .search.issue import IssueSearchEndpoint
 
@@ -244,18 +236,18 @@ from .user.base import AccountEndpoint, ProfileEndpoint, UserSessionEndpoint
 
 from .timezone.base import TimezoneEndpoint
 
-from .wiki import (
-    WikiCollectionViewSet,
-    WikiPageViewSet,
-    WikiPageDescriptionViewSet,
-    WikiPageShareViewSet,
-    WikiPageVersionViewSet,
-    # Unified page model views
-    PageCommentViewSet,
-    PageCommentReactionViewSet,
-    PageRelationViewSet,
-    PageLinkViewSet,
+from .documents import (
+    DocumentCollectionViewSet,
+    DocumentViewSet,
+    DocumentDescriptionViewSet,
+    DocumentShareViewSet,
+    DocumentVersionViewSet,
+    # Unified document model views
+    DocumentCommentViewSet,
+    DocumentCommentReactionViewSet,
+    DocumentRelationViewSet,
+    DocumentLinkViewSet,
     PropertyDefinitionViewSet,
-    PagePropertyValueViewSet,
-    BulkPagePropertyValueViewSet,
+    DocumentPropertyValueViewSet,
+    BulkDocumentPropertyValueViewSet,
 )

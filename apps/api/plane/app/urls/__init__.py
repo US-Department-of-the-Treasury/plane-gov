@@ -8,7 +8,6 @@ from .intake import urlpatterns as intake_urls
 from .issue import urlpatterns as issue_urls
 from .epic import urlpatterns as epic_urls
 from .notification import urlpatterns as notification_urls
-from .page import urlpatterns as page_urls
 from .project import urlpatterns as project_urls
 from .search import urlpatterns as search_urls
 from .state import urlpatterns as state_urls
@@ -18,7 +17,7 @@ from .webhook import urlpatterns as webhook_urls
 from .workspace import urlpatterns as workspace_urls
 from .timezone import urlpatterns as timezone_urls
 from .exporter import urlpatterns as exporter_urls
-from .wiki import urlpatterns as wiki_urls
+from .documents import urlpatterns as documents_urls
 
 urlpatterns = [
     *analytic_urls,
@@ -30,7 +29,6 @@ urlpatterns = [
     *issue_urls,
     *epic_urls,
     *notification_urls,
-    *page_urls,
     *project_urls,
     *search_urls,
     *state_urls,
@@ -41,5 +39,5 @@ urlpatterns = [
     *webhook_urls,
     *timezone_urls,
     *exporter_urls,
-    *wiki_urls,
+    *documents_urls,
 ]

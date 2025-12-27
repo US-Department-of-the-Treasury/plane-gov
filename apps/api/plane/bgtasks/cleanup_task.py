@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 # Package imports
 from plane.db.models import (
     EmailNotificationLog,
-    PageVersion,
     APIActivityLog,
     IssueDescriptionVersion,
     WebhookLog,
@@ -204,26 +203,6 @@ def transform_email_log(record: Dict) -> Dict:
     }
 
 
-def transform_page_version(record: Dict) -> Dict:
-    """Transform page version record."""
-    return {
-        "id": str(record["id"]),
-        "created_at": str(record["created_at"]) if record.get("created_at") else None,
-        "page_id": str(record["page_id"]),
-        "workspace_id": str(record["workspace_id"]),
-        "owned_by_id": str(record["owned_by_id"]),
-        "description_html": record["description_html"],
-        "description_binary": record["description_binary"],
-        "description_stripped": record["description_stripped"],
-        "description_json": record["description_json"],
-        "sub_pages_data": record["sub_pages_data"],
-        "created_by_id": str(record["created_by_id"]),
-        "updated_by_id": str(record["updated_by_id"]),
-        "deleted_at": str(record["deleted_at"]) if record.get("deleted_at") else None,
-        "last_saved_at": (str(record["last_saved_at"]) if record.get("last_saved_at") else None),
-    }
-
-
 def transform_issue_description_version(record: Dict) -> Dict:
     """Transform issue description version record."""
     return {
@@ -320,42 +299,6 @@ def get_email_logs_queryset():
     )
 
 
-def get_page_versions_queryset():
-    """Get page versions beyond the maximum allowed (20 per page)."""
-    subq = (
-        PageVersion.all_objects.annotate(
-            row_num=Window(
-                expression=RowNumber(),
-                partition_by=[F("page_id")],
-                order_by=F("created_at").desc(),
-            )
-        )
-        .filter(row_num__gt=20)
-        .values("id")
-    )
-
-    return (
-        PageVersion.all_objects.filter(id__in=Subquery(subq))
-        .values(
-            "id",
-            "created_at",
-            "page_id",
-            "workspace_id",
-            "owned_by_id",
-            "description_html",
-            "description_binary",
-            "description_stripped",
-            "description_json",
-            "sub_pages_data",
-            "created_by_id",
-            "updated_by_id",
-            "deleted_at",
-            "last_saved_at",
-        )
-        .iterator(chunk_size=BATCH_SIZE)
-    )
-
-
 def get_issue_description_versions_queryset():
     """Get issue description versions beyond the maximum allowed (20 per issue)."""
     subq = (
@@ -442,18 +385,6 @@ def delete_email_notification_logs():
         model=EmailNotificationLog,
         task_name="Email Notification Log",
         collection_name="email_notification_logs",
-    )
-
-
-@shared_task
-def delete_page_versions():
-    """Delete excess page versions."""
-    process_cleanup_task(
-        queryset_func=get_page_versions_queryset,
-        transform_func=transform_page_version,
-        model=PageVersion,
-        task_name="Page Version",
-        collection_name="page_versions",
     )
 
 

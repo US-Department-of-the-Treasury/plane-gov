@@ -28,8 +28,6 @@ from plane.db.models import (
     IssueLabel,
     IssueSequence,
     IssueActivity,
-    Page,
-    ProjectPage,
     Sprint,
     Epic,
     SprintIssue,
@@ -339,50 +337,6 @@ def create_project_issues(
     return
 
 
-def create_pages(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_user: User) -> None:
-    """Creates pages for each project in the workspace.
-
-    Args:
-        workspace: The workspace containing the projects
-        project_map: Mapping of seed project IDs to actual project IDs
-        bot_user: The bot user to use for creating the pages
-    """
-    page_seeds = read_seed_file("pages.json")
-
-    if not page_seeds:
-        return
-
-    for page_seed in page_seeds:
-        page_id = page_seed.pop("id")
-
-        page = Page.objects.create(
-            workspace_id=workspace.id,
-            is_global=False,
-            access=page_seed.get("access", Page.PUBLIC_ACCESS),
-            name=page_seed.get("name"),
-            description=page_seed.get("description", {}),
-            description_html=page_seed.get("description_html", "<p></p>"),
-            description_binary=page_seed.get("description_binary", None),
-            description_stripped=page_seed.get("description_stripped", None),
-            created_by_id=bot_user.id,
-            updated_by_id=bot_user.id,
-            owned_by_id=bot_user.id,
-        )
-
-        logger.info(f"Task: workspace_seed_task -> Page {page_id} created")
-        if page_seed.get("project_id") and page_seed.get("type") == "PROJECT":
-            ProjectPage.objects.create(
-                workspace_id=workspace.id,
-                project_id=project_map[page_seed.get("project_id")],
-                page_id=page.id,
-                created_by_id=bot_user.id,
-                updated_by_id=bot_user.id,
-            )
-
-            logger.info(f"Task: workspace_seed_task -> Project Page {page_id} created")
-    return
-
-
 def create_sprints(workspace: Workspace, project_map: Dict[int, uuid.UUID], bot_user: User) -> Dict[int, uuid.UUID]:
     """Creates sprints for each project in the workspace.
 
@@ -542,9 +496,6 @@ def workspace_seed(workspace_id: uuid.UUID) -> None:
 
         # create project views
         create_views(workspace, project_map, bot_user)
-
-        # create project pages
-        create_pages(workspace, project_map, bot_user)
 
         logger.info(f"Task: workspace_seed_task -> Workspace {workspace_id} seeded successfully")
         return

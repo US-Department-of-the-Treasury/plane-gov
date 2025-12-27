@@ -8,7 +8,7 @@ from .workspace import WorkspaceBaseModel
 
 class EntityNameEnum(models.TextChoices):
     VIEW = "VIEW", "View"
-    PAGE = "PAGE", "Page"
+    DOCUMENT = "DOCUMENT", "Document"
     ISSUE = "ISSUE", "Issue"
     SPRINT = "SPRINT", "Sprint"
     EPIC = "EPIC", "Epic"

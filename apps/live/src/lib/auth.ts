@@ -67,8 +67,8 @@ export const onAuthenticate = async ({
     userId: context.userId,
   });
 
-  // For wiki pages, validate workspace membership
-  if (context.documentType === "wiki_page" && context.workspaceSlug) {
+  // For document pages, validate workspace membership
+  if (context.documentType === "document_page" && context.workspaceSlug) {
     await validateWorkspaceAccess({
       workspaceSlug: context.workspaceSlug,
       cookie: context.cookie,

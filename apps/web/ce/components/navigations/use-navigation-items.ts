@@ -67,9 +67,9 @@ export const useNavigationItems = ({
         sortOrder: 4,
       },
       {
-        i18n_key: "sidebar.wiki",
-        key: "wiki",
-        name: "Wiki",
+        i18n_key: "sidebar.pages",
+        key: "pages",
+        name: "Pages",
         href: `/${workspaceSlug}/projects/${projectId}/pages`,
         icon: PageIcon,
         access: [EUserPermissions.ADMIN, EUserPermissions.MEMBER, EUserPermissions.GUEST],
