@@ -74,6 +74,15 @@ export type TProgressSnapshot = {
   estimate_distribution?: TSprintEstimateDistribution;
 };
 
+/**
+ * Progress item type for sprint progress array.
+ * Combines TProgressSnapshot fields with date tracking.
+ */
+export type TSprintProgressItem = TProgressSnapshot & {
+  date?: string;
+  progress_date?: string;
+};
+
 export interface ISprint extends TProgressSnapshot {
   progress_snapshot: TProgressSnapshot | undefined;
 
@@ -98,7 +107,7 @@ export interface ISprint extends TProgressSnapshot {
     filters: IIssueFilterOptions;
   };
   workspace_id: string;
-  progress: unknown[];
+  progress: TSprintProgressItem[];
   version: number;
   logo_props?: Record<string, unknown>;
   external_source?: string | null;
