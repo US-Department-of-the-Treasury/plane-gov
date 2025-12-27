@@ -54,3 +54,9 @@ from .asset import (
 from .invite import WorkspaceInviteSerializer
 from .member import ProjectMemberSerializer
 from .sticky import StickySerializer
+from .contract import (
+    ContractSerializer,
+    ContractLiteSerializer,
+    ContractProjectAllocationSerializer,
+    ContractProjectAllocationCreateSerializer,
+)

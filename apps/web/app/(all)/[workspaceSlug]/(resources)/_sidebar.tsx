@@ -1,7 +1,7 @@
 import { useState, memo } from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { Users, Plus, UserCheck } from "lucide-react";
+import { Users, Plus, UserCheck, FileText } from "lucide-react";
 import { SIDEBAR_WIDTH, MEMBER_TRACKER_EVENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { useLocalStorage } from "@plane/hooks";
@@ -34,6 +34,13 @@ const RESOURCES_NAV_ITEMS = [
     href: "/resources/assignments/",
     icon: <UserCheck className="size-4" />,
     highlight: (pathname: string, _url: string) => pathname.includes("/assignments"),
+  },
+  {
+    key: "contracts",
+    label: "Contracts",
+    href: "/resources/contracts/",
+    icon: <FileText className="size-4" />,
+    highlight: (pathname: string, _url: string) => pathname.includes("/contracts"),
   },
 ];
 
