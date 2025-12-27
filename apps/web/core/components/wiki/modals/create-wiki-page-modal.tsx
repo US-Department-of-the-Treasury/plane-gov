@@ -25,6 +25,7 @@ interface CreateWikiPageModalProps {
   onClose: () => void;
   parentPageId?: string;
   collectionId?: string;
+  projectId?: string; // When provided, the page will be associated with this project
 }
 
 type FormData = {
@@ -67,6 +68,7 @@ export function CreateWikiPageModal({
   onClose,
   parentPageId,
   collectionId,
+  projectId,
 }: CreateWikiPageModalProps) {
   const router = useAppRouter();
   const createPageMutation = useCreateWikiPage();
@@ -125,6 +127,7 @@ export function CreateWikiPageModal({
       name: data.name,
       parent: parentPageId || null,
       collection: data.collection || null,
+      project: projectId || null, // Associate with project if provided
       logo_props: data.logo_props,
       access: data.access,
       // Store cover image and maintainer in view_props for future use
@@ -142,7 +145,12 @@ export function CreateWikiPageModal({
       {
         onSuccess: (page) => {
           handleClose();
-          router.push(`/${workspaceSlug}/wiki/${page.id}`);
+          // Navigate to project pages or workspace wiki based on context
+          if (projectId) {
+            router.push(`/${workspaceSlug}/projects/${projectId}/pages/${page.id}`);
+          } else {
+            router.push(`/${workspaceSlug}/wiki/${page.id}`);
+          }
         },
       }
     );

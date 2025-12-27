@@ -17,7 +17,9 @@ import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/iss
 
 export type TPowerKSearchResultGroupDetails = {
   icon?: React.ComponentType<{ className?: string }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Pre-existing pattern using any for polymorphic search results
   itemName: (item: any) => React.ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Pre-existing pattern using any for polymorphic search results
   path: (item: any, projectId: string | undefined) => string;
   title: string;
 };
@@ -93,7 +95,7 @@ export const POWER_K_SEARCH_RESULTS_GROUPS_MAP: Record<TPowerKSearchResultsKeys,
         ? `/${page?.workspace__slug}/projects/${redirectProjectId}/pages/${page?.id}`
         : `/${page?.workspace__slug}/wiki/${page?.id}`;
     },
-    title: "Pages",
+    title: "Wikis",
   },
   project: {
     icon: Briefcase,

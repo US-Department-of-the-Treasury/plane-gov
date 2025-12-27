@@ -291,8 +291,8 @@ const WikiNavigationItems = memo(function WikiNavigationItems({ workspaceSlug }:
 
   const navItems = [
     {
-      key: "all-pages",
-      label: "All pages",
+      key: "all-wikis",
+      label: "All wikis",
       href: `/${workspaceSlug}/wiki`,
       icon: HomeIcon,
       isActive: (path: string) => path === `/${workspaceSlug}/wiki` || path === `/${workspaceSlug}/wiki/`,
@@ -362,7 +362,7 @@ const WikiPagesSection = memo(function WikiPagesSection({
 
   if (isEmpty) {
     return (
-      <WikiEmptyState type="no-pages" onAction={onCreatePage} actionLabel="Create your first page" className="py-8" />
+      <WikiEmptyState type="no-pages" onAction={onCreatePage} actionLabel="Create your first wiki" className="py-8" />
     );
   }
 
@@ -371,19 +371,19 @@ const WikiPagesSection = memo(function WikiPagesSection({
       <div className="group w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-placeholder hover:bg-layer-transparent-hover">
         <CollapsibleTrigger
           className="w-full flex items-center gap-1 whitespace-nowrap text-left text-13 font-semibold text-placeholder"
-          aria-label={isPagesOpen ? "Close pages menu" : "Open pages menu"}
+          aria-label={isPagesOpen ? "Close wikis menu" : "Open wikis menu"}
         >
-          <span className="text-13 font-semibold">Pages</span>
+          <span className="text-13 font-semibold">Wikis</span>
         </CollapsibleTrigger>
         <div className="flex items-center gap-1">
-          <Tooltip tooltipHeading="Create page" tooltipContent="">
+          <Tooltip tooltipHeading="Create wiki" tooltipContent="">
             <IconButton
               variant="ghost"
               size="sm"
               icon={Plus}
               onClick={onCreatePage}
               className="text-placeholder"
-              aria-label="Create new page"
+              aria-label="Create new wiki"
             />
           </Tooltip>
           <IconButton
@@ -395,7 +395,7 @@ const WikiPagesSection = memo(function WikiPagesSection({
             iconClassName={cn("transition-transform", {
               "rotate-90": isPagesOpen,
             })}
-            aria-label={isPagesOpen ? "Close pages menu" : "Open pages menu"}
+            aria-label={isPagesOpen ? "Close wikis menu" : "Open wikis menu"}
           />
         </div>
       </div>

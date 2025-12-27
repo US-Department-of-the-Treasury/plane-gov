@@ -52,7 +52,7 @@ export const PROJECT_BASE_FEATURES_LIST: TBaseFeatureList = {
   pages: {
     key: "pages",
     property: "page_view",
-    title: "Pages",
+    title: "Wiki",
     description: "Write anything like you write anything.",
     icon: <PageIcon className="h-5 w-5 flex-shrink-0 text-tertiary" />,
     isPro: false,

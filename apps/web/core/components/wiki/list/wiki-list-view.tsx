@@ -235,7 +235,7 @@ export const WikiListView = memo(function WikiListView({ workspaceSlug }: WikiLi
             {/* Pages */}
             {rootPages.length > 0 && (
               <div>
-                <h2 className="text-11 font-semibold text-placeholder uppercase tracking-wider mb-3">Pages</h2>
+                <h2 className="text-11 font-semibold text-placeholder uppercase tracking-wider mb-3">Wikis</h2>
                 <div
                   className={cn(
                     viewMode === "grid"

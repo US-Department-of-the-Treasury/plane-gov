@@ -266,20 +266,20 @@ test.describe("Navigation Links @smoke @navigation", () => {
       expect(result.success, result.error).toBe(true);
     });
 
-    test("Pages link navigates correctly", async ({ page, workspaceSlug, projectId }) => {
+    test("Wiki link navigates correctly", async ({ page, workspaceSlug, projectId }) => {
       await page.goto(`/${workspaceSlug}/projects/${projectId}/issues`);
       await page.waitForLoadState("networkidle");
       await waitForProjectNav(page);
 
-      // Find Pages link within the main content area (project nav is not in sidebar)
+      // Find Wiki link within the main content area (project nav is not in sidebar)
       // Note: There are 2 <main> elements - use .last() for the inner one with project nav
       const mainContent = page.getByRole("main").last();
-      const pagesLink = mainContent.getByRole("link", { name: "Pages" });
+      const wikiLink = mainContent.getByRole("link", { name: "Wiki" });
       const result = await clickAndVerifyNavigation(
         page,
-        pagesLink,
+        wikiLink,
         `/${workspaceSlug}/projects/${projectId}/pages`,
-        "Pages"
+        "Wiki"
       );
       expect(result.success, result.error).toBe(true);
     });

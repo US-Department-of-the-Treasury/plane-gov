@@ -9,17 +9,9 @@ import type {
   TWikiCollectionFormData,
   TWikiPageShare,
   TWikiPageShareFormData,
-  TWikiPageVersion,
-  TWikiPageVersionDetail,
   TWikiDocumentPayload,
-  EWikiPageAccess,
 } from "@plane/types";
-import {
-  WikiPageService,
-  WikiCollectionService,
-  WikiShareService,
-  WikiVersionService,
-} from "@/services/wiki";
+import { WikiPageService, WikiCollectionService, WikiShareService, WikiVersionService } from "@/services/wiki";
 import { queryKeys } from "./query-keys";
 
 // Service instances
@@ -43,6 +35,23 @@ export function useWikiPages(workspaceSlug: string) {
     queryKey: queryKeys.wiki.pages.all(workspaceSlug),
     queryFn: () => wikiPageService.fetchAll(workspaceSlug),
     enabled: !!workspaceSlug,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
+  });
+}
+
+/**
+ * Hook to fetch wiki pages for a specific project.
+ * These are wiki pages associated with a project (for project Pages view).
+ *
+ * @example
+ * const { data: pages, isLoading } = useProjectWikiPages(workspaceSlug, projectId);
+ */
+export function useProjectWikiPages(workspaceSlug: string | undefined, projectId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.wiki.pages.project(workspaceSlug ?? "", projectId ?? ""),
+    queryFn: () => wikiPageService.fetchByProject(workspaceSlug!, projectId!),
+    enabled: !!workspaceSlug && !!projectId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
   });
@@ -144,11 +153,14 @@ export function useCreateWikiPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, data }: CreateWikiPageParams) =>
-      wikiPageService.create(workspaceSlug, data),
-    onSuccess: (_data, { workspaceSlug }) => {
+    mutationFn: ({ workspaceSlug, data }: CreateWikiPageParams) => wikiPageService.create(workspaceSlug, data),
+    onSuccess: (_data, { workspaceSlug, data }) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.pages.all(workspaceSlug) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.pages.private(workspaceSlug) });
+      // Also invalidate project wiki pages cache if page was associated with a project
+      if (data.project) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.pages.project(workspaceSlug, data.project) });
+      }
     },
   });
 }
@@ -175,9 +187,7 @@ export function useUpdateWikiPage() {
     onMutate: async ({ workspaceSlug, pageId, data }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.wiki.pages.detail(pageId) });
 
-      const previousPage = queryClient.getQueryData<TWikiPageDetail>(
-        queryKeys.wiki.pages.detail(pageId)
-      );
+      const previousPage = queryClient.getQueryData<TWikiPageDetail>(queryKeys.wiki.pages.detail(pageId));
 
       if (previousPage) {
         queryClient.setQueryData<TWikiPageDetail>(queryKeys.wiki.pages.detail(pageId), {
@@ -190,10 +200,7 @@ export function useUpdateWikiPage() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousPage && context.pageId) {
-        queryClient.setQueryData(
-          queryKeys.wiki.pages.detail(context.pageId),
-          context.previousPage
-        );
+        queryClient.setQueryData(queryKeys.wiki.pages.detail(context.pageId), context.previousPage);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, pageId }) => {
@@ -219,14 +226,11 @@ export function useDeleteWikiPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, pageId }: DeleteWikiPageParams) =>
-      wikiPageService.remove(workspaceSlug, pageId),
+    mutationFn: ({ workspaceSlug, pageId }: DeleteWikiPageParams) => wikiPageService.remove(workspaceSlug, pageId),
     onMutate: async ({ workspaceSlug, pageId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.wiki.pages.all(workspaceSlug) });
 
-      const previousPages = queryClient.getQueryData<TWikiPage[]>(
-        queryKeys.wiki.pages.all(workspaceSlug)
-      );
+      const previousPages = queryClient.getQueryData<TWikiPage[]>(queryKeys.wiki.pages.all(workspaceSlug));
 
       if (previousPages) {
         queryClient.setQueryData<TWikiPage[]>(
@@ -239,10 +243,7 @@ export function useDeleteWikiPage() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousPages && context.workspaceSlug) {
-        queryClient.setQueryData(
-          queryKeys.wiki.pages.all(context.workspaceSlug),
-          context.previousPages
-        );
+        queryClient.setQueryData(queryKeys.wiki.pages.all(context.workspaceSlug), context.previousPages);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, pageId }) => {
@@ -268,21 +269,16 @@ export function useArchiveWikiPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, pageId }: ArchiveWikiPageParams) =>
-      wikiPageService.archive(workspaceSlug, pageId),
+    mutationFn: ({ workspaceSlug, pageId }: ArchiveWikiPageParams) => wikiPageService.archive(workspaceSlug, pageId),
     onMutate: async ({ workspaceSlug, pageId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.wiki.pages.all(workspaceSlug) });
 
-      const previousPages = queryClient.getQueryData<TWikiPage[]>(
-        queryKeys.wiki.pages.all(workspaceSlug)
-      );
+      const previousPages = queryClient.getQueryData<TWikiPage[]>(queryKeys.wiki.pages.all(workspaceSlug));
 
       if (previousPages) {
         queryClient.setQueryData<TWikiPage[]>(
           queryKeys.wiki.pages.all(workspaceSlug),
-          previousPages.map((page) =>
-            page.id === pageId ? { ...page, archived_at: new Date().toISOString() } : page
-          )
+          previousPages.map((page) => (page.id === pageId ? { ...page, archived_at: new Date().toISOString() } : page))
         );
       }
 
@@ -290,10 +286,7 @@ export function useArchiveWikiPage() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousPages && context.workspaceSlug) {
-        queryClient.setQueryData(
-          queryKeys.wiki.pages.all(context.workspaceSlug),
-          context.previousPages
-        );
+        queryClient.setQueryData(queryKeys.wiki.pages.all(context.workspaceSlug), context.previousPages);
       }
     },
     onSettled: (_data, _error, { workspaceSlug }) => {
@@ -314,8 +307,7 @@ export function useUnarchiveWikiPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, pageId }: ArchiveWikiPageParams) =>
-      wikiPageService.unarchive(workspaceSlug, pageId),
+    mutationFn: ({ workspaceSlug, pageId }: ArchiveWikiPageParams) => wikiPageService.unarchive(workspaceSlug, pageId),
     onSettled: (_data, _error, { workspaceSlug }) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.pages.all(workspaceSlug) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.pages.archived(workspaceSlug) });
@@ -339,14 +331,11 @@ export function useLockWikiPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, pageId }: LockWikiPageParams) =>
-      wikiPageService.lock(workspaceSlug, pageId),
+    mutationFn: ({ workspaceSlug, pageId }: LockWikiPageParams) => wikiPageService.lock(workspaceSlug, pageId),
     onMutate: async ({ pageId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.wiki.pages.detail(pageId) });
 
-      const previousPage = queryClient.getQueryData<TWikiPageDetail>(
-        queryKeys.wiki.pages.detail(pageId)
-      );
+      const previousPage = queryClient.getQueryData<TWikiPageDetail>(queryKeys.wiki.pages.detail(pageId));
 
       if (previousPage) {
         queryClient.setQueryData<TWikiPageDetail>(queryKeys.wiki.pages.detail(pageId), {
@@ -359,10 +348,7 @@ export function useLockWikiPage() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousPage && context.pageId) {
-        queryClient.setQueryData(
-          queryKeys.wiki.pages.detail(context.pageId),
-          context.previousPage
-        );
+        queryClient.setQueryData(queryKeys.wiki.pages.detail(context.pageId), context.previousPage);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, pageId }) => {
@@ -383,14 +369,11 @@ export function useUnlockWikiPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ workspaceSlug, pageId }: LockWikiPageParams) =>
-      wikiPageService.unlock(workspaceSlug, pageId),
+    mutationFn: ({ workspaceSlug, pageId }: LockWikiPageParams) => wikiPageService.unlock(workspaceSlug, pageId),
     onMutate: async ({ pageId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.wiki.pages.detail(pageId) });
 
-      const previousPage = queryClient.getQueryData<TWikiPageDetail>(
-        queryKeys.wiki.pages.detail(pageId)
-      );
+      const previousPage = queryClient.getQueryData<TWikiPageDetail>(queryKeys.wiki.pages.detail(pageId));
 
       if (previousPage) {
         queryClient.setQueryData<TWikiPageDetail>(queryKeys.wiki.pages.detail(pageId), {
@@ -404,10 +387,7 @@ export function useUnlockWikiPage() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousPage && context.pageId) {
-        queryClient.setQueryData(
-          queryKeys.wiki.pages.detail(context.pageId),
-          context.previousPage
-        );
+        queryClient.setQueryData(queryKeys.wiki.pages.detail(context.pageId), context.previousPage);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, pageId }) => {
@@ -554,20 +534,17 @@ export function useUpdateWikiCollection() {
       );
 
       if (previousCollection) {
-        queryClient.setQueryData<TWikiCollection>(
-          queryKeys.wiki.collections.detail(collectionId),
-          { ...previousCollection, ...data }
-        );
+        queryClient.setQueryData<TWikiCollection>(queryKeys.wiki.collections.detail(collectionId), {
+          ...previousCollection,
+          ...data,
+        });
       }
 
       return { previousCollection, workspaceSlug, collectionId };
     },
     onError: (_error, _variables, context) => {
       if (context?.previousCollection && context.collectionId) {
-        queryClient.setQueryData(
-          queryKeys.wiki.collections.detail(context.collectionId),
-          context.previousCollection
-        );
+        queryClient.setQueryData(queryKeys.wiki.collections.detail(context.collectionId), context.previousCollection);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, collectionId }) => {
@@ -613,10 +590,7 @@ export function useDeleteWikiCollection() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousCollections && context.workspaceSlug) {
-        queryClient.setQueryData(
-          queryKeys.wiki.collections.all(context.workspaceSlug),
-          context.previousCollections
-        );
+        queryClient.setQueryData(queryKeys.wiki.collections.all(context.workspaceSlug), context.previousCollections);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, collectionId }) => {
@@ -721,9 +695,7 @@ export function useDeleteWikiPageShare() {
     onMutate: async ({ pageId, shareId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.wiki.shares.all(pageId) });
 
-      const previousShares = queryClient.getQueryData<TWikiPageShare[]>(
-        queryKeys.wiki.shares.all(pageId)
-      );
+      const previousShares = queryClient.getQueryData<TWikiPageShare[]>(queryKeys.wiki.shares.all(pageId));
 
       if (previousShares) {
         queryClient.setQueryData<TWikiPageShare[]>(
@@ -736,10 +708,7 @@ export function useDeleteWikiPageShare() {
     },
     onError: (_error, _variables, context) => {
       if (context?.previousShares && context.pageId) {
-        queryClient.setQueryData(
-          queryKeys.wiki.shares.all(context.pageId),
-          context.previousShares
-        );
+        queryClient.setQueryData(queryKeys.wiki.shares.all(context.pageId), context.previousShares);
       }
     },
     onSettled: (_data, _error, { workspaceSlug, pageId }) => {
@@ -778,11 +747,7 @@ export function useWikiPageVersions(workspaceSlug: string, pageId: string) {
  * @example
  * const { data: version, isLoading } = useWikiPageVersionDetails(workspaceSlug, pageId, versionId);
  */
-export function useWikiPageVersionDetails(
-  workspaceSlug: string,
-  pageId: string,
-  versionId: string
-) {
+export function useWikiPageVersionDetails(workspaceSlug: string, pageId: string, versionId: string) {
   return useQuery({
     queryKey: queryKeys.wiki.versions.detail(versionId),
     queryFn: () => wikiVersionService.fetchById(workspaceSlug, pageId, versionId),
@@ -848,10 +813,7 @@ export function getWikiCollectionById(
 /**
  * Filter wiki pages by collection.
  */
-export function getWikiPagesByCollection(
-  pages: TWikiPage[] | undefined,
-  collectionId: string | null
-): TWikiPage[] {
+export function getWikiPagesByCollection(pages: TWikiPage[] | undefined, collectionId: string | null): TWikiPage[] {
   if (!pages) return [];
   return pages.filter((page) => page.collection === collectionId);
 }
@@ -867,10 +829,7 @@ export function getRootWikiPages(pages: TWikiPage[] | undefined): TWikiPage[] {
 /**
  * Get child pages of a parent page.
  */
-export function getChildWikiPages(
-  pages: TWikiPage[] | undefined,
-  parentId: string
-): TWikiPage[] {
+export function getChildWikiPages(pages: TWikiPage[] | undefined, parentId: string): TWikiPage[] {
   if (!pages) return [];
   return pages.filter((page) => page.parent === parentId);
 }
@@ -918,9 +877,7 @@ export interface TWikiCollectionTreeNode extends TWikiCollection {
   children: TWikiCollectionTreeNode[];
 }
 
-export function buildWikiCollectionTree(
-  collections: TWikiCollection[] | undefined
-): TWikiCollectionTreeNode[] {
+export function buildWikiCollectionTree(collections: TWikiCollection[] | undefined): TWikiCollectionTreeNode[] {
   if (!collections) return [];
 
   const collectionMap = new Map<string, TWikiCollectionTreeNode>();
@@ -942,8 +899,7 @@ export function buildWikiCollectionTree(
   });
 
   // Sort by sort_order
-  const sortByOrder = (a: TWikiCollectionTreeNode, b: TWikiCollectionTreeNode) =>
-    a.sort_order - b.sort_order;
+  const sortByOrder = (a: TWikiCollectionTreeNode, b: TWikiCollectionTreeNode) => a.sort_order - b.sort_order;
   rootCollections.sort(sortByOrder);
   collectionMap.forEach((node) => node.children.sort(sortByOrder));
 

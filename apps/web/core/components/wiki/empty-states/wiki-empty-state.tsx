@@ -34,9 +34,9 @@ const emptyStateConfig: Record<
 > = {
   "no-pages": {
     icon: FileText,
-    title: "No pages yet",
-    description: "Create your first wiki page to start documenting and sharing knowledge with your team.",
-    defaultActionLabel: "Create your first page",
+    title: "No wikis yet",
+    description: "Create your first wiki to start documenting and sharing knowledge with your team.",
+    defaultActionLabel: "Create your first wiki",
   },
   "no-collections": {
     icon: FolderOpen,
@@ -47,23 +47,23 @@ const emptyStateConfig: Record<
   "no-search-results": {
     icon: Search,
     title: "No results found",
-    description: "We couldn't find any pages matching your search. Try a different query or create a new page.",
+    description: "We couldn't find any wikis matching your search. Try a different query or create a new wiki.",
   },
   "no-archived-pages": {
     icon: Archive,
-    title: "No archived pages",
-    description: "Archived pages will appear here. Archive pages you no longer need to keep your wiki organized.",
+    title: "No archived wikis",
+    description: "Archived wikis will appear here. Archive wikis you no longer need to keep your workspace organized.",
   },
   "no-shared-pages": {
     icon: Users,
-    title: "No shared pages",
-    description: "Pages shared with you by your teammates will appear here.",
+    title: "No shared wikis",
+    description: "Wikis shared with you by your teammates will appear here.",
   },
   "no-private-pages": {
     icon: Lock,
-    title: "No private pages",
-    description: "Your private pages that only you can see will appear here.",
-    defaultActionLabel: "Create a private page",
+    title: "No private wikis",
+    description: "Your private wikis that only you can see will appear here.",
+    defaultActionLabel: "Create a private wiki",
   },
   "access-denied": {
     icon: Lock,
@@ -83,12 +83,7 @@ export const WikiEmptyState = memo(function WikiEmptyState({
   const Icon = config.icon;
 
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center py-12 px-4 text-center",
-        className
-      )}
-    >
+    <div className={cn("flex flex-col items-center justify-center py-12 px-4 text-center", className)}>
       <div className="w-16 h-16 rounded-full bg-custom-background-80 flex items-center justify-center mb-4">
         <Icon className="size-8 text-custom-text-400" />
       </div>
@@ -97,7 +92,7 @@ export const WikiEmptyState = memo(function WikiEmptyState({
 
       <p className="text-sm text-custom-text-400 max-w-md mb-6">
         {type === "no-search-results" && searchQuery
-          ? `We couldn't find any pages matching "${searchQuery}". Try a different query or create a new page.`
+          ? `We couldn't find any wikis matching "${searchQuery}". Try a different query or create a new wiki.`
           : config.description}
       </p>
 
@@ -113,18 +108,11 @@ export const WikiEmptyState = memo(function WikiEmptyState({
 /**
  * Loading skeleton for wiki page list
  */
-export const WikiPageListSkeleton = memo(function WikiPageListSkeleton({
-  count = 5,
-}: {
-  count?: number;
-}) {
+export const WikiPageListSkeleton = memo(function WikiPageListSkeleton({ count = 5 }: { count?: number }) {
   return (
     <div className="space-y-2">
       {Array.from({ length: count }).map((_, index) => (
-        <div
-          key={index}
-          className="flex items-center gap-3 p-3 rounded-md animate-pulse"
-        >
+        <div key={index} className="flex items-center gap-3 p-3 rounded-md animate-pulse">
           <div className="w-10 h-10 bg-custom-background-80 rounded" />
           <div className="flex-1 space-y-2">
             <div className="h-4 bg-custom-background-80 rounded w-3/4" />

@@ -12,12 +12,7 @@ import { WikiEmptyState, WikiSidebarSkeleton } from "@/components/wiki/empty-sta
 // hooks
 import { useAppRouter } from "@/hooks/use-app-router";
 // queries
-import {
-  useWikiPages,
-  useWikiCollections,
-  buildWikiPageTree,
-  buildWikiCollectionTree,
-} from "@/store/queries";
+import { useWikiPages, useWikiCollections, buildWikiPageTree, buildWikiCollectionTree } from "@/store/queries";
 import type { TWikiPageTreeNode, TWikiCollectionTreeNode } from "@/store/queries";
 
 interface WikiSidebarProps {
@@ -64,9 +59,7 @@ const WikiPageItem = memo(function WikiPageItem({
           }}
         >
           {hasChildren && (
-            <CollapsibleTrigger
-              asChild
-            >
+            <CollapsibleTrigger asChild>
               <button
                 type="button"
                 className="flex-shrink-0 p-0.5 rounded hover:bg-custom-background-90"
@@ -83,9 +76,7 @@ const WikiPageItem = memo(function WikiPageItem({
           {!hasChildren && <div className="w-4" />}
           <File className="size-4 flex-shrink-0 text-custom-text-300" />
           <span className="flex-1 truncate">{page.name || "Untitled"}</span>
-          {page.is_locked && (
-            <Lock className="size-3 flex-shrink-0 text-custom-text-400" />
-          )}
+          {page.is_locked && <Lock className="size-3 flex-shrink-0 text-custom-text-400" />}
         </div>
         {hasChildren && (
           <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
@@ -125,9 +116,7 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <div>
-        <CollapsibleTrigger
-          asChild
-        >
+        <CollapsibleTrigger asChild>
           <button
             type="button"
             className={cn(
@@ -141,9 +130,7 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
               })}
             />
             <FolderClosed className="size-4 flex-shrink-0 text-custom-text-300" />
-            <span className="flex-1 truncate text-left font-medium">
-              {collection.name}
-            </span>
+            <span className="flex-1 truncate text-left font-medium">{collection.name}</span>
           </button>
         </CollapsibleTrigger>
         {hasContent && (
@@ -174,11 +161,7 @@ const WikiCollectionItem = memo(function WikiCollectionItem({
   );
 });
 
-export const WikiSidebar = memo(function WikiSidebar({
-  workspaceSlug,
-  activePageId,
-  onCreatePage,
-}: WikiSidebarProps) {
+export const WikiSidebar = memo(function WikiSidebar({ workspaceSlug, activePageId, onCreatePage }: WikiSidebarProps) {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -191,10 +174,7 @@ export const WikiSidebar = memo(function WikiSidebar({
   const collectionTree = useMemo(() => buildWikiCollectionTree(collections), [collections]);
 
   // Filter pages without collection (root pages)
-  const rootPages = useMemo(
-    () => pageTree.filter((p) => !p.collection),
-    [pageTree]
-  );
+  const rootPages = useMemo(() => pageTree.filter((p) => !p.collection), [pageTree]);
 
   // Filter by search
   const filteredPages = useMemo(() => {
@@ -212,11 +192,7 @@ export const WikiSidebar = memo(function WikiSidebar({
         <h2 className="text-base font-semibold">{t("wiki") || "Wiki"}</h2>
         <div className="flex items-center gap-1">
           <Tooltip tooltipContent="Create page">
-            <button
-              type="button"
-              className="p-1.5 rounded hover:bg-custom-background-80"
-              onClick={onCreatePage}
-            >
+            <button type="button" className="p-1.5 rounded hover:bg-custom-background-80" onClick={onCreatePage}>
               <Plus className="size-4" />
             </button>
           </Tooltip>
@@ -258,17 +234,10 @@ export const WikiSidebar = memo(function WikiSidebar({
             {filteredPages.length > 0 && (
               <div className="mt-2">
                 {collectionTree.length > 0 && (
-                  <div className="px-2 py-1 text-xs font-medium text-custom-text-400 uppercase">
-                    Pages
-                  </div>
+                  <div className="px-2 py-1 text-xs font-medium text-custom-text-400 uppercase">Wikis</div>
                 )}
                 {filteredPages.map((page) => (
-                  <WikiPageItem
-                    key={page.id}
-                    page={page}
-                    workspaceSlug={workspaceSlug}
-                    activePageId={activePageId}
-                  />
+                  <WikiPageItem key={page.id} page={page} workspaceSlug={workspaceSlug} activePageId={activePageId} />
                 ))}
               </div>
             )}
@@ -279,7 +248,7 @@ export const WikiSidebar = memo(function WikiSidebar({
                 type={searchQuery ? "no-search-results" : "no-pages"}
                 searchQuery={searchQuery}
                 onAction={searchQuery ? undefined : onCreatePage}
-                actionLabel="Create your first page"
+                actionLabel="Create your first wiki"
                 className="py-8"
               />
             )}

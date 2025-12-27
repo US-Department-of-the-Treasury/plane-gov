@@ -85,6 +85,14 @@ class WikiPage(BaseModel):
         blank=True,
         related_name="pages",
     )
+    project = models.ForeignKey(
+        "db.Project",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="wiki_pages",
+        help_text="Optional project association. When set, page appears in project's Pages tab.",
+    )
     parent = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,
@@ -124,6 +132,7 @@ class WikiPage(BaseModel):
             models.Index(fields=["workspace", "parent"], name="wikipage_ws_parent_idx"),
             models.Index(fields=["workspace", "access"], name="wikipage_ws_access_idx"),
             models.Index(fields=["workspace", "owned_by"], name="wikipage_ws_owner_idx"),
+            models.Index(fields=["workspace", "project"], name="wikipage_ws_proj_idx"),
             models.Index(
                 fields=["description_stripped"],
                 name="wikipage_search_idx",

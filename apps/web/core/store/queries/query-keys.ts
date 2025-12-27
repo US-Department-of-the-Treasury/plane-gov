@@ -58,11 +58,8 @@ export const queryKeys = {
       workspaceView: (workspaceSlug: string, viewId: string, filters?: Record<string, unknown>) =>
         ["issues", "list", "workspace-view", workspaceSlug, viewId, filters ?? {}] as const,
       // Per-group pagination for Kanban views
-      group: (
-        baseKey: readonly unknown[],
-        groupId: string,
-        subGroupId?: string
-      ) => [...baseKey, "group", groupId, subGroupId] as const,
+      group: (baseKey: readonly unknown[], groupId: string, subGroupId?: string) =>
+        [...baseKey, "group", groupId, subGroupId] as const,
     },
   },
 
@@ -245,7 +242,8 @@ export const queryKeys = {
   integrations: {
     app: () => ["integrations", "app"] as const,
     workspace: (workspaceSlug: string) => ["integrations", "workspace", workspaceSlug] as const,
-    project: (workspaceSlug: string, projectId: string) => ["integrations", "project", workspaceSlug, projectId] as const,
+    project: (workspaceSlug: string, projectId: string) =>
+      ["integrations", "project", workspaceSlug, projectId] as const,
     github: {
       repository: (projectId: string) => ["integrations", "github", "repository", projectId] as const,
       repositories: (workspaceSlug: string, integrationId: string) =>
@@ -318,6 +316,8 @@ export const queryKeys = {
     // Pages
     pages: {
       all: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug] as const,
+      project: (workspaceSlug: string, projectId: string) =>
+        ["wiki", "pages", workspaceSlug, "project", projectId] as const,
       detail: (pageId: string) => ["wiki", "pages", "detail", pageId] as const,
       archived: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug, "archived"] as const,
       shared: (workspaceSlug: string) => ["wiki", "pages", workspaceSlug, "shared"] as const,

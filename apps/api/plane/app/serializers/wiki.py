@@ -111,6 +111,7 @@ class WikiPageSerializer(BaseSerializer):
             "owned_by",
             "collection",
             "collection_detail",
+            "project",
             "parent",
             "is_locked",
             "locked_by",
@@ -169,6 +170,7 @@ class WikiPageSerializer(BaseSerializer):
     def create(self, validated_data):
         workspace_id = self.context["workspace_id"]
         owned_by_id = self.context["owned_by_id"]
+        project_id = self.context.get("project_id")
         description = self.context.get("description", {})
         description_binary = self.context.get("description_binary")
         description_html = self.context.get("description_html", "<p></p>")
@@ -177,6 +179,7 @@ class WikiPageSerializer(BaseSerializer):
             **validated_data,
             workspace_id=workspace_id,
             owned_by_id=owned_by_id,
+            project_id=project_id,
             description=description,
             description_binary=description_binary,
             description_html=description_html,
@@ -204,6 +207,7 @@ class WikiPageLiteSerializer(BaseSerializer):
             "access",
             "parent",
             "collection",
+            "project",
             "sort_order",
             "logo_props",
             "is_locked",

@@ -99,9 +99,9 @@ export function ProjectNavigation(props: TProjectItemsProps) {
         sortOrder: 4,
       },
       {
-        i18n_key: "sidebar.pages",
-        key: "pages",
-        name: "Pages",
+        i18n_key: "sidebar.wiki",
+        key: "wiki",
+        name: "Wiki",
         href: `/${workspaceSlug}/projects/${projectId}/pages`,
         icon: PageIcon,
         access: [EUserPermissions.ADMIN, EUserPermissions.MEMBER, EUserPermissions.GUEST],
