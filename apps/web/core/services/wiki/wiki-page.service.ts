@@ -1,10 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access */
+// Note: These rules are disabled because the APIService base class returns untyped responses.
+// This is a codebase-wide pattern that would require refactoring APIService to fix properly.
 import { API_BASE_URL } from "@plane/constants";
-import type {
-  TWikiPage,
-  TWikiPageDetail,
-  TWikiPageFormData,
-  TWikiDocumentPayload,
-} from "@plane/types";
+import type { TWikiPage, TWikiPageDetail, TWikiPageFormData, TWikiDocumentPayload } from "@plane/types";
 import { APIService } from "@/services/api.service";
 
 export class WikiPageService extends APIService {
@@ -14,6 +12,16 @@ export class WikiPageService extends APIService {
 
   async fetchAll(workspaceSlug: string): Promise<TWikiPage[]> {
     return this.get(`/api/workspaces/${workspaceSlug}/wiki/pages/`)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
+
+  async fetchByProject(workspaceSlug: string, projectId: string): Promise<TWikiPage[]> {
+    return this.get(`/api/workspaces/${workspaceSlug}/wiki/pages/`, {
+      params: { project: projectId },
+    })
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
@@ -105,11 +113,7 @@ export class WikiPageService extends APIService {
       });
   }
 
-  async updateDescription(
-    workspaceSlug: string,
-    pageId: string,
-    data: TWikiDocumentPayload
-  ): Promise<void> {
+  async updateDescription(workspaceSlug: string, pageId: string, data: TWikiDocumentPayload): Promise<void> {
     return this.patch(`/api/workspaces/${workspaceSlug}/wiki/pages/${pageId}/description/`, data)
       .then((response) => response?.data)
       .catch((error) => {

@@ -43,7 +43,7 @@ export function TabNavigationVisibleItem({
           <ContextMenu.Trigger>
             <Link key={`${item.key}-${isActive ? "active" : "inactive"}`} to={item.href}>
               <TabNavigationItem isActive={isActive}>
-                <span>{t(item.i18n_key)}</span>
+                <span>{t(item.i18n_key, { defaultValue: item.name })}</span>
               </TabNavigationItem>
             </Link>
           </ContextMenu.Trigger>

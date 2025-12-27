@@ -28,6 +28,7 @@ export type TWikiPage = {
   owned_by: string;
   collection: string | null;
   collection_detail?: TWikiCollectionLite | null;
+  project: string | null;
   parent: string | null;
   is_locked: boolean;
   locked_by: string | null;
@@ -60,7 +61,16 @@ export type TWikiPageDetail = TWikiPage & {
 
 export type TWikiPageLite = Pick<
   TWikiPage,
-  "id" | "name" | "access" | "parent" | "collection" | "sort_order" | "logo_props" | "is_locked" | "archived_at"
+  | "id"
+  | "name"
+  | "access"
+  | "parent"
+  | "collection"
+  | "project"
+  | "sort_order"
+  | "logo_props"
+  | "is_locked"
+  | "archived_at"
 >;
 
 export type TWikiCollectionLite = Pick<TWikiCollection, "id" | "name" | "icon" | "parent">;
@@ -69,6 +79,7 @@ export type TWikiPageFormData = {
   name?: string;
   access?: EWikiPageAccess;
   collection?: string | null;
+  project?: string | null;
   parent?: string | null;
   logo_props?: TLogoProps;
   view_props?: Record<string, unknown>;

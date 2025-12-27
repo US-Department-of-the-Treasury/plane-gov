@@ -157,13 +157,7 @@ export {
 } from "./workspace";
 
 // API Token hooks (TanStack Query)
-export {
-  useApiTokens,
-  useApiTokenDetails,
-  useCreateApiToken,
-  useDeleteApiToken,
-  getApiTokenById,
-} from "./api-token";
+export { useApiTokens, useApiTokenDetails, useCreateApiToken, useDeleteApiToken, getApiTokenById } from "./api-token";
 
 // Workspace Links hooks (TanStack Query - home quick links)
 export {
@@ -264,11 +258,7 @@ export {
 } from "./favorite";
 
 // Analytics hooks (TanStack Query)
-export {
-  useAdvanceAnalytics,
-  useAdvanceAnalyticsStats,
-  useAdvanceAnalyticsCharts,
-} from "./analytics";
+export { useAdvanceAnalytics, useAdvanceAnalyticsStats, useAdvanceAnalyticsCharts } from "./analytics";
 
 // Workspace draft hooks (TanStack Query)
 export {
@@ -315,12 +305,7 @@ export {
 } from "./notification";
 
 // Instance hooks (TanStack Query)
-export {
-  useInstanceInfo,
-  getInstanceConfig,
-  getInstance,
-  isInstanceConfigured,
-} from "./instance";
+export { useInstanceInfo, getInstanceConfig, getInstance, isInstanceConfigured } from "./instance";
 
 // Dashboard hooks (TanStack Query)
 export {
@@ -357,6 +342,7 @@ export {
 export {
   // Wiki pages
   useWikiPages,
+  useProjectWikiPages,
   useArchivedWikiPages,
   useSharedWikiPages,
   usePrivateWikiPages,

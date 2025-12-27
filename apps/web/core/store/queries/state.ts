@@ -44,6 +44,7 @@ export function useWorkspaceStates(workspaceSlug: string) {
 
 /**
  * Hook to fetch intake (triage) state for a project.
+ * Fails silently if the project doesn't have intake configured (returns undefined).
  *
  * @example
  * const { data: intakeState, isLoading } = useIntakeState(workspaceSlug, projectId);
@@ -55,6 +56,9 @@ export function useIntakeState(workspaceSlug: string, projectId: string) {
     enabled: !!workspaceSlug && !!projectId,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
+    // Fail silently - not all projects have intake configured
+    retry: false,
+    throwOnError: false,
   });
 }
 

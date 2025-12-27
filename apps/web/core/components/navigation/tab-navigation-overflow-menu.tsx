@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router";
 import { MoreHorizontal, Pin } from "lucide-react";
 // plane imports
@@ -48,7 +47,7 @@ export function TabNavigationOverflowMenu({ overflowItems, isActive, tabPreferen
           <Menu.MenuItem key={`${item.key}-overflow-${itemIsActive ? "active" : "inactive"}`} className="p-0 w-full">
             <div className="flex items-center justify-between w-full group/menu-item">
               <Link to={item.href} className="flex-1 min-w-0 w-full p-1">
-                <span className="text-11">{t(item.i18n_key)}</span>
+                <span className="text-11">{t(item.i18n_key, { defaultValue: item.name })}</span>
               </Link>
               <div className="flex items-center">
                 {/* Show Eye icon ONLY for user-hidden items */}

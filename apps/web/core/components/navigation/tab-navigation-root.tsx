@@ -1,4 +1,3 @@
-import type { FC } from "react";
 import React, { useEffect } from "react";
 import { useParams, useLocation, Link, useNavigate } from "react-router";
 import { EUserPermissionsLevel, EUserPermissions } from "@plane/constants";
@@ -133,7 +132,7 @@ export function TabNavigationRoot(props: TTabNavigationRootProps) {
       const targetItem = defaultTabItem || allNavigationItems.find((item) => item.key === DEFAULT_TAB_KEY);
 
       if (targetItem) {
-        navigate(targetItem.href, { replace: true });
+        void navigate(targetItem.href, { replace: true });
       }
     }
   }, [pathname, workspaceSlug, projectId, tabPreferences.defaultTab, allNavigationItems, navigate]);
@@ -175,7 +174,7 @@ export function TabNavigationRoot(props: TTabNavigationRootProps) {
               project={project}
               isAdmin={isAdmin}
               isAuthorized={isAuthorized}
-              onCopyText={handleCopyText}
+              onCopyText={() => void handleCopyText()}
               onLeaveProject={handleLeaveProject}
               onPublishModal={() => handlePublishModal(true)}
             />
@@ -233,7 +232,7 @@ export function TabNavigationRoot(props: TTabNavigationRootProps) {
                   >
                     <Link to={item.href}>
                       <TabNavigationItem isActive={itemIsActive}>
-                        <span>{t(item.i18n_key)}</span>
+                        <span>{t(item.i18n_key, { defaultValue: item.name })}</span>
                       </TabNavigationItem>
                     </Link>
                   </div>

@@ -133,6 +133,7 @@ class WikiPageViewSet(BaseViewSet):
                 "request": request,
                 "workspace_id": workspace.id,
                 "owned_by_id": request.user.id,
+                "project_id": request.data.get("project"),
                 "description": request.data.get("description", {}),
                 "description_binary": request.data.get("description_binary"),
                 "description_html": request.data.get("description_html", "<p></p>"),
@@ -223,10 +224,15 @@ class WikiPageViewSet(BaseViewSet):
 
         # Filter options
         collection = request.query_params.get("collection")
+        project = request.query_params.get("project")
         parent = request.query_params.get("parent")
         access = request.query_params.get("access")
         archived = request.query_params.get("archived")
         owned_by_me = request.query_params.get("owned_by_me")
+
+        # Filter by project - used for project Pages view
+        if project:
+            queryset = queryset.filter(project_id=project)
 
         if collection:
             if collection == "none":

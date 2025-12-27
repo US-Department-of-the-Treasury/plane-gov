@@ -242,6 +242,17 @@ export function CreateUpdateIssueModalBase(props: IssuesModalProps) {
         });
       }
 
+      // Invalidate TanStack Query cache for issue lists so UI updates immediately
+      if (!is_draft_issue && response.project_id) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.issues.all(workspaceSlug.toString(), response.project_id),
+        });
+        // Also invalidate the paginated list queries (used by issue list views)
+        void queryClient.invalidateQueries({
+          queryKey: ["issues", "list", "project", workspaceSlug.toString(), response.project_id],
+        });
+      }
+
       setToast({
         type: TOAST_TYPE.SUCCESS,
         title: t("success"),
