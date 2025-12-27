@@ -4,13 +4,11 @@ import { EmojiReactionGroup, EmojiReactionPicker } from "@plane/propel/emoji-rea
 import type { EmojiReactionType } from "@plane/propel/emoji-reaction";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IUser } from "@plane/types";
-// hooks
 // ui
 import { cn } from "@plane/utils";
-// helpers
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueReactionStore } from "@/store/issue/issue-details/reaction.store";
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
-// types
 
 export type TIssueReaction = {
   workspaceSlug: string;
@@ -25,12 +23,12 @@ export function IssueReaction(props: TIssueReaction) {
   const { workspaceSlug, projectId, issueId, currentUser, disabled = false, className = "" } = props;
   // state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-  // hooks
-  const {
-    reaction: { getReactionsByIssueId, reactionsByUser, getReactionById },
-    createReaction,
-    removeReaction,
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getReactionsByIssueId = useIssueReactionStore((s) => s.getReactionsByIssueId);
+  const reactionsByUser = useIssueReactionStore((s) => s.reactionsByUser);
+  const getReactionById = useIssueReactionStore((s) => s.getReactionById);
+  const createReaction = useIssueReactionStore((s) => s.createReaction);
+  const removeReaction = useIssueReactionStore((s) => s.removeReaction);
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
 
   const reactionIds = getReactionsByIssueId(issueId);

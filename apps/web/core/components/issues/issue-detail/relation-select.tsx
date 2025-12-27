@@ -10,8 +10,10 @@ import { cn, generateWorkItemLink } from "@plane/utils";
 // components
 import { ExistingIssuesListModal } from "@/components/core/modals/existing-issues-list-modal";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIssueRelationStore } from "@/store/issue/issue-details/relation.store";
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 // queries
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useIssue } from "@/store/queries/issue";
@@ -31,14 +33,13 @@ type TIssueRelationSelect = {
 
 export function IssueRelationSelect(props: TIssueRelationSelect) {
   const { className = "", workspaceSlug, projectId, issueId, relationKey, disabled = false } = props;
+  // Zustand stores
+  const createRelation = useIssueRelationStore((s) => s.createRelation);
+  const removeRelation = useIssueRelationStore((s) => s.removeRelation);
+  const getRelationByIssueIdRelationType = useIssueRelationStore((s) => s.getRelationByIssueIdRelationType);
+  const isRelationModalOpen = useIssueDetailUIStore((s) => s.isRelationModalOpen);
+  const toggleRelationModal = useIssueDetailUIStore((s) => s.toggleRelationModal);
   // hooks
-  const {
-    createRelation,
-    removeRelation,
-    relation: { getRelationByIssueIdRelationType },
-    isRelationModalOpen,
-    toggleRelationModal,
-  } = useIssueDetail();
   const { isMobile } = usePlatformOS();
   // queries
   const { data: projects = [] } = useProjects(workspaceSlug);

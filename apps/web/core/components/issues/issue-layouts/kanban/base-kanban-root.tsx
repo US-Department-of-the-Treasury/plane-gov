@@ -10,8 +10,9 @@ import { EIssueServiceType, EIssueLayoutTypes, EIssuesStoreType } from "@plane/t
 //constants
 //hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
 import { useGroupedIssueIds, useIssueViewFlags, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectStates } from "@/hooks/store/use-project-state";
 import { useKanbanView } from "@/hooks/store/use-kanban-view";
@@ -72,9 +73,8 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
   const storeType = useIssueStoreType() as KanbanStoreType;
   const { allowPermissions } = useUserPermissions();
   const { issueMap, issuesFilter, issues } = useIssues(storeType);
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
+  // Zustand store
+  const getIssueById = useIssueStore((s) => s.getIssueById);
 
   // states - declare before use in hooks below
   const [draggedIssueId, setDraggedIssueId] = useState<string | undefined>(undefined);

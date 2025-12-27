@@ -57,7 +57,6 @@ export function IssueDetailWidgetActionButtons(props: Props) {
             />
           }
           disabled={disabled}
-          issueServiceType={issueServiceType}
         />
       )}
       {!hideWidgets?.includes("links") && (
@@ -70,7 +69,6 @@ export function IssueDetailWidgetActionButtons(props: Props) {
             />
           }
           disabled={disabled}
-          issueServiceType={issueServiceType}
         />
       )}
       {!hideWidgets?.includes("attachments") && (

@@ -1,8 +1,8 @@
-import { LabelPropertyIcon } from "@plane/propel/icons";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useWorkspaceLabels } from "@/store/queries/label";
 import { useParams } from "next/navigation";
+import { LabelPropertyIcon } from "@plane/propel/icons";
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
+import { useWorkspaceLabels } from "@/store/queries/label";
 // components
 import { IssueActivityBlockComponent, IssueLink, LabelActivityChip } from "./";
 
@@ -10,10 +10,8 @@ type TIssueLabelActivity = { activityId: string; showIssue?: boolean; ends: "top
 
 export function IssueLabelActivity(props: TIssueLabelActivity) {
   const { activityId, showIssue = true, ends } = props;
-  // hooks
-  const {
-    activity: { getActivityById },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getActivityById = useIssueActivityStore((s) => s.getActivityById);
   const { workspaceSlug } = useParams<{ workspaceSlug: string }>();
   const { data: labels } = useWorkspaceLabels(workspaceSlug);
 

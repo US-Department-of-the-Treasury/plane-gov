@@ -3,13 +3,13 @@ import { Plus } from "lucide-react";
 // plane imports
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { TIssueLink } from "@plane/types";
-import { EIssueServiceType } from "@plane/types";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// store
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useCreateIssueLink, useUpdateIssueLink, useDeleteIssueLink } from "@/store/queries/issue";
 // local imports
 import { IssueLinkCreateUpdateModal } from "./create-update-link-modal";
 import { IssueLinkList } from "./links";
+// Note: EIssueServiceType removed - the modal no longer needs issueServiceType
 
 export type TLinkOperations = {
   create: (data: Partial<TIssueLink>) => Promise<void>;
@@ -27,8 +27,8 @@ export type TIssueLinkRoot = {
 export function IssueLinkRoot(props: TIssueLinkRoot) {
   // props
   const { workspaceSlug, projectId, issueId, disabled = false } = props;
-  // hooks - keep modal state from useIssueDetail
-  const { toggleIssueLinkModal: toggleIssueLinkModalStore } = useIssueDetail();
+  // hooks - keep modal state from Zustand store
+  const toggleIssueLinkModalStore = useIssueDetailUIStore((s) => s.toggleIssueLinkModal);
   // tanstack query mutations
   const { mutateAsync: createLinkMutation } = useCreateIssueLink();
   const { mutateAsync: updateLinkMutation } = useUpdateIssueLink();
@@ -123,7 +123,6 @@ export function IssueLinkRoot(props: TIssueLinkRoot) {
         isModalOpen={isIssueLinkModal}
         handleOnClose={handleOnClose}
         linkOperations={handleLinkOperations}
-        issueServiceType={EIssueServiceType.ISSUES}
       />
 
       <div className="py-1 text-11">

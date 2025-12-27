@@ -4,8 +4,9 @@ import type { TIssue, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType, EIssuesStoreType } from "@plane/types";
 // components
 import { DeleteIssueModal } from "@/components/issues/delete-issue-modal";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
+import { useIssueSubIssuesStore } from "@/store/issue/issue-details/sub_issues.store";
 import { useSubIssues } from "@/store/queries/issue";
 // local imports
 import { CreateUpdateIssueModal } from "../../issue-modal/modal";
@@ -52,12 +53,11 @@ export function SubIssuesCollapsibleContent(props: Props) {
       issue: undefined,
     },
   });
-  // store hooks
-  const {
-    toggleCreateIssueModal,
-    toggleDeleteIssueModal,
-    subIssues: { subIssueHelpersByIssueId, setSubIssueHelpers },
-  } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const toggleCreateIssueModal = useIssueDetailUIStore((s) => s.toggleCreateIssueModal);
+  const toggleDeleteIssueModal = useIssueDetailUIStore((s) => s.toggleDeleteIssueModal);
+  const subIssueHelpersByIssueId = useIssueSubIssuesStore((s) => s.subIssueHelpersByIssueId);
+  const setSubIssueHelpers = useIssueSubIssuesStore((s) => s.setSubIssueHelpers);
   // queries
   const { data: subIssuesData, isLoading } = useSubIssues(workspaceSlug, projectId, parentIssueId);
 

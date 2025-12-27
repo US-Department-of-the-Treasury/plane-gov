@@ -10,9 +10,11 @@ import type { EUserProjectRoles } from "@plane/types";
 import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
+// queries
+import { useProjectDetails } from "@/store/queries/project";
 
 export type TNavigationItem = {
   name: string;
@@ -39,9 +41,9 @@ export function ProjectNavigation(props: TProjectItemsProps) {
   const { toggleSidebar } = useAppTheme();
   const { data: project } = useProjectDetails(workspaceSlug, projectId);
   const { allowPermissions } = useUserPermissions();
-  const {
-    issue: { getIssueIdByIdentifier, getIssueById },
-  } = useIssueDetail();
+  // Zustand store
+  const getIssueIdByIdentifier = useIssueStore((s) => s.getIssueIdByIdentifier);
+  const getIssueById = useIssueStore((s) => s.getIssueById);
   // pathname
   const pathname = usePathname();
   // derived values

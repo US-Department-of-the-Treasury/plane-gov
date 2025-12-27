@@ -14,7 +14,6 @@ import { CustomSelect } from "@plane/ui";
 import { copyUrlToClipboard, generateWorkItemLink } from "@plane/utils";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useUser } from "@/hooks/store/user";
 // hooks
@@ -22,7 +21,7 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 // stores
 import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useProjects, getProjectById } from "@/store/queries/project";
-import { useIssue } from "@/store/queries/issue";
+import { useIssue, useDeleteIssue, useArchiveIssue } from "@/store/queries/issue";
 // local imports
 import { IssueSubscription } from "../issue-detail/subscription";
 import { WorkItemDetailQuickActions } from "../issue-layouts/quick-action-dropdowns";
@@ -90,7 +89,9 @@ export function IssuePeekOverviewHeader(props: PeekOverviewHeaderProps) {
   const { t } = useTranslation();
   // hooks
   const { data: currentUser } = useUser();
-  const { removeIssue, archiveIssue } = useIssueDetail();
+  // TanStack Query mutations
+  const { mutateAsync: deleteIssueMutation } = useDeleteIssue();
+  const { mutateAsync: archiveIssueMutation } = useArchiveIssue();
   const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
   const { isMobile } = usePlatformOS();
   const { data: projects } = useProjects(workspaceSlug);
@@ -125,14 +126,15 @@ export function IssuePeekOverviewHeader(props: PeekOverviewHeaderProps) {
 
   const handleDeleteIssue = async () => {
     try {
-      const deleteIssue = issueDetails?.archived_at ? removeArchivedIssue : removeIssue;
-
-      return deleteIssue(workspaceSlug, projectId, issueId).then(() => {
-        setPeekIssue(undefined);
-        captureSuccess({
-          eventName: WORK_ITEM_TRACKER_EVENTS.delete,
-          payload: { id: issueId },
-        });
+      if (issueDetails?.archived_at) {
+        await removeArchivedIssue(workspaceSlug, projectId, issueId);
+      } else {
+        await deleteIssueMutation({ workspaceSlug, projectId, issueId });
+      }
+      setPeekIssue(undefined);
+      captureSuccess({
+        eventName: WORK_ITEM_TRACKER_EVENTS.delete,
+        payload: { id: issueId },
       });
     } catch (error) {
       setToast({
@@ -150,7 +152,7 @@ export function IssuePeekOverviewHeader(props: PeekOverviewHeaderProps) {
 
   const handleArchiveIssue = async () => {
     try {
-      await archiveIssue(workspaceSlug, projectId, issueId);
+      await archiveIssueMutation({ workspaceSlug, projectId, issueId });
       // check and remove if issue is peeked
       const isIssuePeeked = useIssueDetailUIStore.getState().peekIssue?.issueId === issueId;
       if (isIssuePeeked) {

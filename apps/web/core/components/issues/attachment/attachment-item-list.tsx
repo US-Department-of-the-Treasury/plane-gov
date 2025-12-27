@@ -7,10 +7,12 @@ import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 // plane web hooks
 import { useFileSize } from "@/plane-web/hooks/use-file-size";
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
+import { useIssueAttachmentStore } from "@/store/issue/issue-details/attachment.store";
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 // types
 import type { TAttachmentHelpers } from "../issue-detail-widgets/attachments/helper";
 // components
@@ -40,13 +42,11 @@ export function IssueAttachmentItemList(props: TIssueAttachmentItemList) {
   const { t } = useTranslation();
   // states
   const [isUploading, setIsUploading] = useState(false);
-  // store hooks
-  const {
-    attachment: { getAttachmentsByIssueId },
-    attachmentDeleteModalId,
-    toggleDeleteAttachmentModal,
-    fetchActivities,
-  } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const getAttachmentsByIssueId = useIssueAttachmentStore((s) => s.getAttachmentsByIssueId);
+  const attachmentDeleteModalId = useIssueDetailUIStore((s) => s.attachmentDeleteModalId);
+  const toggleDeleteAttachmentModal = useIssueDetailUIStore((s) => s.toggleDeleteAttachmentModal);
+  const fetchActivities = useIssueActivityStore((s) => s.fetchActivities);
   const { operations: attachmentOperations, snapshot: attachmentSnapshot } = attachmentHelpers;
   const { create: createAttachment } = attachmentOperations;
   const { uploadStatus } = attachmentSnapshot;

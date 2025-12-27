@@ -9,8 +9,8 @@ import { EIssueServiceType } from "@plane/types";
 import { AlertModalCore } from "@plane/ui";
 // helper
 import { getFileName } from "@plane/utils";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueAttachmentStore } from "@/store/issue/issue-details/attachment.store";
 // types
 import type { TAttachmentOperations } from "../issue-detail-widgets/attachments/helper";
 
@@ -30,10 +30,8 @@ export function IssueAttachmentDeleteModal(props: Props) {
   // states
   const [loader, setLoader] = useState(false);
 
-  // store hooks
-  const {
-    attachment: { getAttachmentById },
-  } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const getAttachmentById = useIssueAttachmentStore((s) => s.getAttachmentById);
 
   // derived values
   const attachment = attachmentId ? getAttachmentById(attachmentId) : undefined;

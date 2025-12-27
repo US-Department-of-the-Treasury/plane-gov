@@ -11,12 +11,14 @@ import { cn, generateWorkItemLink } from "@plane/utils";
 import { useSubIssueOperations } from "@/components/issues/issue-detail-widgets/sub-issues/helper";
 import { WithDisplayPropertiesHOC } from "@/components/issues/issue-layouts/properties/with-display-properties-HOC";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIssueSubIssuesStore } from "@/store/issue/issue-details/sub_issues.store";
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 // queries
 import { useProjects, getProjectById } from "@/store/queries/project";
-import { useIssue, useSubIssues } from "@/store/queries/issue";
+import { useIssue } from "@/store/queries/issue";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
 // local components
@@ -56,16 +58,13 @@ export function SubIssuesListItem(props: Props) {
     storeType = EIssuesStoreType.PROJECT,
   } = props;
   const { t } = useTranslation();
-  const {
-    subIssues: {
-      filters: { getSubIssueFilters },
-    },
-  } = useIssueDetail(issueServiceType);
-  const {
-    subIssues: { subIssueHelpersByIssueId, setSubIssueHelpers },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getSubIssueFilters = useIssueSubIssuesStore((s) => s.filters.getSubIssueFilters);
+  const subIssueHelpersByIssueId = useIssueSubIssuesStore((s) => s.subIssueHelpersByIssueId);
+  const setSubIssueHelpers = useIssueSubIssuesStore((s) => s.setSubIssueHelpers);
+  const toggleCreateIssueModal = useIssueDetailUIStore((s) => s.toggleCreateIssueModal);
+  const toggleDeleteIssueModal = useIssueDetailUIStore((s) => s.toggleDeleteIssueModal);
   const { fetchSubIssues } = useSubIssueOperations(EIssueServiceType.ISSUES);
-  const { toggleCreateIssueModal, toggleDeleteIssueModal } = useIssueDetail(issueServiceType);
   const { handleRedirection } = useIssuePeekOverviewRedirection();
   const { isMobile } = usePlatformOS();
   // queries

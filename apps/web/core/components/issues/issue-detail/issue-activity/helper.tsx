@@ -5,26 +5,29 @@ import { EFileAssetType } from "@plane/types";
 import type { TCommentsOperations } from "@plane/types";
 import { copyUrlToClipboard, formatTextList, generateWorkItemLink } from "@plane/utils";
 import { useEditorAsset } from "@/hooks/store/use-editor-asset";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useUser } from "@/hooks/store/user";
+// stores
+import { useIssueCommentReactionStore } from "@/store/issue/issue-details/comment_reaction.store";
+import { useIssueCommentStore } from "@/store/issue/issue-details/comment.store";
+import { useIssueStore } from "@/store/issue/issue.store";
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { useProjectDetails } from "@/store/queries/project";
-import { useUser } from "@/hooks/store/user";
 
 export const useWorkItemCommentOperations = (
   workspaceSlug: string | undefined,
   projectId: string | undefined,
   issueId: string | undefined
 ): TCommentsOperations => {
-  // store hooks
-  const {
-    commentReaction: { getCommentReactionsByCommentId, commentReactionsByUser, getCommentReactionById },
-    createComment,
-    updateComment,
-    removeComment,
-    createCommentReaction,
-    removeCommentReaction,
-    issue: { getIssueById },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getCommentReactionsByCommentId = useIssueCommentReactionStore((s) => s.getCommentReactionsByCommentId);
+  const commentReactionsByUser = useIssueCommentReactionStore((s) => s.commentReactionsByUser);
+  const getCommentReactionById = useIssueCommentReactionStore((s) => s.getCommentReactionById);
+  const createCommentReaction = useIssueCommentReactionStore((s) => s.createCommentReaction);
+  const removeCommentReaction = useIssueCommentReactionStore((s) => s.removeCommentReaction);
+  const createComment = useIssueCommentStore((s) => s.createComment);
+  const updateComment = useIssueCommentStore((s) => s.updateComment);
+  const removeComment = useIssueCommentStore((s) => s.removeComment);
+  const getIssueById = useIssueStore((s) => s.getIssueById);
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug ?? "");
   const { uploadEditorAsset, duplicateEditorAsset } = useEditorAsset();
   const { data: currentUser } = useUser();

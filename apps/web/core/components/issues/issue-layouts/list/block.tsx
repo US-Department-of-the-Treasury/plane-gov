@@ -18,11 +18,11 @@ import { IssueProperties } from "@/components/issues/issue-layouts/properties";
 // helpers
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // stores
 import { useIsIssuePeeked, useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
+import { useIssueSubIssuesStore } from "@/store/issue/issue-details/sub_issues.store";
 import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
 import { IssueIdentifier } from "@/plane-web/components/issues/issue-details/issue-identifier";
@@ -78,8 +78,8 @@ export function IssueBlock(props: IssueBlockProps) {
   const { sidebarCollapsed: isSidebarCollapsed } = useAppTheme();
   const { data: projects } = useProjects(workspaceSlug ?? "");
   const currentProject = getProjectById(projects, projectId);
-  // Data operations from useIssueDetail
-  const { subIssues: subIssuesStore } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
+  // Data operations from Zustand store
+  const fetchSubIssues = useIssueSubIssuesStore((s) => s.fetchSubIssues);
   // UI state from Zustand
   const peekIssue = useIssueDetailUIStore((state) => state.peekIssue);
   const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
@@ -144,7 +144,7 @@ export function IssueBlock(props: IssueBlockProps) {
     } else {
       setExpanded((prevState) => {
         if (!prevState && workspaceSlug && issue && issue.project_id)
-          subIssuesStore.fetchSubIssues(workspaceSlug.toString(), issue.project_id, issue.id);
+          fetchSubIssues(workspaceSlug.toString(), issue.project_id, issue.id);
         return !prevState;
       });
     }

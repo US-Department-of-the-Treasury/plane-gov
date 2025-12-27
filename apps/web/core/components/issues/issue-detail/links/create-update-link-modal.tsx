@@ -1,14 +1,13 @@
-import type { FC } from "react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "@plane/i18n";
 // plane types
 import { Button } from "@plane/propel/button";
-import type { TIssueLinkEditableFields, TIssueServiceType } from "@plane/types";
+import type { TIssueLinkEditableFields } from "@plane/types";
 // plane ui
 import { Input, ModalCore } from "@plane/ui";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// store
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 // types
 import type { TLinkOperations } from "./root";
 
@@ -22,7 +21,6 @@ export type TIssueLinkCreateEditModal = {
   isModalOpen: boolean;
   handleOnClose?: () => void;
   linkOperations: TLinkOperationsModal;
-  issueServiceType: TIssueServiceType;
 };
 
 const defaultValues: TIssueLinkCreateFormFieldOptions = {
@@ -31,7 +29,7 @@ const defaultValues: TIssueLinkCreateFormFieldOptions = {
 };
 
 export function IssueLinkCreateUpdateModal(props: TIssueLinkCreateEditModal) {
-  const { isModalOpen, handleOnClose, linkOperations, issueServiceType } = props;
+  const { isModalOpen, handleOnClose, linkOperations } = props;
   // i18n
   const { t } = useTranslation();
   // react hook form
@@ -44,7 +42,8 @@ export function IssueLinkCreateUpdateModal(props: TIssueLinkCreateEditModal) {
     defaultValues,
   });
   // store hooks
-  const { issueLinkData: preloadedData, setIssueLinkData } = useIssueDetail(issueServiceType);
+  const preloadedData = useIssueDetailUIStore((s) => s.issueLinkData);
+  const setIssueLinkData = useIssueDetailUIStore((s) => s.setIssueLinkData);
 
   const onClose = () => {
     setIssueLinkData(null);

@@ -1,6 +1,6 @@
 import { PriorityPropertyIcon } from "@plane/propel/icons";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 // components
 import { IssueActivityBlockComponent, IssueLink } from "./";
 
@@ -8,10 +8,8 @@ type TIssuePriorityActivity = { activityId: string; showIssue?: boolean; ends: "
 
 export function IssuePriorityActivity(props: TIssuePriorityActivity) {
   const { activityId, showIssue = true, ends } = props;
-  // hooks
-  const {
-    activity: { getActivityById },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getActivityById = useIssueActivityStore((s) => s.getActivityById);
 
   const activity = getActivityById(activityId);
 

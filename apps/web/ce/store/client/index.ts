@@ -9,8 +9,8 @@ export type { TimelineStore, TimelineState, TimelineActions, IBaseTimelineStore 
 export { useInboxIssueStore } from "./inbox-issue.store";
 export type { InboxIssueStore, InboxIssueStore as InboxIssueStoreType, IInboxIssueStore } from "./inbox-issue.store";
 
-export { useProjectInboxStore, ProjectInboxStoreLegacy } from "./project-inbox.store";
-export type { ProjectInboxStore as ProjectInboxStoreType, IProjectInboxStore } from "./project-inbox.store";
+export { useProjectInboxStore } from "./project-inbox.store";
+export type { ProjectInboxStore as ProjectInboxStoreType } from "./project-inbox.store";
 
 // Page stores
 export { usePageEditorInfoStore } from "./page-editor-info.store";
@@ -24,7 +24,7 @@ export { createBasePageStore } from "./base-page.store";
 export type { BasePageStore as BasePageStoreType, IBasePage, TBasePage } from "./base-page.store";
 export type { TBasePageServices } from "./base-page.store";
 
-export { useProjectPageStore, ProjectPageStoreLegacy, ROLE_PERMISSIONS_TO_CREATE_PAGE } from "./project-page.store";
+export { useProjectPageStore, ROLE_PERMISSIONS_TO_CREATE_PAGE } from "./project-page.store";
 export type { ProjectPageStore as ProjectPageStoreType, IProjectPageStore, TProjectPage } from "./project-page.store";
 
 export {

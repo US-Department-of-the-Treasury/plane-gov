@@ -1,6 +1,6 @@
 import type { FC } from "react";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueAttachmentStore } from "@/store/issue/issue-details/attachment.store";
 // types
 import type { TAttachmentHelpers } from "../issue-detail-widgets/attachments/helper";
 // components
@@ -15,10 +15,8 @@ type TIssueAttachmentsList = {
 
 export function IssueAttachmentsList(props: TIssueAttachmentsList) {
   const { issueId, attachmentHelpers, disabled } = props;
-  // store hooks
-  const {
-    attachment: { getAttachmentsByIssueId },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getAttachmentsByIssueId = useIssueAttachmentStore((s) => s.getAttachmentsByIssueId);
   // derived values
   const { snapshot: attachmentSnapshot } = attachmentHelpers;
   const { uploadStatus } = attachmentSnapshot;

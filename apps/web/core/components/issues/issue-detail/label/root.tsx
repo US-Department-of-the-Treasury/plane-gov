@@ -5,9 +5,11 @@ import type { IIssueLabel, TIssue, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 // components
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useCreateLabel } from "@/store/queries/label";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
+import { useUpdateIssue } from "@/store/queries/issue";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
 // ui
 // types
 import { LabelList, IssueLabelSelectRoot } from "./";
@@ -40,11 +42,10 @@ export function IssueLabel(props: TIssueLabel) {
   } = props;
   const { t } = useTranslation();
   // hooks
-  const { updateIssue } = useIssueDetail(issueServiceType);
   const { mutateAsync: createLabelMutation } = useCreateLabel();
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail(issueServiceType);
+  const { mutateAsync: updateIssueMutation } = useUpdateIssue();
+  // Zustand store hooks
+  const getIssueById = useIssueStore((s) => s.getIssueById);
   const { getIssueInboxByIssueId } = useProjectInbox();
 
   const issue = isInboxIssue ? getIssueInboxByIssueId(issueId)?.issue : getIssueById(issueId);
@@ -54,7 +55,7 @@ export function IssueLabel(props: TIssueLabel) {
       updateIssue: async (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssue>) => {
         try {
           if (onLabelUpdate) onLabelUpdate(data.label_ids || []);
-          else await updateIssue(workspaceSlug, projectId, issueId, data);
+          else await updateIssueMutation({ workspaceSlug, projectId, issueId, data });
         } catch (error) {
           setToast({
             title: t("toast.error"),
@@ -87,7 +88,7 @@ export function IssueLabel(props: TIssueLabel) {
         }
       },
     }),
-    [updateIssue, createLabelMutation, onLabelUpdate]
+    [updateIssueMutation, createLabelMutation, onLabelUpdate, t, isInboxIssue]
   );
 
   return (

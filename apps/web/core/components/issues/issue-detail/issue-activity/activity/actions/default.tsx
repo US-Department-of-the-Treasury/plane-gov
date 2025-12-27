@@ -1,20 +1,18 @@
 // plane imports
 import { WorkItemsIcon } from "@plane/propel/icons";
 import { EInboxIssueSource } from "@plane/types";
-// hooks
 import { capitalizeFirstLetter } from "@plane/utils";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-// local imports
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
+// components
 import { IssueActivityBlockComponent } from "./";
 
 type TIssueDefaultActivity = { activityId: string; ends: "top" | "bottom" | undefined };
 
 export function IssueDefaultActivity(props: TIssueDefaultActivity) {
   const { activityId, ends } = props;
-  // hooks
-  const {
-    activity: { getActivityById },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getActivityById = useIssueActivityStore((s) => s.getActivityById);
 
   const activity = getActivityById(activityId);
 

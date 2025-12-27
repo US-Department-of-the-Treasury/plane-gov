@@ -1,5 +1,3 @@
-// plane imports
-import type { TIssueServiceType } from "@plane/types";
 // hooks
 import { useIssueLinks } from "@/store/queries/issue";
 // local imports
@@ -14,12 +12,11 @@ type TLinkList = {
   issueId: string;
   linkOperations: TLinkOperationsModal;
   disabled?: boolean;
-  issueServiceType: TIssueServiceType;
 };
 
 export function LinkList(props: TLinkList) {
   // props
-  const { workspaceSlug, projectId, issueId, linkOperations, disabled = false, issueServiceType } = props;
+  const { workspaceSlug, projectId, issueId, linkOperations, disabled = false } = props;
   // tanstack query
   const { data: issueLinks } = useIssueLinks(workspaceSlug, projectId, issueId);
 
@@ -28,13 +25,7 @@ export function LinkList(props: TLinkList) {
   return (
     <div className="flex flex-col gap-2 pt-4">
       {issueLinks.map((link) => (
-        <IssueLinkItem
-          key={link.id}
-          link={link}
-          linkOperations={linkOperations}
-          isNotAllowed={disabled}
-          issueServiceType={issueServiceType}
-        />
+        <IssueLinkItem key={link.id} link={link} linkOperations={linkOperations} isNotAllowed={disabled} />
       ))}
     </div>
   );

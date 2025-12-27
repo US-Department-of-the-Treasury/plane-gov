@@ -14,7 +14,8 @@ import type {
   TIssueServiceType,
 } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueSubIssuesStore } from "@/store/issue/issue-details/sub_issues.store";
 import { useProjectMembers, getProjectMemberIds } from "@/store/queries/member";
 import { useProjectStates } from "@/store/queries/state";
 import { SubIssueDisplayFilters } from "./display-filters";
@@ -34,12 +35,9 @@ export function SubWorkItemTitleActions(props: TSubWorkItemTitleActionsProps) {
   // router
   const { workspaceSlug } = useParams();
 
-  // store hooks
-  const {
-    subIssues: {
-      filters: { getSubIssueFilters, updateSubWorkItemFilters },
-    },
-  } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const getSubIssueFilters = useIssueSubIssuesStore((s) => s.filters.getSubIssueFilters);
+  const updateSubWorkItemFilters = useIssueSubIssuesStore((s) => s.filters.updateSubWorkItemFilters);
   const { data: projectMembers } = useProjectMembers(workspaceSlug, projectId);
   const { data: projectStates } = useProjectStates(workspaceSlug, projectId);
 

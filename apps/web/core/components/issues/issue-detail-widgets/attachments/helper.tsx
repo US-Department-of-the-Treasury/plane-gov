@@ -5,7 +5,8 @@ import type { TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueAttachmentStore } from "@/store/issue/issue-details/attachment.store";
 // types
 import type { TAttachmentUploadStatus } from "@/store/issue/issue-details/attachment.store";
 
@@ -27,11 +28,12 @@ export const useAttachmentOperations = (
   workspaceSlug: string,
   projectId: string,
   issueId: string,
-  issueServiceType: TIssueServiceType = EIssueServiceType.ISSUES
+  _issueServiceType: TIssueServiceType = EIssueServiceType.ISSUES
 ): TAttachmentHelpers => {
-  const {
-    attachment: { createAttachment, removeAttachment, getAttachmentsUploadStatusByIssueId },
-  } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const createAttachment = useIssueAttachmentStore((s) => s.createAttachment);
+  const removeAttachment = useIssueAttachmentStore((s) => s.removeAttachment);
+  const getAttachmentsUploadStatusByIssueId = useIssueAttachmentStore((s) => s.getAttachmentsUploadStatusByIssueId);
 
   const attachmentOperations: TAttachmentOperations = useMemo(
     () => ({

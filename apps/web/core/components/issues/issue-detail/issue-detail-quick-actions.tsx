@@ -11,13 +11,13 @@ import { generateWorkItemLink, copyTextToClipboard } from "@plane/utils";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
 import { useUser } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // queries
 import { useProjectDetails } from "@/store/queries/project";
+import { useIssue, useDeleteIssue, useArchiveIssue } from "@/store/queries/issue";
 // local imports
 import { WorkItemDetailQuickActions } from "../issue-layouts/quick-action-dropdowns";
 import { IssueSubscription } from "./subscription";
@@ -41,17 +41,12 @@ export function IssueDetailQuickActions(props: Props) {
   // hooks
   const { data: currentUser } = useUser();
   const { isMobile } = usePlatformOS();
-  const {
-    issue: { getIssueById },
-    removeIssue,
-    archiveIssue,
-  } = useIssueDetail();
   const { restoreIssue, removeIssue: removeArchivedIssue } = useIssuesActions(EIssuesStoreType.ARCHIVED);
-  // queries
+  // TanStack Query
   const { data: project } = useProjectDetails(workspaceSlug, projectId);
-
-  // derived values
-  const issue = getIssueById(issueId);
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
+  const { mutateAsync: deleteIssue } = useDeleteIssue();
+  const { mutateAsync: archiveIssue } = useArchiveIssue();
   if (!issue) return <></>;
 
   const projectIdentifier = project?.identifier;
@@ -85,7 +80,7 @@ export function IssueDetailQuickActions(props: Props) {
       if (issue?.archived_at) {
         await removeArchivedIssue(projectId, issueId);
       } else {
-        await removeIssue(workspaceSlug, projectId, issueId);
+        await deleteIssue({ workspaceSlug, projectId, issueId });
       }
 
       router.push(redirectionPath);
@@ -109,7 +104,7 @@ export function IssueDetailQuickActions(props: Props) {
 
   const handleArchiveIssue = async () => {
     try {
-      await archiveIssue(workspaceSlug, projectId, issueId);
+      await archiveIssue({ workspaceSlug, projectId, issueId });
       router.push(`/${workspaceSlug}/projects/${projectId}/issues`);
       captureSuccess({
         eventName: WORK_ITEM_TRACKER_EVENTS.archive,

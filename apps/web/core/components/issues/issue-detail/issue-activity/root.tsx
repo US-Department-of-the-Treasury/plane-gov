@@ -11,8 +11,9 @@ import type { TFileSignedURLResponse, TIssueComment } from "@plane/types";
 // components
 import { CommentCreate } from "@/components/comments/comment-create";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useUser, useUserPermissions } from "@/hooks/store/user";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
 // queries
 import { useProjectDetails } from "@/store/queries/project";
 // plane web components
@@ -47,10 +48,8 @@ export function IssueActivity(props: TIssueActivity) {
     defaultActivityFilters
   );
   const { setValue: setSortOrder, storedValue: sortOrder } = useLocalStorage("activity_sort_order", E_SORT_ORDER.ASC);
-  // store hooks
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getIssueById = useIssueStore((s) => s.getIssueById);
 
   const { getProjectRoleByWorkspaceSlugAndProjectId } = useUserPermissions();
   const { data: currentUser } = useUser();

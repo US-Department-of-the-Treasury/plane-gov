@@ -4,8 +4,8 @@ import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { useParams } from "next/navigation";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
-// components
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
 // queries
 import { useIssue } from "@/store/queries/issue";
 import type { TRenderQuickActions } from "../list/list-view-types";
@@ -30,12 +30,10 @@ export function CalendarIssueBlockRoot(props: Props) {
   // router
   const { workspaceSlug, projectId } = useParams();
 
-  // For UI state only (peek overview)
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  // Zustand store - for local cache lookup
+  const getIssueById = useIssueStore((s) => s.getIssueById);
 
-  // Try to get from MobX cache first, fallback to TanStack Query
+  // Try to get from Zustand cache first, fallback to TanStack Query
   const cachedIssue = getIssueById(issueId);
   const { data: queriedIssue } = useIssue(
     workspaceSlug?.toString() || "",

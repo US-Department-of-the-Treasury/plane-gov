@@ -4,8 +4,9 @@ import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { ISearchIssueResponse, TIssue, TIssueServiceType, TWorkItemWidgets } from "@plane/types";
 // components
 import { ExistingIssuesListModal } from "@/components/core/modals/existing-issues-list-modal";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
+import { useIssueRelationStore } from "@/store/issue/issue-details/relation.store";
 // plane web imports
 import { WorkItemAdditionalWidgetModals } from "@/plane-web/components/issues/issue-detail-widgets/modals";
 // local imports
@@ -25,24 +26,23 @@ type Props = {
 
 export function IssueDetailWidgetModals(props: Props) {
   const { workspaceSlug, projectId, issueId, issueServiceType, hideWidgets } = props;
-  // store hooks
-  const {
-    isIssueLinkModalOpen,
-    toggleIssueLinkModal: toggleIssueLinkModalStore,
-    setIssueLinkData,
-    isCreateIssueModalOpen,
-    toggleCreateIssueModal,
-    isSubIssuesModalOpen,
-    toggleSubIssuesModal,
-    relationKey,
-    isRelationModalOpen,
-    setRelationKey,
-    setLastWidgetAction,
-    toggleRelationModal,
-    createRelation,
-    issueCrudOperationState,
-    setIssueCrudOperationState,
-  } = useIssueDetail(issueServiceType);
+  // Zustand UI store hooks
+  const isIssueLinkModalOpen = useIssueDetailUIStore((s) => s.isIssueLinkModalOpen);
+  const toggleIssueLinkModalStore = useIssueDetailUIStore((s) => s.toggleIssueLinkModal);
+  const setIssueLinkData = useIssueDetailUIStore((s) => s.setIssueLinkData);
+  const isCreateIssueModalOpen = useIssueDetailUIStore((s) => s.isCreateIssueModalOpen);
+  const toggleCreateIssueModal = useIssueDetailUIStore((s) => s.toggleCreateIssueModal);
+  const isSubIssuesModalOpen = useIssueDetailUIStore((s) => s.isSubIssuesModalOpen);
+  const toggleSubIssuesModal = useIssueDetailUIStore((s) => s.toggleSubIssuesModal);
+  const relationKey = useIssueDetailUIStore((s) => s.relationKey);
+  const isRelationModalOpen = useIssueDetailUIStore((s) => s.isRelationModalOpen);
+  const setRelationKey = useIssueDetailUIStore((s) => s.setRelationKey);
+  const setLastWidgetAction = useIssueDetailUIStore((s) => s.setLastWidgetAction);
+  const toggleRelationModal = useIssueDetailUIStore((s) => s.toggleRelationModal);
+  const issueCrudOperationState = useIssueDetailUIStore((s) => s.issueCrudOperationState);
+  const setIssueCrudOperationState = useIssueDetailUIStore((s) => s.setIssueCrudOperationState);
+  // Zustand relation store
+  const createRelation = useIssueRelationStore((s) => s.createRelation);
 
   // helper hooks
   const subIssueOperations = useSubIssueOperations(issueServiceType);
@@ -155,7 +155,6 @@ export function IssueDetailWidgetModals(props: Props) {
           isModalOpen={isIssueLinkModalOpen}
           handleOnClose={handleIssueLinkModalOnClose}
           linkOperations={handleLinkOperations}
-          issueServiceType={issueServiceType}
         />
       )}
 

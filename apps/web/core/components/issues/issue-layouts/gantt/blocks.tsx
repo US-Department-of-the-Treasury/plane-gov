@@ -7,11 +7,12 @@ import { findTotalDaysInRange, generateWorkItemLink } from "@plane/utils";
 // components
 import { SIDEBAR_WIDTH } from "@/components/gantt-chart/constants";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
 // queries
 import { useIssue } from "@/store/queries/issue";
 import { useProjects, getProjectById } from "@/store/queries/project";
@@ -35,20 +36,18 @@ export function IssueGanttBlock(props: Props) {
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
   const workspaceSlug = routerWorkspaceSlug?.toString();
   const projectId = routerProjectId?.toString();
-  // store hooks - keeping for fallback in cross-project views
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  // Zustand store - for fallback in cross-project views
+  const getIssueById = useIssueStore((s) => s.getIssueById);
   // hooks
   const { isMobile } = usePlatformOS();
   const { handleRedirection } = useIssuePeekOverviewRedirection(isEpic);
 
-  // Try TanStack Query first (for single-project views), fallback to MobX
-  const issueFromMobX = getIssueById(issueId);
-  const { data: issueFromQuery } = useIssue(workspaceSlug ?? "", projectId ?? issueFromMobX?.project_id ?? "", issueId);
+  // Try TanStack Query first (for single-project views), fallback to Zustand
+  const issueFromStore = getIssueById(issueId);
+  const { data: issueFromQuery } = useIssue(workspaceSlug ?? "", projectId ?? issueFromStore?.project_id ?? "", issueId);
 
   // derived values
-  const issueDetails = issueFromQuery ?? issueFromMobX;
+  const issueDetails = issueFromQuery ?? issueFromStore;
   const { data: projectStates } = useProjectStates(workspaceSlug, issueDetails?.project_id);
   const stateDetails =
     projectStates && issueDetails?.state_id ? getStateById(projectStates, issueDetails.state_id) : undefined;
@@ -111,10 +110,8 @@ export function IssueGanttSidebarBlock(props: Props) {
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
   const workspaceSlug = routerWorkspaceSlug?.toString();
   const projectId = routerProjectId?.toString();
-  // store hooks - keeping for fallback in cross-project views
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  // Zustand store - for fallback in cross-project views
+  const getIssueById = useIssueStore((s) => s.getIssueById);
   const { isMobile } = usePlatformOS();
   const storeType = useIssueStoreType() as GanttStoreType;
   const { issuesFilter } = useIssues(storeType);
@@ -122,15 +119,15 @@ export function IssueGanttSidebarBlock(props: Props) {
   // handlers
   const { handleRedirection } = useIssuePeekOverviewRedirection(isEpic);
 
-  // Try TanStack Query first (for single-project views), fallback to MobX
-  const issueFromMobX = getIssueById(issueId);
-  const { data: issueFromQuery } = useIssue(workspaceSlug ?? "", projectId ?? issueFromMobX?.project_id ?? "", issueId);
+  // Try TanStack Query first (for single-project views), fallback to Zustand
+  const issueFromStore = getIssueById(issueId);
+  const { data: issueFromQuery } = useIssue(workspaceSlug ?? "", projectId ?? issueFromStore?.project_id ?? "", issueId);
 
   // queries
   const { data: projects } = useProjects(workspaceSlug);
 
   // derived values
-  const issueDetails = issueFromQuery ?? issueFromMobX;
+  const issueDetails = issueFromQuery ?? issueFromStore;
   const projectDetails = getProjectById(projects, issueDetails?.project_id);
   const projectIdentifier = projectDetails?.identifier;
 

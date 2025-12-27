@@ -5,8 +5,9 @@ import { useTranslation } from "@plane/i18n";
 import { TabNavigationList, TabNavigationItem } from "@plane/propel/tab-navigation";
 import type { EUserProjectRoles } from "@plane/types";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useUserPermissions } from "@/hooks/store/user";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
 // queries
 import { useProjects } from "@/store/queries/project";
 // plane web imports
@@ -51,11 +52,11 @@ export function TabNavigationRoot(props: TTabNavigationRootProps) {
 
   // Store hooks
   const { allowPermissions } = useUserPermissions();
+  // Zustand store
+  const getIssueIdByIdentifier = useIssueStore((s) => s.getIssueIdByIdentifier);
+  const getIssueById = useIssueStore((s) => s.getIssueById);
   // queries
   const { data: projects } = useProjects(workspaceSlug);
-  const {
-    issue: { getIssueIdByIdentifier, getIssueById },
-  } = useIssueDetail();
 
   // Tab preferences hook
   const { tabPreferences, handleToggleDefaultTab, handleHideTab, handleShowTab } = useTabPreferences(

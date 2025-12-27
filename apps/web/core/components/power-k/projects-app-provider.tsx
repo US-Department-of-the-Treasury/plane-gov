@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { usePowerK } from "@/hooks/store/use-power-k";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
 import { useUser } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 // plane web imports
@@ -30,10 +31,9 @@ export function ProjectsAppPowerKProvider() {
   // store hooks
   const { activeContext, isPowerKModalOpen, togglePowerKModal, setActivePage } = usePowerK();
   const { data: currentUser } = useUser();
-  // derived values
-  const {
-    issue: { getIssueById, getIssueIdByIdentifier },
-  } = useIssueDetail();
+  // Zustand store
+  const getIssueById = useIssueStore((s) => s.getIssueById);
+  const getIssueIdByIdentifier = useIssueStore((s) => s.getIssueIdByIdentifier);
   // derived values
   const workItemId = workItemIdentifier ? getIssueIdByIdentifier(workItemIdentifier.toString()) : undefined;
   const workItemDetails = workItemId ? getIssueById(workItemId) : undefined;

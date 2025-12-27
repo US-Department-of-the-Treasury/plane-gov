@@ -1,14 +1,10 @@
 import React from "react";
 import { useTranslation } from "@plane/i18n";
-// hooks
 // components
 import { cn } from "@plane/utils";
 import { SprintDropdown } from "@/components/dropdowns/sprint";
-// ui
-// helpers
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 // queries
-import { useAddIssueToSprint, useRemoveIssueFromSprint } from "@/store/queries/issue";
+import { useIssue, useAddIssueToSprint, useRemoveIssueFromSprint } from "@/store/queries/issue";
 // types
 import type { TIssueOperations } from "./root";
 
@@ -25,17 +21,12 @@ export function IssueSprintSelect(props: TIssueSprintSelect) {
   const { className = "", workspaceSlug, projectId, issueId, issueOperations, disabled = false } = props;
   const { t } = useTranslation();
 
-  // store hooks (for issue data)
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  // TanStack Query - fetch current issue
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
 
-  // queries
+  // TanStack Query mutations
   const { mutate: addToSprint, isPending: isAdding } = useAddIssueToSprint();
   const { mutate: removeFromSprint, isPending: isRemoving } = useRemoveIssueFromSprint();
-
-  // derived values
-  const issue = getIssueById(issueId);
   const isUpdating = isAdding || isRemoving;
   const disableSelect = disabled || isUpdating;
 

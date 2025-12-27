@@ -1,6 +1,6 @@
 import { Type } from "lucide-react";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 // components
 import { IssueActivityBlockComponent } from "./";
 
@@ -8,10 +8,8 @@ type TIssueNameActivity = { activityId: string; ends: "top" | "bottom" | undefin
 
 export function IssueNameActivity(props: TIssueNameActivity) {
   const { activityId, ends } = props;
-  // hooks
-  const {
-    activity: { getActivityById },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getActivityById = useIssueActivityStore((s) => s.getActivityById);
 
   const activity = getActivityById(activityId);
 

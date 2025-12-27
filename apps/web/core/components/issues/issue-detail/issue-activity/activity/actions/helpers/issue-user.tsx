@@ -1,6 +1,6 @@
 import Link from "next/link";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 
 type TIssueUser = {
   activityId: string;
@@ -9,10 +9,8 @@ type TIssueUser = {
 
 export function IssueUser(props: TIssueUser) {
   const { activityId, customUserName } = props;
-  // hooks
-  const {
-    activity: { getActivityById },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getActivityById = useIssueActivityStore((s) => s.getActivityById);
 
   const activity = getActivityById(activityId);
 
