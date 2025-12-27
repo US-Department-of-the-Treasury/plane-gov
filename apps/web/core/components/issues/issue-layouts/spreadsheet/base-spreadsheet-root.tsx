@@ -7,7 +7,7 @@ import type { IIssueDisplayFilterOptions } from "@plane/types";
 import { EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useGroupedIssueIds, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
+import { useGroupedIssueIds, useIssuePaginationData, useIssueViewFlags, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -71,8 +71,9 @@ export function BaseSpreadsheetRoot(props: IBaseSpreadsheetRoot) {
         ? sprintFilters?.displayProperties
         : issuesFilter?.issueFilters?.displayProperties;
 
-  // derived values
-  const { enableInlineEditing, enableQuickAdd, enableIssueCreation } = issues?.viewFlags || {};
+  // Use reactive hook for view flags
+  const viewFlags = useIssueViewFlags(storeType);
+  const { enableInlineEditing, enableQuickAdd, enableIssueCreation } = viewFlags;
   // user role validation
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
@@ -99,7 +100,9 @@ export function BaseSpreadsheetRoot(props: IBaseSpreadsheetRoot) {
   const groupedIssueIds = useGroupedIssueIds(storeType);
   // Type guard: ensure groupedIssueIds is not an array before indexing with ALL_ISSUES
   const issueIds = (!Array.isArray(groupedIssueIds) ? groupedIssueIds[ALL_ISSUES] : []) ?? [];
-  const nextPageResults = issues.getPaginationData(ALL_ISSUES, undefined)?.nextPageResults;
+  // Use reactive hook for pagination data (ALL_ISSUES is used when groupId is undefined)
+  const paginationData = useIssuePaginationData(storeType);
+  const nextPageResults = paginationData?.nextPageResults;
 
   const handleDisplayFiltersUpdate = useCallback(
     (updatedDisplayFilter: Partial<IIssueDisplayFilterOptions>) => {

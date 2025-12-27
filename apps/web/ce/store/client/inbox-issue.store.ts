@@ -1,4 +1,4 @@
-import { clone, set as lodashSet } from "lodash-es";
+import { clone } from "lodash-es";
 import { create } from "zustand";
 import type {
   TInboxIssue,
@@ -9,14 +9,18 @@ import type {
 } from "@plane/types";
 import { EInboxIssueStatus } from "@plane/types";
 // services
+import { EpicService } from "@/services/epic.service";
 import { InboxIssueService } from "@/services/inbox";
-import { IssueService } from "@/services/issue";
+import { IssueActivityService, IssueService } from "@/services/issue";
 // store
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 import type { CoreRootStore } from "@/store/root.store";
 
 // Service instances at module level
 const inboxIssueService = new InboxIssueService();
 const issueService = new IssueService();
+const epicService = new EpicService();
+const issueActivityService = new IssueActivityService();
 
 // State interface
 export interface InboxIssueStoreState {
@@ -224,23 +228,19 @@ export const useInboxIssueStore = create<InboxIssueStore>((set, get) => ({
 
       await issueService.patchIssue(state.workspaceSlug, state.projectId, state.issue.id, issue);
 
-      if (issue.sprint_id && state.rootStore) {
-        await state.rootStore.issue.issueDetail.addIssueToSprint(
-          state.workspaceSlug,
-          state.projectId,
-          issue.sprint_id,
-          [state.issue.id]
-        );
+      // Add issue to sprint if sprint_id is provided
+      if (issue.sprint_id) {
+        await issueService.addIssueToSprint(state.workspaceSlug, state.projectId, issue.sprint_id, {
+          issues: [state.issue.id],
+        });
       }
 
-      if (issue.epic_ids && state.rootStore) {
-        await state.rootStore.issue.issueDetail.changeEpicsInIssue(
-          state.workspaceSlug,
-          state.projectId,
-          state.issue.id,
-          issue.epic_ids,
-          []
-        );
+      // Add epics to issue if epic_ids are provided
+      if (issue.epic_ids && issue.epic_ids.length > 0) {
+        await epicService.addEpicsToIssue(state.workspaceSlug, state.projectId, state.issue.id, {
+          epics: issue.epic_ids,
+          removed_epics: [],
+        });
       }
 
       // Fetching activity
@@ -253,8 +253,32 @@ export const useInboxIssueStore = create<InboxIssueStore>((set, get) => ({
   fetchIssueActivity: async () => {
     const state = get();
     try {
-      if (!state.issue.id || !state.rootStore) return;
-      await state.rootStore.issue.issueDetail.fetchActivities(state.workspaceSlug, state.projectId, state.issue.id);
+      if (!state.issue.id) return;
+
+      // Get current activity IDs to determine if we should fetch only new activities
+      const activityStore = useIssueActivityStore.getState();
+      const currentActivityIds = activityStore.getActivitiesByIssueId(state.issue.id);
+
+      let props: { created_at__gt?: string } = {};
+      if (currentActivityIds && currentActivityIds.length > 0) {
+        const currentActivity = activityStore.getActivityById(currentActivityIds[currentActivityIds.length - 1]);
+        if (currentActivity) {
+          props = { created_at__gt: currentActivity.created_at };
+        }
+      }
+
+      // Fetch activities from service
+      const activities = await issueActivityService.getIssueActivities(
+        state.workspaceSlug,
+        state.projectId,
+        state.issue.id,
+        props
+      );
+
+      // Update activity store with new activities
+      const activityIds = activities.map((activity) => activity.id);
+      activityStore.updateActivities(state.issue.id, activityIds);
+      activityStore.updateActivityMap(activities);
     } catch {
       console.error("Failed to fetch issue activity");
     }

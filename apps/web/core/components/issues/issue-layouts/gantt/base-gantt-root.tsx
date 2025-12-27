@@ -16,6 +16,8 @@ import { useIssues } from "@/hooks/store/use-issues";
 import {
   useEpicIssueFilters,
   useGroupedIssueIds,
+  useIssuePaginationData,
+  useIssueViewFlags,
   useProjectIssueFilters,
   useProjectViewIssueFilters,
   useSprintIssueFilters,
@@ -92,9 +94,13 @@ export function BaseGanttRoot(props: IBaseGanttRoot) {
   const groupedIssueIds = useGroupedIssueIds(storeType);
   // Type guard: ensure groupedIssueIds is not an array before indexing with ALL_ISSUES
   const issuesIds = (!Array.isArray(groupedIssueIds) ? (groupedIssueIds[ALL_ISSUES] as string[]) : []) ?? [];
-  const nextPageResults = issues.getPaginationData(undefined, undefined)?.nextPageResults;
+  // Use reactive hook for pagination data
+  const paginationData = useIssuePaginationData(storeType);
+  const nextPageResults = paginationData?.nextPageResults;
 
-  const { enableIssueCreation } = issues?.viewFlags || {};
+  // Use reactive hook for view flags
+  const viewFlags = useIssueViewFlags(storeType);
+  const { enableIssueCreation } = viewFlags;
 
   const loadMoreIssues = useCallback(() => {
     fetchNextIssues();
