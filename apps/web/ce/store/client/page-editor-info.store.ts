@@ -69,41 +69,7 @@ export interface IPageEditorInfo {
 }
 
 /**
- * Legacy class wrapper for backward compatibility
- * Delegates to usePageEditorInfoStore.getState()
- *
- * @deprecated Use usePageEditorInfoStore hook directly in components
- */
-export class PageEditorInfoStoreLegacy implements IPageEditorInfo {
-  constructor() {
-    // No-op constructor for backward compatibility
-  }
-
-  get editorRef(): EditorRefApi | null {
-    return usePageEditorInfoStore.getState().editorRef;
-  }
-
-  get assetsList(): TEditorAsset[] {
-    return usePageEditorInfoStore.getState().assetsList;
-  }
-
-  setEditorRef = (editorRef: EditorRefApi | null): void => {
-    usePageEditorInfoStore.getState().setEditorRef(editorRef);
-  };
-
-  updateAssetsList = (assets: TEditorAsset[]): void => {
-    usePageEditorInfoStore.getState().updateAssetsList(assets);
-  };
-}
-
-/**
  * Legacy type alias for backward compatibility
  * @deprecated Use PageEditorInfoStore instead
  */
 export type TPageEditorInstance = IPageEditorInfo;
-
-/**
- * Legacy class export for backward compatibility
- * @deprecated Use usePageEditorInfoStore hook or PageEditorInfoStoreLegacy
- */
-export const PageEditorInstance = PageEditorInfoStoreLegacy;

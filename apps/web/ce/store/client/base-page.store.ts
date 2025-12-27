@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import type { StoreApi } from "zustand";
 // plane imports
 import { EPageAccess } from "@plane/constants";
 import type { TChangeHandlerProps } from "@plane/propel/emoji-icon-picker";
@@ -7,10 +6,7 @@ import type { TDocumentPayload, TLogoProps, TNameDescriptionLoader, TPage } from
 // plane web store
 import type { TBasePageServices } from "@/store/pages/base-page";
 import { getRouterWorkspaceSlug, useFavoriteStore } from "@/store/client";
-import { useUserStore } from "@/store/user";
 import { FavoriteService } from "@/services/favorite";
-// local imports
-import { usePageEditorStore } from "@/store/ui/page-editor.store";
 
 // Service instance at module level
 const favoriteService = new FavoriteService();
@@ -51,7 +47,7 @@ export interface BasePageStoreState {
   oldName: string;
 
   // Extended properties from ExtendedBasePage
-  asJSONExtended: Record<string, any>;
+  asJSONExtended: Record<string, unknown>;
 }
 
 /**
@@ -123,10 +119,7 @@ const createInitialState = (page: TPage): BasePageStoreState => ({
  * Each page gets its own store instance for managing its state.
  * This replaces the MobX BasePage class with a Zustand store.
  */
-export const createBasePageStore = (
-  page: TPage,
-  services: TBasePageServices
-) => {
+export const createBasePageStore = (page: TPage, services: TBasePageServices) => {
   return create<BasePageStore>()((set, get) => ({
     ...createInitialState(page),
 
@@ -177,11 +170,13 @@ export const createBasePageStore = (
       if (!currentPage) return undefined;
       try {
         // Optimistic update
-        set((state) => {
+        set(() => {
           const updates: Partial<BasePageStoreState> = {};
           Object.keys(pageData).forEach((key) => {
             const currentPageKey = key as keyof TPage;
-            updates[currentPageKey as keyof BasePageStoreState] = pageData[currentPageKey] as any;
+            updates[currentPageKey as keyof BasePageStoreState] = pageData[
+              currentPageKey
+            ] as BasePageStoreState[keyof BasePageStoreState];
           });
           return updates;
         });
@@ -189,11 +184,13 @@ export const createBasePageStore = (
         return await services.update(currentPage);
       } catch (error) {
         // Rollback on error
-        set((state) => {
+        set(() => {
           const rollback: Partial<BasePageStoreState> = {};
           Object.keys(pageData).forEach((key) => {
             const currentPageKey = key as keyof TPage;
-            rollback[currentPageKey as keyof BasePageStoreState] = currentPage?.[currentPageKey] as any;
+            rollback[currentPageKey as keyof BasePageStoreState] = currentPage?.[
+              currentPageKey
+            ] as BasePageStoreState[keyof BasePageStoreState];
           });
           return rollback;
         });
@@ -379,12 +376,12 @@ export const createBasePageStore = (
     duplicate: async () => await services.duplicate(),
 
     mutateProperties: (data, shouldUpdateName = true) => {
-      set((state) => {
+      set(() => {
         const updates: Partial<BasePageStoreState> = {};
         Object.keys(data).forEach((key) => {
           const value = data[key as keyof TPage];
           if (key === "name" && !shouldUpdateName) return;
-          updates[key as keyof BasePageStoreState] = value as any;
+          updates[key as keyof BasePageStoreState] = value as BasePageStoreState[keyof BasePageStoreState];
         });
         return updates;
       });
@@ -450,241 +447,11 @@ export interface IBasePage {
 
   // Sub-store
   editor: {
-    editorRef: any;
-    assetsList: any[];
-    setEditorRef: (ref: any) => void;
-    updateAssetsList: (assets: any[]) => void;
+    editorRef: unknown;
+    assetsList: unknown[];
+    setEditorRef: (ref: unknown) => void;
+    updateAssetsList: (assets: unknown[]) => void;
   };
-}
-
-/**
- * Legacy class wrapper for backward compatibility with MobX patterns.
- * Used to maintain API compatibility during migration.
- *
- * @deprecated Use TanStack Query hooks directly in React components
- */
-export class BasePageStoreLegacy implements IBasePage {
-  private store: StoreApi<BasePageStore>;
-  private titleUpdateTimer: NodeJS.Timeout | null = null;
-
-  constructor(_rootStore: any, page: TPage, services: TBasePageServices) {
-    this.store = createBasePageStore(page, services);
-
-    // Set up title auto-save similar to MobX reaction
-    // Note: In a real component, this should be handled with useEffect
-    let previousName = page?.name;
-    this.store.subscribe((state) => {
-      if (state.name !== previousName) {
-        if (this.titleUpdateTimer) {
-          clearTimeout(this.titleUpdateTimer);
-        }
-
-        this.titleUpdateTimer = setTimeout(() => {
-          const currentName = this.store.getState().name;
-          if (currentName !== previousName) {
-            this.store.getState().setIsSubmitting("submitting");
-            services
-              .update({ name: currentName })
-              .catch(() => {
-                this.store.setState({ name: this.store.getState().oldName });
-              })
-              .finally(() => {
-                this.store.getState().setIsSubmitting("submitted");
-              });
-            previousName = currentName;
-          }
-        }, 2000);
-      }
-    });
-  }
-
-  // Loaders
-  get isSubmitting() {
-    return this.store.getState().isSubmitting;
-  }
-
-  get isSyncingWithServer() {
-    return this.store.getState().isSyncingWithServer;
-  }
-
-  // Page properties
-  get id() {
-    return this.store.getState().id;
-  }
-
-  get name() {
-    return this.store.getState().name;
-  }
-
-  get logo_props() {
-    return this.store.getState().logo_props;
-  }
-
-  get description() {
-    return this.store.getState().description;
-  }
-
-  get description_html() {
-    return this.store.getState().description_html;
-  }
-
-  get color() {
-    return this.store.getState().color;
-  }
-
-  get label_ids() {
-    return this.store.getState().label_ids;
-  }
-
-  get owned_by() {
-    return this.store.getState().owned_by;
-  }
-
-  get access() {
-    return this.store.getState().access;
-  }
-
-  get is_favorite() {
-    return this.store.getState().is_favorite;
-  }
-
-  get is_locked() {
-    return this.store.getState().is_locked;
-  }
-
-  get archived_at() {
-    return this.store.getState().archived_at;
-  }
-
-  get workspace() {
-    return this.store.getState().workspace;
-  }
-
-  get project_ids() {
-    return this.store.getState().project_ids;
-  }
-
-  get created_by() {
-    return this.store.getState().created_by;
-  }
-
-  get updated_by() {
-    return this.store.getState().updated_by;
-  }
-
-  get created_at() {
-    return this.store.getState().created_at;
-  }
-
-  get updated_at() {
-    return this.store.getState().updated_at;
-  }
-
-  get deleted_at() {
-    return this.store.getState().deleted_at;
-  }
-
-  // Computed
-  get asJSON() {
-    return this.store.getState().getAsJSON();
-  }
-
-  get isCurrentUserOwner() {
-    // Direct Zustand store access - no rootStore indirection
-    const currentUserId = useUserStore.getState().data?.id;
-    return this.store.getState().getIsCurrentUserOwner(currentUserId);
-  }
-
-  // Helpers
-  get oldName() {
-    return this.store.getState().oldName;
-  }
-
-  setIsSubmitting = (value: TNameDescriptionLoader) => {
-    this.store.getState().setIsSubmitting(value);
-  };
-
-  cleanup = () => {
-    if (this.titleUpdateTimer) {
-      clearTimeout(this.titleUpdateTimer);
-    }
-  };
-
-  // Actions
-  update = async (pageData: Partial<TPage>) => {
-    return this.store.getState().update(pageData);
-  };
-
-  updateTitle = (title: string) => {
-    this.store.getState().updateTitle(title);
-  };
-
-  updateDescription = async (document: TDocumentPayload) => {
-    return this.store.getState().updateDescription(document);
-  };
-
-  makePublic = async (params: { shouldSync?: boolean }) => {
-    return this.store.getState().makePublic(params);
-  };
-
-  makePrivate = async (params: { shouldSync?: boolean }) => {
-    return this.store.getState().makePrivate(params);
-  };
-
-  lock = async (params: { shouldSync?: boolean; recursive?: boolean }) => {
-    return this.store.getState().lock(params);
-  };
-
-  unlock = async (params: { shouldSync?: boolean; recursive?: boolean }) => {
-    return this.store.getState().unlock(params);
-  };
-
-  archive = async (params: { shouldSync?: boolean; archived_at?: string | null }) => {
-    return this.store.getState().archive(params);
-  };
-
-  restore = async (params: { shouldSync?: boolean }) => {
-    return this.store.getState().restore(params);
-  };
-
-  updatePageLogo = async (value: TChangeHandlerProps) => {
-    return this.store.getState().updatePageLogo(value);
-  };
-
-  addToFavorites = async () => {
-    return this.store.getState().addToFavorites();
-  };
-
-  removePageFromFavorites = async () => {
-    return this.store.getState().removePageFromFavorites();
-  };
-
-  duplicate = async () => {
-    return this.store.getState().duplicate();
-  };
-
-  mutateProperties = (data: Partial<TPage>, shouldUpdateName?: boolean) => {
-    this.store.getState().mutateProperties(data, shouldUpdateName);
-  };
-
-  setSyncingStatus = (status: "syncing" | "synced" | "error") => {
-    this.store.getState().setSyncingStatus(status);
-  };
-
-  // Sub-store (editor) - delegate to global page editor store
-  get editor() {
-    const editorStore = usePageEditorStore.getState();
-    return {
-      get editorRef() {
-        return editorStore.editorRef;
-      },
-      get assetsList() {
-        return editorStore.assetsList;
-      },
-      setEditorRef: editorStore.setEditorRef,
-      updateAssetsList: editorStore.updateAssetsList,
-    };
-  }
 }
 
 // Export types for backward compatibility

@@ -29,14 +29,14 @@ interface IssueCommentReactionStoreActions {
     projectId: string,
     commentId: string,
     reaction: string
-  ) => Promise<any>;
+  ) => Promise<TIssueCommentReaction>;
   removeCommentReaction: (
     workspaceSlug: string,
     projectId: string,
     commentId: string,
     reaction: string,
     userId: string
-  ) => Promise<any>;
+  ) => Promise<void>;
   // helper methods
   getCommentReactionsByCommentId: (commentId: string) => { [reaction_id: string]: string[] } | undefined;
   getCommentReactionById: (reactionId: string) => TIssueCommentReaction | undefined;
@@ -96,12 +96,12 @@ export const useIssueCommentReactionStore = create<IssueCommentReactionStore>()(
     try {
       const response = await issueReactionService.listIssueCommentReactions(workspaceSlug, projectId, commentId);
 
-      const groupedReactions = groupReactions(response || [], "reaction");
+      const groupedReactions = groupReactions(response || [], "reaction") as Record<string, TIssueCommentReaction[]>;
 
       const commentReactionIdsMap: { [reaction: string]: string[] } = {};
 
-      Object.keys(groupedReactions).map((reactionId) => {
-        const reactionIds = (groupedReactions[reactionId] || []).map((reaction) => reaction.id);
+      Object.keys(groupedReactions).forEach((reactionId) => {
+        const reactionIds = (groupedReactions[reactionId] || []).map((reaction: TIssueCommentReaction) => reaction.id);
         commentReactionIdsMap[reactionId] = reactionIds;
       });
 
@@ -127,12 +127,15 @@ export const useIssueCommentReactionStore = create<IssueCommentReactionStore>()(
   },
 
   applyCommentReactions: (commentId, commentReactions) => {
-    const groupedReactions = groupReactions(commentReactions || [], "reaction");
+    const groupedReactions = groupReactions(commentReactions || [], "reaction") as Record<
+      string,
+      TIssueCommentReaction[]
+    >;
 
     const commentReactionIdsMap: { [reaction: string]: string[] } = {};
 
-    Object.keys(groupedReactions).map((reactionId) => {
-      const reactionIds = (groupedReactions[reactionId] || []).map((reaction) => reaction.id);
+    Object.keys(groupedReactions).forEach((reactionId) => {
+      const reactionIds = (groupedReactions[reactionId] || []).map((reaction: TIssueCommentReaction) => reaction.id);
       commentReactionIdsMap[reactionId] = reactionIds;
     });
 
@@ -155,9 +158,9 @@ export const useIssueCommentReactionStore = create<IssueCommentReactionStore>()(
 
   createCommentReaction: async (workspaceSlug, projectId, commentId, reaction) => {
     try {
-      const response = await issueReactionService.createIssueCommentReaction(workspaceSlug, projectId, commentId, {
+      const response = (await issueReactionService.createIssueCommentReaction(workspaceSlug, projectId, commentId, {
         reaction,
-      });
+      })) as TIssueCommentReaction;
 
       // Update state immutably using lodash update pattern
       set((state) => {
@@ -168,14 +171,15 @@ export const useIssueCommentReactionStore = create<IssueCommentReactionStore>()(
           newCommentReactions[commentId] = {};
         }
 
+        const responseId = response.id;
         // Update or create reaction array immutably
-        update(newCommentReactions, `${commentId}.${reaction}`, (reactionId) => {
-          if (!reactionId) return [response.id];
-          return concat(reactionId, response.id);
+        update(newCommentReactions, `${commentId}.${reaction}`, (reactionIds: string[] | undefined) => {
+          if (!reactionIds) return [responseId];
+          return concat(reactionIds, responseId);
         });
 
         const newCommentReactionMap = { ...state.commentReactionMap };
-        lodashSet(newCommentReactionMap, response.id, response);
+        lodashSet(newCommentReactionMap, responseId, response);
 
         return {
           commentReactions: newCommentReactions,
@@ -222,17 +226,10 @@ export const useIssueCommentReactionStore = create<IssueCommentReactionStore>()(
         });
       }
 
-      const response = await issueReactionService.deleteIssueCommentReaction(
-        workspaceSlug,
-        projectId,
-        commentId,
-        reaction
-      );
-
-      return response;
+      await issueReactionService.deleteIssueCommentReaction(workspaceSlug, projectId, commentId, reaction);
     } catch (error) {
       // Rollback on error by refetching
-      get().fetchCommentReactions(workspaceSlug, projectId, commentId);
+      void get().fetchCommentReactions(workspaceSlug, projectId, commentId);
       throw error;
     }
   },
@@ -252,14 +249,14 @@ export interface IIssueCommentReactionStoreActions {
     projectId: string,
     commentId: string,
     reaction: string
-  ) => Promise<any>;
+  ) => Promise<TIssueCommentReaction>;
   removeCommentReaction: (
     workspaceSlug: string,
     projectId: string,
     commentId: string,
     reaction: string,
     userId: string
-  ) => Promise<any>;
+  ) => Promise<void>;
 }
 
 export interface IIssueCommentReactionStore extends IIssueCommentReactionStoreActions {
@@ -271,58 +268,3 @@ export interface IIssueCommentReactionStore extends IIssueCommentReactionStoreAc
   getCommentReactionById: (reactionId: string) => TIssueCommentReaction | undefined;
   commentReactionsByUser: (commentId: string, userId: string) => TIssueCommentReaction[];
 }
-
-// Legacy class wrapper for backward compatibility
-export class IssueCommentReactionStoreLegacy implements IIssueCommentReactionStore {
-  constructor(private rootStore: any) {}
-
-  // Getters that delegate to Zustand store
-  get commentReactions(): TIssueCommentReactionIdMap {
-    return useIssueCommentReactionStore.getState().commentReactions;
-  }
-
-  get commentReactionMap(): TIssueCommentReactionMap {
-    return useIssueCommentReactionStore.getState().commentReactionMap;
-  }
-
-  // Helper methods that delegate to Zustand store
-  getCommentReactionsByCommentId = (commentId: string) => {
-    return useIssueCommentReactionStore.getState().getCommentReactionsByCommentId(commentId);
-  };
-
-  getCommentReactionById = (reactionId: string) => {
-    return useIssueCommentReactionStore.getState().getCommentReactionById(reactionId);
-  };
-
-  commentReactionsByUser = (commentId: string, userId: string) => {
-    return useIssueCommentReactionStore.getState().commentReactionsByUser(commentId, userId);
-  };
-
-  // Action methods that delegate to Zustand store
-  fetchCommentReactions = async (workspaceSlug: string, projectId: string, commentId: string) => {
-    return useIssueCommentReactionStore.getState().fetchCommentReactions(workspaceSlug, projectId, commentId);
-  };
-
-  applyCommentReactions = (commentId: string, commentReactions: TIssueCommentReaction[]) => {
-    return useIssueCommentReactionStore.getState().applyCommentReactions(commentId, commentReactions);
-  };
-
-  createCommentReaction = async (workspaceSlug: string, projectId: string, commentId: string, reaction: string) => {
-    return useIssueCommentReactionStore.getState().createCommentReaction(workspaceSlug, projectId, commentId, reaction);
-  };
-
-  removeCommentReaction = async (
-    workspaceSlug: string,
-    projectId: string,
-    commentId: string,
-    reaction: string,
-    userId: string
-  ) => {
-    return useIssueCommentReactionStore
-      .getState()
-      .removeCommentReaction(workspaceSlug, projectId, commentId, reaction, userId);
-  };
-}
-
-// Export the legacy class as IssueCommentReactionStore for backward compatibility
-export { IssueCommentReactionStoreLegacy as IssueCommentReactionStore };
