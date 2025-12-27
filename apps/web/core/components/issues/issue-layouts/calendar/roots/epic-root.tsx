@@ -1,9 +1,7 @@
 import { useCallback } from "react";
 import { useParams } from "next/navigation";
-// plane imports
-import { EIssuesStoreType } from "@plane/types";
 // hooks
-import { useIssues } from "@/hooks/store/use-issues";
+import { useAddIssuesToEpic } from "@/store/queries/epic";
 // local imports
 import { EpicIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseCalendarRoot } from "../base-calendar-root";
@@ -11,14 +9,17 @@ import { BaseCalendarRoot } from "../base-calendar-root";
 export function EpicCalendarLayout() {
   const { workspaceSlug, projectId, epicId } = useParams();
 
-  const {
-    issues: { addIssuesToEpic },
-  } = useIssues(EIssuesStoreType.EPIC);
+  const { mutateAsync: addIssuesToEpic } = useAddIssuesToEpic();
 
   const addIssuesToView = useCallback(
     (issueIds: string[]) => {
       if (!workspaceSlug || !projectId || !epicId) throw new Error();
-      return addIssuesToEpic(workspaceSlug.toString(), projectId.toString(), epicId.toString(), issueIds);
+      return addIssuesToEpic({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        epicId: epicId.toString(),
+        issueIds,
+      });
     },
     [addIssuesToEpic, workspaceSlug, projectId, epicId]
   );

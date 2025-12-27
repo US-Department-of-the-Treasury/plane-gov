@@ -570,6 +570,40 @@ export function useDeleteEpicLink() {
   });
 }
 
+// Issue-Epic association mutations
+
+interface AddIssuesToEpicParams {
+  workspaceSlug: string;
+  projectId: string;
+  epicId: string;
+  issueIds: string[];
+}
+
+/**
+ * Hook to add issues to an epic.
+ * Replaces MobX BaseIssuesStore.addIssuesToEpic for write operations.
+ *
+ * @example
+ * const { mutateAsync: addIssuesToEpic, isPending } = useAddIssuesToEpic();
+ * await addIssuesToEpic({ workspaceSlug, projectId, epicId, issueIds: ["issue-1", "issue-2"] });
+ */
+export function useAddIssuesToEpic() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, projectId, epicId, issueIds }: AddIssuesToEpicParams) =>
+      epicService.addIssuesToEpic(workspaceSlug, projectId, epicId, { issues: issueIds }),
+    onSettled: (_data, _error, { workspaceSlug, projectId, epicId }) => {
+      // Invalidate epic issues list
+      void queryClient.invalidateQueries({ queryKey: queryKeys.issues.list.epic(workspaceSlug, projectId, epicId) });
+      // Invalidate epic details (issue count may change)
+      void queryClient.invalidateQueries({ queryKey: queryKeys.epics.detail(epicId) });
+      // Invalidate all project issues (the issues may have changed)
+      void queryClient.invalidateQueries({ queryKey: queryKeys.issues.all(workspaceSlug, projectId) });
+    },
+  });
+}
+
 // Utility functions for derived data
 
 /**

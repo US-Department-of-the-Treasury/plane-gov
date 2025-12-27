@@ -1,10 +1,9 @@
-import React from "react";
+import { useCallback } from "react";
 import { useParams } from "next/navigation";
 // plane imports
 import type { TIssue } from "@plane/types";
-import { EIssuesStoreType } from "@plane/types";
 // hooks
-import { useIssues } from "@/hooks/store/use-issues";
+import { useAddIssuesToEpic } from "@/store/queries/epic";
 // local imports
 import { EpicIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseKanBanRoot } from "../base-kanban-root";
@@ -13,16 +12,26 @@ export function EpicKanBanLayout() {
   const { workspaceSlug, projectId, epicId } = useParams();
 
   // store
-  const { issues } = useIssues(EIssuesStoreType.EPIC);
+  const { mutateAsync: addIssuesToEpic } = useAddIssuesToEpic();
+
+  const addIssuesToView = useCallback(
+    async (issueIds: string[]): Promise<TIssue> => {
+      if (!workspaceSlug || !projectId || !epicId) throw new Error();
+      await addIssuesToEpic({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        epicId: epicId.toString(),
+        issueIds,
+      });
+      return {} as TIssue;
+    },
+    [addIssuesToEpic, workspaceSlug, projectId, epicId]
+  );
 
   return (
     <BaseKanBanRoot
       QuickActions={EpicIssueQuickActions}
-      addIssuesToView={(async (issueIds: string[]) => {
-        if (!workspaceSlug || !projectId || !epicId) throw new Error();
-        await issues.addIssuesToEpic(workspaceSlug.toString(), projectId.toString(), epicId.toString(), issueIds);
-        return {} as TIssue;
-      }) as (issueIds: string[]) => Promise<TIssue>}
+      addIssuesToView={addIssuesToView}
       viewId={epicId?.toString()}
     />
   );
