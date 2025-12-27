@@ -3,8 +3,9 @@ import { Network } from "lucide-react";
 // plane imports
 import { Tooltip } from "@plane/propel/tooltip";
 import { renderFormattedTime, renderFormattedDate, calculateTimeAgo } from "@plane/utils";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 // plane web imports
 import { IssueCreatorDisplay } from "@/plane-web/components/issues/issue-details/issue-creator";
 // local imports
@@ -20,10 +21,8 @@ type TIssueActivityBlockComponent = {
 
 export function IssueActivityBlockComponent(props: TIssueActivityBlockComponent) {
   const { icon, activityId, ends, children, customUserName } = props;
-  // hooks
-  const {
-    activity: { getActivityById },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getActivityById = useIssueActivityStore((s) => s.getActivityById);
 
   const activity = getActivityById(activityId);
   const { isMobile } = usePlatformOS();

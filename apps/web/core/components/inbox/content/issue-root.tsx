@@ -19,7 +19,6 @@ import { IssueTitleInput } from "@/components/issues/title-input";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useProjectInbox } from "@/hooks/store/use-project-inbox";
 import { useUser } from "@/hooks/store/user";
 import useReloadConfirmations from "@/hooks/use-reload-confirmation";

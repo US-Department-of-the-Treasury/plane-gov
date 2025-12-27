@@ -3,8 +3,11 @@ import React from "react";
 // plane imports
 import type { TIssueServiceType, TWorkItemWidgets } from "@plane/types";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssue } from "@/store/queries/issue";
+// stores
+import { useIssueSubIssuesStore } from "@/store/issue/issue-details/sub_issues.store";
+import { useIssueAttachmentStore } from "@/store/issue/issue-details/attachment.store";
+import { useIssueRelationStore } from "@/store/issue/issue-details/relation.store";
 // Plane-web
 import { WorkItemAdditionalWidgetCollapsibles } from "@/plane-web/components/issues/issue-detail-widgets/collapsibles";
 import { useTimeLineRelationOptions } from "@/plane-web/components/relations";
@@ -25,12 +28,11 @@ type Props = {
 
 export function IssueDetailWidgetCollapsibles(props: Props) {
   const { workspaceSlug, projectId, issueId, disabled, issueServiceType, hideWidgets } = props;
-  // store hooks
-  const {
-    subIssues: { subIssuesByIssueId },
-    attachment: { getAttachmentsCountByIssueId, getAttachmentsUploadStatusByIssueId },
-    relation: { getRelationCountByIssueId },
-  } = useIssueDetail(issueServiceType);
+  // Zustand store hooks
+  const subIssuesByIssueId = useIssueSubIssuesStore((s) => s.subIssuesByIssueId);
+  const getAttachmentsCountByIssueId = useIssueAttachmentStore((s) => s.getAttachmentsCountByIssueId);
+  const getAttachmentsUploadStatusByIssueId = useIssueAttachmentStore((s) => s.getAttachmentsUploadStatusByIssueId);
+  const getRelationCountByIssueId = useIssueRelationStore((s) => s.getRelationCountByIssueId);
   // query hooks
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
   // derived values

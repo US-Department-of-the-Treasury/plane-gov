@@ -6,6 +6,7 @@ import type { TIssueRelationIdMap, TIssueRelationMap, TIssueRelation, TIssue } f
 import type { TRelationObject } from "@/components/issues/issue-detail-widgets/relations";
 // Plane-web
 import { REVERSE_RELATIONS } from "@/plane-web/constants/gantt-chart";
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 import type { TIssueRelationTypes } from "@/plane-web/types";
 // services
 import { IssueRelationService } from "@/services/issue";
@@ -174,8 +175,8 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
       set({ relationMap: updatedRelationMap });
     }
 
-    // fetching activity
-    void state.rootIssueDetailStore?.activity.fetchActivities(workspaceSlug, projectId, issueId);
+    // fetching activity - direct call, no rootStore indirection
+    void useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
 
     return response;
   },
@@ -309,8 +310,8 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
         set({ relationMap: updatedRelationMap });
       }
 
-      // fetching activity
-      void state.rootIssueDetailStore?.activity.fetchActivities(workspaceSlug, projectId, issueId);
+      // fetching activity - direct call, no rootStore indirection
+      void useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
     } catch (error) {
       await get().fetchRelations(workspaceSlug, projectId, issueId);
       throw error;

@@ -1,11 +1,11 @@
 import { useParams } from "next/navigation";
 // plane imports
-import { EIssueServiceType } from "@plane/types";
 // components
 import type { TPowerKPageType } from "@/components/power-k/core/types";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useProjectMembers, useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
 // local imports
 import { PowerKMembersMenu } from "../../../../menus/members";
 import { PowerKWorkItemSprintsMenu } from "./sprints-menu";
@@ -23,11 +23,10 @@ type Props = {
 export function PowerKWorkItemContextBasedPages(props: Props) {
   const { activePage, handleSelection } = props;
   // navigation
-  const { workItem: entityIdentifier, workspaceSlug, projectId } = useParams();
-  // store hooks
-  const {
-    issue: { getIssueById, getIssueIdByIdentifier },
-  } = useIssueDetail(EIssueServiceType.ISSUES);
+  const { workItem: entityIdentifier, workspaceSlug, projectId: _projectId } = useParams();
+  // Zustand store hooks
+  const getIssueById = useIssueStore((s) => s.getIssueById);
+  const getIssueIdByIdentifier = useIssueStore((s) => s.getIssueIdByIdentifier);
   // derived values
   const entityId = entityIdentifier ? getIssueIdByIdentifier(entityIdentifier.toString()) : null;
   const entityDetails = entityId ? getIssueById(entityId) : null;

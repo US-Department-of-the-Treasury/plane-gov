@@ -5,6 +5,8 @@ import { create } from "zustand";
 import type { TIssueComment, TIssueCommentMap, TIssueCommentIdMap, TIssueServiceType } from "@plane/types";
 // services
 import { IssueCommentService } from "@/services/issue";
+// stores - no rootStore indirection
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 // types
 import type { IIssueDetail } from "@/store/issue/issue-details/root.store";
 
@@ -242,10 +244,8 @@ export const useIssueCommentStore = create<IssueCommentStore>()((set, get) => ({
         }));
       }
 
-      // Fetch activities on error
-      if (state.rootStore?.activity) {
-        void state.rootStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
-      }
+      // Fetch activities on error - direct call, no rootStore indirection
+      void useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
 
       throw error;
     }

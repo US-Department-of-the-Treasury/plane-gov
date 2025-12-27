@@ -6,7 +6,6 @@ import type { TIssue, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
 import { CircularProgressIndicator, CollapsibleButton } from "@plane/ui";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useSubIssues } from "@/store/queries/issue";
 import { SubWorkItemTitleActions } from "./title-actions";
 
@@ -30,10 +29,6 @@ export function SubIssuesCollapsibleTitle(props: Props) {
   } = props;
   // translation
   const { t } = useTranslation();
-  // store hooks (keep for filters if needed)
-  const {
-    subIssues: { filters },
-  } = useIssueDetail(issueServiceType);
   // queries
   const { data: subIssuesData } = useSubIssues(workspaceSlug, projectId, parentIssueId);
 

@@ -1,8 +1,9 @@
 import { Tooltip } from "@plane/propel/tooltip";
 import { generateWorkItemLink } from "@plane/utils";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 
 type TIssueLink = {
   activityId: string;
@@ -10,10 +11,8 @@ type TIssueLink = {
 
 export function IssueLink(props: TIssueLink) {
   const { activityId } = props;
-  // hooks
-  const {
-    activity: { getActivityById },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getActivityById = useIssueActivityStore((s) => s.getActivityById);
   const { isMobile } = usePlatformOS();
   const activity = getActivityById(activityId);
 

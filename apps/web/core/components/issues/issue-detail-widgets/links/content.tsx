@@ -27,7 +27,6 @@ export function IssueLinksCollapsibleContent(props: Props) {
       issueId={issueId}
       linkOperations={handleLinkOperations}
       disabled={disabled}
-      issueServiceType={issueServiceType}
     />
   );
 }

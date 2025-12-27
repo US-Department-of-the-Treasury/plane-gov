@@ -8,8 +8,9 @@ import { cn } from "@plane/utils";
 import type { TPowerKCommandConfig, TPowerKContext } from "@/components/power-k/core/types";
 import { ProjectsAppPowerKCommandsList } from "@/components/power-k/ui/modal/commands-list";
 import { PowerKModalFooter } from "@/components/power-k/ui/modal/footer";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { usePowerK } from "@/hooks/store/use-power-k";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
 import { useUser } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useExpandableSearch } from "@/hooks/use-expandable-search";
@@ -49,10 +50,9 @@ export const TopNavPowerK = () => {
     onClose: handleOnClose,
   });
 
-  // derived values
-  const {
-    issue: { getIssueById, getIssueIdByIdentifier },
-  } = useIssueDetail();
+  // Zustand store
+  const getIssueById = useIssueStore((s) => s.getIssueById);
+  const getIssueIdByIdentifier = useIssueStore((s) => s.getIssueIdByIdentifier);
 
   const workItemId = workItemIdentifier ? getIssueIdByIdentifier(workItemIdentifier.toString()) : undefined;
   const workItemDetails = workItemId ? getIssueById(workItemId) : undefined;

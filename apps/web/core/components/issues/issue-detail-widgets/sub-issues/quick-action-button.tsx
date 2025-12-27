@@ -9,7 +9,8 @@ import type { TIssue, TIssueServiceType } from "@plane/types";
 import { CustomMenu } from "@plane/ui";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useIssue } from "@/store/queries/issue";
 
 type Props = {
@@ -25,9 +26,11 @@ export function SubIssuesActionButton(props: Props) {
   const { workspaceSlug, projectId, issueId, customButton, disabled = false, issueServiceType } = props;
   // translation
   const { t } = useTranslation();
-  // store hooks
-  const { toggleCreateIssueModal, toggleSubIssuesModal, setIssueCrudOperationState, issueCrudOperationState } =
-    useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const toggleCreateIssueModal = useIssueDetailUIStore((s) => s.toggleCreateIssueModal);
+  const toggleSubIssuesModal = useIssueDetailUIStore((s) => s.toggleSubIssuesModal);
+  const setIssueCrudOperationState = useIssueDetailUIStore((s) => s.setIssueCrudOperationState);
+  const issueCrudOperationState = useIssueDetailUIStore((s) => s.issueCrudOperationState);
   // queries
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
 

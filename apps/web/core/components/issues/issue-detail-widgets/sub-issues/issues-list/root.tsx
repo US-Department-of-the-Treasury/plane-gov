@@ -8,7 +8,8 @@ import { EIssueServiceType, EIssuesStoreType } from "@plane/types";
 // hooks
 import { SectionEmptyState } from "@/components/empty-state/section-empty-state-root";
 import { getGroupByColumns, isWorkspaceLevel } from "@/components/issues/issue-layouts/utils";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueSubIssuesStore } from "@/store/issue/issue-details/sub_issues.store";
 import { useSubIssues } from "@/store/queries/issue";
 
 import { SubIssuesListGroup } from "./list-group";
@@ -43,12 +44,11 @@ export function SubIssuesListRoot(props: Props) {
     spacingLeft = 0,
   } = props;
   const { t } = useTranslation();
-  // store hooks
-  const {
-    subIssues: {
-      filters: { getSubIssueFilters, getGroupedSubWorkItems, getFilteredSubWorkItems, resetFilters },
-    },
-  } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const getSubIssueFilters = useIssueSubIssuesStore((s) => s.filters.getSubIssueFilters);
+  const getGroupedSubWorkItems = useIssueSubIssuesStore((s) => s.filters.getGroupedSubWorkItems);
+  const getFilteredSubWorkItems = useIssueSubIssuesStore((s) => s.filters.getFilteredSubWorkItems);
+  const resetFilters = useIssueSubIssuesStore((s) => s.filters.resetFilters);
   // queries
   const { data: subIssuesData } = useSubIssues(workspaceSlug, projectId, parentIssueId);
   const subIssueIds = useMemo(() => {

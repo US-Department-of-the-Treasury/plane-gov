@@ -5,8 +5,9 @@ import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { Tooltip } from "@plane/propel/tooltip";
 import { getIconForLink, copyTextToClipboard, calculateTimeAgo } from "@plane/utils";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// store
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 // types
 import type { TLinkOperationsModal } from "./create-update-link-modal";
@@ -22,8 +23,9 @@ export function IssueLinkDetail(props: TIssueLinkDetail) {
   const { link: linkDetail, linkOperations, isNotAllowed } = props;
   // router
   const { workspaceSlug } = useParams();
-  // hooks - keep modal state from useIssueDetail
-  const { toggleIssueLinkModal: toggleIssueLinkModalStore, setIssueLinkData } = useIssueDetail();
+  // hooks - keep modal state from Zustand store
+  const toggleIssueLinkModalStore = useIssueDetailUIStore((s) => s.toggleIssueLinkModal);
+  const setIssueLinkData = useIssueDetailUIStore((s) => s.setIssueLinkData);
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const { isMobile } = usePlatformOS();
 

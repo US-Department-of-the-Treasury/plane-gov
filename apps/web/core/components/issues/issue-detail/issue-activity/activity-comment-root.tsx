@@ -1,11 +1,14 @@
+import { useMemo } from "react";
+import orderBy from "lodash-es/orderBy";
 // plane imports
 import type { E_SORT_ORDER, TActivityFilters } from "@plane/constants";
 import { EActivityFilterType, filterActivityOnSelectedFilters } from "@plane/constants";
-import type { TCommentsOperations } from "@plane/types";
+import type { TCommentsOperations, TIssueActivityComment } from "@plane/types";
 // components
 import { CommentCard } from "@/components/comments/card/root";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
+import { useIssueCommentStore } from "@/store/issue/issue-details/comment.store";
 // plane web components
 import { IssueAdditionalPropertiesActivity } from "@/plane-web/components/issues/issue-details/issue-properties-activity";
 import { IssueActivityWorklog } from "@/plane-web/components/issues/worklog/activity/root";
@@ -37,13 +40,52 @@ export function IssueActivityCommentRoot(props: TIssueActivityCommentRoot) {
     disabled,
     sortOrder,
   } = props;
-  // store hooks
-  const {
-    activity: { getActivityAndCommentsByIssueId },
-    comment: { getCommentById },
-  } = useIssueDetail();
-  // derived values
-  const activityAndComments = getActivityAndCommentsByIssueId(issueId, sortOrder);
+  // store hooks - use Zustand directly
+  const getActivitiesByIssueId = useIssueActivityStore((s) => s.getActivitiesByIssueId);
+  const getActivityById = useIssueActivityStore((s) => s.getActivityById);
+  const getCommentsByIssueId = useIssueCommentStore((s) => s.getCommentsByIssueId);
+  const getCommentById = useIssueCommentStore((s) => s.getCommentById);
+
+  // derived values - merge activities and comments
+  const activityAndComments = useMemo(() => {
+    if (!issueId) return undefined;
+
+    const activityComments: TIssueActivityComment[] = [];
+    const activities = getActivitiesByIssueId(issueId);
+    const comments = getCommentsByIssueId(issueId);
+
+    if (!activities || !comments) return undefined;
+
+    activities.forEach((activityId) => {
+      const activity = getActivityById(activityId);
+      if (!activity) return;
+      const type =
+        activity.field === "state"
+          ? EActivityFilterType.STATE
+          : activity.field === "assignees"
+            ? EActivityFilterType.ASSIGNEE
+            : activity.field === null
+              ? EActivityFilterType.DEFAULT
+              : EActivityFilterType.ACTIVITY;
+      activityComments.push({
+        id: activity.id,
+        activity_type: type,
+        created_at: activity.created_at,
+      });
+    });
+
+    comments.forEach((commentId) => {
+      const comment = getCommentById(commentId);
+      if (!comment) return;
+      activityComments.push({
+        id: comment.id,
+        activity_type: EActivityFilterType.COMMENT,
+        created_at: comment.created_at,
+      });
+    });
+
+    return orderBy(activityComments, (e) => new Date(e.created_at || 0), sortOrder);
+  }, [issueId, sortOrder, getActivitiesByIssueId, getActivityById, getCommentsByIssueId, getCommentById]);
 
   if (!activityAndComments) return <IssueActivityLoader />;
 

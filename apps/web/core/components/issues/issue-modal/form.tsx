@@ -32,7 +32,6 @@ import {
 // helpers
 // hooks
 import { useIssueModal } from "@/hooks/context/use-issue-modal";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useWorkspaceDraftIssues } from "@/hooks/store/workspace-draft";
 import { useProjectDetails } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";

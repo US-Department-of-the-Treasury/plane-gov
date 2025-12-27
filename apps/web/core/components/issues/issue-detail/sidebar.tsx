@@ -24,10 +24,10 @@ import { PriorityCombobox } from "@/components/dropdowns/priority-combobox";
 import { StateCombobox } from "@/components/dropdowns/state/state-combobox";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { useProjectDetails } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";
+import { useIssue } from "@/store/queries/issue";
 // plane web components
 // components
 import { WorkItemAdditionalSidebarProperties } from "@/plane-web/components/issues/issue-details/additional-properties";
@@ -54,13 +54,11 @@ export function IssueDetailsSidebar(props: Props) {
   const { workspaceSlug, projectId, issueId, issueOperations, isEditable } = props;
   // store hooks
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  // TanStack Query - fetch current issue
+  const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
   const { data: projectDetails } = useProjectDetails(workspaceSlug, projectId);
   const { data: states } = useProjectStates(workspaceSlug, projectId);
-  const issue = getIssueById(issueId);
   if (!issue) return <></>;
 
   const createdByDetails = getWorkspaceMemberByUserId(workspaceMembers, issue.created_by)?.member;

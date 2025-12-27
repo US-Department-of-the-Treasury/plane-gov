@@ -9,7 +9,6 @@ import { ChevronRightIcon } from "@plane/propel/icons";
 // types
 import { Tooltip } from "@plane/propel/tooltip";
 import type { IIssueDisplayProperties, TIssue } from "@plane/types";
-import { EIssueServiceType } from "@plane/types";
 // ui
 import { ControlLink, Row } from "@plane/ui";
 import { cn, generateWorkItemLink } from "@plane/utils";
@@ -18,11 +17,12 @@ import { MultipleSelectEntityAction } from "@/components/core/multiple-select";
 import RenderIfVisible from "@/components/core/render-if-visible-HOC";
 // helper
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // stores
+import { useIssueStore } from "@/store/issue/issue.store";
+import { useIssueSubIssuesStore } from "@/store/issue/issue-details/sub_issues.store";
 import { useIsIssuePeeked, useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import { useProjects, getProjectById } from "@/store/queries/project";
 // plane web components
@@ -70,13 +70,12 @@ export function SpreadsheetIssueRow(props: Props) {
   } = props;
   // states
   const [isExpanded, setExpanded] = useState<boolean>(false);
-  // store hooks
-  const { subIssues: subIssuesStore, issue: issueStore } = useIssueDetail(
-    isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES
-  );
+  // store hooks - use Zustand directly
+  const subIssuesByIssueId = useIssueSubIssuesStore((s) => s.subIssuesByIssueId);
+  const getIssueById = useIssueStore((s) => s.getIssueById);
 
   // derived values
-  const subIssues = subIssuesStore.subIssuesByIssueId(issueId);
+  const subIssues = subIssuesByIssueId(issueId);
   const isIssueSelected = selectionHelpers.getIsEntitySelected(issueId);
   const isIssueActive = selectionHelpers.getIsEntityActive(issueId);
 
@@ -99,7 +98,7 @@ export function SpreadsheetIssueRow(props: Props) {
         })}
         verticalOffset={100}
         shouldRecordHeights={false}
-        defaultValue={shouldRenderByDefault || (issueStore.getIssueById(issueId) ? isIssueNew(issueStore.getIssueById(issueId)!) : false)}
+        defaultValue={shouldRenderByDefault || (getIssueById(issueId) ? isIssueNew(getIssueById(issueId)!) : false)}
       >
         <IssueRowDetails
           issueId={issueId}
@@ -199,9 +198,11 @@ function IssueRowDetails(props: IssueRowDetailsProps) {
   const handleIssuePeekOverview = (issue: TIssue) =>
     handleRedirection(workspaceSlug?.toString(), issue, isMobile, nestingLevel);
 
-  const { subIssues: subIssuesStore, issue } = useIssueDetail();
+  // Zustand store hooks
+  const fetchSubIssues = useIssueSubIssuesStore((s) => s.fetchSubIssues);
+  const getIssueById = useIssueStore((s) => s.getIssueById);
 
-  const issueDetail = issue.getIssueById(issueId);
+  const issueDetail = getIssueById(issueId);
 
   const subIssueIndentation = `${spacingLeft}px`;
 
@@ -228,7 +229,7 @@ function IssueRowDetails(props: IssueRowDetailsProps) {
     } else {
       setExpanded((prevState) => {
         if (!prevState && workspaceSlug && issueDetail && issueDetail.project_id)
-          subIssuesStore.fetchSubIssues(workspaceSlug.toString(), issueDetail.project_id, issueDetail.id);
+          fetchSubIssues(workspaceSlug.toString(), issueDetail.project_id, issueDetail.id);
         return !prevState;
       });
     }

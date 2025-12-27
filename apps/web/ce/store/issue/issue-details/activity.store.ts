@@ -72,10 +72,18 @@ interface IssueActivityStoreState {
 // Zustand store actions
 interface IssueActivityStoreActions {
   setLoader: (loader: TActivityLoader) => void;
+  setServiceType: (serviceType: TIssueServiceType) => void;
   updateActivities: (issueId: string, activityIds: string[]) => void;
   updateActivityMap: (activities: TIssueActivity[]) => void;
   getActivitiesByIssueId: (issueId: string) => string[] | undefined;
   getActivityById: (activityId: string) => TIssueActivity | undefined;
+  // Async action - can be called directly without rootStore
+  fetchActivities: (
+    workspaceSlug: string,
+    projectId: string,
+    issueId: string,
+    loaderType?: TActivityLoader
+  ) => Promise<TIssueActivity[]>;
 }
 
 type IssueActivityStoreType = IssueActivityStoreState & IssueActivityStoreActions;
@@ -93,6 +101,12 @@ export const useIssueActivityStore = create<IssueActivityStoreType>()(
     setLoader: (loader: TActivityLoader) => {
       set((state) => {
         state.loader = loader;
+      });
+    },
+
+    setServiceType: (serviceType: TIssueServiceType) => {
+      set((state) => {
+        state.serviceType = serviceType;
       });
     },
 
@@ -125,21 +139,53 @@ export const useIssueActivityStore = create<IssueActivityStoreType>()(
       const state = get();
       return state.activityMap[activityId] ?? undefined;
     },
+
+    // Async action - can be called directly without rootStore
+    fetchActivities: async (
+      workspaceSlug: string,
+      projectId: string,
+      issueId: string,
+      loaderType: TActivityLoader = "fetch"
+    ): Promise<TIssueActivity[]> => {
+      const state = get();
+      const service = new IssueActivityService(state.serviceType);
+
+      try {
+        state.setLoader(loaderType);
+
+        let props = {};
+        const currentActivityIds = state.getActivitiesByIssueId(issueId);
+        if (currentActivityIds && currentActivityIds.length > 0) {
+          const currentActivity = state.getActivityById(currentActivityIds[currentActivityIds.length - 1]);
+          if (currentActivity) props = { created_at__gt: currentActivity.created_at };
+        }
+
+        const activities = await service.getIssueActivities(workspaceSlug, projectId, issueId, props);
+
+        const activityIds = activities.map((activity) => activity.id);
+
+        state.updateActivities(issueId, activityIds);
+        state.updateActivityMap(activities);
+        state.setLoader(undefined);
+
+        return activities;
+      } catch (error) {
+        state.setLoader(undefined);
+        throw error;
+      }
+    },
   }))
 );
 
 // Legacy class wrapper for backward compatibility
 export class IssueActivityStore implements IIssueActivityStore {
-  // services
   serviceType;
-  issueActivityService;
 
   constructor(
     protected store: CoreRootStore,
     serviceType: TIssueServiceType = EIssueServiceType.ISSUES
   ) {
     this.serviceType = serviceType;
-    this.issueActivityService = new IssueActivityService(this.serviceType);
   }
 
   private get state() {
@@ -212,35 +258,15 @@ export class IssueActivityStore implements IIssueActivityStore {
     return orderBy(activityComments, (e) => new Date(e.created_at || 0), sortOrder);
   };
 
-  // Actions
-  public async fetchActivities(
+  // Actions - delegate to Zustand store
+  fetchActivities = (
     workspaceSlug: string,
     projectId: string,
     issueId: string,
     loaderType: TActivityLoader = "fetch"
-  ) {
-    try {
-      this.state.setLoader(loaderType);
-
-      let props = {};
-      const currentActivityIds = this.getActivitiesByIssueId(issueId);
-      if (currentActivityIds && currentActivityIds.length > 0) {
-        const currentActivity = this.getActivityById(currentActivityIds[currentActivityIds.length - 1]);
-        if (currentActivity) props = { created_at__gt: currentActivity.created_at };
-      }
-
-      const activities = await this.issueActivityService.getIssueActivities(workspaceSlug, projectId, issueId, props);
-
-      const activityIds = activities.map((activity) => activity.id);
-
-      this.state.updateActivities(issueId, activityIds);
-      this.state.updateActivityMap(activities);
-      this.state.setLoader(undefined);
-
-      return activities;
-    } catch (error) {
-      this.state.setLoader(undefined);
-      throw error;
-    }
-  }
+  ): Promise<TIssueActivity[]> => {
+    // Ensure the serviceType is set before fetching
+    this.state.setServiceType(this.serviceType);
+    return this.state.fetchActivities(workspaceSlug, projectId, issueId, loaderType);
+  };
 }

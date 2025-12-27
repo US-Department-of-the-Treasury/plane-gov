@@ -1,12 +1,10 @@
-import type { FC } from "react";
 import React from "react";
 import { Plus } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
-import type { TIssueServiceType } from "@plane/types";
 import { CustomMenu } from "@plane/ui";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// store
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 // Plane-web
 import { useTimeLineRelationOptions } from "@/plane-web/components/relations";
 import type { TIssueRelationTypes } from "@/plane-web/types";
@@ -15,14 +13,14 @@ type Props = {
   issueId: string;
   customButton?: React.ReactNode;
   disabled?: boolean;
-  issueServiceType: TIssueServiceType;
 };
 
 export function RelationActionButton(props: Props) {
-  const { customButton, issueId, disabled = false, issueServiceType } = props;
+  const { customButton, issueId, disabled = false } = props;
   const { t } = useTranslation();
   // store hooks
-  const { toggleRelationModal, setRelationKey } = useIssueDetail(issueServiceType);
+  const toggleRelationModal = useIssueDetailUIStore((s) => s.toggleRelationModal);
+  const setRelationKey = useIssueDetailUIStore((s) => s.setRelationKey);
 
   const ISSUE_RELATION_OPTIONS = useTimeLineRelationOptions();
 

@@ -4,14 +4,14 @@ import { EUserPermissions } from "@plane/constants";
 import type { TPage, TPageFilters, TPageNavigationTabs } from "@plane/types";
 import { EUserProjectRoles } from "@plane/types";
 // helpers
-import { filterPagesByPageType, getPageName, orderPages, shouldFilterPage } from "@plane/utils";
+import { filterPagesByPageType } from "@plane/utils";
 // services
 import { ProjectPageService } from "@/services/page";
 // types for project page
 import type { TProjectPage } from "@/store/pages/project-page";
 import { ProjectPage } from "@/store/pages/project-page";
 // store helpers
-import { getRouterWorkspaceSlug, getRouterProjectId, useFavoriteStore, useRouterStore, useBaseUserPermissionStore } from "@/store/client";
+import { getRouterWorkspaceSlug, getRouterProjectId, useFavoriteStore } from "@/store/client";
 
 type TLoader = "init-loader" | "mutation-loader" | undefined;
 
@@ -331,10 +331,15 @@ export const useProjectPageStore = create<ProjectPageStore>()((set, get) => ({
   },
 }));
 
+// Legacy class removed - use useProjectPageStore hook directly
+
 // ============================================================================
-// Legacy Interface (for backwards compatibility)
+// Legacy Interface (for backwards compatibility with hooks)
 // ============================================================================
 
+/**
+ * @deprecated Use useProjectPageStore hook directly in new code
+ */
 export interface IProjectPageStore {
   // observables
   loader: TLoader;
@@ -366,165 +371,6 @@ export interface IProjectPageStore {
   createPage: (pageData: Partial<TPage>) => Promise<TPage | undefined>;
   removePage: (params: { pageId: string; shouldSync?: boolean }) => Promise<void>;
   movePage: (workspaceSlug: string, projectId: string, pageId: string, newProjectId: string) => Promise<void>;
-}
-
-// ============================================================================
-// Legacy Class Wrapper (for backwards compatibility)
-// ============================================================================
-
-/**
- * Legacy ProjectPageStore class wrapper.
- * Provides MobX-like API by delegating to Zustand store.
- *
- * @deprecated Use useProjectPageStore hook directly in new code
- */
-export class ProjectPageStoreLegacy implements IProjectPageStore {
-  private unsubscribe: (() => void) | null = null;
-
-  constructor() {
-    // Set up subscription to reset filters when project changes
-    // Using Zustand's subscribe instead of setInterval polling
-    let previousProjectId = getRouterProjectId();
-
-    this.unsubscribe = useRouterStore.subscribe((state: { query: Record<string, unknown> }) => {
-      const currentProjectId = state.query?.projectId?.toString();
-      if (currentProjectId !== previousProjectId) {
-        previousProjectId = currentProjectId;
-        if (currentProjectId) {
-          useProjectPageStore.getState().resetFiltersForProject();
-        }
-      }
-    });
-  }
-
-  // ============================================================================
-  // Observable Properties (via getters)
-  // ============================================================================
-
-  get loader() {
-    return useProjectPageStore.getState().loader;
-  }
-
-  get data() {
-    return useProjectPageStore.getState().data;
-  }
-
-  get error() {
-    return useProjectPageStore.getState().error;
-  }
-
-  get filters() {
-    return useProjectPageStore.getState().filters;
-  }
-
-  // ============================================================================
-  // Computed Properties
-  // ============================================================================
-
-  get isAnyPageAvailable() {
-    const state = useProjectPageStore.getState();
-    if (state.loader) return true;
-    return Object.keys(state.data).length > 0;
-  }
-
-  get canCurrentUserCreatePage() {
-    const workspaceSlug = getRouterWorkspaceSlug();
-    const projectId = getRouterProjectId();
-    // Direct Zustand store access - no rootStore indirection
-    const currentUserProjectRole = useBaseUserPermissionStore.getState().getProjectRole(
-      workspaceSlug?.toString() || "",
-      projectId?.toString() || ""
-    );
-    return !!currentUserProjectRole && ROLE_PERMISSIONS_TO_CREATE_PAGE.includes(currentUserProjectRole);
-  }
-
-  // ============================================================================
-  // Helper Methods
-  // ============================================================================
-
-  getCurrentProjectPageIdsByTab = (pageType: TPageNavigationTabs) => {
-    const projectId = getRouterProjectId();
-    if (!projectId) return undefined;
-
-    const state = useProjectPageStore.getState();
-    // helps to filter pages based on the pageType
-    let pagesByType = filterPagesByPageType(pageType, Object.values(state.data || {}));
-    pagesByType = pagesByType.filter((p) => p.project_ids?.includes(projectId));
-
-    const pages = (pagesByType.map((page) => page.id) as string[]) || undefined;
-
-    return pages ?? undefined;
-  };
-
-  getCurrentProjectPageIds = (projectId: string) => {
-    if (!projectId) return [];
-    const state = useProjectPageStore.getState();
-    const pages = Object.values(state.data || {}).filter((page) => page.project_ids?.includes(projectId));
-    return pages.map((page) => page.id) as string[];
-  };
-
-  getCurrentProjectFilteredPageIdsByTab = (pageType: TPageNavigationTabs) => {
-    const projectId = getRouterProjectId();
-    if (!projectId) return undefined;
-
-    const state = useProjectPageStore.getState();
-
-    // helps to filter pages based on the pageType
-    const pagesByType = filterPagesByPageType(pageType, Object.values(state.data || {}));
-    let filteredPages = pagesByType.filter(
-      (p) =>
-        p.project_ids?.includes(projectId) &&
-        getPageName(p.name).toLowerCase().includes(state.filters.searchQuery.toLowerCase()) &&
-        shouldFilterPage(p, state.filters.filters)
-    );
-    filteredPages = orderPages(filteredPages, state.filters.sortKey, state.filters.sortBy);
-
-    const pages = (filteredPages.map((page) => page.id) as string[]) || undefined;
-
-    return pages ?? undefined;
-  };
-
-  getPageById = (pageId: string) => {
-    const state = useProjectPageStore.getState();
-    return state.data?.[pageId] || undefined;
-  };
-
-  updateFilters = <T extends keyof TPageFilters>(filterKey: T, filterValue: TPageFilters[T]) => {
-    useProjectPageStore.getState().updateFilters(filterKey, filterValue);
-  };
-
-  clearAllFilters = () => {
-    useProjectPageStore.getState().clearAllFilters();
-  };
-
-  // ============================================================================
-  // Actions
-  // ============================================================================
-
-  fetchPagesList = async (workspaceSlug: string, projectId: string, pageType?: TPageNavigationTabs) => {
-    return useProjectPageStore.getState().fetchPagesList(workspaceSlug, projectId, pageType);
-  };
-
-  fetchPageDetails = async (
-    workspaceSlug: string,
-    projectId: string,
-    pageId: string,
-    options?: { trackVisit?: boolean }
-  ) => {
-    return useProjectPageStore.getState().fetchPageDetails(workspaceSlug, projectId, pageId, options);
-  };
-
-  createPage = async (pageData: Partial<TPage>) => {
-    return useProjectPageStore.getState().createPage(pageData);
-  };
-
-  removePage = async (params: { pageId: string; shouldSync?: boolean }) => {
-    return useProjectPageStore.getState().removePage(params);
-  };
-
-  movePage = async (workspaceSlug: string, projectId: string, pageId: string, newProjectId: string) => {
-    return useProjectPageStore.getState().movePage(workspaceSlug, projectId, pageId, newProjectId);
-  };
 }
 
 // Export type aliases for backwards compatibility

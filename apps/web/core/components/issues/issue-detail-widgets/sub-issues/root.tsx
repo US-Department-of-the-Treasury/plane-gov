@@ -1,10 +1,9 @@
-import type { FC } from "react";
 import React from "react";
 // plane imports
 import type { TIssueServiceType } from "@plane/types";
 import { Collapsible } from "@plane/ui";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// store
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 // local imports
 import { SubIssuesCollapsibleContent } from "./content";
 import { SubIssuesCollapsibleTitle } from "./title";
@@ -20,7 +19,8 @@ type Props = {
 export function SubIssuesCollapsible(props: Props) {
   const { workspaceSlug, projectId, issueId, disabled = false, issueServiceType } = props;
   // store hooks
-  const { openWidgets, toggleOpenWidget } = useIssueDetail(issueServiceType);
+  const openWidgets = useIssueDetailUIStore((s) => s.openWidgets);
+  const toggleOpenWidget = useIssueDetailUIStore((s) => s.toggleOpenWidget);
   // derived values
   const isCollapsibleOpen = openWidgets.includes("sub-work-items");
 

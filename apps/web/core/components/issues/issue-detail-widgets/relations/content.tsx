@@ -7,8 +7,9 @@ import { EIssueServiceType } from "@plane/types";
 import { Collapsible } from "@plane/ui";
 // components
 import { CreateUpdateIssueModal } from "@/components/issues/issue-modal/modal";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
+import { useIssueRelationStore } from "@/store/issue/issue-details/relation.store";
 // Plane-web
 import { CreateUpdateEpicModal } from "@/plane-web/components/epics/epic-modal";
 import { useTimeLineRelationOptions } from "@/plane-web/components/relations";
@@ -64,12 +65,11 @@ export function RelationsCollapsibleContent(props: Props) {
     },
   });
 
-  // store hooks
-  const {
-    relation: { getRelationsByIssueId, removeRelation },
-    toggleDeleteIssueModal,
-    toggleCreateIssueModal,
-  } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const getRelationsByIssueId = useIssueRelationStore((s) => s.getRelationsByIssueId);
+  const removeRelation = useIssueRelationStore((s) => s.removeRelation);
+  const toggleDeleteIssueModal = useIssueDetailUIStore((s) => s.toggleDeleteIssueModal);
+  const toggleCreateIssueModal = useIssueDetailUIStore((s) => s.toggleCreateIssueModal);
 
   // helper
   const issueOperations = useRelationOperations();

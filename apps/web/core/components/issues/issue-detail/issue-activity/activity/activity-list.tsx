@@ -1,7 +1,7 @@
 // helpers
 import { getValidKeysFromObject } from "@plane/utils";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 // plane web components
 import { IssueTypeActivity, AdditionalActivityRoot } from "@/plane-web/components/issues/issue-details";
 import { useTimeLineRelationOptions } from "@/plane-web/components/relations";
@@ -34,11 +34,8 @@ type TIssueActivityItem = {
 
 export function IssueActivityItem(props: TIssueActivityItem) {
   const { activityId, ends } = props;
-  // hooks
-  const {
-    activity: { getActivityById },
-    comment: {},
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getActivityById = useIssueActivityStore((s) => s.getActivityById);
   const ISSUE_RELATION_OPTIONS = useTimeLineRelationOptions();
   const activityRelations = getValidKeysFromObject(ISSUE_RELATION_OPTIONS);
 

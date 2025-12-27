@@ -4,8 +4,8 @@ import { EmojiReactionGroup, EmojiReactionPicker } from "@plane/propel/emoji-rea
 import type { EmojiReactionType } from "@plane/propel/emoji-reaction";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IUser } from "@plane/types";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueCommentReactionStore } from "@/store/issue/issue-details/comment_reaction.store";
 import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 
 export type TIssueCommentReaction = {
@@ -20,12 +20,12 @@ export function IssueCommentReaction(props: TIssueCommentReaction) {
   const { workspaceSlug, projectId, commentId, currentUser, disabled = false } = props;
   // state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-  // hooks
-  const {
-    commentReaction: { getCommentReactionsByCommentId, commentReactionsByUser, getCommentReactionById },
-    createCommentReaction,
-    removeCommentReaction,
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getCommentReactionsByCommentId = useIssueCommentReactionStore((s) => s.getCommentReactionsByCommentId);
+  const commentReactionsByUser = useIssueCommentReactionStore((s) => s.commentReactionsByUser);
+  const getCommentReactionById = useIssueCommentReactionStore((s) => s.getCommentReactionById);
+  const createCommentReaction = useIssueCommentReactionStore((s) => s.createCommentReaction);
+  const removeCommentReaction = useIssueCommentReactionStore((s) => s.removeCommentReaction);
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug);
 
   const reactionIds = getCommentReactionsByCommentId(commentId);

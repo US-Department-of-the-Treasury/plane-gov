@@ -4,7 +4,7 @@ import type { EIssuesStoreType, TIssue, TIssueGroupByOptions, TIssueOrderByOptio
 import type { GroupDropLocation } from "@/components/issues/issue-layouts/utils";
 import { handleGroupDragDrop } from "@/components/issues/issue-layouts/utils";
 import { ISSUE_FILTER_DEFAULT_DATA } from "@/store/issue/helpers/base-issues.store";
-import { useIssueDetail } from "./store/use-issue-detail";
+import { useIssueStore } from "@/store/issue/issue.store";
 import { useIssues } from "./store/use-issues";
 import { useIssuesActions } from "./use-issues-actions";
 
@@ -29,9 +29,8 @@ export const useGroupIssuesDragNDrop = (
 ) => {
   const { workspaceSlug } = useParams();
 
-  const {
-    issue: { getIssueById },
-  } = useIssueDetail();
+  // Zustand store
+  const getIssueById = useIssueStore((s) => s.getIssueById);
   const { updateIssue } = useIssuesActions(storeType);
   const {
     issues: { getIssueIds, addSprintToIssue, removeSprintFromIssue, changeEpicsInIssue },
@@ -44,7 +43,7 @@ export const useGroupIssuesDragNDrop = (
    * @param data
    * @param issueUpdates
    */
-  const updateIssueOnDrop = async (
+  const updateIssueOnDrop = (
     projectId: string,
     issueId: string,
     data: Partial<TIssue>,
@@ -67,18 +66,19 @@ export const useGroupIssuesDragNDrop = (
     const isSprintChanged = Object.keys(data).includes(sprintKey);
 
     if (isSprintChanged && workspaceSlug) {
-      if (data[sprintKey]) {
-        addSprintToIssue(workspaceSlug.toString(), projectId, data[sprintKey]?.toString() ?? "", issueId).catch(() =>
+      const sprintValue = data[sprintKey];
+      if (sprintValue) {
+        void addSprintToIssue(workspaceSlug.toString(), projectId, String(sprintValue), issueId).catch(() =>
           setToast(errorToastProps)
         );
       } else {
-        removeSprintFromIssue(workspaceSlug.toString(), projectId, issueId).catch(() => setToast(errorToastProps));
+        void removeSprintFromIssue(workspaceSlug.toString(), projectId, issueId).catch(() => setToast(errorToastProps));
       }
       delete data[sprintKey];
     }
 
     if (isEpicChanged && workspaceSlug && issueUpdates[epicKey]) {
-      changeEpicsInIssue(
+      void changeEpicsInIssue(
         workspaceSlug.toString(),
         projectId,
         issueId,
@@ -88,10 +88,12 @@ export const useGroupIssuesDragNDrop = (
       delete data[epicKey];
     }
 
-    updateIssue && updateIssue(projectId, issueId, data).catch(() => setToast(errorToastProps));
+    if (updateIssue) {
+      void updateIssue(projectId, issueId, data).catch(() => setToast(errorToastProps));
+    }
   };
 
-  const handleOnDrop = async (source: GroupDropLocation, destination: GroupDropLocation) => {
+  const handleOnDrop = (source: GroupDropLocation, destination: GroupDropLocation) => {
     if (
       source.columnId &&
       destination.columnId &&
@@ -100,7 +102,7 @@ export const useGroupIssuesDragNDrop = (
     )
       return;
 
-    await handleGroupDragDrop(
+    void handleGroupDragDrop(
       source,
       destination,
       getIssueById,
@@ -109,11 +111,12 @@ export const useGroupIssuesDragNDrop = (
       groupBy,
       subGroupBy,
       orderBy !== "sort_order"
-    ).catch((err) => {
+    ).catch((err: unknown) => {
+      const errorDetail = err && typeof err === "object" && "detail" in err ? (err as { detail: string }).detail : null;
       setToast({
         title: "Error!",
         type: TOAST_TYPE.ERROR,
-        message: err?.detail ?? "Failed to perform this action",
+        message: errorDetail ?? "Failed to perform this action",
       });
     });
   };

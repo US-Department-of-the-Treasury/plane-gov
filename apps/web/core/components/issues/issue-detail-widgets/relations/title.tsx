@@ -1,11 +1,9 @@
 import type { FC } from "react";
 import React, { useMemo } from "react";
 import { useTranslation } from "@plane/i18n";
-import type { TIssueServiceType } from "@plane/types";
-import { EIssueServiceType } from "@plane/types";
 import { CollapsibleButton } from "@plane/ui";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueRelationStore } from "@/store/issue/issue-details/relation.store";
 // Plane-web
 import { useTimeLineRelationOptions } from "@/plane-web/components/relations";
 // local imports
@@ -15,16 +13,13 @@ type Props = {
   isOpen: boolean;
   issueId: string;
   disabled: boolean;
-  issueServiceType?: TIssueServiceType;
 };
 
 export function RelationsCollapsibleTitle(props: Props) {
-  const { isOpen, issueId, disabled, issueServiceType = EIssueServiceType.ISSUES } = props;
+  const { isOpen, issueId, disabled } = props;
   const { t } = useTranslation();
-  // store hook
-  const {
-    relation: { getRelationCountByIssueId },
-  } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const getRelationCountByIssueId = useIssueRelationStore((s) => s.getRelationCountByIssueId);
 
   const ISSUE_RELATION_OPTIONS = useTimeLineRelationOptions();
   // derived values
@@ -45,9 +40,7 @@ export function RelationsCollapsibleTitle(props: Props) {
       isOpen={isOpen}
       title={t("common.relations")}
       indicatorElement={indicatorElement}
-      actionItemElement={
-        !disabled && <RelationActionButton issueId={issueId} disabled={disabled} issueServiceType={issueServiceType} />
-      }
+      actionItemElement={!disabled && <RelationActionButton issueId={issueId} disabled={disabled} />}
     />
   );
 }

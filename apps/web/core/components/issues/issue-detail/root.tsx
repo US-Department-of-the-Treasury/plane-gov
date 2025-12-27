@@ -12,10 +12,13 @@ import { EmptyState } from "@/components/common/empty-state";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
+// queries
+import { useUpdateIssue, useDeleteIssue, useArchiveIssue } from "@/store/queries/issue";
 // local components
 import { IssuePeekOverview } from "../peek-overview";
 import { IssueMainContent } from "./main-content";
@@ -58,37 +61,31 @@ export function IssueDetailRoot(props: TIssueDetailRoot) {
   const { workspaceSlug, projectId, issueId, is_archived = false, issue: issueProp } = props;
   // router
   const router = useAppRouter();
-  // hooks
+  // Zustand store
+  const getIssueById = useIssueStore((s) => s.getIssueById);
+  // TanStack Query mutations
+  const { mutateAsync: updateIssueMutation } = useUpdateIssue();
+  const { mutateAsync: deleteIssueMutation } = useDeleteIssue();
+  const { mutateAsync: archiveIssueMutation } = useArchiveIssue();
+  // MobX stores for sprint/epic operations and archived issues
   const {
-    issue: { getIssueById },
-    fetchIssue,
-    updateIssue,
-    removeIssue,
-    archiveIssue,
-    addSprintToIssue,
-    addIssueToSprint,
-    removeIssueFromSprint,
-    changeEpicsInIssue,
-    removeIssueFromEpic,
-  } = useIssueDetail();
+    issues: { removeIssue: removeArchivedIssue, addSprintToIssue, addIssueToSprint, removeIssueFromSprint, changeEpicsInIssue, removeIssuesFromEpic },
+  } = useIssues(EIssuesStoreType.PROJECT);
   const {
-    issues: { removeIssue: removeArchivedIssue },
+    issues: { removeIssue: removeArchivedIssueFromArchived },
   } = useIssues(EIssuesStoreType.ARCHIVED);
   const { allowPermissions } = useUserPermissions();
   const { issueDetailSidebarCollapsed } = useAppTheme();
 
   const issueOperations: TIssueOperations = useMemo(
     () => ({
-      fetch: async (workspaceSlug: string, projectId: string, issueId: string) => {
-        try {
-          await fetchIssue(workspaceSlug, projectId, issueId);
-        } catch (error) {
-          console.error("Error fetching the parent issue:", error);
-        }
+      // Note: Actual fetching is handled by TanStack Query (useIssue) in child components.
+      fetch: async (_workspaceSlug: string, _projectId: string, _issueId: string) => {
+        // TanStack Query handles the actual fetch - no need to call a separate fetch function
       },
       update: async (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssue>) => {
         try {
-          await updateIssue(workspaceSlug, projectId, issueId, data);
+          await updateIssueMutation({ workspaceSlug, projectId, issueId, data });
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.update,
             payload: { id: issueId },
@@ -109,8 +106,8 @@ export function IssueDetailRoot(props: TIssueDetailRoot) {
       },
       remove: async (workspaceSlug: string, projectId: string, issueId: string) => {
         try {
-          if (is_archived) await removeArchivedIssue(workspaceSlug, projectId, issueId);
-          else await removeIssue(workspaceSlug, projectId, issueId);
+          if (is_archived) await removeArchivedIssueFromArchived(workspaceSlug, projectId, issueId);
+          else await deleteIssueMutation({ workspaceSlug, projectId, issueId });
           setToast({
             title: t("common.success"),
             type: TOAST_TYPE.SUCCESS,
@@ -136,7 +133,7 @@ export function IssueDetailRoot(props: TIssueDetailRoot) {
       },
       archive: async (workspaceSlug: string, projectId: string, issueId: string) => {
         try {
-          await archiveIssue(workspaceSlug, projectId, issueId);
+          await archiveIssueMutation({ workspaceSlug, projectId, issueId });
           captureSuccess({
             eventName: WORK_ITEM_TRACKER_EVENTS.archive,
             payload: { id: issueId },
@@ -220,7 +217,7 @@ export function IssueDetailRoot(props: TIssueDetailRoot) {
       },
       removeIssueFromEpic: async (workspaceSlug: string, projectId: string, epicId: string, issueId: string) => {
         try {
-          const removeFromEpicPromise = removeIssueFromEpic(workspaceSlug, projectId, epicId, issueId);
+          const removeFromEpicPromise = removeIssuesFromEpic(workspaceSlug, projectId, epicId, [issueId]);
           setPromiseToast(removeFromEpicPromise, {
             loading: t("issue.remove.epic.loading"),
             success: {
@@ -262,16 +259,15 @@ export function IssueDetailRoot(props: TIssueDetailRoot) {
     }),
     [
       is_archived,
-      fetchIssue,
-      updateIssue,
-      removeIssue,
-      archiveIssue,
-      removeArchivedIssue,
+      updateIssueMutation,
+      deleteIssueMutation,
+      archiveIssueMutation,
+      removeArchivedIssueFromArchived,
       addIssueToSprint,
       addSprintToIssue,
       removeIssueFromSprint,
       changeEpicsInIssue,
-      removeIssueFromEpic,
+      removeIssuesFromEpic,
       t,
       issueId,
     ]

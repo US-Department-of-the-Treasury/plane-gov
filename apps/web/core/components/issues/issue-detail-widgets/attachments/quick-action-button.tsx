@@ -6,8 +6,9 @@ import { Plus } from "lucide-react";
 // plane imports
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { TIssueServiceType } from "@plane/types";
-// hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// store
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 // plane web hooks
 import { useFileSize } from "@/plane-web/hooks/use-file-size";
 // local imports
@@ -26,8 +27,8 @@ export function IssueAttachmentActionButton(props: Props) {
   const { workspaceSlug, projectId, issueId, customButton, disabled = false, issueServiceType } = props;
   // state
   const [isLoading, setIsLoading] = useState(false);
-  // store hooks
-  const { setLastWidgetAction, fetchActivities } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const setLastWidgetAction = useIssueDetailUIStore((s) => s.setLastWidgetAction);
   // file size
   const { maxFileSize } = useFileSize();
   // operations
@@ -39,8 +40,8 @@ export function IssueAttachmentActionButton(props: Props) {
   );
   // handlers
   const handleFetchPropertyActivities = useCallback(() => {
-    fetchActivities(workspaceSlug, projectId, issueId);
-  }, [fetchActivities, workspaceSlug, projectId, issueId]);
+    useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
+  }, [workspaceSlug, projectId, issueId]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {

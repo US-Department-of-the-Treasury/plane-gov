@@ -14,9 +14,11 @@ import { DropIndicator } from "@plane/ui";
 import RenderIfVisible from "@/components/core/render-if-visible-HOC";
 import { ListLoaderItemRow } from "@/components/ui/loader/layouts/list-layout-loader";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import type { TSelectionHelper } from "@/hooks/use-multiple-select";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
+import { useIssueSubIssuesStore } from "@/store/issue/issue-details/sub_issues.store";
 // queries
 import { useIssue } from "@/store/queries/issue";
 // types
@@ -72,11 +74,9 @@ export function IssueBlockRoot(props: Props) {
   const { workspaceSlug, projectId } = useParams();
   // hooks
   const { isMobile } = usePlatformOS();
-  // store hooks
-  const {
-    issue: { getIssueById },
-    subIssues: subIssuesStore,
-  } = useIssueDetail(isEpic ? EIssueServiceType.EPICS : EIssueServiceType.ISSUES);
+  // Zustand store hooks
+  const getIssueById = useIssueStore((s) => s.getIssueById);
+  const subIssuesByIssueId = useIssueSubIssuesStore((s) => s.subIssuesByIssueId);
 
   // Try to get from MobX cache first, fallback to TanStack Query
   const cachedIssue = getIssueById(issueId);
@@ -138,7 +138,7 @@ export function IssueBlockRoot(props: Props) {
 
   if (!issue || !issue.created_at) return null;
 
-  const subIssues = subIssuesStore.subIssuesByIssueId(issueId);
+  const subIssues = subIssuesByIssueId(issueId);
   return (
     <div className="relative" ref={issueBlockRef} id={getIssueBlockId(issueId, groupId)}>
       <DropIndicator classNames={"absolute top-0 z-[2]"} isVisible={instruction === "DRAG_OVER"} />

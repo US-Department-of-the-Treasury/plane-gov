@@ -9,10 +9,10 @@ import type { IWorkItemPeekOverview, TIssue } from "@plane/types";
 import { EIssueServiceType, EIssuesStoreType } from "@plane/types";
 // hooks
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
 // stores
 import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useWorkItemProperties } from "@/plane-web/hooks/use-issue-properties";
@@ -40,11 +40,8 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
   // UI state from Zustand (reactive)
   const peekIssue = useIssueDetailUIStore((state) => state.peekIssue);
   const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
-  // Data operations from useIssueDetail
-  const {
-    issue: { fetchIssue },
-    fetchActivities,
-  } = useIssueDetail();
+  // Activity store for fetching activities
+  const fetchActivities = useIssueActivityStore((s) => s.fetchActivities);
   const issueStoreType = useIssueStoreType();
   const storeType = issueStoreFromProps ?? issueStoreType;
   const { issues } = useIssues(storeType);
@@ -70,14 +67,11 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
 
   const issueOperations: TIssueOperations = useMemo(
     () => ({
-      fetch: async (workspaceSlug: string, projectId: string, issueId: string) => {
-        try {
-          setError(false);
-          await fetchIssue(workspaceSlug, projectId, issueId);
-        } catch (error) {
-          setError(true);
-          console.error("Error fetching the parent issue", error);
-        }
+      // Note: Actual fetching is handled by TanStack Query (useIssue) in child components.
+      // This is kept for API compatibility with issueOperations interface.
+      fetch: async (_workspaceSlug: string, _projectId: string, _issueId: string) => {
+        setError(false);
+        // TanStack Query handles the actual fetch - no need to call a separate fetch function
       },
       update: async (workspaceSlug: string, projectId: string, issueId: string, data: Partial<TIssue>) => {
         try {
@@ -275,7 +269,7 @@ export function IssuePeekOverview(props: IWorkItemPeekOverview) {
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fetchIssue, is_draft, issues, fetchActivities, pathname, removeRoutePeekId, restoreIssue]
+    [is_draft, issues, fetchActivities, pathname, removeRoutePeekId, restoreIssue]
   );
 
   const { isPending } = useQuery({

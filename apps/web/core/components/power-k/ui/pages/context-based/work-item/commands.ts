@@ -20,16 +20,21 @@ import { useTranslation } from "@plane/i18n";
 import { ContrastIcon, DiceIcon, DoubleCircleIcon } from "@plane/propel/icons";
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
 import type { ISprint, IIssueLabel, IEpic, TIssue, TIssuePriorities } from "@plane/types";
-import { EIssueServiceType, EUserPermissions } from "@plane/types";
+import { EIssuesStoreType, EUserPermissions } from "@plane/types";
 import { copyTextToClipboard } from "@plane/utils";
 // components
 import type { TPowerKCommandConfig } from "@/components/power-k/core/types";
 // hooks
 import { useProjectEstimates } from "@/hooks/store/estimates";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useIssues } from "@/hooks/store/use-issues";
 import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
+import { useIssueSubscriptionStore } from "@/store/issue/issue-details/subscription.store";
+// queries
+import { useUpdateIssue } from "@/store/queries/issue";
 
 export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] => {
   // params
@@ -42,20 +47,17 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
   const { toggleDeleteIssueModal } = useCommandPalette();
   const { getProjectById } = useProject();
   const { areEstimateEnabledByProjectId } = useProjectEstimates();
-  const {
-    issue: { getIssueById, getIssueIdByIdentifier, addSprintToIssue, removeIssueFromSprint, changeEpicsInIssue },
-    subscription: { getSubscriptionByIssueId, createSubscription, removeSubscription },
-    updateIssue,
-  } = useIssueDetail(EIssueServiceType.ISSUES);
-  const {
-    issue: {
-      addSprintToIssue: addSprintToEpic,
-      removeIssueFromSprint: removeEpicFromSprint,
-      changeEpicsInIssue: changeEpicsInEpic,
-    },
-    subscription: { createSubscription: createEpicSubscription, removeSubscription: removeEpicSubscription },
-    updateIssue: updateEpic,
-  } = useIssueDetail(EIssueServiceType.EPICS);
+  // Zustand stores
+  const getIssueById = useIssueStore((s) => s.getIssueById);
+  const getIssueIdByIdentifier = useIssueStore((s) => s.getIssueIdByIdentifier);
+  const getSubscriptionByIssueId = useIssueSubscriptionStore((s) => s.getSubscriptionByIssueId);
+  const createSubscription = useIssueSubscriptionStore((s) => s.createSubscription);
+  const removeSubscription = useIssueSubscriptionStore((s) => s.removeSubscription);
+  // TanStack Query mutations
+  const { mutateAsync: updateIssueMutation } = useUpdateIssue();
+  // MobX stores for sprint/epic operations (still using MobX)
+  const { issues: projectIssues } = useIssues(EIssuesStoreType.PROJECT);
+  const { addSprintToIssue, removeIssueFromSprint, changeEpicsInIssue } = projectIssues;
   // derived values
   const entityId = entityIdentifier ? getIssueIdByIdentifier(entityIdentifier.toString()) : null;
   const entityDetails = entityId ? getIssueById(entityId) : null;
@@ -68,10 +70,6 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
   const isSubscribed = Boolean(entityId ? getSubscriptionByIssueId(entityId, currentUser?.id) : false);
   // translation
   const { t } = useTranslation();
-  // handlers
-  const updateEntity = isEpic ? updateEpic : updateIssue;
-  const createEntitySubscription = isEpic ? createEpicSubscription : createSubscription;
-  const removeEntitySubscription = isEpic ? removeEpicSubscription : removeSubscription;
   // permission
   const isEditingAllowed =
     allowPermissions(
@@ -84,7 +82,12 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
   const handleUpdateEntity = useCallback(
     async (formData: Partial<TIssue>) => {
       if (!workspaceSlug || !entityDetails || !entityDetails.project_id) return;
-      await updateEntity(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, formData).catch(() => {
+      await updateIssueMutation({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: entityDetails.project_id,
+        issueId: entityDetails.id,
+        data: formData,
+      }).catch(() => {
         setToast({
           type: TOAST_TYPE.ERROR,
           title: "Error!",
@@ -92,7 +95,7 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
         });
       });
     },
-    [entityDetails, isEpic, updateEntity, workspaceSlug]
+    [entityDetails, isEpic, updateIssueMutation, workspaceSlug]
   );
 
   const handleUpdateAssignee = useCallback(
@@ -113,9 +116,9 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
 
     try {
       if (isSubscribed) {
-        await removeEntitySubscription(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, currentUser.id);
+        await removeSubscription(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, currentUser.id);
       } else {
-        await createEntitySubscription(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, currentUser.id);
+        await createSubscription(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, currentUser.id);
       }
       setToast({
         type: TOAST_TYPE.SUCCESS,
@@ -132,7 +135,7 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createEntitySubscription, currentUser, entityDetails, isSubscribed, removeEntitySubscription, workspaceSlug]);
+  }, [createSubscription, currentUser, entityDetails, isSubscribed, removeSubscription, workspaceSlug]);
 
   const handleDeleteWorkItem = useCallback(() => {
     toggleDeleteIssueModal(true);
@@ -299,15 +302,12 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
         const sprintId = (data as ISprint)?.id;
         if (!workspaceSlug || !entityDetails || !entityDetails.project_id) return;
         if (entityDetails.sprint_id === sprintId) return;
-        // handlers
-        const addSprintToEntity = entityDetails.is_epic ? addSprintToEpic : addSprintToIssue;
-        const removeSprintFromEntity = entityDetails.is_epic ? removeEpicFromSprint : removeIssueFromSprint;
 
         try {
           if (sprintId) {
-            addSprintToEntity(workspaceSlug.toString(), entityDetails.project_id, sprintId, entityDetails.id);
+            addSprintToIssue(workspaceSlug.toString(), entityDetails.project_id, sprintId, entityDetails.id);
           } else {
-            removeSprintFromEntity(
+            removeIssueFromSprint(
               workspaceSlug.toString(),
               entityDetails.project_id,
               entityDetails.sprint_id ?? "",
@@ -338,13 +338,11 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
       onSelect: (data) => {
         const epicId = (data as IEpic)?.id;
         if (!workspaceSlug || !entityDetails || !entityDetails.project_id) return;
-        // handlers
-        const changeEpicsInEntity = entityDetails.is_epic ? changeEpicsInEpic : changeEpicsInIssue;
         try {
           if (entityDetails.epic_ids?.includes(epicId)) {
-            changeEpicsInEntity(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [], [epicId]);
+            changeEpicsInIssue(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [], [epicId]);
           } else {
-            changeEpicsInEntity(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [epicId], []);
+            changeEpicsInIssue(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, [epicId], []);
           }
         } catch {
           setToast({

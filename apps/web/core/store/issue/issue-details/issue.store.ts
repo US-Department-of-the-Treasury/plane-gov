@@ -3,10 +3,10 @@ import { immer } from "zustand/middleware/immer";
 // types
 import type { TIssue, TIssueServiceType } from "@plane/types";
 import { EIssueServiceType } from "@plane/types";
+// stores - no rootStore indirection for activity
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 // services
 import { IssueArchiveService, WorkspaceDraftService, IssueService } from "@/services/issue";
-// Zustand stores
-import { useStateStore } from "@/store/client";
 // types
 import type { IIssueDetail } from "./root.store";
 
@@ -129,8 +129,9 @@ export class IssueStore implements IIssueStore {
     // store handlers from issue detail
     // parent
     if (issue && issue?.parent && issue?.parent?.id && issue?.parent?.project_id) {
-      this.issueService.retrieve(workspaceSlug, issue.parent.project_id, issue?.parent?.id).then((res) => {
+      void this.issueService.retrieve(workspaceSlug, issue.parent.project_id, issue?.parent?.id).then((res) => {
         this.rootIssueDetailStore.rootIssueStore.issues.addIssue([res]);
+        return res;
       });
     }
     // assignees
@@ -148,17 +149,17 @@ export class IssueStore implements IIssueStore {
 
     this.rootIssueDetailStore.addSubscription(issueId, issue.is_subscribed);
 
-    // fetch issue activity
-    this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
+    // fetch issue activity - direct call, no rootStore indirection
+    void useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
 
     // fetch issue comments
-    this.rootIssueDetailStore.comment.fetchComments(workspaceSlug, projectId, issueId);
+    void this.rootIssueDetailStore.comment.fetchComments(workspaceSlug, projectId, issueId);
 
     // fetch sub issues
-    this.rootIssueDetailStore.subIssues.fetchSubIssues(workspaceSlug, projectId, issueId);
+    void this.rootIssueDetailStore.subIssues.fetchSubIssues(workspaceSlug, projectId, issueId);
 
     // fetch issue relations
-    this.rootIssueDetailStore.relation.fetchRelations(workspaceSlug, projectId, issueId);
+    void this.rootIssueDetailStore.relation.fetchRelations(workspaceSlug, projectId, issueId);
 
     return issue;
   };
@@ -210,7 +211,7 @@ export class IssueStore implements IIssueStore {
 
     await Promise.all([
       currentStore.updateIssue(workspaceSlug, projectId, issueId, data),
-      this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId),
+      useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId),
     ]);
   };
 
@@ -219,7 +220,7 @@ export class IssueStore implements IIssueStore {
       this.serviceType === EIssueServiceType.EPICS
         ? this.rootIssueDetailStore.rootIssueStore.projectEpics
         : this.rootIssueDetailStore.rootIssueStore.projectIssues;
-    currentStore.removeIssue(workspaceSlug, projectId, issueId);
+    await currentStore.removeIssue(workspaceSlug, projectId, issueId);
   };
 
   archiveIssue = async (workspaceSlug: string, projectId: string, issueId: string) => {
@@ -227,7 +228,7 @@ export class IssueStore implements IIssueStore {
       this.serviceType === EIssueServiceType.EPICS
         ? this.rootIssueDetailStore.rootIssueStore.projectEpics
         : this.rootIssueDetailStore.rootIssueStore.projectIssues;
-    currentStore.archiveIssue(workspaceSlug, projectId, issueId);
+    await currentStore.archiveIssue(workspaceSlug, projectId, issueId);
   };
 
   addSprintToIssue = async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => {
@@ -237,7 +238,7 @@ export class IssueStore implements IIssueStore {
       sprintId,
       issueId
     );
-    await this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
+    await useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
   };
 
   addIssueToSprint = async (workspaceSlug: string, projectId: string, sprintId: string, issueIds: string[]) => {
@@ -249,7 +250,7 @@ export class IssueStore implements IIssueStore {
       false
     );
     if (issueIds && issueIds.length > 0)
-      await this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueIds[0]);
+      await useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueIds[0]);
   };
 
   removeIssueFromSprint = async (workspaceSlug: string, projectId: string, sprintId: string, issueId: string) => {
@@ -259,7 +260,7 @@ export class IssueStore implements IIssueStore {
       sprintId,
       issueId
     );
-    await this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
+    await useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
     return sprint;
   };
 
@@ -277,7 +278,7 @@ export class IssueStore implements IIssueStore {
       addEpicIds,
       removeEpicIds
     );
-    await this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
+    await useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
   };
 
   removeIssueFromEpic = async (workspaceSlug: string, projectId: string, epicId: string, issueId: string) => {
@@ -287,7 +288,7 @@ export class IssueStore implements IIssueStore {
       epicId,
       [issueId]
     );
-    await this.rootIssueDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
+    await useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
     return currentEpic;
   };
 
@@ -310,8 +311,9 @@ export class IssueStore implements IIssueStore {
 
     // handle parent issue if exists
     if (issue?.parent && issue?.parent?.id && issue?.parent?.project_id) {
-      this.issueService.retrieve(workspaceSlug, issue.parent.project_id, issue.parent.id).then((res) => {
+      void this.issueService.retrieve(workspaceSlug, issue.parent.project_id, issue.parent.id).then((res) => {
         this.rootIssueDetailStore.rootIssueStore.issues.addIssue([res]);
+        return res;
       });
     }
 
@@ -336,17 +338,17 @@ export class IssueStore implements IIssueStore {
 
     rootWorkItemDetailStore.addSubscription(issueId, issue.is_subscribed);
 
-    // fetch issue activity
-    rootWorkItemDetailStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
+    // fetch issue activity - direct call, no rootStore indirection
+    void useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
 
     // fetch issue comments
-    rootWorkItemDetailStore.comment.fetchComments(workspaceSlug, projectId, issueId);
+    void rootWorkItemDetailStore.comment.fetchComments(workspaceSlug, projectId, issueId);
 
     // fetch sub issues
-    rootWorkItemDetailStore.subIssues.fetchSubIssues(workspaceSlug, projectId, issueId);
+    void rootWorkItemDetailStore.subIssues.fetchSubIssues(workspaceSlug, projectId, issueId);
 
     // fetch issue relations
-    rootWorkItemDetailStore.relation.fetchRelations(workspaceSlug, projectId, issueId);
+    void rootWorkItemDetailStore.relation.fetchRelations(workspaceSlug, projectId, issueId);
 
     return issue;
   };

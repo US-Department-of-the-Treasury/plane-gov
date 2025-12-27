@@ -6,19 +6,20 @@ import type { TIssueReaction, TIssueReactionMap, TIssueReactionIdMap, TIssueServ
 import { groupReactions } from "@plane/utils";
 // services
 import { IssueReactionService } from "@/services/issue";
+// stores - no rootStore indirection
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 
 // State interface
 export interface IssueReactionStoreState {
   reactions: TIssueReactionIdMap;
   reactionMap: TIssueReactionMap;
   serviceType: TIssueServiceType | null;
-  rootStore: any; // IIssueDetail type (avoiding circular dependency)
 }
 
 // Actions interface
 export interface IssueReactionStoreActions {
   // initialization
-  initialize: (serviceType: TIssueServiceType, rootStore: any) => void;
+  initialize: (serviceType: TIssueServiceType) => void;
 
   // actions
   addReactions: (issueId: string, reactions: TIssueReaction[]) => void;
@@ -46,7 +47,6 @@ const initialState: IssueReactionStoreState = {
   reactions: {},
   reactionMap: {},
   serviceType: null,
-  rootStore: null,
 };
 
 // Helper to get service instance (created on-demand based on serviceType)
@@ -65,19 +65,20 @@ const getIssueReactionService = (serviceType: TIssueServiceType | null) => {
  * Key changes:
  * - Service instance created on-demand based on serviceType
  * - Immutable state updates using set()
- * - rootStore reference stored in state for activity fetching
+ * - Activity fetching via direct useIssueActivityStore import (no rootStore indirection)
  */
 export const useIssueReactionStore = create<IssueReactionStore>()((set, get) => ({
   ...initialState,
 
   // Initialization
-  initialize: (serviceType, rootStore) => {
+  initialize: (serviceType) => {
     set({
       serviceType,
-      rootStore,
       reactions: {},
       reactionMap: {},
     });
+    // Also set the serviceType in the activity store
+    useIssueActivityStore.getState().setServiceType(serviceType);
   },
 
   // Helper methods
@@ -176,11 +177,8 @@ export const useIssueReactionStore = create<IssueReactionStore>()((set, get) => 
       };
     });
 
-    // Fetching activity
-    const currentState = get();
-    if (currentState.rootStore?.activity) {
-      currentState.rootStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
-    }
+    // Fetching activity - direct call, no rootStore indirection
+    useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
 
     return response;
   },
@@ -220,11 +218,8 @@ export const useIssueReactionStore = create<IssueReactionStore>()((set, get) => 
     const service = getIssueReactionService(state.serviceType);
     const response = await service.deleteIssueReaction(workspaceSlug, projectId, issueId, reaction);
 
-    // Fetching activity
-    const currentState = get();
-    if (currentState.rootStore?.activity) {
-      currentState.rootStore.activity.fetchActivities(workspaceSlug, projectId, issueId);
-    }
+    // Fetching activity - direct call, no rootStore indirection
+    useIssueActivityStore.getState().fetchActivities(workspaceSlug, projectId, issueId);
 
     return response;
   },

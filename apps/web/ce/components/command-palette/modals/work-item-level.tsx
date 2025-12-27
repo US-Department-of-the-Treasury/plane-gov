@@ -1,19 +1,19 @@
-import type { FC } from "react";
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
 // plane imports
 import type { TIssue } from "@plane/types";
-import { EIssueServiceType, EIssuesStoreType } from "@plane/types";
+import { EIssuesStoreType } from "@plane/types";
 // components
 import { BulkDeleteIssuesModal } from "@/components/core/modals/bulk-delete-issues-modal";
 import { DeleteIssueModal } from "@/components/issues/delete-issue-modal";
 import { CreateUpdateIssueModal } from "@/components/issues/issue-modal/modal";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useUser } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
+// stores
+import { useIssueSubIssuesStore } from "@/store/issue/issue-details/sub_issues.store";
 // queries
 import { useIssueByIdentifier } from "@/store/queries/issue";
 
@@ -61,9 +61,8 @@ export function WorkItemLevelModals(props: TWorkItemLevelModalsProps) {
     toggleBulkDeleteIssueModal,
     createWorkItemAllowedProjectIds,
   } = useCommandPalette();
-  // derived values
-  const { fetchSubIssues: fetchSubWorkItems } = useIssueDetail();
-  const { fetchSubIssues: fetchEpicSubWorkItems } = useIssueDetail(EIssueServiceType.EPICS);
+  // Zustand stores - sub-issues
+  const fetchSubWorkItems = useIssueSubIssuesStore((s) => s.fetchSubIssues);
 
   const handleDeleteIssue = async (workspaceSlug: string, projectId: string, issueId: string) => {
     try {
@@ -81,8 +80,7 @@ export function WorkItemLevelModals(props: TWorkItemLevelModalsProps) {
   const handleCreateIssueSubmit = async (newIssue: TIssue) => {
     if (!workspaceSlug || !newIssue.project_id || !newIssue.id || newIssue.parent_id !== workItemDetails?.id) return;
 
-    const fetchAction = workItemDetails?.is_epic ? fetchEpicSubWorkItems : fetchSubWorkItems;
-    await fetchAction(workspaceSlug?.toString(), newIssue.project_id, workItemDetails.id);
+    await fetchSubWorkItems(workspaceSlug?.toString(), newIssue.project_id, workItemDetails.id);
   };
 
   const getCreateIssueModalData = () => {

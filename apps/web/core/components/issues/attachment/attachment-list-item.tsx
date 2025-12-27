@@ -14,9 +14,11 @@ import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
 import { getFileIcon } from "@/components/icons";
 // helpers
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// stores
+import { useIssueAttachmentStore } from "@/store/issue/issue-details/attachment.store";
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
+import { useWorkspaceMembers, getWorkspaceMemberByUserId } from "@/store/queries/member";
 
 type TIssueAttachmentsListItem = {
   attachmentId: string;
@@ -32,10 +34,9 @@ export function IssueAttachmentsListItem(props: TIssueAttachmentsListItem) {
   const { workspaceSlug } = useParams();
   // store hooks
   const { data: workspaceMembers } = useWorkspaceMembers(workspaceSlug?.toString() ?? "");
-  const {
-    attachment: { getAttachmentById },
-    toggleDeleteAttachmentModal,
-  } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const getAttachmentById = useIssueAttachmentStore((s) => s.getAttachmentById);
+  const toggleDeleteAttachmentModal = useIssueDetailUIStore((s) => s.toggleDeleteAttachmentModal);
   // derived values
   const attachment = attachmentId ? getAttachmentById(attachmentId) : undefined;
   const fileName = getFileName(attachment?.attributes.name ?? "");

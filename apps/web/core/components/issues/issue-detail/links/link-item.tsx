@@ -2,31 +2,30 @@ import { Pencil, Trash2, Copy, Link } from "lucide-react";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { Tooltip } from "@plane/propel/tooltip";
-import type { TIssueServiceType, TIssueLink } from "@plane/types";
-import { EIssueServiceType } from "@plane/types";
+import type { TIssueLink } from "@plane/types";
 // ui
 import { CustomMenu } from "@plane/ui";
 import { calculateTimeAgo, copyTextToClipboard } from "@plane/utils";
-// helpers
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// store
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
 import type { TLinkOperationsModal } from "./create-update-link-modal";
 
 type TIssueLinkItem = {
   link: TIssueLink;
   linkOperations: TLinkOperationsModal;
   isNotAllowed: boolean;
-  issueServiceType?: TIssueServiceType;
 };
 
 export function IssueLinkItem(props: TIssueLinkItem) {
   // props
-  const { link: linkDetail, linkOperations, isNotAllowed, issueServiceType = EIssueServiceType.ISSUES } = props;
+  const { link: linkDetail, linkOperations, isNotAllowed } = props;
   // hooks
   const { t } = useTranslation();
-  // keep modal state from useIssueDetail
-  const { toggleIssueLinkModal: toggleIssueLinkModalStore, setIssueLinkData } = useIssueDetail(issueServiceType);
+  // keep modal state from Zustand store
+  const toggleIssueLinkModalStore = useIssueDetailUIStore((s) => s.toggleIssueLinkModal);
+  const setIssueLinkData = useIssueDetailUIStore((s) => s.setIssueLinkData);
   const { isMobile } = usePlatformOS();
 
   // const Icon = getIconForLink(linkDetail.url);

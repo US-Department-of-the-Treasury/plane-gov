@@ -10,9 +10,11 @@ import { EIssueServiceType } from "@plane/types";
 import { ControlLink, CustomMenu } from "@plane/ui";
 import { generateWorkItemLink } from "@plane/utils";
 // hooks
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
+// store
+import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
+import { useIssueRelationStore } from "@/store/issue/issue-details/relation.store";
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useIssue } from "@/store/queries/issue";
 // plane web imports
@@ -51,8 +53,10 @@ export function RelationIssueListItem(props: Props) {
 
   const { t } = useTranslation();
 
-  // store hooks
-  const { removeRelation, toggleCreateIssueModal, toggleDeleteIssueModal } = useIssueDetail(issueServiceType);
+  // store hooks - use Zustand directly
+  const toggleCreateIssueModal = useIssueDetailUIStore((s) => s.toggleCreateIssueModal);
+  const toggleDeleteIssueModal = useIssueDetailUIStore((s) => s.toggleDeleteIssueModal);
+  const removeRelation = useIssueRelationStore((s) => s.removeRelation);
   const { data: projects } = useProjects(workspaceSlug);
   const { isMobile } = usePlatformOS();
 

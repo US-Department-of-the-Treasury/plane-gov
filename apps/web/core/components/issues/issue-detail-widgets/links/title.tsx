@@ -2,7 +2,6 @@ import type { FC } from "react";
 import React, { useMemo } from "react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
-import type { TIssueServiceType } from "@plane/types";
 import { CollapsibleButton } from "@plane/ui";
 // hooks
 import { useIssue } from "@/store/queries/issue";
@@ -15,11 +14,10 @@ type Props = {
   projectId: string;
   issueId: string;
   disabled: boolean;
-  issueServiceType: TIssueServiceType;
 };
 
 export function IssueLinksCollapsibleTitle(props: Props) {
-  const { isOpen, workspaceSlug, projectId, issueId, disabled, issueServiceType } = props;
+  const { isOpen, workspaceSlug, projectId, issueId, disabled } = props;
   // translation
   const { t } = useTranslation();
   // query hooks
@@ -43,9 +41,7 @@ export function IssueLinksCollapsibleTitle(props: Props) {
       isOpen={isOpen}
       title={t("common.links")}
       indicatorElement={indicatorElement}
-      actionItemElement={
-        !disabled && <IssueLinksActionButton issueServiceType={issueServiceType} disabled={disabled} />
-      }
+      actionItemElement={!disabled && <IssueLinksActionButton disabled={disabled} />}
     />
   );
 }

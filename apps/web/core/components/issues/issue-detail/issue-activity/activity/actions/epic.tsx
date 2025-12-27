@@ -1,18 +1,15 @@
-// hooks
 import { EpicIcon } from "@plane/propel/icons";
-import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+// stores
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 // components
 import { IssueActivityBlockComponent } from "./";
-// icons
 
 type TIssueEpicActivity = { activityId: string; ends: "top" | "bottom" | undefined };
 
 export function IssueEpicActivity(props: TIssueEpicActivity) {
   const { activityId, ends } = props;
-  // hooks
-  const {
-    activity: { getActivityById },
-  } = useIssueDetail();
+  // store hooks - use Zustand directly
+  const getActivityById = useIssueActivityStore((s) => s.getActivityById);
 
   const activity = getActivityById(activityId);
 
