@@ -145,8 +145,8 @@ export function AutoCloseAutomation(props: Props) {
                       label={`${currentProjectDetails?.close_in} ${
                         currentProjectDetails?.close_in === 1 ? "month" : "months"
                       }`}
-                      onChange={(val: number) => {
-                        handleChange({ close_in: val });
+                      onChange={(val: unknown) => {
+                        handleChange({ close_in: val as number });
                       }}
                       input
                       disabled={!isAdmin}
@@ -198,8 +198,8 @@ export function AutoCloseAutomation(props: Props) {
                             : (currentDefaultState?.name ?? <span className="text-secondary">{t("state")}</span>)}
                         </div>
                       }
-                      onChange={(val: string) => {
-                        handleChange({ default_state: val });
+                      onChange={(val: unknown) => {
+                        handleChange({ default_state: val as string });
                       }}
                       options={options}
                       disabled={!multipleOptions}

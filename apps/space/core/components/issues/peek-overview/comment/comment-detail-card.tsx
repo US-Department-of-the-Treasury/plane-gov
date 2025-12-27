@@ -6,7 +6,7 @@ import { Menu, Transition, TransitionChild } from "@headlessui/react";
 import type { EditorRefApi } from "@plane/editor";
 import { CloseIcon } from "@plane/propel/icons";
 import { SitesFileService } from "@plane/services";
-import type { TIssuePublicComment } from "@plane/types";
+import { EFileAssetType, type TIssuePublicComment } from "@plane/types";
 import { getFileURL } from "@plane/utils";
 // components
 import { LiteTextEditor } from "@/components/editor/lite-text-editor";
@@ -129,7 +129,7 @@ export function CommentCard(props: Props) {
                     uploadFile={async (blockId, file) => {
                       const res = await fileService.uploadAsset(
                         anchor,
-                        { entity_identifier: comment.id, entity_type: "COMMENT_DESCRIPTION" as const },
+                        { entity_identifier: comment.id, entity_type: EFileAssetType.COMMENT_DESCRIPTION },
                         file
                       );
                       return res.asset_id;

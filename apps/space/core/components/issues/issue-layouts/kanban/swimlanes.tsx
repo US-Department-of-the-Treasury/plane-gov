@@ -238,6 +238,8 @@ function SubGroup(props: ISubGroup) {
     scrollableContainerRef,
   } = props;
 
+  // hooks
+  const anchor = useAnchor();
   const [isExpanded, setIsExpanded] = useState(true);
 
   const toggleExpanded = () => {
@@ -282,6 +284,7 @@ function SubGroup(props: ISubGroup) {
         {subGroupByVisibilityToggle.showIssues && isExpanded && (
           <div className="relative">
             <KanBan
+              anchor={anchor}
               groupedIssueIds={groupedIssueIds}
               displayProperties={displayProperties}
               subGroupBy={subGroupBy}

@@ -28,7 +28,7 @@ function AutomationSettingsPage({ params }: Route.ComponentProps) {
   const projectMemberRole = projectDetails?.member_role;
   const canPerformProjectAdminActions = projectMemberRole === EUserProjectRoles.ADMIN;
 
-  const handleChange = (formData: Partial<IProject>) => {
+  const handleChange = async (formData: Partial<IProject>) => {
     if (!projectDetails) return;
     updateProject(
       { workspaceSlug, projectId, data: formData },

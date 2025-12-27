@@ -7,10 +7,12 @@ import type {
   TIssueLink,
   TIssueReaction,
   TIssueServiceType,
+  TIssueSubIssues,
   TWorkItemWidgets,
 } from "@plane/types";
 // Zustand stores
 import { useStateStore } from "@/store/client";
+import { useUserStore } from "@/store/user";
 // plane web store
 import { IssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
 import type {
@@ -43,13 +45,14 @@ import type { IIssueSubscriptionStore } from "./subscription.store";
 // Import the canonical UI store (consolidating duplicate state)
 import { useIssueDetailUIStore } from "./ui.store";
 import type {
+  IssueDetailUIState,
   TPeekIssue,
   TIssueRelationModal,
   TIssueCrudState,
   TIssueCrudOperationState,
 } from "./ui.store";
 // Re-export types for backward compatibility
-export type { TPeekIssue, TIssueRelationModal, TIssueCrudState, TIssueCrudOperationState };
+export type { IssueDetailUIState, TPeekIssue, TIssueRelationModal, TIssueCrudState, TIssueCrudOperationState };
 // Re-export store for backward compatibility
 export { useIssueDetailUIStore };
 
@@ -90,7 +93,7 @@ export interface IIssueRelationStoreActions {
 }
 
 export interface IIssueSubIssuesStoreActions {
-  fetchSubIssues: (workspaceSlug: string, projectId: string, issueId: string) => Promise<TIssue[]>;
+  fetchSubIssues: (workspaceSlug: string, projectId: string, issueId: string) => Promise<TIssueSubIssues>;
   createSubIssues: (workspaceSlug: string, projectId: string, parentIssueId: string, data: string[]) => Promise<void>;
   updateSubIssue: (workspaceSlug: string, projectId: string, parentIssueId: string, issueId: string, issueData: Partial<TIssue>, oldIssue?: Partial<TIssue>, fromModal?: boolean) => Promise<void>;
   removeSubIssue: (workspaceSlug: string, projectId: string, parentIssueId: string, issueId: string) => Promise<void>;
@@ -177,7 +180,7 @@ export interface IIssueDetail
   relation: IIssueRelationStore;
 }
 
-export abstract class IssueDetail implements IIssueDetail {
+export class IssueDetail implements IIssueDetail {
   // service type
   serviceType: TIssueServiceType;
   // store
@@ -381,7 +384,12 @@ export abstract class IssueDetail implements IIssueDetail {
       issueId,
       (issues) => this.rootIssueStore.issues.addIssue(issues),
       (id, data) => this.rootIssueStore.issues.updateIssue(id, data),
-      (ws, pIds) => this.rootIssueStore.rootStore.projectRoot.project.fetchProjectSettings(ws, pIds)
+      async (ws, pIds) => {
+        // Fetch project details for each project ID
+        for (const pId of pIds) {
+          await this.rootIssueStore.rootStore.projectRoot.project.fetchProjectDetails(ws, pId);
+        }
+      }
     );
   createSubIssues = async (workspaceSlug: string, projectId: string, parentIssueId: string, data: string[]) =>
     this.subIssues.createSubIssues(
@@ -391,7 +399,12 @@ export abstract class IssueDetail implements IIssueDetail {
       data,
       (issues) => this.rootIssueStore.issues.addIssue(issues),
       (id, d) => this.rootIssueStore.issues.updateIssue(id, d),
-      (ws, pIds) => this.rootIssueStore.rootStore.projectRoot.project.fetchProjectSettings(ws, pIds)
+      async (ws, pIds) => {
+        // Fetch project details for each project ID
+        for (const pId of pIds) {
+          await this.rootIssueStore.rootStore.projectRoot.project.fetchProjectDetails(ws, pId);
+        }
+      }
     );
   updateSubIssue = async (
     workspaceSlug: string,
@@ -410,7 +423,7 @@ export abstract class IssueDetail implements IIssueDetail {
       issueData,
       oldIssue,
       fromModal,
-      (ws, pId, iId, d) => this.rootIssueStore.updateIssue(ws, pId, iId, d),
+      (ws, pId, iId, d) => this.rootIssueStore.issueDetail.updateIssue(ws, pId, iId, d),
       (stateId) => useStateStore.getState().getStateById(stateId)
     );
   removeSubIssue = async (workspaceSlug: string, projectId: string, parentIssueId: string, issueId: string) =>
@@ -419,7 +432,7 @@ export abstract class IssueDetail implements IIssueDetail {
       projectId,
       parentIssueId,
       issueId,
-      (ws, pId, iId, d) => this.rootIssueStore.updateIssue(ws, pId, iId, d),
+      (ws, pId, iId, d) => this.rootIssueStore.issueDetail.updateIssue(ws, pId, iId, d),
       (iId) => this.rootIssueStore.issues.getIssueById(iId),
       (stateId) => useStateStore.getState().getStateById(stateId),
       (id, d) => this.rootIssueStore.issues.updateIssue(id, d)
@@ -430,7 +443,7 @@ export abstract class IssueDetail implements IIssueDetail {
       projectId,
       parentIssueId,
       issueId,
-      (ws, pId, iId) => this.rootIssueStore.removeIssue(ws, pId, iId),
+      (ws, pId, iId) => this.rootIssueStore.issueDetail.removeIssue(ws, pId, iId),
       (iId) => this.rootIssueStore.issues.getIssueById(iId),
       (stateId) => useStateStore.getState().getStateById(stateId),
       (id, d) => this.rootIssueStore.issues.updateIssue(id, d)
@@ -445,17 +458,17 @@ export abstract class IssueDetail implements IIssueDetail {
     this.subscription.addSubscription(issueId, currentUserId, isSubscribed);
   };
   fetchSubscriptions = async (workspaceSlug: string, projectId: string, issueId: string) => {
-    const currentUserId = this.rootIssueStore.rootStore.user.data?.id;
+    const currentUserId = useUserStore.getState().data?.id;
     if (!currentUserId) throw new Error("user id not available");
     return this.subscription.fetchSubscriptions(workspaceSlug, projectId, issueId, currentUserId);
   };
   createSubscription = async (workspaceSlug: string, projectId: string, issueId: string) => {
-    const currentUserId = this.rootIssueStore.rootStore.user.data?.id;
+    const currentUserId = useUserStore.getState().data?.id;
     if (!currentUserId) throw new Error("user id not available");
     return this.subscription.createSubscription(workspaceSlug, projectId, issueId, currentUserId);
   };
   removeSubscription = async (workspaceSlug: string, projectId: string, issueId: string) => {
-    const currentUserId = this.rootIssueStore.rootStore.user.data?.id;
+    const currentUserId = useUserStore.getState().data?.id;
     if (!currentUserId) throw new Error("user id not available");
     return this.subscription.removeSubscription(workspaceSlug, projectId, issueId, currentUserId);
   };

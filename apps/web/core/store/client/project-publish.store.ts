@@ -163,7 +163,7 @@ export class ProjectPublishStoreLegacy implements IProjectPublishStore {
       const response = await projectPublishService.publishProject(workspaceSlug, projectID, data);
       setPublishSettings(projectID, response);
       // Update project anchor - direct Zustand store access
-      useProjectStore.getState().updateProjectAnchor(projectID, response.anchor);
+      useProjectStore.getState().updateProjectAnchor(projectID, response.anchor ?? null);
       setGeneralLoader(false);
       return response;
     } catch (error) {

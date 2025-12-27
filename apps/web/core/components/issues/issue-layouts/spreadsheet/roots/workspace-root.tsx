@@ -108,7 +108,8 @@ export function WorkspaceSpreadsheetRoot(props: Props) {
   }
 
   // Computed values
-  const issueIds = groupedIssueIds[ALL_ISSUES];
+  // Type guard: ensure groupedIssueIds is not an array before indexing with ALL_ISSUES
+  const issueIds = !Array.isArray(groupedIssueIds) ? groupedIssueIds[ALL_ISSUES] : undefined;
   const nextPageResults = getPaginationData(ALL_ISSUES, undefined)?.nextPageResults;
 
   // Render spreadsheet

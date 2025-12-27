@@ -93,7 +93,8 @@ const RadixComboDropDown = forwardRef<HTMLDivElement, RadixComboDropDownProps>(f
     ...rest
   } = props;
 
-  const dropDownButtonRef = useRef<HTMLDivElement | null>(null);
+  // Use HTMLElement as common base type since ref is used on both div (line 140) and button trigger (line 150)
+  const dropDownButtonRef = useRef<HTMLElement | null>(null);
   const [shouldRender, setShouldRender] = useState(renderByDefault);
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -137,7 +138,7 @@ const RadixComboDropDown = forwardRef<HTMLDivElement, RadixComboDropDownProps>(f
 
   if (!shouldRender) {
     return (
-      <div ref={dropDownButtonRef} className="h-full flex items-center" onMouseEnter={onHover}>
+      <div ref={dropDownButtonRef as React.RefObject<HTMLDivElement>} className="h-full flex items-center" onMouseEnter={onHover}>
         {button}
       </div>
     );
@@ -147,7 +148,7 @@ const RadixComboDropDown = forwardRef<HTMLDivElement, RadixComboDropDownProps>(f
     <ComboContext.Provider value={contextValue}>
       <PopoverPrimitive.Root open={isOpen} onOpenChange={handleSetIsOpen}>
         <Component {...rest} ref={ref} className={resolvedClassName} tabIndex={tabIndex} onKeyDown={onKeyDown}>
-          <PopoverPrimitive.Trigger ref={dropDownButtonRef} asChild disabled={disabled}>
+          <PopoverPrimitive.Trigger ref={dropDownButtonRef as React.RefObject<HTMLButtonElement>} asChild disabled={disabled}>
             {button}
           </PopoverPrimitive.Trigger>
           {children}

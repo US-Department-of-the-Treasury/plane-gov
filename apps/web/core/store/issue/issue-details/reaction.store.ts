@@ -2,6 +2,7 @@ import { pull, find, concat, update } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // Plane Imports
+import { EIssueServiceType } from "@plane/types";
 import type { TIssueReaction, TIssueReactionMap, TIssueReactionIdMap, TIssueServiceType } from "@plane/types";
 import { groupReactions } from "@plane/utils";
 // services
@@ -99,7 +100,7 @@ export const useIssueReactionStore = create<IIssueReactionStore>()(
     },
 
     fetchReactions: async (workspaceSlug: string, projectId: string, issueId: string) => {
-      const service = getReactionService("WORKSPACE");
+      const service = getReactionService(EIssueServiceType.ISSUES);
       const response = await service.listIssueReactions(workspaceSlug, projectId, issueId);
       get().addReactions(issueId, response);
       return response;
@@ -112,7 +113,7 @@ export const useIssueReactionStore = create<IIssueReactionStore>()(
       reaction: string,
       onFetchActivity?: () => void
     ) => {
-      const service = getReactionService("WORKSPACE");
+      const service = getReactionService(EIssueServiceType.ISSUES);
       const response = await service.createIssueReaction(workspaceSlug, projectId, issueId, {
         reaction,
       });
@@ -144,7 +145,7 @@ export const useIssueReactionStore = create<IIssueReactionStore>()(
       userId: string,
       onFetchActivity?: () => void
     ) => {
-      const service = getReactionService("WORKSPACE");
+      const service = getReactionService(EIssueServiceType.ISSUES);
       const state = get();
       const userReactions = state.reactionsByUser(issueId, userId);
       const currentReaction = find(userReactions, { actor: userId, reaction: reaction });

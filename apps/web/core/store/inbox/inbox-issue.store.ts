@@ -156,7 +156,7 @@ const createInboxIssueStore = (
           });
           set((draft) => {
             draft.status = inboxIssue?.status;
-            draft.snoozed_till = inboxIssue?.snoozed_till;
+            draft.snoozed_till = inboxIssue?.snoozed_till ?? undefined;
           });
         } catch {
           set((draft) => {

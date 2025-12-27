@@ -23,7 +23,7 @@ export type TIssueCrudOperationState = {
   existing: TIssueCrudState;
 };
 
-interface IssueDetailUIState {
+export interface IssueDetailUIState {
   // Modal states
   peekIssue: TPeekIssue | undefined;
   isCreateIssueModalOpen: boolean;

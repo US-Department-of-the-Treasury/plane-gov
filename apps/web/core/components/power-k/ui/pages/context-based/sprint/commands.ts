@@ -15,7 +15,7 @@ import { useWorkspaceSprints, getSprintById } from "@/store/queries/sprint";
 
 export const usePowerKSprintContextBasedActions = (): TPowerKCommandConfig[] => {
   // navigation
-  const { workspaceSlug, sprintId } = useParams();
+  const { workspaceSlug, projectId, sprintId } = useParams();
   // store
   const {
     permission: { allowPermissions },
@@ -29,7 +29,7 @@ export const usePowerKSprintContextBasedActions = (): TPowerKCommandConfig[] => 
   const isFavorite = !!sprintDetails?.is_favorite;
   // permission
   const isEditingAllowed =
-    allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), sprintDetails?.project_id) &&
+    allowPermissions([EUserPermissions.ADMIN, EUserPermissions.MEMBER], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), projectId?.toString()) &&
     !sprintDetails?.archived_at;
   // translation
   const { t } = useTranslation();

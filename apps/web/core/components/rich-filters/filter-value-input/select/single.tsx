@@ -42,7 +42,7 @@ export function SingleSelectFilterValueInput<P extends TFilterProperty>(props: T
     <CustomSearchSelect
       {...getCommonCustomSearchSelectProps(isDisabled)}
       value={condition.value}
-      onChange={handleSelectChange}
+      onChange={(value: unknown) => handleSelectChange(value as string)}
       options={formattedOptions}
       multiple={false}
       disabled={loading || isDisabled}

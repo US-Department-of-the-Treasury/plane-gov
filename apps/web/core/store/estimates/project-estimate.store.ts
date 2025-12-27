@@ -99,8 +99,9 @@ export const useProjectEstimateStore = create<ProjectEstimateStoreType>()(
         if (estimates && estimates.length > 0 && store) {
           set((draft) => {
             estimates.forEach((estimate) => {
-              if (estimate.id) {
-                draft.estimates[estimate.id] = new Estimate(store, {
+              const estimateId = estimate.id;
+              if (estimateId) {
+                draft.estimates[estimateId] = new Estimate(store, {
                   ...estimate,
                   type: estimate.type?.toLowerCase() as TEstimateSystemKeys
                 });
@@ -143,8 +144,9 @@ export const useProjectEstimateStore = create<ProjectEstimateStoreType>()(
         if (estimates && estimates.length > 0 && store) {
           set((draft) => {
             estimates.forEach((estimate) => {
-              if (estimate.id) {
-                draft.estimates[estimate.id] = new Estimate(store, {
+              const estimateId = estimate.id;
+              if (estimateId) {
+                draft.estimates[estimateId] = new Estimate(store, {
                   ...estimate,
                   type: estimate.type?.toLowerCase() as TEstimateSystemKeys
                 });
@@ -182,9 +184,10 @@ export const useProjectEstimateStore = create<ProjectEstimateStoreType>()(
         });
 
         const estimate = await estimateService.createEstimate(workspaceSlug, projectId, payload);
-        if (estimate && estimate.id) {
+        const estimateId = estimate?.id;
+        if (estimate && estimateId) {
           set((draft) => {
-            draft.estimates[estimate.id] = new Estimate(store, {
+            draft.estimates[estimateId] = new Estimate(store, {
               ...estimate,
               type: estimate.type?.toLowerCase() as TEstimateSystemKeys
             });

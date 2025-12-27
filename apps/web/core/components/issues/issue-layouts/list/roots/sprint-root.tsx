@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { useParams } from "next/navigation";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
+import type { TIssue } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
 // hooks
 import { useProjectSprints, getCompletedSprints } from "@/store/queries/sprint";
@@ -33,10 +34,11 @@ export function SprintListLayout() {
   );
 
   const addIssuesToView = useCallback(
-    (issueIds: string[]) => {
+    (async (issueIds: string[]) => {
       if (!workspaceSlug || !projectId || !sprintId) throw new Error();
-      return issues.addIssueToSprint(workspaceSlug.toString(), projectId.toString(), sprintId.toString(), issueIds);
-    },
+      await issues.addIssueToSprint(workspaceSlug.toString(), projectId.toString(), sprintId.toString(), issueIds);
+      return {} as TIssue;
+    }) as (issueIds: string[]) => Promise<TIssue>,
     [issues?.addIssueToSprint, workspaceSlug, projectId, sprintId]
   );
 

@@ -198,7 +198,7 @@ export class ProjectViewStoreLegacy implements IProjectViewStore {
 
   get projectViewIds() {
     const projectId = getRouterProjectId();
-    return useProjectViewStore.getState().getProjectViewIds(projectId);
+    return useProjectViewStore.getState().getProjectViewIds(projectId ?? null);
   }
 
   getProjectViews = (projectId: string) => {

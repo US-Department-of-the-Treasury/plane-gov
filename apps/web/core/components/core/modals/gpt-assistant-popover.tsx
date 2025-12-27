@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import type { Placement } from "@popperjs/core";
 import { Controller, useForm } from "react-hook-form"; // services
 import { usePopper } from "react-popper";
@@ -56,6 +56,9 @@ export function GptAssistantPopover(props: Props) {
   // refs
   const editorRef = useRef<EditorRefApi>(null);
   const responseRef = useRef<EditorRefApi>(null);
+  const popperRef = useCallback((node: HTMLDivElement | null) => {
+    setPopperElement(node);
+  }, []);
   // popper
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: placement ?? "auto",
@@ -203,7 +206,7 @@ export function GptAssistantPopover(props: Props) {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
         className={`fixed z-10 flex w-full min-w-[50rem] max-w-full flex-col space-y-4 overflow-hidden rounded-[10px] border border-subtle bg-surface-1 p-4 shadow ${className}`}
-        ref={setPopperElement}
+        ref={popperRef}
         style={styles.popper}
         {...attributes.popper}
       >

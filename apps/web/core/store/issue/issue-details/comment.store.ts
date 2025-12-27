@@ -2,6 +2,7 @@ import { pull, concat, update, uniq, set } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // Plane Imports
+import { EIssueServiceType } from "@plane/types";
 import type { TIssueComment, TIssueCommentMap, TIssueCommentIdMap, TIssueServiceType } from "@plane/types";
 // services
 import { IssueCommentService } from "@/services/issue";
@@ -89,7 +90,7 @@ export const useIssueCommentStore = create<IIssueCommentStore>()(
       loaderType: TCommentLoader = "fetch",
       applyCommentReactions?: (commentId: string, reactions: unknown[]) => void
     ) => {
-      const service = getCommentService("WORKSPACE");
+      const service = getCommentService(EIssueServiceType.ISSUES);
       const state = get();
 
       set((draft) => {
@@ -129,7 +130,7 @@ export const useIssueCommentStore = create<IIssueCommentStore>()(
       issueId: string,
       data: Partial<TIssueComment>
     ) => {
-      const service = getCommentService("WORKSPACE");
+      const service = getCommentService(EIssueServiceType.ISSUES);
       const response = await service.createIssueComment(workspaceSlug, projectId, issueId, data);
 
       set((state) => {
@@ -151,7 +152,7 @@ export const useIssueCommentStore = create<IIssueCommentStore>()(
       data: Partial<TIssueComment>,
       onError?: () => Promise<void>
     ) => {
-      const service = getCommentService("WORKSPACE");
+      const service = getCommentService(EIssueServiceType.ISSUES);
 
       try {
         // Optimistic update
@@ -188,7 +189,7 @@ export const useIssueCommentStore = create<IIssueCommentStore>()(
       issueId: string,
       commentId: string
     ) => {
-      const service = getCommentService("WORKSPACE");
+      const service = getCommentService(EIssueServiceType.ISSUES);
       await service.deleteIssueComment(workspaceSlug, projectId, issueId, commentId);
 
       set((state) => {

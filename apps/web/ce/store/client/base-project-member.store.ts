@@ -201,7 +201,7 @@ export const useBaseProjectMemberStore = create<BaseProjectMemberStore>()((set, 
 
     let members = state.getProjectMemberships(projectId);
     if (includeGuestUsers === false) {
-      members = members.filter((m) => m.role !== EUserPermissions.GUEST);
+      members = members.filter((m) => m.role !== (EUserPermissions.GUEST as unknown as EUserProjectRoles));
     }
 
     // Note: Sorting by current user and display name requires userStore and memberRoot
@@ -319,11 +319,14 @@ export const useBaseProjectMemberStore = create<BaseProjectMemberStore>()((set, 
       }
 
       response.forEach((member) => {
+        const updatedRole = getUserProjectRole(member.member, projectId) ?? member.role;
         newProjectMemberMap[projectId][member.member] = {
-          ...member,
-          role: getUserProjectRole(member.member, projectId) ?? member.role,
-          original_role: member.role,
-        };
+          member: member.member,
+          role: updatedRole,
+          original_role: member.role as EUserProjectRoles,
+          id: member.id,
+          created_at: member.created_at,
+        } as TProjectMembership;
       });
 
       return { projectMemberMap: newProjectMemberMap };
@@ -356,7 +359,7 @@ export const useBaseProjectMemberStore = create<BaseProjectMemberStore>()((set, 
     // Direct Zustand store access - no rootStore indirection
     const currentUserId = useUserStore.getState().data?.id;
     const isCurrentUser = currentUserId === userId;
-    const membershipBeforeUpdate = { ...state.getProjectMembershipByUserId(userId, projectId) };
+    const membershipBeforeUpdate = state.getProjectMembershipByUserId(userId, projectId);
     const permissionBeforeUpdate = isCurrentUser
       ? useBaseUserPermissionStore.getState().getProjectRole(workspaceSlug, projectId)
       : undefined;
@@ -369,11 +372,14 @@ export const useBaseProjectMemberStore = create<BaseProjectMemberStore>()((set, 
         if (newProjectMemberMap[projectId]) {
           newProjectMemberMap[projectId] = { ...newProjectMemberMap[projectId] };
           if (newProjectMemberMap[projectId][userId]) {
+            const current = newProjectMemberMap[projectId][userId];
             newProjectMemberMap[projectId][userId] = {
-              ...newProjectMemberMap[projectId][userId],
-              original_role: role,
+              member: current.member,
               role: updatedProjectRole,
-            };
+              original_role: role,
+              id: current.id,
+              created_at: current.created_at,
+            } as TProjectMembership;
           }
         }
         return { projectMemberMap: newProjectMemberMap };
@@ -394,18 +400,16 @@ export const useBaseProjectMemberStore = create<BaseProjectMemberStore>()((set, 
       return response;
     } catch (error) {
       // Revert on error
-      set((state) => {
-        const newProjectMemberMap = { ...state.projectMemberMap };
-        if (newProjectMemberMap[projectId] && newProjectMemberMap[projectId][userId]) {
-          newProjectMemberMap[projectId] = { ...newProjectMemberMap[projectId] };
-          newProjectMemberMap[projectId][userId] = {
-            ...newProjectMemberMap[projectId][userId],
-            original_role: membershipBeforeUpdate?.original_role,
-            role: membershipBeforeUpdate?.role,
-          };
-        }
-        return { projectMemberMap: newProjectMemberMap };
-      });
+      if (membershipBeforeUpdate) {
+        set((state) => {
+          const newProjectMemberMap = { ...state.projectMemberMap };
+          if (newProjectMemberMap[projectId] && newProjectMemberMap[projectId][userId]) {
+            newProjectMemberMap[projectId] = { ...newProjectMemberMap[projectId] };
+            newProjectMemberMap[projectId][userId] = membershipBeforeUpdate;
+          }
+          return { projectMemberMap: newProjectMemberMap };
+        });
+      }
 
       // Direct Zustand store action - no rootStore indirection
       if (isCurrentUser && permissionBeforeUpdate) {
@@ -610,8 +614,9 @@ export abstract class BaseProjectMemberStoreLegacy implements IBaseProjectMember
 
   getProjectMemberDetails = (userId: string, projectId: string): IProjectMemberDetails | null => {
     const projectMember = this.getProjectMembershipByUserId(userId, projectId);
-    const userDetails = this.memberRoot?.memberMap?.[projectMember?.member];
-    if (!projectMember || !userDetails) return null;
+    if (!projectMember) return null;
+    const userDetails = this.memberRoot?.memberMap?.[projectMember.member];
+    if (!userDetails) return null;
 
     const memberDetails: IProjectMemberDetails = {
       id: projectMember.id,
@@ -631,7 +636,7 @@ export abstract class BaseProjectMemberStoreLegacy implements IBaseProjectMember
 
     let members = this.getProjectMemberships(projectId);
     if (includeGuestUsers === false) {
-      members = members.filter((m) => m.role !== EUserPermissions.GUEST);
+      members = members.filter((m) => m.role !== (EUserPermissions.GUEST as unknown as EUserProjectRoles));
     }
 
     members = sortBy(members, [
@@ -645,8 +650,9 @@ export abstract class BaseProjectMemberStoreLegacy implements IBaseProjectMember
 
   getFilteredProjectMemberDetails = (userId: string, projectId: string): IProjectMemberDetails | null => {
     const projectMember = this.getProjectMembershipByUserId(userId, projectId);
-    const userDetails = this.memberRoot?.memberMap?.[projectMember?.member];
-    if (!projectMember || !userDetails) return null;
+    if (!projectMember) return null;
+    const userDetails = this.memberRoot?.memberMap?.[projectMember.member];
+    if (!userDetails) return null;
 
     const allMembers = this.getProjectMemberships(projectId);
     const filteredMemberIds = this.filters.getFilteredMemberIds(

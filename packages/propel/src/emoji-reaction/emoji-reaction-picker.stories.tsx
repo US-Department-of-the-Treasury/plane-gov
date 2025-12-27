@@ -144,66 +144,6 @@ export const InlineReactions: Story = {
   },
 };
 
-export const DifferentPlacements: Story = {
-  args: {
-    isOpen: false,
-    handleToggle: () => {},
-    onChange: () => {},
-    label: "Placements",
-  },
-  render() {
-    const [isOpen1, setIsOpen1] = useState(false);
-    const [isOpen2, setIsOpen2] = useState(false);
-    const [isOpen3, setIsOpen3] = useState(false);
-    const [isOpen4, setIsOpen4] = useState(false);
-
-    return (
-      <div className="p-8 space-y-8">
-        <div className="flex gap-4 items-center">
-          <span className="text-13 w-32">Bottom Start:</span>
-          <EmojiReactionPicker
-            isOpen={isOpen1}
-            handleToggle={setIsOpen1}
-            onChange={() => {}}
-            placement="bottom-start"
-            label={<SmilePlus className="h-6 w-6" />}
-          />
-        </div>
-        <div className="flex gap-4 items-center">
-          <span className="text-13 w-32">Bottom End:</span>
-          <EmojiReactionPicker
-            isOpen={isOpen2}
-            handleToggle={setIsOpen2}
-            onChange={() => {}}
-            placement="bottom-end"
-            label={<SmilePlus className="h-6 w-6" />}
-          />
-        </div>
-        <div className="flex gap-4 items-center">
-          <span className="text-13 w-32">Top Start:</span>
-          <EmojiReactionPicker
-            isOpen={isOpen3}
-            handleToggle={setIsOpen3}
-            onChange={() => {}}
-            placement="top-start"
-            label={<SmilePlus className="h-6 w-6" />}
-          />
-        </div>
-        <div className="flex gap-4 items-center">
-          <span className="text-13 w-32">Top End:</span>
-          <EmojiReactionPicker
-            isOpen={isOpen4}
-            handleToggle={setIsOpen4}
-            onChange={() => {}}
-            placement="top-end"
-            label={<SmilePlus className="h-6 w-6" />}
-          />
-        </div>
-      </div>
-    );
-  },
-};
-
 export const SearchDisabled: Story = {
   args: {
     isOpen: false,

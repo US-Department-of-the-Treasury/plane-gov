@@ -161,7 +161,7 @@ export function MemberOptions(props: Props) {
                             </Pill>
                           )}
                           {!isUserSuspended(option.value) && isUserInvited(option.value) && (
-                            <Pill variant={EPillVariant.AMBER} size={EPillSize.XS} className="border-none">
+                            <Pill variant={EPillVariant.WARNING} size={EPillSize.XS} className="border-none">
                               Pending
                             </Pill>
                           )}

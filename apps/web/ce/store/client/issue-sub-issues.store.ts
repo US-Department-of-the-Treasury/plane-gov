@@ -500,7 +500,7 @@ export const useIssueSubIssuesStore = create<IssueSubIssuesStore>()((set, get) =
     if (!state.rootIssueDetailStore) return [];
 
     const subIssueIds = get().subIssuesByIssueId(workItemId);
-    const workItems = state.rootIssueDetailStore.rootIssueStore.issues.getIssuesByIds(subIssueIds, "un-archived");
+    const workItems = state.rootIssueDetailStore.rootIssueStore.issues.getIssuesByIds(subIssueIds ?? [], "un-archived");
 
     const filteredWorkItems = getFilteredWorkItems(workItems, filters);
 

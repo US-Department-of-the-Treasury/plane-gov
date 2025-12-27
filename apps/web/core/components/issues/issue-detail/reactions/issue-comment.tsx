@@ -130,7 +130,6 @@ export function IssueCommentReaction(props: TIssueCommentReaction) {
             onAddReaction={() => setIsPickerOpen(true)}
           />
         }
-        placement="bottom-start"
       />
     </div>
   );

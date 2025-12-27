@@ -8,8 +8,8 @@ type EmptyStateSize = "sm" | "base" | "lg";
 
 type ButtonConfig = {
   text: string;
-  prependIcon?: React.ReactElement;
-  appendIcon?: React.ReactElement;
+  prependIcon?: React.ReactElement<{ className?: string; strokeWidth?: number }>;
+  appendIcon?: React.ReactElement<{ className?: string; strokeWidth?: number }>;
   onClick?: () => void;
   disabled?: boolean;
 };

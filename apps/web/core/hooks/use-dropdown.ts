@@ -53,9 +53,9 @@ export const useDropdown = (args: TArguments) => {
 
   /**
    * @description toggle the dropdown on click
-   * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
+   * @param {React.MouseEvent<HTMLElement>} e
    */
-  const handleOnClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleOnClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     e.preventDefault();
     toggleDropdown();

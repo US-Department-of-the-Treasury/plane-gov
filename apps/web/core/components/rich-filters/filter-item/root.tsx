@@ -89,7 +89,7 @@ export function FilterItem<P extends TFilterProperty, E extends TExternalFilter>
       {/* Operator section */}
       <CustomSearchSelect
         value={condition.operator}
-        onChange={handleOperatorChange}
+        onChange={(operator: unknown) => handleOperatorChange(operator as TAllAvailableOperatorsForDisplay)}
         options={operatorOptions}
         className={COMMON_FILTER_ITEM_BORDER_CLASSNAME}
         customButtonClassName={cn(

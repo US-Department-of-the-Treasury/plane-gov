@@ -25,7 +25,7 @@ type DropdownOptions =
 
 type SprintOptionsProps = {
   projectId: string;
-  referenceElement: HTMLButtonElement | null;
+  referenceElement: HTMLElement | null;
   placement: Placement | undefined;
   isOpen: boolean;
   canRemoveSprint: boolean;

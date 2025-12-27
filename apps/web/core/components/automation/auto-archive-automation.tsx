@@ -109,8 +109,8 @@ export function AutoArchiveAutomation(props: Props) {
                     label={`${currentProjectDetails?.archive_in} ${
                       currentProjectDetails?.archive_in === 1 ? "month" : "months"
                     }`}
-                    onChange={(val: number) => {
-                      handleChange({ archive_in: val });
+                    onChange={(val: unknown) => {
+                      handleChange({ archive_in: val as number });
                     }}
                     input
                     disabled={!isAdmin}

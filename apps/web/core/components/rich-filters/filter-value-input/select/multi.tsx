@@ -40,7 +40,7 @@ export function MultiSelectFilterValueInput<P extends TFilterProperty>(props: TM
     <CustomSearchSelect
       {...getCommonCustomSearchSelectProps(isDisabled)}
       value={toFilterArray(condition.value)}
-      onChange={handleSelectChange}
+      onChange={(values: unknown) => handleSelectChange(values as string[])}
       options={formattedOptions}
       multiple
       disabled={loading || isDisabled}

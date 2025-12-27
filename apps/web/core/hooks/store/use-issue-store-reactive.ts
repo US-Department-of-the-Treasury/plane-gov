@@ -157,60 +157,73 @@ export function useGroupedIssueCount(
 
     // Uses getGroupKey() pattern: no args = ALL_ISSUES
     if (!groupId && !subGroupId) {
-      const allIssues = groupedIssueIds[ALL_ISSUES];
-      if (Array.isArray(allIssues)) {
-        return allIssues.length;
-      }
-      // If no ALL_ISSUES key, sum all groups
-      let total = 0;
-      for (const key in groupedIssueIds) {
-        const value = groupedIssueIds[key];
-        if (Array.isArray(value)) {
-          total += value.length;
-        } else if (typeof value === "object" && value !== null) {
-          // Sub-grouped: sum all sub-group arrays
-          for (const subKey in value) {
-            const subValue = (value as Record<string, string[]>)[subKey];
-            if (Array.isArray(subValue)) {
-              total += subValue.length;
+      // Type guard: TUnGroupedIssues is an array, so check if groupedIssueIds is not an array
+      if (!Array.isArray(groupedIssueIds)) {
+        const allIssues = groupedIssueIds[ALL_ISSUES];
+        if (Array.isArray(allIssues)) {
+          return allIssues.length;
+        }
+        // If no ALL_ISSUES key, sum all groups
+        let total = 0;
+        for (const key in groupedIssueIds) {
+          const value = groupedIssueIds[key];
+          if (Array.isArray(value)) {
+            total += value.length;
+          } else if (typeof value === "object" && value !== null) {
+            // Sub-grouped: sum all sub-group arrays
+            for (const subKey in value) {
+              const subValue = (value as Record<string, string[]>)[subKey];
+              if (Array.isArray(subValue)) {
+                total += subValue.length;
+              }
             }
           }
         }
+        return total > 0 ? total : undefined;
       }
-      return total > 0 ? total : undefined;
+      return undefined;
     }
 
     if (isSubGroupCumulative && groupId && subGroupId) {
-      const groupData = groupedIssueIds[groupId];
-      if (typeof groupData === "object" && groupData !== null && !Array.isArray(groupData)) {
-        return Object.values(groupData as Record<string, string[]>).reduce((acc: number, val) => {
-          if (Array.isArray(val)) return acc + val.length;
-          return acc;
-        }, 0);
+      // Type guard: ensure groupedIssueIds is not an array before indexing with string
+      if (!Array.isArray(groupedIssueIds)) {
+        const groupData = groupedIssueIds[groupId];
+        if (typeof groupData === "object" && groupData !== null && !Array.isArray(groupData)) {
+          return Object.values(groupData as Record<string, string[]>).reduce((acc: number, val) => {
+            if (Array.isArray(val)) return acc + val.length;
+            return acc;
+          }, 0);
+        }
       }
       return undefined;
     }
 
     if (groupId && !subGroupId) {
-      const groupData = groupedIssueIds[groupId];
-      if (Array.isArray(groupData)) {
-        return groupData.length;
-      }
-      // If it's an object (subgroup data), sum all sub-arrays
-      if (typeof groupData === "object" && groupData !== null) {
-        return Object.values(groupData as Record<string, string[]>).reduce((acc: number, val) => {
-          if (Array.isArray(val)) return acc + val.length;
-          return acc;
-        }, 0);
+      // Type guard: ensure groupedIssueIds is not an array before indexing with string
+      if (!Array.isArray(groupedIssueIds)) {
+        const groupData = groupedIssueIds[groupId];
+        if (Array.isArray(groupData)) {
+          return groupData.length;
+        }
+        // If it's an object (subgroup data), sum all sub-arrays
+        if (typeof groupData === "object" && groupData !== null) {
+          return Object.values(groupData as Record<string, string[]>).reduce((acc: number, val) => {
+            if (Array.isArray(val)) return acc + val.length;
+            return acc;
+          }, 0);
+        }
       }
       return undefined;
     }
 
     if (groupId && subGroupId) {
-      const groupData = groupedIssueIds[groupId];
-      if (typeof groupData === "object" && groupData !== null && !Array.isArray(groupData)) {
-        const subGroupData = (groupData as Record<string, string[]>)[subGroupId];
-        return Array.isArray(subGroupData) ? subGroupData.length : undefined;
+      // Type guard: ensure groupedIssueIds is not an array before indexing with string
+      if (!Array.isArray(groupedIssueIds)) {
+        const groupData = groupedIssueIds[groupId];
+        if (typeof groupData === "object" && groupData !== null && !Array.isArray(groupData)) {
+          const subGroupData = (groupData as Record<string, string[]>)[subGroupId];
+          return Array.isArray(subGroupData) ? subGroupData.length : undefined;
+        }
       }
       return undefined;
     }
@@ -573,7 +586,6 @@ export function useWorkspaceViewIssueFilters(viewId: string | undefined): IIssue
         order_by: displayFilters?.order_by ?? "-created_at",
         group_by: displayFilters?.group_by,
         sub_group_by: displayFilters?.sub_group_by,
-        type: displayFilters?.type,
         sub_issue: displayFilters?.sub_issue ?? true,
         show_empty_groups: displayFilters?.show_empty_groups ?? true,
         calendar: displayFilters?.calendar,

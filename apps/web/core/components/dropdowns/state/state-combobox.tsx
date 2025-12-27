@@ -118,9 +118,9 @@ export function StateCombobox(props: StateComboboxProps) {
 
     const parts = placement.split("-");
     const side = parts[0] as "top" | "bottom" | "left" | "right";
-    const align = parts[1] === "end" ? "end" : parts[1] === "start" ? "start" : "center";
+    const align = (parts[1] === "end" ? "end" : parts[1] === "start" ? "start" : "center") as "center" | "end" | "start";
 
-    return { side, align: align };
+    return { side, align };
   }, [placement]);
 
   // Button styling based on variant

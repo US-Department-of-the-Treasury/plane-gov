@@ -212,13 +212,13 @@ export function CreateWikiPageModal({
                       </span>
                     }
                     onChange={(val: { type: string; value: unknown; shouldClose?: boolean }) => {
-                      let logoValue = {};
+                      let logoValue: Record<string, unknown> = {};
 
                       if (val?.type === "emoji")
                         logoValue = {
                           value: val.value,
                         };
-                      else if (val?.type === "icon") logoValue = val.value;
+                      else if (val?.type === "icon") logoValue = val.value as Record<string, unknown>;
 
                       onChange({
                         in_use: val?.type as "emoji" | "icon",

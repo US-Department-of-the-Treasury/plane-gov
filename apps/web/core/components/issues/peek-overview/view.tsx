@@ -8,7 +8,7 @@ import { cn } from "@plane/utils";
 // hooks
 import useKeypress from "@/hooks/use-keypress";
 // stores
-import { useIssueDetailUIStore } from "@/store/issue/issue-details/ui.store";
+import { useIssueDetailUIStore, useIsAnyModalOpen } from "@/store/issue/issue-details/ui.store";
 import usePeekOverviewOutsideClickDetector from "@/hooks/use-peek-overview-outside-click";
 import { useIssue } from "@/store/queries/issue";
 // local imports
@@ -60,7 +60,7 @@ export function IssueView(props: IIssueView) {
   const editorRef = useRef<EditorRefApi>(null);
   // UI state from Zustand (reactive)
   const setPeekIssue = useIssueDetailUIStore((state) => state.setPeekIssue);
-  const isAnyModalOpen = useIssueDetailUIStore((state) => state.isAnyModalOpen);
+  const isAnyModalOpen = useIsAnyModalOpen();
   // queries
   const { data: issue } = useIssue(workspaceSlug, projectId, issueId);
   // remove peek id

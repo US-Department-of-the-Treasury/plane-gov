@@ -174,6 +174,7 @@ export const createBasePageStore = (
     // Actions
     update: async (pageData) => {
       const currentPage = get().getAsJSON();
+      if (!currentPage) return undefined;
       try {
         // Optimistic update
         set((state) => {

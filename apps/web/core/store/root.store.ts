@@ -10,6 +10,10 @@ import type { ISprintStore, ISprintFilterStore } from "./client";
 import { SprintStore, SprintFilterStore } from "./client";
 import type { ILabelStore } from "./client";
 import { LabelStore } from "./client";
+import type { IWorkspaceNotificationStore } from "./client/workspace-notifications.store";
+import { WorkspaceNotificationStoreLegacy } from "./client/workspace-notifications.store";
+import type { IProjectEstimateStore } from "./estimates/project-estimate.store";
+import { ProjectEstimateStore } from "./estimates/project-estimate.store";
 import type { IIssueRootStore } from "./issue/root.store";
 import { IssueRootStore } from "./issue/root.store";
 import type { IMemberRootStore } from "./member";
@@ -37,6 +41,8 @@ export class CoreRootStore {
   label: ILabelStore;
   router: IRouterStore;
   user: IUserStore;
+  projectEstimate: IProjectEstimateStore;
+  workspaceNotification: IWorkspaceNotificationStore;
 
   constructor() {
     this.router = new RouterStore();
@@ -51,6 +57,8 @@ export class CoreRootStore {
     this.issue = new IssueRootStore(this as unknown as RootStore);
     this.state = new StateStore(this as unknown as RootStore);
     this.label = new LabelStore(this);
+    this.projectEstimate = new ProjectEstimateStore(this);
+    this.workspaceNotification = new WorkspaceNotificationStoreLegacy(this);
   }
 
   resetOnSignOut() {
@@ -69,5 +77,7 @@ export class CoreRootStore {
     this.issue = new IssueRootStore(this as unknown as RootStore);
     this.state = new StateStore(this as unknown as RootStore);
     this.label = new LabelStore(this);
+    this.projectEstimate = new ProjectEstimateStore(this);
+    this.workspaceNotification = new WorkspaceNotificationStoreLegacy(this);
   }
 }

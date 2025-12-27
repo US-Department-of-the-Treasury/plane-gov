@@ -485,32 +485,34 @@ export function WikiSidebar() {
       isAnyExtendedSidebarExpanded={false}
       isAnySidebarDropdownOpen={isAnySidebarDropdownOpen}
     >
-      <SidebarWrapper
-        title="Wiki"
-        headerActions={<WikiHeaderActions onCreatePage={handleCreatePage} />}
-        onToggle={toggleWikiSidebar}
-      >
-        {/* Navigation items - matches Projects sidebar pattern */}
-        <WikiNavigationItems workspaceSlug={workspaceSlug || ""} />
+      <>
+        <SidebarWrapper
+          title="Wiki"
+          headerActions={<WikiHeaderActions onCreatePage={handleCreatePage} />}
+          onToggle={toggleWikiSidebar}
+        >
+          {/* Navigation items - matches Projects sidebar pattern */}
+          <WikiNavigationItems workspaceSlug={workspaceSlug || ""} />
 
-        {/* Pages section - collapsible like Projects section */}
-        <WikiPagesSection
-          pages={pageTree}
-          collections={collectionTree}
+          {/* Pages section - collapsible like Projects section */}
+          <WikiPagesSection
+            pages={pageTree}
+            collections={collectionTree}
+            workspaceSlug={workspaceSlug || ""}
+            activePageId={pageId}
+            onCreateChildPage={handleCreateChildPage}
+            isLoading={isLoading}
+            onCreatePage={handleCreatePage}
+          />
+        </SidebarWrapper>
+
+        {/* Create page modal */}
+        <CreateWikiPageModal
           workspaceSlug={workspaceSlug || ""}
-          activePageId={pageId}
-          onCreateChildPage={handleCreateChildPage}
-          isLoading={isLoading}
-          onCreatePage={handleCreatePage}
+          isOpen={isCreatePageModalOpen}
+          onClose={() => setIsCreatePageModalOpen(false)}
         />
-      </SidebarWrapper>
-
-      {/* Create page modal */}
-      <CreateWikiPageModal
-        workspaceSlug={workspaceSlug || ""}
-        isOpen={isCreatePageModalOpen}
-        onClose={() => setIsCreatePageModalOpen(false)}
-      />
+      </>
     </ResizableSidebar>
   );
 }
