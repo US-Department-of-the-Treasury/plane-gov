@@ -232,12 +232,12 @@ Components that access stores via rootStore pattern (16 components):
 
 ## Success Criteria
 
-- [ ] No `*StoreLegacy` classes in codebase
+- [x] No `*StoreLegacy` classes in codebase
 - [ ] No `rootStore` pattern in components
 - [ ] No store context provider needed
 - [ ] All state access via Zustand hooks or TanStack Query
 - [ ] Clean architecture that anyone can understand
-- [ ] All E2E tests passing
+- [x] All E2E tests passing (211/211)
 
 ---
 
@@ -247,13 +247,23 @@ Components that access stores via rootStore pattern (16 components):
 - [x] MobX library removed
 - [x] TanStack Query hooks created for most entities
 - [x] Zustand stores created for client state
+- [x] **Phase 1: Legacy Store Wrappers** (22 classes removed, -3,152 lines)
+  - All `*StoreLegacy` wrapper classes removed
+  - All Zustand stores now export hooks directly
+  - rootStore properties removed: sprint, sprintFilter, epic, epicFilter, label, state, workspaceNotification
+  - Verified with 211 passing E2E tests
 
 ### In Progress:
-- [ ] Phase 1: Legacy Store Wrappers
+- [ ] Phase 2: Root Store Files (blocked by Phase 4)
 
 ### Not Started:
-- [ ] Phase 2: Root Store Files
 - [ ] Phase 3: Store Access Hooks
-- [ ] Phase 4: Non-Legacy Store Classes
+- [ ] Phase 4: Non-Legacy Store Classes (required before Phase 2)
 - [ ] Phase 5: CE/EE Store Files
 - [ ] Phase 6: Components Using rootStore
+
+### Notes:
+Phase 2 (Remove Root Store Files) cannot proceed until Phase 4 (Non-Legacy Store Classes) is complete.
+The remaining stores in CoreRootStore (workspaceRoot, projectRoot, memberRoot, issue, user, projectEstimate)
+are complex class-based stores that coordinate multiple sub-stores. These need to be migrated to Zustand
+or replaced with TanStack Query hooks before the root store can be removed.
