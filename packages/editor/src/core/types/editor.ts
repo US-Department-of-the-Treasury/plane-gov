@@ -60,6 +60,7 @@ export type TEditorCommands =
   | "attachment"
   | "emoji"
   | "external-embed"
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- TExtendedEditorCommands may be 'never' when no extensions add commands
   | TExtendedEditorCommands;
 
 export type TCommandExtraProps = {
@@ -109,7 +110,7 @@ export type CoreEditorRefApi = {
   getAttributesWithExtendedMark: (
     mark: string | MarkType,
     attribute: string | NodeType | MarkType
-  ) => Record<string, any> | undefined;
+  ) => Record<string, unknown> | undefined;
   getCoordsFromPos: (pos?: number) => ReturnType<EditorView["coordsAtPos"]> | undefined;
   getCurrentCursorPosition: () => number | undefined;
   getDocument: () => {
@@ -141,6 +142,7 @@ export type CoreEditorRefApi = {
   undo: () => void;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- TExtendedEditorRefApi may be 'unknown' when no extensions add API methods
 export type EditorRefApi = CoreEditorRefApi & TExtendedEditorRefApi;
 
 export type EditorTitleRefApi = EditorRefApi;
@@ -168,7 +170,7 @@ export type IEditorProps = {
   onAssetChange?: (assets: TEditorAsset[]) => void;
   onEditorFocus?: () => void;
   onChange?: (json: object, html: string, { isMigrationUpdate }?: { isMigrationUpdate?: boolean }) => void;
-  onEnterKeyPress?: (e?: any) => void;
+  onEnterKeyPress?: (e?: KeyboardEvent) => void;
   onTransaction?: () => void;
   placeholder?: string | ((isFocused: boolean, value: string) => string);
   showPlaceholderOnEmpty?: boolean;
@@ -189,6 +191,8 @@ export type ICollaborativeDocumentEditorProps = Omit<IEditorProps, "initialValue
   documentLoaderClassName?: string;
   dragDropEnabled?: boolean;
   editable: boolean;
+  /** Hide the built-in title editor (when using external title management) */
+  hideTitleEditor?: boolean;
   realtimeConfig: TRealtimeConfig;
   serverHandler?: TServerHandler;
   user: TUserDetails;

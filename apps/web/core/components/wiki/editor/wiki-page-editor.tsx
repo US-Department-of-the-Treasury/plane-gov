@@ -361,6 +361,7 @@ export const WikiPageEditor = memo(function WikiPageEditor({ workspaceSlug, page
           {/* Collaborative editor */}
           <CollaborativeDocumentEditorWithRef
             editable={isEditable}
+            hideTitleEditor
             id={pageId}
             fileHandler={fileHandler}
             handleEditorReady={handleEditorReady}
