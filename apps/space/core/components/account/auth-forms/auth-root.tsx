@@ -144,11 +144,11 @@ export function AuthRoot() {
         return undefined;
       })
       .catch((error: unknown) => {
-        const errorhandler = authErrorHandler(
-          (error as { error_code?: string })?.error_code?.toString(),
-          data?.email || undefined
-        );
-        if (errorhandler?.type) setErrorInfo(errorhandler);
+        const errorCode = (error as { error_code?: string })?.error_code?.toString();
+        if (errorCode) {
+          const errorhandler = authErrorHandler(errorCode as EAuthenticationErrorCodes, data?.email || undefined);
+          if (errorhandler?.type) setErrorInfo(errorhandler);
+        }
       });
   };
 
@@ -159,8 +159,11 @@ export function AuthRoot() {
       .generateUniqueCode(payload)
       .then(() => ({ code: "" }))
       .catch((error: unknown) => {
-        const errorhandler = authErrorHandler((error as { error_code?: string })?.error_code?.toString());
-        if (errorhandler?.type) setErrorInfo(errorhandler);
+        const errorCode = (error as { error_code?: string })?.error_code?.toString();
+        if (errorCode) {
+          const errorhandler = authErrorHandler(errorCode as EAuthenticationErrorCodes);
+          if (errorhandler?.type) setErrorInfo(errorhandler);
+        }
         throw error;
       });
   };

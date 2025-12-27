@@ -66,11 +66,12 @@ export const shouldFilterSprint = (sprint: ISprint, filter: TSprintFilters): boo
 
 /**
  * Calculates the scope based on whether it's an issue or estimate points
- * @param {any} p - Progress data
+ * @param {object} p - Progress data with total_issues and optional total_estimate_points
  * @param {boolean} isTypeIssue - Whether the type is an issue
  * @returns {number} Calculated scope
  */
-const scope = (p: any, isTypeIssue: boolean) => (isTypeIssue ? p.total_issues : p.total_estimate_points);
+const scope = (p: { total_issues?: number; total_estimate_points?: number }, isTypeIssue: boolean): number =>
+  (isTypeIssue ? p.total_issues : p.total_estimate_points) ?? 0;
 
 /**
  * Calculates the ideal progress value
@@ -139,31 +140,42 @@ const formatV2Data = (isTypeIssue: boolean, sprint: ISprint, isBurnDown: boolean
   today = format(startOfToday(), "yyyy-MM-dd");
   const todaysData = sprint?.progress[sprint?.progress.length - 1];
   const scopeToday = scope(todaysData, isTypeIssue);
-  const idealToday = ideal(todaysData.date, scopeToday, sprint);
+  const todaysDate = todaysData?.date ?? todaysData?.progress_date ?? today;
+  const idealToday = ideal(todaysDate, scopeToday, sprint);
+
+  // Type guard to check if item is a full progress item (has total_issues)
+  const isProgressItem = (p: { date?: string; total_issues?: number }): p is typeof todaysData =>
+    "total_issues" in p && p.total_issues !== undefined;
 
   let progress = [...orderBy(sprint?.progress, "date"), ...extendedArray].map((p) => {
-    const pending = isTypeIssue
-      ? p.total_issues - p.completed_issues - p.cancelled_issues
-      : p.total_estimate_points - p.completed_estimate_points - p.cancelled_estimate_points;
-    const completed = isTypeIssue ? p.completed_issues : p.completed_estimate_points;
-    const dataDate = p.progress_date ? format(new Date(p.progress_date), "yyyy-MM-dd") : p.date;
+    // For extended dates (future), use 0 for calculations
+    const pending = isProgressItem(p)
+      ? isTypeIssue
+        ? p.total_issues - p.completed_issues - p.cancelled_issues
+        : (p.total_estimate_points ?? 0) - (p.completed_estimate_points ?? 0) - p.cancelled_estimate_points
+      : 0;
+    const completed = isProgressItem(p) ? (isTypeIssue ? p.completed_issues : p.completed_estimate_points) : 0;
+    const dataDate = isProgressItem(p) && p.progress_date ? format(new Date(p.progress_date), "yyyy-MM-dd") : p.date;
+
+    // For scope calculation, use data from progress item or fall back to today's scope
+    const itemScope = isProgressItem(p) ? scope(p, isTypeIssue) : scopeToday;
 
     return {
       date: dataDate,
-      scope: dataDate! < today ? scope(p, isTypeIssue) : dataDate! <= sprint.end_date! ? scopeToday : null,
+      scope: dataDate && dataDate < today ? itemScope : dataDate && dataDate <= sprint.end_date! ? scopeToday : null,
       completed,
-      backlog: isTypeIssue ? p.backlog_issues : p.backlog_estimate_points,
-      started: isTypeIssue ? p.started_issues : p.started_estimate_points,
-      unstarted: isTypeIssue ? p.unstarted_issues : p.unstarted_estimate_points,
-      cancelled: isTypeIssue ? p.cancelled_issues : p.cancelled_estimate_points,
+      backlog: isProgressItem(p) ? (isTypeIssue ? p.backlog_issues : p.backlog_estimate_points) : 0,
+      started: isProgressItem(p) ? (isTypeIssue ? p.started_issues : p.started_estimate_points) : 0,
+      unstarted: isProgressItem(p) ? (isTypeIssue ? p.unstarted_issues : p.unstarted_estimate_points) : 0,
+      cancelled: isProgressItem(p) ? (isTypeIssue ? p.cancelled_issues : p.cancelled_estimate_points) : 0,
       pending: Math.abs(pending),
       ideal:
-        dataDate! < today
-          ? ideal(dataDate, scope(p, isTypeIssue), sprint)
-          : dataDate! < sprint.end_date!
+        dataDate && dataDate < today
+          ? ideal(dataDate, itemScope, sprint)
+          : dataDate && dataDate < sprint.end_date!
             ? idealToday
             : null,
-      actual: dataDate! <= today ? (isBurnDown ? Math.abs(pending) : completed) : undefined,
+      actual: dataDate && dataDate <= today ? (isBurnDown ? Math.abs(pending) : completed) : undefined,
     };
   });
   progress = uniqBy(progress, "date");
