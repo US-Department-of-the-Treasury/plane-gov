@@ -26,7 +26,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useContext, useMemo, useRef, useSyncExternalStore } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { ALL_ISSUES, EIssueGroupByToServerOptions, ENABLE_ISSUE_DEPENDENCIES } from "@plane/constants";
-import type { IIssueFilters, TGroupedIssues, TIssueParams, TIssuesResponse, TLoader, TSubGroupedIssues, TUnGroupedIssues, IIssueDisplayFilterOptions, TWorkItemFilterExpression } from "@plane/types";
+import type { IIssueFilters, TGroupedIssues, TIssueParams, TIssuesResponse, TLoader, TSubGroupedIssues, TUnGroupedIssues, IIssueDisplayFilterOptions, TWorkItemFilterExpression, ViewFlags, TPaginationData } from "@plane/types";
 import { EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 import { handleIssueQueryParamsByLayout } from "@plane/utils";
 import { StoreContext } from "@/lib/store-context";
@@ -820,4 +820,132 @@ export function useProfileLayout(): EIssueLayoutTypes | undefined {
   return useProfileIssuesFilterStore((state) =>
     userIdStr ? state.filters[userIdStr]?.displayFilters?.layout : undefined
   );
+}
+
+// ============================================================================
+// WAVE 2: Issue Store Hooks
+// ============================================================================
+
+/**
+ * Default view flags for most store types.
+ * These flags control UI capabilities like quick add, issue creation, and inline editing.
+ */
+const DEFAULT_VIEW_FLAGS: ViewFlags = {
+  enableQuickAdd: true,
+  enableIssueCreation: true,
+  enableInlineEditing: true,
+};
+
+/**
+ * View flags for archived issues - no creation allowed.
+ */
+const ARCHIVED_VIEW_FLAGS: ViewFlags = {
+  enableQuickAdd: false,
+  enableIssueCreation: false,
+  enableInlineEditing: true,
+};
+
+/**
+ * View flags for workspace draft issues - no quick actions.
+ */
+const DRAFT_VIEW_FLAGS: ViewFlags = {
+  enableQuickAdd: false,
+  enableIssueCreation: false,
+  enableInlineEditing: false,
+};
+
+/**
+ * View flags for subscribed profile view - read-only, no creation.
+ */
+const SUBSCRIBED_VIEW_FLAGS: ViewFlags = {
+  enableQuickAdd: false,
+  enableIssueCreation: false,
+  enableInlineEditing: false,
+};
+
+/**
+ * Get view flags for a given store type.
+ * View flags control what actions are available in the UI (quick add, creation, editing).
+ *
+ * This replaces the non-reactive `issues?.viewFlags` getter pattern.
+ *
+ * @param storeType - The issue store type
+ * @returns ViewFlags for the store type
+ */
+export function useIssueViewFlags(storeType: EIssuesStoreType): ViewFlags {
+  const context = useContext(StoreContext);
+
+  // For profile store, viewFlags depends on currentView (assigned/subscribed/created)
+  // We need to read this reactively from the profile store
+  const profileCurrentView = useMemo(() => {
+    if (storeType !== EIssuesStoreType.PROFILE) return null;
+    // Access the profile issues store to get currentView
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    return (context.issue.profileIssues as any)?.currentView as string | undefined;
+  }, [context.issue.profileIssues, storeType]);
+
+  return useMemo(() => {
+    switch (storeType) {
+      case EIssuesStoreType.ARCHIVED:
+        return ARCHIVED_VIEW_FLAGS;
+      case EIssuesStoreType.WORKSPACE_DRAFT:
+        return DRAFT_VIEW_FLAGS;
+      case EIssuesStoreType.PROFILE:
+        // Profile has different flags based on view type
+        if (profileCurrentView === "subscribed") {
+          return SUBSCRIBED_VIEW_FLAGS;
+        }
+        return DEFAULT_VIEW_FLAGS;
+      case EIssuesStoreType.PROJECT:
+      case EIssuesStoreType.SPRINT:
+      case EIssuesStoreType.EPIC:
+      case EIssuesStoreType.PROJECT_VIEW:
+      case EIssuesStoreType.GLOBAL:
+      case EIssuesStoreType.TEAM:
+      case EIssuesStoreType.TEAM_VIEW:
+      default:
+        return DEFAULT_VIEW_FLAGS;
+    }
+  }, [storeType, profileCurrentView]);
+}
+
+/**
+ * Get pagination data for a specific group/subgroup reactively.
+ * Re-renders the component when pagination data changes.
+ *
+ * This replaces the non-reactive `issues.getPaginationData(groupId, subGroupId)` pattern.
+ *
+ * @param storeType - The issue store type
+ * @param groupId - Optional group ID (defaults to ALL_ISSUES if not provided)
+ * @param subGroupId - Optional subgroup ID
+ * @returns TPaginationData or undefined if not available
+ */
+export function useIssuePaginationData(
+  storeType: EIssuesStoreType,
+  groupId?: string,
+  subGroupId?: string
+): TPaginationData | undefined {
+  const store = useIssueZustandStore(storeType);
+
+  // Create stable subscribe function
+  const subscribe = useMemo(() => {
+    if (!store) return (_callback: () => void) => () => {};
+    return (callback: () => void) => store.subscribe(callback);
+  }, [store]);
+
+  // Create stable getSnapshot function
+  const getSnapshot = useMemo(() => {
+    return () => {
+      if (!store) return undefined;
+      const paginationData = store.getState().issuePaginationData;
+      if (!paginationData) return undefined;
+
+      // Use the same key logic as getPaginationData in base-issues.store.ts
+      // getGroupKey: no args = ALL_ISSUES, groupId only = groupId, both = groupId_subGroupId
+      const key = !groupId ? ALL_ISSUES : groupId && subGroupId ? `${groupId}_${subGroupId}` : groupId;
+      return paginationData[key];
+    };
+  }, [store, groupId, subGroupId]);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }

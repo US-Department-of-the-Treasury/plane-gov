@@ -9,7 +9,7 @@ import { EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 // constants
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useGroupedIssueIds, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
+import { useGroupedIssueIds, useIssueViewFlags, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 // hooks
 import { useGroupIssuesDragNDrop } from "@/hooks/use-group-dragndrop";
@@ -105,6 +105,9 @@ export function BaseListRoot(props: IBaseListRoot) {
 
   // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
   const groupedIssueIds = useGroupedIssueIds(storeType) as TGroupedIssues | undefined;
+  // Use reactive hook for view flags
+  const viewFlags = useIssueViewFlags(storeType);
+  const { enableInlineEditing, enableQuickAdd, enableIssueCreation } = viewFlags;
   // auth
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
@@ -112,7 +115,6 @@ export function BaseListRoot(props: IBaseListRoot) {
     workspaceSlug?.toString(),
     projectId?.toString()
   );
-  const { enableInlineEditing, enableQuickAdd, enableIssueCreation } = issues?.viewFlags || {};
 
   const canEditProperties = useCallback(
     (projectId: string | undefined) => {

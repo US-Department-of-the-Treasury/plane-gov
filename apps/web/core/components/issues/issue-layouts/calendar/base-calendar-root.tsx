@@ -12,6 +12,8 @@ import { useIssues } from "@/hooks/store/use-issues";
 import {
   useEpicIssueFilters,
   useGroupedIssueIds,
+  useIssuePaginationData,
+  useIssueViewFlags,
   useProjectIssueFilters,
   useProjectViewIssueFilters,
   useSprintIssueFilters,
@@ -92,7 +94,9 @@ export function BaseCalendarRoot(props: IBaseCalendarRoot) {
     projectId?.toString()
   );
 
-  const { enableInlineEditing } = issues?.viewFlags || {};
+  // Use reactive hook for view flags
+  const viewFlags = useIssueViewFlags(storeType);
+  const { enableInlineEditing } = viewFlags;
 
   // Use reactive filters for all store types to ensure proper re-renders when filters load
   const displayFilters =

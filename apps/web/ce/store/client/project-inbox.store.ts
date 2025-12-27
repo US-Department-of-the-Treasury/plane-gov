@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { uniq, isEmpty, omit, set as lodashSet } from "lodash-es";
+import { uniq, isEmpty, omit } from "lodash-es";
 import type { EPastDurationFilters } from "@plane/constants";
 import type {
   TInboxIssue,
@@ -12,9 +12,14 @@ import type {
 import { EInboxIssueCurrentTab, EInboxIssueStatus } from "@plane/types";
 import { getCustomDates } from "@plane/utils";
 import { InboxIssueService } from "@/services/inbox";
+import { IssueActivityService } from "@/services/issue";
 import type { IInboxIssueStore } from "@/store/inbox/inbox-issue.store";
 import { InboxIssueStore } from "@/store/inbox/inbox-issue.store";
 import { getRouterWorkspaceSlug } from "@/store/client";
+import { useIssueActivityStore } from "@/plane-web/store/issue/issue-details/activity.store";
+import { useIssueAttachmentStore } from "@/store/issue/issue-details/attachment.store";
+import { useIssueCommentStore } from "@/store/issue/issue-details/comment.store";
+import { useIssueReactionStore } from "@/store/issue/issue-details/reaction.store";
 import type { CoreRootStore } from "@/store/root.store";
 
 type TLoader =
@@ -304,8 +309,9 @@ export const useProjectInboxStore = create<ProjectInboxStore>()((set, get) => ({
   },
 }));
 
-// Service instance
+// Service instances
 const inboxIssueService = new InboxIssueService();
+const issueActivityService = new IssueActivityService();
 
 /**
  * Legacy interface for backward compatibility with MobX store.
@@ -612,14 +618,19 @@ export class ProjectInboxStoreLegacy implements IProjectInboxStore {
         this.createOrUpdateInboxIssue([inboxIssue], workspaceSlug, projectId);
         state.setLoader(undefined);
         await Promise.all([
-          // fetching reactions
-          this.rootStore.issue.issueDetail.fetchReactions(workspaceSlug, projectId, issueId),
-          // fetching activity
-          this.rootStore.issue.issueDetail.fetchActivities(workspaceSlug, projectId, issueId),
-          // fetching comments
-          this.rootStore.issue.issueDetail.fetchComments(workspaceSlug, projectId, issueId),
-          // fetching attachments
-          this.rootStore.issue.issueDetail.fetchAttachments(workspaceSlug, projectId, issueId),
+          // fetching reactions - use Zustand store directly
+          useIssueReactionStore.getState().fetchReactions(workspaceSlug, projectId, issueId),
+          // fetching activity - call service and update Zustand store
+          (async () => {
+            const activities = await issueActivityService.getIssueActivities(workspaceSlug, projectId, issueId, {});
+            const activityIds = activities.map((a) => a.id);
+            useIssueActivityStore.getState().updateActivities(issueId, activityIds);
+            useIssueActivityStore.getState().updateActivityMap(activities);
+          })(),
+          // fetching comments - use Zustand store directly
+          useIssueCommentStore.getState().fetchComments(workspaceSlug, projectId, issueId),
+          // fetching attachments - use Zustand store directly
+          useIssueAttachmentStore.getState().fetchAttachments(workspaceSlug, projectId, issueId),
         ]);
       }
       return inboxIssue;

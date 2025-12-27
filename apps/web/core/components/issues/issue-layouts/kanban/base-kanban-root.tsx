@@ -12,7 +12,7 @@ import { EIssueServiceType, EIssueLayoutTypes, EIssuesStoreType } from "@plane/t
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useGroupedIssueIds, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
+import { useGroupedIssueIds, useIssueViewFlags, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectStates } from "@/hooks/store/use-project-state";
 import { useKanbanView } from "@/hooks/store/use-kanban-view";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -151,7 +151,9 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
 
   const KanBanView = sub_group_by ? KanBanSwimLanes : KanBan;
 
-  const { enableInlineEditing, enableQuickAdd, enableIssueCreation } = issues?.viewFlags || {};
+  // Use reactive hook for view flags
+  const viewFlags = useIssueViewFlags(storeType);
+  const { enableInlineEditing, enableQuickAdd, enableIssueCreation } = viewFlags;
 
   const scrollableContainerRef = useRef<HTMLDivElement | null>(null);
 
