@@ -1,13 +1,15 @@
 "use client";
 
-import { InfiniteData, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { InfiniteData } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { InstanceWorkspaceService } from "@plane/services";
 import type { IWorkspace, TWorkspacePaginationInfo } from "@plane/types";
 import { queryKeys } from "./query-keys";
 
 const instanceWorkspaceService = new InstanceWorkspaceService();
 
-type WorkspaceInfiniteData = InfiniteData<TWorkspacePaginationInfo, string | undefined>;
+// Use unknown for the page param type to be compatible with useInfiniteQuery's default return type
+type WorkspaceInfiniteData = InfiniteData<TWorkspacePaginationInfo, unknown>;
 
 /**
  * Hook to fetch workspaces with pagination support.

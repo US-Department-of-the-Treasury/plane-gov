@@ -5,6 +5,7 @@ import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { useParams } from "next/navigation";
 import { EIssueFilterType, EUserPermissions, EUserPermissionsLevel, WORK_ITEM_TRACKER_EVENTS } from "@plane/constants";
+import type { TIssue } from "@plane/types";
 import { EIssueServiceType, EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 //constants
 //hooks
@@ -44,7 +45,7 @@ export type KanbanStoreType =
 
 export interface IBaseKanBanLayout {
   QuickActions: FC<IQuickActionProps>;
-  addIssuesToView?: (issueIds: string[]) => Promise<unknown>;
+  addIssuesToView?: (issueIds: string[]) => Promise<TIssue>;
   canEditPropertiesBasedOnProject?: (projectId: string) => boolean;
   isCompletedSprint?: boolean;
   viewId?: string | undefined;
@@ -141,7 +142,10 @@ export function BaseKanBanRoot(props: IBaseKanBanLayout) {
   );
 
   // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
-  const groupedIssueIds = useGroupedIssueIds(storeType);
+  const rawGroupedIssueIds = useGroupedIssueIds(storeType);
+  // For Kanban, ensure we have grouped data (not ungrouped array)
+  // Kanban views should always have grouped data, but TypeScript needs the assertion
+  const groupedIssueIds = Array.isArray(rawGroupedIssueIds) ? {} : rawGroupedIssueIds;
 
   const userDisplayFilters = displayFilters || null;
 

@@ -36,7 +36,7 @@ function DurationDropdown({ placeholder = "Duration", onChange, value }: Props) 
   return (
     <CustomSearchSelect
       value={value ? [value] : []}
-      onChange={onChange}
+      onChange={(val) => onChange(val as (typeof ANALYTICS_DURATION_FILTER_OPTIONS)[number]["value"])}
       options={options}
       label={
         <div className="flex items-center gap-2 p-1 ">

@@ -233,12 +233,12 @@ export class SprintIssuesFilter extends IssueFilterHelperStore implements ISprin
     try {
       const _filters = await this.issueFilterService.fetchSprintIssueFilters(workspaceSlug, projectId, sprintId);
       richFilters = _filters?.rich_filters ?? {};
-      displayFilters = this.computedDisplayFilters(_filters?.display_filters);
-      displayProperties = this.computedDisplayProperties(_filters?.display_properties);
+      displayFilters = this.computedDisplayFilters(_filters?.display_filters ?? {} as IIssueDisplayFilterOptions);
+      displayProperties = this.computedDisplayProperties(_filters?.display_properties ?? {} as IIssueDisplayProperties);
     } catch {
       // API might return 404 for sprints without user-properties - use defaults
-      displayFilters = this.computedDisplayFilters(undefined);
-      displayProperties = this.computedDisplayProperties(undefined);
+      displayFilters = this.computedDisplayFilters({} as IIssueDisplayFilterOptions);
+      displayProperties = this.computedDisplayProperties({} as IIssueDisplayProperties);
     }
 
     // fetching the kanban toggle helpers in the local storage

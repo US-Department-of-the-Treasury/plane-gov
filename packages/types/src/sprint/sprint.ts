@@ -98,9 +98,9 @@ export interface ISprint extends TProgressSnapshot {
     filters: IIssueFilterOptions;
   };
   workspace_id: string;
-  progress: any[];
+  progress: unknown[];
   version: number;
-  logo_props?: Record<string, any>;
+  logo_props?: Record<string, unknown>;
   external_source?: string | null;
   external_id?: string | null;
 }
@@ -160,4 +160,28 @@ export type TSprintMemberProject = {
   project: string;
   created_at: string;
   updated_at: string;
+};
+
+/**
+ * Impact analysis for removing a team member from a sprint-project assignment.
+ * Determines if there will be orphaned issues and provides next sprint option.
+ */
+export type TRemovalImpact = {
+  is_last_member: boolean;
+  orphaned_issue_count: number;
+  next_sprint: {
+    id: string;
+    name: string;
+    start_date: string | null;
+    end_date: string | null;
+  } | null;
+};
+
+/**
+ * Payload for bulk moving issues between sprints.
+ */
+export type TBulkMoveIssuesPayload = {
+  issue_ids: string[] | "all";
+  target_sprint_id: string | null;
+  project_id: string;
 };

@@ -84,9 +84,9 @@ export function ProjectHeader(props: TProjectHeaderProps) {
 
   // Memoize onChange handler
   const handleProjectChange = useCallback(
-    (value: string) => {
-      if (value !== currentProjectDetails?.id) {
-        router.push(getTabUrl(workspaceSlug, value, validatedDefaultTabKey));
+    (value: unknown) => {
+      if ((value as string) !== currentProjectDetails?.id) {
+        router.push(getTabUrl(workspaceSlug, value as string, validatedDefaultTabKey));
       }
     },
     [currentProjectDetails?.id, router, workspaceSlug, validatedDefaultTabKey]

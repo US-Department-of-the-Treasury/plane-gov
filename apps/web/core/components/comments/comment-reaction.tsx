@@ -81,7 +81,6 @@ export function CommentReactions(props: TProps) {
             onAddReaction={() => setIsPickerOpen(true)}
           />
         }
-        placement="bottom-start"
       />
     </div>
   );

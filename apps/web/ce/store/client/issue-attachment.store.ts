@@ -2,6 +2,7 @@ import { uniq, pull, concat, debounce } from "lodash-es";
 import { create } from "zustand";
 import { v4 as uuidv4 } from "uuid";
 // types
+import { EIssueServiceType } from "@plane/types";
 import type { TIssueAttachment, TIssueAttachmentMap, TIssueAttachmentIdMap, TIssueServiceType } from "@plane/types";
 // services
 import { IssueAttachmentService } from "@/services/issue";
@@ -82,7 +83,7 @@ const initialState: IssueAttachmentStoreState = {
   attachmentsUploadStatusMap: {},
   rootIssueStore: null,
   rootIssueDetailStore: null,
-  serviceType: "issue",
+  serviceType: EIssueServiceType.ISSUES,
 };
 
 // ============================================================================

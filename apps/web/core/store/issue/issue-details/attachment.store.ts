@@ -1,8 +1,9 @@
-import { uniq, pull, concat, update, set, debounce } from "lodash-es";
+import { uniq, pull, concat, update, set as lodashSet, debounce } from "lodash-es";
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // types
+import { EIssueServiceType } from "@plane/types";
 import type { TIssueAttachment, TIssueAttachmentMap, TIssueAttachmentIdMap, TIssueServiceType } from "@plane/types";
 // services
 import { IssueAttachmentService } from "@/services/issue";
@@ -92,13 +93,13 @@ export const useIssueAttachmentStore = create<IIssueAttachmentStore>()(
         const newAttachmentIds = attachments.map((attachment) => attachment.id);
         set((state) => {
           update(state.attachments, [issueId], (attachmentIds = []) => uniq(concat(attachmentIds, newAttachmentIds)));
-          attachments.forEach((attachment) => set(state.attachmentMap, attachment.id, attachment));
+          attachments.forEach((attachment) => lodashSet(state.attachmentMap, attachment.id, attachment));
         });
       }
     },
 
     fetchAttachments: async (workspaceSlug: string, projectId: string, issueId: string) => {
-      const service = getAttachmentService("WORKSPACE");
+      const service = getAttachmentService(EIssueServiceType.ISSUES);
       const response = await service.getIssueAttachments(workspaceSlug, projectId, issueId);
       get().addAttachments(issueId, response);
       return response;
@@ -128,7 +129,7 @@ export const useIssueAttachmentStore = create<IIssueAttachmentStore>()(
       onIssueUpdate?: (issueId: string, data: { attachment_count: number }) => void
     ) => {
       const tempId = uuidv4();
-      const service = getAttachmentService("WORKSPACE");
+      const service = getAttachmentService(EIssueServiceType.ISSUES);
       const store = get();
 
       try {
@@ -186,7 +187,7 @@ export const useIssueAttachmentStore = create<IIssueAttachmentStore>()(
       attachmentId: string,
       onIssueUpdate?: (issueId: string, data: { attachment_count: number }) => void
     ) => {
-      const service = getAttachmentService("WORKSPACE");
+      const service = getAttachmentService(EIssueServiceType.ISSUES);
       const response = await service.deleteIssueAttachment(workspaceSlug, projectId, issueId, attachmentId);
 
       set((state) => {

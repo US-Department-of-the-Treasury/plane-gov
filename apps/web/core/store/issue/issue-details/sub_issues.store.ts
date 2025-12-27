@@ -10,9 +10,24 @@ import type {
   TSubIssuesStateDistribution,
   TIssueServiceType,
   TLoader,
+  IIssueFilterOptions,
+  IIssueDisplayFilterOptions,
+  IIssueDisplayProperties,
+  ISubWorkItemFilters,
+  TGroupedIssues,
 } from "@plane/types";
+import { EIssueServiceType } from "@plane/types";
+import type { EIssueFilterType } from "@plane/constants";
 // services
 import { IssueService } from "@/services/issue";
+// helpers
+import { getFilteredWorkItems } from "../helpers/base-issues-utils";
+// filter store
+import { useWorkItemSubIssueFiltersStore } from "./sub_issues_filter.store";
+import type { IWorkItemSubIssueFiltersStore } from "./sub_issues_filter.store";
+// issue store
+import { useIssueStore } from "../issue.store";
+
 type TSubIssueHelpersKeys = "issue_visibility" | "preview_loader" | "issue_loader";
 type TSubIssueHelpers = Record<TSubIssueHelpersKeys, string[]>;
 
@@ -22,6 +37,18 @@ export interface IIssueSubIssuesStore {
   subIssues: TIssueSubIssuesIdMap;
   subIssueHelpers: Record<string, TSubIssueHelpers>; // parent_issue_id -> TSubIssueHelpers
   loader: TLoader;
+  // filters
+  filters: {
+    getSubIssueFilters: (workItemId: string) => Partial<ISubWorkItemFilters>;
+    updateSubWorkItemFilters: (
+      filterType: EIssueFilterType,
+      filters: IIssueDisplayFilterOptions | IIssueDisplayProperties | IIssueFilterOptions,
+      workItemId: string
+    ) => void;
+    getGroupedSubWorkItems: (parentWorkItemId: string) => TGroupedIssues;
+    getFilteredSubWorkItems: (workItemId: string, filters: IIssueFilterOptions) => TIssue[];
+    resetFilters: (workItemId: string) => void;
+  };
   // helper methods
   stateDistributionByIssueId: (issueId: string) => TSubIssuesStateDistribution | undefined;
   subIssuesByIssueId: (issueId: string) => string[] | undefined;
@@ -97,6 +124,41 @@ export const useIssueSubIssuesStore = create<IIssueSubIssuesStore>()(
     subIssueHelpers: {},
     loader: undefined,
 
+    // filters (delegate to filter store)
+    filters: {
+      getSubIssueFilters: (workItemId: string) => {
+        return useWorkItemSubIssueFiltersStore.getState().getSubIssueFilters(workItemId);
+      },
+      updateSubWorkItemFilters: (
+        filterType: EIssueFilterType,
+        filters: IIssueDisplayFilterOptions | IIssueDisplayProperties | IIssueFilterOptions,
+        workItemId: string
+      ) => {
+        useWorkItemSubIssueFiltersStore.getState().updateSubWorkItemFilters(filterType, filters, workItemId);
+      },
+      getGroupedSubWorkItems: (parentWorkItemId: string) => {
+        const filterStore = useWorkItemSubIssueFiltersStore.getState();
+        return filterStore.getGroupedSubWorkItems(parentWorkItemId, (workItemId: string, filters: IIssueFilterOptions) => {
+          return get().filters.getFilteredSubWorkItems(workItemId, filters);
+        });
+      },
+      getFilteredSubWorkItems: (workItemId: string, filters: IIssueFilterOptions) => {
+        const subIssueIds = get().subIssues[workItemId] || [];
+        const issueStore = useIssueStore.getState();
+
+        // Convert issue IDs to issue objects
+        const subIssues: TIssue[] = subIssueIds
+          .map((id) => issueStore.getIssueById(id))
+          .filter((issue): issue is TIssue => issue !== undefined);
+
+        // Apply filters using the helper function
+        return getFilteredWorkItems(subIssues, filters);
+      },
+      resetFilters: (workItemId: string) => {
+        useWorkItemSubIssueFiltersStore.getState().resetFilters(workItemId);
+      },
+    },
+
     // helper methods
     stateDistributionByIssueId: (issueId: string) => {
       if (!issueId) return undefined;
@@ -146,7 +208,7 @@ export const useIssueSubIssuesStore = create<IIssueSubIssuesStore>()(
       onUpdateIssue?: (issueId: string, data: Partial<TIssue>) => void,
       onFetchProjectProperties?: (workspaceSlug: string, projectIds: string[]) => void
     ) => {
-      const service = getSubIssuesService("WORKSPACE");
+      const service = getSubIssuesService(EIssueServiceType.ISSUES);
 
       set((state) => {
         state.loader = "init-loader";
@@ -192,7 +254,7 @@ export const useIssueSubIssuesStore = create<IIssueSubIssuesStore>()(
       onUpdateIssue?: (issueId: string, data: Partial<TIssue>) => void,
       onFetchProjectProperties?: (workspaceSlug: string, projectIds: string[]) => void
     ) => {
-      const service = getSubIssuesService("WORKSPACE");
+      const service = getSubIssuesService(EIssueServiceType.ISSUES);
 
       const response = await service.addSubIssues(workspaceSlug, projectId, parentIssueId, {
         sub_issue_ids: issueIds,
@@ -213,7 +275,13 @@ export const useIssueSubIssuesStore = create<IIssueSubIssuesStore>()(
         Object.keys(subIssuesStateDistribution).forEach((key) => {
           const stateGroup = key as keyof TSubIssuesStateDistribution;
           if (!state.subIssuesStateDistribution[parentIssueId]) {
-            state.subIssuesStateDistribution[parentIssueId] = {};
+            state.subIssuesStateDistribution[parentIssueId] = {
+              backlog: [],
+              unstarted: [],
+              started: [],
+              completed: [],
+              cancelled: [],
+            };
           }
           const existing = state.subIssuesStateDistribution[parentIssueId][stateGroup] || [];
           state.subIssuesStateDistribution[parentIssueId][stateGroup] = concat(
@@ -288,20 +356,28 @@ export const useIssueSubIssuesStore = create<IIssueSubIssuesStore>()(
 
         if (oldIssueStateGroup && issueStateGroup && issueStateGroup !== oldIssueStateGroup) {
           set((state) => {
-            if (oldIssueStateGroup && state.subIssuesStateDistribution[parentIssueId]?.[oldIssueStateGroup]) {
-              state.subIssuesStateDistribution[parentIssueId][oldIssueStateGroup] =
-                state.subIssuesStateDistribution[parentIssueId][oldIssueStateGroup].filter((id) => id !== issueId);
+            const oldGroup = oldIssueStateGroup as keyof TSubIssuesStateDistribution;
+            if (oldIssueStateGroup && state.subIssuesStateDistribution[parentIssueId]?.[oldGroup]) {
+              state.subIssuesStateDistribution[parentIssueId][oldGroup] =
+                state.subIssuesStateDistribution[parentIssueId][oldGroup].filter((id: string) => id !== issueId);
             }
 
+            const newGroup = issueStateGroup as keyof TSubIssuesStateDistribution;
             if (issueStateGroup) {
               if (!state.subIssuesStateDistribution[parentIssueId]) {
-                state.subIssuesStateDistribution[parentIssueId] = {};
+                state.subIssuesStateDistribution[parentIssueId] = {
+                  backlog: [],
+                  unstarted: [],
+                  started: [],
+                  completed: [],
+                  cancelled: [],
+                };
               }
-              if (!state.subIssuesStateDistribution[parentIssueId][issueStateGroup]) {
-                state.subIssuesStateDistribution[parentIssueId][issueStateGroup] = [];
+              if (!state.subIssuesStateDistribution[parentIssueId][newGroup]) {
+                state.subIssuesStateDistribution[parentIssueId][newGroup] = [];
               }
-              state.subIssuesStateDistribution[parentIssueId][issueStateGroup] = concat(
-                state.subIssuesStateDistribution[parentIssueId][issueStateGroup],
+              state.subIssuesStateDistribution[parentIssueId][newGroup] = concat(
+                state.subIssuesStateDistribution[parentIssueId][newGroup],
                 issueId
               );
             }
@@ -334,9 +410,10 @@ export const useIssueSubIssuesStore = create<IIssueSubIssuesStore>()(
 
         if (issueStateGroup) {
           set((draft) => {
-            if (issueStateGroup && draft.subIssuesStateDistribution[parentIssueId]?.[issueStateGroup]) {
-              draft.subIssuesStateDistribution[parentIssueId][issueStateGroup] =
-                draft.subIssuesStateDistribution[parentIssueId][issueStateGroup].filter((id) => id !== issueId);
+            const stateGroup = issueStateGroup as keyof TSubIssuesStateDistribution;
+            if (issueStateGroup && draft.subIssuesStateDistribution[parentIssueId]?.[stateGroup]) {
+              draft.subIssuesStateDistribution[parentIssueId][stateGroup] =
+                draft.subIssuesStateDistribution[parentIssueId][stateGroup].filter((id: string) => id !== issueId);
             }
           });
         }
@@ -378,9 +455,10 @@ export const useIssueSubIssuesStore = create<IIssueSubIssuesStore>()(
 
         if (issueStateGroup) {
           set((draft) => {
-            if (issueStateGroup && draft.subIssuesStateDistribution[parentIssueId]?.[issueStateGroup]) {
-              draft.subIssuesStateDistribution[parentIssueId][issueStateGroup] =
-                draft.subIssuesStateDistribution[parentIssueId][issueStateGroup].filter((id) => id !== issueId);
+            const stateGroup = issueStateGroup as keyof TSubIssuesStateDistribution;
+            if (issueStateGroup && draft.subIssuesStateDistribution[parentIssueId]?.[stateGroup]) {
+              draft.subIssuesStateDistribution[parentIssueId][stateGroup] =
+                draft.subIssuesStateDistribution[parentIssueId][stateGroup].filter((id: string) => id !== issueId);
             }
           });
         }

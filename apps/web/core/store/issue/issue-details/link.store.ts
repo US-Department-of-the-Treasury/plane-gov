@@ -2,6 +2,7 @@ import { set } from "lodash-es";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // types
+import { EIssueServiceType } from "@plane/types";
 import type { TIssueLink, TIssueLinkMap, TIssueLinkIdMap, TIssueServiceType } from "@plane/types";
 // services
 import { IssueService } from "@/services/issue";
@@ -80,7 +81,7 @@ export const useIssueLinkStore = create<IIssueLinkStore>()(
     },
 
     fetchLinks: async (workspaceSlug: string, projectId: string, issueId: string) => {
-      const service = getLinkService("WORKSPACE");
+      const service = getLinkService(EIssueServiceType.ISSUES);
       const response = await service.fetchIssueLinks(workspaceSlug, projectId, issueId);
       get().addLinks(issueId, response);
       return response;
@@ -94,7 +95,7 @@ export const useIssueLinkStore = create<IIssueLinkStore>()(
       onIssueUpdate?: (issueId: string, data: { link_count: number }) => void,
       onFetchActivity?: () => void
     ) => {
-      const service = getLinkService("WORKSPACE");
+      const service = getLinkService(EIssueServiceType.ISSUES);
       const response = await service.createIssueLink(workspaceSlug, projectId, issueId, data);
       const issueLinkCount = get().getLinksByIssueId(issueId)?.length ?? 0;
 
@@ -128,7 +129,7 @@ export const useIssueLinkStore = create<IIssueLinkStore>()(
       data: Partial<TIssueLink>,
       onFetchActivity?: () => void
     ) => {
-      const service = getLinkService("WORKSPACE");
+      const service = getLinkService(EIssueServiceType.ISSUES);
       const initialData = { ...get().linkMap[linkId] };
 
       try {
@@ -171,7 +172,7 @@ export const useIssueLinkStore = create<IIssueLinkStore>()(
       onIssueUpdate?: (issueId: string, data: { link_count: number }) => void,
       onFetchActivity?: () => void
     ) => {
-      const service = getLinkService("WORKSPACE");
+      const service = getLinkService(EIssueServiceType.ISSUES);
       const issueLinkCount = get().getLinksByIssueId(issueId)?.length ?? 0;
 
       await service.deleteIssueLink(workspaceSlug, projectId, issueId, linkId);

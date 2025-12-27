@@ -136,7 +136,6 @@ export function CommentCardDisplay(props: TCommentCardDisplayProps) {
               onChange={handleEmojiSelect}
               disabled={disabled}
               label={<EmojiReactionButton onAddReaction={() => setIsPickerOpen(true)} />}
-              placement="bottom-start"
             />
             {renderQuickActions ? renderQuickActions() : null}
           </div>

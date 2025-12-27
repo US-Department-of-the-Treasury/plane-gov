@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams } from "next/navigation";
 // plane imports
+import type { TIssue } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
@@ -17,10 +18,11 @@ export function EpicKanBanLayout() {
   return (
     <BaseKanBanRoot
       QuickActions={EpicIssueQuickActions}
-      addIssuesToView={(issueIds: string[]) => {
+      addIssuesToView={(async (issueIds: string[]) => {
         if (!workspaceSlug || !projectId || !epicId) throw new Error();
-        return issues.addIssuesToEpic(workspaceSlug.toString(), projectId.toString(), epicId.toString(), issueIds);
-      }}
+        await issues.addIssuesToEpic(workspaceSlug.toString(), projectId.toString(), epicId.toString(), issueIds);
+        return {} as TIssue;
+      }) as (issueIds: string[]) => Promise<TIssue>}
       viewId={epicId?.toString()}
     />
   );

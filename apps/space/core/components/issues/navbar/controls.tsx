@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import type { TProjectPublishSettings } from "@plane/types";
 // components
 import { IssueFiltersDropdown } from "@/components/issues/filters";
 // helpers
@@ -9,7 +10,6 @@ import useIsInIframe from "@/hooks/use-is-in-iframe";
 // store
 import { useIssueFiltersStore } from "@/store/issue-filters.store";
 import { usePeekStore } from "@/store/peek.store";
-import type { PublishStore } from "@/store/publish/publish.store";
 // types
 import type { TIssueLayout } from "@/types/issue";
 // local imports
@@ -18,7 +18,7 @@ import { NavbarTheme } from "./theme";
 import { UserAvatar } from "./user-avatar";
 
 export type NavbarControlsProps = {
-  publishSettings: PublishStore;
+  publishSettings: TProjectPublishSettings | undefined;
 };
 
 export function NavbarControls(props: NavbarControlsProps) {
@@ -37,7 +37,9 @@ export function NavbarControls(props: NavbarControlsProps) {
   const { getIssueFilters, isIssueFiltersUpdated, initIssueFilters } = useIssueFiltersStore();
   const { setPeekId } = usePeekStore();
   // derived values
-  const { anchor, view_props, workspace_detail } = publishSettings;
+  const anchor = publishSettings?.anchor;
+  const view_props = publishSettings?.view_props;
+  const workspace_detail = publishSettings?.workspace_detail;
   const issueFilters = anchor ? getIssueFilters(anchor) : undefined;
   const activeLayout = issueFilters?.display_filters?.layout || undefined;
 

@@ -78,7 +78,8 @@ export function BaseGanttRoot(props: IBaseGanttRoot) {
 
   // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
   const groupedIssueIds = useGroupedIssueIds(storeType);
-  const issuesIds = (groupedIssueIds?.[ALL_ISSUES] as string[]) ?? [];
+  // Type guard: ensure groupedIssueIds is not an array before indexing with ALL_ISSUES
+  const issuesIds = (!Array.isArray(groupedIssueIds) ? (groupedIssueIds[ALL_ISSUES] as string[]) : []) ?? [];
   const nextPageResults = issues.getPaginationData(undefined, undefined)?.nextPageResults;
 
   const { enableIssueCreation } = issues?.viewFlags || {};

@@ -121,7 +121,7 @@ export function LanguageTimezone() {
             </div>
             <div className="col-span-12 sm:col-span-6 my-auto">
               <CustomSelect
-                value={profile?.language}
+                value={profile?.language ?? ""}
                 label={profile?.language ? getLanguageLabel(profile?.language) : "Select a language"}
                 onChange={handleLanguageChange}
                 buttonClassName={"border-none"}

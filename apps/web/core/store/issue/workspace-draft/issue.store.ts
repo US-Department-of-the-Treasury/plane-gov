@@ -371,7 +371,7 @@ export class WorkspaceDraftIssues implements IWorkspaceDraftIssues {
     try {
       this.loader = "update";
       this.store.updateIssue(issueId, {
-        ...payload,
+        ...payload as Partial<TWorkspaceDraftIssue>,
         updated_at: getCurrentDateTimeInISO(),
       });
       const response = await workspaceDraftService.updateIssue(workspaceSlug, issueId, payload);

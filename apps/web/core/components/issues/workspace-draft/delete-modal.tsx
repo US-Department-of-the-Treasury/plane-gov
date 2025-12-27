@@ -41,7 +41,7 @@ export function WorkspaceDraftIssueDeleteIssueModal(props: Props) {
   // derived values
   const issue = data ? data : issueMap[dataId!];
   // Get the issue to check its project_id for permissions
-  const canPerformProjectAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), issue?.project_id);
+  const canPerformProjectAdminActions = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.PROJECT, workspaceSlug?.toString(), issue?.project_id ?? undefined);
   const isIssueCreator = issue?.created_by === currentUser?.id;
   const authorized = isIssueCreator || canPerformProjectAdminActions;
 

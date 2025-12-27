@@ -257,7 +257,12 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
         updatedRelations.splice(relationIndex, 1);
 
         if (!updatedRelationMap[issueId]) {
-          updatedRelationMap[issueId] = {};
+          updatedRelationMap[issueId] = {
+            duplicate: [],
+            relates_to: [],
+            blocked_by: [],
+            blocking: [],
+          };
         }
         updatedRelationMap[issueId] = {
           ...updatedRelationMap[issueId],
@@ -289,7 +294,12 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
         updatedReverseRelations.splice(relatedIndex, 1);
 
         if (!updatedRelationMap[related_issue]) {
-          updatedRelationMap[related_issue] = {};
+          updatedRelationMap[related_issue] = {
+            duplicate: [],
+            relates_to: [],
+            blocked_by: [],
+            blocking: [],
+          };
         }
         updatedRelationMap[related_issue] = {
           ...updatedRelationMap[related_issue],

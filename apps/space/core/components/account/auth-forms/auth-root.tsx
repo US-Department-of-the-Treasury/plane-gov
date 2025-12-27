@@ -44,7 +44,9 @@ export function AuthRoot() {
   const [isPasswordAutoset, setIsPasswordAutoset] = useState(true);
   // hooks
   const { resolvedTheme } = useTheme();
-  const { data: config } = useInstance();
+  const { data: instanceInfo } = useInstance();
+  // Extract config from instance info
+  const config = instanceInfo?.config;
 
   useEffect(() => {
     if (error_code) {

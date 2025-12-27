@@ -120,9 +120,9 @@ export function SingleUserSelect({ collaborator, index, users, setUsers }: Props
           value={users[index].email}
           label={users[index].email !== "" ? users[index].email : "Select user from project"}
           options={options}
-          onChange={(val: string) => {
+          onChange={(val: unknown) => {
             const newUsers = [...users];
-            newUsers[index].email = val;
+            newUsers[index].email = val as string;
             setUsers(newUsers);
           }}
           optionsClassName="w-48"

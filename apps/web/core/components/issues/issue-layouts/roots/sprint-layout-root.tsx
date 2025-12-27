@@ -92,7 +92,7 @@ export function SprintLayoutRoot() {
         entityType={EIssuesStoreType.SPRINT}
         entityId={sprintId}
         filtersToShowByLayout={ISSUE_DISPLAY_FILTERS_BY_PAGE.issues.filters}
-        initialWorkItemFilters={reactiveFilters ?? {}}
+        initialWorkItemFilters={reactiveFilters}
         updateFilters={issuesFilter?.updateFilterExpression.bind(issuesFilter, workspaceSlug, projectId, sprintId)}
         projectId={projectId}
         workspaceSlug={workspaceSlug}

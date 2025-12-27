@@ -36,14 +36,14 @@ export function TimezoneSelect(props: TTimezoneSelect) {
         value={value}
         label={value && selectedValue ? selectedValue(value) : label}
         options={isDisabled || disabled ? [] : timezones}
-        onChange={onChange}
+        onChange={(val: unknown) => onChange(val as string)}
         buttonClassName={cn(buttonClassName, {
           "border-red-500": error,
         })}
         className={cn("rounded-md border-[0.5px] !border-subtle", className)}
         optionsClassName={cn("w-72", optionsClassName)}
         input
-        disabled={isDisabled || disabled}
+        disabled={Boolean(isDisabled) || disabled}
       />
     </div>
   );

@@ -226,7 +226,7 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
   };
 
   fetchFilters = async (workspaceSlug: string, viewId: TWorkspaceFilters) => {
-    let richFilters: TWorkItemFilterExpression;
+    let richFilters: TWorkItemFilterExpression = {};
     let displayFilters: IIssueDisplayFilterOptions;
     let displayProperties: IIssueDisplayProperties;
     let kanbanFilters: TIssueKanbanFilters = {
@@ -248,7 +248,7 @@ export class WorkspaceIssuesFilter extends IssueFilterHelperStore implements IWo
     // Get the view details if the view is not a static view
     if (STATIC_VIEW_TYPES.includes(viewId) === false) {
       const _filters = await this.issueFilterService.getViewDetails(workspaceSlug, viewId);
-      richFilters = _filters?.rich_filters;
+      richFilters = _filters?.rich_filters ?? {};
       displayFilters = this.computedDisplayFilters(_filters?.display_filters, {
         layout: EIssueLayoutTypes.SPREADSHEET,
         order_by: "-created_at",

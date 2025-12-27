@@ -28,7 +28,7 @@ export class WorkspaceService extends APIService {
    * @throws AppError if the user is not a member or the request fails
    */
   async validateMembership(workspaceSlug: string, cookie: string): Promise<WorkspaceMemberResponse> {
-    return this.get<WorkspaceMemberResponse>(`/api/workspaces/${workspaceSlug}/workspace-members/me/`, {
+    return this.get(`/api/workspaces/${workspaceSlug}/workspace-members/me/`, {
       headers: {
         Cookie: cookie,
       },

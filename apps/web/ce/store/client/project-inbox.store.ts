@@ -326,7 +326,7 @@ export interface IProjectInboxStore {
   getAppliedFiltersCount: number;
   filteredInboxIssueIds: string[];
   // computed functions
-  getIssueInboxByIssueId: (issueId: string) => IInboxIssueStore;
+  getIssueInboxByIssueId: (issueId: string) => IInboxIssueStore | undefined;
   getIsIssueAvailable: (inboxIssueId: string) => boolean;
   // helper actions
   inboxIssueQueryParams: (

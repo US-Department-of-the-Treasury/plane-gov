@@ -57,7 +57,7 @@ export const useProjectInbox = (): IProjectInboxStore => {
 
   // Return a combined interface that uses reactive state for properties
   // and the facade for methods
-  return useMemo(
+  return useMemo<IProjectInboxStore>(
     () => ({
       // Reactive state from Zustand
       currentTab,

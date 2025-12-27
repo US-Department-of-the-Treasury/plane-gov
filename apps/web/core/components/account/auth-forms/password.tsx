@@ -194,7 +194,7 @@ export function AuthPasswordForm(props: Props) {
               onChange={(e) => handleFormChange("email", e.target.value)}
               placeholder={t("auth.common.email.placeholder")}
               className={`disable-autofill-style h-10 w-full placeholder:text-placeholder border-0`}
-              autoComplete="email"
+              autoComplete="on"
             />
             {passwordFormData.email.length > 0 && (
               <button

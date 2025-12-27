@@ -249,7 +249,7 @@ export function PublishProjectModal(props: Props) {
                   name="view_props"
                   render={({ field: { onChange, value } }) => (
                     <CustomSelect
-                      value={value}
+                      value={(selectedLayouts[0] ?? "list") as TProjectPublishLayouts}
                       label={VIEW_OPTIONS.filter((o) => selectedLayouts.includes(o.key))
                         .map((o) => o.label)
                         .join(", ")}

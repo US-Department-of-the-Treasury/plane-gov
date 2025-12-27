@@ -50,7 +50,7 @@ function WorkspaceMembersSettingsPage({ params }: Route.ComponentProps) {
   const canPerformWorkspaceMemberActions =
     userWorkspaceRole === EUserPermissions.ADMIN || userWorkspaceRole === EUserPermissions.MEMBER;
 
-  const handleWorkspaceInvite = (data: IWorkspaceBulkInviteFormData) => {
+  const handleWorkspaceInvite = async (data: IWorkspaceBulkInviteFormData) => {
     inviteWorkspaceMembers(
       {
         workspaceSlug,

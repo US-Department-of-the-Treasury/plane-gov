@@ -11,6 +11,7 @@ import { renderFormattedDate, csvDownload } from "@plane/utils";
 import { queryKeys } from "@/store/queries/query-keys";
 // helpers
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
+import { getRouterWorkspaceSlug } from "@/store/client";
 // local imports
 import { CreateApiTokenForm } from "./form";
 import { GeneratedTokenDetails } from "./generated-token-details";
@@ -52,6 +53,9 @@ export function CreateApiTokenModal(props: Props) {
   };
 
   const handleCreateToken = async (data: Partial<IApiToken>) => {
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return;
+
     // make the request to generate the token
     await apiTokenService
       .create(data)
@@ -59,7 +63,7 @@ export function CreateApiTokenModal(props: Props) {
         setGeneratedToken(res);
         downloadSecretKey(res);
 
-        queryClient.setQueryData<IApiToken[]>(queryKeys.apiTokens.all(), (prevData) => {
+        queryClient.setQueryData<IApiToken[]>(queryKeys.apiTokens.all(workspaceSlug), (prevData) => {
           if (!prevData) return [res];
           return [res, ...prevData];
         });

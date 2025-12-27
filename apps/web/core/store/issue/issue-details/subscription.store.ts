@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 // services
-import type { EIssueServiceType } from "@plane/types";
+import { EIssueServiceType } from "@plane/types";
 import { IssueService } from "@/services/issue/issue.service";
 
 export interface IIssueSubscriptionStore {
@@ -70,7 +70,7 @@ export const useIssueSubscriptionStore = create<IIssueSubscriptionStore>()(
       issueId: string,
       currentUserId: string
     ) => {
-      const service = getSubscriptionService("WORKSPACE");
+      const service = getSubscriptionService(EIssueServiceType.ISSUES);
       const subscription = await service.getIssueNotificationSubscriptionStatus(
         workspaceSlug,
         projectId,
@@ -87,7 +87,7 @@ export const useIssueSubscriptionStore = create<IIssueSubscriptionStore>()(
       issueId: string,
       currentUserId: string
     ) => {
-      const service = getSubscriptionService("WORKSPACE");
+      const service = getSubscriptionService(EIssueServiceType.ISSUES);
 
       try {
         if (!currentUserId) throw new Error("user id not available");
@@ -114,7 +114,7 @@ export const useIssueSubscriptionStore = create<IIssueSubscriptionStore>()(
       issueId: string,
       currentUserId: string
     ) => {
-      const service = getSubscriptionService("WORKSPACE");
+      const service = getSubscriptionService(EIssueServiceType.ISSUES);
 
       try {
         if (!currentUserId) throw new Error("user id not available");

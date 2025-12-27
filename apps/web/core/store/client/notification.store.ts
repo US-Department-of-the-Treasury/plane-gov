@@ -3,6 +3,7 @@ import { set as lodashSet } from "lodash-es";
 import type { IUserLite, TNotification, TNotificationData } from "@plane/types";
 import workspaceNotificationService from "@/services/workspace-notification.service";
 import type { CoreRootStore } from "../root.store";
+import { useWorkspaceNotificationStore } from "./workspace-notifications.store";
 
 // State interface
 interface NotificationStoreState {
@@ -175,7 +176,7 @@ export const createNotificationStore = (notification: TNotification) => {
         const payload: Partial<TNotification> = {
           read_at: new Date().toISOString(),
         };
-        rootStore.workspaceNotification.setUnreadNotificationsCount("decrement");
+        useWorkspaceNotificationStore.getState().setUnreadNotificationsCount("decrement");
         get().mutateNotification(payload);
         const notification = await workspaceNotificationService.markNotificationAsRead(workspaceSlug, get().id);
         if (notification) {
@@ -184,7 +185,7 @@ export const createNotificationStore = (notification: TNotification) => {
         return notification;
       } catch (error) {
         get().mutateNotification({ read_at: currentNotificationReadAt });
-        rootStore.workspaceNotification.setUnreadNotificationsCount("increment");
+        useWorkspaceNotificationStore.getState().setUnreadNotificationsCount("increment");
         throw error;
       }
     },
@@ -195,7 +196,7 @@ export const createNotificationStore = (notification: TNotification) => {
         const payload: Partial<TNotification> = {
           read_at: undefined,
         };
-        rootStore.workspaceNotification.setUnreadNotificationsCount("increment");
+        useWorkspaceNotificationStore.getState().setUnreadNotificationsCount("increment");
         get().mutateNotification(payload);
         const notification = await workspaceNotificationService.markNotificationAsUnread(workspaceSlug, get().id);
         if (notification) {
@@ -203,7 +204,7 @@ export const createNotificationStore = (notification: TNotification) => {
         }
         return notification;
       } catch (error) {
-        rootStore.workspaceNotification.setUnreadNotificationsCount("decrement");
+        useWorkspaceNotificationStore.getState().setUnreadNotificationsCount("decrement");
         get().mutateNotification({ read_at: currentNotificationReadAt });
         throw error;
       }

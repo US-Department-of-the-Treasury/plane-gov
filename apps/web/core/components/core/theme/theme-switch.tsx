@@ -19,7 +19,7 @@ export function ThemeSwitch(props: Props) {
 
   return (
     <CustomSelect
-      value={value}
+      value={value as I_THEME_OPTION}
       label={
         value ? (
           <div className="flex items-center gap-2">

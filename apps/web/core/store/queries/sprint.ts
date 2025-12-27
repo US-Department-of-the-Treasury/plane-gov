@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ISprint, TSprintMemberProject } from "@plane/types";
+import type { ISprint, TSprintMemberProject, TRemovalImpact, TBulkMoveIssuesPayload } from "@plane/types";
 import { SprintService } from "@/services/sprint.service";
 import { SprintArchiveService } from "@/services/sprint_archive.service";
 import { queryKeys } from "./query-keys";
@@ -732,6 +732,77 @@ export function useMaterializeSprint() {
       void queryClient.invalidateQueries({
         queryKey: ["sprints", workspaceSlug],
       });
+    },
+  });
+}
+
+// Sprint Member Removal and Issue Management
+
+/**
+ * Hook to fetch removal impact when removing a team member from a sprint-project.
+ * Determines if this is the last member and how many issues would be orphaned.
+ *
+ * TODO: Backend endpoint not yet implemented. This is a stub that returns empty data.
+ * Backend should implement: GET /api/workspaces/{workspace}/sprint-member-projects/{assignment_id}/removal-impact/
+ *
+ * @example
+ * const { data: impact, isLoading } = useRemovalImpact(workspaceSlug, assignmentId, isOpen);
+ */
+export function useRemovalImpact(
+  workspaceSlug: string,
+  assignmentId: string,
+  enabled: boolean = true
+) {
+  return useQuery({
+    queryKey: ["sprint-removal-impact", workspaceSlug, assignmentId],
+    queryFn: async (): Promise<TRemovalImpact> => {
+      // TODO: Replace with actual API call when backend endpoint is implemented
+      // return sprintService.getRemovalImpact(workspaceSlug, assignmentId);
+
+      // Stub implementation - always returns no impact
+      return {
+        is_last_member: false,
+        orphaned_issue_count: 0,
+        next_sprint: null,
+      };
+    },
+    enabled: !!workspaceSlug && !!assignmentId && enabled,
+    staleTime: 0, // Always fetch fresh since this is checking current state
+  });
+}
+
+interface BulkMoveIssuesParams {
+  workspaceSlug: string;
+  sprintId: string;
+  data: TBulkMoveIssuesPayload;
+}
+
+/**
+ * Hook to bulk move issues from one sprint to another (or to backlog).
+ * Used when removing the last team member from a sprint-project to handle orphaned issues.
+ *
+ * TODO: Backend endpoint not yet implemented. This is a stub that does nothing.
+ * Backend should implement: POST /api/workspaces/{workspace}/sprints/{sprint_id}/bulk-move-issues/
+ *
+ * @example
+ * const { mutateAsync: bulkMove, isPending } = useBulkMoveIssues(workspaceSlug);
+ * await bulkMove({ sprintId, data: { issue_ids: "all", target_sprint_id: null, project_id } });
+ */
+export function useBulkMoveIssues(workspaceSlug: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ sprintId: _sprintId, data: _data }: Omit<BulkMoveIssuesParams, "workspaceSlug">) => {
+      // TODO: Replace with actual API call when backend endpoint is implemented
+      // return sprintService.bulkMoveIssues(workspaceSlug, sprintId, data);
+
+      // Stub implementation - does nothing but resolves successfully
+      return Promise.resolve({ moved_count: 0 });
+    },
+    onSuccess: () => {
+      // Invalidate sprint and issue queries after bulk move
+      void queryClient.invalidateQueries({ queryKey: ["sprints", workspaceSlug] });
+      void queryClient.invalidateQueries({ queryKey: ["issues"] });
     },
   });
 }

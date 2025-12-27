@@ -132,7 +132,7 @@ export class RateLimiter implements Extension {
   /**
    * Clean up message counter when connection closes
    */
-  onDisconnect(data: { documentName: string; context: unknown; socketId: string }): void {
+  async onDisconnect(data: { documentName: string; context: unknown; socketId: string }): Promise<void> {
     this.messageCounters.delete(data.socketId);
   }
 
