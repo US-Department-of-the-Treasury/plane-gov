@@ -338,6 +338,29 @@ export const queryKeys = {
       all: (pageId: string) => ["wiki", "versions", pageId] as const,
       detail: (versionId: string) => ["wiki", "versions", "detail", versionId] as const,
     },
+    // Comments (unified page model)
+    comments: {
+      all: (pageId: string) => ["wiki", "comments", pageId] as const,
+      detail: (commentId: string) => ["wiki", "comments", "detail", commentId] as const,
+      reactions: (commentId: string) => ["wiki", "comments", commentId, "reactions"] as const,
+    },
+    // Relations (page-to-page relations)
+    relations: {
+      all: (pageId: string) => ["wiki", "relations", pageId] as const,
+    },
+    // Links (external URLs)
+    links: {
+      all: (pageId: string) => ["wiki", "links", pageId] as const,
+    },
+    // Properties (page property values)
+    properties: {
+      all: (pageId: string) => ["wiki", "properties", pageId] as const,
+    },
+    // Property definitions (workspace-scoped schemas)
+    propertyDefinitions: {
+      all: (workspaceSlug: string) => ["wiki", "property-definitions", workspaceSlug] as const,
+      detail: (propertyId: string) => ["wiki", "property-definitions", "detail", propertyId] as const,
+    },
   },
 } as const;
 

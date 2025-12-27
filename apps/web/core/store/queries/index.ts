@@ -372,6 +372,36 @@ export {
   useWikiPageVersions,
   useWikiPageVersionDetails,
   useRestoreWikiPageVersion,
+  // Page comments (unified page model)
+  usePageComments,
+  useCreatePageComment,
+  useUpdatePageComment,
+  useDeletePageComment,
+  // Comment reactions
+  useCommentReactions,
+  useCreateCommentReaction,
+  useDeleteCommentReaction,
+  // Page relations
+  usePageRelations,
+  useCreatePageRelation,
+  useDeletePageRelation,
+  // Page links
+  usePageLinks,
+  useCreatePageLink,
+  useUpdatePageLink,
+  useDeletePageLink,
+  // Property definitions
+  usePropertyDefinitions,
+  usePropertyDefinitionDetails,
+  useCreatePropertyDefinition,
+  useUpdatePropertyDefinition,
+  useDeletePropertyDefinition,
+  // Page property values
+  usePageProperties,
+  useCreatePageProperty,
+  useUpdatePageProperty,
+  useDeletePageProperty,
+  useBulkUpdatePageProperties,
   // Utility functions
   getWikiPageById,
   getWikiCollectionById,

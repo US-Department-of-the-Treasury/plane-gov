@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useMemo, useState } from "react";
+import { Bug, Milestone, CheckSquare } from "lucide-react";
 // plane imports
 import { Logo } from "@plane/propel/emoji-icon-picker";
 import { cn } from "@plane/utils";
@@ -9,6 +10,9 @@ import { useAppRouter } from "@/hooks/use-app-router";
 // queries
 import { useWikiPages, useWikiCollections, buildWikiPageTree, buildWikiCollectionTree } from "@/store/queries";
 import type { TWikiPageTreeNode, TWikiCollectionTreeNode } from "@/store/queries";
+// types
+import type { TPageType } from "@plane/types";
+
 // components
 import { CreateWikiPageModal } from "@/components/wiki/modals";
 import { WikiEmptyState, WikiPageListSkeleton } from "@/components/wiki/empty-states";
@@ -21,6 +25,28 @@ interface WikiListViewProps {
 
 type ViewMode = "grid" | "list";
 
+// Type badge configuration - only for non-page types
+const PAGE_TYPE_BADGE_CONFIG: Record<
+  Exclude<TPageType, "page">,
+  { icon: React.FC<{ className?: string }>; color: string; label: string }
+> = {
+  issue: {
+    icon: Bug,
+    color: "text-orange-500 bg-orange-500/10",
+    label: "Issue",
+  },
+  epic: {
+    icon: Milestone,
+    color: "text-purple-500 bg-purple-500/10",
+    label: "Epic",
+  },
+  task: {
+    icon: CheckSquare,
+    color: "text-blue-500 bg-blue-500/10",
+    label: "Task",
+  },
+};
+
 const WikiPageCard = memo(function WikiPageCard({
   page,
   workspaceSlug,
@@ -32,6 +58,8 @@ const WikiPageCard = memo(function WikiPageCard({
 }) {
   const router = useAppRouter();
   const hasIcon = page.logo_props?.in_use;
+  const pageType = page.page_type || "page";
+  const typeBadge = pageType !== "page" ? PAGE_TYPE_BADGE_CONFIG[pageType] : null;
 
   const handleClick = () => {
     router.push(`/${workspaceSlug}/wiki/${page.id}`);
@@ -58,6 +86,13 @@ const WikiPageCard = memo(function WikiPageCard({
           )}
         </div>
         <span className="flex-1 text-13 text-primary truncate">{page.name || "Untitled"}</span>
+        {/* Type badge */}
+        {typeBadge && (
+          <span className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded text-10 font-medium", typeBadge.color)}>
+            <typeBadge.icon className="size-3" />
+            {typeBadge.label}
+          </span>
+        )}
         {/* Date on hover */}
         <span className="text-11 text-placeholder opacity-0 group-hover:opacity-100 transition-opacity">
           {new Date(page.updated_at).toLocaleDateString()}
@@ -77,12 +112,19 @@ const WikiPageCard = memo(function WikiPageCard({
         if (e.key === "Enter" || e.key === " ") handleClick();
       }}
     >
-      {/* Icon at top */}
-      <div className="mb-3">
+      {/* Icon and type badge row */}
+      <div className="flex items-start justify-between mb-3">
         {hasIcon ? (
           <Logo logo={page.logo_props} size={42} type="lucide" />
         ) : (
           <span className="text-[42px] leading-none text-tertiary">📄</span>
+        )}
+        {/* Type badge in top-right */}
+        {typeBadge && (
+          <span className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded text-10 font-medium", typeBadge.color)}>
+            <typeBadge.icon className="size-3" />
+            {typeBadge.label}
+          </span>
         )}
       </div>
 

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "/opt/homebrew/bin/npx",
+      "args": ["@playwright/mcp@latest", "--headless", "--isolated"],
+      "env": {}
+    }
+  }
+}

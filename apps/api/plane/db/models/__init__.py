@@ -89,7 +89,21 @@ from .description import Description, DescriptionVersion
 from .wiki import (
     WikiCollection,
     WikiPage,
+    WikiPageLabel,
+    WikiPageAssignee,
     WikiPageShare,
     WikiPageVersion,
     WikiPageAccessLog,
+    PageComment,
+    PageCommentReaction,
+    PageActivity,
+    PageSubscriber,
+    PageMention,
+    PageRelation,
+    PageRelationChoices,
+    PageLink,
+)
+from .property import (
+    PropertyDefinition,
+    PagePropertyValue,
 )

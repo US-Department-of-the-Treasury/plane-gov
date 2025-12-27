@@ -10,8 +10,29 @@ import type {
   TWikiPageShare,
   TWikiPageShareFormData,
   TWikiDocumentPayload,
+  // Unified page model types
+  TPageComment,
+  TPageCommentFormData,
+  TPageRelationFormData,
+  TPageLink,
+  TPageLinkFormData,
+  TPropertyDefinition,
+  TPropertyDefinitionFormData,
+  TPagePropertyValue,
+  TPagePropertyValueFormData,
 } from "@plane/types";
-import { WikiPageService, WikiCollectionService, WikiShareService, WikiVersionService } from "@/services/wiki";
+import {
+  WikiPageService,
+  WikiCollectionService,
+  WikiShareService,
+  WikiVersionService,
+  // Unified page model services
+  WikiCommentService,
+  WikiRelationService,
+  WikiLinkService,
+  WikiPropertyDefinitionService,
+  WikiPropertyValueService,
+} from "@/services/wiki";
 import { queryKeys } from "./query-keys";
 
 // Service instances
@@ -19,6 +40,12 @@ const wikiPageService = new WikiPageService();
 const wikiCollectionService = new WikiCollectionService();
 const wikiShareService = new WikiShareService();
 const wikiVersionService = new WikiVersionService();
+// Unified page model services
+const wikiCommentService = new WikiCommentService();
+const wikiRelationService = new WikiRelationService();
+const wikiLinkService = new WikiLinkService();
+const wikiPropertyDefinitionService = new WikiPropertyDefinitionService();
+const wikiPropertyValueService = new WikiPropertyValueService();
 
 // ==========================================
 // WIKI PAGE HOOKS
@@ -904,4 +931,654 @@ export function buildWikiCollectionTree(collections: TWikiCollection[] | undefin
   collectionMap.forEach((node) => node.children.sort(sortByOrder));
 
   return rootCollections;
+}
+
+// ==========================================
+// PAGE COMMENT HOOKS (Unified Page Model)
+// ==========================================
+
+/**
+ * Hook to fetch all comments for a wiki page.
+ *
+ * @example
+ * const { data: comments, isLoading } = usePageComments(workspaceSlug, pageId);
+ */
+export function usePageComments(workspaceSlug: string, pageId: string) {
+  return useQuery({
+    queryKey: queryKeys.wiki.comments.all(pageId),
+    queryFn: () => wikiCommentService.fetchAll(workspaceSlug, pageId),
+    enabled: !!workspaceSlug && !!pageId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
+
+interface CreatePageCommentParams {
+  workspaceSlug: string;
+  pageId: string;
+  data: TPageCommentFormData;
+}
+
+/**
+ * Hook to create a new comment on a wiki page.
+ *
+ * @example
+ * const { mutate: createComment, isPending } = useCreatePageComment();
+ * createComment({ workspaceSlug, pageId, data: { comment_html: "<p>Hello</p>" } });
+ */
+export function useCreatePageComment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, data }: CreatePageCommentParams) =>
+      wikiCommentService.create(workspaceSlug, pageId, data),
+    onSuccess: (_data, { pageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.comments.all(pageId) });
+    },
+  });
+}
+
+interface UpdatePageCommentParams {
+  workspaceSlug: string;
+  pageId: string;
+  commentId: string;
+  data: Partial<TPageCommentFormData>;
+}
+
+/**
+ * Hook to update a comment on a wiki page.
+ */
+export function useUpdatePageComment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, commentId, data }: UpdatePageCommentParams) =>
+      wikiCommentService.update(workspaceSlug, pageId, commentId, data),
+    onMutate: async ({ pageId, commentId, data }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.wiki.comments.all(pageId) });
+
+      const previousComments = queryClient.getQueryData<TPageComment[]>(queryKeys.wiki.comments.all(pageId));
+
+      if (previousComments) {
+        queryClient.setQueryData<TPageComment[]>(
+          queryKeys.wiki.comments.all(pageId),
+          previousComments.map((c) => (c.id === commentId ? { ...c, ...data } : c))
+        );
+      }
+
+      return { previousComments, pageId };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousComments && context.pageId) {
+        queryClient.setQueryData(queryKeys.wiki.comments.all(context.pageId), context.previousComments);
+      }
+    },
+    onSettled: (_data, _error, { pageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.comments.all(pageId) });
+    },
+  });
+}
+
+interface DeletePageCommentParams {
+  workspaceSlug: string;
+  pageId: string;
+  commentId: string;
+}
+
+/**
+ * Hook to delete a comment from a wiki page.
+ */
+export function useDeletePageComment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, commentId }: DeletePageCommentParams) =>
+      wikiCommentService.remove(workspaceSlug, pageId, commentId),
+    onMutate: async ({ pageId, commentId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.wiki.comments.all(pageId) });
+
+      const previousComments = queryClient.getQueryData<TPageComment[]>(queryKeys.wiki.comments.all(pageId));
+
+      if (previousComments) {
+        queryClient.setQueryData<TPageComment[]>(
+          queryKeys.wiki.comments.all(pageId),
+          previousComments.filter((c) => c.id !== commentId)
+        );
+      }
+
+      return { previousComments, pageId };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousComments && context.pageId) {
+        queryClient.setQueryData(queryKeys.wiki.comments.all(context.pageId), context.previousComments);
+      }
+    },
+    onSettled: (_data, _error, { pageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.comments.all(pageId) });
+    },
+  });
+}
+
+// Comment Reactions
+
+/**
+ * Hook to fetch reactions for a comment.
+ */
+export function useCommentReactions(workspaceSlug: string, pageId: string, commentId: string) {
+  return useQuery({
+    queryKey: queryKeys.wiki.comments.reactions(commentId),
+    queryFn: () => wikiCommentService.fetchReactions(workspaceSlug, pageId, commentId),
+    enabled: !!workspaceSlug && !!pageId && !!commentId,
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+interface CreateCommentReactionParams {
+  workspaceSlug: string;
+  pageId: string;
+  commentId: string;
+  reaction: string;
+}
+
+/**
+ * Hook to add a reaction to a comment.
+ */
+export function useCreateCommentReaction() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, commentId, reaction }: CreateCommentReactionParams) =>
+      wikiCommentService.createReaction(workspaceSlug, pageId, commentId, reaction),
+    onSuccess: (_data, { commentId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.comments.reactions(commentId) });
+    },
+  });
+}
+
+interface DeleteCommentReactionParams {
+  workspaceSlug: string;
+  pageId: string;
+  commentId: string;
+  reactionId: string;
+}
+
+/**
+ * Hook to remove a reaction from a comment.
+ */
+export function useDeleteCommentReaction() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, commentId, reactionId }: DeleteCommentReactionParams) =>
+      wikiCommentService.removeReaction(workspaceSlug, pageId, commentId, reactionId),
+    onSuccess: (_data, { commentId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.comments.reactions(commentId) });
+    },
+  });
+}
+
+// ==========================================
+// PAGE RELATION HOOKS (Unified Page Model)
+// ==========================================
+
+/**
+ * Hook to fetch all relations for a wiki page (grouped by relation type).
+ *
+ * @example
+ * const { data: relations, isLoading } = usePageRelations(workspaceSlug, pageId);
+ * // relations = { blocks: [...], blocked_by: [...], relates_to: [...] }
+ */
+export function usePageRelations(workspaceSlug: string, pageId: string) {
+  return useQuery({
+    queryKey: queryKeys.wiki.relations.all(pageId),
+    queryFn: () => wikiRelationService.fetchAll(workspaceSlug, pageId),
+    enabled: !!workspaceSlug && !!pageId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
+
+interface CreatePageRelationParams {
+  workspaceSlug: string;
+  pageId: string;
+  data: TPageRelationFormData;
+}
+
+/**
+ * Hook to create a relation between pages.
+ *
+ * @example
+ * const { mutate: createRelation } = useCreatePageRelation();
+ * createRelation({ workspaceSlug, pageId, data: { target_page: otherId, relation_type: "blocks" } });
+ */
+export function useCreatePageRelation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, data }: CreatePageRelationParams) =>
+      wikiRelationService.create(workspaceSlug, pageId, data),
+    onSuccess: (_data, { pageId, data }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.relations.all(pageId) });
+      // Also invalidate the target page's relations
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.relations.all(data.target_page) });
+    },
+  });
+}
+
+interface DeletePageRelationParams {
+  workspaceSlug: string;
+  pageId: string;
+  relationId: string;
+  targetPageId?: string;
+}
+
+/**
+ * Hook to remove a relation between pages.
+ */
+export function useDeletePageRelation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, relationId }: DeletePageRelationParams) =>
+      wikiRelationService.remove(workspaceSlug, pageId, relationId),
+    onSuccess: (_data, { pageId, targetPageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.relations.all(pageId) });
+      if (targetPageId) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.relations.all(targetPageId) });
+      }
+    },
+  });
+}
+
+// ==========================================
+// PAGE LINK HOOKS (Unified Page Model)
+// ==========================================
+
+/**
+ * Hook to fetch all external links for a wiki page.
+ *
+ * @example
+ * const { data: links, isLoading } = usePageLinks(workspaceSlug, pageId);
+ */
+export function usePageLinks(workspaceSlug: string, pageId: string) {
+  return useQuery({
+    queryKey: queryKeys.wiki.links.all(pageId),
+    queryFn: () => wikiLinkService.fetchAll(workspaceSlug, pageId),
+    enabled: !!workspaceSlug && !!pageId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
+
+interface CreatePageLinkParams {
+  workspaceSlug: string;
+  pageId: string;
+  data: TPageLinkFormData;
+}
+
+/**
+ * Hook to add an external link to a wiki page.
+ */
+export function useCreatePageLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, data }: CreatePageLinkParams) =>
+      wikiLinkService.create(workspaceSlug, pageId, data),
+    onSuccess: (_data, { pageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.links.all(pageId) });
+    },
+  });
+}
+
+interface UpdatePageLinkParams {
+  workspaceSlug: string;
+  pageId: string;
+  linkId: string;
+  data: Partial<TPageLinkFormData>;
+}
+
+/**
+ * Hook to update an external link on a wiki page.
+ */
+export function useUpdatePageLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, linkId, data }: UpdatePageLinkParams) =>
+      wikiLinkService.update(workspaceSlug, pageId, linkId, data),
+    onMutate: async ({ pageId, linkId, data }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.wiki.links.all(pageId) });
+
+      const previousLinks = queryClient.getQueryData<TPageLink[]>(queryKeys.wiki.links.all(pageId));
+
+      if (previousLinks) {
+        queryClient.setQueryData<TPageLink[]>(
+          queryKeys.wiki.links.all(pageId),
+          previousLinks.map((l) => (l.id === linkId ? { ...l, ...data } : l))
+        );
+      }
+
+      return { previousLinks, pageId };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousLinks && context.pageId) {
+        queryClient.setQueryData(queryKeys.wiki.links.all(context.pageId), context.previousLinks);
+      }
+    },
+    onSettled: (_data, _error, { pageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.links.all(pageId) });
+    },
+  });
+}
+
+interface DeletePageLinkParams {
+  workspaceSlug: string;
+  pageId: string;
+  linkId: string;
+}
+
+/**
+ * Hook to remove an external link from a wiki page.
+ */
+export function useDeletePageLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, linkId }: DeletePageLinkParams) =>
+      wikiLinkService.remove(workspaceSlug, pageId, linkId),
+    onMutate: async ({ pageId, linkId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.wiki.links.all(pageId) });
+
+      const previousLinks = queryClient.getQueryData<TPageLink[]>(queryKeys.wiki.links.all(pageId));
+
+      if (previousLinks) {
+        queryClient.setQueryData<TPageLink[]>(
+          queryKeys.wiki.links.all(pageId),
+          previousLinks.filter((l) => l.id !== linkId)
+        );
+      }
+
+      return { previousLinks, pageId };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousLinks && context.pageId) {
+        queryClient.setQueryData(queryKeys.wiki.links.all(context.pageId), context.previousLinks);
+      }
+    },
+    onSettled: (_data, _error, { pageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.links.all(pageId) });
+    },
+  });
+}
+
+// ==========================================
+// PROPERTY DEFINITION HOOKS (Unified Page Model)
+// ==========================================
+
+/**
+ * Hook to fetch all property definitions for a workspace.
+ *
+ * @example
+ * const { data: definitions, isLoading } = usePropertyDefinitions(workspaceSlug);
+ */
+export function usePropertyDefinitions(workspaceSlug: string, params?: { page_type?: string; is_system?: boolean }) {
+  return useQuery({
+    queryKey: queryKeys.wiki.propertyDefinitions.all(workspaceSlug),
+    queryFn: () => wikiPropertyDefinitionService.fetchAll(workspaceSlug, params),
+    enabled: !!workspaceSlug,
+    staleTime: 10 * 60 * 1000, // Property definitions change infrequently
+    gcTime: 60 * 60 * 1000,
+  });
+}
+
+/**
+ * Hook to fetch a single property definition.
+ */
+export function usePropertyDefinitionDetails(workspaceSlug: string, propertyId: string) {
+  return useQuery({
+    queryKey: queryKeys.wiki.propertyDefinitions.detail(propertyId),
+    queryFn: () => wikiPropertyDefinitionService.fetchById(workspaceSlug, propertyId),
+    enabled: !!workspaceSlug && !!propertyId,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+  });
+}
+
+interface CreatePropertyDefinitionParams {
+  workspaceSlug: string;
+  data: TPropertyDefinitionFormData;
+}
+
+/**
+ * Hook to create a new property definition.
+ */
+export function useCreatePropertyDefinition() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, data }: CreatePropertyDefinitionParams) =>
+      wikiPropertyDefinitionService.create(workspaceSlug, data),
+    onSuccess: (_data, { workspaceSlug }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.propertyDefinitions.all(workspaceSlug) });
+    },
+  });
+}
+
+interface UpdatePropertyDefinitionParams {
+  workspaceSlug: string;
+  propertyId: string;
+  data: Partial<TPropertyDefinitionFormData>;
+}
+
+/**
+ * Hook to update a property definition.
+ */
+export function useUpdatePropertyDefinition() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, propertyId, data }: UpdatePropertyDefinitionParams) =>
+      wikiPropertyDefinitionService.update(workspaceSlug, propertyId, data),
+    onSettled: (_data, _error, { workspaceSlug, propertyId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.propertyDefinitions.all(workspaceSlug) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.propertyDefinitions.detail(propertyId) });
+    },
+  });
+}
+
+interface DeletePropertyDefinitionParams {
+  workspaceSlug: string;
+  propertyId: string;
+}
+
+/**
+ * Hook to delete a property definition.
+ */
+export function useDeletePropertyDefinition() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, propertyId }: DeletePropertyDefinitionParams) =>
+      wikiPropertyDefinitionService.remove(workspaceSlug, propertyId),
+    onMutate: async ({ workspaceSlug, propertyId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.wiki.propertyDefinitions.all(workspaceSlug) });
+
+      const previousDefinitions = queryClient.getQueryData<TPropertyDefinition[]>(
+        queryKeys.wiki.propertyDefinitions.all(workspaceSlug)
+      );
+
+      if (previousDefinitions) {
+        queryClient.setQueryData<TPropertyDefinition[]>(
+          queryKeys.wiki.propertyDefinitions.all(workspaceSlug),
+          previousDefinitions.filter((d) => d.id !== propertyId)
+        );
+      }
+
+      return { previousDefinitions, workspaceSlug };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousDefinitions && context.workspaceSlug) {
+        queryClient.setQueryData(
+          queryKeys.wiki.propertyDefinitions.all(context.workspaceSlug),
+          context.previousDefinitions
+        );
+      }
+    },
+    onSettled: (_data, _error, { workspaceSlug, propertyId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.propertyDefinitions.all(workspaceSlug) });
+      void queryClient.removeQueries({ queryKey: queryKeys.wiki.propertyDefinitions.detail(propertyId) });
+    },
+  });
+}
+
+// ==========================================
+// PAGE PROPERTY VALUE HOOKS (Unified Page Model)
+// ==========================================
+
+/**
+ * Hook to fetch all property values for a wiki page.
+ *
+ * @example
+ * const { data: properties, isLoading } = usePageProperties(workspaceSlug, pageId);
+ */
+export function usePageProperties(workspaceSlug: string, pageId: string) {
+  return useQuery({
+    queryKey: queryKeys.wiki.properties.all(pageId),
+    queryFn: () => wikiPropertyValueService.fetchAll(workspaceSlug, pageId),
+    enabled: !!workspaceSlug && !!pageId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
+
+interface CreatePagePropertyParams {
+  workspaceSlug: string;
+  pageId: string;
+  data: TPagePropertyValueFormData;
+}
+
+/**
+ * Hook to set a property value on a wiki page.
+ */
+export function useCreatePageProperty() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, data }: CreatePagePropertyParams) =>
+      wikiPropertyValueService.create(workspaceSlug, pageId, data),
+    onSuccess: (_data, { pageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.properties.all(pageId) });
+    },
+  });
+}
+
+interface UpdatePagePropertyParams {
+  workspaceSlug: string;
+  pageId: string;
+  propertyValueId: string;
+  data: Partial<TPagePropertyValueFormData>;
+}
+
+/**
+ * Hook to update a property value on a wiki page.
+ */
+export function useUpdatePageProperty() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, propertyValueId, data }: UpdatePagePropertyParams) =>
+      wikiPropertyValueService.update(workspaceSlug, pageId, propertyValueId, data),
+    onMutate: async ({ pageId, propertyValueId, data }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.wiki.properties.all(pageId) });
+
+      const previousProperties = queryClient.getQueryData<TPagePropertyValue[]>(queryKeys.wiki.properties.all(pageId));
+
+      if (previousProperties) {
+        queryClient.setQueryData<TPagePropertyValue[]>(
+          queryKeys.wiki.properties.all(pageId),
+          previousProperties.map((p) => (p.id === propertyValueId ? { ...p, ...data } : p))
+        );
+      }
+
+      return { previousProperties, pageId };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousProperties && context.pageId) {
+        queryClient.setQueryData(queryKeys.wiki.properties.all(context.pageId), context.previousProperties);
+      }
+    },
+    onSettled: (_data, _error, { pageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.properties.all(pageId) });
+    },
+  });
+}
+
+interface DeletePagePropertyParams {
+  workspaceSlug: string;
+  pageId: string;
+  propertyValueId: string;
+}
+
+/**
+ * Hook to remove a property value from a wiki page.
+ */
+export function useDeletePageProperty() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, propertyValueId }: DeletePagePropertyParams) =>
+      wikiPropertyValueService.remove(workspaceSlug, pageId, propertyValueId),
+    onMutate: async ({ pageId, propertyValueId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.wiki.properties.all(pageId) });
+
+      const previousProperties = queryClient.getQueryData<TPagePropertyValue[]>(queryKeys.wiki.properties.all(pageId));
+
+      if (previousProperties) {
+        queryClient.setQueryData<TPagePropertyValue[]>(
+          queryKeys.wiki.properties.all(pageId),
+          previousProperties.filter((p) => p.id !== propertyValueId)
+        );
+      }
+
+      return { previousProperties, pageId };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousProperties && context.pageId) {
+        queryClient.setQueryData(queryKeys.wiki.properties.all(context.pageId), context.previousProperties);
+      }
+    },
+    onSettled: (_data, _error, { pageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.properties.all(pageId) });
+    },
+  });
+}
+
+interface BulkUpdatePagePropertiesParams {
+  workspaceSlug: string;
+  pageId: string;
+  properties: Record<string, unknown>;
+}
+
+/**
+ * Hook to bulk update multiple property values on a wiki page.
+ *
+ * @example
+ * const { mutate: bulkUpdate } = useBulkUpdatePageProperties();
+ * bulkUpdate({
+ *   workspaceSlug,
+ *   pageId,
+ *   properties: { status: "done", priority: "high", assignee: userId }
+ * });
+ */
+export function useBulkUpdatePageProperties() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ workspaceSlug, pageId, properties }: BulkUpdatePagePropertiesParams) =>
+      wikiPropertyValueService.bulkUpdate(workspaceSlug, pageId, properties),
+    onSuccess: (_data, { pageId }) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.wiki.properties.all(pageId) });
+    },
+  });
 }

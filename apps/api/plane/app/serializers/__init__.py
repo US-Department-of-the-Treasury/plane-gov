@@ -142,4 +142,20 @@ from .wiki import (
     WikiPageVersionDetailSerializer,
     WikiPageAccessLogSerializer,
     WikiPageBinaryUpdateSerializer,
+    # Property system
+    PropertyDefinitionSerializer,
+    PropertyDefinitionLiteSerializer,
+    PagePropertyValueSerializer,
+    # Comments & Activity
+    PageCommentSerializer,
+    PageCommentReactionSerializer,
+    PageActivitySerializer,
+    PageSubscriberSerializer,
+    PageMentionSerializer,
+    # Relations & Links
+    PageRelationSerializer,
+    PageLinkSerializer,
+    # Unified page serializers
+    WikiPageUnifiedSerializer,
+    WikiPageUnifiedDetailSerializer,
 )

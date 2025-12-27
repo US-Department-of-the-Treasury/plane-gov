@@ -1,6 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
+// plane imports
+import { cn } from "@plane/utils";
 // assets
 import emptyPage from "@/app/assets/empty-state/wiki/name-filter-light.svg?url";
 // components
@@ -8,14 +10,20 @@ import { EmptyState } from "@/components/common/empty-state";
 import { PageHead } from "@/components/core/page-title";
 import { WikiPageEditor } from "@/components/wiki/editor";
 import { WikiPageEditorSkeleton } from "@/components/wiki/empty-states";
+import { PagePropertiesPanel } from "@/components/wiki/properties";
 // hooks
 import { useAppRouter } from "@/hooks/use-app-router";
 // queries
 import { useWikiPageDetails } from "@/store/queries";
+// store
+import { useWikiViewStore } from "@/store/wiki-view.store";
 
 export default function WikiDetailPage() {
   const router = useAppRouter();
   const { workspaceSlug, pageId } = useParams();
+
+  // Store
+  const { isPropertiesSidebarOpen } = useWikiViewStore();
 
   // Queries
   const {
@@ -47,7 +55,13 @@ export default function WikiDetailPage() {
     <>
       <PageHead title={pageTitle} />
       <div className="flex h-full w-full">
-        <div className="h-full w-full overflow-hidden">
+        {/* Main content area */}
+        <div
+          className={cn(
+            "h-full overflow-hidden transition-all duration-200",
+            isPropertiesSidebarOpen ? "w-[calc(100%-320px)]" : "w-full"
+          )}
+        >
           {isLoading ? (
             <WikiPageEditorSkeleton />
           ) : (
@@ -58,6 +72,17 @@ export default function WikiDetailPage() {
             />
           )}
         </div>
+
+        {/* Properties sidebar */}
+        {isPropertiesSidebarOpen && !isLoading && page && (
+          <div className="w-[320px] h-full border-l border-custom-border-200 flex-shrink-0">
+            <PagePropertiesPanel
+              workspaceSlug={workspaceSlug?.toString() ?? ""}
+              pageId={pageId?.toString() ?? ""}
+              page={page}
+            />
+          </div>
+        )}
       </div>
     </>
   );

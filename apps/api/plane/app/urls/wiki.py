@@ -7,6 +7,14 @@ from plane.app.views import (
     WikiPageDescriptionViewSet,
     WikiPageShareViewSet,
     WikiPageVersionViewSet,
+    # Unified page model views
+    PageCommentViewSet,
+    PageCommentReactionViewSet,
+    PageRelationViewSet,
+    PageLinkViewSet,
+    PropertyDefinitionViewSet,
+    PagePropertyValueViewSet,
+    BulkPagePropertyValueViewSet,
 )
 
 urlpatterns = [
@@ -90,5 +98,77 @@ urlpatterns = [
         "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/versions/<uuid:pk>/restore/",
         WikiPageVersionViewSet.as_view({"post": "restore"}),
         name="wiki-page-version-restore",
+    ),
+    # Property Definitions (workspace-scoped schemas)
+    path(
+        "workspaces/<str:slug>/wiki/properties/",
+        PropertyDefinitionViewSet.as_view({"get": "list", "post": "create"}),
+        name="wiki-property-definitions",
+    ),
+    path(
+        "workspaces/<str:slug>/wiki/properties/<uuid:pk>/",
+        PropertyDefinitionViewSet.as_view({"get": "retrieve", "patch": "partial_update", "delete": "destroy"}),
+        name="wiki-property-definition-detail",
+    ),
+    # Page Comments
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/comments/",
+        PageCommentViewSet.as_view({"get": "list", "post": "create"}),
+        name="wiki-page-comments",
+    ),
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/comments/<uuid:pk>/",
+        PageCommentViewSet.as_view({"get": "retrieve", "patch": "partial_update", "delete": "destroy"}),
+        name="wiki-page-comment-detail",
+    ),
+    # Comment Reactions
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/comments/<uuid:comment_id>/reactions/",
+        PageCommentReactionViewSet.as_view({"get": "list", "post": "create"}),
+        name="wiki-page-comment-reactions",
+    ),
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/comments/<uuid:comment_id>/reactions/<uuid:pk>/",
+        PageCommentReactionViewSet.as_view({"delete": "destroy"}),
+        name="wiki-page-comment-reaction-detail",
+    ),
+    # Page Relations (page-to-page)
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/relations/",
+        PageRelationViewSet.as_view({"get": "list", "post": "create"}),
+        name="wiki-page-relations",
+    ),
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/relations/<uuid:pk>/",
+        PageRelationViewSet.as_view({"delete": "destroy"}),
+        name="wiki-page-relation-detail",
+    ),
+    # Page Links (external URLs)
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/links/",
+        PageLinkViewSet.as_view({"get": "list", "post": "create"}),
+        name="wiki-page-links",
+    ),
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/links/<uuid:pk>/",
+        PageLinkViewSet.as_view({"patch": "partial_update", "delete": "destroy"}),
+        name="wiki-page-link-detail",
+    ),
+    # Page Property Values
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/properties/",
+        PagePropertyValueViewSet.as_view({"get": "list", "post": "create"}),
+        name="wiki-page-properties",
+    ),
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/properties/<uuid:pk>/",
+        PagePropertyValueViewSet.as_view({"patch": "partial_update", "delete": "destroy"}),
+        name="wiki-page-property-detail",
+    ),
+    # Bulk Page Property Values
+    path(
+        "workspaces/<str:slug>/wiki/pages/<uuid:page_id>/properties/bulk/",
+        BulkPagePropertyValueViewSet.as_view({"post": "create"}),
+        name="wiki-page-properties-bulk",
     ),
 ]

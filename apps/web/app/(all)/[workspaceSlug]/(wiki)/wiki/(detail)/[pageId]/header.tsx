@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { BookOpen, Share2, MoreHorizontal, Lock, Archive, History, Copy, Trash2 } from "lucide-react";
+import { BookOpen, Share2, MoreHorizontal, Lock, Archive, History, Copy, Trash2, PanelRight } from "lucide-react";
 // plane imports
 import { Button } from "@plane/propel/button";
 import { Breadcrumbs, Header, Tooltip, CustomMenu } from "@plane/ui";
@@ -21,6 +21,8 @@ import {
   useArchiveWikiPage,
   useDuplicateWikiPage,
 } from "@/store/queries";
+// store
+import { useWikiViewStore } from "@/store/wiki-view.store";
 
 export function WikiDetailHeader() {
   const router = useAppRouter();
@@ -28,6 +30,9 @@ export function WikiDetailHeader() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
+
+  // Properties sidebar store
+  const { isPropertiesSidebarOpen, togglePropertiesSidebar } = useWikiViewStore();
 
   // Queries
   const { data: page } = useWikiPageDetails(workspaceSlug?.toString() ?? "", pageId?.toString() ?? "");
@@ -161,6 +166,19 @@ export function WikiDetailHeader() {
               </div>
             </CustomMenu.MenuItem>
           </CustomMenu>
+
+          <Tooltip tooltipContent={isPropertiesSidebarOpen ? "Hide properties" : "Show properties"}>
+            <button
+              type="button"
+              className={cn(
+                "flex items-center justify-center p-1.5 rounded hover:bg-custom-background-80",
+                isPropertiesSidebarOpen && "bg-custom-background-80"
+              )}
+              onClick={togglePropertiesSidebar}
+            >
+              <PanelRight className="size-4" />
+            </button>
+          </Tooltip>
         </Header.RightItem>
       </Header>
 

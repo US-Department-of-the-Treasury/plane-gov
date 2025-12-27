@@ -39,6 +39,7 @@ from plane.db.models import (
     ProjectPage,
     Project,
     ProjectMember,
+    PropertyDefinition,
     Sprint,
     SprintIssue,
     SprintMemberProject,
@@ -213,6 +214,10 @@ class Command(BaseCommand):
                 workspace = self._create_workspace(workspace_name, workspace_slug, user)
                 self.stdout.write(self.style.SUCCESS(f"  Workspace: {workspace.name} ({workspace.slug})"))
 
+                # Create system properties for the workspace
+                self._create_system_properties(workspace)
+                self.stdout.write(self.style.SUCCESS(f"  System properties: created"))
+
                 # Seed based on mode
                 if mode == "demo":
                     self._seed_demo_data(workspace, user)
@@ -271,6 +276,79 @@ class Command(BaseCommand):
             role=20,  # Admin role
         )
         return workspace
+
+    def _create_system_properties(self, workspace: Workspace) -> int:
+        """Create system properties for the workspace.
+
+        System properties are the default properties available for issue-type pages.
+        Uses the same definitions as the create_system_properties management command.
+        """
+        # System property definitions matching create_system_properties.py
+        system_properties = [
+            {
+                "name": "Priority",
+                "slug": "priority",
+                "property_type": "select",
+                "description": "Priority level of the work item",
+                "page_types": ["issue", "task"],
+                "sort_order": 100,
+                "options": [
+                    {"id": "urgent", "label": "Urgent", "color": "#ef4444", "order": 1},
+                    {"id": "high", "label": "High", "color": "#f97316", "order": 2},
+                    {"id": "medium", "label": "Medium", "color": "#eab308", "order": 3},
+                    {"id": "low", "label": "Low", "color": "#22c55e", "order": 4},
+                    {"id": "none", "label": "None", "color": "#6b7280", "order": 5},
+                ],
+                "default_value": {"id": "none"},
+            },
+            {
+                "name": "Start Date",
+                "slug": "start_date",
+                "property_type": "date",
+                "description": "When work on this item should begin",
+                "page_types": ["issue", "task", "epic"],
+                "sort_order": 200,
+                "options": [],
+                "default_value": None,
+            },
+            {
+                "name": "Target Date",
+                "slug": "target_date",
+                "property_type": "date",
+                "description": "When this item should be completed",
+                "page_types": ["issue", "task", "epic"],
+                "sort_order": 300,
+                "options": [],
+                "default_value": None,
+            },
+            {
+                "name": "Estimate",
+                "slug": "estimate",
+                "property_type": "number",
+                "description": "Estimated effort (points or hours)",
+                "page_types": ["issue", "task"],
+                "sort_order": 400,
+                "options": [],
+                "default_value": None,
+            },
+        ]
+
+        count = 0
+        for prop_def in system_properties:
+            PropertyDefinition.objects.create(
+                workspace=workspace,
+                name=prop_def["name"],
+                slug=prop_def["slug"],
+                property_type=prop_def["property_type"],
+                description=prop_def["description"],
+                page_types=prop_def["page_types"],
+                sort_order=prop_def["sort_order"],
+                options=prop_def["options"],
+                default_value=prop_def["default_value"],
+                is_system=True,
+            )
+            count += 1
+        return count
 
     def _create_team_members(self, workspace: Workspace, team_members_data: list) -> list:
         """Create team members as users and workspace members."""
