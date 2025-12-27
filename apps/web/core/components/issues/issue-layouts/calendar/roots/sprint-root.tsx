@@ -1,9 +1,8 @@
 import { useCallback } from "react";
 import { useParams } from "next/navigation";
-import { EIssuesStoreType } from "@plane/types";
 // hooks
 import { useProjectSprints, getCompletedSprints } from "@/store/queries/sprint";
-import { useIssues } from "@/hooks/store/use-issues";
+import { useAddIssueToSprint } from "@/store/queries/issue";
 // components
 import { SprintIssueQuickActions } from "../../quick-action-dropdowns";
 import { BaseCalendarRoot } from "../base-calendar-root";
@@ -11,9 +10,7 @@ import { BaseCalendarRoot } from "../base-calendar-root";
 export function SprintCalendarLayout() {
   const { workspaceSlug, projectId, sprintId } = useParams();
 
-  const {
-    issues: { addIssueToSprint },
-  } = useIssues(EIssuesStoreType.SPRINT);
+  const { mutateAsync: addIssueToSprint } = useAddIssueToSprint();
   const { data: sprints } = useProjectSprints(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
 
   const completedSprintIds = getCompletedSprints(sprints).map((sprint) => sprint.id);
@@ -22,7 +19,12 @@ export function SprintCalendarLayout() {
   const addIssuesToView = useCallback(
     (issueIds: string[]) => {
       if (!workspaceSlug || !projectId || !sprintId) throw new Error();
-      return addIssueToSprint(workspaceSlug.toString(), projectId.toString(), sprintId.toString(), issueIds);
+      return addIssueToSprint({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        sprintId: sprintId.toString(),
+        issueIds,
+      });
     },
     [addIssueToSprint, workspaceSlug, projectId, sprintId]
   );

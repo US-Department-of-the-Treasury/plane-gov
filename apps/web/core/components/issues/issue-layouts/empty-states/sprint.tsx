@@ -13,7 +13,7 @@ import { ExistingIssuesListModal } from "@/components/core/modals/existing-issue
 import { captureClick } from "@/helpers/event-tracker.helper";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
-import { useIssues } from "@/hooks/store/use-issues";
+import { useAddIssueToSprint } from "@/store/queries/issue";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkItemFilterInstance } from "@/hooks/store/work-item-filters/use-work-item-filter-instance";
 
@@ -29,7 +29,7 @@ export function SprintEmptyState() {
   const { t } = useTranslation();
   // store hooks
   const { data: sprints } = useProjectSprints(workspaceSlug ?? "", projectId ?? "");
-  const { issues } = useIssues(EIssuesStoreType.SPRINT);
+  const { mutateAsync: addIssueToSprint } = useAddIssueToSprint();
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
   // derived values
@@ -50,8 +50,12 @@ export function SprintEmptyState() {
 
     const issueIds = data.map((i) => i.id);
 
-    await issues
-      .addIssueToSprint(workspaceSlug.toString(), projectId.toString(), sprintId.toString(), issueIds)
+    await addIssueToSprint({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      sprintId: sprintId.toString(),
+      issueIds,
+    })
       .then(() =>
         setToast({
           type: TOAST_TYPE.SUCCESS,
@@ -94,7 +98,7 @@ export function SprintEmptyState() {
             actions={[
               {
                 label: "Clear filters",
-                onClick: sprintWorkItemFilter?.clearFilters,
+                onClick: () => void sprintWorkItemFilter?.clearFilters(),
                 disabled: !canPerformEmptyStateActions || !sprintWorkItemFilter,
                 variant: "secondary",
               },
