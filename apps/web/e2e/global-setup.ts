@@ -2,13 +2,40 @@ import { chromium } from "@playwright/test";
 import type { FullConfig } from "@playwright/test";
 import { loginViaUI, AUTH_STATE_PATH, TEST_WORKSPACE_SLUG } from "./fixtures/auth";
 import fs from "fs";
-import path from "path";
+import path, { dirname, resolve } from "path";
 import { execSync } from "child_process";
 import { fileURLToPath } from "url";
-import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+/**
+ * Get the base URL for E2E tests, ensuring worktree isolation.
+ * Same logic as playwright.config.ts to ensure consistency.
+ */
+function getBaseURL(): string {
+  // 1. Check environment variable first
+  if (process.env.E2E_BASE_URL) {
+    return process.env.E2E_BASE_URL;
+  }
+
+  // 2. Try to read from .dev-ports file in project root (apps/web/../..)
+  const projectRoot = resolve(__dirname, "../../..");
+  const devPortsPath = resolve(projectRoot, ".dev-ports");
+
+  if (fs.existsSync(devPortsPath)) {
+    const content = fs.readFileSync(devPortsPath, "utf-8");
+    const match = content.match(/^E2E_BASE_URL=(.+)$/m);
+    if (match) {
+      console.log(`[global-setup] Using E2E_BASE_URL from .dev-ports: ${match[1]}`);
+      return match[1];
+    }
+  }
+
+  // 3. Fall back to default (for CI or when .dev-ports doesn't exist)
+  console.log("[global-setup] No .dev-ports found, using default localhost:3000");
+  return "http://localhost:3000";
+}
 
 // Path to store discovered project ID
 const PROJECT_ID_PATH = path.join(path.dirname(AUTH_STATE_PATH), "project-id.txt");
@@ -102,11 +129,9 @@ async function globalSetup(_config: FullConfig) {
   }
 
   console.log("Creating new auth state...");
-  console.log(`E2E_BASE_URL env: ${process.env.E2E_BASE_URL}`);
 
-  // Get baseURL from environment variable (set by test-e2e.sh) or fallback to default
-  // Note: config.use.baseURL should also work but env var is more reliable
-  const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
+  // Get baseURL using same logic as playwright.config.ts
+  const baseURL = getBaseURL();
   console.log(`Using baseURL: ${baseURL}`);
 
   const browser = await chromium.launch();
