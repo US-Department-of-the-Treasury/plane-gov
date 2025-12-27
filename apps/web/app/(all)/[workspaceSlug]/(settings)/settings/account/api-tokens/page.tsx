@@ -30,7 +30,7 @@ function ApiTokensPage({ params }: Route.ComponentProps) {
   const { data: currentWorkspace } = useWorkspaceDetails(workspaceSlug);
 
   const { data: tokens } = useQuery({
-    queryKey: queryKeys.apiTokens.all(),
+    queryKey: queryKeys.apiTokens.all(workspaceSlug),
     queryFn: () => apiTokenService.list(),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,

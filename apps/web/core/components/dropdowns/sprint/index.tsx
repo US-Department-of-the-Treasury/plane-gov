@@ -61,7 +61,7 @@ export const SprintDropdown = memo(function SprintDropdown(props: Props) {
   // refs
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   // popper-js refs
-  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
+  const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
 
   // TanStack Query
   const { data: sprints } = useWorkspaceSprints(workspaceSlug?.toString() ?? "");

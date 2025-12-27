@@ -45,7 +45,7 @@ export function SelectYAxis({ value, onChange, hiddenOptions, options }: Props) 
           <span>{options.find((v) => v.value === value)?.label ?? "Add Metric"}</span>
         </div>
       }
-      onChange={onChange}
+      onChange={(val) => onChange(val as ChartYAxisMetric | null)}
       maxHeight="lg"
     >
       {options.map((item) => {

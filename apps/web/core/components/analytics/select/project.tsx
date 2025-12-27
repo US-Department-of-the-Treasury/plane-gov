@@ -41,7 +41,7 @@ export function ProjectSelect(props: Props) {
   return (
     <CustomSearchSelect
       value={value ?? []}
-      onChange={(val: string[]) => onChange(val)}
+      onChange={(val) => onChange(val as string[] | null)}
       options={options}
       className="border-none p-0"
       customButton={

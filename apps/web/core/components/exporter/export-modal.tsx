@@ -144,7 +144,7 @@ export function Exporter(props: Props) {
                   <div>
                     <CustomSearchSelect
                       value={value ?? []}
-                      onChange={(val: string[]) => onChange(val)}
+                      onChange={(val: unknown) => onChange(val as string[])}
                       options={options}
                       input
                       label={

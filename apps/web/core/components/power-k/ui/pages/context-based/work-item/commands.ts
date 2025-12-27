@@ -65,7 +65,7 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
   const isEstimateEnabled = entityDetails?.project_id
     ? areEstimateEnabledByProjectId(entityDetails?.project_id)
     : false;
-  const isSubscribed = Boolean(entityId ? getSubscriptionByIssueId(entityId) : false);
+  const isSubscribed = Boolean(entityId ? getSubscriptionByIssueId(entityId, currentUser?.id) : false);
   // translation
   const { t } = useTranslation();
   // handlers
@@ -109,13 +109,13 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
   );
 
   const handleSubscription = useCallback(async () => {
-    if (!workspaceSlug || !entityDetails || !entityDetails.project_id) return;
+    if (!workspaceSlug || !entityDetails || !entityDetails.project_id || !currentUser?.id) return;
 
     try {
       if (isSubscribed) {
-        await removeEntitySubscription(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id);
+        await removeEntitySubscription(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, currentUser.id);
       } else {
-        await createEntitySubscription(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id);
+        await createEntitySubscription(workspaceSlug.toString(), entityDetails.project_id, entityDetails.id, currentUser.id);
       }
       setToast({
         type: TOAST_TYPE.SUCCESS,
@@ -132,7 +132,7 @@ export const usePowerKWorkItemContextBasedCommands = (): TPowerKCommandConfig[] 
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createEntitySubscription, entityDetails, isSubscribed, removeEntitySubscription, workspaceSlug]);
+  }, [createEntitySubscription, currentUser, entityDetails, isSubscribed, removeEntitySubscription, workspaceSlug]);
 
   const handleDeleteWorkItem = useCallback(() => {
     toggleDeleteIssueModal(true);

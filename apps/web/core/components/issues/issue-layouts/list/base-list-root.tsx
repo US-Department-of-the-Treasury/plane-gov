@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 // plane constants
 import { EIssueFilterType, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 // types
-import type { GroupByColumnTypes, TGroupedIssues, TIssueKanbanFilters } from "@plane/types";
+import type { GroupByColumnTypes, TGroupedIssues, TIssue, TIssueKanbanFilters } from "@plane/types";
 import { EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 // constants
 // hooks
@@ -37,7 +37,7 @@ type ListStoreType =
 
 interface IBaseListRoot {
   QuickActions: FC<IQuickActionProps>;
-  addIssuesToView?: (issueIds: string[]) => Promise<unknown>;
+  addIssuesToView?: (issueIds: string[]) => Promise<TIssue>;
   canEditPropertiesBasedOnProject?: (projectId: string) => boolean;
   viewId?: string | undefined;
   isCompletedSprint?: boolean;

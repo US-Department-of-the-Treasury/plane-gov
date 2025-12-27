@@ -90,7 +90,7 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
 
   // Auto-save handler for cover image changes
   const handleCoverImageAutoSave = async (newCoverImageUrl: string | null) => {
-    setValue("cover_image_url", newCoverImageUrl);
+    setValue("cover_image_url", newCoverImageUrl ?? undefined);
 
     try {
       const coverImagePayload = await handleCoverImageChange(project.cover_image_url, newCoverImageUrl, {
@@ -101,7 +101,7 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
       });
 
       if (coverImagePayload) {
-        await handleUpdateChange(coverImagePayload);
+        await handleUpdateChange(coverImagePayload as Partial<IProject>);
       }
     } catch (error) {
       console.error("Error handling cover image:", error);

@@ -76,8 +76,8 @@ export function MemberDropdownBase(props: TMemberDropdownBaseProps) {
     setIsOpen,
   });
 
-  const dropdownOnChange = (val: string & string[]) => {
-    onChange(val);
+  const dropdownOnChange = (val: unknown) => {
+    onChange(val as string & string[]);
     if (!multiple) handleClose();
   };
 

@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useParams, usePathname } from "next/navigation";
-import { ArrowUpToLine, Building, Users, Webhook } from "lucide-react";
+import { ArrowUpToLine, Building, Users, Webhook, Download, Plug } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 // plane imports
 import {
@@ -25,6 +25,8 @@ export const WORKSPACE_SETTINGS_ICONS: Record<keyof typeof WORKSPACE_SETTINGS, L
   members: Users,
   export: ArrowUpToLine,
   webhooks: Webhook,
+  imports: Download,
+  integrations: Plug,
 };
 
 export function WorkspaceActionIcons({ type, size, className }: { type: string; size?: number; className?: string }) {

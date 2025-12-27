@@ -43,10 +43,12 @@ export const useEstimatePointStore = create<EstimatePointStore>()((set, get) => 
   ...initialState,
 
   syncEstimatePoint: (estimatePoint) => {
+    const pointId = estimatePoint.id;
+    if (!pointId) return;
     set((state) => ({
       estimatePointMap: {
         ...state.estimatePointMap,
-        [estimatePoint.id]: estimatePoint,
+        [pointId]: estimatePoint,
       },
     }));
   },
@@ -55,7 +57,9 @@ export const useEstimatePointStore = create<EstimatePointStore>()((set, get) => 
     set((state) => {
       const newMap = { ...state.estimatePointMap };
       estimatePoints.forEach((point) => {
-        newMap[point.id] = point;
+        if (point.id) {
+          newMap[point.id] = point;
+        }
       });
       return { estimatePointMap: newMap };
     });
@@ -191,7 +195,7 @@ export class EstimatePointStoreLegacy implements IEstimatePoint {
   constructor(rootStore: any, projectEstimate: IEstimate, data: IEstimatePointType) {
     this.rootStore = rootStore;
     this.projectEstimate = projectEstimate;
-    this.estimatePointId = data.id;
+    this.estimatePointId = data.id ?? "";
 
     // Sync initial data to store
     useEstimatePointStore.getState().syncEstimatePoint(data);

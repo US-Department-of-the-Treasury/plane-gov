@@ -12,6 +12,7 @@ import { AlertModalCore } from "@plane/ui";
 // query keys
 import { queryKeys } from "@/store/queries/query-keys";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
+import { getRouterWorkspaceSlug } from "@/store/client";
 
 type Props = {
   isOpen: boolean;
@@ -36,6 +37,8 @@ export function DeleteApiTokenModal(props: Props) {
 
   const handleDeletion = async () => {
     setDeleteLoading(true);
+    const workspaceSlug = getRouterWorkspaceSlug();
+    if (!workspaceSlug) return;
 
     await apiTokenService
       .destroy(tokenId)
@@ -46,7 +49,7 @@ export function DeleteApiTokenModal(props: Props) {
           message: t("workspace_settings.settings.api_tokens.delete.success.message"),
         });
 
-        queryClient.setQueryData<IApiToken[]>(queryKeys.apiTokens.all(), (prevData) =>
+        queryClient.setQueryData<IApiToken[]>(queryKeys.apiTokens.all(workspaceSlug), (prevData) =>
           (prevData ?? []).filter((token) => token.id !== tokenId)
         );
         captureSuccess({

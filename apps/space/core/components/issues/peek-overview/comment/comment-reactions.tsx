@@ -136,7 +136,6 @@ export function CommentReactions(props: Props) {
             onAddReaction={() => setIsPickerOpen(true)}
           />
         }
-        placement="bottom-start"
       />
     </div>
   );

@@ -97,7 +97,8 @@ export function BaseSpreadsheetRoot(props: IBaseSpreadsheetRoot) {
 
   // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
   const groupedIssueIds = useGroupedIssueIds(storeType);
-  const issueIds = groupedIssueIds?.[ALL_ISSUES] ?? [];
+  // Type guard: ensure groupedIssueIds is not an array before indexing with ALL_ISSUES
+  const issueIds = (!Array.isArray(groupedIssueIds) ? groupedIssueIds[ALL_ISSUES] : []) ?? [];
   const nextPageResults = issues.getPaginationData(ALL_ISSUES, undefined)?.nextPageResults;
 
   const handleDisplayFiltersUpdate = useCallback(

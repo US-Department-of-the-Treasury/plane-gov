@@ -4,7 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import type { EditorRefApi } from "@plane/editor";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { SitesFileService } from "@plane/services";
-import type { TIssuePublicComment } from "@plane/types";
+import { EFileAssetType, type TIssuePublicComment } from "@plane/types";
 // editor components
 import { LiteTextEditor } from "@/components/editor/lite-text-editor";
 // store
@@ -96,7 +96,7 @@ export function AddComment(props: Props) {
               uploadFile={async (blockId, file) => {
                 const res = await fileService.uploadAsset(
                   anchor,
-                  { entity_identifier: "", entity_type: "COMMENT_DESCRIPTION" as const },
+                  { entity_identifier: "", entity_type: EFileAssetType.COMMENT_DESCRIPTION },
                   file
                 );
                 setUploadAssetIds((prev) => [...prev, res.asset_id]);

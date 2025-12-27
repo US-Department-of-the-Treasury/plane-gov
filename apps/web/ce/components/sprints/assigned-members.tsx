@@ -49,7 +49,7 @@ export const SprintAssignedMembers: FC<Props> = ({ workspaceSlug, projectId, spr
     >
       <div className="flex items-center gap-1 cursor-default">
         <UserRoundPlus className="h-3.5 w-3.5 text-blue-500" />
-        <AvatarGroup showTooltip={false} size="20">
+        <AvatarGroup showTooltip={false} size={20}>
           {assignedMemberIds.map((memberId) => {
             // memberId is the workspace membership ID, not the user ID
             const memberData = getWorkspaceMemberById(workspaceMembers, memberId);

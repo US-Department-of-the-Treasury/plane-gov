@@ -113,7 +113,7 @@ export const useProjectPublishStore = create<ProjectPublishStoreType>()(
           state.generalLoader = false;
         });
         // Update project anchor - direct Zustand store access
-        useProjectStore.getState().updateProjectAnchor(projectID, response.anchor);
+        useProjectStore.getState().updateProjectAnchor(projectID, response.anchor ?? null);
         return response;
       } catch (error) {
         set((state) => {

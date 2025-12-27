@@ -1,19 +1,18 @@
 import { ProjectIcon } from "@plane/propel/icons";
+import type { TProjectPublishSettings } from "@plane/types";
 // components
 import { ProjectLogo } from "@/components/common/project-logo";
-// store
-import type { PublishStore } from "@/store/publish/publish.store";
 // local imports
 import { NavbarControls } from "./controls";
 
 type Props = {
-  publishSettings: PublishStore;
+  publishSettings: TProjectPublishSettings | undefined;
 };
 
 export function IssuesNavbarRoot(props: Props) {
   const { publishSettings } = props;
-  // hooks
-  const { project_details } = publishSettings;
+  // derived values
+  const project_details = publishSettings?.project_details;
 
   return (
     <div className="relative flex justify-between w-full gap-4 px-5">

@@ -282,7 +282,7 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
       updatedMemberMap[workspaceSlug][member.member.id] = {
         id: member.id,
         member: member.member.id,
-        role: member.role,
+        role: member.role as EUserPermissions,
         is_active: member.is_active,
       };
     });

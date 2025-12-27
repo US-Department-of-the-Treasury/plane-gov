@@ -261,10 +261,11 @@ export function SendProjectInvitationModal(props: Props) {
                                         <ChevronDownIcon className="h-3 w-3" aria-hidden="true" />
                                       </button>
                                     }
-                                    onChange={(val: string) => {
-                                      onChange(val);
+                                    onChange={(val: unknown) => {
+                                      const memberId = val as string;
+                                      onChange(memberId);
                                       // Update the role to the workspace role when member ID changes
-                                      const workspaceMemberDetails = getWorkspaceMemberByUserId(workspaceMembers, val);
+                                      const workspaceMemberDetails = getWorkspaceMemberByUserId(workspaceMembers, memberId);
                                       const workspaceRole = workspaceMemberDetails?.role ?? 5;
                                       const newValue = ROLE[workspaceRole].toUpperCase();
                                       setValue(

@@ -72,7 +72,7 @@ export function AddFilterDropdown<P extends TFilterProperty, E extends TExternal
       <CustomSearchSelect
         defaultOpen={defaultOpen}
         value={""}
-        onChange={handleFilterSelect}
+        onChange={(property: unknown) => handleFilterSelect(property as P)}
         options={displayOptions}
         optionsClassName="w-56"
         maxHeight="2xl"

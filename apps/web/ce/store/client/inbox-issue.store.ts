@@ -163,12 +163,12 @@ export const useInboxIssueStore = create<InboxIssueStore>((set, get) => ({
 
       set({
         status: inboxIssue?.status,
-        snoozed_till: inboxIssue?.snoozed_till,
+        snoozed_till: inboxIssue?.snoozed_till ?? undefined,
       });
     } catch {
       set({
         status: previousData.status,
-        snoozed_till: previousData.snoozed_till,
+        snoozed_till: previousData.snoozed_till ?? undefined,
       });
     }
   },
@@ -184,7 +184,11 @@ export const useInboxIssueStore = create<InboxIssueStore>((set, get) => ({
       const updatedIssue = { ...state.issue };
       Object.keys(issue).forEach((key) => {
         const issueKey = key as keyof TIssue;
-        updatedIssue[issueKey] = issue[issueKey];
+        const value = issue[issueKey];
+        // Only assign non-null and non-undefined values
+        if (value !== null && value !== undefined) {
+          (updatedIssue as any)[issueKey] = value;
+        }
       });
 
       set({ issue: updatedIssue });
@@ -209,7 +213,11 @@ export const useInboxIssueStore = create<InboxIssueStore>((set, get) => ({
       const updatedIssue = { ...state.issue };
       Object.keys(issue).forEach((key) => {
         const issueKey = key as keyof TIssue;
-        updatedIssue[issueKey] = issue[issueKey];
+        const value = issue[issueKey];
+        // Only assign non-null and non-undefined values
+        if (value !== null && value !== undefined) {
+          (updatedIssue as any)[issueKey] = value;
+        }
       });
 
       set({ issue: updatedIssue });

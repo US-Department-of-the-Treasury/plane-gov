@@ -45,7 +45,7 @@ export interface IProjectInboxStore {
   getAppliedFiltersCount: number;
   filteredInboxIssueIds: string[];
   // computed functions
-  getIssueInboxByIssueId: (issueId: string) => IInboxIssueStore;
+  getIssueInboxByIssueId: (issueId: string) => IInboxIssueStore | undefined;
   getIsIssueAvailable: (inboxIssueId: string) => boolean;
   // helper actions
   inboxIssueQueryParams: (
@@ -108,7 +108,7 @@ interface ProjectInboxActions {
     loadingType?: TLoader,
     tab?: TInboxIssueCurrentTab
   ) => Promise<void>;
-  fetchInboxPaginationIssues: (workspaceSlug: string, projectId: string) => Promise<void>;
+  fetchInboxPaginationIssues: (workspaceSlug: string, projectId: string) => Promise<TInboxIssue[] | undefined>;
   fetchInboxIssueById: (workspaceSlug: string, projectId: string, inboxIssueId: string, store: CoreRootStore) => Promise<TInboxIssue>;
   createInboxIssue: (
     workspaceSlug: string,
@@ -121,24 +121,23 @@ interface ProjectInboxActions {
 
 type ProjectInboxStoreType = ProjectInboxState & ProjectInboxActions;
 
+const inboxIssueService = new InboxIssueService();
+
 export const useProjectInboxStore = create<ProjectInboxStoreType>()(
-  immer((set, get) => {
-    const inboxIssueService = new InboxIssueService();
+  immer((set, get) => ({
+    // Constants
+    PER_PAGE_COUNT: 10,
 
-    return {
-      // Constants
-      PER_PAGE_COUNT: 10,
-
-      // State
-      currentTab: EInboxIssueCurrentTab.OPEN,
-      loader: "init-loading" as TLoader,
-      error: undefined,
-      currentInboxProjectId: "",
-      filtersMap: {},
-      sortingMap: {},
-      inboxIssuePaginationInfo: undefined,
-      inboxIssues: {},
-      inboxIssueIds: [],
+    // State
+    currentTab: EInboxIssueCurrentTab.OPEN,
+    loader: "init-loading" as TLoader,
+    error: undefined,
+    currentInboxProjectId: "",
+    filtersMap: {},
+    sortingMap: {},
+    inboxIssuePaginationInfo: undefined,
+    inboxIssues: {},
+    inboxIssueIds: [],
 
       // Helper actions
       inboxIssueQueryParams: (
@@ -480,8 +479,7 @@ export const useProjectInboxStore = create<ProjectInboxStoreType>()(
           throw error;
         }
       },
-    };
-  })
+    }))
 );
 
 // Legacy class wrapper for backward compatibility
@@ -649,7 +647,7 @@ export class ProjectInboxStore implements IProjectInboxStore {
   fetchInboxPaginationIssues = async (workspaceSlug: string, projectId: string) => {
     const results = await this.state.fetchInboxPaginationIssues(workspaceSlug, projectId);
     // Update inbox issues after pagination
-    if (results && results.length > 0) {
+    if (results) {
       this.state.createOrUpdateInboxIssue(results, workspaceSlug, projectId, this.store);
     }
   };

@@ -88,6 +88,7 @@ export interface IBaseIssuesStore {
   //actions
   removeIssue: (workspaceSlug: string, projectId: string, issueId: string) => Promise<void>;
   clear(shouldClearPaginationOptions?: boolean): void;
+  clearAndSetLoader(loadType: TLoader, shouldClearPaginationOptions?: boolean): void;
   // helper methods
   getBaseStore(): BaseIssuesZustandStore;
   getIssueIds: (groupId?: string, subGroupId?: string) => string[] | undefined;

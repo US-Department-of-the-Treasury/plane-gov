@@ -105,7 +105,12 @@ export const useIssueRelationStore = create<IIssueRelationStore>()(
           }
 
           if (!state.relationMap[issueId]) {
-            state.relationMap[issueId] = {};
+            state.relationMap[issueId] = {
+              duplicate: [],
+              relates_to: [],
+              blocked_by: [],
+              blocking: [],
+            };
           }
           state.relationMap[issueId][relation_key] = issues && issues.length > 0 ? issues.map((issue) => issue.id) : [];
         });
@@ -143,7 +148,12 @@ export const useIssueRelationStore = create<IIssueRelationStore>()(
 
             if (!issuesOfRelated) {
               if (!state.relationMap[issue.id]) {
-                state.relationMap[issue.id] = {};
+                state.relationMap[issue.id] = {
+                  duplicate: [],
+                  relates_to: [],
+                  blocked_by: [],
+                  blocking: [],
+                };
               }
               state.relationMap[issue.id][reverseRelatedType] = [issueId];
             } else {
@@ -152,7 +162,12 @@ export const useIssueRelationStore = create<IIssueRelationStore>()(
           });
 
           if (!state.relationMap[issueId]) {
-            state.relationMap[issueId] = {};
+            state.relationMap[issueId] = {
+              duplicate: [],
+              relates_to: [],
+              blocked_by: [],
+              blocking: [],
+            };
           }
           state.relationMap[issueId][relationType] = uniq(issuesOfRelation);
         });
@@ -183,7 +198,12 @@ export const useIssueRelationStore = create<IIssueRelationStore>()(
         // update relations before API call (optimistic)
         set((state) => {
           if (!state.relationMap[issueId]) {
-            state.relationMap[issueId] = {};
+            state.relationMap[issueId] = {
+              duplicate: [],
+              relates_to: [],
+              blocked_by: [],
+              blocking: [],
+            };
           }
           if (!issuesOfRelation) {
             state.relationMap[issueId][relationType] = [relatedIssueId];
@@ -192,7 +212,12 @@ export const useIssueRelationStore = create<IIssueRelationStore>()(
           }
 
           if (!state.relationMap[relatedIssueId]) {
-            state.relationMap[relatedIssueId] = {};
+            state.relationMap[relatedIssueId] = {
+              duplicate: [],
+              relates_to: [],
+              blocked_by: [],
+              blocking: [],
+            };
           }
           if (!issuesOfRelated) {
             state.relationMap[relatedIssueId][reverseRelatedType] = [issueId];
@@ -305,7 +330,12 @@ export const useIssueRelationStore = create<IIssueRelationStore>()(
               }
             }
 
-            state.relationMap[issueId] = issueRelations;
+            state.relationMap[issueId] = {
+              duplicate: issueRelations.duplicate ?? [],
+              relates_to: issueRelations.relates_to ?? [],
+              blocked_by: issueRelations.blocked_by ?? [],
+              blocking: issueRelations.blocking ?? [],
+            };
           }
         });
       } catch (e) {

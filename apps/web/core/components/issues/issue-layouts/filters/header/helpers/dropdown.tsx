@@ -9,7 +9,7 @@ import { ChevronUpIcon } from "@plane/propel/icons";
 
 type Props = {
   children: React.ReactNode;
-  icon?: React.ReactElement;
+  icon?: React.ReactElement<{ className?: string; strokeWidth?: number }>;
   miniIcon?: React.ReactNode;
   title?: string;
   placement?: Placement;

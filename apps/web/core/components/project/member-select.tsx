@@ -90,7 +90,7 @@ export function MemberSelect(props: Props) {
         ]
       }
       maxHeight="md"
-      onChange={onChange}
+      onChange={(val: unknown) => onChange(val as string)}
       disabled={isDisabled}
     />
   );

@@ -246,12 +246,12 @@ export class EpicStoreLegacy implements IEpicStore {
 
   get projectEpicIds() {
     const projectId = getRouterProjectId();
-    return useEpicStore.getState().getProjectEpicIds(projectId);
+    return useEpicStore.getState().getProjectEpicIds(projectId ?? null);
   }
 
   get projectArchivedEpicIds() {
     const projectId = getRouterProjectId();
-    return useEpicStore.getState().getProjectArchivedEpicIds(projectId);
+    return useEpicStore.getState().getProjectArchivedEpicIds(projectId ?? null);
   }
 
   getEpicsFetchStatusByProjectId = (projectId: string) => {

@@ -87,30 +87,30 @@ export function RelationIssueListItem(props: Props) {
     handleRedirection(workspaceSlug, issue, isMobile);
   };
 
-  const handleEditIssue = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const handleEditIssue = (e?: Event) => {
+    e?.stopPropagation();
+    e?.preventDefault();
     handleIssueCrudState("update", relationIssueId, { ...issue });
     toggleCreateIssueModal(true);
   };
 
-  const handleDeleteIssue = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const handleDeleteIssue = (e?: Event) => {
+    e?.stopPropagation();
+    e?.preventDefault();
     handleIssueCrudState("delete", relationIssueId, issue);
     toggleDeleteIssueModal(relationIssueId);
     handleIssueCrudState("removeRelation", issueId, issue, relationKey, relationIssueId);
   };
 
-  const handleCopyIssueLink = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const handleCopyIssueLink = (e?: Event) => {
+    e?.stopPropagation();
+    e?.preventDefault();
     issueOperations.copyLink(workItemLink);
   };
 
-  const handleRemoveRelation = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleRemoveRelation = (e?: Event) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (!issue.project_id) return;
     removeRelation(workspaceSlug, issue.project_id, issueId, relationKey, relationIssueId);
   };

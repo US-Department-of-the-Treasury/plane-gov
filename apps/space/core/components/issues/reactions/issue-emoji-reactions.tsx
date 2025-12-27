@@ -118,7 +118,6 @@ export function IssueEmojiReactions(props: IssueEmojiReactionsProps) {
           onAddReaction={() => setIsPickerOpen(true)}
         />
       }
-      placement="bottom-start"
     />
   );
 }

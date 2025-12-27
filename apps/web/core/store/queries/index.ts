@@ -82,6 +82,9 @@ export {
   getSprintMemberProjectAssignment,
   // Sprint materialization (for virtual sprints)
   useMaterializeSprint,
+  // Sprint member removal and issue management
+  useRemovalImpact,
+  useBulkMoveIssues,
 } from "./sprint";
 
 // Epic hooks (TanStack Query)
