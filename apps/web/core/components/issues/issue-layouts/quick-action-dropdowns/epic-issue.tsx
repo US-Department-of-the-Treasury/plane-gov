@@ -10,12 +10,11 @@ import {
 } from "@plane/constants";
 import type { TIssue } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
-import type { TContextMenuItem } from "@plane/ui";
 import { ContextMenu, CustomMenu } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { useIssues } from "@/hooks/store/use-issues";
+import { useEpicLayout } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectDetails } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -51,7 +50,7 @@ export function EpicIssueQuickActions(props: IQuickActionProps) {
   // router
   const { workspaceSlug, epicId } = useParams();
   // store hooks
-  const { issuesFilter } = useIssues(EIssuesStoreType.EPIC);
+  const layout = useEpicLayout();
   const { allowPermissions } = useUserPermissions();
   const { data: projectStates } = useProjectStates(workspaceSlug?.toString(), issue.project_id);
   const { data: projectDetails } = useProjectDetails(workspaceSlug?.toString(), issue.project_id);
@@ -65,7 +64,7 @@ export function EpicIssueQuickActions(props: IQuickActionProps) {
   const isInArchivableGroup = !!stateDetails && ARCHIVABLE_STATE_GROUPS.includes(stateDetails?.group);
   const isDeletingAllowed = isEditingAllowed;
 
-  const activeLayout = `${issuesFilter.issueFilters?.displayFilters?.layout} layout`;
+  const activeLayout = `${layout ?? "list"} layout`;
 
   const duplicateIssuePayload = omit(
     {

@@ -14,6 +14,7 @@ import { IssueLayoutIcon } from "@/components/issues/issue-layouts/layout-icon";
 // hooks
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useSprintIssueFilters, useSprintLayout } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectDetails } from "@/store/queries/project";
 
 const SUPPORTED_LAYOUTS = [
@@ -29,9 +30,11 @@ export function SprintIssuesMobileHeader() {
   const [analyticsModal, setAnalyticsModal] = useState(false);
   // plane hooks
   const { t } = useTranslation();
-  // store hooks
+  // store hooks - use reactive hooks for reading filters/layout
+  const issueFilters = useSprintIssueFilters();
+  const activeLayout = useSprintLayout() ?? EIssueLayoutTypes.LIST;
   const {
-    issuesFilter: { issueFilters, updateFilters },
+    issuesFilter: { updateFilters },
   } = useIssues(EIssuesStoreType.SPRINT);
 
   // TanStack Query
@@ -40,9 +43,6 @@ export function SprintIssuesMobileHeader() {
     workspaceSlug?.toString() ?? "",
     projectId?.toString() ?? ""
   );
-
-  // derived values
-  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
   const sprintDetails = sprintId ? getSprintById(sprints, sprintId.toString()) : undefined;
 
   const handleLayoutChange = useCallback(

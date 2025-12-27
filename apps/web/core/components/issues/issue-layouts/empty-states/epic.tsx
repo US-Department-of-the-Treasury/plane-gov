@@ -12,9 +12,9 @@ import { ExistingIssuesListModal } from "@/components/core/modals/existing-issue
 import { captureClick } from "@/helpers/event-tracker.helper";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useIssues } from "@/hooks/store/use-issues";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkItemFilterInstance } from "@/hooks/store/work-item-filters/use-work-item-filter-instance";
+import { useAddIssuesToEpic } from "@/store/queries/epic";
 
 export function EpicEmptyState() {
   // router
@@ -27,7 +27,7 @@ export function EpicEmptyState() {
   // plane hooks
   const { t } = useTranslation();
   // store hooks
-  const { issues } = useIssues(EIssuesStoreType.EPIC);
+  const { mutateAsync: addIssuesToEpic } = useAddIssuesToEpic();
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
   // derived values
@@ -43,8 +43,12 @@ export function EpicEmptyState() {
     if (!workspaceSlug || !projectId || !epicId) return;
 
     const issueIds = data.map((i) => i.id);
-    await issues
-      .addIssuesToEpic(workspaceSlug.toString(), projectId?.toString(), epicId.toString(), issueIds)
+    await addIssuesToEpic({
+      workspaceSlug: workspaceSlug.toString(),
+      projectId: projectId.toString(),
+      epicId: epicId.toString(),
+      issueIds,
+    })
       .then(() =>
         setToast({
           type: TOAST_TYPE.SUCCESS,
@@ -80,7 +84,7 @@ export function EpicEmptyState() {
             actions={[
               {
                 label: "Clear filters",
-                onClick: epicWorkItemFilter?.clearFilters,
+                onClick: () => void epicWorkItemFilter?.clearFilters(),
                 disabled: !canPerformEmptyStateActions || !epicWorkItemFilter,
                 variant: "secondary",
               },

@@ -55,10 +55,8 @@ export function SprintLayoutRoot() {
   const { data: sprints } = useProjectSprints(workspaceSlug ?? "", projectId ?? "");
   // Use reactive filter hooks - these properly subscribe to Zustand store changes
   const reactiveFilters = useSprintIssueFilters();
-  // Get layout from the MobX wrapper's issueFilters getter - this uses the same source
-  // as the header component, ensuring consistent behavior when layout changes.
-  // The MobX wrapper re-reads from Zustand on each render, which works reliably.
-  const activeLayout = issuesFilter?.issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
+  // Use reactive layout hook for immediate updates when user changes layout
+  const activeLayout = useSprintLayout() ?? EIssueLayoutTypes.LIST;
   // state
   const [transferIssuesModal, setTransferIssuesModal] = useState(false);
 

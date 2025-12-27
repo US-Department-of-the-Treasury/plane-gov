@@ -12,7 +12,7 @@ import { generateWorkItemLink, copyTextToClipboard } from "@plane/utils";
 import { captureError, captureSuccess } from "@/helpers/event-tracker.helper";
 // hooks
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
-import { useIssues } from "@/hooks/store/use-issues";
+import { useIssuesActions } from "@/hooks/use-issues-actions";
 import { useUser } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -46,12 +46,7 @@ export function IssueDetailQuickActions(props: Props) {
     removeIssue,
     archiveIssue,
   } = useIssueDetail();
-  const {
-    issues: { restoreIssue },
-  } = useIssues(EIssuesStoreType.ARCHIVED);
-  const {
-    issues: { removeIssue: removeArchivedIssue },
-  } = useIssues(EIssuesStoreType.ARCHIVED);
+  const { restoreIssue, removeIssue: removeArchivedIssue } = useIssuesActions(EIssuesStoreType.ARCHIVED);
   // queries
   const { data: project } = useProjectDetails(workspaceSlug, projectId);
 
@@ -83,17 +78,20 @@ export function IssueDetailQuickActions(props: Props) {
 
   const handleDeleteIssue = async () => {
     try {
-      const deleteIssue = issue?.archived_at ? removeArchivedIssue : removeIssue;
       const redirectionPath = issue?.archived_at
         ? `/${workspaceSlug}/projects/${projectId}/archives/issues`
         : `/${workspaceSlug}/projects/${projectId}/issues`;
 
-      return deleteIssue(workspaceSlug, projectId, issueId).then(() => {
-        router.push(redirectionPath);
-        captureSuccess({
-          eventName: WORK_ITEM_TRACKER_EVENTS.delete,
-          payload: { id: issueId },
-        });
+      if (issue?.archived_at) {
+        await removeArchivedIssue(projectId, issueId);
+      } else {
+        await removeIssue(workspaceSlug, projectId, issueId);
+      }
+
+      router.push(redirectionPath);
+      captureSuccess({
+        eventName: WORK_ITEM_TRACKER_EVENTS.delete,
+        payload: { id: issueId },
       });
     } catch (error) {
       setToast({
@@ -127,24 +125,23 @@ export function IssueDetailQuickActions(props: Props) {
   };
 
   const handleRestore = async () => {
-    if (!workspaceSlug || !projectId || !issueId) return;
+    if (!projectId || !issueId || !restoreIssue) return;
 
-    await restoreIssue(workspaceSlug.toString(), projectId.toString(), issueId.toString())
-      .then(() => {
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: t("issue.restore.success.title"),
-          message: t("issue.restore.success.message"),
-        });
-        router.push(workItemLink);
-      })
-      .catch(() => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: t("toast.error"),
-          message: t("issue.restore.failed.message"),
-        });
+    try {
+      await restoreIssue(projectId, issueId);
+      setToast({
+        type: TOAST_TYPE.SUCCESS,
+        title: t("issue.restore.success.title"),
+        message: t("issue.restore.success.message"),
       });
+      router.push(workItemLink);
+    } catch {
+      setToast({
+        type: TOAST_TYPE.ERROR,
+        title: t("toast.error"),
+        message: t("issue.restore.failed.message"),
+      });
+    }
   };
 
   return (

@@ -10,12 +10,11 @@ import {
 } from "@plane/constants";
 import type { TIssue } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
-import type { TContextMenuItem } from "@plane/ui";
 import { ContextMenu, CustomMenu } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { useIssues } from "@/hooks/store/use-issues";
+import { useProjectLayout } from "@/hooks/store/use-issue-store-reactive";
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -52,14 +51,14 @@ export function ProjectIssueQuickActions(props: IQuickActionProps) {
 
   // store hooks
   const { allowPermissions } = useUserPermissions();
-  const { issuesFilter } = useIssues(EIssuesStoreType.PROJECT);
+  const layout = useProjectLayout();
 
   // queries
   const { data: projects } = useProjects(workspaceSlug?.toString());
   const { data: projectStates } = useProjectStates(workspaceSlug?.toString(), issue.project_id);
 
   // derived values
-  const activeLayout = `${issuesFilter.issueFilters?.displayFilters?.layout} layout`;
+  const activeLayout = `${layout ?? "list"} layout`;
   const stateDetails = getStateById(projectStates, issue.state_id);
   const projectDetails = getProjectById(projects, issue?.project_id);
   const projectIdentifier = projectDetails?.identifier;

@@ -8,6 +8,7 @@ import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
 import { ProjectLevelWorkItemFiltersHOC } from "@/components/work-item-filters/filters-hoc/project-level";
 import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useProjectViewIssueFilters, useProjectViewLayout } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectView } from "@/hooks/store/use-project-view";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
 import { queryKeys } from "@/store/queries/query-keys";
@@ -45,10 +46,11 @@ export function ProjectViewLayoutRoot() {
   // hooks
   const { issuesFilter } = useIssues(EIssuesStoreType.PROJECT_VIEW);
   const { getViewById } = useProjectView();
+  // Use reactive hooks for filters and layout
+  const workItemFilters = useProjectViewIssueFilters();
+  const activeLayout = useProjectViewLayout();
   // derived values
   const projectView = viewId ? getViewById(viewId) : undefined;
-  const workItemFilters = viewId ? issuesFilter?.getIssueFilters(viewId) : undefined;
-  const activeLayout = workItemFilters?.displayFilters?.layout;
   const initialWorkItemFilters = projectView
     ? {
         displayFilters: workItemFilters?.displayFilters,

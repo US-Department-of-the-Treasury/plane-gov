@@ -13,6 +13,7 @@ import { DisplayFiltersSelection, FiltersDropdown } from "@/components/issues/is
 import { IssueLayoutIcon } from "@/components/issues/issue-layouts/layout-icon";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useEpicIssueFilters, useEpicLayout } from "@/hooks/store/use-issue-store-reactive";
 // tanstack query
 import { useProjectDetails } from "@/store/queries/project";
 import { useEpicDetails } from "@/store/queries/epic";
@@ -40,12 +41,12 @@ export function EpicIssuesMobileHeader() {
     projectId?.toString() ?? "",
     epicId?.toString() ?? ""
   );
-  // store hooks
+  // store hooks - use reactive hooks for reading filters/layout
+  const issueFilters = useEpicIssueFilters();
+  const activeLayout = useEpicLayout() ?? EIssueLayoutTypes.LIST;
   const {
-    issuesFilter: { issueFilters, updateFilters },
+    issuesFilter: { updateFilters },
   } = useIssues(EIssuesStoreType.EPIC);
-  // derived values
-  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const handleLayoutChange = useCallback(
     (layout: EIssueLayoutTypes) => {

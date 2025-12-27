@@ -25,6 +25,7 @@ import { WorkspaceViewQuickActions } from "@/components/workspace/views/quick-ac
 // hooks
 import { useGlobalView } from "@/hooks/store/use-global-view";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useWorkspaceViewIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { GlobalViewLayoutSelection } from "@/plane-web/components/views/helper";
 
@@ -35,14 +36,13 @@ export function GlobalIssuesHeader() {
   const router = useAppRouter();
   const { workspaceSlug, globalViewId: routerGlobalViewId } = useParams();
   const globalViewId = routerGlobalViewId ? routerGlobalViewId.toString() : undefined;
-  // store hooks
+  // store hooks - use reactive hook for reading filters
+  const issueFilters = useWorkspaceViewIssueFilters(globalViewId);
   const {
-    issuesFilter: { filters, updateFilters },
+    issuesFilter: { updateFilters },
   } = useIssues(EIssuesStoreType.GLOBAL);
   const { getViewDetailsById, currentWorkspaceViews } = useGlobalView();
   const { t } = useTranslation();
-
-  const issueFilters = globalViewId ? filters[globalViewId.toString()] : undefined;
 
   const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
   const viewDetails = globalViewId ? getViewDetailsById(globalViewId) : undefined;

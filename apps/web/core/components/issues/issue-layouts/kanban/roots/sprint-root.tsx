@@ -1,12 +1,11 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useParams } from "next/navigation";
 // components
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import type { TIssue } from "@plane/types";
-import { EIssuesStoreType } from "@plane/types";
 // hooks
 import { useProjectSprints, getCompletedSprints } from "@/store/queries/sprint";
-import { useIssues } from "@/hooks/store/use-issues";
+import { useAddIssueToSprint } from "@/store/queries/issue";
 import { useUserPermissions } from "@/hooks/store/user";
 // local imports
 import { SprintIssueQuickActions } from "../../quick-action-dropdowns";
@@ -16,7 +15,7 @@ export function SprintKanBanLayout() {
   const { workspaceSlug, projectId, sprintId } = useParams();
 
   // store
-  const { issues } = useIssues(EIssuesStoreType.SPRINT);
+  const { mutateAsync: addIssueToSprint } = useAddIssueToSprint();
   const { data: sprints } = useProjectSprints(workspaceSlug?.toString() ?? "", projectId?.toString() ?? "");
   const { allowPermissions } = useUserPermissions();
 
@@ -35,12 +34,17 @@ export function SprintKanBanLayout() {
   );
 
   const addIssuesToView = useCallback(
-    (async (issueIds: string[]) => {
+    async (issueIds: string[]): Promise<TIssue> => {
       if (!workspaceSlug || !projectId || !sprintId) throw new Error();
-      await issues.addIssueToSprint(workspaceSlug.toString(), projectId.toString(), sprintId.toString(), issueIds);
+      await addIssueToSprint({
+        workspaceSlug: workspaceSlug.toString(),
+        projectId: projectId.toString(),
+        sprintId: sprintId.toString(),
+        issueIds,
+      });
       return {} as TIssue;
-    }) as (issueIds: string[]) => Promise<TIssue>,
-    [issues?.addIssueToSprint, workspaceSlug, projectId, sprintId]
+    },
+    [addIssueToSprint, workspaceSlug, projectId, sprintId]
   );
 
   return (

@@ -9,6 +9,7 @@ import { ProjectLevelWorkItemFiltersHOC } from "@/components/work-item-filters/f
 // hooks
 import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useArchivedIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
 import { queryKeys } from "@/store/queries/query-keys";
 // local imports
@@ -22,8 +23,8 @@ export function ArchivedIssueLayoutRoot() {
   const projectId = routerProjectId ? routerProjectId.toString() : undefined;
   // hooks
   const { issuesFilter } = useIssues(EIssuesStoreType.ARCHIVED);
-  // derived values
-  const workItemFilters = projectId ? issuesFilter?.getIssueFilters(projectId) : undefined;
+  // Use reactive hook for filters
+  const workItemFilters = useArchivedIssueFilters();
 
   useQuery({
     queryKey: workspaceSlug && projectId ? ["archived-issues", workspaceSlug, projectId] : [],

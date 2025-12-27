@@ -15,6 +15,7 @@ import {
 } from "@/components/issues/issue-layouts/filters";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useProjectIssueFilters, useProjectLayout } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectDetails } from "@/store/queries/project";
 
 export function ProjectIssuesMobileHeader() {
@@ -28,11 +29,12 @@ export function ProjectIssuesMobileHeader() {
     projectId?.toString() ?? ""
   );
 
-  // store hooks
+  // store hooks - use reactive hooks for reading filters/layout
+  const issueFilters = useProjectIssueFilters();
+  const activeLayout = useProjectLayout() ?? EIssueLayoutTypes.LIST;
   const {
-    issuesFilter: { issueFilters, updateFilters },
+    issuesFilter: { updateFilters },
   } = useIssues(EIssuesStoreType.PROJECT);
-  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const handleLayoutChange = useCallback(
     (layout: EIssueLayoutTypes) => {
