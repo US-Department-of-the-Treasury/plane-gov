@@ -13,12 +13,10 @@ Usage:
 
 import json
 import random
-import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from faker import Faker
@@ -26,8 +24,6 @@ from faker import Faker
 from plane.db.models import (
     Epic,
     EpicIssue,
-    Intake,
-    IntakeIssue,
     Issue,
     IssueActivity,
     IssueAssignee,
@@ -36,9 +32,11 @@ from plane.db.models import (
     Label,
     Page,
     PageLabel,
+    PagePropertyValue,
     ProjectPage,
     Project,
     ProjectMember,
+    PropertyDefinition,
     Sprint,
     SprintIssue,
     SprintMemberProject,
@@ -46,11 +44,13 @@ from plane.db.models import (
     User,
     Workspace,
     WorkspaceMember,
+    WikiPageAssignee,
+    PageActivity,
 )
 from plane.db.models.view import IssueView
 from plane.db.models.wiki import WikiPage
 from plane.db.models.webhook import Webhook
-from plane.db.models.intake import SourceType
+from plane.utils.html_processor import strip_tags
 
 
 # Default test user credentials (matches UI hint in terms-and-conditions.tsx)
@@ -201,7 +201,7 @@ class Command(BaseCommand):
                     """, [workspace_id])
                     # Now we can safely delete the workspace (Django will cascade the rest)
                 Workspace.all_objects.filter(slug=workspace_slug).delete()
-                self.stdout.write(self.style.SUCCESS(f"  Deleted existing workspace."))
+                self.stdout.write(self.style.SUCCESS("  Deleted existing workspace."))
 
         try:
             with transaction.atomic():
@@ -212,6 +212,10 @@ class Command(BaseCommand):
                 # Create workspace
                 workspace = self._create_workspace(workspace_name, workspace_slug, user)
                 self.stdout.write(self.style.SUCCESS(f"  Workspace: {workspace.name} ({workspace.slug})"))
+
+                # Create system properties for the workspace
+                self._create_system_properties(workspace)
+                self.stdout.write(self.style.SUCCESS("  System properties: created"))
 
                 # Seed based on mode
                 if mode == "demo":
@@ -271,6 +275,79 @@ class Command(BaseCommand):
             role=20,  # Admin role
         )
         return workspace
+
+    def _create_system_properties(self, workspace: Workspace) -> int:
+        """Create system properties for the workspace.
+
+        System properties are the default properties available for issue-type pages.
+        Uses the same definitions as the create_system_properties management command.
+        """
+        # System property definitions matching create_system_properties.py
+        system_properties = [
+            {
+                "name": "Priority",
+                "slug": "priority",
+                "property_type": "select",
+                "description": "Priority level of the work item",
+                "page_types": ["issue", "task"],
+                "sort_order": 100,
+                "options": [
+                    {"id": "urgent", "label": "Urgent", "color": "#ef4444", "order": 1},
+                    {"id": "high", "label": "High", "color": "#f97316", "order": 2},
+                    {"id": "medium", "label": "Medium", "color": "#eab308", "order": 3},
+                    {"id": "low", "label": "Low", "color": "#22c55e", "order": 4},
+                    {"id": "none", "label": "None", "color": "#6b7280", "order": 5},
+                ],
+                "default_value": {"id": "none"},
+            },
+            {
+                "name": "Start Date",
+                "slug": "start_date",
+                "property_type": "date",
+                "description": "When work on this item should begin",
+                "page_types": ["issue", "task", "epic"],
+                "sort_order": 200,
+                "options": [],
+                "default_value": None,
+            },
+            {
+                "name": "Target Date",
+                "slug": "target_date",
+                "property_type": "date",
+                "description": "When this item should be completed",
+                "page_types": ["issue", "task", "epic"],
+                "sort_order": 300,
+                "options": [],
+                "default_value": None,
+            },
+            {
+                "name": "Estimate",
+                "slug": "estimate",
+                "property_type": "number",
+                "description": "Estimated effort (points or hours)",
+                "page_types": ["issue", "task"],
+                "sort_order": 400,
+                "options": [],
+                "default_value": None,
+            },
+        ]
+
+        count = 0
+        for prop_def in system_properties:
+            PropertyDefinition.objects.create(
+                workspace=workspace,
+                name=prop_def["name"],
+                slug=prop_def["slug"],
+                property_type=prop_def["property_type"],
+                description=prop_def["description"],
+                page_types=prop_def["page_types"],
+                sort_order=prop_def["sort_order"],
+                options=prop_def["options"],
+                default_value=prop_def["default_value"],
+                is_system=True,
+            )
+            count += 1
+        return count
 
     def _create_team_members(self, workspace: Workspace, team_members_data: list) -> list:
         """Create team members as users and workspace members."""
@@ -402,6 +479,15 @@ class Command(BaseCommand):
                 )
                 self.stdout.write(f"    Pages: {page_count}")
 
+                # Create WikiPage-based work items (unified page model demo)
+                wiki_work_items_count = self._create_wiki_work_items(
+                    workspace, first_project, user,
+                    state_maps.get(first_project.id, {}),
+                    label_maps.get(first_project.id, {}),
+                    team_members
+                )
+                self.stdout.write(f"    Wiki work items: {wiki_work_items_count}")
+
         # Create sprint member project assignments (for Resources view)
         sprint_member_projects_data = self._load_json("sprint_member_projects.json")
         if sprint_member_projects_data:
@@ -462,6 +548,15 @@ class Command(BaseCommand):
         # Create wiki pages
         wiki_pages = self._create_random_wiki_pages(workspace, user, options["wiki_pages"])
         self.stdout.write(f"    Wiki pages: {len(wiki_pages)}")
+
+        # Create WikiPage-based work items (unified page model demo)
+        # Build state_map from created states (1-indexed like JSON data)
+        state_map = {i + 1: state.id for i, state in enumerate(states)}
+        label_map = {i + 1: label.id for i, label in enumerate(labels)}
+        wiki_work_items_count = self._create_wiki_work_items(
+            workspace, project, user, state_map, label_map, team_members=None
+        )
+        self.stdout.write(f"    Wiki work items: {wiki_work_items_count}")
 
         # Create webhooks
         webhooks = self._create_random_webhooks(workspace, user, options["webhooks"])
@@ -1011,6 +1106,118 @@ class Command(BaseCommand):
                 access=WikiPage.SHARED_ACCESS,  # Shared with workspace
             )
             count += 1
+        return count
+
+    def _create_wiki_work_items(
+        self, workspace, project, user, state_map, label_map, team_members=None
+    ) -> int:
+        """Create WikiPage-based work items with page_type='issue'.
+
+        This demonstrates the unified page model where work items are pages
+        with page_type='issue' and properties instead of a separate Issue model.
+        """
+        # Sample work items for the unified model
+        work_items = [
+            {
+                "name": "Review unified page architecture",
+                "description_html": "<p>Evaluate the new unified page model for work item management.</p>",
+                "priority": "high",
+                "state_id": 3,  # In Progress
+            },
+            {
+                "name": "Migrate existing issues to wiki pages",
+                "description_html": "<p>Run the migration command to convert Issue records to WikiPage records.</p>",
+                "priority": "urgent",
+                "state_id": 2,  # Todo
+            },
+            {
+                "name": "Update documentation for page properties",
+                "description_html": "<p>Document the EAV property system and how to add custom properties.</p>",
+                "priority": "medium",
+                "state_id": 1,  # Backlog
+            },
+            {
+                "name": "Test page comments and activity",
+                "description_html": "<p>Verify that comments and activity tracking work correctly on wiki pages.</p>",
+                "priority": "medium",
+                "state_id": 2,  # Todo
+            },
+            {
+                "name": "Configure system properties for workspace",
+                "description_html": "<p>Set up default properties like Priority, Start Date, and Target Date.</p>",
+                "priority": "low",
+                "state_id": 4,  # Done
+            },
+        ]
+
+        # Get priority property for setting values
+        priority_prop = PropertyDefinition.objects.filter(
+            workspace=workspace,
+            slug="priority",
+            is_system=True,
+        ).first()
+
+        count = 0
+        for i, item in enumerate(work_items):
+            # Get mapped state ID
+            old_state_id = item.get("state_id")
+            state_id = state_map.get(old_state_id) if old_state_id else None
+
+            # If no state mapping, get default state
+            if not state_id:
+                default_state = State.objects.filter(project=project, default=True).first()
+                state_id = default_state.id if default_state else None
+
+            # Create WikiPage with page_type='issue'
+            page = WikiPage.objects.create(
+                workspace=workspace,
+                project=project,
+                name=item["name"],
+                description_html=item["description_html"],
+                description_stripped=strip_tags(item["description_html"]),
+                page_type=WikiPage.PAGE_TYPE_ISSUE,
+                sequence_id=i + 1,
+                sort_order=(i + 1) * 1000,
+                state_id=state_id,
+                owned_by=user,
+                access=WikiPage.SHARED_ACCESS,
+                created_by=user,
+            )
+
+            # Create activity for the page
+            PageActivity.objects.create(
+                workspace=workspace,
+                page=page,
+                actor=user,
+                verb="created",
+                comment="created the work item",
+                created_by=user,
+            )
+
+            # Set priority property value
+            if priority_prop and item.get("priority"):
+                PagePropertyValue.objects.create(
+                    workspace=workspace,
+                    page=page,
+                    property=priority_prop,
+                    value_json={"id": item["priority"]},
+                    created_by=user,
+                )
+
+            # Assign random team members (1-2 per item)
+            if team_members:
+                num_assignees = random.randint(1, min(2, len(team_members)))
+                assignees = random.sample(team_members, num_assignees)
+                for assignee in assignees:
+                    WikiPageAssignee.objects.create(
+                        page=page,
+                        assignee=assignee,
+                        workspace=workspace,
+                        created_by=user,
+                    )
+
+            count += 1
+
         return count
 
     def _create_random_wiki_pages(self, workspace, user, count: int) -> list:

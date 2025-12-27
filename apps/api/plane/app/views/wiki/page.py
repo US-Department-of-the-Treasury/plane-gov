@@ -229,6 +229,16 @@ class WikiPageViewSet(BaseViewSet):
         access = request.query_params.get("access")
         archived = request.query_params.get("archived")
         owned_by_me = request.query_params.get("owned_by_me")
+        page_type = request.query_params.get("page_type")
+        state = request.query_params.get("state")
+
+        # Filter by page_type - e.g., page_type=issue for work items
+        if page_type:
+            queryset = queryset.filter(page_type=page_type)
+
+        # Filter by state - for issue-type pages
+        if state:
+            queryset = queryset.filter(state_id=state)
 
         # Filter by project - used for project Pages view
         if project:

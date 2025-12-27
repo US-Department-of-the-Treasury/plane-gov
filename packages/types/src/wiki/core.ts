@@ -1,6 +1,9 @@
 import type { TLogoProps } from "../common";
 import type { EWikiPageAccess, EWikiSharePermission, EWikiAccessLogType } from "../enums";
 
+// Page Type (unified page model)
+export type TPageType = "page" | "issue" | "epic" | "task";
+
 // Wiki Collection
 export type TWikiCollection = {
   id: string;
@@ -41,6 +44,11 @@ export type TWikiPage = {
   updated_at: string;
   created_by: string | null;
   updated_by: string | null;
+  // Unified page model fields
+  page_type?: TPageType;
+  sequence_id?: number;
+  state_id?: string | null;
+  completed_at?: string | null;
   // Computed fields
   is_owner?: boolean;
   can_edit?: boolean;
@@ -86,6 +94,9 @@ export type TWikiPageFormData = {
   description?: Record<string, unknown>;
   description_binary?: string;
   description_html?: string;
+  // Unified page model fields
+  page_type?: TPageType;
+  state_id?: string | null;
 };
 
 // Wiki Page Share

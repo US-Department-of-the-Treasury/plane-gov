@@ -5,3 +5,6 @@ export * from "./editor";
 export * from "./modals";
 export * from "./version-history";
 export * from "./empty-states";
+// Unified page model components
+export * from "./properties";
+export * from "./comments";

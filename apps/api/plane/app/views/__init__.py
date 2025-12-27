@@ -250,4 +250,12 @@ from .wiki import (
     WikiPageDescriptionViewSet,
     WikiPageShareViewSet,
     WikiPageVersionViewSet,
+    # Unified page model views
+    PageCommentViewSet,
+    PageCommentReactionViewSet,
+    PageRelationViewSet,
+    PageLinkViewSet,
+    PropertyDefinitionViewSet,
+    PagePropertyValueViewSet,
+    BulkPagePropertyValueViewSet,
 )
