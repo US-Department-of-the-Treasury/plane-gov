@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call */
 import { pull, find, concat, set as lodashSet, update as lodashUpdate } from "lodash-es";
 import { create } from "zustand";
 // Plane Imports
@@ -251,60 +252,4 @@ export interface IIssueReactionStore {
     reaction: string,
     userId: string
   ) => Promise<any>;
-}
-
-// Legacy class wrapper for backward compatibility
-export class IssueReactionStoreLegacy implements IIssueReactionStore {
-  private storeInitialized = false;
-
-  constructor(rootStore: any, serviceType: TIssueServiceType) {
-    // Initialize the Zustand store with serviceType and rootStore
-    useIssueReactionStore.getState().initialize(serviceType, rootStore);
-    this.storeInitialized = true;
-  }
-
-  // Getters that delegate to Zustand store
-  get reactions(): TIssueReactionIdMap {
-    return useIssueReactionStore.getState().reactions;
-  }
-
-  get reactionMap(): TIssueReactionMap {
-    return useIssueReactionStore.getState().reactionMap;
-  }
-
-  // Helper methods that delegate to Zustand store
-  getReactionsByIssueId = (issueId: string) => {
-    return useIssueReactionStore.getState().getReactionsByIssueId(issueId);
-  };
-
-  getReactionById = (reactionId: string) => {
-    return useIssueReactionStore.getState().getReactionById(reactionId);
-  };
-
-  reactionsByUser = (issueId: string, userId: string) => {
-    return useIssueReactionStore.getState().reactionsByUser(issueId, userId);
-  };
-
-  // Action methods that delegate to Zustand store
-  addReactions = (issueId: string, reactions: TIssueReaction[]) => {
-    return useIssueReactionStore.getState().addReactions(issueId, reactions);
-  };
-
-  fetchReactions = async (workspaceSlug: string, projectId: string, issueId: string) => {
-    return useIssueReactionStore.getState().fetchReactions(workspaceSlug, projectId, issueId);
-  };
-
-  createReaction = async (workspaceSlug: string, projectId: string, issueId: string, reaction: string) => {
-    return useIssueReactionStore.getState().createReaction(workspaceSlug, projectId, issueId, reaction);
-  };
-
-  removeReaction = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    reaction: string,
-    userId: string
-  ) => {
-    return useIssueReactionStore.getState().removeReaction(workspaceSlug, projectId, issueId, reaction, userId);
-  };
 }

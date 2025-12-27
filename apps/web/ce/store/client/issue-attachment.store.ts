@@ -1,4 +1,4 @@
-import { uniq, pull, concat, debounce } from "lodash-es";
+import { uniq, concat, debounce } from "lodash-es";
 import { create } from "zustand";
 import { v4 as uuidv4 } from "uuid";
 // types
@@ -6,8 +6,8 @@ import { EIssueServiceType } from "@plane/types";
 import type { TIssueAttachment, TIssueAttachmentMap, TIssueAttachmentIdMap, TIssueServiceType } from "@plane/types";
 // services
 import { IssueAttachmentService } from "@/services/issue";
-// types
-import type { IIssueRootStore } from "@/store/issue/root.store";
+// stores
+import { useIssueStore } from "@/store/issue/issue.store";
 import type { IIssueDetail } from "@/store/issue/issue-details/root.store";
 
 export type TAttachmentUploadStatus = {
@@ -30,8 +30,7 @@ interface IssueAttachmentStoreState {
   attachments: TIssueAttachmentIdMap;
   attachmentMap: TIssueAttachmentMap;
   attachmentsUploadStatusMap: Record<string, Record<string, TAttachmentUploadStatus>>;
-  // root store references
-  rootIssueStore: IIssueRootStore | null;
+  // root store references (only issueDetailStore for peekIssue)
   rootIssueDetailStore: IIssueDetail | null;
   serviceType: TIssueServiceType;
 }
@@ -42,7 +41,7 @@ interface IssueAttachmentStoreState {
 
 interface IssueAttachmentStoreActions {
   // initialization
-  initialize: (rootStore: IIssueRootStore, serviceType: TIssueServiceType) => void;
+  initialize: (issueDetailStore: IIssueDetail, serviceType: TIssueServiceType) => void;
   // actions
   addAttachments: (issueId: string, attachments: TIssueAttachment[]) => void;
   fetchAttachments: (workspaceSlug: string, projectId: string, issueId: string) => Promise<TIssueAttachment[]>;
@@ -81,7 +80,6 @@ const initialState: IssueAttachmentStoreState = {
   attachments: {},
   attachmentMap: {},
   attachmentsUploadStatusMap: {},
-  rootIssueStore: null,
   rootIssueDetailStore: null,
   serviceType: EIssueServiceType.ISSUES,
 };
@@ -116,11 +114,10 @@ export const useIssueAttachmentStore = create<IssueAttachmentStore>()((set, get)
   return {
     ...initialState,
 
-    // Initialize with root store and service type
-    initialize: (rootStore: IIssueRootStore, serviceType: TIssueServiceType) => {
+    // Initialize with issue detail store and service type
+    initialize: (issueDetailStore: IIssueDetail, serviceType: TIssueServiceType) => {
       set({
-        rootIssueStore: rootStore,
-        rootIssueDetailStore: rootStore.issueDetail,
+        rootIssueDetailStore: issueDetailStore,
         serviceType,
       });
     },
@@ -209,13 +206,10 @@ export const useIssueAttachmentStore = create<IssueAttachmentStore>()((set, get)
             };
           });
 
-          // Update issue attachment count
-          const currentState = get();
-          if (currentState.rootIssueStore) {
-            currentState.rootIssueStore.issues.updateIssue(issueId, {
-              attachment_count: get().getAttachmentsCountByIssueId(issueId),
-            });
-          }
+          // Update issue attachment count using Zustand store directly
+          useIssueStore.getState().updateIssue(issueId, {
+            attachment_count: get().getAttachmentsCountByIssueId(issueId),
+          });
         }
 
         return response;
@@ -260,13 +254,10 @@ export const useIssueAttachmentStore = create<IssueAttachmentStore>()((set, get)
         };
       });
 
-      // Update issue attachment count
-      const currentState = get();
-      if (currentState.rootIssueStore) {
-        currentState.rootIssueStore.issues.updateIssue(issueId, {
-          attachment_count: get().getAttachmentsCountByIssueId(issueId),
-        });
-      }
+      // Update issue attachment count using Zustand store directly
+      useIssueStore.getState().updateIssue(issueId, {
+        attachment_count: get().getAttachmentsCountByIssueId(issueId),
+      });
 
       return response;
     },
@@ -337,79 +328,4 @@ export interface IIssueAttachmentStore {
     issueId: string,
     attachmentId: string
   ) => Promise<TIssueAttachment>;
-}
-
-// ============================================================================
-// Legacy Class Wrapper (for backward compatibility)
-// ============================================================================
-
-export class IssueAttachmentStoreLegacy implements IIssueAttachmentStore {
-  private storeInitialized = false;
-
-  constructor(rootStore: IIssueRootStore, serviceType: TIssueServiceType) {
-    // Initialize the Zustand store with root store and service type
-    useIssueAttachmentStore.getState().initialize(rootStore, serviceType);
-    this.storeInitialized = true;
-  }
-
-  // Getters that delegate to Zustand store
-  get attachments(): TIssueAttachmentIdMap {
-    return useIssueAttachmentStore.getState().attachments;
-  }
-
-  get attachmentMap(): TIssueAttachmentMap {
-    return useIssueAttachmentStore.getState().attachmentMap;
-  }
-
-  get attachmentsUploadStatusMap(): Record<string, Record<string, TAttachmentUploadStatus>> {
-    return useIssueAttachmentStore.getState().attachmentsUploadStatusMap;
-  }
-
-  get issueAttachments(): string[] | undefined {
-    return useIssueAttachmentStore.getState().getIssueAttachments();
-  }
-
-  // Helper methods that delegate to Zustand store
-  getAttachmentsUploadStatusByIssueId = (issueId: string): TAttachmentUploadStatus[] | undefined => {
-    return useIssueAttachmentStore.getState().getAttachmentsUploadStatusByIssueId(issueId);
-  };
-
-  getAttachmentsByIssueId = (issueId: string): string[] | undefined => {
-    return useIssueAttachmentStore.getState().getAttachmentsByIssueId(issueId);
-  };
-
-  getAttachmentById = (attachmentId: string): TIssueAttachment | undefined => {
-    return useIssueAttachmentStore.getState().getAttachmentById(attachmentId);
-  };
-
-  getAttachmentsCountByIssueId = (issueId: string): number => {
-    return useIssueAttachmentStore.getState().getAttachmentsCountByIssueId(issueId);
-  };
-
-  // Action methods that delegate to Zustand store
-  addAttachments = (issueId: string, attachments: TIssueAttachment[]): void => {
-    return useIssueAttachmentStore.getState().addAttachments(issueId, attachments);
-  };
-
-  fetchAttachments = async (workspaceSlug: string, projectId: string, issueId: string): Promise<TIssueAttachment[]> => {
-    return useIssueAttachmentStore.getState().fetchAttachments(workspaceSlug, projectId, issueId);
-  };
-
-  createAttachment = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    file: File
-  ): Promise<TIssueAttachment> => {
-    return useIssueAttachmentStore.getState().createAttachment(workspaceSlug, projectId, issueId, file);
-  };
-
-  removeAttachment = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    attachmentId: string
-  ): Promise<TIssueAttachment> => {
-    return useIssueAttachmentStore.getState().removeAttachment(workspaceSlug, projectId, issueId, attachmentId);
-  };
 }

@@ -4,6 +4,8 @@ import type { RootStore } from "@/plane-web/store/root.store";
 import type { IBaseTimelineStore } from "@/plane-web/store/timeline/base-timeline.store";
 import { BaseTimeLineStore } from "@/plane-web/store/timeline/base-timeline.store";
 import { useTimelineStore } from "@/plane-web/store/client/timeline.store";
+// Issue store
+import { useIssueStore } from "@/store/issue/issue.store";
 
 export interface IIssuesTimeLineStore extends IBaseTimelineStore {
   isDependencyEnabled: boolean;
@@ -40,7 +42,7 @@ export type IssuesTimelineStoreType = IssuesTimelineState & IssuesTimelineAction
  *   issuesTimeline.updateBlocks();
  * }, [dependencies]);
  */
-export const useIssuesTimelineStore = create<IssuesTimelineStoreType>()((set, get) => ({
+export const useIssuesTimelineStore = create<IssuesTimelineStoreType>()((set, _get) => ({
   rootStore: null,
 
   setRootStore: (rootStore) => {
@@ -48,10 +50,8 @@ export const useIssuesTimelineStore = create<IssuesTimelineStoreType>()((set, ge
   },
 
   updateBlocks: () => {
-    const state = get();
-    if (!state.rootStore) return;
-
-    const getIssueById = state.rootStore.issue.issues.getIssueById;
+    // Use Zustand store directly instead of going through rootStore
+    const getIssueById = useIssueStore.getState().getIssueById;
     const timelineStore = useTimelineStore.getState();
     timelineStore.updateBlocks(getIssueById);
   },
