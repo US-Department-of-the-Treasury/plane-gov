@@ -12,6 +12,7 @@ import { DisplayFiltersSelection, FiltersDropdown } from "@/components/issues/is
 import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-toggle";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useArchivedIssueFilters } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectDetails } from "@/store/queries/project";
 
 export function ArchivedIssuesHeader() {
@@ -19,10 +20,11 @@ export function ArchivedIssuesHeader() {
   const { workspaceSlug: routerWorkspaceSlug, projectId: routerProjectId } = useParams();
   const workspaceSlug = routerWorkspaceSlug ? routerWorkspaceSlug.toString() : undefined;
   const projectId = routerProjectId ? routerProjectId.toString() : undefined;
-  // store hooks
+  // store hooks - use reactive hooks for reading filters
   const { data: currentProjectDetails } = useProjectDetails(workspaceSlug, projectId);
+  const issueFilters = useArchivedIssueFilters();
   const {
-    issuesFilter: { issueFilters, updateFilters },
+    issuesFilter: { updateFilters },
   } = useIssues(EIssuesStoreType.ARCHIVED);
   // i18n
   const { t } = useTranslation();

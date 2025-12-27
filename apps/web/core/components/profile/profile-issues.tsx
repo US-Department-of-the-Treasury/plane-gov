@@ -12,6 +12,7 @@ import { WorkspaceLevelWorkItemFiltersHOC } from "@/components/work-item-filters
 import { WorkItemFiltersRow } from "@/components/work-item-filters/filters-row";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useProfileIssueFilters, useProfileLayout } from "@/hooks/store/use-issue-store-reactive";
 import { IssuesStoreContext } from "@/hooks/use-issue-layout-store";
 // query keys
 import { queryKeys } from "@/store/queries/query-keys";
@@ -23,13 +24,13 @@ type Props = {
 export function ProfileIssuesPage(props: Props) {
   const { type } = props;
   const { workspaceSlug, userId } = useParams();
-  // store hooks
+  // store hooks - use reactive hooks for reading filters/layout
+  const issueFilters = useProfileIssueFilters();
+  const activeLayout = useProfileLayout();
   const {
     issues: { setViewId },
-    issuesFilter: { issueFilters, fetchFilters, updateFilterExpression },
+    issuesFilter: { fetchFilters, updateFilterExpression },
   } = useIssues(EIssuesStoreType.PROFILE);
-  // derived values
-  const activeLayout = issueFilters?.displayFilters?.layout || undefined;
 
   useEffect(() => {
     if (setViewId) setViewId(type);

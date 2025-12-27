@@ -41,7 +41,7 @@ import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-to
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useProjectSprints, getSprintById } from "@/store/queries/sprint";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useGroupedIssueCount } from "@/hooks/store/use-issue-store-reactive";
+import { useGroupedIssueCount, useSprintIssueFilters, useSprintLayout } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectDetails } from "@/store/queries/project";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
@@ -59,9 +59,11 @@ export function SprintIssuesHeader() {
   const { workspaceSlug, projectId, sprintId } = useParams();
   // i18n
   const { t } = useTranslation();
-  // store hooks
+  // store hooks - use reactive hooks for reading filters/layout
+  const issueFilters = useSprintIssueFilters();
+  const activeLayout = useSprintLayout() ?? EIssueLayoutTypes.LIST;
   const {
-    issuesFilter: { issueFilters, updateFilters },
+    issuesFilter: { updateFilters },
   } = useIssues(EIssuesStoreType.SPRINT);
   // reactive issue count from Zustand
   const workItemsCount = useGroupedIssueCount(EIssuesStoreType.SPRINT);
@@ -76,8 +78,6 @@ export function SprintIssuesHeader() {
     projectId?.toString() ?? ""
   );
   const loader = isLoading ? "init-loader" : undefined;
-
-  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const { setValue, storedValue } = useLocalStorage("sprint_sidebar_collapsed", false);
 

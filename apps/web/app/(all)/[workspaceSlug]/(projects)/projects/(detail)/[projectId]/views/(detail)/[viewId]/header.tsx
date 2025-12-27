@@ -25,6 +25,7 @@ import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-to
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useProjectViewIssueFilters, useProjectViewLayout } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectDetails } from "@/store/queries/project";
 import { useProjectView } from "@/hooks/store/use-project-view";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -39,9 +40,11 @@ export function ProjectViewIssuesHeader() {
   const router = useAppRouter();
   const { workspaceSlug, projectId, viewId: routerViewId } = useParams();
   const viewId = routerViewId ? routerViewId.toString() : undefined;
-  // store hooks
+  // store hooks - use reactive hooks for reading filters/layout
+  const issueFilters = useProjectViewIssueFilters();
+  const activeLayout = useProjectViewLayout() ?? EIssueLayoutTypes.LIST;
   const {
-    issuesFilter: { issueFilters, updateFilters },
+    issuesFilter: { updateFilters },
   } = useIssues(EIssuesStoreType.PROJECT_VIEW);
   const { toggleCreateIssueModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
@@ -51,8 +54,6 @@ export function ProjectViewIssuesHeader() {
     projectId?.toString() ?? ""
   );
   const { projectViewIds, getViewById } = useProjectView();
-
-  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const handleLayoutChange = useCallback(
     (layout: EIssueLayoutTypes) => {

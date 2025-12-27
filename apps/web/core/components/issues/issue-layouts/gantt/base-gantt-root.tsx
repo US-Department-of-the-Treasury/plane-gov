@@ -13,7 +13,13 @@ import { GanttChartRoot } from "@/components/gantt-chart/root";
 import { IssueGanttSidebar } from "@/components/gantt-chart/sidebar/issues/sidebar";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
-import { useGroupedIssueIds, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
+import {
+  useEpicIssueFilters,
+  useGroupedIssueIds,
+  useProjectIssueFilters,
+  useProjectViewIssueFilters,
+  useSprintIssueFilters,
+} from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -45,23 +51,29 @@ export function BaseGanttRoot(props: IBaseGanttRoot) {
   const { workspaceSlug, projectId } = useParams();
 
   const storeType = useIssueStoreType() as GanttStoreType;
-  const { issues, issuesFilter } = useIssues(storeType);
+  const { issues } = useIssues(storeType);
   const { fetchIssues, fetchNextIssues, updateIssue, quickAddIssue } = useIssuesActions(storeType);
   const { initGantt } = useTimeLineChart(GANTT_TIMELINE_TYPE.ISSUE);
   // store hooks
   const { allowPermissions } = useUserPermissions();
 
-  // Use reactive hooks for PROJECT and SPRINT store types, fall back to non-reactive for others
+  // Use reactive hooks for all supported store types
   const projectFilters = useProjectIssueFilters();
   const sprintFilters = useSprintIssueFilters();
+  const epicFilters = useEpicIssueFilters();
+  const projectViewFilters = useProjectViewIssueFilters();
 
-  // Use reactive filters for PROJECT and SPRINT store types to ensure proper re-renders when filters load
+  // Use reactive filters for all store types to ensure proper re-renders when filters load
   const appliedDisplayFilters =
     storeType === EIssuesStoreType.PROJECT
       ? projectFilters?.displayFilters
       : storeType === EIssuesStoreType.SPRINT
         ? sprintFilters?.displayFilters
-        : issuesFilter.issueFilters?.displayFilters;
+        : storeType === EIssuesStoreType.EPIC
+          ? epicFilters?.displayFilters
+          : storeType === EIssuesStoreType.PROJECT_VIEW
+            ? projectViewFilters?.displayFilters
+            : undefined;
   // plane web hooks
   const isBulkOperationsEnabled = useBulkOperationStatus();
   // derived values

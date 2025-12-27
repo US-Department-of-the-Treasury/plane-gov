@@ -12,6 +12,7 @@ import { DisplayFiltersSelection, FiltersDropdown, LayoutSelection } from "@/com
 import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-toggle";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useProfileIssueFilters, useProfileLayout } from "@/hooks/store/use-issue-store-reactive";
 
 export function ProfileIssuesFilter() {
   // i18n
@@ -19,12 +20,12 @@ export function ProfileIssuesFilter() {
   // router
   const { workspaceSlug, userId: routeUserId } = useParams();
   const userId = routeUserId ? routeUserId.toString() : undefined;
-  // store hook
+  // store hooks - use reactive hooks for reading filters/layout
+  const issueFilters = useProfileIssueFilters();
+  const activeLayout = useProfileLayout() ?? EIssueLayoutTypes.LIST;
   const {
-    issuesFilter: { issueFilters, updateFilters },
+    issuesFilter: { updateFilters },
   } = useIssues(EIssuesStoreType.PROFILE);
-  // derived values
-  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const handleLayoutChange = useCallback(
     (layout: EIssueLayoutTypes) => {

@@ -48,19 +48,14 @@ export function HeaderFilters(props: Props) {
   const { t } = useTranslation();
   // states
   const [analyticsModal, setAnalyticsModal] = useState(false);
-  // store hooks
+  // store hooks - use reactive hooks for reading filters/layout
+  const issueFilters = useProjectIssueFilters();
   const {
-    issuesFilter: { issueFilters, updateFilters },
+    issuesFilter: { updateFilters },
   } = useIssues(storeType);
 
-  // Use reactive hook for PROJECT store type to ensure proper re-renders when filters change
-  const reactiveFilters = useProjectIssueFilters();
-
-  // derived values - use reactive filters for PROJECT store type
-  const activeLayout =
-    storeType === EIssuesStoreType.PROJECT
-      ? reactiveFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST
-      : issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
+  // derived values
+  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
   const layoutDisplayFiltersOptions = ISSUE_STORE_TO_FILTERS_MAP[storeType]?.layoutOptions[activeLayout];
 
   const handleLayoutChange = useCallback(

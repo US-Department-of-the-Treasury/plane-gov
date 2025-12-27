@@ -33,7 +33,9 @@ import { StoreContext } from "@/lib/store-context";
 import type { BaseIssuesZustandStore } from "@/store/issue/helpers/base-issues.store";
 import { useArchivedIssuesFilterStore } from "@/store/issue/archived/filter.store";
 import { useEpicIssuesFilterStore } from "@/store/issue/epic/filter.store";
+import { useProfileIssuesFilterStore } from "@/store/issue/profile/filter.store";
 import { useProjectIssuesFilterStore } from "@/store/issue/project/filter.store";
+import { useProjectViewIssuesFilterStore } from "@/store/issue/project-views/filter.store";
 import { useSprintIssuesFilterStore } from "@/store/issue/sprint/filter.store";
 import { useWorkspaceIssuesFilterStore } from "@/store/issue/workspace/filter.store";
 import { useIssuesQuery } from "@/hooks/use-issues-query";
@@ -573,6 +575,51 @@ export function useArchivedLayout(): EIssueLayoutTypes | undefined {
 }
 
 /**
+ * Get project view issue filters reactively.
+ * Subscribes directly to Zustand store and re-renders when filters change.
+ *
+ * Project view filters use viewId as the key.
+ *
+ * @returns The computed issue filters for the project view, or undefined if not loaded
+ */
+export function useProjectViewIssueFilters(): IIssueFilters | undefined {
+  const { viewId } = useParams();
+  const viewIdStr = viewId?.toString();
+
+  // Subscribe to Zustand store directly using selector with useShallow
+  const rawFilters = useProjectViewIssuesFilterStore(
+    useShallow((state) => (viewIdStr ? state.filters[viewIdStr] : undefined))
+  );
+
+  // Apply computedIssueFilters transform (same logic as IssueFilterHelperStore)
+  return useMemo(() => {
+    if (!rawFilters || isEmpty(rawFilters)) return undefined;
+    return {
+      richFilters: isEmpty(rawFilters?.richFilters) ? {} : rawFilters?.richFilters,
+      displayFilters: isEmpty(rawFilters?.displayFilters) ? undefined : rawFilters?.displayFilters,
+      displayProperties: isEmpty(rawFilters?.displayProperties) ? undefined : rawFilters?.displayProperties,
+      kanbanFilters: isEmpty(rawFilters?.kanbanFilters) ? undefined : rawFilters?.kanbanFilters,
+    };
+  }, [rawFilters]);
+}
+
+/**
+ * Get project view layout reactively.
+ * Returns just the layout value as a primitive string for reliable re-renders.
+ *
+ * @returns The current layout for the project view, or undefined if not loaded
+ */
+export function useProjectViewLayout(): EIssueLayoutTypes | undefined {
+  const { viewId } = useParams();
+  const viewIdStr = viewId?.toString();
+
+  // Select just the layout value directly - primitive comparison is reliable
+  return useProjectViewIssuesFilterStore((state) =>
+    viewIdStr ? state.filters[viewIdStr]?.displayFilters?.layout : undefined
+  );
+}
+
+/**
  * Compute API filter params from display filters and rich filters.
  * This replicates the logic from IssueFilterHelperStore.computedFilteredParams
  * but as a pure function for use in hooks.
@@ -728,4 +775,49 @@ export function useWorkspaceViewAppliedFilters(viewId: string | undefined): Part
       filteredParams
     );
   }, [filters, viewId]);
+}
+
+/**
+ * Get profile issue filters reactively.
+ * Subscribes directly to Zustand store and re-renders when filters change.
+ *
+ * Profile filters use userId as the key.
+ *
+ * @returns The computed issue filters for the user profile, or undefined if not loaded
+ */
+export function useProfileIssueFilters(): IIssueFilters | undefined {
+  const { userId } = useParams();
+  const userIdStr = userId?.toString();
+
+  // Subscribe to Zustand store directly using selector with useShallow
+  const rawFilters = useProfileIssuesFilterStore(
+    useShallow((state) => (userIdStr ? state.filters[userIdStr] : undefined))
+  );
+
+  // Apply computedIssueFilters transform (same logic as IssueFilterHelperStore)
+  return useMemo(() => {
+    if (!rawFilters || isEmpty(rawFilters)) return undefined;
+    return {
+      richFilters: isEmpty(rawFilters?.richFilters) ? {} : rawFilters?.richFilters,
+      displayFilters: isEmpty(rawFilters?.displayFilters) ? undefined : rawFilters?.displayFilters,
+      displayProperties: isEmpty(rawFilters?.displayProperties) ? undefined : rawFilters?.displayProperties,
+      kanbanFilters: isEmpty(rawFilters?.kanbanFilters) ? undefined : rawFilters?.kanbanFilters,
+    };
+  }, [rawFilters]);
+}
+
+/**
+ * Get profile layout reactively.
+ * Returns just the layout value as a primitive string for reliable re-renders.
+ *
+ * @returns The current layout for the user profile, or undefined if not loaded
+ */
+export function useProfileLayout(): EIssueLayoutTypes | undefined {
+  const { userId } = useParams();
+  const userIdStr = userId?.toString();
+
+  // Select just the layout value directly - primitive comparison is reliable
+  return useProfileIssuesFilterStore((state) =>
+    userIdStr ? state.filters[userIdStr]?.displayFilters?.layout : undefined
+  );
 }

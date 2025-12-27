@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { omit } from "lodash-es";
-import { useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Ellipsis } from "lucide-react";
 // plane imports
 import {
@@ -11,12 +11,11 @@ import {
 } from "@plane/constants";
 import type { TIssue } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
-import type { TContextMenuItem } from "@plane/ui";
 import { ContextMenu, CustomMenu } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { useIssues } from "@/hooks/store/use-issues";
+import { useProjectLayout } from "@/hooks/store/use-issue-store-reactive";
 import { useProjectDetails } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -58,7 +57,6 @@ export function WorkItemDetailQuickActions(props: TWorkItemDetailQuickActionProp
   } = props;
   // router
   const { workspaceSlug } = useParams();
-  const pathname = usePathname();
   // states
   const [createUpdateIssueModal, setCreateUpdateIssueModal] = useState(false);
   const [issueToEdit, setIssueToEdit] = useState<TIssue | undefined>(undefined);
@@ -67,11 +65,11 @@ export function WorkItemDetailQuickActions(props: TWorkItemDetailQuickActionProp
   const [duplicateWorkItemModal, setDuplicateWorkItemModal] = useState(false);
   // store hooks
   const { allowPermissions } = useUserPermissions();
-  const { issuesFilter } = useIssues(EIssuesStoreType.PROJECT);
+  const layout = useProjectLayout();
   const { data: projectStates } = useProjectStates(workspaceSlug?.toString(), issue.project_id);
   const { data: projectDetails } = useProjectDetails(workspaceSlug?.toString(), issue.project_id);
   // derived values
-  const activeLayout = `${issuesFilter.issueFilters?.displayFilters?.layout} layout`;
+  const activeLayout = `${layout ?? "list"} layout`;
   const stateDetails = getStateById(projectStates, issue.state_id);
   const projectIdentifier = projectDetails?.identifier;
   // auth

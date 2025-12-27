@@ -9,7 +9,13 @@ import { EIssuesStoreType } from "@plane/types";
 // hooks
 import { useCalendarView } from "@/hooks/store/use-calendar-view";
 import { useIssues } from "@/hooks/store/use-issues";
-import { useGroupedIssueIds, useProjectIssueFilters, useSprintIssueFilters } from "@/hooks/store/use-issue-store-reactive";
+import {
+  useEpicIssueFilters,
+  useGroupedIssueIds,
+  useProjectIssueFilters,
+  useProjectViewIssueFilters,
+  useSprintIssueFilters,
+} from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -73,9 +79,11 @@ export function BaseCalendarRoot(props: IBaseCalendarRoot) {
     issueCalendarView.initCalendar();
   }, []);
 
-  // Use reactive hooks for PROJECT and SPRINT store types, fall back to non-reactive for others
+  // Use reactive hooks for all supported store types
   const projectFilters = useProjectIssueFilters();
   const sprintFilters = useSprintIssueFilters();
+  const epicFilters = useEpicIssueFilters();
+  const projectViewFilters = useProjectViewIssueFilters();
 
   const isEditingAllowed = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
@@ -86,13 +94,17 @@ export function BaseCalendarRoot(props: IBaseCalendarRoot) {
 
   const { enableInlineEditing } = issues?.viewFlags || {};
 
-  // Use reactive filters for PROJECT and SPRINT store types to ensure proper re-renders when filters load
+  // Use reactive filters for all store types to ensure proper re-renders when filters load
   const displayFilters =
     storeType === EIssuesStoreType.PROJECT
       ? projectFilters?.displayFilters
       : storeType === EIssuesStoreType.SPRINT
         ? sprintFilters?.displayFilters
-        : issuesFilter.issueFilters?.displayFilters;
+        : storeType === EIssuesStoreType.EPIC
+          ? epicFilters?.displayFilters
+          : storeType === EIssuesStoreType.PROJECT_VIEW
+            ? projectViewFilters?.displayFilters
+            : undefined;
 
   // Use reactive hook to get grouped issue IDs - ensures re-render when issues load
   const groupedIssueIds = useGroupedIssueIds(storeType) as TGroupedIssues;

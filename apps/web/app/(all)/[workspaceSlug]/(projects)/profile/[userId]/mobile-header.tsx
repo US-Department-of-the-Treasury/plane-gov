@@ -17,18 +17,19 @@ import { DisplayFiltersSelection, FiltersDropdown } from "@/components/issues/is
 import { IssueLayoutIcon } from "@/components/issues/issue-layouts/layout-icon";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
+import { useProfileIssueFilters, useProfileLayout } from "@/hooks/store/use-issue-store-reactive";
 
 export function ProfileIssuesMobileHeader() {
   // plane i18n
   const { t } = useTranslation();
   // router
   const { workspaceSlug, userId } = useParams();
-  // store hook
+  // store hooks - use reactive hooks for reading filters/layout
+  const issueFilters = useProfileIssueFilters();
+  const activeLayout = useProfileLayout() ?? EIssueLayoutTypes.LIST;
   const {
-    issuesFilter: { issueFilters, updateFilters },
+    issuesFilter: { updateFilters },
   } = useIssues(EIssuesStoreType.PROFILE);
-  // derived values
-  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
 
   const handleLayoutChange = useCallback(
     (layout: TIssueLayouts) => {

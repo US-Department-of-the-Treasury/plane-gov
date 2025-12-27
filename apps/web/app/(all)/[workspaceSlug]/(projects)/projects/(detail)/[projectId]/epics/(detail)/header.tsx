@@ -31,8 +31,7 @@ import { EpicQuickActions } from "@/components/epics";
 import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-toggle";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useIssues } from "@/hooks/store/use-issues";
-import { useGroupedIssueCount } from "@/hooks/store/use-issue-store-reactive";
+import { useGroupedIssueCount, useEpicIssueFilters, useEpicLayout } from "@/hooks/store/use-issue-store-reactive";
 import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 import { useIssuesActions } from "@/hooks/use-issues-actions";
@@ -56,10 +55,9 @@ export function EpicIssuesHeader() {
   const epicId = routerEpicId ? routerEpicId.toString() : undefined;
   // hooks
   const { isMobile } = usePlatformOS();
-  // store hooks
-  const {
-    issuesFilter: { issueFilters },
-  } = useIssues(EIssuesStoreType.EPIC);
+  // store hooks - use reactive hooks for reading filters/layout
+  const issueFilters = useEpicIssueFilters();
+  const activeLayout = useEpicLayout() ?? EIssueLayoutTypes.LIST;
   // reactive issue count from Zustand
   const workItemsCount = useGroupedIssueCount(EIssuesStoreType.EPIC);
   const { updateFilters } = useIssuesActions(EIssuesStoreType.EPIC);
@@ -81,7 +79,6 @@ export function EpicIssuesHeader() {
   const { setValue, storedValue } = useLocalStorage("epic_sidebar_collapsed", "false");
   // derived values
   const isSidebarCollapsed = storedValue ? (storedValue === "true" ? true : false) : false;
-  const activeLayout = issueFilters?.displayFilters?.layout ?? EIssueLayoutTypes.LIST;
   const canUserCreateIssue = allowPermissions(
     [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
     EUserPermissionsLevel.PROJECT,
