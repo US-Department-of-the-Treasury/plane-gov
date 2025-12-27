@@ -33,6 +33,7 @@ function CollaborativeDocumentEditorInner(props: ICollaborativeDocumentEditorPro
     forwardedRef,
     getEditorMetaData,
     handleEditorReady,
+    hideTitleEditor = false,
     id,
     dragDropEnabled = true,
     isTouchDevice,
@@ -116,6 +117,7 @@ function CollaborativeDocumentEditorInner(props: ICollaborativeDocumentEditorPro
           extendedDocumentEditorProps={extendedDocumentEditorProps}
           editor={editor}
           flaggedExtensions={flaggedExtensions}
+          hideTitleEditor={hideTitleEditor}
           titleEditor={titleEditor}
           editorContainerClassName={cn(editorContainerClassNames, "document-editor")}
           extendedEditorProps={extendedEditorProps}

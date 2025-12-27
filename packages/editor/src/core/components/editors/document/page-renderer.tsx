@@ -22,6 +22,8 @@ type Props = {
   displayConfig: TDisplayConfig;
   documentLoaderClassName?: string;
   editor: Editor;
+  /** Hide the built-in title editor (when using external title management) */
+  hideTitleEditor?: boolean;
   titleEditor?: Editor;
   editorContainerClassName: string;
   extendedDocumentEditorProps?: ICollaborativeDocumentEditorPropsExtended;
@@ -45,6 +47,7 @@ export function PageRenderer(props: Props) {
     editorContainerClassName,
     extendedEditorProps,
     flaggedExtensions,
+    hideTitleEditor = false,
     id,
     isLoading,
     isTouchDevice,
@@ -63,7 +66,7 @@ export function PageRenderer(props: Props) {
         <DocumentContentLoader className={documentLoaderClassName} />
       ) : (
         <>
-          {titleEditor && (
+          {titleEditor && !hideTitleEditor && (
             <div className="relative w-full py-3">
               <EditorContainer
                 editor={titleEditor}
