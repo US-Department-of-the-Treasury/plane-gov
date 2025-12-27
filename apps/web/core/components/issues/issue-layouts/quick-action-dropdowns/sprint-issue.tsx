@@ -10,12 +10,11 @@ import {
 } from "@plane/constants";
 import type { TIssue } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
-import type { TContextMenuItem } from "@plane/ui";
 import { ContextMenu, CustomMenu } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
 import { captureClick } from "@/helpers/event-tracker.helper";
-import { useIssues } from "@/hooks/store/use-issues";
+import { useSprintLayout } from "@/hooks/store/use-issue-store-reactive";
 import { useProjects, getProjectById } from "@/store/queries/project";
 import { useProjectStates, getStateById } from "@/store/queries/state";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -53,7 +52,7 @@ export function SprintIssueQuickActions(props: IQuickActionProps) {
   const { workspaceSlug, sprintId } = useParams();
 
   // store hooks
-  const { issuesFilter } = useIssues(EIssuesStoreType.SPRINT);
+  const layout = useSprintLayout();
   const { allowPermissions } = useUserPermissions();
 
   // queries
@@ -71,7 +70,7 @@ export function SprintIssueQuickActions(props: IQuickActionProps) {
   const isInArchivableGroup = !!stateDetails && ARCHIVABLE_STATE_GROUPS.includes(stateDetails?.group);
   const isDeletingAllowed = isEditingAllowed;
 
-  const activeLayout = `${issuesFilter.issueFilters?.displayFilters?.layout} layout`;
+  const activeLayout = `${layout ?? "list"} layout`;
 
   const duplicateIssuePayload = omit(
     {

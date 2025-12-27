@@ -31,6 +31,8 @@ import { EIssueLayoutTypes, EIssuesStoreType } from "@plane/types";
 import { handleIssueQueryParamsByLayout } from "@plane/utils";
 import { StoreContext } from "@/lib/store-context";
 import type { BaseIssuesZustandStore } from "@/store/issue/helpers/base-issues.store";
+import { useArchivedIssuesFilterStore } from "@/store/issue/archived/filter.store";
+import { useEpicIssuesFilterStore } from "@/store/issue/epic/filter.store";
 import { useProjectIssuesFilterStore } from "@/store/issue/project/filter.store";
 import { useSprintIssuesFilterStore } from "@/store/issue/sprint/filter.store";
 import { useWorkspaceIssuesFilterStore } from "@/store/issue/workspace/filter.store";
@@ -460,6 +462,113 @@ export function useSprintLayout(): EIssueLayoutTypes | undefined {
   // Select just the layout value directly - primitive comparison is reliable
   return useSprintIssuesFilterStore((state) =>
     sprintIdStr ? state.filters[sprintIdStr]?.displayFilters?.layout : undefined
+  );
+}
+
+/**
+ * Get epic issue filters reactively.
+ * Subscribes directly to Zustand store and re-renders when filters change.
+ *
+ * This replaces the non-reactive `issuesFilter.getIssueFilters(epicId)` call which
+ * uses getState() and returns a snapshot that doesn't trigger re-renders.
+ *
+ * @returns The computed issue filters for the current epic, or undefined if not loaded
+ */
+export function useEpicIssueFilters(): IIssueFilters | undefined {
+  const { epicId } = useParams();
+  const epicIdStr = epicId?.toString();
+
+  // Subscribe to Zustand store directly using selector with useShallow
+  const rawFilters = useEpicIssuesFilterStore(
+    useShallow((state) => (epicIdStr ? state.filters[epicIdStr] : undefined))
+  );
+
+  // Apply computedIssueFilters transform (same logic as IssueFilterHelperStore)
+  return useMemo(() => {
+    if (!rawFilters || isEmpty(rawFilters)) return undefined;
+    return {
+      richFilters: isEmpty(rawFilters?.richFilters) ? {} : rawFilters?.richFilters,
+      displayFilters: isEmpty(rawFilters?.displayFilters) ? undefined : rawFilters?.displayFilters,
+      displayProperties: isEmpty(rawFilters?.displayProperties) ? undefined : rawFilters?.displayProperties,
+      kanbanFilters: isEmpty(rawFilters?.kanbanFilters) ? undefined : rawFilters?.kanbanFilters,
+    };
+  }, [rawFilters]);
+}
+
+/**
+ * Get epic layout reactively.
+ * Returns just the layout value as a primitive string for reliable re-renders.
+ *
+ * @returns The current layout for the epic, or undefined if not loaded
+ */
+export function useEpicLayout(): EIssueLayoutTypes | undefined {
+  const { epicId } = useParams();
+  const epicIdStr = epicId?.toString();
+
+  // Select just the layout value directly - primitive comparison is reliable
+  return useEpicIssuesFilterStore((state) =>
+    epicIdStr ? state.filters[epicIdStr]?.displayFilters?.layout : undefined
+  );
+}
+
+/**
+ * Get project layout reactively.
+ * Returns just the layout value as a primitive string for reliable re-renders.
+ *
+ * @returns The current layout for the project, or undefined if not loaded
+ */
+export function useProjectLayout(): EIssueLayoutTypes | undefined {
+  const { projectId } = useParams();
+  const projectIdStr = projectId?.toString();
+
+  // Select just the layout value directly - primitive comparison is reliable
+  return useProjectIssuesFilterStore((state) =>
+    projectIdStr ? state.filters[projectIdStr]?.displayFilters?.layout : undefined
+  );
+}
+
+/**
+ * Get archived issue filters reactively.
+ * Subscribes directly to Zustand store and re-renders when filters change.
+ *
+ * Archived filters use projectId as the key (same as project filters).
+ *
+ * @returns The computed issue filters for the archived view, or undefined if not loaded
+ */
+export function useArchivedIssueFilters(): IIssueFilters | undefined {
+  const { projectId } = useParams();
+  const projectIdStr = projectId?.toString();
+
+  // Subscribe to Zustand store directly using selector with useShallow
+  const rawFilters = useArchivedIssuesFilterStore(
+    useShallow((state) => (projectIdStr ? state.filters[projectIdStr] : undefined))
+  );
+
+  // Apply computedIssueFilters transform (same logic as IssueFilterHelperStore)
+  return useMemo(() => {
+    if (!rawFilters || isEmpty(rawFilters)) return undefined;
+    return {
+      richFilters: isEmpty(rawFilters?.richFilters) ? {} : rawFilters?.richFilters,
+      displayFilters: isEmpty(rawFilters?.displayFilters) ? undefined : rawFilters?.displayFilters,
+      displayProperties: isEmpty(rawFilters?.displayProperties) ? undefined : rawFilters?.displayProperties,
+      kanbanFilters: isEmpty(rawFilters?.kanbanFilters) ? undefined : rawFilters?.kanbanFilters,
+    };
+  }, [rawFilters]);
+}
+
+/**
+ * Get archived layout reactively.
+ * Returns just the layout value as a primitive string for reliable re-renders.
+ *
+ * @returns The current layout for the archived view, or undefined if not loaded
+ */
+export function useArchivedLayout(): EIssueLayoutTypes | undefined {
+  const { projectId } = useParams();
+  const projectIdStr = projectId?.toString();
+
+  // Select just the layout value directly - primitive comparison is reliable
+  return useArchivedIssuesFilterStore((state) =>
+    projectIdStr ? state.filters[projectIdStr]?.displayFilters?.layout : undefined
   );
 }
 
