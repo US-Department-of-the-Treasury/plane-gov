@@ -1,4 +1,4 @@
-import { uniq, sortBy } from "lodash-es";
+import { uniq } from "lodash-es";
 import { create } from "zustand";
 // plane imports
 import { EUserPermissions } from "@plane/constants";
@@ -12,7 +12,6 @@ import type {
 // services
 import { ProjectMemberService } from "@/services/project";
 // store helpers
-import { getRouterProjectId } from "@/store/client";
 import { useUserStore } from "@/store/user";
 import { useBaseUserPermissionStore } from "@/store/client/user-base-permissions.store";
 // utils
@@ -91,7 +90,7 @@ export interface BaseProjectMemberStoreActions {
     projectId: string,
     data: IProjectBulkAddFormData,
     getUserProjectRole: (userId: string, projectId: string) => EUserProjectRoles | undefined,
-    projectRoot: any
+    projectRoot: { projectMap?: Record<string, { members?: string[] }> }
   ) => Promise<TProjectMembership[]>;
 
   // CRUD actions
@@ -114,7 +113,11 @@ export interface BaseProjectMemberStoreActions {
   ) => Promise<void>;
 
   // Helper for member removal
-  handleMemberRemoval: (projectId: string, userId: string, projectRoot: any) => void;
+  handleMemberRemoval: (
+    projectId: string,
+    userId: string,
+    projectRoot: { projectMap?: Record<string, { members?: string[] }> }
+  ) => void;
 }
 
 // Combined store type
@@ -186,9 +189,7 @@ export const useBaseProjectMemberStore = create<BaseProjectMemberStore>()((set, 
     return projectMembershipRole ? (projectMembershipRole as EUserProjectRoles) : undefined;
   },
 
-  getProjectMemberDetails: (userId, projectId) => {
-    const state = get();
-    const projectMember = state.getProjectMembershipByUserId(userId, projectId);
+  getProjectMemberDetails: (_userId, _projectId) => {
     // Note: memberMap comes from memberRoot which needs to be passed in by legacy class
     // This is a limitation of the Zustand migration - we can't access other stores directly
     return null; // Will be implemented in legacy class wrapper
@@ -210,7 +211,7 @@ export const useBaseProjectMemberStore = create<BaseProjectMemberStore>()((set, 
     return memberIds;
   },
 
-  getFilteredProjectMemberDetails: (userId, projectId) => {
+  getFilteredProjectMemberDetails: (_userId, _projectId) => {
     // Note: This requires memberRoot which is passed through legacy class
     return null; // Will be implemented in legacy class wrapper
   },
@@ -350,7 +351,7 @@ export const useBaseProjectMemberStore = create<BaseProjectMemberStore>()((set, 
     role,
     getProjectMemberRoleForUpdate,
     memberDetailsGetter,
-    rootStore
+    _rootStore
   ) => {
     const memberDetails = memberDetailsGetter(userId, projectId);
     if (!memberDetails || !memberDetails?.id) throw new Error("Member not found");
@@ -390,12 +391,9 @@ export const useBaseProjectMemberStore = create<BaseProjectMemberStore>()((set, 
         useBaseUserPermissionStore.getState().setProjectPermission(workspaceSlug, projectId, updatedProjectRole);
       }
 
-      const response = await projectMemberService.updateProjectMember(
-        workspaceSlug,
-        projectId,
-        memberDetails?.id,
-        { role }
-      );
+      const response = await projectMemberService.updateProjectMember(workspaceSlug, projectId, memberDetails?.id, {
+        role,
+      });
 
       return response;
     } catch (error) {
@@ -504,11 +502,7 @@ export interface IBaseProjectMemberStore {
   removeMemberFromProject: (workspaceSlug: string, projectId: string, userId: string) => Promise<void>;
   // abstract methods (must be implemented by subclasses)
   getUserProjectRole: (userId: string, projectId: string) => EUserProjectRoles | undefined;
-  getProjectMemberRoleForUpdate: (
-    projectId: string,
-    userId: string,
-    role: EUserProjectRoles
-  ) => EUserProjectRoles;
+  getProjectMemberRoleForUpdate: (projectId: string, userId: string, role: EUserProjectRoles) => EUserProjectRoles;
   processMemberRemoval: (projectId: string, userId: string) => void;
 }
 
@@ -523,247 +517,4 @@ export interface IProjectMemberFiltersStore {
   ) => string[];
   updateFilters: (projectId: string, filters: Partial<IMemberFilters>) => void;
   getFilters: (projectId: string) => IMemberFilters | undefined;
-}
-
-/**
- * Legacy class wrapper for backward compatibility
- * This is an abstract class that must be extended to implement abstract methods
- */
-export abstract class BaseProjectMemberStoreLegacy implements IBaseProjectMemberStore {
-  protected rootStore: RootStore;
-  protected userStore: any;
-  protected memberRoot: any;
-  protected projectRoot: any;
-
-  // Filters store wrapper
-  filters: IProjectMemberFiltersStore;
-
-  constructor(_memberRoot: any, _rootStore: RootStore) {
-    this.rootStore = _rootStore;
-    this.userStore = _rootStore.user;
-    this.memberRoot = _memberRoot;
-    this.projectRoot = _rootStore.projectRoot.project;
-
-    // Create filters wrapper that delegates to Zustand store
-    this.filters = {
-      get filtersMap() {
-        return useBaseProjectMemberStore.getState().filtersMap;
-      },
-      getFilteredMemberIds: (members, memberDetailsMap, getMemberKey, projectId) => {
-        return useBaseProjectMemberStore.getState().getFilteredMemberIds(members, memberDetailsMap, getMemberKey, projectId);
-      },
-      updateFilters: (projectId, filters) => {
-        useBaseProjectMemberStore.getState().updateFilters(projectId, filters);
-      },
-      getFilters: (projectId) => {
-        return useBaseProjectMemberStore.getState().getFilters(projectId);
-      },
-    };
-  }
-
-  // Getters that delegate to Zustand store
-  get projectMemberFetchStatusMap() {
-    return useBaseProjectMemberStore.getState().projectMemberFetchStatusMap;
-  }
-
-  get projectMemberMap() {
-    return useBaseProjectMemberStore.getState().projectMemberMap;
-  }
-
-  get projectMemberPreferencesMap() {
-    return useBaseProjectMemberStore.getState().projectMemberPreferencesMap;
-  }
-
-  get projectMemberIds(): string[] | null {
-    const projectId = getRouterProjectId();
-    if (!projectId) return null;
-
-    const members = Object.values(this.projectMemberMap?.[projectId] ?? {});
-    if (members.length === 0) return null;
-
-    const currentFilters = this.filters.filtersMap[projectId];
-
-    const sortedMembers = sortProjectMembers(
-      members,
-      this.memberRoot?.memberMap || {},
-      (member) => member.member,
-      currentFilters
-    );
-
-    return sortedMembers.map((member) => member.member);
-  }
-
-  // Computed function getters
-  getProjectMemberFetchStatus = (projectId: string): boolean => {
-    return useBaseProjectMemberStore.getState().getProjectMemberFetchStatus(projectId);
-  };
-
-  protected getProjectMemberships = (projectId: string): TProjectMembership[] => {
-    return useBaseProjectMemberStore.getState().getProjectMemberships(projectId);
-  };
-
-  protected getProjectMembershipByUserId = (userId: string, projectId: string): TProjectMembership | undefined => {
-    return useBaseProjectMemberStore.getState().getProjectMembershipByUserId(userId, projectId);
-  };
-
-  protected getRoleFromProjectMembership = (userId: string, projectId: string): EUserProjectRoles | undefined => {
-    return useBaseProjectMemberStore.getState().getRoleFromProjectMembership(userId, projectId);
-  };
-
-  getProjectMemberDetails = (userId: string, projectId: string): IProjectMemberDetails | null => {
-    const projectMember = this.getProjectMembershipByUserId(userId, projectId);
-    if (!projectMember) return null;
-    const userDetails = this.memberRoot?.memberMap?.[projectMember.member];
-    if (!userDetails) return null;
-
-    const memberDetails: IProjectMemberDetails = {
-      id: projectMember.id,
-      role: projectMember.role,
-      original_role: projectMember.original_role,
-      member: {
-        ...userDetails,
-        joining_date: projectMember.created_at ?? undefined,
-      },
-      created_at: projectMember.created_at,
-    };
-    return memberDetails;
-  };
-
-  getProjectMemberIds = (projectId: string, includeGuestUsers: boolean): string[] | null => {
-    if (!this.projectMemberMap?.[projectId]) return null;
-
-    let members = this.getProjectMemberships(projectId);
-    if (includeGuestUsers === false) {
-      members = members.filter((m) => m.role !== (EUserPermissions.GUEST as unknown as EUserProjectRoles));
-    }
-
-    members = sortBy(members, [
-      (m) => m.member !== this.userStore.data?.id,
-      (m) => this.memberRoot?.memberMap?.[m.member]?.display_name?.toLowerCase(),
-    ]);
-
-    const memberIds = members.map((m) => m.member);
-    return memberIds;
-  };
-
-  getFilteredProjectMemberDetails = (userId: string, projectId: string): IProjectMemberDetails | null => {
-    const projectMember = this.getProjectMembershipByUserId(userId, projectId);
-    if (!projectMember) return null;
-    const userDetails = this.memberRoot?.memberMap?.[projectMember.member];
-    if (!userDetails) return null;
-
-    const allMembers = this.getProjectMemberships(projectId);
-    const filteredMemberIds = this.filters.getFilteredMemberIds(
-      allMembers,
-      this.memberRoot?.memberMap || {},
-      (member) => member.member,
-      projectId
-    );
-
-    if (!filteredMemberIds.includes(userId)) return null;
-
-    const memberDetails: IProjectMemberDetails = {
-      id: projectMember.id,
-      role: projectMember.role,
-      original_role: projectMember.original_role,
-      member: {
-        ...userDetails,
-        joining_date: projectMember.created_at ?? undefined,
-      },
-      created_at: projectMember.created_at,
-    };
-    return memberDetails;
-  };
-
-  getProjectMemberPreferences = (projectId: string): IProjectMemberNavigationPreferences | null => {
-    return useBaseProjectMemberStore.getState().getProjectMemberPreferences(projectId);
-  };
-
-  // Fetch actions
-  fetchProjectMembers = async (
-    workspaceSlug: string,
-    projectId: string,
-    clearExistingMembers: boolean = false
-  ): Promise<TProjectMembership[]> => {
-    return useBaseProjectMemberStore.getState().fetchProjectMembers(workspaceSlug, projectId, clearExistingMembers);
-  };
-
-  fetchProjectMemberPreferences = async (
-    workspaceSlug: string,
-    projectId: string,
-    memberId: string
-  ): Promise<IProjectMemberNavigationPreferences> => {
-    return useBaseProjectMemberStore.getState().fetchProjectMemberPreferences(workspaceSlug, projectId, memberId);
-  };
-
-  // Update actions
-  updateProjectMemberPreferences = async (
-    workspaceSlug: string,
-    projectId: string,
-    memberId: string,
-    preferences: IProjectMemberNavigationPreferences
-  ): Promise<void> => {
-    return useBaseProjectMemberStore.getState().updateProjectMemberPreferences(
-      workspaceSlug,
-      projectId,
-      memberId,
-      preferences
-    );
-  };
-
-  // Bulk operation actions
-  bulkAddMembersToProject = async (
-    workspaceSlug: string,
-    projectId: string,
-    data: IProjectBulkAddFormData
-  ): Promise<TProjectMembership[]> => {
-    return useBaseProjectMemberStore.getState().bulkAddMembersToProject(
-      workspaceSlug,
-      projectId,
-      data,
-      this.getUserProjectRole.bind(this),
-      this.projectRoot
-    );
-  };
-
-  // CRUD actions
-  updateMemberRole = async (
-    workspaceSlug: string,
-    projectId: string,
-    userId: string,
-    role: EUserProjectRoles
-  ): Promise<TProjectMembership> => {
-    return useBaseProjectMemberStore.getState().updateMemberRole(
-      workspaceSlug,
-      projectId,
-      userId,
-      role,
-      this.getProjectMemberRoleForUpdate.bind(this),
-      this.getProjectMemberDetails.bind(this),
-      this.rootStore
-    );
-  };
-
-  removeMemberFromProject = async (workspaceSlug: string, projectId: string, userId: string): Promise<void> => {
-    return useBaseProjectMemberStore.getState().removeMemberFromProject(
-      workspaceSlug,
-      projectId,
-      userId,
-      this.getProjectMemberDetails.bind(this),
-      this.processMemberRemoval.bind(this)
-    );
-  };
-
-  protected handleMemberRemoval = (projectId: string, userId: string): void => {
-    useBaseProjectMemberStore.getState().handleMemberRemoval(projectId, userId, this.projectRoot);
-  };
-
-  // Abstract methods (must be implemented by subclasses)
-  abstract getUserProjectRole: (userId: string, projectId: string) => EUserProjectRoles | undefined;
-  abstract getProjectMemberRoleForUpdate: (
-    projectId: string,
-    userId: string,
-    role: EUserProjectRoles
-  ) => EUserProjectRoles;
-  abstract processMemberRemoval: (projectId: string, userId: string) => void;
 }

@@ -146,6 +146,9 @@ export const createProjectPageInstanceStore = (page: TPage) => {
   const workspaceSlug = getRouterWorkspaceSlug();
   const projectId = page.project_ids?.[0];
 
+  // Closure variable for debounced title save - no polling needed
+  let titleSaveTimeoutId: NodeJS.Timeout | null = null;
+
   return create<ProjectPageInstanceStore>()((set, get) => ({
     ...initialState,
 
@@ -204,59 +207,14 @@ export const createProjectPageInstanceStore = (page: TPage) => {
         projectId: projectId,
       });
 
-      // Set up the title reaction using Zustand subscription instead of setInterval polling
-      const setupTitleReaction = () => {
-        let timeoutId: NodeJS.Timeout | null = null;
-        let previousName = get().name;
-
-        // For now, use a minimal interval that only checks when there's a pending change
-        // This is a debounce pattern - we only save after 2 seconds of no changes
-        const handleNameChange = (currentName: string | undefined) => {
-          if (currentName !== previousName) {
-            previousName = currentName;
-            if (timeoutId) clearTimeout(timeoutId);
-
-            timeoutId = setTimeout(() => {
-              const state = get();
-              set({ isSubmitting: "submitting" });
-
-              if (!state.workspaceSlug || !state.projectId || !state.id) {
-                set({ isSubmitting: "submitted" });
-                return;
-              }
-
-              void projectPageService
-                .update(state.workspaceSlug, state.projectId, state.id, { name: currentName })
-                .then(() => {
-                  set({ isSubmitting: "submitted" });
-                  return undefined;
-                })
-                .catch(() => {
-                  set({
-                    name: state.oldName,
-                    isSubmitting: "submitted",
-                  });
-                });
-            }, 2000);
-          }
-        };
-
-        // Check for name changes less frequently since updateTitle() is explicit
-        // The name only changes when updateTitle() is called, so we just need
-        // to respond to those changes. Using 500ms is more efficient than 100ms.
-        const intervalId = setInterval(() => {
-          handleNameChange(get().name);
-        }, 500);
-
-        const disposer = () => {
-          if (timeoutId) clearTimeout(timeoutId);
-          clearInterval(intervalId);
-        };
-
-        set({ disposers: [...get().disposers, disposer] });
+      // Register cleanup for the title save timeout
+      const disposer = () => {
+        if (titleSaveTimeoutId) {
+          clearTimeout(titleSaveTimeoutId);
+          titleSaveTimeoutId = null;
+        }
       };
-
-      setupTitleReaction();
+      set({ disposers: [...get().disposers, disposer] });
     },
 
     // Helpers
@@ -284,10 +242,9 @@ export const createProjectPageInstanceStore = (page: TPage) => {
       let highestRole: EUserPermissions | undefined = undefined;
       state.project_ids.forEach((projectId) => {
         // Direct Zustand store access - no rootStore indirection
-        const currentUserProjectRole = useBaseUserPermissionStore.getState().getProjectRole(
-          workspaceSlug?.toString() || "",
-          projectId?.toString() || ""
-        );
+        const currentUserProjectRole = useBaseUserPermissionStore
+          .getState()
+          .getProjectRole(workspaceSlug?.toString() || "", projectId?.toString() || "");
         if (currentUserProjectRole) {
           if (!highestRole) highestRole = currentUserProjectRole;
           else if (currentUserProjectRole > highestRole) highestRole = currentUserProjectRole;
@@ -412,7 +369,9 @@ export const createProjectPageInstanceStore = (page: TPage) => {
         Object.keys(pageData).forEach((key) => {
           const pageKey = key as keyof TPage;
           if (key in state) {
-            updates[key as keyof ProjectPageInstanceStoreState] = pageData[pageKey] as any;
+            updates[key as keyof ProjectPageInstanceStoreState] = pageData[
+              pageKey
+            ] as ProjectPageInstanceStoreState[keyof ProjectPageInstanceStoreState];
           }
         });
         set(updates);
@@ -421,19 +380,16 @@ export const createProjectPageInstanceStore = (page: TPage) => {
           throw new Error("Missing required fields.");
         }
 
-        return await projectPageService.update(
-          state.workspaceSlug,
-          state.projectId,
-          state.id,
-          pageData
-        );
+        return await projectPageService.update(state.workspaceSlug, state.projectId, state.id, pageData);
       } catch (error) {
         // Revert on error
         const reverts: Partial<ProjectPageInstanceStoreState> = {};
         Object.keys(pageData).forEach((key) => {
           const pageKey = key as keyof TPage;
           if (key in state && currentPage) {
-            reverts[key as keyof ProjectPageInstanceStoreState] = currentPage[pageKey] as any;
+            reverts[key as keyof ProjectPageInstanceStoreState] = currentPage[
+              pageKey
+            ] as ProjectPageInstanceStoreState[keyof ProjectPageInstanceStoreState];
           }
         });
         set(reverts);
@@ -445,8 +401,36 @@ export const createProjectPageInstanceStore = (page: TPage) => {
       const state = get();
       set({
         oldName: state.name ?? "",
-        name: title
+        name: title,
       });
+
+      // Debounced save: clear any pending save and schedule a new one
+      if (titleSaveTimeoutId) {
+        clearTimeout(titleSaveTimeoutId);
+      }
+
+      titleSaveTimeoutId = setTimeout(() => {
+        const currentState = get();
+        set({ isSubmitting: "submitting" });
+
+        if (!currentState.workspaceSlug || !currentState.projectId || !currentState.id) {
+          set({ isSubmitting: "submitted" });
+          return;
+        }
+
+        void projectPageService
+          .update(currentState.workspaceSlug, currentState.projectId, currentState.id, { name: title })
+          .then(() => {
+            set({ isSubmitting: "submitted" });
+            return undefined;
+          })
+          .catch(() => {
+            set({
+              name: currentState.oldName,
+              isSubmitting: "submitted",
+            });
+          });
+      }, 2000);
     },
 
     updateDescription: async (document: TDocumentPayload) => {
@@ -459,12 +443,7 @@ export const createProjectPageInstanceStore = (page: TPage) => {
         if (!state.workspaceSlug || !state.projectId || !state.id) {
           throw new Error("Missing required fields.");
         }
-        await projectPageService.updateDescription(
-          state.workspaceSlug,
-          state.projectId,
-          state.id,
-          document
-        );
+        await projectPageService.updateDescription(state.workspaceSlug, state.projectId, state.id, document);
       } catch (error) {
         set({ description_html: currentDescription });
         throw error;
@@ -482,12 +461,9 @@ export const createProjectPageInstanceStore = (page: TPage) => {
           if (!state.workspaceSlug || !state.projectId || !state.id) {
             throw new Error("Missing required fields.");
           }
-          await projectPageService.updateAccess(
-            state.workspaceSlug,
-            state.projectId,
-            state.id,
-            { access: EPageAccess.PUBLIC }
-          );
+          await projectPageService.updateAccess(state.workspaceSlug, state.projectId, state.id, {
+            access: EPageAccess.PUBLIC,
+          });
         } catch (error) {
           set({ access: pageAccess });
           throw error;
@@ -506,12 +482,9 @@ export const createProjectPageInstanceStore = (page: TPage) => {
           if (!state.workspaceSlug || !state.projectId || !state.id) {
             throw new Error("Missing required fields.");
           }
-          await projectPageService.updateAccess(
-            state.workspaceSlug,
-            state.projectId,
-            state.id,
-            { access: EPageAccess.PRIVATE }
-          );
+          await projectPageService.updateAccess(state.workspaceSlug, state.projectId, state.id, {
+            access: EPageAccess.PRIVATE,
+          });
         } catch (error) {
           set({ access: pageAccess });
           throw error;
@@ -572,11 +545,7 @@ export const createProjectPageInstanceStore = (page: TPage) => {
           if (!state.workspaceSlug || !state.projectId || !state.id) {
             throw new Error("Missing required fields.");
           }
-          const response = await projectPageService.archive(
-            state.workspaceSlug,
-            state.projectId,
-            state.id
-          );
+          const response = await projectPageService.archive(state.workspaceSlug, state.projectId, state.id);
           set({ archived_at: response.archived_at });
         }
       } catch (error) {
@@ -629,12 +598,7 @@ export const createProjectPageInstanceStore = (page: TPage) => {
           throw new Error("Missing required fields.");
         }
 
-        await projectPageService.update(
-          state.workspaceSlug,
-          state.projectId,
-          state.id,
-          { logo_props: logoProps }
-        );
+        await projectPageService.update(state.workspaceSlug, state.projectId, state.id, { logo_props: logoProps });
       } catch (error) {
         console.error("Error in updating page logo", error);
         set({ logo_props: originalLogoProps as TLogoProps });
@@ -694,7 +658,8 @@ export const createProjectPageInstanceStore = (page: TPage) => {
         const value = data[key as keyof TPage];
         if (key === "name" && !shouldUpdateName) return;
         if (key in get()) {
-          updates[key as keyof ProjectPageInstanceStoreState] = value as any;
+          updates[key as keyof ProjectPageInstanceStoreState] =
+            value as ProjectPageInstanceStoreState[keyof ProjectPageInstanceStoreState];
         }
       });
       set(updates);

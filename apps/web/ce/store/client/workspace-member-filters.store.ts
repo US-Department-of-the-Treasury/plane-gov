@@ -89,28 +89,3 @@ export interface IWorkspaceMemberFilters {
   ) => string[];
   updateFilters: (filters: Partial<IMemberFilters>) => void;
 }
-
-// Legacy class wrapper for backward compatibility
-export class WorkspaceMemberFiltersStoreLegacy implements IWorkspaceMemberFilters {
-  constructor() {
-    // No initialization needed - Zustand store is already initialized
-  }
-
-  // Getters that delegate to Zustand store
-  get filters(): IMemberFilters {
-    return useWorkspaceMemberFiltersStore.getState().filters;
-  }
-
-  // Action methods that delegate to Zustand store
-  updateFilters = (filters: Partial<IMemberFilters>): void => {
-    return useWorkspaceMemberFiltersStore.getState().updateFilters(filters);
-  };
-
-  getFilteredMemberIds = (
-    members: IWorkspaceMembership[],
-    memberDetailsMap: Record<string, IUserLite>,
-    getMemberKey: (member: IWorkspaceMembership) => string
-  ): string[] => {
-    return useWorkspaceMemberFiltersStore.getState().getFilteredMemberIds(members, memberDetailsMap, getMemberKey);
-  };
-}

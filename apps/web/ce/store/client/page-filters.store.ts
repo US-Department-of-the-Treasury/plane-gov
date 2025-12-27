@@ -115,45 +115,5 @@ export interface IPageFiltersStore {
   resetFilters: () => void;
 }
 
-// ============================================================================
-// Legacy Class Wrapper (for backwards compatibility)
-// ============================================================================
-
-/**
- * Legacy PageFiltersStore class wrapper.
- * Provides MobX-like API by delegating to Zustand store.
- *
- * @deprecated Use usePageFiltersStore hook directly in new code
- */
-export class PageFiltersStoreLegacy implements IPageFiltersStore {
-  constructor() {
-    // No initialization needed - Zustand store is already initialized
-  }
-
-  // ============================================================================
-  // Observable Properties (via getters)
-  // ============================================================================
-
-  get filters(): TPageFilters {
-    return usePageFiltersStore.getState().filters;
-  }
-
-  // ============================================================================
-  // Action Methods
-  // ============================================================================
-
-  updateFilter = <T extends keyof TPageFilters>(key: T, value: TPageFilters[T]): void => {
-    return usePageFiltersStore.getState().updateFilter(key, value);
-  };
-
-  clearAllFilters = (): void => {
-    return usePageFiltersStore.getState().clearAllFilters();
-  };
-
-  resetFilters = (): void => {
-    return usePageFiltersStore.getState().resetFilters();
-  };
-}
-
 // Export interface for backward compatibility
 export type { IPageFiltersStore as IPageFiltersStoreType };

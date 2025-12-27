@@ -13,14 +13,14 @@ export { useProjectInboxStore, ProjectInboxStoreLegacy } from "./project-inbox.s
 export type { ProjectInboxStore as ProjectInboxStoreType, IProjectInboxStore } from "./project-inbox.store";
 
 // Page stores
-export { usePageEditorInfoStore, PageEditorInfoStoreLegacy, PageEditorInstance } from "./page-editor-info.store";
+export { usePageEditorInfoStore } from "./page-editor-info.store";
 export type {
   PageEditorInfoStore as PageEditorInfoStoreType,
   IPageEditorInfo,
   TPageEditorInstance,
 } from "./page-editor-info.store";
 
-export { createBasePageStore, BasePageStoreLegacy } from "./base-page.store";
+export { createBasePageStore } from "./base-page.store";
 export type { BasePageStore as BasePageStoreType, IBasePage, TBasePage } from "./base-page.store";
 export type { TBasePageServices } from "./base-page.store";
 
@@ -38,7 +38,7 @@ export type {
 } from "./project-page-instance.store";
 
 // Member stores
-export { useWorkspaceMemberStore, WorkspaceMemberStoreLegacy } from "./workspace-member.store";
+export { useWorkspaceMemberStore } from "./workspace-member.store";
 export type {
   WorkspaceMemberStore,
   WorkspaceMemberStore as WorkspaceMemberStoreType,
@@ -46,20 +46,20 @@ export type {
   IWorkspaceMembership,
 } from "./workspace-member.store";
 
-export { useWorkspaceMemberFiltersStore, WorkspaceMemberFiltersStoreLegacy } from "./workspace-member-filters.store";
+export { useWorkspaceMemberFiltersStore } from "./workspace-member-filters.store";
 export type {
   WorkspaceMemberFiltersStore as WorkspaceMemberFiltersStoreType,
   IWorkspaceMemberFilters,
 } from "./workspace-member-filters.store";
 
-export { useBaseProjectMemberStore, BaseProjectMemberStoreLegacy } from "./base-project-member.store";
+export { useBaseProjectMemberStore } from "./base-project-member.store";
 export type {
   BaseProjectMemberStore as BaseProjectMemberStoreType,
   IBaseProjectMemberStore,
   IProjectMemberDetails,
 } from "./base-project-member.store";
 
-export { useProjectMemberFiltersStore, ProjectMemberFiltersStoreLegacy } from "./project-member-filters.store";
+export { useProjectMemberFiltersStore } from "./project-member-filters.store";
 export type { ProjectMemberFiltersStore as ProjectMemberFiltersStoreType } from "./project-member-filters.store";
 
 // Issue reaction store
@@ -100,9 +100,5 @@ export type {
 } from "./issue-comment.store";
 
 // Issue comment reaction store
-export {
-  useIssueCommentReactionStore,
-  IssueCommentReactionStore,
-  IssueCommentReactionStoreLegacy,
-} from "./issue-comment-reaction.store";
+export { useIssueCommentReactionStore } from "./issue-comment-reaction.store";
 export type { IIssueCommentReactionStore } from "./issue-comment-reaction.store";

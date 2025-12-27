@@ -175,7 +175,7 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
     }
 
     // fetching activity
-    state.rootIssueDetailStore?.activity.fetchActivities(workspaceSlug, projectId, issueId);
+    void state.rootIssueDetailStore?.activity.fetchActivities(workspaceSlug, projectId, issueId);
 
     return response;
   },
@@ -310,7 +310,7 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
       }
 
       // fetching activity
-      state.rootIssueDetailStore?.activity.fetchActivities(workspaceSlug, projectId, issueId);
+      void state.rootIssueDetailStore?.activity.fetchActivities(workspaceSlug, projectId, issueId);
     } catch (error) {
       await get().fetchRelations(workspaceSlug, projectId, issueId);
       throw error;
@@ -360,7 +360,7 @@ export const useIssueRelationStore = create<IssueRelationStore>()((set, get) => 
       }
 
       set({ relationMap: updatedRelationMap });
-    } catch (e) {
+    } catch {
       console.error("Error while extracting issue relations from issues");
     }
   },
@@ -398,86 +398,4 @@ export interface IIssueRelationStore {
     related_issue: string,
     updateLocally?: boolean
   ) => Promise<void>;
-}
-
-// Legacy class wrapper for backward compatibility
-export class IssueRelationStoreLegacy implements IIssueRelationStore {
-  private rootStore: IIssueDetail;
-
-  constructor(rootStore: IIssueDetail) {
-    this.rootStore = rootStore;
-
-    // Initialize the Zustand store with the root store
-    useIssueRelationStore.getState().initialize(rootStore);
-  }
-
-  // Getters that delegate to Zustand store
-  get relationMap(): TIssueRelationMap {
-    return useIssueRelationStore.getState().relationMap;
-  }
-
-  get issueRelations(): TIssueRelationIdMap | undefined {
-    return useIssueRelationStore.getState().getIssueRelations();
-  }
-
-  // Helper methods that delegate to Zustand store
-  getRelationsByIssueId = (issueId: string): TIssueRelationIdMap | undefined => {
-    return useIssueRelationStore.getState().getRelationsByIssueId(issueId);
-  };
-
-  getRelationCountByIssueId = (
-    issueId: string,
-    ISSUE_RELATION_OPTIONS: { [key in TIssueRelationTypes]?: TRelationObject }
-  ): number => {
-    return useIssueRelationStore.getState().getRelationCountByIssueId(issueId, ISSUE_RELATION_OPTIONS);
-  };
-
-  getRelationByIssueIdRelationType = (issueId: string, relationType: TIssueRelationTypes): string[] | undefined => {
-    return useIssueRelationStore.getState().getRelationByIssueIdRelationType(issueId, relationType);
-  };
-
-  extractRelationsFromIssues = (issues: TIssue[]): void => {
-    return useIssueRelationStore.getState().extractRelationsFromIssues(issues);
-  };
-
-  createCurrentRelation = async (
-    issueId: string,
-    relationType: TIssueRelationTypes,
-    relatedIssueId: string
-  ): Promise<void> => {
-    return useIssueRelationStore.getState().createCurrentRelation(issueId, relationType, relatedIssueId);
-  };
-
-  // Action methods that delegate to Zustand store
-  fetchRelations = async (workspaceSlug: string, projectId: string, issueId: string): Promise<TIssueRelation> => {
-    return useIssueRelationStore.getState().fetchRelations(workspaceSlug, projectId, issueId);
-  };
-
-  createRelation = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    relationType: TIssueRelationTypes,
-    issues: string[]
-  ): Promise<TIssue[]> => {
-    return useIssueRelationStore.getState().createRelation(workspaceSlug, projectId, issueId, relationType, issues);
-  };
-
-  removeRelation = async (
-    workspaceSlug: string,
-    projectId: string,
-    issueId: string,
-    relationType: TIssueRelationTypes,
-    related_issue: string,
-    updateLocally?: boolean
-  ): Promise<void> => {
-    return useIssueRelationStore.getState().removeRelation(
-      workspaceSlug,
-      projectId,
-      issueId,
-      relationType,
-      related_issue,
-      updateLocally
-    );
-  };
 }

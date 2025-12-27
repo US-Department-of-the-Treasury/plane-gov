@@ -2,13 +2,17 @@ import { sortBy } from "lodash-es";
 import { create } from "zustand";
 // types
 import type { EUserPermissions } from "@plane/constants";
-import type { IWorkspaceBulkInviteFormData, IWorkspaceMember, IWorkspaceMemberInvitation } from "@plane/types";
+import type {
+  IWorkspaceBulkInviteFormData,
+  IWorkspaceMember,
+  IWorkspaceMemberInvitation,
+  IUserLite,
+} from "@plane/types";
 // services
 import { WorkspaceService } from "@/plane-web/services";
 // types
 import type { IMemberFilters } from "@/store/member/utils";
 import { sortWorkspaceMembers } from "@/store/member/utils";
-import { getRouterWorkspaceSlug } from "@/store/client";
 import { useMemberRootStore } from "@/store/member";
 import { useUserStore } from "@/store/user";
 
@@ -32,7 +36,7 @@ interface WorkspaceMemberFiltersActions {
   updateFilters: (filters: Partial<IMemberFilters>) => void;
   getFilteredMemberIds: (
     members: IWorkspaceMembership[],
-    memberDetailsMap: Record<string, any>,
+    memberDetailsMap: Record<string, IUserLite>,
     getMemberKey: (member: IWorkspaceMembership) => string
   ) => string[];
 }
@@ -131,19 +135,14 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
 
     getFilteredMemberIds: (
       members: IWorkspaceMembership[],
-      memberDetailsMap: Record<string, any>,
+      memberDetailsMap: Record<string, IUserLite>,
       getMemberKey: (member: IWorkspaceMembership) => string
     ): string[] => {
       const state = get();
       if (!members || members.length === 0) return [];
 
       // Apply filters and sorting
-      const sortedMembers = sortWorkspaceMembers(
-        members,
-        memberDetailsMap,
-        getMemberKey,
-        state.filtersStore.filters
-      );
+      const sortedMembers = sortWorkspaceMembers(members, memberDetailsMap, getMemberKey, state.filtersStore.filters);
 
       return sortedMembers.map(getMemberKey);
     },
@@ -164,9 +163,7 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
     ]);
 
     // Filter out bots
-    const memberIds = sortedMembers
-      .filter((m) => !memberMap?.[m.member]?.is_bot)
-      .map((m) => m.member);
+    const memberIds = sortedMembers.filter((m) => !memberMap?.[m.member]?.is_bot).map((m) => m.member);
 
     return memberIds;
   },
@@ -182,11 +179,7 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
     members = members.filter((m) => !memberMap?.[m.member]?.is_bot);
 
     // Use filters store to get filtered member ids
-    const memberIds = state.filtersStore.getFilteredMemberIds(
-      members,
-      memberMap || {},
-      (member) => member.member
-    );
+    const memberIds = state.filtersStore.getFilteredMemberIds(members, memberMap || {}, (member) => member.member);
 
     return memberIds;
   },
@@ -356,25 +349,30 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
 
     await workspaceService.deleteWorkspaceMember(workspaceSlug, memberDetails?.id);
 
-    const updatedMemberMap = {
-      ...state.workspaceMemberMap,
-      [workspaceSlug]: {
-        ...state.workspaceMemberMap[workspaceSlug],
-        [userId]: {
-          ...state.workspaceMemberMap[workspaceSlug][userId],
-          is_active: false,
+    const workspaceMembers = state.workspaceMemberMap[workspaceSlug];
+    const currentMember = workspaceMembers?.[userId];
+    if (currentMember && workspaceMembers) {
+      const updatedMember: IWorkspaceMembership = {
+        ...currentMember,
+        is_active: false,
+      };
+      const workspaceMembersCopy: Record<string, IWorkspaceMembership> = {
+        ...workspaceMembers,
+        [userId]: updatedMember,
+      };
+      set({
+        workspaceMemberMap: {
+          ...state.workspaceMemberMap,
+          [workspaceSlug]: workspaceMembersCopy,
         },
-      },
-    };
-
-    set({ workspaceMemberMap: updatedMemberMap });
+      });
+    }
   },
 
   // Invite actions
-  inviteMembersToWorkspace: async (workspaceSlug: string, data: IWorkspaceBulkInviteFormData) => {
-    const response = await workspaceService.inviteWorkspace(workspaceSlug, data);
+  inviteMembersToWorkspace: async (workspaceSlug: string, data: IWorkspaceBulkInviteFormData): Promise<void> => {
+    await workspaceService.inviteWorkspace(workspaceSlug, data);
     await get().fetchWorkspaceMemberInvitations(workspaceSlug);
-    return response;
   },
 
   updateMemberInvitation: async (
@@ -417,9 +415,7 @@ export const useWorkspaceMemberStore = create<WorkspaceMemberStore>()((set, get)
 
     await workspaceService.deleteWorkspaceInvitations(workspaceSlug.toString(), invitationId);
 
-    const updatedInvitations = state.workspaceMemberInvitations[workspaceSlug].filter(
-      (inv) => inv.id !== invitationId
-    );
+    const updatedInvitations = state.workspaceMemberInvitations[workspaceSlug].filter((inv) => inv.id !== invitationId);
 
     set({
       workspaceMemberInvitations: {
@@ -449,7 +445,7 @@ export interface IWorkspaceMemberStore {
     updateFilters: (filters: Partial<IMemberFilters>) => void;
     getFilteredMemberIds: (
       members: IWorkspaceMembership[],
-      memberDetailsMap: Record<string, any>,
+      memberDetailsMap: Record<string, IUserLite>,
       getMemberKey: (member: IWorkspaceMembership) => string
     ) => string[];
   };
@@ -484,133 +480,4 @@ export interface IWorkspaceMemberStore {
     workspaceSlug: string,
     count: number
   ) => Promise<{ message: string; users: Array<{ id: string; email: string; display_name: string }> }>;
-}
-
-// Legacy class wrapper for backward compatibility
-export class WorkspaceMemberStoreLegacy implements IWorkspaceMemberStore {
-  constructor(_memberRoot: any, _rootStore: any) {
-    // No initialization needed - Zustand store uses direct store access
-  }
-
-  // Getters that delegate to Zustand store
-  get workspaceMemberMap(): Record<string, Record<string, IWorkspaceMembership>> {
-    return useWorkspaceMemberStore.getState().workspaceMemberMap;
-  }
-
-  get workspaceMemberInvitations(): Record<string, IWorkspaceMemberInvitation[]> {
-    return useWorkspaceMemberStore.getState().workspaceMemberInvitations;
-  }
-
-  get filtersStore() {
-    return useWorkspaceMemberStore.getState().filtersStore;
-  }
-
-  get workspaceMemberIds(): string[] | null {
-    const workspaceSlug = getRouterWorkspaceSlug();
-    if (!workspaceSlug) return null;
-
-    return this.getWorkspaceMemberIds(workspaceSlug);
-  }
-
-  get memberMap(): Record<string, IWorkspaceMembership> | null {
-    const workspaceSlug = getRouterWorkspaceSlug();
-    if (!workspaceSlug) return null;
-
-    return this.workspaceMemberMap?.[workspaceSlug] ?? {};
-  }
-
-  get workspaceMemberInvitationIds(): string[] | null {
-    const workspaceSlug = getRouterWorkspaceSlug();
-    if (!workspaceSlug) return null;
-
-    return this.workspaceMemberInvitations?.[workspaceSlug]?.map((inv) => inv.id);
-  }
-
-  // Computed actions that delegate to Zustand store
-  getWorkspaceMemberIds = (workspaceSlug: string): string[] => {
-    return useWorkspaceMemberStore.getState().getWorkspaceMemberIds(workspaceSlug);
-  };
-
-  getFilteredWorkspaceMemberIds = (workspaceSlug: string): string[] => {
-    return useWorkspaceMemberStore.getState().getFilteredWorkspaceMemberIds(workspaceSlug);
-  };
-
-  getSearchedWorkspaceMemberIds = (searchQuery: string): string[] | null => {
-    const workspaceSlug = getRouterWorkspaceSlug();
-    if (!workspaceSlug) return null;
-
-    return useWorkspaceMemberStore.getState().getSearchedWorkspaceMemberIds(workspaceSlug, searchQuery);
-  };
-
-  getSearchedWorkspaceInvitationIds = (searchQuery: string): string[] | null => {
-    const workspaceSlug = getRouterWorkspaceSlug();
-    if (!workspaceSlug) return null;
-
-    return useWorkspaceMemberStore.getState().getSearchedWorkspaceInvitationIds(workspaceSlug, searchQuery);
-  };
-
-  getWorkspaceMemberDetails = (userId: string): IWorkspaceMember | null => {
-    const workspaceSlug = getRouterWorkspaceSlug();
-    if (!workspaceSlug) return null;
-
-    return useWorkspaceMemberStore.getState().getWorkspaceMemberDetails(workspaceSlug, userId);
-  };
-
-  getWorkspaceInvitationDetails = (invitationId: string): IWorkspaceMemberInvitation | null => {
-    const workspaceSlug = getRouterWorkspaceSlug();
-    if (!workspaceSlug) return null;
-
-    return useWorkspaceMemberStore.getState().getWorkspaceInvitationDetails(workspaceSlug, invitationId);
-  };
-
-  isUserSuspended = (userId: string, workspaceSlug: string): boolean => {
-    return useWorkspaceMemberStore.getState().isUserSuspended(userId, workspaceSlug);
-  };
-
-  // Action methods that delegate to Zustand store
-  fetchWorkspaceMembers = async (workspaceSlug: string): Promise<IWorkspaceMember[]> => {
-    return useWorkspaceMemberStore.getState().fetchWorkspaceMembers(workspaceSlug);
-  };
-
-  fetchWorkspaceMemberInvitations = async (workspaceSlug: string): Promise<IWorkspaceMemberInvitation[]> => {
-    return useWorkspaceMemberStore.getState().fetchWorkspaceMemberInvitations(workspaceSlug);
-  };
-
-  updateMember = async (
-    workspaceSlug: string,
-    userId: string,
-    data: { role: EUserPermissions }
-  ): Promise<void> => {
-    return useWorkspaceMemberStore.getState().updateMember(workspaceSlug, userId, data);
-  };
-
-  removeMemberFromWorkspace = async (workspaceSlug: string, userId: string): Promise<void> => {
-    return useWorkspaceMemberStore.getState().removeMemberFromWorkspace(workspaceSlug, userId);
-  };
-
-  inviteMembersToWorkspace = async (
-    workspaceSlug: string,
-    data: IWorkspaceBulkInviteFormData
-  ): Promise<void> => {
-    return useWorkspaceMemberStore.getState().inviteMembersToWorkspace(workspaceSlug, data);
-  };
-
-  updateMemberInvitation = async (
-    workspaceSlug: string,
-    invitationId: string,
-    data: Partial<IWorkspaceMemberInvitation>
-  ): Promise<void> => {
-    return useWorkspaceMemberStore.getState().updateMemberInvitation(workspaceSlug, invitationId, data);
-  };
-
-  deleteMemberInvitation = async (workspaceSlug: string, invitationId: string): Promise<void> => {
-    return useWorkspaceMemberStore.getState().deleteMemberInvitation(workspaceSlug, invitationId);
-  };
-
-  generateFakeMembers = async (
-    workspaceSlug: string,
-    count: number
-  ): Promise<{ message: string; users: Array<{ id: string; email: string; display_name: string }> }> => {
-    return useWorkspaceMemberStore.getState().generateFakeMembers(workspaceSlug, count);
-  };
 }
