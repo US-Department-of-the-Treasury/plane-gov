@@ -102,6 +102,7 @@ from .wiki import (
     PageRelation,
     PageRelationChoices,
     PageLink,
+    IssueToPageMapping,
 )
 from .property import (
     PropertyDefinition,

@@ -813,3 +813,32 @@ class PageLink(BaseModel):
 
     def __str__(self):
         return f"{self.page.name} - {self.title or self.url[:50]}"
+
+
+class IssueToPageMapping(models.Model):
+    """
+    Mapping table to track Issue → WikiPage correspondence during migration.
+    This table allows looking up which WikiPage was created from which Issue,
+    enabling reversibility and foreign key updates.
+    """
+
+    id = models.UUIDField(
+        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+    )
+    issue_id = models.UUIDField(db_index=True)
+    page_id = models.UUIDField(db_index=True)
+    workspace = models.ForeignKey(
+        "db.Workspace", on_delete=models.CASCADE, related_name="issue_page_mappings"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "issue_to_page_mappings"
+        verbose_name = "Issue to Page Mapping"
+        verbose_name_plural = "Issue to Page Mappings"
+        indexes = [
+            models.Index(fields=["issue_id", "page_id"], name="issue_page_mapping_idx"),
+        ]
+
+    def __str__(self):
+        return f"Issue {self.issue_id} -> Page {self.page_id}"
